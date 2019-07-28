@@ -9,6 +9,9 @@
 #include "parser.h"
 using namespace std;
 vector<string> keyWords;
+string codbuffer1 = "global _start\n_start:\ncall main\nmov eax, 1\nmov ebx, 0\nint 80h\n\n[section .code]\n";
+string varbuffer1 = "\n\n[section .data]\n";
+string texbuffer1 = "\n\n[section .text]\n";
 
 void initializeKeyWords()
 {
@@ -16,6 +19,11 @@ void initializeKeyWords()
     keyWords.push_back("run");
     keyWords.push_back("func");
     keyWords.push_back("%");
+    keyWords.push_back("ret");
+    keyWords.push_back("+");
+    keyWords.push_back("-");
+    keyWords.push_back("/");
+    keyWords.push_back("*");
 }
 string readFile(string name)
 {
@@ -110,15 +118,16 @@ void lexer(string file, string &outbuffer)
         continu = getWord(' ', destination, file, continu);
         if (destination.find("%") != -1)
         {
-            outbuffer += parser(destination, file, continu);
+            parser(destination, file, continu, varbuffer1, codbuffer1, texbuffer1);
         }
 
         if (i != file.size()) 
         {
-            outbuffer += parser(destination, file, continu);
+            parser(destination, file, continu, varbuffer1, codbuffer1, texbuffer1);
             destination = "";
         }
     }
+    outbuffer = texbuffer1 + codbuffer1 + varbuffer1;
 }
 
 #endif

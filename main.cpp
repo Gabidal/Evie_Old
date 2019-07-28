@@ -6,11 +6,11 @@ using namespace std;
 
 int main()
 {
-    string input = readFile("banana.g");
+    string input = readFile("test.g");
     string output;
     initializeKeyWords();
     lexer(input, output);
-    writeFile("banana.asm", output);
+    writeFile("test.asm", output);
 
     return 0;
 }
