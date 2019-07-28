@@ -1,12 +1,10 @@
-jmp aend
-[section .data]
-a dd 23
-[section .text]
-aend:
-jmp bend
-[section .data]
-b dd 32
-[section .text]
-bend:
-c:
-d:
+a dd 1
+b dd 2
+c dd 3
+
+mov eax , dword [b]
+mov [a], eax 
+mov ebx , dword [b]
+mov ecx , dword [c]
+add ebx , ecx 
+mov [a], ebx 
