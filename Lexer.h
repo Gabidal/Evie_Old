@@ -116,10 +116,6 @@ void lexer(string file, string &outbuffer)
     {
         destination = "";
         continu = getWord(' ', destination, file, continu);
-        if (destination.find("%") != -1)
-        {
-            parser(destination, file, continu, varbuffer1, codbuffer1, texbuffer1);
-        }
 
         if (i != file.size()) 
         {

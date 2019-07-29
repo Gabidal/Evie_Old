@@ -74,6 +74,15 @@ void doAddition(int &index)
             codbuffer += "add " + node->second + ", " + node1->second + "\n";
             codbuffer += "mov [" + para3 + "], " + node->second + "\n";
         }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += "add " + node->second + ", " + reg1 + "\n";
+            codbuffer += "mov [" + para3 + "], " + node->second + "\n";
+            varPointers.insert(make_pair(para2, reg1));
+        }
     }
     else
     {
@@ -85,6 +94,8 @@ void doAddition(int &index)
         codbuffer += "mov " + trash2 + ", dword [" + para2 + "]\n";
         codbuffer += "add " + trash1 + ", " + trash2 + "\n";
         codbuffer += "mov [" + para3 + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
     }
 }
 
@@ -118,7 +129,16 @@ void doSubstraction(int &index)
         if (node1 != varPointers.end())
         {
             codbuffer += "sub " + node->second + ", " + node1->second + "\n";
+            codbuffer += "mov [" + para3 + "], " + node1->second + "\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += "sub " + node->second + ", " + reg1 + "\n";
             codbuffer += "mov [" + para3 + "], " + node->second + "\n";
+            varPointers.insert(make_pair(para2, reg1));
         }
     }
     else
@@ -131,6 +151,8 @@ void doSubstraction(int &index)
         codbuffer += "mov " + trash2 + ", dword [" + para2 + "]\n";
         codbuffer += "sub " + trash1 + ", " + trash2 + "\n";
         codbuffer += "mov [" + para3 + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
     }
 }
 
@@ -163,12 +185,22 @@ void doMultiply(int &index)
         auto node1 = varPointers.find(para2);
         if (node1 != varPointers.end())
         {
-            codbuffer += "push eax\n";
             codbuffer += "mov eax, " + node->second + "\n";
-            codbuffer += "xor edx, edx\n";
             codbuffer += "mul " + node1->second + "\n";
             codbuffer += "mov [" + para3 + "], eax\n";
-            codbuffer += "pop eax\n";
+            codbuffer += "mov " + node1->second + ", eax\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += "mov eax, " + node->second + "\n";
+            codbuffer += "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += "mul " + reg1 + "\n";
+            codbuffer += "mov [" + para3 + "], eax\n";
+            codbuffer += "mov " + reg1 + ", eax\n";
+            varPointers.insert(make_pair(para2, reg1));
+
         }
     }
     else
@@ -179,12 +211,12 @@ void doMultiply(int &index)
         getFreeReg();
         trash2 = regbuffer;
         codbuffer += "mov " + trash2 + ", dword [" + para2 + "]\n";
-            codbuffer += "push eax\n";
             codbuffer += "mov eax, " + trash1 + "\n";
-            codbuffer += "xor edx, edx\n";
             codbuffer += "mul " + trash2 + "\n";
             codbuffer += "mov [" + para3 + "], eax\n";
-            codbuffer += "pop eax\n";
+            codbuffer += "mov " + trash2 + ", eax\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
     }
 }
 
@@ -217,12 +249,22 @@ void doDivition(int &index)
         auto node1 = varPointers.find(para2);
         if (node1 != varPointers.end())
         {
-            codbuffer += "push eax\n";
             codbuffer += "mov eax, " + node->second + "\n";
-            codbuffer += "xor edx, edx\n";
             codbuffer += "div " + node1->second + "\n";
             codbuffer += "mov [" + para3 + "], eax\n";
-            codbuffer += "pop eax\n";
+            codbuffer += "mov " + node1->second + ", eax\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += "mov eax, " + node->second + "\n";
+            codbuffer += "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += "div " + reg1 + "\n";
+            codbuffer += "mov [" + para3 + "], eax\n";
+            codbuffer += "mov " + reg1 + ", eax\n";
+            varPointers.insert(make_pair(para2, reg1));
+
         }
     }
     else
@@ -233,12 +275,12 @@ void doDivition(int &index)
         getFreeReg();
         trash2 = regbuffer;
         codbuffer += "mov " + trash2 + ", dword [" + para2 + "]\n";
-            codbuffer += "push eax\n";
             codbuffer += "mov eax, " + trash1 + "\n";
-            codbuffer += "xor edx, edx\n";
             codbuffer += "div " + trash2 + "\n";
             codbuffer += "mov [" + para3 + "], eax\n";
-            codbuffer += "pop eax\n";
+            codbuffer += "mov " + trash2 + ", eax\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
     }
 }
 
@@ -264,10 +306,19 @@ void useVar(int &index, string destination)
     index = getWord(' ', para2, parameters, index); //get the [b]
     getFreeReg();
     para1 = regbuffer;
+    auto varOnReg = varPointers.find(para2);
+    if (varOnReg != varPointers.end())
+    {
+        string para3;
+        para3 = varOnReg->second;
+        codbuffer += "mov [" + destination + "] , " + para3 + "\n";
+    }
+    else
+    {
     codbuffer += "mov " + para1 + ", dword [" + para2 + "]\n";
-    codbuffer += "mov [" + destination + "]" + ", " + para1 + "\n";
-
+    codbuffer += "mov [" + destination + "] , " + para1 + "\n";
     varPointers.insert(make_pair(destination, para1));
+    }
 }
 
 void doReturn()
@@ -287,12 +338,6 @@ void callFunction(string function)
     codbuffer += "call " + function + "\n";
 }
 
-void getParameter(int &index)
-{ // "%1" -> "mov reg, dword [var]"
-    string para1;
-    index = getWord(' ', para1, parameters, index);
-}
-
 void parser(string destination, string file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1)
 {
     codbuffer = "";
@@ -307,10 +352,6 @@ void parser(string destination, string file, int &continu, string &varbuffer1, s
     {
         makeFunc(continu);
     }
-    if (destination.find("%") != -1)
-    {
-        getParameter(continu);
-    }
     if (destination == "+")
     {
         doAddition(continu);
@@ -321,10 +362,28 @@ void parser(string destination, string file, int &continu, string &varbuffer1, s
     }
     if (destination == "/")
     {
+
+        for (auto node : varPointers) 
+        {
+            if (node.second == "eax")
+            {
+                varPointers.erase(node.first);
+                break;
+            }
+        }
         doDivition(continu);
     }
     if (destination == "*")
     {
+
+        for (auto node : varPointers) 
+        {
+            if (node.second == "eax ")
+            {
+                varPointers.erase(node.first);
+                break;
+            }
+        }
         doMultiply(continu);
     }
     if (destination == "ret")
