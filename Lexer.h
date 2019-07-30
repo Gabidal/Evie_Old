@@ -24,6 +24,9 @@ void initializeKeyWords()
     keyWords.push_back("-");
     keyWords.push_back("/");
     keyWords.push_back("*");
+    keyWords.push_back("if");
+    keyWords.push_back("else");
+
 }
 string readFile(string name)
 {

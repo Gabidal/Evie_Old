@@ -1,14 +1,22 @@
 var a = 23
 var b = 25
 var c = 1
-var d = 2
 
-func banana
-  d = a
+func testFalse
+ret
+
+func testTrue
+  a = a + c
+  if a < b
+    testFalse
+  else
+    testTrue
+  end
 ret
 
 
 func main
-  banana
+  testTrue
+  testFalse
 ret
 

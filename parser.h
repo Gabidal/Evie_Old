@@ -10,6 +10,9 @@ string codbuffer;
 string texbuffer;
 int usedregister = 0;
 string regbuffer;
+int ifAmount = 0;
+int elseAmount = 0;
+int endAmount = 0;
 vector<string> variables;
 map <string, string> varPointers;
 vector<string> functions;
@@ -186,7 +189,7 @@ void doMultiply(int &index)
         if (node1 != varPointers.end())
         {
             codbuffer += "mov eax, " + node->second + "\n";
-            codbuffer += "mul " + node1->second + "\n";
+            codbuffer += "mul " + node->second + "\n";
             codbuffer += "mov [" + para3 + "], eax\n";
             codbuffer += "mov " + node1->second + ", eax\n";
         }
@@ -213,70 +216,6 @@ void doMultiply(int &index)
         codbuffer += "mov " + trash2 + ", dword [" + para2 + "]\n";
             codbuffer += "mov eax, " + trash1 + "\n";
             codbuffer += "mul " + trash2 + "\n";
-            codbuffer += "mov [" + para3 + "], eax\n";
-            codbuffer += "mov " + trash2 + ", eax\n";
-            varPointers.insert(make_pair(para1, trash1));
-            varPointers.insert(make_pair(para2, trash2));
-    }
-}
-
-void doDivition(int &index)
-{
-    int offset;
-    string para1;  //b
-    string para2;  //c
-    string para3;  //a
-    string trash;
-    string trash1;
-    string trash2;
-    // a       = b + c
-    offset = getReversedIndex(' ', parameters, index-1); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-
-    offset = getReversedIndex(' ', parameters, offset); //b offset
-    offset = getReversedWord(' ', para1, parameters, offset); //b 
-
-    offset = getReversedIndex(' ', parameters, offset); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-
-    offset = getReversedIndex(' ', parameters, offset); //a offset
-    offset = getReversedWord(' ', para3, parameters, offset); //a
-    
-    index = getWord(' ', para2, parameters, index);  // c
-    auto node = varPointers.find(para1);
-    if (node != varPointers.end())
-    {
-        auto node1 = varPointers.find(para2);
-        if (node1 != varPointers.end())
-        {
-            codbuffer += "mov eax, " + node->second + "\n";
-            codbuffer += "div " + node1->second + "\n";
-            codbuffer += "mov [" + para3 + "], eax\n";
-            codbuffer += "mov " + node1->second + ", eax\n";
-        }
-        else
-        {
-            getFreeReg();
-            string reg1 = regbuffer;
-            codbuffer += "mov eax, " + node->second + "\n";
-            codbuffer += "mov " + reg1 + ", dword [" + para2 + "]\n";
-            codbuffer += "div " + reg1 + "\n";
-            codbuffer += "mov [" + para3 + "], eax\n";
-            codbuffer += "mov " + reg1 + ", eax\n";
-            varPointers.insert(make_pair(para2, reg1));
-
-        }
-    }
-    else
-    {
-        getFreeReg();
-        trash1 = regbuffer;
-        codbuffer += "mov " + trash1 + ", dword [" + para1 + "]\n";
-        getFreeReg();
-        trash2 = regbuffer;
-        codbuffer += "mov " + trash2 + ", dword [" + para2 + "]\n";
-            codbuffer += "mov eax, " + trash1 + "\n";
-            codbuffer += "div " + trash2 + "\n";
             codbuffer += "mov [" + para3 + "], eax\n";
             codbuffer += "mov " + trash2 + ", eax\n";
             varPointers.insert(make_pair(para1, trash1));
@@ -317,7 +256,9 @@ void useVar(int &index, string destination)
     {
     codbuffer += "mov " + para1 + ", dword [" + para2 + "]\n";
     codbuffer += "mov [" + destination + "] , " + para1 + "\n";
+    varPointers.insert(make_pair(para2, para1));
     varPointers.insert(make_pair(destination, para1));
+
     }
 }
 
@@ -336,6 +277,105 @@ void makeFunc(int &index)
 void callFunction(string function)
 {
     codbuffer += "call " + function + "\n";
+}
+
+void setVar(int &continu)
+{
+    
+}
+
+string getJump(string condition)
+{
+    if (condition == "==")
+    {
+        return "jne ";
+    }
+    if (condition == "!=")
+    {
+        return "je ";
+    }
+    if (condition == ">")
+    {
+        return "jle ";
+    }
+    if (condition == "<")
+    {
+        return "jge ";
+    }
+    if (condition == "!>")
+    {
+        return "jg ";
+    }
+    if (condition == "!<")
+    {
+        return "jl ";
+    }
+    if (condition == "=>")
+    {
+        return "jl ";
+    }
+    if (condition == "=<")
+    {
+        return "jg ";
+    }
+    else
+    {
+        return "jmp ";
+    }
+}
+
+void doComparing(int &i)
+{
+    string para1;  //a
+    string para2;  // ==
+    string para3;  //b
+    i = getWord(' ', para1, parameters, i);
+    i = getWord(' ', para2, parameters, i);
+    i = getWord(' ', para3, parameters, i);
+    para2 = getJump(para2);
+    auto reg1 = varPointers.find(para1);
+    auto reg2 = varPointers.find(para3);
+    if (reg1 != varPointers.end())
+    {
+        if (reg2 != varPointers.end())
+        {
+            codbuffer += "cmp " + reg1->second + ", " + reg2->second + "\n";
+        }
+        else
+        {
+            getFreeReg();
+            para1 = regbuffer;
+            codbuffer += "mov " + para1 + ", dword [" + para3 + "]\n";
+            codbuffer += "cmp " + reg1->second + ", " + para1 + "\n";
+            varPointers.insert(make_pair(para3, para1));
+        }
+    }
+    else
+    {
+        getFreeReg();
+        string reg3 = regbuffer;
+        getFreeReg();
+        string reg4 = regbuffer;
+        codbuffer += "mov " + reg3 + ", dword [" + para1 + "]\n";
+        codbuffer += "mov " + reg4 + ", dword [" + para3 + "]\n";
+        codbuffer += "cmp " + reg3 + ", " + reg4 + "\n";
+        varPointers.insert(make_pair(para1, reg3));
+        varPointers.insert(make_pair(para3, reg4));
+    }
+    codbuffer += para2 + "else" + to_string(elseAmount) + "\n";
+    ifAmount++;
+}
+
+void doElse()
+{
+    codbuffer += "jmp end" + to_string(endAmount) + "\n";
+    codbuffer += "else" + to_string(elseAmount) + ": \n";
+    elseAmount++;
+}
+
+void doEnd()
+{
+    codbuffer += "end" + to_string(endAmount) + ": \n";
 }
 
 void parser(string destination, string file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1)
@@ -360,19 +400,6 @@ void parser(string destination, string file, int &continu, string &varbuffer1, s
     {
         doSubstraction(continu);
     }
-    if (destination == "/")
-    {
-
-        for (auto node : varPointers) 
-        {
-            if (node.second == "eax")
-            {
-                varPointers.erase(node.first);
-                break;
-            }
-        }
-        doDivition(continu);
-    }
     if (destination == "*")
     {
 
@@ -381,7 +408,6 @@ void parser(string destination, string file, int &continu, string &varbuffer1, s
             if (node.second == "eax ")
             {
                 varPointers.erase(node.first);
-                break;
             }
         }
         doMultiply(continu);
@@ -390,6 +416,19 @@ void parser(string destination, string file, int &continu, string &varbuffer1, s
     {
         doReturn();
     }
+    if (destination == "if")
+    {
+        doComparing(continu);
+    }
+    if (destination == "else")
+    {
+        doElse();
+    }
+    if (destination == "end")
+    {
+        doEnd();
+    }
+
     //...
 
     for (int i = 0; i < variables.size();i++)

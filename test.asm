@@ -9,13 +9,28 @@ mov ebx, 0
 int 80h
 
 [section .code]
-banana:
+testFalse:
+ret
+
+testTrue:
 mov eax , dword [a]
-mov [d] , eax 
+mov [a] , eax 
+mov ebx , dword [c]
+add eax , ebx 
+mov [a], eax 
+mov ecx , dword [b]
+cmp eax , ecx 
+jge else0
+call testFalse
+jmp end0
+else0: 
+call testTrue
+end0: 
 ret
 
 main:
-call banana
+call testTrue
+call testFalse
 ret
 
 
@@ -24,4 +39,3 @@ ret
 a dd 23
 b dd 25
 c dd 1
-d dd 2
