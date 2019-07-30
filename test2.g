@@ -1,8 +1,7 @@
-var d = 34
-var e = 65
-var f = 98
+var d = 1
+var e = 2
 
 func banana
-  d = f
+  d = e
 ret
 

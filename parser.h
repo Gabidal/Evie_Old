@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <ctype.h>
 using namespace std;
 string parameters;
 string varbuffer;
@@ -240,37 +241,143 @@ void makeVar(int &index)
     string para1;
     string para2;
     string para3;
-    index = getWord(' ', para1, parameters, index);
-    index = getWord(' ', para2, parameters, index);
-    index = getWord(' ', para3, parameters, index);
-    varbuffer += para1 + " dd " + para3 + "\n";
+    index = getWord(' ', para1, parameters, index);  //name
+    index = getWord(' ', para2, parameters, index);  // = or :
+    index = getWord(' ', para3, parameters, index);  // value or size
+    if (para2 == ":")
+    {
+        varbuffer += para1 + " times " + para3 + " dd 0\n";
+    }
+    else
+    {
+        varbuffer += para1 + " dd " + para3 + "\n";
+    }
+    
     variables.push_back(para1);
 }
 
 void useVar(int &index, string destination)
 {//mov reg, dword [b]
  //mov [a], reg
-    string para1;  //register
+    string reg1;  //register
     string para2;  //[b]
-    index = getWord(' ', para2, parameters, index); //skip the '='
-    para2 = "";
+    string para3;  // = or :
+    index = getWord(' ', para3, parameters, index); //get the = or :
     index = getWord(' ', para2, parameters, index); //get the [b]
     getFreeReg();
-    para1 = regbuffer;
+    reg1 = regbuffer;
     auto varOnReg = varPointers.find(para2);
-    if (varOnReg != varPointers.end())
+    if (para3 == ":")
     {
-        string para3;
-        para3 = varOnReg->second;
-        codbuffer += sx() +  "mov [" + destination + "] , " + para3 + "\n";
+                //mov esi, num
+                //lea esi, abc[esi]
+                //if reg == var
+                //mov reg, dword [var]
+                //
+                //mov abc[0*4], reg
+        if (isdigit(para2.at(0)))
+        {
+            string value;
+            index = getWord(' ', value, parameters, index);
+            value = "";
+            index = getWord(' ', value, parameters, index);
+            getFreeReg();
+            string reg2 = regbuffer;
+            auto node = varPointers.find(value);
+            if (node != varPointers.end())
+            {
+                codbuffer += "mov " + destination + "[4*" + para2 + "], " + node->second + "\n";
+            }
+            else
+            {
+                getFreeReg();
+                string reg3 = regbuffer;
+                codbuffer += "mov " + reg3 + ", dword [" + value + "]\n";
+                varPointers.insert(make_pair(value, reg3));
+                codbuffer += "mov " + destination + "[4*" + para2 + "], " + reg3 + "\n";
+            }
+            if (isdigit(value.at(0)))
+            {
+                codbuffer += "mov " + reg2 + ", " + value + "\n";
+                codbuffer += "mov " + destination + "[4*" + para2 + "], " + reg2 + "\n";
+            }
+        }
+        else
+        {
+            codbuffer += "mov esi, dword [" + para2 + "]\n";
+            string value;
+            codbuffer += "lea esi, " + destination + "[esi]\n";
+            index = getWord(' ', value, parameters, index);
+            value = "";
+            index = getWord(' ', value, parameters, index);
+            if (isdigit(value.at(0)))
+            {
+                codbuffer += "mov [esi], " + value + "\n";
+            }
+            else
+            {
+                auto node = varPointers.find(value);
+                if (node != varPointers.end())
+                {
+                    codbuffer += "mov [esi], " + node->second + "\n";
+                }
+                else
+                {
+                    getFreeReg();
+                    string reg2 = regbuffer;
+                    codbuffer += "mov " + reg2 + ", dword [" + value + "]\n";
+                    varPointers.insert(make_pair(value, reg2));
+                    codbuffer += "mov [esi], " + reg2 + "\n";
+                }
+            }
+        }
     }
     else
     {
-    codbuffer += sx() +  "mov " + para1 + ", dword [" + para2 + "]\n";
-    codbuffer += sx() +  "mov [" + destination + "] , " + para1 + "\n";
-    varPointers.insert(make_pair(para2, para1));
-    varPointers.insert(make_pair(destination, para1));
+        string isArray;
+        string value;
+        int offset;
+        offset = getWord(' ', isArray, parameters, index); //check for :
+        offset = getWord(' ', value, parameters, offset); //get the value
+        if (isArray == ":")
+        {
+            index = offset;
+            //a = b : a
+            //mov reg, dword [a]
+            //mov esi, reg
+            //mov a, b[esi]
+            auto node = varPointers.find(value);
+            if (node != varPointers.end())
+            {
+                codbuffer += "mov esi, " + node->second + "\n";
+            }
+            else
+            {
+                getFreeReg();
+                string reg2 = regbuffer;
+                codbuffer += "mov " + reg2 + ", dword [" + value + "]\n";
+                varPointers.insert(make_pair(value, reg2));
+                codbuffer += "mov esi, " + reg2 + "\n";
+            }
+            codbuffer += "mov " + destination + ", dword " + para2 + "[esi]\n";
 
+        }
+        else
+        {
+            if (varOnReg != varPointers.end())
+            {
+                string para4;
+                para4 = varOnReg->second;
+                codbuffer += sx() +  "mov [" + destination + "] , " + para4 + "\n";
+            }
+            else
+            {
+                codbuffer += sx() +  "mov " + reg1 + ", dword [" + para2 + "]\n";
+                codbuffer += sx() +  "mov [" + destination + "] , " + reg1 + "\n";
+                varPointers.insert(make_pair(para2, reg1));
+                varPointers.insert(make_pair(destination, reg1));
+            }
+        }
     }
 }
 

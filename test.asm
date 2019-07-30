@@ -10,12 +10,17 @@ int 80h
 
 [section .code]
 banana:
-mov eax , dword [f]
+mov eax , dword [e]
 mov [d] , eax 
 ret
 
-ret
-
+mov ecx , dword [a]
+mov esi, ecx 
+mov b, dword abc[esi]
+mov esi, dword [a]
+lea esi, abc[esi]
+mov eax , dword [b]
+mov [esi], eax 
 main:
 call banana
 ret
@@ -23,9 +28,9 @@ ret
 
 
 [section .data]
-d dd 34
-e dd 65
-f dd 98
+d dd 1
+e dd 2
 a dd 23
 b dd 25
 c dd 1
+abc times 128 dd 0
