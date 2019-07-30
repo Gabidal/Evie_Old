@@ -19,6 +19,7 @@ vector<string> variables;
 map <string, string> varPointers;
 vector<string> functions;
 
+extern int getError(char, string&, string, int, string&);
 extern int getWord(char, string&, string, int);
 extern int getReversedIndex(char, string, int);
 extern int getReversedWord(char, string&, string, int);
@@ -286,48 +287,48 @@ void useVar(int &index, string destination)
             auto node = varPointers.find(value);
             if (node != varPointers.end())
             {
-                codbuffer += "mov " + destination + "[4*" + para2 + "], " + node->second + "\n";
+                codbuffer += sx() +  "mov " + destination + "[4*" + para2 + "], " + node->second + "\n";
             }
             else
             {
                 getFreeReg();
                 string reg3 = regbuffer;
-                codbuffer += "mov " + reg3 + ", dword [" + value + "]\n";
+                codbuffer += sx() +  "mov " + reg3 + ", dword [" + value + "]\n";
                 varPointers.insert(make_pair(value, reg3));
-                codbuffer += "mov " + destination + "[4*" + para2 + "], " + reg3 + "\n";
+                codbuffer += sx() +  "mov " + destination + "[4*" + para2 + "], " + reg3 + "\n";
             }
             if (isdigit(value.at(0)))
             {
-                codbuffer += "mov " + reg2 + ", " + value + "\n";
-                codbuffer += "mov " + destination + "[4*" + para2 + "], " + reg2 + "\n";
+                codbuffer += sx() +  "mov " + reg2 + ", " + value + "\n";
+                codbuffer += sx() +  "mov " + destination + "[4*" + para2 + "], " + reg2 + "\n";
             }
         }
         else
         {
-            codbuffer += "mov esi, dword [" + para2 + "]\n";
+            codbuffer += sx() +  "mov esi, dword [" + para2 + "]\n";
             string value;
-            codbuffer += "lea esi, " + destination + "[esi]\n";
+            codbuffer += sx() +  "lea esi, " + destination + "[esi]\n";
             index = getWord(' ', value, parameters, index);
             value = "";
             index = getWord(' ', value, parameters, index);
             if (isdigit(value.at(0)))
             {
-                codbuffer += "mov [esi], " + value + "\n";
+                codbuffer += sx() +  "mov [esi], " + value + "\n";
             }
             else
             {
                 auto node = varPointers.find(value);
                 if (node != varPointers.end())
                 {
-                    codbuffer += "mov [esi], " + node->second + "\n";
+                    codbuffer += sx() +  "mov [esi], " + node->second + "\n";
                 }
                 else
                 {
                     getFreeReg();
                     string reg2 = regbuffer;
-                    codbuffer += "mov " + reg2 + ", dword [" + value + "]\n";
+                    codbuffer += sx() +  "mov " + reg2 + ", dword [" + value + "]\n";
                     varPointers.insert(make_pair(value, reg2));
-                    codbuffer += "mov [esi], " + reg2 + "\n";
+                    codbuffer += sx() +  "mov [esi], " + reg2 + "\n";
                 }
             }
         }
@@ -349,17 +350,17 @@ void useVar(int &index, string destination)
             auto node = varPointers.find(value);
             if (node != varPointers.end())
             {
-                codbuffer += "mov esi, " + node->second + "\n";
+                codbuffer += sx() +  "mov esi, " + node->second + "\n";
             }
             else
             {
                 getFreeReg();
                 string reg2 = regbuffer;
-                codbuffer += "mov " + reg2 + ", dword [" + value + "]\n";
+                codbuffer += sx() +  "mov " + reg2 + ", dword [" + value + "]\n";
                 varPointers.insert(make_pair(value, reg2));
-                codbuffer += "mov esi, " + reg2 + "\n";
+                codbuffer += sx() +  "mov esi, " + reg2 + "\n";
             }
-            codbuffer += "mov " + destination + ", dword " + para2 + "[esi]\n";
+            codbuffer += sx() +  "mov " + destination + ", dword " + para2 + "[esi]\n";
 
         }
         else
@@ -383,6 +384,7 @@ void useVar(int &index, string destination)
 
 void doReturn()
 {
+    inLayer--;
     codbuffer += sx() +  "ret\n\n";
 }
 void makeFunc(int &index)
@@ -390,11 +392,64 @@ void makeFunc(int &index)
     string para1;
     index = getWord(' ', para1, parameters, index);
     codbuffer += sx() +  para1 + ":\n";
+    inLayer++;
     functions.push_back(para1);
+    vector<string> paraOrder;
+    string reg1 = regbuffer;
+    while (true)
+    {
+        string para2;
+        string error;
+        int offset = getError(' ', para2, parameters, index, error);
+        if (error != "\n")
+        {
+            index = offset;
+            getFreeReg();
+            reg1 = regbuffer;
+            paraOrder.push_back("pop " + reg1 + "\n");
+            codbuffer += sx() +  paraOrder.front();
+            paraOrder.erase(paraOrder.begin());
+            varbuffer += sx() +  para1 + " dd 0 \n";
+            codbuffer += sx() +  "mov [" + para2 + "], " + reg1 + "\n";
+            varPointers.insert(make_pair(para1, reg1));
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
-void callFunction(string function)
+void callFunction(string function, int &index)
 {
+    while (true)
+    {
+        string para1;
+        string error;
+        int offset = getError(' ', para1, parameters, index, error);
+        if (error != "\n")
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            index = offset;
+            if (isdigit(para1.at(0)))
+            {
+                codbuffer += sx() +  "mov " + reg1 + ", " + para1 + "\n";
+            }
+            else
+            {
+                codbuffer += sx() +  "mov " + reg1 + ", dword [" + para1 + "]\n";
+                varPointers.insert(make_pair(para1, reg1));
+            }
+        
+            codbuffer += sx() +  "push " + reg1 + "\n";
+        }
+        else
+        {
+            break;
+        }
+        
+    }
     codbuffer += sx() +   "call " + function + "\n";
 }
 
@@ -593,7 +648,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     {
         if (functions[i] == destination)
         {
-            callFunction(destination);
+            callFunction(destination, continu);
         }
     }
     file = ::parameters;

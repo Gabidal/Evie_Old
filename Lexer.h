@@ -66,6 +66,26 @@ int getWord(char end, string &destination, string source, int continu)
     return source.size();
 }
 
+int getError(char end, string &destination, string source, int continu, string &ended)
+{
+    for (int i = continu; i < source.size();i++)
+    {
+        if (source[i] != end && source[i] != '\n')
+        {
+            destination += source[i];
+        }
+        else
+        {
+            ended = source[i];
+            i++;
+            return i;
+        }
+        
+    }
+
+    return source.size();
+}
+
 int getReversedIndex(char end, string source, int continu)
 {
     int i = continu;

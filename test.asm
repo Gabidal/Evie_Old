@@ -9,28 +9,38 @@ mov ebx, 0
 int 80h
 
 [section .code]
-banana:
-mov eax , dword [e]
-mov [d] , eax 
+at:
+ pop eax 
+ mov [i], eax 
+ mov ecx , dword [i]
+ mov esi, ecx 
+ mov return, dword buffer[esi]
 ret
 
-mov ecx , dword [a]
-mov esi, ecx 
-mov b, dword abc[esi]
-mov esi, dword [a]
-lea esi, abc[esi]
-mov eax , dword [b]
-mov [esi], eax 
+set:
+ pop edx 
+ mov [val], edx 
+ pop eax 
+ mov [i], eax 
+ mov esi, dword [i]
+ lea esi, buffer[esi]
+ mov ecx , dword [val]
+ mov [esi], ecx 
+ret
+
 main:
-call banana
+ mov edx , 1
+ push edx 
+ mov eax , 3
+ push eax 
+ call set
 ret
 
 
 
 [section .data]
-d dd 1
-e dd 2
-a dd 23
-b dd 25
-c dd 1
-abc times 128 dd 0
+buffer times 256 dd 0
+return dd 0
+ at dd 0 
+ set dd 0 
+ set dd 0 
