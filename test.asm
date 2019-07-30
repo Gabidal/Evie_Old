@@ -9,28 +9,49 @@ mov ebx, 0
 int 80h
 
 [section .code]
-testFalse:
-ret
-
-testTrue:
+test:
 mov eax , dword [a]
-mov [a] , eax 
-mov ebx , dword [c]
-add eax , ebx 
-mov [a], eax 
-mov ecx , dword [b]
-cmp eax , ecx 
-jge else0
-call testFalse
-jmp end0
-else0: 
-call testTrue
-end0: 
+mov ebx , dword [b]
+cmp eax , ebx 
+ je else11
+ mov [a] , ebx 
+ jmp end11
+ else11: 
+ mov edx , dword [c]
+ mov eax , dword [a]
+ cmp edx , eax 
+  jge else22
+  mov [c] , eax 
+  jmp end22
+  else22: 
+  cmp edx , eax 
+   jge else33
+   cmp edx , eax 
+    jge else44
+    mov [c] , eax 
+    jmp end44
+    else44: 
+    mov [c] , ebx 
+    end44: 
+   jmp end34
+   else34: 
+   mov [c] , ebx 
+   end34: 
+  end22: 
+ cmp edx , eax 
+  je else25
+  mov [c] , edx 
+  jmp end25
+  else25: 
+  mov [c] , edx 
+  add edx , edx 
+  mov [c], edx 
+  end25: 
+ end11: 
 ret
 
 main:
-call testTrue
-call testFalse
+call test
 ret
 
 
