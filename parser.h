@@ -8,6 +8,7 @@ string parameters;
 string varbuffer;
 string codbuffer;
 string texbuffer;
+string includes;
 int usedregister = 0;
 string regbuffer;
 int inLayer = 0;
@@ -20,6 +21,7 @@ vector<string> functions;
 extern int getWord(char, string&, string, int);
 extern int getReversedIndex(char, string, int);
 extern int getReversedWord(char, string&, string, int);
+extern string readFile(string name);
 
 string sx()
 {
@@ -391,7 +393,28 @@ void doEnd()
     inLayer--;
 }
 
-void parser(string destination, string file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1)
+bool replace(string& str, const string& from, const string& to) {
+    size_t start_pos = str.find(from);
+    if(start_pos == string::npos)
+        return false;
+    str.replace(start_pos, from.length(), to);
+    return true;
+}
+
+void doInclude(int &i)
+{
+    int offset;
+    string including;
+    //string name;
+    i -= 4;
+    i = getWord('\n', including, parameters, i);
+    replace(parameters, including, "");
+    replace(including, "use ", "");
+    includes = readFile(including);
+    i = 0;
+}
+
+void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1)
 {
     codbuffer = "";
     texbuffer = "";
@@ -444,6 +467,11 @@ void parser(string destination, string file, int &continu, string &varbuffer1, s
     {
         doEnd();
     }
+    if (destination == "use")
+    {
+        doInclude(continu);
+    }
+    
 
     //...
 
@@ -461,10 +489,12 @@ void parser(string destination, string file, int &continu, string &varbuffer1, s
             callFunction(destination);
         }
     }
-
+    file = ::parameters;
     varbuffer1 += ::varbuffer;
     codbuffer1 += ::codbuffer;
     texbuffer1 += ::texbuffer;
+    includes1 += ::includes;
+    includes = "";
 }
 
 #endif
