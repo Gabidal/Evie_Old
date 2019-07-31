@@ -409,7 +409,7 @@ void makeFunc(int &index)
             paraOrder.push_back("pop " + reg1 + "\n");
             codbuffer += sx() +  paraOrder.front();
             paraOrder.erase(paraOrder.begin());
-            varbuffer += sx() +  para1 + " dd 0 \n";
+            varbuffer += sx() +  para2 + " dd 0 \n";
             codbuffer += sx() +  "mov [" + para2 + "], " + reg1 + "\n";
             varPointers.insert(make_pair(para1, reg1));
         }

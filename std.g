@@ -1,11 +1,16 @@
 var buffer : 256
 var return = 0
+var self = 0
 
-func at i 
-  return = buffer : i 
-ret 
+func size ptr
+  
+ret
 
-func set val i 
-  swich i val 
-  buffer : i = val 
-ret 
+func at at_i
+  return = buffer : at_i
+ret
+
+func set set_val set_i
+  buffer : set_i = set_val
+ret
+
