@@ -4,12 +4,13 @@
 #include <vector>
 #include <map>
 #include <ctype.h>
+#include <algorithm>
 using namespace std;
 string parameters;
 string varbuffer;
 string codbuffer;
 string texbuffer;
-string includes;
+string includes2;
 int usedregister = 0;
 string regbuffer;
 int inLayer = 0;
@@ -401,9 +402,8 @@ void makeFunc(int &index)
         string para2;
         string error;
         int offset = getError(' ', para2, parameters, index, error);
-        if (error != "\n")
+        if (para2.length() > 0) 
         {
-            index = offset;
             getFreeReg();
             reg1 = regbuffer;
             paraOrder.push_back("pop " + reg1 + "\n");
@@ -412,6 +412,15 @@ void makeFunc(int &index)
             varbuffer += sx() +  para2 + " dd 0 \n";
             codbuffer += sx() +  "mov [" + para2 + "], " + reg1 + "\n";
             varPointers.insert(make_pair(para1, reg1));
+        }
+        if (parameters[offset-2] == '\n')
+        {
+            break;
+
+        }
+        if (error != "\n")
+        {
+            index = offset;
         }
         else
         {
@@ -422,34 +431,60 @@ void makeFunc(int &index)
 
 void callFunction(string function, int &index)
 {
+    vector<string> params;
+    vector<string> batch;
+
     while (true)
     {
         string para1;
         string error;
         int offset = getError(' ', para1, parameters, index, error);
+        if (para1.length() > 0) 
+        {
+            params.push_back(para1);
+        }
         if (error != "\n")
         {
-            getFreeReg();
-            string reg1 = regbuffer;
             index = offset;
-            if (isdigit(para1.at(0)))
-            {
-                codbuffer += sx() +  "mov " + reg1 + ", " + para1 + "\n";
-            }
-            else
-            {
-                codbuffer += sx() +  "mov " + reg1 + ", dword [" + para1 + "]\n";
-                varPointers.insert(make_pair(para1, reg1));
-            }
-        
-            codbuffer += sx() +  "push " + reg1 + "\n";
         }
         else
         {
             break;
         }
-        
     }
+    
+    if (params.size() > 0)
+    {
+        reverse(params.begin(), params.end());
+
+        for (int i = 0; i < params.size(); i += 4) 
+        {
+            string moves;
+            string pushes;
+
+            for (int j = 0; j < min((int)params.size() - i, 4); j++) 
+            {
+                string param = params[i + j];
+
+                getFreeReg();
+                string reg1 = regbuffer;
+
+                if (isdigit(param.at(0)))
+                {
+                    moves += sx() +  "mov " + reg1 + ", " + param + "\n";
+                }
+                else
+                {
+                    moves += sx() +  "mov " + reg1 + ", dword [" + param + "]\n";
+                    varPointers.insert(make_pair(param, reg1));
+                }
+
+                pushes += sx() + "push " + reg1 + "\n";
+            }
+
+            codbuffer += moves + pushes;
+        }
+    } 
     codbuffer += sx() +   "call " + function + "\n";
 }
 
@@ -572,7 +607,7 @@ void doInclude(int &i)
     i = getWord('\n', including, parameters, i);
     replace(parameters, including, "");
     replace(including, "use ", "");
-    includes = readFile(including);
+    includes2 = readFile(including);
     i = 0;
 }
 
@@ -655,8 +690,8 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     varbuffer1 += ::varbuffer;
     codbuffer1 += ::codbuffer;
     texbuffer1 += ::texbuffer;
-    includes1 += ::includes;
-    includes = "";
+    includes1 += ::includes2;
+    includes2 = "";
 }
 
 #endif

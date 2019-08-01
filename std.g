@@ -10,7 +10,7 @@ func at at_i
   return = buffer : at_i
 ret
 
-func set set_val set_i
+func set set_i set_val
   buffer : set_i = set_val
 ret
 

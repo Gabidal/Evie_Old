@@ -153,7 +153,7 @@ void lexer(string file, string &outbuffer)
             }
         }
     }
-    outbuffer = includes + texbuffer1 + codbuffer1 + varbuffer1;
+    outbuffer = includes1 + texbuffer1 + codbuffer1 + varbuffer1;
 }
 
 #endif
