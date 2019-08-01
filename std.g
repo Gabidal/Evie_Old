@@ -2,15 +2,15 @@ var buffer : 256
 var return = 0
 var self = 0
 
-func size ptr
+func lenght ptr
   
 ret
 
-func at at_i
-  return = buffer : at_i
+func from at_i
+  return = buffer : 5
 ret
 
 func set set_i set_val
-  buffer : set_i = set_val
+  buffer : set_i = 5
 ret
 

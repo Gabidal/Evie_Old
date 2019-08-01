@@ -9,36 +9,56 @@ mov ebx, 0
 int 80h
 
 [section .code]
-size:
+lenght:
+ pop edi
+ mov [_Layer_0], edi 
  pop eax 
  mov [ptr], eax 
+ mov edi, dword [_Layer_0]
+ push edi
 ret
 
-at:
+from:
+ pop edi
+ mov [_Layer_1], edi 
  pop ebx 
  mov [at_i], ebx 
- mov edx , dword [at_i]
- mov esi, edx 
- mov return, dword buffer[esi]
+ mov esi, 5
+ mov eax , dword buffer[esi*4]
+ mov [return], eax 
+ mov edi, dword [_Layer_1]
+ push edi
 ret
 
 set:
- pop eax 
- mov [set_i], eax 
+ pop edi
+ mov [_Layer_2], edi 
  pop ebx 
- mov [set_val], ebx 
+ mov [set_i], ebx 
+ pop ecx 
+ mov [set_val], ecx 
  mov esi, dword [set_i]
- lea esi, buffer[esi]
- mov edx , dword [set_val]
- mov [esi], edx 
+ lea esi, buffer[esi*4]
+ mov eax , 5
+ mov [esi], eax 
+ mov edi, dword [_Layer_2]
+ push edi
 ret
 
 main:
+ pop edi
+ mov [_Layer_3], edi 
+ mov ecx , dword [a]
+ mov esi, ecx 
+ mov edx , dword b[esi*4]
+ mov [c], edx 
  mov eax , 3
  mov ebx , 1
  push eax 
  push ebx 
  call set
+ mov edi, dword [_Layer_3]
+ push edi
 ret
 
 
@@ -47,7 +67,14 @@ ret
 buffer times 256 dd 0
 return dd 0
 self dd 0
+_Layer_0 dd 0
  ptr dd 0 
+_Layer_1 dd 0
  at_i dd 0 
+_Layer_2 dd 0
  set_i dd 0 
  set_val dd 0 
+a dd 1
+b dd 0
+c dd 0
+_Layer_3 dd 0

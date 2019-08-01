@@ -31,24 +31,36 @@ void initializeKeyWords()
 }
 string readFile(string name)
 {
-    string line;
+    if (name.length() == 0)
+    {
+        throw runtime_error("Filename was empty");
+    }
+
     ifstream file(name, ios::ate | ios::binary);
+
+    if (!file.is_open()) 
+    {
+        throw runtime_error("Couldn't open the file");
+    }
+
     int length = file.tellg();
     file.seekg(0, file.beg);
 
     char* buffer = new char[length];
     memset(buffer, 0, length);
 
-    if (file.is_open()) 
-    {
-        file.read(buffer, length);
-    }
+    file.read(buffer, length);
     file.close();
+
     return string(buffer);
 }
 
 int getWord(char end, string &destination, string source, int continu)
 {
+    for (;source[continu] == ' ';)
+    {
+        continu++;
+    }
     for (int i = continu; i < source.size();i++)
     {
         if (source[i] != end && source[i] != '\n')

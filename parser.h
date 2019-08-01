@@ -15,10 +15,12 @@ int usedregister = 0;
 string regbuffer;
 int inLayer = 0;
 int layerId = 0;
+int returnLayer = 0;
 string elsedEndString[256];
 vector<string> variables;
 map <string, string> varPointers;
 vector<string> functions;
+string returningLayerNames;
 
 extern int getError(char, string&, string, int, string&);
 extern int getWord(char, string&, string, int);
@@ -296,7 +298,7 @@ void useVar(int &index, string destination)
                 string reg3 = regbuffer;
                 codbuffer += sx() +  "mov " + reg3 + ", dword [" + value + "]\n";
                 varPointers.insert(make_pair(value, reg3));
-                codbuffer += sx() +  "mov " + destination + "[4*" + para2 + "], " + reg3 + "\n";
+                codbuffer += sx() +  "mov " + destination + "[*4" + para2 + "], " + reg3 + "\n";
             }
             if (isdigit(value.at(0)))
             {
@@ -308,13 +310,15 @@ void useVar(int &index, string destination)
         {
             codbuffer += sx() +  "mov esi, dword [" + para2 + "]\n";
             string value;
-            codbuffer += sx() +  "lea esi, " + destination + "[esi]\n";
+            codbuffer += sx() +  "lea esi, " + destination + "[esi*4]\n";
             index = getWord(' ', value, parameters, index);
             value = "";
             index = getWord(' ', value, parameters, index);
             if (isdigit(value.at(0)))
             {
-                codbuffer += sx() +  "mov [esi], " + value + "\n";
+                getFreeReg();
+                codbuffer += sx() + "mov " + regbuffer + ", " + value + "\n";
+                codbuffer += sx() + "mov [esi], " + regbuffer + "\n";
             }
             else
             {
@@ -355,13 +359,36 @@ void useVar(int &index, string destination)
             }
             else
             {
+                if (isdigit(value.at(0)))
+                {
+                getFreeReg();
+                string reg2 = regbuffer;
+                codbuffer += sx() +  "mov esi, " + value + "\n";
+                }
+                else
+                {
                 getFreeReg();
                 string reg2 = regbuffer;
                 codbuffer += sx() +  "mov " + reg2 + ", dword [" + value + "]\n";
                 varPointers.insert(make_pair(value, reg2));
                 codbuffer += sx() +  "mov esi, " + reg2 + "\n";
+                }
             }
-            codbuffer += sx() +  "mov " + destination + ", dword " + para2 + "[esi]\n";
+            auto node1 = varPointers.find(destination);
+            if (node1 != varPointers.end())
+            {
+                codbuffer += sx() +  "mov " + node1->second + ", dword " + para2 + "[esi*4]\n";
+            }
+            else
+            {
+                getFreeReg();
+                string reg2 = regbuffer;
+                varPointers.insert(make_pair(destination, reg2));
+
+                codbuffer += sx() +  "mov " + reg2 + ", dword " + para2 + "[esi*4]\n";
+                codbuffer += sx() + "mov [" + destination + "], " + reg2 + "\n";
+
+            }
 
         }
         else
@@ -374,8 +401,11 @@ void useVar(int &index, string destination)
             }
             else
             {
+                getFreeReg();
+                string reg2;
                 codbuffer += sx() +  "mov " + reg1 + ", dword [" + para2 + "]\n";
-                codbuffer += sx() +  "mov [" + destination + "] , " + reg1 + "\n";
+                codbuffer += sx() + "mov " + reg2 + ", " + reg1 + "\n";
+                codbuffer += sx() +  "mov [" + destination + "] , " + reg2 + "\n";
                 varPointers.insert(make_pair(para2, reg1));
                 varPointers.insert(make_pair(destination, reg1));
             }
@@ -385,6 +415,8 @@ void useVar(int &index, string destination)
 
 void doReturn()
 {
+    codbuffer += returningLayerNames;
+    codbuffer += sx() + "push edi\n";
     inLayer--;
     codbuffer += sx() +  "ret\n\n";
 }
@@ -395,6 +427,11 @@ void makeFunc(int &index)
     codbuffer += sx() +  para1 + ":\n";
     inLayer++;
     functions.push_back(para1);
+    codbuffer += sx() + "pop edi\n";
+    codbuffer += sx() + "mov [_Layer_" + to_string(returnLayer) + "], edi \n";
+    returningLayerNames = sx() + "mov edi, dword [_Layer_" + to_string(returnLayer) + "]\n";
+    varbuffer += "_Layer_" + to_string(returnLayer) + " dd 0\n";
+    returnLayer++;
     vector<string> paraOrder;
     string reg1 = regbuffer;
     while (true)
