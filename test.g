@@ -3,6 +3,5 @@ use std.g
 var a = 0
 
 func main
-  a = get a
-ret 
-
+  a = get a a a
+ret

@@ -10,27 +10,37 @@ int 80h
 
 [section .code]
 get:
- pop edi
- mov [_Layer_0], edi 
- pop eax 
- mov [get_i], eax 
- mov ecx , dword [get_i]
+ push ebp
+ mov ebp, esp
+ sub esp, 12
+ mov eax , [ebp+8]
+ mov [get_c], eax 
+ mov ebx , [ebp+12]
+ mov [get_b], ebx 
+ mov ecx , [ebp+16]
+ mov [get_a], ecx 
  mov esi, ecx 
- mov edx , dword buffer[esi*4]
- mov [return], edx 
- mov edi, dword [_Layer_0]
- push edi
+ lea esi, dword buffer[esi * 4]
+ mov eax , dword [esi]
+ mov [return], eax 
+ mov esp, ebp
+ pop ebp
 ret
 
 main:
- pop edi
- mov [_Layer_1], edi 
- mov ebx , dword [a]
- push ebx 
+ push ebp
+ mov ebp, esp
+ sub esp, 0
+ mov ecx , dword [a]
+ push ecx 
+ mov edx , dword [a]
+ push edx 
+ mov eax , dword [a]
+ push eax 
  call get
- mov [a], edx 
- mov edi, dword [_Layer_1]
- push edi
+ mov [a], eax 
+ mov esp, ebp
+ pop ebp
 ret
 
 
@@ -38,7 +48,7 @@ ret
 [section .data]
 buffer times 256 dd 0
 return dd 0
-_Layer_0 dd 0
- get_i dd 0 
+get_c dd 0
+get_b dd 0
+get_a dd 0
 a dd 0
-_Layer_1 dd 0
