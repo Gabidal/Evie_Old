@@ -79,15 +79,19 @@ void doAddition(int &index)
     // a       = b + c
     offset = getReversedIndex(' ', parameters, index-1); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
 
     offset = getReversedIndex(' ', parameters, offset); //b offset
     offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
 
     offset = getReversedIndex(' ', parameters, offset); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
 
     offset = getReversedIndex(' ', parameters, offset); //a offset
     offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
     auto node = varPointers.find(para1);
@@ -136,15 +140,19 @@ void doSubstraction(int &index)
     // a       = b + c
     offset = getReversedIndex(' ', parameters, index-1); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
 
     offset = getReversedIndex(' ', parameters, offset); //b offset
     offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
 
     offset = getReversedIndex(' ', parameters, offset); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
 
     offset = getReversedIndex(' ', parameters, offset); //a offset
     offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
     auto node = varPointers.find(para1);
@@ -193,15 +201,19 @@ void doMultiply(int &index)
     // a       = b + c
     offset = getReversedIndex(' ', parameters, index-1); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
 
     offset = getReversedIndex(' ', parameters, offset); //b offset
     offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
 
     offset = getReversedIndex(' ', parameters, offset); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
 
     offset = getReversedIndex(' ', parameters, offset); //a offset
     offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
     auto node = varPointers.find(para1);
@@ -245,6 +257,317 @@ void doMultiply(int &index)
     }
 }
 
+void doAND(int &index)
+{
+    int offset;
+    string para1;  //b
+    string para2;  //c
+    string para3;  //a
+    string trash;
+    string trash1;
+    string trash2;
+    // a       = b + c
+    offset = getReversedIndex(' ', parameters, index-1); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //b offset
+    offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //a offset
+    offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
+    
+    index = getWord(' ', para2, parameters, index);  // c
+    auto node = varPointers.find(para1);
+    if (node != varPointers.end())
+    {
+        auto node1 = varPointers.find(para2);
+        if (node1 != varPointers.end())
+        {
+            codbuffer += sx() + "and " + node->second + ", " + node1->second + "\n";
+            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() +  "and " + node->second + ", " + reg1 + "\n";
+            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
+            varPointers.insert(make_pair(para2, reg1));
+        }
+    }
+    else
+    {
+        getFreeReg();
+        trash1 = regbuffer;
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        getFreeReg();
+        trash2 = regbuffer;
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "and " + trash1 + ", " + trash2 + "\n";
+        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
+    }
+}
+
+void doNAND(int &index)
+{
+    int offset;
+    string para1;  //b
+    string para2;  //c
+    string para3;  //a
+    string trash;
+    string trash1;
+    string trash2;
+    // a       = b + c
+    offset = getReversedIndex(' ', parameters, index-1); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //b offset
+    offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //a offset
+    offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
+    
+    index = getWord(' ', para2, parameters, index);  // c
+    auto node = varPointers.find(para1);
+    if (node != varPointers.end())
+    {
+        auto node1 = varPointers.find(para2);
+        if (node1 != varPointers.end())
+        {
+            codbuffer += sx() + "and " + node->second + ", " + node1->second + "\n";
+            codbuffer += sx() + "not " + node->second + "\n";
+            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() +  "and " + node->second + ", " + reg1 + "\n";
+            codbuffer += sx() + "not " + node->second + "\n";
+            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
+            varPointers.insert(make_pair(para2, reg1));
+        }
+    }
+    else
+    {
+        getFreeReg();
+        trash1 = regbuffer;
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        getFreeReg();
+        trash2 = regbuffer;
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "and " + trash1 + ", " + trash2 + "\n";
+        codbuffer += sx() + "not " + trash1 + "\n";
+        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
+    }
+}
+
+void doNOR(int &index)
+{
+    int offset;
+    string para1;  //b
+    string para2;  //c
+    string para3;  //a
+    string trash;
+    string trash1;
+    string trash2;
+    // a       = b + c
+    offset = getReversedIndex(' ', parameters, index-1); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //b offset
+    offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //a offset
+    offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
+    
+    index = getWord(' ', para2, parameters, index);  // c
+    auto node = varPointers.find(para1);
+    if (node != varPointers.end())
+    {
+        auto node1 = varPointers.find(para2);
+        if (node1 != varPointers.end())
+        {
+            codbuffer += sx() + "or " + node->second + ", " + node1->second + "\n";
+            codbuffer += sx() + "not " + node->second + "\n";
+            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() +  "or " + node->second + ", " + reg1 + "\n";
+            codbuffer += sx() + "not " + node->second + "\n";
+            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
+            varPointers.insert(make_pair(para2, reg1));
+        }
+    }
+    else
+    {
+        getFreeReg();
+        trash1 = regbuffer;
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        getFreeReg();
+        trash2 = regbuffer;
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "or " + trash1 + ", " + trash2 + "\n";
+        codbuffer += sx() + "not " + trash1 + "\n";
+        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
+    }
+}
+
+void doXOR(int &index)
+{
+    int offset;
+    string para1;  //b
+    string para2;  //c
+    string para3;  //a
+    string trash;
+    string trash1;
+    string trash2;
+    // a       = b + c
+    offset = getReversedIndex(' ', parameters, index-1); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //b offset
+    offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //a offset
+    offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
+    
+    index = getWord(' ', para2, parameters, index);  // c
+    auto node = varPointers.find(para1);
+    if (node != varPointers.end())
+    {
+        auto node1 = varPointers.find(para2);
+        if (node1 != varPointers.end())
+        {
+            codbuffer += sx() + "xor " + node->second + ", " + node1->second + "\n";
+            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() +  "xor " + node->second + ", " + reg1 + "\n";
+            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
+            varPointers.insert(make_pair(para2, reg1));
+        }
+    }
+    else
+    {
+        getFreeReg();
+        trash1 = regbuffer;
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        getFreeReg();
+        trash2 = regbuffer;
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "xor " + trash1 + ", " + trash2 + "\n";
+        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
+    }
+}
+
+void doOR(int &index)
+{
+    int offset;
+    string para1;  //b
+    string para2;  //c
+    string para3;  //a
+    string trash;
+    string trash1;
+    string trash2;
+    // a       = b + c
+    offset = getReversedIndex(' ', parameters, index-1); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //b offset
+    offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //a offset
+    offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
+    
+    index = getWord(' ', para2, parameters, index);  // c
+    auto node = varPointers.find(para1);
+    if (node != varPointers.end())
+    {
+        auto node1 = varPointers.find(para2);
+        if (node1 != varPointers.end())
+        {
+            codbuffer += sx() + "or " + node->second + ", " + node1->second + "\n";
+            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+        }
+        else
+        {
+            getFreeReg();
+            string reg1 = regbuffer;
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() +  "or " + node->second + ", " + reg1 + "\n";
+            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
+            varPointers.insert(make_pair(para2, reg1));
+        }
+    }
+    else
+    {
+        getFreeReg();
+        trash1 = regbuffer;
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        getFreeReg();
+        trash2 = regbuffer;
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "or " + trash1 + ", " + trash2 + "\n";
+        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(para1, trash1));
+            varPointers.insert(make_pair(para2, trash2));
+    }
+}
+
 void makeVar(int &index)
 {
     string para1;
@@ -283,8 +606,7 @@ void callFunction(string function, int &index)
             {
                 getFreeReg();
                 string reg1 = regbuffer;
-                codbuffer += sx() + "mov " + reg1 + ", dword [" + para1 + "]\n";
-                codbuffer += sx() + "push " + reg1 + "\n";
+                codbuffer += sx() + "push " + "dword [" + para1 + "]\n";
             }
             
         }
@@ -313,8 +635,9 @@ string getReturn()
                 string returnreg = regbuffer;
                 codbuffer += sx() + "mov " + returnreg + ", dword [return]\n";
                 varPointers.insert(make_pair("return", returnreg));
+                return returnreg;
             }
-            return "  G::Error: return not found";
+            //return "  G::Error: return not found";
 }
 
 void useVar(int &index, string destination)
@@ -678,6 +1001,7 @@ void doInclude(int &i)
     i = 0;
 }
 
+
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1)
 {
     codbuffer = "";
@@ -699,6 +1023,26 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     if (destination == "-")
     {
         doSubstraction(continu);
+    }
+    if (destination == "&")
+    {
+        doAND(continu);
+    }
+    if (destination == "!&")
+    {
+        doNAND(continu);
+    }
+    if (destination == "!||")
+    {
+        doNOR(continu);
+    }
+    if (destination == "!|")
+    {
+        doXOR(continu);
+    }
+    if (destination == "||")
+    {
+        doOR(continu);
     }
     if (destination == "*")
     {

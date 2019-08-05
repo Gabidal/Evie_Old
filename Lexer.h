@@ -28,6 +28,11 @@ void initializeKeyWords()
     keyWords.push_back("if");
     keyWords.push_back("else");
     keyWords.push_back("use");
+    keyWords.push_back("&");
+    keyWords.push_back("!&");
+    keyWords.push_back("!||");
+    keyWords.push_back("!|");
+    keyWords.push_back("||");
 }
 string readFile(string name)
 {
