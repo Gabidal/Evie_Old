@@ -16,7 +16,11 @@ string regbuffer;
 int inLayer = 0;
 int layerId = 0;
 int returnLayer = 0;
-string elsedEndString[256];
+int savedIfToElse = 0;
+int savedElseToEnd = 0;
+string ifToElse[256];
+string elseToEnd[256];
+string jumpToEnd[256];
 vector<string> variables;
 map <string, string> varPointers;
 vector<string> functions;
@@ -474,7 +478,7 @@ void useVar(int &index, string destination)
                 else
                 {
                     getFreeReg();
-                    string reg2;
+                    string reg2 = regbuffer;
                     codbuffer += sx() +  "mov " + reg1 + ", dword [" + para2 + "]\n";
                     codbuffer += sx() + "mov " + reg2 + ", " + reg1 + "\n";
                     codbuffer += sx() +  "mov [" + destination + "] , " + reg2 + "\n";
@@ -489,7 +493,6 @@ void useVar(int &index, string destination)
 void doReturn()
 {
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
-    inLayer--;
     codbuffer += sx() +  "ret\n\n";
     localVarLocation = 0;
     localVars.clear();
@@ -499,7 +502,6 @@ void makeFunc(int &index)
     string para1;
     index = getWord(' ', para1, parameters, index);
     codbuffer += sx() +  para1 + ":\n";
-    inLayer++;
     functions.push_back(para1);
     returnLayer++;
     vector<string> paraOrder;
@@ -631,18 +633,24 @@ void doComparing(int &i)
     inLayer++;
     layerId++;
     codbuffer += sx() +   para2 + "else" + to_string(inLayer) + to_string(layerId) + "\n";
+    ifToElse[savedIfToElse] =  sx() + "else" + to_string(inLayer) + to_string(layerId) + ": \n";
+    elseToEnd[savedElseToEnd] = sx() + "end" + to_string(inLayer) + to_string(layerId) + ": \n";
+    jumpToEnd[savedElseToEnd] = sx() + "jmp end" + to_string(inLayer) + to_string(layerId) + "\n";
+    savedIfToElse++;
+    savedElseToEnd++;
 }
 
 void doElse()
 {
-    codbuffer += sx() +   "jmp end" + to_string(inLayer) + to_string(layerId) + "\n";
-    codbuffer += sx() +   "else" + to_string(inLayer) + to_string(layerId) + ": \n";
-    elsedEndString[inLayer] = "end" + to_string(inLayer) + to_string(layerId) + ": \n";
+    savedIfToElse--;
+    savedElseToEnd--;
+    codbuffer += jumpToEnd[savedElseToEnd];
+    codbuffer += ifToElse[savedIfToElse];
 }
 
 void doEnd()
 {
-    codbuffer += sx() + elsedEndString[inLayer];
+    codbuffer += elseToEnd[savedElseToEnd];
     inLayer--;
 }
 
