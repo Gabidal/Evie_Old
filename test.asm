@@ -38,7 +38,7 @@ cmp ebx , ecx
   else23: 
   mov [return] , edx 
   end23: 
-  end23: 
+ end11: 
 mov esp, ebp
 pop ebp
 ret

@@ -18,9 +18,9 @@ int layerId = 0;
 int returnLayer = 0;
 int savedIfToElse = 0;
 int savedElseToEnd = 0;
-string ifToElse[256];
-string elseToEnd[256];
-string jumpToEnd[256];
+vector<string> ifToElse;
+vector<string> elseToEnd;
+vector<string> jumpToEnd;
 vector<string> variables;
 map <string, string> varPointers;
 vector<string> functions;
@@ -633,9 +633,9 @@ void doComparing(int &i)
     inLayer++;
     layerId++;
     codbuffer += sx() +   para2 + "else" + to_string(inLayer) + to_string(layerId) + "\n";
-    ifToElse[savedIfToElse] =  sx() + "else" + to_string(inLayer) + to_string(layerId) + ": \n";
-    elseToEnd[savedElseToEnd] = sx() + "end" + to_string(inLayer) + to_string(layerId) + ": \n";
-    jumpToEnd[savedElseToEnd] = sx() + "jmp end" + to_string(inLayer) + to_string(layerId) + "\n";
+    ifToElse.push_back(sx() + "else" + to_string(inLayer) + to_string(layerId) + ": \n");
+    elseToEnd.push_back(sx() + "end" + to_string(inLayer) + to_string(layerId) + ": \n");
+    jumpToEnd.push_back(sx() + "jmp end" + to_string(inLayer) + to_string(layerId) + "\n");
     savedIfToElse++;
     savedElseToEnd++;
 }
@@ -644,13 +644,16 @@ void doElse()
 {
     savedIfToElse--;
     savedElseToEnd--;
-    codbuffer += jumpToEnd[savedElseToEnd];
-    codbuffer += ifToElse[savedIfToElse];
+    codbuffer += jumpToEnd.back();
+    codbuffer += ifToElse.back();
+    jumpToEnd.pop_back();
+    ifToElse.pop_back();
 }
 
 void doEnd()
 {
-    codbuffer += elseToEnd[savedElseToEnd];
+    codbuffer += elseToEnd.back();
+    elseToEnd.pop_back();
     inLayer--;
 }
 
