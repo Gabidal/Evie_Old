@@ -9,15 +9,15 @@ mov ebx, 0
 int 80h
 
 [section .code]
-NAND:
+math.NAND:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov eax , [ebp+8]
-mov [NAND_b], eax 
+mov [math.NAND.b], eax 
 mov ebx , [ebp+12]
-mov [NAND_a], ebx 
-mov [return] , ebx 
+mov [math.NAND.a], ebx 
+mov [math.NANDreturn] , ebx 
 and ebx , eax 
 not ebx 
 mov [return], ebx 
@@ -25,95 +25,110 @@ mov esp, ebp
 pop ebp
 ret
 
-OR:
+math.OR:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov edx , [ebp+8]
-mov [OR_b], edx 
+mov [math.OR.b], edx 
 mov eax , [ebp+12]
-mov [OR_a], eax 
-mov [return] , eax 
-or eax , edx 
-mov [return], eax 
+mov [math.OR.a], eax 
+mov [math.ORreturn] , ebx 
+or ebx , eax 
+mov [return], ebx 
 mov esp, ebp
 pop ebp
 ret
 
-XOR:
+math.XOR:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov ecx , [ebp+8]
-mov [XOR_b], ecx 
+mov [math.XOR.b], ecx 
 mov edx , [ebp+12]
-mov [XOR_a], edx 
-mov [return] , edx 
-xor edx , ecx 
-mov [return], edx 
+mov [math.XOR.a], edx 
+mov [math.XORreturn] , ebx 
+xor ebx , eax 
+mov [return], ebx 
 mov esp, ebp
 pop ebp
 ret
 
-NOR:
+math.NOR:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov ebx , [ebp+8]
-mov [NOR_b], ebx 
+mov [math.NOR.b], ebx 
 mov ecx , [ebp+12]
-mov [NOR_a], ecx 
-mov [return] , ecx 
-or ecx , ebx 
-not ecx 
-mov [return], ecx 
+mov [math.NOR.a], ecx 
+mov [math.NORreturn] , ebx 
+or ebx , eax 
+not ebx 
+mov [return], ebx 
 mov esp, ebp
 pop ebp
 ret
 
-AND:
+math.AND:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov eax , [ebp+8]
-mov [AND_b], eax 
+mov [math.AND.b], eax 
 mov ebx , [ebp+12]
-mov [AND_a], ebx 
-mov [return] , ebx 
+mov [math.AND.a], ebx 
+mov [math.ANDreturn] , ebx 
 and ebx , eax 
 mov [return], ebx 
 mov esp, ebp
 pop ebp
 ret
 
-main:
+float.make:
 push ebp
 mov ebp, esp
 sub esp, 0
-push dword [a]
-push dword [b]
-call NAND
+mov edx , [ebp+8]
+mov [float.make.val], edx 
+mov eax , [ebp+12]
+mov [float.make.name], eax 
+mov esp, ebp
+pop ebp
+ret
+
+ main:
+push ebp
+mov ebp, esp
+sub esp, 0
+push ebx 
+push eax 
+call math.NAND
 mov ecx , dword [return]
 mov [a], ecx 
-push dword [a]
-push dword [b]
-call OR
-mov [b], ecx 
+mov esp, ebp
+pop ebp
+ret
+
 
 
 [section .data]
-return dd 0
-false dd 0
-true dd 1
-NAND_b dd 0
-NAND_a dd 0
-OR_b dd 0
-OR_a dd 0
-XOR_b dd 0
-XOR_a dd 0
-NOR_b dd 0
-NOR_a dd 0
-AND_b dd 0
-AND_a dd 0
-a dd 0
-b dd 1
+  return dd 0
+  false dd 0
+  true dd 1
+math.NAND.b dd 0
+math.NAND.a dd 0
+math.OR.b dd 0
+math.OR.a dd 0
+math.XOR.b dd 0
+math.XOR.a dd 0
+math.NOR.b dd 0
+math.NOR.a dd 0
+math.AND.b dd 0
+math.AND.a dd 0
+float.make.val dd 0
+float.make.name dd 0
+float.make%name dd %val
+  a dd 0
+  b dd 1

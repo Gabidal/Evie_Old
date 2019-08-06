@@ -3,6 +3,5 @@ var a = 0
 var b = 1
 
 func main
-  a = NAND a b
-  b = OR a b
+  a = math.NAND a b 
 ret

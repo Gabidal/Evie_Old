@@ -17,6 +17,7 @@ string texbuffer1 = "\n\n[section .text]\n";
 void initializeKeyWords()
 {
     keyWords.push_back("var");
+    keyWords.push_back("type");
     keyWords.push_back("run");
     keyWords.push_back("func");
     keyWords.push_back("%");
@@ -33,6 +34,8 @@ void initializeKeyWords()
     keyWords.push_back("!||");
     keyWords.push_back("!|");
     keyWords.push_back("||");
+    className.push_back(" "); //the global class indicator
+    LocalizedVariableNames.push_back(" ");
 }
 string readFile(string name)
 {
