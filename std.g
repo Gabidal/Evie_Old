@@ -2,7 +2,9 @@ var return = 0
 var false = 0
 var true = 1
 
-type math
+type Math
+  var c = 123
+  var bits : 123
   func NAND a b 
     return = a !& b
   ret

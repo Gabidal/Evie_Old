@@ -34,7 +34,8 @@ void initializeKeyWords()
     keyWords.push_back("!||");
     keyWords.push_back("!|");
     keyWords.push_back("||");
-    className.push_back(" "); //the global class indicator
+    keyWords.push_back("new");
+    className.push_back(""); //the global class indicator
     LocalizedVariableNames.push_back(" ");
 }
 string readFile(string name)

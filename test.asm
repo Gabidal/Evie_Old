@@ -9,15 +9,15 @@ mov ebx, 0
 int 80h
 
 [section .code]
-math.NAND:
+Math.NAND:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov eax , [ebp+8]
-mov [math.NAND.b], eax 
+mov [Math.NAND.b], eax 
 mov ebx , [ebp+12]
-mov [math.NAND.a], ebx 
-mov [math.NANDreturn] , ebx 
+mov [Math.NAND.a], ebx 
+mov [return] , ebx 
 and ebx , eax 
 not ebx 
 mov [return], ebx 
@@ -25,45 +25,45 @@ mov esp, ebp
 pop ebp
 ret
 
-math.OR:
+Math.OR:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov edx , [ebp+8]
-mov [math.OR.b], edx 
+mov [Math.OR.b], edx 
 mov eax , [ebp+12]
-mov [math.OR.a], eax 
-mov [math.ORreturn] , ebx 
+mov [Math.OR.a], eax 
+mov [return] , ebx 
 or ebx , eax 
 mov [return], ebx 
 mov esp, ebp
 pop ebp
 ret
 
-math.XOR:
+Math.XOR:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov ecx , [ebp+8]
-mov [math.XOR.b], ecx 
+mov [Math.XOR.b], ecx 
 mov edx , [ebp+12]
-mov [math.XOR.a], edx 
-mov [math.XORreturn] , ebx 
+mov [Math.XOR.a], edx 
+mov [return] , ebx 
 xor ebx , eax 
 mov [return], ebx 
 mov esp, ebp
 pop ebp
 ret
 
-math.NOR:
+Math.NOR:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov ebx , [ebp+8]
-mov [math.NOR.b], ebx 
+mov [Math.NOR.b], ebx 
 mov ecx , [ebp+12]
-mov [math.NOR.a], ecx 
-mov [math.NORreturn] , ebx 
+mov [Math.NOR.a], ecx 
+mov [return] , ebx 
 or ebx , eax 
 not ebx 
 mov [return], ebx 
@@ -71,15 +71,15 @@ mov esp, ebp
 pop ebp
 ret
 
-math.AND:
+Math.AND:
 push ebp
 mov ebp, esp
 sub esp, 8
 mov eax , [ebp+8]
-mov [math.AND.b], eax 
+mov [Math.AND.b], eax 
 mov ebx , [ebp+12]
-mov [math.AND.a], ebx 
-mov [math.ANDreturn] , ebx 
+mov [Math.AND.a], ebx 
+mov [return] , ebx 
 and ebx , eax 
 mov [return], ebx 
 mov esp, ebp
@@ -98,15 +98,12 @@ mov esp, ebp
 pop ebp
 ret
 
- main:
+main:
 push ebp
 mov ebp, esp
 sub esp, 0
-push ebx 
-push eax 
-call math.NAND
-mov ecx , dword [return]
-mov [a], ecx 
+mov ebx , dword [std.c]
+mov [a] , ebx 
 mov esp, ebp
 pop ebp
 ret
@@ -114,21 +111,24 @@ ret
 
 
 [section .data]
-  return dd 0
-  false dd 0
-  true dd 1
-math.NAND.b dd 0
-math.NAND.a dd 0
-math.OR.b dd 0
-math.OR.a dd 0
-math.XOR.b dd 0
-math.XOR.a dd 0
-math.NOR.b dd 0
-math.NOR.a dd 0
-math.AND.b dd 0
-math.AND.a dd 0
+return dd 0
+false dd 0
+true dd 1
+Math.c dd 123
+Math.bits times 123 dd 0
+Math.NAND.b dd 0
+Math.NAND.a dd 0
+Math.OR.b dd 0
+Math.OR.a dd 0
+Math.XOR.b dd 0
+Math.XOR.a dd 0
+Math.NOR.b dd 0
+Math.NOR.a dd 0
+Math.AND.b dd 0
+Math.AND.a dd 0
 float.make.val dd 0
 float.make.name dd 0
 float.make%name dd %val
-  a dd 0
-  b dd 1
+a dd 0
+b dd 1
+std.c dd 0
