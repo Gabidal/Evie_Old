@@ -1,8 +1,8 @@
 use std.g
-var a = 0
-var b = 1
+var a = 1
+var b = 2
 
-func main 
+func main
   new Math std
-  a = std.c
-ret
+  a = std.add a b
+ret 
