@@ -4,5 +4,9 @@ var b = 2
 
 func main
   new Math std
-  a = std.add a b
+  new Math adt
+  a = std.a
+  b = std.c : a
+  a = adt.a
+  b = adt.c : a
 ret 

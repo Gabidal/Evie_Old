@@ -1,12 +1,8 @@
 var return = 0
-var false = 0
-var true = 1
 
 type Math
-  var history : 256
-  var i = 0
+  var a = 1
+  var b = 2
+  var c : 23
 ;
 
-func add a b 
-  a = a + b
-ret
