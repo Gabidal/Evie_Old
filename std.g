@@ -1,15 +1,6 @@
 var return = 0
 
-type Bit
-  var bit : 8
+type NAND1D
+  var NAND : 128
 ;
-
-type word
-  new Bit Word : 2
-;
-
-type double
-  new Word Double : 2
-;
-
 

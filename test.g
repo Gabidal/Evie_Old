@@ -1,11 +1,21 @@
 use std.g
-var a = 989
-var b = 0
 
-char a[12*12*12]
+func getFromNAND y x
+  var a = 0
+  var z = 0
+  z = y * 128
+  z = z + x
+  a = NAND2D : z
+  return = a
+ret
+
+func NAND a b 
+  return = a !& b 
+ret 
 
 func main
-  new Double d : 2
-  d.bit : 1*12*12+2*12+3 = a
-  b = dbit : 1*12*12+2*12+3
+  new NAND1D NAND2D : 128
+  getFromNAND 0 0
+  getFromNAND 0 1
+  getFromNAND 1 0
 ret 
