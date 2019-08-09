@@ -13,15 +13,12 @@ main:
 push ebp
 mov ebp, esp
 sub esp, 0
-mov eax , dword [std.a]
-mov esi, eax 
-lea esi, dword std.c[esi * 4]
-mov edx , dword [esi]
-mov [b], edx 
-mov eax , dword [adt.a]
-mov esi, eax 
-lea esi, adt.c[esi * 4]
-mov eax , dword [esi]
+mov ecx , dword [a]
+lea esi, d.bit[4*(1*12*12+2*12+3)]
+mov [esi], ecx 
+mov esi, 1*12*12+2*12+3
+mov ebx , dword [esi]
+mov [b], ebx 
 mov esp, ebp
 pop ebp
 ret
@@ -30,14 +27,9 @@ ret
 
 [section .data]
 return dd 0
-Math.a dd 1
-Math.b dd 2
-Math.c times 23 dd 0
-a dd 1
-b dd 2
-std.c times 23 dd 0
-std.b dd 0
-std.a dd 0
-adt.c times 23 dd 0
-adt.b dd 0
-adt.a dd 0
+Bit.bit times 8 dd 0
+Word.bit times 8*2*2 dd 0
+Double.bit times 8*2*4 dd 0
+a dd 989
+b dd 0
+d.bit times 8*2*6 dd 0

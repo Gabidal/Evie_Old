@@ -1,8 +1,15 @@
 var return = 0
 
-type Math
-  var a = 1
-  var b = 2
-  var c : 23
+type Bit
+  var bit : 8
 ;
+
+type word
+  new Bit Word : 2
+;
+
+type double
+  new Word Double : 2
+;
+
 

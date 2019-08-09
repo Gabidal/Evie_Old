@@ -27,10 +27,9 @@ map <string, string> varPointers;
 map <string, string> ArrayVariables;
 vector<string> functions;
 vector<string> localVars;
-vector<string> Types;
+map<string, int> Types;
 int localVarLocation;
 
-vector<string> types;
 vector<string> className;  //className . functionName:
 
 extern int getError(char, string&, string, int, string&);
@@ -47,6 +46,19 @@ string sx()
         spaces += " ";
     }
     return spaces;
+}
+
+string autoValue(string normalSize, string multiplyer, int layer)
+{
+    if (multiplyer.size() > 0)
+    {
+        return normalSize + "*" + multiplyer + "*" + to_string(layer);
+    }
+    else
+    {
+        return normalSize;
+    }
+    
 }
 
 void getFreeReg()
@@ -743,7 +755,7 @@ void useVar(int &index, string destination)
                 auto node1 = variables.find(autoName(destination));
                 if (node1 != variables.end())
                 {
-                    codbuffer += sx() + "lea esi, " + autoName(destination) + "[4*" + para2 + "]\n";
+                    codbuffer += sx() + "lea esi, " + autoName(destination) + "[4*(" + para2 + ")]\n";
                 }
                 codbuffer += sx() +  "mov [esi], " + node->second + "\n";
             }
@@ -756,7 +768,7 @@ void useVar(int &index, string destination)
                 auto node1 = variables.find(autoName(destination));
                 if (node1 != variables.end())
                 {
-                    codbuffer += sx() + "lea esi, " + autoName(destination) + "[4*" + para2 + "]\n";
+                    codbuffer += sx() + "lea esi, " + autoName(destination) + "[4*(" + para2 + ")]\n";
                 }
                 codbuffer += sx() +  "mov [esi], " + reg3 + "\n";
             }
@@ -766,7 +778,7 @@ void useVar(int &index, string destination)
                 auto node1 = variables.find(autoName(destination));
                 if (node1 != variables.end())
                 {
-                    codbuffer += sx() + "lea esi, " + autoName(destination) + "[4*" + para2 + "]\n";
+                    codbuffer += sx() + "lea esi, " + autoName(destination) + "[4*(" + para2 + ")]\n";
                 }
                 codbuffer += sx() +  "mov [esi], " + reg2 + "\n";
             }
@@ -825,11 +837,7 @@ void useVar(int &index, string destination)
         if (isArray == ":")
         {
             index = offset;
-            //a = b : a
-            //mov reg, dword [a]
-            //mov esi, reg
-            //mov a, b[esi]
-            auto node1 = varPointers.find(value);
+            auto node1 = varPointers.find(autoName(value));
             if (node1 != varPointers.end())
             {
                 codbuffer += sx() +  "mov esi, " + node1->second + "\n";
@@ -846,7 +854,7 @@ void useVar(int &index, string destination)
                 {
                 getFreeReg();
                 string reg2 = regbuffer;
-                auto node2 = variables.find(value);
+                auto node2 = variables.find(autoName(value));
                 if (node2 != variables.end())
                 {
                     codbuffer += sx() +  "mov " + reg2 + ", dword [" + autoName(value) + "]\n";
@@ -1156,7 +1164,7 @@ void makeNewType(int &index)
 {
     string typeName;
     index = getWord(' ', typeName, parameters, index);
-    types.push_back(typeName);
+    Types.insert(make_pair(typeName, 0));
     className.push_back(typeName + ".");
 }
 
@@ -1169,11 +1177,19 @@ void makeNew(int &index)
 {
     string TypeName;
     string newTypeBranch;
+    string ifNewBranchIsArray;
+    string ArraySize = "";
+    int initialSize = 0;
     index = getWord(' ', TypeName, parameters, index);
     index = getWord(' ', newTypeBranch, parameters, index);
+    int offset = getWord(' ', ifNewBranchIsArray, parameters, index);
+    if (ifNewBranchIsArray == ":")
+    {
+        index = offset;
+        index = getWord(' ', ArraySize, parameters, index);
+    }
     vector<string> LocalTypeVariables;
     vector<string> newBranchVariables;
-    Types.push_back(newTypeBranch);
 
     for (auto& i : variables) 
     {
@@ -1182,21 +1198,35 @@ void makeNew(int &index)
             LocalTypeVariables.push_back(i.first);
         }
     }
-    
     for (int i = 0; 0 < LocalTypeVariables.size(); i++)
     {
         int offset = 0;
         string dest = "";
+        int exponent = 0;
         reverse(LocalTypeVariables.back().begin(), LocalTypeVariables.back().end());
         offset = getWord('.', dest,LocalTypeVariables.back(), offset);
         reverse(dest.begin(), dest.end());
+        for (auto& vars : variables) 
+        {
+            for (auto &j : Types)
+            {
+                string test = "";
+                test = j.first + "." + dest;
+                if (vars.first.find(test) != -1) 
+                {
+                    exponent++;
+                    exponent++;
+                }
+            }
+        }
         newBranchVariables.push_back(dest);
         LocalTypeVariables.pop_back();
         auto node1 = ArrayVariables.find(dest);
         if (node1 != ArrayVariables.end())
         {
-            varbuffer += newTypeBranch + "." + newBranchVariables.back() + " times " + node1->second + " dd 0\n";
+            varbuffer += newTypeBranch + "." + newBranchVariables.back() + " times " + autoValue(node1->second, ArraySize, exponent) + " dd 0\n";
             variables.insert(make_pair(newTypeBranch + "." + newBranchVariables.back(), true));
+            Types.insert(make_pair(newTypeBranch, (atoi(ArraySize.c_str()) * atoi(node1->second.c_str()) * exponent)));
         }
         else
         {
@@ -1297,8 +1327,6 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
         makeNew(continu);
     }
     
-    
-    //...
     for (auto& i : variables) 
     {
         if (i.second == true)
