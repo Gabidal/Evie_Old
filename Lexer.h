@@ -13,6 +13,7 @@ string includes1 = "";
 string codbuffer1 = "global _start\n_start:\ncall main\nmov eax, 1\nmov ebx, 0\nint 80h\n\n[section .code]\n";
 string varbuffer1 = "\n\n[section .data]\n";
 string texbuffer1 = "\n\n[section .text]\n";
+vector <clock_t> parsed;
 
 void initializeKeyWords()
 {
@@ -164,7 +165,10 @@ void lexer(string file, string &outbuffer)
 
         if (i != file.size()) 
         {
+            clock_t parserTimerS = clock();
             parser(destination, file, continu, varbuffer1, codbuffer1, texbuffer1, includes1);
+            clock_t parserTimerE = clock();
+            parsed.push_back(parserTimerE - parserTimerS);
             destination = "";
             if (includes1.size() > 2)
             {
