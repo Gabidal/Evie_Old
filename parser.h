@@ -50,15 +50,15 @@ string sx()
 
 void disconnectFromRegister(string reg)
 {
-    for (auto &i : varPointers)
+    for (auto i = varPointers.rbegin(); i != varPointers.rend(); )
     {
-        if (i.second == reg)
+        if (i->second == reg)
         {
-            varPointers.erase(i.first);
+            varPointers.erase(i->first);
         }
-        if (varPointers.size() < 1)
+        else
         {
-            break;
+            i++;
         }
     }
 }
@@ -163,6 +163,8 @@ void doAddition(int &index)
     string trash1;
     string trash2;
     // a  = b + c
+    codbuffer += "\n";  //make new asm block of code
+
     offset = getReversedIndex(' ', parameters, index-1); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
     reverse(trash.begin(), trash.end());
@@ -214,6 +216,7 @@ void doAddition(int &index)
             varPointers.insert(make_pair(autoName(para1), trash1));
             varPointers.insert(make_pair(autoName(para2), trash2));
     }
+    codbuffer += "\n";  //make new asm block of code
 }
 
 void doSubstraction(int &index)
@@ -226,6 +229,8 @@ void doSubstraction(int &index)
     string trash1;
     string trash2;
     // a       = b + c
+    codbuffer += "\n";  //make new asm block of code
+
     offset = getReversedIndex(' ', parameters, index-1); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
     reverse(trash.begin(), trash.end());
@@ -275,6 +280,7 @@ void doSubstraction(int &index)
             varPointers.insert(make_pair(autoName(para1), trash1));
             varPointers.insert(make_pair(autoName(para2), trash2));
     }
+    codbuffer += "\n";  //make new asm block of code
 }
 
 void doMultiply(int &index)
@@ -329,7 +335,7 @@ void doMultiply(int &index)
         else
         {
             codbuffer += "push eax\n";
-            codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+            codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
             codbuffer += "mul " + node->second + "\n";
             codbuffer += "mov [" + autoName(para3) + "], eax\n";
             codbuffer += "pop eax\n";
@@ -340,7 +346,7 @@ void doMultiply(int &index)
         getFreeReg();
         string reg1 = regbuffer;
         codbuffer += "push eax\n";
-        codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+        codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
         codbuffer += "mov " + reg1 + ", dword [" + autoName(para1) + "]\n";
         codbuffer += "mul " + reg1 + "\n";
         codbuffer += "mov [" + autoName(para3) + "], eax\n";
@@ -402,7 +408,7 @@ void doDivision(int &index)
         else
         {
             codbuffer += "push eax\n";
-            codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+            codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
             codbuffer += "div " + node->second + "\n";
             codbuffer += "mov [" + autoName(para3) + "], eax\n";
             codbuffer += "pop eax\n";
@@ -413,7 +419,7 @@ void doDivision(int &index)
         getFreeReg();
         string reg1 = regbuffer;
         codbuffer += "push eax\n";
-        codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+        codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
         codbuffer += "mov " + reg1 + ", dword [" + autoName(para1) + "]\n";
         codbuffer += "div " + reg1 + "\n";
         codbuffer += "mov [" + autoName(para3) + "], eax\n";

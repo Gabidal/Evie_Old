@@ -1,7 +1,12 @@
 use std.g
-var a = 1
+var a = 0
+var b = 2
+var c = 3
 
 func main
-  var b = 2
-  a = a / b
+  a = a * a
+  a = b / a
+  a = b + c
+  a = a - c
+
 ret 
