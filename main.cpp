@@ -15,8 +15,8 @@ int main()
     initializeKeyWords();
     clock_t lexerTimerS = clock();
     lexer(input, output);
-    cout << "  G::Parsing...\n";
     clock_t lexerTimerE = clock();
+    cout << "  G::Parsing...\n  G::Writing the output...\n";
     writeFile(outFile, output);
     double sum = 0;
     double parsedSize = parsed.size();
@@ -28,8 +28,8 @@ int main()
     cout << "  G::Done!\n\n";
 
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
-    cout << "Lexered == " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) << endl;
-    cout << "Parsered == " + to_string(sum / float(CLOCKS_PER_SEC)) << endl;
+    cout << "Lexered  == " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) + "  second's" << endl;
+    cout << "Parsered == " + to_string(sum / float(CLOCKS_PER_SEC)) + "  second's" << endl;
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
 
     return 0;

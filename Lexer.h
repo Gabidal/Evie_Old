@@ -10,9 +10,9 @@
 using namespace std;
 vector<string> keyWords;
 string includes1 = "";
-string codbuffer1 = "global _start\n_start:\ncall main\nmov eax, 1\nmov ebx, 0\nint 80h\n\n[section .code]\n";
-string varbuffer1 = "\n\n[section .data]\n";
-string texbuffer1 = "\n\n[section .text]\n";
+string codbuffer1 = "global _start\n_start:\ncall main\nmov eax, 1\nmov ebx, 0\nint 80h\n\nsection .code\n";
+string varbuffer1 = "\n\nsection .data\n";
+string texbuffer1 = "\n\nsection .text\n";
 vector <clock_t> parsed;
 
 void initializeKeyWords()

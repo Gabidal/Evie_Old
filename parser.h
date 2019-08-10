@@ -48,6 +48,21 @@ string sx()
     return spaces;
 }
 
+void disconnectFromRegister(string reg)
+{
+    for (auto &i : varPointers)
+    {
+        if (i.second == reg)
+        {
+            varPointers.erase(i.first);
+        }
+        if (varPointers.size() < 1)
+        {
+            break;
+        }
+    }
+}
+
 string autoValue(string normalSize, string multiplyer, int layer)
 {
     if (multiplyer.size() > 0)
@@ -94,7 +109,7 @@ bool ifVarIsLocal(string name)
     }
     else
     {
-        addition = className.back() + LocalizedVariableNames.back() + ".";
+        addition = className.back() + LocalizedVariableNames.back();
     }
     
     auto node1 = variables.find(addition + name);
@@ -128,7 +143,7 @@ string autoName(string name)
         }
         else
         {
-            return className.back() + LocalizedVariableNames.back() + "." + name;
+            return className.back() + LocalizedVariableNames.back() + name;
         }
         
     }
@@ -244,7 +259,7 @@ void doSubstraction(int &index)
             codbuffer += sx() +  "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "sub " + node->second + ", " + reg1 + "\n";
             codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
-            varPointers.insert(make_pair(para2, reg1));
+            varPointers.insert(make_pair(autoName(para2), reg1));
         }
     }
     else
@@ -271,7 +286,9 @@ void doMultiply(int &index)
     string trash;
     string trash1;
     string trash2;
-    // a       = b + c
+    // a = b * c
+    codbuffer += "\n";  //make new asm block of code
+
     offset = getReversedIndex(' ', parameters, index-1); //trash offset
     offset = getReversedWord(' ', trash, parameters, offset); //trash
     reverse(trash.begin(), trash.end());
@@ -287,47 +304,123 @@ void doMultiply(int &index)
     offset = getReversedIndex(' ', parameters, offset); //a offset
     offset = getReversedWord(' ', para3, parameters, offset); //a
     reverse(para3.begin(), para3.end());
-    
+
     index = getWord(' ', para2, parameters, index);  // c
+
     auto node = varPointers.find(autoName(para1));
     if (node != varPointers.end())
     {
         auto node1 = varPointers.find(autoName(para2));
         if (node1 != varPointers.end())
         {
-            codbuffer += sx() +  "mov eax, " + node->second + "\n";
-            codbuffer += sx() +  "mul " + node->second + "\n";
-            codbuffer += sx() +  "mov [" + autoName(para3) + "], eax\n";
-            codbuffer += sx() +  "mov " + node1->second + ", eax\n";
+            if (node1->second != "eax ")
+            {
+                codbuffer += "push eax\n";
+                codbuffer += "mov eax, " + node1->second + "\n";
+            }
+            codbuffer += "mul " + node->second + "\n";
+            if (node1->second != "eax ")
+            {
+                codbuffer += "pop " + node1->second + "\n";
+                codbuffer += "xchg eax, " + node1->second + "\n";
+            }
+            codbuffer += "mov [" + autoName(para3) + "], " + node1->second +"\n";
         }
         else
         {
-            getFreeReg();
-            string reg1 = regbuffer;
-            codbuffer += sx() +  "mov eax, " + node->second + "\n";
-            codbuffer += sx() +  "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
-            codbuffer += sx() +  "mul " + reg1 + "\n";
-            codbuffer += sx() +  "mov [" + autoName(para3) + "], eax\n";
-            codbuffer += sx() +  "mov " + reg1 + ", eax\n";
-            varPointers.insert(make_pair(para2, reg1));
-
+            codbuffer += "push eax\n";
+            codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+            codbuffer += "mul " + node->second + "\n";
+            codbuffer += "mov [" + autoName(para3) + "], eax\n";
+            codbuffer += "pop eax\n";
         }
     }
     else
     {
         getFreeReg();
-        trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
-        getFreeReg();
-        trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
-            codbuffer += sx() +  "mov eax, " + trash1 + "\n";
-            codbuffer += sx() +  "mul " + trash2 + "\n";
-            codbuffer += sx() +  "mov [" + autoName(para3) + "], eax\n";
-            codbuffer += sx() +  "mov " + trash2 + ", eax\n";
-            varPointers.insert(make_pair(para1, trash1));
-            varPointers.insert(make_pair(para2, trash2));
+        string reg1 = regbuffer;
+        codbuffer += "push eax\n";
+        codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+        codbuffer += "mov " + reg1 + ", dword [" + autoName(para1) + "]\n";
+        codbuffer += "mul " + reg1 + "\n";
+        codbuffer += "mov [" + autoName(para3) + "], eax\n";
+        codbuffer += "pop eax\n";
+        varPointers.insert(make_pair(autoName(para1), reg1));
     }
+    codbuffer += "\n";  //make end block of code
+}
+
+void doDivision(int &index)
+{
+    int offset;
+    string para1;  //b
+    string para2;  //c
+    string para3;  //a
+    string trash;
+    string trash1;
+    string trash2;
+    // a = b * c
+    codbuffer += "\n";  //make new asm block of code
+
+    offset = getReversedIndex(' ', parameters, index-1); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //b offset
+    offset = getReversedWord(' ', para1, parameters, offset); //b 
+    reverse(para1.begin(), para1.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //trash offset
+    offset = getReversedWord(' ', trash, parameters, offset); //trash
+    reverse(trash.begin(), trash.end());
+
+    offset = getReversedIndex(' ', parameters, offset); //a offset
+    offset = getReversedWord(' ', para3, parameters, offset); //a
+    reverse(para3.begin(), para3.end());
+
+    index = getWord(' ', para2, parameters, index);  // c
+
+    auto node = varPointers.find(autoName(para1));
+    if (node != varPointers.end())
+    {
+        auto node1 = varPointers.find(autoName(para2));
+        if (node1 != varPointers.end())
+        {
+            if (node1->second != "eax ")
+            {
+                codbuffer += "push eax\n";
+                codbuffer += "mov eax, " + node1->second + "\n";
+            }
+            codbuffer += "div " + node->second + "\n";
+            if (node1->second != "eax ")
+            {
+                codbuffer += "pop " + node1->second + "\n";
+                codbuffer += "xchg eax, " + node1->second + "\n";
+            }
+            codbuffer += "mov [" + autoName(para3) + "], " + node1->second +"\n";
+        }
+        else
+        {
+            codbuffer += "push eax\n";
+            codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+            codbuffer += "div " + node->second + "\n";
+            codbuffer += "mov [" + autoName(para3) + "], eax\n";
+            codbuffer += "pop eax\n";
+        }
+    }
+    else
+    {
+        getFreeReg();
+        string reg1 = regbuffer;
+        codbuffer += "push eax\n";
+        codbuffer += "mov eax, [" + autoName(para2) + "]\n";
+        codbuffer += "mov " + reg1 + ", dword [" + autoName(para1) + "]\n";
+        codbuffer += "div " + reg1 + "\n";
+        codbuffer += "mov [" + autoName(para3) + "], eax\n";
+        codbuffer += "pop eax\n";
+        varPointers.insert(make_pair(autoName(para1), reg1));
+    }
+    codbuffer += "\n";  //make end block of code
 }
 
 void doAND(int &index)
@@ -640,6 +733,7 @@ void doOR(int &index)
             varPointers.insert(make_pair(para2, trash2));
     }
 }
+
 void makeVar(int &index)
 {
     string para1;
@@ -965,7 +1059,7 @@ void makeFunc(int &index)
     string para1;
     index = getWord(' ', para1, parameters, index);
     codbuffer += sx() + className.back() +  para1 + ":\n";
-    functions.push_back(className.back() + para1);
+    functions.push_back(className.back() + para1 + ".");
     returnLayer++;
     vector<string> paraOrder;
     string reg1 = regbuffer;
@@ -1004,7 +1098,7 @@ void makeFunc(int &index)
 
     codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
     codbuffer += sx() + "sub esp, " + to_string(localVars.size() * 4) + "\n";
-    LocalizedVariableNames.push_back(para1);
+    LocalizedVariableNames.push_back(para1 + ".");
 
     for (int i = 0; 0 < localPointers.size(); i++)
     {
@@ -1289,18 +1383,13 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     }
     if (destination == "*")
     {
-        for (auto it = varPointers.rbegin(); it != varPointers.rend(); it++) {
-            if (it->second == "eax ")
-            {
-                varPointers.erase(it->second);
-            }
-        }
-
-        for (auto node : varPointers) 
-        {
-            
-        }
+        disconnectFromRegister("eax ");
         doMultiply(continu);
+    }
+    if (destination == "/")
+    {
+        disconnectFromRegister("eax ");
+        doDivision(continu);
     }
     if (destination == "ret")
     {
