@@ -787,7 +787,15 @@ void callFunction(string function, int &index)
         if (para1.length() > 0) 
         {
             auto node = varPointers.find(para1);
-            if (node != varPointers.end())
+            if (para1.find('%')!= string::npos)
+            {
+                para1.erase(para1.begin());  //deleting the % marking
+
+                codbuffer += "lea esi, [" + para1 + "]\n";
+                codbuffer += "push esi\n"; 
+
+            }
+            else if (node != varPointers.end())
             {
                 codbuffer += sx() + "push " + node->second + "\n";
             }
@@ -808,7 +816,7 @@ void callFunction(string function, int &index)
             break;
         }
     }
-    codbuffer += sx() +   "call " + function + "\n";
+    codbuffer += sx() +   "call " + className.back() + function + "\n";
 }
 
 string getReturn()
@@ -1112,11 +1120,17 @@ void makeFunc(int &index)
         string reg2 = regbuffer;
         string para3 = localPointers.back();
         localPointers.pop_back();
-        para3 = para3.substr(1);
+        para3.erase(para3.begin());
+
+        codbuffer += ";" + para3 + " is now pointer.\n";
         codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
+
         varbuffer += className.back() + LocalizedVariableNames.back() + para3 + " dd 0\n";
+
         codbuffer += sx() + "mov [" + className.back() + LocalizedVariableNames.back() + para3 + "], " + reg2 + "\n";
+
         varPointers.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, reg2));
+
         variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, false));
     }
     for (int i = 0; 0 < localVars.size(); i++)
@@ -1125,10 +1139,16 @@ void makeFunc(int &index)
         string reg2 = regbuffer;
         string para3 = localVars.back();
         localVars.pop_back();
+
+        codbuffer += ";" + para3 + " is now a variable.\n";
         codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
+
         varbuffer += className.back() + LocalizedVariableNames.back()  + para3 + " dd 0\n";
+
         codbuffer += sx() + "mov [" + className.back() + LocalizedVariableNames.back() + para3 + "], " + reg2 + "\n";
+
         varPointers.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, reg2));
+
         variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, false));
     }
 
