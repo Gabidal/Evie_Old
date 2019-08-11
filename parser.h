@@ -456,37 +456,37 @@ void doAND(int &index)
     reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
-    auto node = varPointers.find(para1);
+    auto node = varPointers.find(autoName(para1));
     if (node != varPointers.end())
     {
-        auto node1 = varPointers.find(para2);
+        auto node1 = varPointers.find(autoName(para2));
         if (node1 != varPointers.end())
         {
             codbuffer += sx() + "and " + node->second + ", " + node1->second + "\n";
-            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+            codbuffer += sx() + "mov [" + autoName(para3) + "], " + node->second + "\n";
         }
         else
         {
             getFreeReg();
             string reg1 = regbuffer;
-            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "and " + node->second + ", " + reg1 + "\n";
-            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
-            varPointers.insert(make_pair(para2, reg1));
+            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
+            varPointers.insert(make_pair(autoName(para2), reg1));
         }
     }
     else
     {
         getFreeReg();
         trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
         getFreeReg();
         trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
         codbuffer += sx() +  "and " + trash1 + ", " + trash2 + "\n";
-        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
-            varPointers.insert(make_pair(para1, trash1));
-            varPointers.insert(make_pair(para2, trash2));
+        codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(autoName(para1), trash1));
+            varPointers.insert(make_pair(autoName(para2), trash2));
     }
 }
 
@@ -517,40 +517,40 @@ void doNAND(int &index)
     reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
-    auto node = varPointers.find(para1);
+    auto node = varPointers.find(autoName(para1));
     if (node != varPointers.end())
     {
-        auto node1 = varPointers.find(para2);
+        auto node1 = varPointers.find(autoName(para2));
         if (node1 != varPointers.end())
         {
             codbuffer += sx() + "and " + node->second + ", " + node1->second + "\n";
             codbuffer += sx() + "not " + node->second + "\n";
-            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+            codbuffer += sx() + "mov [" + autoName(para3) + "], " + node->second + "\n";
         }
         else
         {
             getFreeReg();
             string reg1 = regbuffer;
-            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "and " + node->second + ", " + reg1 + "\n";
             codbuffer += sx() + "not " + node->second + "\n";
-            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
-            varPointers.insert(make_pair(para2, reg1));
+            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
+            varPointers.insert(make_pair(autoName(para2), reg1));
         }
     }
     else
     {
         getFreeReg();
         trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
         getFreeReg();
         trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
         codbuffer += sx() +  "and " + trash1 + ", " + trash2 + "\n";
         codbuffer += sx() + "not " + trash1 + "\n";
-        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
-            varPointers.insert(make_pair(para1, trash1));
-            varPointers.insert(make_pair(para2, trash2));
+        codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(autoName(para1), trash1));
+            varPointers.insert(make_pair(autoName(para2), trash2));
     }
 }
 
@@ -581,40 +581,40 @@ void doNOR(int &index)
     reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
-    auto node = varPointers.find(para1);
+    auto node = varPointers.find(autoName(para1));
     if (node != varPointers.end())
     {
-        auto node1 = varPointers.find(para2);
+        auto node1 = varPointers.find(autoName(para2));
         if (node1 != varPointers.end())
         {
             codbuffer += sx() + "or " + node->second + ", " + node1->second + "\n";
             codbuffer += sx() + "not " + node->second + "\n";
-            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+            codbuffer += sx() + "mov [" + autoName(para3) + "], " + node->second + "\n";
         }
         else
         {
             getFreeReg();
             string reg1 = regbuffer;
-            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "or " + node->second + ", " + reg1 + "\n";
             codbuffer += sx() + "not " + node->second + "\n";
-            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
-            varPointers.insert(make_pair(para2, reg1));
+            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
+            varPointers.insert(make_pair(autoName(para2), reg1));
         }
     }
     else
     {
         getFreeReg();
         trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
         getFreeReg();
         trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
         codbuffer += sx() +  "or " + trash1 + ", " + trash2 + "\n";
         codbuffer += sx() + "not " + trash1 + "\n";
-        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
-            varPointers.insert(make_pair(para1, trash1));
-            varPointers.insert(make_pair(para2, trash2));
+        codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(autoName(para1), trash1));
+            varPointers.insert(make_pair(autoName(para2), trash2));
     }
 }
 
@@ -645,37 +645,37 @@ void doXOR(int &index)
     reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
-    auto node = varPointers.find(para1);
+    auto node = varPointers.find(autoName(para1));
     if (node != varPointers.end())
     {
-        auto node1 = varPointers.find(para2);
+        auto node1 = varPointers.find(autoName(para2));
         if (node1 != varPointers.end())
         {
             codbuffer += sx() + "xor " + node->second + ", " + node1->second + "\n";
-            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+            codbuffer += sx() + "mov [" + autoName(para3) + "], " + node->second + "\n";
         }
         else
         {
             getFreeReg();
             string reg1 = regbuffer;
-            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "xor " + node->second + ", " + reg1 + "\n";
-            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
-            varPointers.insert(make_pair(para2, reg1));
+            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
+            varPointers.insert(make_pair(autoName(para2), reg1));
         }
     }
     else
     {
         getFreeReg();
         trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
         getFreeReg();
         trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
         codbuffer += sx() +  "xor " + trash1 + ", " + trash2 + "\n";
-        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
-            varPointers.insert(make_pair(para1, trash1));
-            varPointers.insert(make_pair(para2, trash2));
+        codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(autoName(para1), trash1));
+            varPointers.insert(make_pair(autoName(para2), trash2));
     }
 }
 
@@ -706,37 +706,37 @@ void doOR(int &index)
     reverse(para3.begin(), para3.end());
     
     index = getWord(' ', para2, parameters, index);  // c
-    auto node = varPointers.find(para1);
+    auto node = varPointers.find(autoName(para1));
     if (node != varPointers.end())
     {
-        auto node1 = varPointers.find(para2);
+        auto node1 = varPointers.find(autoName(para2));
         if (node1 != varPointers.end())
         {
             codbuffer += sx() + "or " + node->second + ", " + node1->second + "\n";
-            codbuffer += sx() + "mov [" + para3 + "], " + node->second + "\n";
+            codbuffer += sx() + "mov [" + autoName(para3) + "], " + node->second + "\n";
         }
         else
         {
             getFreeReg();
             string reg1 = regbuffer;
-            codbuffer += sx() + "mov " + reg1 + ", dword [" + para2 + "]\n";
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "or " + node->second + ", " + reg1 + "\n";
-            codbuffer += sx() +  "mov [" + para3 + "], " + node->second + "\n";
-            varPointers.insert(make_pair(para2, reg1));
+            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
+            varPointers.insert(make_pair(autoName(para2), reg1));
         }
     }
     else
     {
         getFreeReg();
         trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + para1 + "]\n";
+        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
         getFreeReg();
         trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + para2 + "]\n";
+        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
         codbuffer += sx() +  "or " + trash1 + ", " + trash2 + "\n";
-        codbuffer += sx() +  "mov [" + para3 + "], " + trash1 + "\n";
-            varPointers.insert(make_pair(para1, trash1));
-            varPointers.insert(make_pair(para2, trash2));
+        codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
+            varPointers.insert(make_pair(autoName(para1), trash1));
+            varPointers.insert(make_pair(autoName(para2), trash2));
     }
 }
 
@@ -1114,10 +1114,10 @@ void makeFunc(int &index)
         localPointers.pop_back();
         para3 = para3.substr(1);
         codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
-        varbuffer += className.back() + LocalizedVariableNames.back() + "." + para3 + " dd 0\n";
-        codbuffer += sx() + "mov [" + className.back() + LocalizedVariableNames.back() + "." + para3 + "], " + reg2 + "\n";
-        varPointers.insert(make_pair(className.back() + LocalizedVariableNames.back() + "." + para3, reg2));
-        variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + "." + para3, false));
+        varbuffer += className.back() + LocalizedVariableNames.back() + para3 + " dd 0\n";
+        codbuffer += sx() + "mov [" + className.back() + LocalizedVariableNames.back() + para3 + "], " + reg2 + "\n";
+        varPointers.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, reg2));
+        variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, false));
     }
     for (int i = 0; 0 < localVars.size(); i++)
     {
@@ -1126,10 +1126,10 @@ void makeFunc(int &index)
         string para3 = localVars.back();
         localVars.pop_back();
         codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
-        varbuffer += className.back() + LocalizedVariableNames.back()  + "." + para3 + " dd 0\n";
-        codbuffer += sx() + "mov [" + className.back() + LocalizedVariableNames.back() + "." +  para3 + "], " + reg2 + "\n";
-        varPointers.insert(make_pair(className.back() + LocalizedVariableNames.back() + "." + para3, reg2));
-        variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + "." + para3, false));
+        varbuffer += className.back() + LocalizedVariableNames.back()  + para3 + " dd 0\n";
+        codbuffer += sx() + "mov [" + className.back() + LocalizedVariableNames.back() + para3 + "], " + reg2 + "\n";
+        varPointers.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, reg2));
+        variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para3, false));
     }
 
 }
@@ -1441,7 +1441,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     }
     for (int i = 0; i < functions.size();i++)
     {
-        if (functions[i] == destination)
+        if (functions[i] == destination + ".")
         {
             callFunction(destination, continu);
         }
