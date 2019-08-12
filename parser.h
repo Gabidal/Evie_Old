@@ -1349,10 +1349,38 @@ void doInterruption(int &index)
     index = getWord(' ', ecx, parameters, index);
     index = getWord(' ', edx, parameters, index);
     index = getWord(' ', callingnumber, parameters, index);
-    codbuffer += "mov eax, " + autoName(eax) + "\n";
-    codbuffer += "mov ebx, " + autoName(ebx) + "\n";
-    codbuffer += "mov ecx, [" + autoName(ecx) + "]\n";
-    codbuffer += "mov edx, [" + autoName(edx) + "]\n";
+    if (isdigit(eax.at(0)))
+    {
+        codbuffer += "mov eax, " + autoName(eax) + "\n";
+    }
+    else
+    {
+        codbuffer += "mov eax, [" + autoName(eax) + "]\n";
+    }
+    if (isdigit(ebx.at(0)))
+    {
+        codbuffer += "mov ebx, " + autoName(ebx) + "\n";
+    }
+    else
+    {
+        codbuffer += "mov ebx, [" + autoName(ebx) + "]\n";
+    }
+    if (isdigit(ecx.at(0)))
+    {
+        codbuffer += "mov ecx, " + autoName(ecx) + "\n";
+    }
+    else
+    {
+        codbuffer += "mov ecx, [" + autoName(ecx) + "]\n";
+    }
+    if (isdigit(edx.at(0)))
+    {
+        codbuffer += "mov edx, " + autoName(edx) + "\n";
+    }
+    else
+    {
+        codbuffer += "mov edx, [" + autoName(edx) + "]\n";
+    }
     codbuffer += "int " + callingnumber + "\n";
 }
 
