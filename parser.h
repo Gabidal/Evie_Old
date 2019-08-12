@@ -28,6 +28,7 @@ map <string, string> ArrayVariables;
 vector<string> functions;
 vector<string> localVars;
 map<string, int> Types;
+map <string, bool> Strings;
 int localVarLocation;
 
 vector<string> className;  //className . functionName:
@@ -100,7 +101,7 @@ void getFreeReg()
     }
 }
 
-bool ifVarIsLocal(string name)
+bool ifVarIsLocal(string name, bool isItStr)
 {
     string addition = "";
     if (LocalizedVariableNames.back() == " ")
@@ -111,7 +112,11 @@ bool ifVarIsLocal(string name)
     {
         addition = className.back() + LocalizedVariableNames.back();
     }
-    
+    if (isItStr)
+    {
+        auto i = Strings.find(name);
+        return i->second;
+    }
     auto node1 = variables.find(addition + name);
     if (node1 != variables.end())
     {
@@ -123,18 +128,16 @@ bool ifVarIsLocal(string name)
         {
             return true;
         }
-        
     }
     else
     {
         return false;
     }
-    
 }
 
-string autoName(string name)
-{
-    bool isit = ifVarIsLocal(name);
+string autoName(string name, bool isString = false)
+{   
+    bool isit = ifVarIsLocal(name, isString);
     if (isit)
     {
         if (LocalizedVariableNames.back() == " ")
@@ -145,7 +148,6 @@ string autoName(string name)
         {
             return className.back() + LocalizedVariableNames.back() + name;
         }
-        
     }
     else
     {
@@ -194,12 +196,8 @@ void doAddition(int &index)
         }
         else
         {
-            getFreeReg();
-            string reg1 = regbuffer;
-            codbuffer += sx() + "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
-            codbuffer += sx() +  "add " + node->second + ", " + reg1 + "\n";
+            codbuffer += sx() +  "add " + node->second + ", [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
-            varPointers.insert(make_pair(para2, reg1));
         }
     }
     else
@@ -208,13 +206,9 @@ void doAddition(int &index)
         getFreeReg();
         trash1 = regbuffer;
         codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
-        getFreeReg();
-        trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
-        codbuffer += sx() +  "add " + trash1 + ", " + trash2 + "\n";
+        codbuffer += sx() +  "add " + trash1 + ", [" + autoName(para2) + "]\n";
         codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
-            varPointers.insert(make_pair(autoName(para1), trash1));
-            varPointers.insert(make_pair(autoName(para2), trash2));
+        varPointers.insert(make_pair(autoName(para1), trash1));
     }
     codbuffer += "\n";  //make new asm block of code
 }
@@ -259,12 +253,8 @@ void doSubstraction(int &index)
         }
         else
         {
-            getFreeReg();
-            string reg1 = regbuffer;
-            codbuffer += sx() +  "mov " + reg1 + ", dword [" + autoName(para2) + "]\n";
-            codbuffer += sx() +  "sub " + node->second + ", " + reg1 + "\n";
+            codbuffer += sx() +  "sub " + node->second + ", [" + autoName(para2) + "]\n";
             codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
-            varPointers.insert(make_pair(autoName(para2), reg1));
         }
     }
     else
@@ -272,13 +262,9 @@ void doSubstraction(int &index)
         getFreeReg();
         trash1 = regbuffer;
         codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
-        getFreeReg();
-        trash2 = regbuffer;
-        codbuffer += sx() +  "mov " + trash2 + ", dword [" + autoName(para2) + "]\n";
-        codbuffer += sx() +  "sub " + trash1 + ", " + trash2 + "\n";
+        codbuffer += sx() +  "sub " + trash1 + ", [" + autoName(para2) + "]\n";
         codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
-            varPointers.insert(make_pair(autoName(para1), trash1));
-            varPointers.insert(make_pair(autoName(para2), trash2));
+        varPointers.insert(make_pair(autoName(para1), trash1));
     }
     codbuffer += "\n";  //make new asm block of code
 }
@@ -343,15 +329,11 @@ void doMultiply(int &index)
     }
     else
     {
-        getFreeReg();
-        string reg1 = regbuffer;
         codbuffer += "push eax\n";
         codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
-        codbuffer += "mov " + reg1 + ", dword [" + autoName(para1) + "]\n";
-        codbuffer += "mul " + reg1 + "\n";
+        codbuffer += "mul dword [" + autoName(para1) + "]\n";
         codbuffer += "mov [" + autoName(para3) + "], eax\n";
         codbuffer += "pop eax\n";
-        varPointers.insert(make_pair(autoName(para1), reg1));
     }
     codbuffer += "\n";  //make end block of code
 }
@@ -416,15 +398,11 @@ void doDivision(int &index)
     }
     else
     {
-        getFreeReg();
-        string reg1 = regbuffer;
         codbuffer += "push eax\n";
         codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
-        codbuffer += "mov " + reg1 + ", dword [" + autoName(para1) + "]\n";
-        codbuffer += "div " + reg1 + "\n";
+        codbuffer += "div dword [" + autoName(para1) + "]\n";
         codbuffer += "mov [" + autoName(para3) + "], eax\n";
         codbuffer += "pop eax\n";
-        varPointers.insert(make_pair(autoName(para1), reg1));
     }
     codbuffer += "\n";  //make end block of code
 }
@@ -754,11 +732,13 @@ void makeVar(int &index)
         {
             varbuffer += className.back() + para1 + " times " + para3 + " dd 0\n";
             variables.insert(make_pair(className.back() + para1, true));
+            varbuffer += className.back() + para1 + ".size equ $ - " + className.back() + para1 + "\n";
         }
         else
         {
             varbuffer += className.back() + LocalizedVariableNames.back() + para1 + " times " + para3 + " dd 0\n";
             variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para1, false));
+            varbuffer += className.back() + LocalizedVariableNames.back() + para1 + ".size equ $ - " + className.back() + LocalizedVariableNames.back() + para1 + "\n";
         }
         ArrayVariables.insert(make_pair(para1, para3));
     }
@@ -1172,19 +1152,19 @@ string getJump(string condition)
     {
         return "jge ";
     }
-    if (condition == "!>")
+    if (condition == "!>" || condition == ">!")
     {
         return "jg ";
     }
-    if (condition == "!<")
+    if (condition == "!<" || condition == "<!")
     {
         return "jl ";
     }
-    if (condition == "=>")
+    if (condition == "=>" || condition == ">=")
     {
         return "jl ";
     }
-    if (condition == "=<")
+    if (condition == "=<" || condition == "<=")
     {
         return "jg ";
     }
@@ -1357,6 +1337,72 @@ void makeNew(int &index)
     }
 }
 
+void doInterruption(int &index)
+{
+    string eax;
+    string ebx;
+    string ecx;
+    string edx;
+    string callingnumber;
+    index = getWord(' ', eax, parameters, index);
+    index = getWord(' ', ebx, parameters, index);
+    index = getWord(' ', ecx, parameters, index);
+    index = getWord(' ', edx, parameters, index);
+    index = getWord(' ', callingnumber, parameters, index);
+    codbuffer += "mov eax, " + autoName(eax) + "\n";
+    codbuffer += "mov ebx, " + autoName(ebx) + "\n";
+    codbuffer += "mov ecx, [" + autoName(ecx) + "]\n";
+    codbuffer += "mov edx, [" + autoName(edx) + "]\n";
+    codbuffer += "int " + callingnumber + "\n";
+}
+
+void makeNewString(int &index)
+{
+    string name;
+    string is;
+    string str;
+    index = getWord(' ', name, parameters, index);
+    index = getWord(' ', is, parameters, index);
+    index = getWord(' ', str, parameters, index);
+    if (LocalizedVariableNames.back() != " ")
+    {
+        Strings.insert(make_pair(name, false));
+        name = className.back() + LocalizedVariableNames.back() + name;
+    }
+    else
+    {
+        Strings.insert(make_pair(name, true));
+        name = className.back() + name;
+    }
+    varbuffer += name + " db " + str + "\n";
+    varbuffer += name + ".size equ $ - " + name + "\n\n";
+
+}
+
+void useStr(int &index, string destination)
+{
+    string command;
+    string firstStr;
+
+    index = getWord(' ', command, parameters, index);
+    index = getWord(' ', firstStr, parameters, index);
+
+    if (command == "=")
+    {
+        codbuffer += "lea edi, [" + destination + "]\n";
+        codbuffer += "lea esi, [" + firstStr + "]\n";
+
+        codbuffer += "push ecx\n";
+        codbuffer += "mov ecx, " + firstStr + ".size\n";
+        codbuffer += "repz movsb \n";
+    }
+    else
+    {
+        // if this occurs it mean it's time for some functions baby!
+        
+    }
+}
+
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1)
 {
     codbuffer = "";
@@ -1441,7 +1487,20 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     {
         makeNew(continu);
     }
-    
+    if (destination == "sys")
+    {
+        doInterruption(continu);
+    }
+    if (destination == "str")
+    {
+        makeNewString(continu);
+    }
+    auto str = Strings.find(autoName(destination));
+    if (str != Strings.end())
+    {
+        useStr(continu, destination);
+    }
+
     for (auto& i : variables) 
     {
         if (i.second == true)

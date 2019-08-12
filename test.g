@@ -1,12 +1,16 @@
 use std.g
-var a = 0
-var b = 2
-var c = 3
+var x = 1
+var y = 1
+var z = 0
+str banana = "\nbananas\n"
+str apple = "\napple\n"
 
 func main
-  a = a * a
-  a = b / a
-  a = b + c
-  a = a - c
-
+  z = y + x
+  y = x - z
+  x = z * y
+  z = y / x
+  gout %banana %banana.size
+  banana = apple 
+  gout %apple %apple.size
 ret 
