@@ -1374,7 +1374,7 @@ void makeNewString(int &index)
         Strings.insert(make_pair(name, true));
         name = className.back() + name;
     }
-    varbuffer += name + " db " + str + "\n";
+    varbuffer += name + " db " + str + ", 0\n";
     varbuffer += name + ".size equ $ - " + name + "\n\n";
 
 }

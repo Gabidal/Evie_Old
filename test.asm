@@ -32,33 +32,6 @@ main:
 push ebp
 mov ebp, esp
 sub esp, 0
-mov ecx , dword [y]
-
-add ecx , [x]
-mov [z], ecx 
-
-mov eax , dword [x]
-
-sub eax , ecx 
-mov [y], ecx 
-
-mov [x] , ecx 
-
-push eax
-mov eax, ecx 
-mul ecx 
-pop ecx 
-xchg eax, ecx 
-mov [x], ecx 
-
-mov [z] , ecx 
-
-push eax
-mov eax, dword [x]
-div ecx 
-mov [z], eax
-pop eax
-
 lea esi, [banana]
 push esi
 lea esi, [banana.size]
@@ -87,9 +60,9 @@ gout.name dd 0
 x dd 1
 y dd 1
 z dd 0
-banana db "\nbananas\n"
+banana db 'bananas',10, 0
 banana.size equ $ - banana
 
-apple db "\napple\n"
+apple db 'apple',10, 0
 apple.size equ $ - apple
 
