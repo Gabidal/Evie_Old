@@ -24,6 +24,115 @@ mov ebx, 1
 mov ecx, [gout.name]
 mov edx, [gout.size]
 int 80h
+mov [carry], eax
+mov esp, ebp
+pop ebp
+ret
+
+gin:
+push ebp
+mov ebp, esp
+sub esp, 8
+;size is now a variable.
+mov ecx , [ebp+8]
+mov [gin.size], ecx 
+;name is now a variable.
+mov edx , [ebp+12]
+mov [gin.name], edx 
+mov eax, 3
+mov ebx, 2
+mov ecx, [gin.name]
+mov edx, [gin.size]
+int 80h
+mov [carry], eax
+mov esp, ebp
+pop ebp
+ret
+
+file.open:
+push ebp
+mov ebp, esp
+sub esp, 4
+;name is now a variable.
+mov eax , [ebp+8]
+mov [file.open.name], eax 
+mov eax, 5
+mov ebx, [file.open.name]
+mov ecx, 0
+mov edx, 0777
+int 80h
+mov [header], eax
+mov esp, ebp
+pop ebp
+ret
+
+file.make:
+push ebp
+mov ebp, esp
+sub esp, 4
+;name is now a variable.
+mov ebx , [ebp+8]
+mov [file.make.name], ebx 
+mov eax, 8
+mov ebx, [file.make.name]
+mov ecx, 0777
+mov edx, 0
+int 80h
+mov [header], eax
+mov esp, ebp
+pop ebp
+ret
+
+file.close:
+push ebp
+mov ebp, esp
+sub esp, 0
+mov eax, 6
+mov ebx, [header]
+mov ecx, 0
+mov edx, 0
+int 80h
+mov [header], eax
+mov esp, ebp
+pop ebp
+ret
+
+file.write:
+push ebp
+mov ebp, esp
+sub esp, 8
+;size is now a variable.
+mov ecx , [ebp+8]
+mov [file.write.size], ecx 
+;text is now a variable.
+mov edx , [ebp+12]
+mov [file.write.text], edx 
+mov eax, 4
+mov ebx, 1
+mov ecx, [file.write.text]
+mov edx, [file.write.size]
+int 80h
+mov [carry], eax
+mov esp, ebp
+pop ebp
+ret
+
+file.read:
+push ebp
+mov ebp, esp
+sub esp, 8
+;size is now a variable.
+mov eax , [ebp+8]
+mov [file.read.size], eax 
+;name is now a variable.
+mov ebx , [ebp+12]
+mov [file.read.name], ebx 
+mov eax, 3
+mov ebx, [header]
+mov ecx, [file.read.name]
+mov edx, [file.read.size]
+int 80h
+mov [carry], eax
 mov esp, ebp
 pop ebp
 ret
@@ -32,19 +141,17 @@ main:
 push ebp
 mov ebp, esp
 sub esp, 0
-lea esi, [banana]
+push dword [fileName]
+call file.open
+lea esi, [buffer]
 push esi
-lea esi, [banana.size]
+lea esi, [buffer.size]
 push esi
-call gout
-lea edi, [banana]
-lea esi, [apple]
-push ecx
-mov ecx, apple.size
-repz movsb 
-lea esi, [apple]
+call file.read
+call file.close
+lea esi, [buffer]
 push esi
-lea esi, [apple.size]
+lea esi, [buffer.size]
 push esi
 call gout
 mov esp, ebp
@@ -55,14 +162,24 @@ ret
 
 section .data
 return dd 0
+header dd 0
+carry dd 0
 gout.size dd 0
 gout.name dd 0
+gin.size dd 0
+gin.name dd 0
+file.open.name dd 0
+file.make.name dd 0
+file.write.size dd 0
+file.write.text dd 0
+file.read.size dd 0
+file.read.name dd 0
 x dd 1
-y dd 1
-z dd 0
-banana db 'bananas',10, 0
-banana.size equ $ - banana
-
-apple db 'apple',10, 0
-apple.size equ $ - apple
+y dd 5
+z dd 10
+one dd 1
+buffer times 256 dd 0
+buffer.size equ $ - buffer
+fileName db "nand.g", 0
+fileName.size equ $ - fileName
 

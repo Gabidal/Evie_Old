@@ -1344,11 +1344,13 @@ void doInterruption(int &index)
     string ecx;
     string edx;
     string callingnumber;
+    string carry;
     index = getWord(' ', eax, parameters, index);
     index = getWord(' ', ebx, parameters, index);
     index = getWord(' ', ecx, parameters, index);
     index = getWord(' ', edx, parameters, index);
     index = getWord(' ', callingnumber, parameters, index);
+    index = getWord(' ', carry, parameters, index);
     if (isdigit(eax.at(0)))
     {
         codbuffer += "mov eax, " + autoName(eax) + "\n";
@@ -1382,6 +1384,7 @@ void doInterruption(int &index)
         codbuffer += "mov edx, [" + autoName(edx) + "]\n";
     }
     codbuffer += "int " + callingnumber + "\n";
+    codbuffer += "mov [" + carry + "], eax\n";
 }
 
 void makeNewString(int &index)

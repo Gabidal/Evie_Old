@@ -1,12 +1,14 @@
 use std.g
 var x = 1
-var y = 1
-var z = 0
-str banana = '\nbananas\n'
-str apple = '\napple\n'
+var y = 5
+var z = 10
+var one = 1
+var buffer : 256
+str fileName = "nand.g"
 
-func main
-  gout %banana %banana.size
-  banana = apple 
-  gout %apple %apple.size
-ret 
+func main 
+  file.open fileName 
+  file.read %buffer %buffer.size 
+  file.close 
+  gout %buffer %buffer.size 
+ret  
