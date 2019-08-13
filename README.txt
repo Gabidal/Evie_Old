@@ -30,7 +30,8 @@ Manual:
 -10. If elses.
 
 
-MANUAL (-1.):
+MANUAL:
+
 Variables:
   Variables in GAS are pretty straight foward.
   To make a Variable in GAS type this:
