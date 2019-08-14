@@ -127,8 +127,8 @@ The STD lib
    But, this is still WIP. So I need volunteers to help me with developing this STD.g lib further! 
    
    
- Pointer's:
-   To use a pointer do something like this for example:
+Pointer's:
+ To use a pointer do something like this for example:
 
      var a = 123
      str abc = "1234567890"
