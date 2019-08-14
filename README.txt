@@ -143,7 +143,7 @@ The STD lib
    As you can see these % mark's are only when you want to call for the function. It is made to give the function parameter's as pointer's so that the gout will get the abc text not the name parameter's text.
    
    
- Array:
+Array:
    To make an array do as same as making a variable ynly switch the = to : and the value is then the initial size of the array your making.
 
      var abc : 123
@@ -159,8 +159,9 @@ The STD lib
 
    Will put to variable a, number at abc.at(2)
  
- If Elses:
-   To create an If Else condition do this:
+ 
+If Elses:
+  To create an If Else condition do this:
   
    var a = 2
      var b = 3
