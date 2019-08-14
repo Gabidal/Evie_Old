@@ -11,8 +11,9 @@ using namespace std;
 vector<string> keyWords;
 string includes1 = "";
 string codbuffer1 = "global _start\n_start:\ncall main\nmov eax, 1\nmov ebx, 0\nint 80h\n\nsection .code\n";
-string varbuffer1 = "\n\nsection .data\n";
-string texbuffer1 = "\n\nsection .text\n";
+string varbuffer1 = "\n\nsection .data\n\n";
+string texbuffer1 = "\n\nsection .text\n\n";
+string bssbuffer1 = "\n\nsection .bss\n\n";
 vector <clock_t> parsed;
 
 void initializeKeyWords()
@@ -168,7 +169,7 @@ void lexer(string file, string &outbuffer)
         if (i != file.size()) 
         {
             clock_t parserTimerS = clock();
-            parser(destination, file, continu, varbuffer1, codbuffer1, texbuffer1, includes1);
+            parser(destination, file, continu, varbuffer1, codbuffer1, texbuffer1, includes1, bssbuffer1);
             clock_t parserTimerE = clock();
             parsed.push_back(parserTimerE - parserTimerS);
             destination = "";
@@ -180,7 +181,7 @@ void lexer(string file, string &outbuffer)
             }
         }
     }
-    outbuffer = includes1 + texbuffer1 + codbuffer1 + varbuffer1;
+    outbuffer = includes1 + texbuffer1 + codbuffer1 + varbuffer1 + bssbuffer1;
 }
 
 #endif

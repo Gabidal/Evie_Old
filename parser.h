@@ -8,6 +8,7 @@
 using namespace std;
 string parameters;
 string varbuffer;
+string bssbuffer;
 string codbuffer;
 string texbuffer;
 string includes2;
@@ -730,13 +731,13 @@ void makeVar(int &index)
     {
         if (LocalizedVariableNames.back() == " ")
         {
-            varbuffer += className.back() + para1 + " times " + para3 + " dd 0\n";
+            bssbuffer += className.back() + para1 + " resd " + para3 + "\n";
             variables.insert(make_pair(className.back() + para1, true));
             varbuffer += className.back() + para1 + ".size equ $ - " + className.back() + para1 + "\n";
         }
         else
         {
-            varbuffer += className.back() + LocalizedVariableNames.back() + para1 + " times " + para3 + " dd 0\n";
+            bssbuffer += className.back() + LocalizedVariableNames.back() + para1 + " resd " + para3 + "\n";
             variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para1, false));
             varbuffer += className.back() + LocalizedVariableNames.back() + para1 + ".size equ $ - " + className.back() + LocalizedVariableNames.back() + para1 + "\n";
         }
@@ -1351,40 +1352,14 @@ void doInterruption(int &index)
     index = getWord(' ', edx, parameters, index);
     index = getWord(' ', callingnumber, parameters, index);
     index = getWord(' ', carry, parameters, index);
-    if (isdigit(eax.at(0)))
-    {
-        codbuffer += "mov eax, " + autoName(eax) + "\n";
-    }
-    else
-    {
-        codbuffer += "mov eax, [" + autoName(eax) + "]\n";
-    }
-    if (isdigit(ebx.at(0)))
-    {
-        codbuffer += "mov ebx, " + autoName(ebx) + "\n";
-    }
-    else
-    {
-        codbuffer += "mov ebx, [" + autoName(ebx) + "]\n";
-    }
-    if (isdigit(ecx.at(0)))
-    {
-        codbuffer += "mov ecx, " + autoName(ecx) + "\n";
-    }
-    else
-    {
-        codbuffer += "mov ecx, [" + autoName(ecx) + "]\n";
-    }
-    if (isdigit(edx.at(0)))
-    {
-        codbuffer += "mov edx, " + autoName(edx) + "\n";
-    }
-    else
-    {
-        codbuffer += "mov edx, [" + autoName(edx) + "]\n";
-    }
+    codbuffer += "push eax\n";
+    codbuffer += "mov eax, " + autoName(eax) + "\n";
+    codbuffer += "mov ebx, " + autoName(ebx) + "\n";
+    codbuffer += "mov ecx, " + autoName(ecx) + "\n";
+    codbuffer += "mov edx, " + autoName(edx) + "\n";
     codbuffer += "int " + callingnumber + "\n";
     codbuffer += "mov [" + carry + "], eax\n";
+    codbuffer += "pop eax\n";
 }
 
 void makeNewString(int &index)
@@ -1397,16 +1372,25 @@ void makeNewString(int &index)
     index = getWord(' ', str, parameters, index);
     if (LocalizedVariableNames.back() != " ")
     {
-        Strings.insert(make_pair(name, false));
+        Strings.insert(make_pair(name, true));
         name = className.back() + LocalizedVariableNames.back() + name;
     }
     else
     {
-        Strings.insert(make_pair(name, true));
+        Strings.insert(make_pair(name, false));
         name = className.back() + name;
     }
-    varbuffer += name + " db " + str + ", 0\n";
-    varbuffer += name + ".size equ $ - " + name + "\n\n";
+    if (is == "=")
+    {
+        varbuffer += name + " db " + str + ", 0\n";
+        varbuffer += name + ".size equ $ - " + name + "\n\n";
+    }
+    else
+    {
+        bssbuffer += name + " resb " + str + "\n";
+        varbuffer += name + ".size dd " + str + "\n";
+    }
+    
 
 }
 
@@ -1420,11 +1404,11 @@ void useStr(int &index, string destination)
 
     if (command == "=")
     {
-        codbuffer += "lea edi, [" + destination + "]\n";
-        codbuffer += "lea esi, [" + firstStr + "]\n";
+        codbuffer += "lea edi, [" + autoName(destination, true) + "]\n";
+        codbuffer += "lea esi, [" + autoName(firstStr, true) + "]\n";
 
         codbuffer += "push ecx\n";
-        codbuffer += "mov ecx, " + firstStr + ".size\n";
+        codbuffer += "mov ecx, [" + autoName(firstStr, true) + ".size]\n";
         codbuffer += "repz movsb \n";
     }
     else
@@ -1434,11 +1418,12 @@ void useStr(int &index, string destination)
     }
 }
 
-void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1)
+void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
 {
     codbuffer = "";
     texbuffer = "";
     varbuffer = "";
+    bssbuffer = "";
     parameters = file;
     if (destination == "var")
     {
@@ -1556,11 +1541,12 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
             callFunction(destination, continu);
         }
     }
-    file = ::parameters;
-    varbuffer1 += ::varbuffer;
-    codbuffer1 += ::codbuffer;
-    texbuffer1 += ::texbuffer;
-    includes1 += ::includes2;
+    file = parameters;
+    varbuffer1 += varbuffer;
+    bssbuffer1 += bssbuffer;
+    codbuffer1 += codbuffer;
+    texbuffer1 += texbuffer;
+    includes1 += includes2;
     includes2 = "";
 }
 
