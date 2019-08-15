@@ -152,33 +152,35 @@ mov esp, ebp
 pop ebp
 ret
 
-main:
+vector.push:
 push ebp
 mov ebp, esp
-sub esp, 0
-lea esi, [fileName]
-push esi
-lea esi, [fileName.size]
-push esi
-call gin
-lea esi, [fileName]
-push esi
-call file.open
-lea esi, [buffer]
-push esi
-lea esi, [buffer.size]
-push esi
-call file.read
-call file.close
-lea esi, [buffer]
-push esi
-lea esi, [buffer.size]
-push esi
-call gout
+sub esp, 12
+;value is now a variable.
+mov ecx , [ebp+8]
+mov [vector.push.value], ecx 
+;index is now a variable.
+mov edx , [ebp+12]
+mov [vector.push.index], edx 
+;name is now a variable.
+mov eax , [ebp+16]
+mov [vector.push.name], eax 
+
+add edx , [true]
+mov [vector.push.index], edx 
+
 mov esp, ebp
 pop ebp
 ret
 
+abc.push:
+call vector.push
+ret
+main:
+push ebp
+mov ebp, esp
+sub esp, 0
+mov ebx , dword []
 
 
 section .data
@@ -186,6 +188,8 @@ section .data
 return dd 0
 header dd 0
 carry dd 0
+true dd 1
+false dd 0
 gout.size dd 0
 gout.name dd 0
 gin.size dd 0
@@ -196,15 +200,19 @@ file.write.size dd 0
 file.write.text dd 0
 file.read.size dd 0
 file.read.name dd 0
-x dd 1
-y dd 5
-z dd 10
-one dd 1
-fileName.size dd 128
-buffer.size dd 256
+vector.i dd 0
+vector.init.size equ $ - vector.init
+vector.push.value dd 0
+vector.push.index dd 0
+vector.push.name dd 0
+a dd 13
+abc.value dd 0
+abc.name dd 0
+abc.index dd 0
+abc.init times 256 dd 0
+abc.i dd 0
 
 
 section .bss
 
-fileName resb 128
-buffer resb 256
+vector.init resd 256

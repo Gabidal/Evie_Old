@@ -1291,6 +1291,8 @@ void makeNew(int &index)
     }
     vector<string> LocalTypeVariables;
     vector<string> newBranchVariables;
+    vector<string> LocalFunctions;
+    vector<string> newLocalFunctions;
 
     for (auto& i : variables) 
     {
@@ -1298,6 +1300,30 @@ void makeNew(int &index)
         {
             LocalTypeVariables.push_back(i.first);
         }
+    }
+    for (auto& i : functions)
+    {
+        if (i.find(TypeName) != -1)
+        {
+            LocalFunctions.push_back(i);
+        }
+    }
+    for (int i = 0; 0 < LocalFunctions.size(); i++)
+    {
+        int offset = 1;
+        string dest = "";
+        reverse(LocalFunctions.back().begin(), LocalFunctions.back().end());
+        offset = getWord('.', dest, LocalFunctions.back(), offset);
+        reverse(dest.begin(), dest.end());
+        reverse(LocalFunctions.back().begin(), LocalFunctions.back().end());
+        LocalFunctions.back().pop_back();
+
+        codbuffer += newTypeBranch + "." + dest + ":\n";
+        codbuffer += "call " + LocalFunctions.back() + "\n";
+        codbuffer += "ret\n";
+        LocalFunctions.pop_back();
+        functions.push_back(newTypeBranch + "." + dest);
+
     }
     for (int i = 0; 0 < LocalTypeVariables.size(); i++)
     {
