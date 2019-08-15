@@ -173,15 +173,24 @@ mov esp, ebp
 pop ebp
 ret
 
-macro abc.push 0
+%macro abc.push 0
   call vector.push
-endmacro
+%endmacro
 
 main:
 push ebp
 mov ebp, esp
 sub esp, 0
-mov ebx , dword []
+lea esi, [abc.init]
+push esi
+lea esi, [abc.index]
+push esi
+push dword [a]
+abc.push
+mov esp, ebp
+pop ebp
+ret
+
 
 
 section .data

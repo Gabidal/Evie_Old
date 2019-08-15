@@ -4,5 +4,5 @@ var a = 13
 new vector abc
 
 func main 
-  abc.push %abc.array %abc.index a
-ret  
+  abc.push %abc.init %abc.index a 
+ret 

@@ -1333,11 +1333,12 @@ void makeNew(int &index)
         reverse(LocalFunctions.back().begin(), LocalFunctions.back().end());
         LocalFunctions.back().pop_back();
 
-        codbuffer += "macro " + newTypeBranch + "." + dest + " 0\n";
+        codbuffer += "%macro " + newTypeBranch + "." + dest + " 0\n";
         codbuffer += "  call " + LocalFunctions.back() + "\n";
-        codbuffer += "endmacro\n\n";
+        codbuffer += "%endmacro\n\n";
         LocalFunctions.pop_back();
         Macros.push_back(newTypeBranch + "." + dest);
+        functions.push_back(newTypeBranch + "." + dest + ".");
 
     }
     for (int i = 0; 0 < LocalTypeVariables.size(); i++)
@@ -1575,9 +1576,10 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
             }
         }
     }
+    string dest = destination + ".";
     for (int i = 0; i < functions.size();i++)
     {
-        if (functions[i] == destination + ".")
+        if (functions[i] == dest)
         {
             callFunction(destination, continu);
         }
