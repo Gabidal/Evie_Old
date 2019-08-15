@@ -27,6 +27,7 @@ map<string, bool> variables;            //true == global; false == local
 map <string, string> varPointers;
 map <string, string> ArrayVariables;
 vector<string> functions;
+vector<string> Macros;
 vector<string> localVars;
 map<string, int> Types;
 map <string, bool> Strings;
@@ -797,7 +798,21 @@ void callFunction(string function, int &index)
             break;
         }
     }
-    codbuffer += sx() +   "call " + className.back() + function + "\n";
+    bool ifMacro = false;
+    for (int i = 0; i < Macros.size(); i++)
+    {
+        if (Macros.at(i) == function)
+        {
+            codbuffer += sx() + className.back() + function + "\n";
+            ifMacro = true;
+            break;
+        }
+    }
+    if (ifMacro == false)
+    {
+        codbuffer += sx() +   "call " + className.back() + function + "\n";
+    }
+    
 }
 
 string getReturn()
@@ -1318,11 +1333,11 @@ void makeNew(int &index)
         reverse(LocalFunctions.back().begin(), LocalFunctions.back().end());
         LocalFunctions.back().pop_back();
 
-        codbuffer += newTypeBranch + "." + dest + ":\n";
-        codbuffer += "call " + LocalFunctions.back() + "\n";
-        codbuffer += "ret\n";
+        codbuffer += "macro " + newTypeBranch + "." + dest + " 0\n";
+        codbuffer += "  call " + LocalFunctions.back() + "\n";
+        codbuffer += "endmacro\n\n";
         LocalFunctions.pop_back();
-        functions.push_back(newTypeBranch + "." + dest);
+        Macros.push_back(newTypeBranch + "." + dest);
 
     }
     for (int i = 0; 0 < LocalTypeVariables.size(); i++)

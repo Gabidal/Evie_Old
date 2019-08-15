@@ -173,9 +173,10 @@ mov esp, ebp
 pop ebp
 ret
 
-abc.push:
-call vector.push
-ret
+macro abc.push 0
+  call vector.push
+endmacro
+
 main:
 push ebp
 mov ebp, esp
