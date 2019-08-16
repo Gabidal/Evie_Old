@@ -175,27 +175,39 @@ If Elses:
      end
  
    
-Using the actuel GAS:
-  (It is better to use Linux)
-  first do:
+Using the actual GAS(It is better to use Linux).First do:
+
     sudo apt install yasm
-  then go to youre folder where the GAS runnable is:
+  
+then go to your folder where the GAS runnable is:
+    
     cd bananas/GAS
-  There should be now the GAS itself and the *.g files as well.
-  Then do this:
+    
+There should be now the GAS itself and the *.g files as well.Then do this:
+    
     chmod +x 0777 GAS
-  Then do this:
+Then do this:
+
     ./GAS
-  This will launch the GAS compiler.
-  After compiling you have the source file but with the *.asm marking at the end of the file name.
-  That is the output that GAS gave you.
-  You need ow to give it to yasm:
+    
+This will launch the GAS compiler. After compiling you have the source file but with the *.asm marking at the end of the file name.
+That is the output that GAS gave you.You need now to give it to yasm:
+    
     yasm -f elf32 -o banana.o banana.asm
-  That will assembly the *asm file.
-  Then you need to link it:
+    
+That will create the *.o file. Then you need to link it:
+
     ld -m elf_i386 -o banana banana.o
-  That will make it executable.
-  Then do this:
+    
+That will make it executable. Then do this:
+
     chmod +x 0777 banana
-  And then youre done!
-  Now you can always run the script that you made in GAS.
+    
+And then youre done! Now you can always run the script that you made in GAS. 
+
+Just type:
+    
+    ./banana
+
+And it will run :D
+ 
