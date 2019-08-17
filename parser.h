@@ -31,6 +31,7 @@ vector<string> Macros;
 vector<string> localVars;
 map<string, int> Types;
 map <string, bool> Strings;
+vector<string> equs;
 int localVarLocation;
 
 vector<string> className;  //className . functionName:
@@ -735,14 +736,17 @@ void makeVar(int &index)
             bssbuffer += className.back() + para1 + " resd " + para3 + "\n";
             variables.insert(make_pair(className.back() + para1, true));
             varbuffer += className.back() + para1 + ".size equ $ - " + className.back() + para1 + "\n";
+            ArrayVariables.insert(make_pair(className.back() + para1, para3));
+            equs.push_back( className.back() + para1 + ".size");
         }
         else
         {
             bssbuffer += className.back() + LocalizedVariableNames.back() + para1 + " resd " + para3 + "\n";
             variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para1, false));
             varbuffer += className.back() + LocalizedVariableNames.back() + para1 + ".size equ $ - " + className.back() + LocalizedVariableNames.back() + para1 + "\n";
+            ArrayVariables.insert(make_pair( className.back() + LocalizedVariableNames.back() + para1, para3));
+            equs.push_back( className.back() + LocalizedVariableNames.back() + para1 + ".size");
         }
-        ArrayVariables.insert(make_pair(para1, para3));
     }
     else
     {
@@ -785,7 +789,24 @@ void callFunction(string function, int &index)
             {
                 getFreeReg();
                 string reg1 = regbuffer;
-                codbuffer += sx() + "push " + "dword [" + autoName(para1) + "]\n";
+                bool ifEqu = false;
+                for (int i = 0; i < equs.size(); i++)
+                {
+                    if (equs.at(i) == autoName(para1))
+                    {
+                        getFreeReg();
+                        string reg1 = regbuffer;
+                        codbuffer += sx() + "mov " + reg1 + ", " + autoName(para1) + "\n";
+                        codbuffer += sx() + "push " + reg1 + "\n";
+                        ifEqu = true;
+                        break;
+                    } 
+                }
+                if (ifEqu == false)
+                {
+                    codbuffer += sx() + "push " + "dword [" + autoName(para1) + "]\n";
+                    break;
+                }  
             }
             
         }
@@ -795,6 +816,7 @@ void callFunction(string function, int &index)
         }
         else
         {
+            index = offset;
             break;
         }
     }
@@ -948,7 +970,7 @@ void useVar(int &index, string destination)
             }
             else
             {
-                if (isdigit(value.at(0)))
+                if (isdigit(value.at(0)) || value.at(0) == '-')
                 {
                 getFreeReg();
                 string reg2 = regbuffer;
@@ -982,13 +1004,13 @@ void useVar(int &index, string destination)
                 getFreeReg();
                 string reg2 = regbuffer;
                 varPointers.insert(make_pair(destination, reg2));
-                auto node2 = variables.find(para2);
+                auto node2 = variables.find(autoName(para2));
                 if (node2 != variables.end())
                 {
                     codbuffer += sx() + "lea esi, dword " + autoName(para2) + "[esi * 4]\n";
                 }
                 codbuffer += sx() + "mov " + reg2 + ", dword " + "[esi]\n";
-                auto node3 = variables.find(destination);
+                auto node3 = variables.find(autoName(destination));
                 if (node3 != variables.end())
                 {
                     codbuffer += sx() + "mov [" + autoName(destination) + "], " + reg2 + "\n";
@@ -1064,6 +1086,7 @@ void doReturn()
     localVars.clear();
     LocalizedVariableNames.pop_back();
 }
+
 void makeFunc(int &index)
 {
     string para1;
@@ -1282,6 +1305,7 @@ void makeNewType(int &index)
     index = getWord(' ', typeName, parameters, index);
     Types.insert(make_pair(typeName, 0));
     className.push_back(typeName + ".");
+    varbuffer += "\n" + typeName + ":\n";
 }
 
 void endType()
@@ -1323,6 +1347,8 @@ void makeNew(int &index)
             LocalFunctions.push_back(i);
         }
     }
+    reverse(LocalFunctions.begin(), LocalFunctions.end());
+    reverse(LocalTypeVariables.begin(), LocalTypeVariables.end());
     for (int i = 0; 0 < LocalFunctions.size(); i++)
     {
         int offset = 1;
@@ -1334,11 +1360,13 @@ void makeNew(int &index)
         LocalFunctions.back().pop_back();
 
         codbuffer += "%macro " + newTypeBranch + "." + dest + " 0\n";
+        codbuffer+= "  lea edi, [" + newTypeBranch + "]\n";
         codbuffer += "  call " + LocalFunctions.back() + "\n";
         codbuffer += "%endmacro\n\n";
         LocalFunctions.pop_back();
         Macros.push_back(newTypeBranch + "." + dest);
         functions.push_back(newTypeBranch + "." + dest + ".");
+        varbuffer += "\n" + newTypeBranch + ":\n";
 
     }
     for (int i = 0; 0 < LocalTypeVariables.size(); i++)
@@ -1426,6 +1454,7 @@ void makeNewString(int &index)
     {
         varbuffer += name + " db " + str + ", 0\n";
         varbuffer += name + ".size equ $ - " + name + "\n\n";
+        equs.push_back(name + ".size");
     }
     else
     {
@@ -1570,9 +1599,9 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
         }
         else
         {
-            if (i.first == className.back() + LocalizedVariableNames.back() + "." + destination) 
+            if (i.first == className.back() + LocalizedVariableNames.back()  + destination) 
             {
-                useVar(continu, className.back() + LocalizedVariableNames.back() + "." + destination);
+                useVar(continu, className.back() + LocalizedVariableNames.back()  + destination);
             }
         }
     }

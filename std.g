@@ -32,13 +32,12 @@ func file.read name size
   sys 3 header name size 80h carry 
 ret 
 
-type vector
-  var i = 0
-  var init : 256
-  func push name index value
-    name : index = value
-    index = index + true
-  ret
-;
-
+type vector 
+  var i = 0 
+  var init : 256 
+  func push name index value 
+    name : index = value 
+    index = index + true 
+  ret 
+; 
 

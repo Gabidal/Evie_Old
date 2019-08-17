@@ -1,8 +1,11 @@
 use std.g
-var a = 13
 
-new vector abc
+str banana = "bananassassaosos" 
+str bananaa = "bananas123sassaosos" 
+str bananaaa = "bananassassa456osos" 
+
+new vector apple 
 
 func main 
-  abc.push %abc.init %abc.index a 
+  gout %banana banana.size
 ret 

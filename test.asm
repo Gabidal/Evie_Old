@@ -24,7 +24,7 @@ push eax
 mov eax, 4
 mov ebx, 1
 mov ecx, gout.name
-mov edx, gout.size
+mov edx, dword [gout.size]
 int 80h
 mov [carry], eax
 pop eax
@@ -165,6 +165,10 @@ mov [vector.push.index], edx
 ;name is now a variable.
 mov eax , [ebp+16]
 mov [vector.push.name], eax 
+mov esi, dword [vector.push.index]
+lea esi, vector.push.name[esi*4]
+mov [esi], ecx 
+mov [vector.push.index] , edx 
 
 add edx , [true]
 mov [vector.push.index], edx 
@@ -173,7 +177,8 @@ mov esp, ebp
 pop ebp
 ret
 
-%macro abc.push 0
+%macro apple.push 0
+  lea edi, [apple]
   call vector.push
 %endmacro
 
@@ -181,12 +186,11 @@ main:
 push ebp
 mov ebp, esp
 sub esp, 0
-lea esi, [abc.init]
+lea esi, [banana]
 push esi
-lea esi, [abc.index]
-push esi
-push dword [a]
-abc.push
+mov eax , banana.size
+push eax 
+call gout
 mov esp, ebp
 pop ebp
 ret
@@ -210,17 +214,29 @@ file.write.size dd 0
 file.write.text dd 0
 file.read.size dd 0
 file.read.name dd 0
+
+vector:
 vector.i dd 0
 vector.init.size equ $ - vector.init
 vector.push.value dd 0
 vector.push.index dd 0
 vector.push.name dd 0
-a dd 13
-abc.value dd 0
-abc.name dd 0
-abc.index dd 0
-abc.init times 256 dd 0
-abc.i dd 0
+banana db "bananassassaosos", 0
+banana.size equ $ - banana
+
+bananaa db "bananas123sassaosos", 0
+bananaa.size equ $ - bananaa
+
+bananaaa db "bananassassa456osos", 0
+bananaaa.size equ $ - bananaaa
+
+
+apple:
+apple.i dd 0
+apple.init dd 0
+apple.index dd 0
+apple.name dd 0
+apple.value dd 0
 
 
 section .bss

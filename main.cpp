@@ -28,8 +28,8 @@ int main()
     cout << "  G::Done!\n\n";
 
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
-    cout << "Lexered  == " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) + "  second's" << endl;
-    cout << "Parsered == " + to_string(sum / float(CLOCKS_PER_SEC)) + "  second's" << endl;
+    cout << "Lexered  in " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) + "  second's" << endl;
+    cout << "Parsered in " + to_string(sum / float(CLOCKS_PER_SEC)) + "  second's" << endl;
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
 
     return 0;
