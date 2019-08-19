@@ -35,9 +35,13 @@ ret
 type vector 
   var i = 0 
   var init : 256 
-  func push name index value 
-    name : index = value 
-    index = index + true 
+  func push value 
+    this init : this i = value 
+    this i = this i + true 
+    if this i > this init.size
+      alloc init.size
+    else
+    end
   ret 
 ; 
 

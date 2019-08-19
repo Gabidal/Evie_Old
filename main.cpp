@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <ctime>
 #include "Lexer.h"
 #include "io.h"
 using namespace std;

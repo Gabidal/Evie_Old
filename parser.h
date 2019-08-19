@@ -1311,6 +1311,7 @@ void makeNewType(int &index)
 void endType()
 {
     className.pop_back();
+    varbuffer += "\n\n";
 }
 
 void makeNew(int &index)
@@ -1340,6 +1341,13 @@ void makeNew(int &index)
             LocalTypeVariables.push_back(i.first);
         }
     }
+    for (auto& i : ArrayVariables) 
+    {
+        if (i.first.find(TypeName) != -1) 
+        {
+            LocalTypeVariables.push_back(i.first);
+        }
+    }
     for (auto& i : functions)
     {
         if (i.find(TypeName) != -1)
@@ -1359,10 +1367,10 @@ void makeNew(int &index)
         reverse(LocalFunctions.back().begin(), LocalFunctions.back().end());
         LocalFunctions.back().pop_back();
 
-        codbuffer += "%macro " + newTypeBranch + "." + dest + " 0\n";
-        codbuffer+= "  lea edi, [" + newTypeBranch + "]\n";
-        codbuffer += "  call " + LocalFunctions.back() + "\n";
-        codbuffer += "%endmacro\n\n";
+        texbuffer += "\n%macro " + newTypeBranch + "." + dest + " 0\n";
+        texbuffer += "  lea edi, [" + newTypeBranch + "]\n";
+        texbuffer += "  call " + LocalFunctions.back() + "\n";
+        texbuffer += "%endmacro\n\n";
         LocalFunctions.pop_back();
         Macros.push_back(newTypeBranch + "." + dest);
         functions.push_back(newTypeBranch + "." + dest + ".");
@@ -1406,6 +1414,7 @@ void makeNew(int &index)
         }
         newBranchVariables.pop_back();
     }
+    varbuffer += "\n\n";
 }
 
 void doInterruption(int &index)

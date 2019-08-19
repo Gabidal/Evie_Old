@@ -2,6 +2,12 @@
 
 section .text
 
+
+%macro banana.push 0
+  lea edi, [banana]
+  call vector.push
+%endmacro
+
 global _start
 _start:
 call main
@@ -155,24 +161,22 @@ ret
 vector.push:
 push ebp
 mov ebp, esp
-sub esp, 12
+sub esp, 4
 ;value is now a variable.
 mov ecx , [ebp+8]
 mov [vector.push.value], ecx 
-;index is now a variable.
-mov edx , [ebp+12]
-mov [vector.push.index], edx 
-;name is now a variable.
-mov eax , [ebp+16]
-mov [vector.push.name], eax 
-mov esi, dword [vector.push.index]
-lea esi, vector.push.name[esi*4]
-mov [esi], ecx 
-mov [vector.push.index] , edx 
+mov edx , dword [this]
 
-add edx , [true]
-mov [vector.push.index], edx 
+mov ebx , dword [i]
+add ebx , [true]
+mov [=], ebx 
 
+mov ecx , dword [>]
+cmp edx , ecx 
+ jmp else11
+ jmp end11
+ else11: 
+ end11: 
 mov esp, ebp
 pop ebp
 ret
@@ -214,8 +218,16 @@ vector:
 vector.i dd 0
 vector.init.size equ $ - vector.init
 vector.push.value dd 0
-vector.push.index dd 0
-vector.push.name dd 0
+
+
+
+banana:
+banana.i dd 0
+banana.init dd 0
+banana.value dd 0
+banana.init dd 0
+
+
 message db "hello world!", 0
 message.size equ $ - message
 
