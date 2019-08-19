@@ -1439,7 +1439,8 @@ void makeNewString(int &index)
     string str;
     index = getWord(' ', name, parameters, index);
     index = getWord(' ', is, parameters, index);
-    index = getWord(' ', str, parameters, index);
+    index = getWord('"', str, parameters, index);
+    index = getWord('"', str, parameters, index);
     if (LocalizedVariableNames.back() != " ")
     {
         Strings.insert(make_pair(name, true));
@@ -1452,7 +1453,7 @@ void makeNewString(int &index)
     }
     if (is == "=")
     {
-        varbuffer += name + " db " + str + ", 0\n";
+        varbuffer += name + " db \"" + str + "\", 0\n";
         varbuffer += name + ".size equ $ - " + name + "\n\n";
         equs.push_back(name + ".size");
     }

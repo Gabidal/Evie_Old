@@ -24,7 +24,7 @@ push eax
 mov eax, 4
 mov ebx, 1
 mov ecx, gout.name
-mov edx, dword [gout.size]
+mov edx, gout.size
 int 80h
 mov [carry], eax
 pop eax
@@ -177,18 +177,13 @@ mov esp, ebp
 pop ebp
 ret
 
-%macro apple.push 0
-  lea edi, [apple]
-  call vector.push
-%endmacro
-
 main:
 push ebp
 mov ebp, esp
 sub esp, 0
-lea esi, [banana]
+lea esi, [message]
 push esi
-mov eax , banana.size
+mov eax , message.size
 push eax 
 call gout
 mov esp, ebp
@@ -221,22 +216,9 @@ vector.init.size equ $ - vector.init
 vector.push.value dd 0
 vector.push.index dd 0
 vector.push.name dd 0
-banana db "bananassassaosos", 0
-banana.size equ $ - banana
+message db "hello world!", 0
+message.size equ $ - message
 
-bananaa db "bananas123sassaosos", 0
-bananaa.size equ $ - bananaa
-
-bananaaa db "bananassassa456osos", 0
-bananaaa.size equ $ - bananaaa
-
-
-apple:
-apple.i dd 0
-apple.init dd 0
-apple.index dd 0
-apple.name dd 0
-apple.value dd 0
 
 
 section .bss
