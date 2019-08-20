@@ -1,9 +1,8 @@
-use std.g
 
-new vector banana
+var abc : 256
+var efg : 34
+var a = 2
 
-str message = "hello world!"
-
-func main         
-  gout %message message.size 
+func main 
+  abc : 2 = a + 3
 ret 

@@ -10,6 +10,7 @@ class Token
     void makeVar()
     {
       ifVar = true;
+      ifReal = true;
     }
 
     void makeName(string name)
@@ -21,56 +22,66 @@ class Token
     {
         FunctionLabelName = funcName;
         TypeLabelName = typeName;
+        ifReal = true;
     }
 
     void makePublic()
     {
         ifGlobal = true;
+        ifReal = true;
     }
 
     void makeFunc(string func)
     {
         ifFunction = true;
         FunctionLabelName = func;
+        ifReal = true;
     }
 
     void makeType(string typeName)
     {
         TypeLabelName = typeName;
         ifType = true;
+        ifReal = true;
     }
 
     void makeMacro()
     {
         ifMacro = true;
+        ifReal = true;
     }
 
     void makeArray(string size)
     {
         Size = size;
         ifArray = true;
+        ifReal = true;
     }
 
     void makeString()
     {
         ifString = true;
+        ifReal = true;
     }
 
     void makeEqu()
     {
         ifEqu = true;
+        ifReal = true;
     }
 
     void linkToReg(string reg)
     {
         ifHasReg = true;
         Reg = reg;
+        ifReal = true;
     }
 
     void eraseReg()
     {
         ifHasReg = false;
         Reg = "";
+        ifReal = true;
     }
 
     void makeNextPlace()
@@ -84,7 +95,7 @@ class Token
         {
             return Name;
         }
-        else if (TypeLabelName != "")
+        else if (TypeLabelName != " ")
         {
             return TypeLabelName + "." + FunctionLabelName + "." + Name;
         }
@@ -97,9 +108,51 @@ class Token
     void makeLink(Token newLink)
     {
         Links.push_back(newLink);
+        ifReal = true;
     }
 
-    bool ifPointer = true;
+    string getNextReg()
+    {
+        if (usedregister1 == 3)
+        {
+            return "edx ";
+            usedregister1 = 0;
+        }
+        else if (usedregister1 == 2)
+        {
+            return "ecx ";
+            usedregister1 = 3;
+        }
+        else if (usedregister1 == 1)
+        {
+            return "ebx ";
+            usedregister1 = 2;
+        }
+        else if (usedregister1 == 0)
+        {
+            return "eax ";
+            usedregister1 = 1;
+        }
+        return "eax ";
+    }
+
+    string getReg(string &buffer)
+    {
+        if (Reg == "")
+        {
+            Reg = getNextReg();
+            buffer += "mov " + Reg + ", [" + Name + "]\n";
+            return Reg;
+        }
+        else
+        {
+            return Reg;
+        }
+    }
+
+    bool ifReal = false;
+    bool ifNumber = false;
+    bool ifPointer = false;
     bool ifGlobal = false;
     bool ifType = false;
     bool ifFunction = false;
@@ -116,6 +169,7 @@ class Token
     string Reg;
     int PlaceInType = 0;
     vector <Token> Links;
+    int usedregister1 = 0;
 };
 
 

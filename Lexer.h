@@ -41,6 +41,9 @@ void initializeKeyWords()
     keyWords.push_back("str");
     className.push_back(""); //the global class indicator
     LocalizedVariableNames.push_back(" ");
+    Token TokenNull;
+    TokenNull.makeName("nullnullTokennullnull");
+    Tokens.push_back(TokenNull);
 }
 string readFile(string name)
 {
