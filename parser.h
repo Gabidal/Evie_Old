@@ -5,7 +5,9 @@
 #include <map>
 #include <ctype.h>
 #include <algorithm>
+#include "Token.h"
 using namespace std;
+vector <Token> Tokens;
 string parameters;
 string varbuffer;
 string bssbuffer;
@@ -19,15 +21,15 @@ int layerId = 0;
 int returnLayer = 0;
 int savedIfToElse = 0;
 int savedElseToEnd = 0;
-vector<string> LocalizedVariableNames;
+vector<string> LocalizedVariableNames;  //
 vector<string> ifToElse;
 vector<string> elseToEnd;
 vector<string> jumpToEnd;
 map<string, bool> variables;            //true == global; false == local
-map <string, string> varPointers;
-map <string, string> ArrayVariables;
-vector<string> functions;
-vector<string> Macros;
+map <string, string> varPointers;      //
+map <string, string> ArrayVariables;   //
+vector<string> functions;               //
+vector<string> Macros;                  
 vector<string> localVars;
 map<string, int> Types;
 map <string, bool> Strings;
@@ -52,13 +54,24 @@ string sx()
     return spaces;
 }
 
+int getIndex(string name)
+{
+    for (int i = 0; i < Tokens.size(); i++)
+    {
+        if (Tokens.at(i).Name == name)
+        {
+            return i;
+        }
+    }
+}
+
 void disconnectFromRegister(string reg)
 {
-    for (auto i = varPointers.rbegin(); i != varPointers.rend(); )
+    for (auto i = Tokens.rbegin(); i != Tokens.rend(); )
     {
-        if (i->second == reg)
+        if (i->Reg == reg)
         {
-            varPointers.erase(i->first);
+            i->eraseReg();
         }
         else
         {
@@ -104,58 +117,9 @@ void getFreeReg()
     }
 }
 
-bool ifVarIsLocal(string name, bool isItStr)
-{
-    string addition = "";
-    if (LocalizedVariableNames.back() == " ")
-    {
-        addition = className.back();
-    }
-    else
-    {
-        addition = className.back() + LocalizedVariableNames.back();
-    }
-    if (isItStr)
-    {
-        auto i = Strings.find(name);
-        return i->second;
-    }
-    auto node1 = variables.find(addition + name);
-    if (node1 != variables.end())
-    {
-        if (node1->second == true)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    else
-    {
-        return false;
-    }
-}
-
 string autoName(string name, bool isString = false)
 {   
-    bool isit = ifVarIsLocal(name, isString);
-    if (isit)
-    {
-        if (LocalizedVariableNames.back() == " ")
-        {
-            return className.back() + name;
-        }
-        else
-        {
-            return className.back() + LocalizedVariableNames.back() + name;
-        }
-    }
-    else
-    {
-        return name;
-    }
+    return Tokens.at(getIndex(name)).getFullName();
 }
 
 void doAddition(int &index)
@@ -729,38 +693,49 @@ void makeVar(int &index)
     index = getWord(' ', para1, parameters, index);  //name
     index = getWord(' ', para2, parameters, index);  // = or :
     index = getWord(' ', para3, parameters, index);  // value or size
+    Token variable;
+    Token size;
     if (para2 == ":")
     {
         if (LocalizedVariableNames.back() == " ")
         {
-            bssbuffer += className.back() + para1 + " resd " + para3 + "\n";
-            variables.insert(make_pair(className.back() + para1, true));
-            varbuffer += className.back() + para1 + ".size equ $ - " + className.back() + para1 + "\n";
-            ArrayVariables.insert(make_pair(className.back() + para1, para3));
-            equs.push_back( className.back() + para1 + ".size");
+            variable.makePublic();
+            size.makePublic();
         }
         else
         {
-            bssbuffer += className.back() + LocalizedVariableNames.back() + para1 + " resd " + para3 + "\n";
-            variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para1, false));
-            varbuffer += className.back() + LocalizedVariableNames.back() + para1 + ".size equ $ - " + className.back() + LocalizedVariableNames.back() + para1 + "\n";
-            ArrayVariables.insert(make_pair( className.back() + LocalizedVariableNames.back() + para1, para3));
-            equs.push_back( className.back() + LocalizedVariableNames.back() + para1 + ".size");
+            variable.makePrivate(className.back(), LocalizedVariableNames.back());
+            size.makePrivate(className.back(), LocalizedVariableNames.back());
         }
+
+        bssbuffer += className.back() + para1 + " resd " + para3 + "\n";
+
+        variable.makeName(para1);
+        variable.makeArray(para3);
+            
+        size.makeEqu();
+        size.makeName(para1 + ".size");
+        variable.makeLink(size);
+
+        varbuffer += className.back() + para1 + ".size equ $ - " + className.back() + para1 + "\n";
     }
     else
     {
         if (LocalizedVariableNames.back() == " ")
         {
             varbuffer += className.back() + para1 + " dd " + para3 + "\n";
-            variables.insert(make_pair(className.back() + para1, true));
+            variable.makePublic();
         }
         else
         {
             varbuffer += className.back() + LocalizedVariableNames.back() + para1 + " dd " + para3 + "\n";
-            variables.insert(make_pair(className.back() + LocalizedVariableNames.back() + para1, false));
+            variable.makePrivate(className.back(), LocalizedVariableNames.back());
         }
+
+        variable.makeVar();
+        variable.makeName(para1);
     }
+    Tokens.push_back(variable);
 }
 
 void callFunction(string function, int &index)
