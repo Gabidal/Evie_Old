@@ -36,7 +36,7 @@ map<string, int> Types;
 map <string, bool> Strings;
 vector<string> equs;
 int localVarLocation;
-
+bool skippedRet = false;
 vector<string> className;  //className . functionName:
 
 extern int getError(char, string&, string, int, string&);
@@ -146,258 +146,6 @@ string autoName(string name, bool isString = false)
         return Tokens.at(getIndex(name)).getFullName();
     }
     
-}
-
-void doAddition(int &index)
-{
-    int offset;
-    string para1;  //b
-    string para2;  //c
-    string para3;  //a
-    string trash;
-    string trash1;
-    string trash2;
-    // a  = b + c
-    codbuffer += "\n";  //make new asm block of code
-
-    offset = getReversedIndex(' ', parameters, index-1); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //b offset
-    offset = getReversedWord(' ', para1, parameters, offset); //b 
-    reverse(para1.begin(), para1.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //a offset
-    offset = getReversedWord(' ', para3, parameters, offset); //a
-    reverse(para3.begin(), para3.end());
-    
-    index = getWord(' ', para2, parameters, index);  // c
-
-    auto node = varPointers.find(autoName(para1));
-    if (node != varPointers.end())
-    {
-        auto node1 = varPointers.find(autoName(para2));
-        if (node1 != varPointers.end())
-        {
-            codbuffer += sx() + "add " + node->second + ", " + node1->second + "\n";
-            codbuffer += sx() + "mov [" + autoName(para3) + "], " + node->second + "\n";
-        }
-        else
-        {
-            codbuffer += sx() +  "add " + node->second + ", [" + autoName(para2) + "]\n";
-            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
-        }
-    }
-    else
-    {
-
-        getFreeReg();
-        trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
-        codbuffer += sx() +  "add " + trash1 + ", [" + autoName(para2) + "]\n";
-        codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
-        varPointers.insert(make_pair(autoName(para1), trash1));
-    }
-    codbuffer += "\n";  //make new asm block of code
-}
-
-void doSubstraction(int &index)
-{
-    int offset;
-    string para1;  //b
-    string para2;  //c
-    string para3;  //a
-    string trash;
-    string trash1;
-    string trash2;
-    // a       = b + c
-    codbuffer += "\n";  //make new asm block of code
-
-    offset = getReversedIndex(' ', parameters, index-1); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //b offset
-    offset = getReversedWord(' ', para1, parameters, offset); //b 
-    reverse(para1.begin(), para1.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //a offset
-    offset = getReversedWord(' ', para3, parameters, offset); //a
-    reverse(para3.begin(), para3.end());
-    
-    index = getWord(' ', para2, parameters, index);  // c
-    auto node = varPointers.find(autoName(para1));
-    if (node != varPointers.end())
-    {
-        auto node1 = varPointers.find(autoName(para2));
-        if (node1 != varPointers.end())
-        {
-            codbuffer += sx() +  "sub " + node->second + ", " + node1->second + "\n";
-            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node1->second + "\n";
-        }
-        else
-        {
-            codbuffer += sx() +  "sub " + node->second + ", [" + autoName(para2) + "]\n";
-            codbuffer += sx() +  "mov [" + autoName(para3) + "], " + node->second + "\n";
-        }
-    }
-    else
-    {
-        getFreeReg();
-        trash1 = regbuffer;
-        codbuffer += sx() +  "mov " + trash1 + ", dword [" + autoName(para1) + "]\n";
-        codbuffer += sx() +  "sub " + trash1 + ", [" + autoName(para2) + "]\n";
-        codbuffer += sx() +  "mov [" + autoName(para3) + "], " + trash1 + "\n";
-        varPointers.insert(make_pair(autoName(para1), trash1));
-    }
-    codbuffer += "\n";  //make new asm block of code
-}
-
-void doMultiply(int &index)
-{
-    int offset;
-    string para1;  //b
-    string para2;  //c
-    string para3;  //a
-    string trash;
-    string trash1;
-    string trash2;
-    // a = b * c
-    codbuffer += "\n";  //make new asm block of code
-
-    offset = getReversedIndex(' ', parameters, index-1); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //b offset
-    offset = getReversedWord(' ', para1, parameters, offset); //b 
-    reverse(para1.begin(), para1.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //a offset
-    offset = getReversedWord(' ', para3, parameters, offset); //a
-    reverse(para3.begin(), para3.end());
-
-    index = getWord(' ', para2, parameters, index);  // c
-
-    auto node = varPointers.find(autoName(para1));
-    if (node != varPointers.end())
-    {
-        auto node1 = varPointers.find(autoName(para2));
-        if (node1 != varPointers.end())
-        {
-            if (node1->second != "eax ")
-            {
-                codbuffer += "push eax\n";
-                codbuffer += "mov eax, " + node1->second + "\n";
-            }
-            codbuffer += "mul " + node->second + "\n";
-            if (node1->second != "eax ")
-            {
-                codbuffer += "pop " + node1->second + "\n";
-                codbuffer += "xchg eax, " + node1->second + "\n";
-            }
-            codbuffer += "mov [" + autoName(para3) + "], " + node1->second +"\n";
-        }
-        else
-        {
-            codbuffer += "push eax\n";
-            codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
-            codbuffer += "mul " + node->second + "\n";
-            codbuffer += "mov [" + autoName(para3) + "], eax\n";
-            codbuffer += "pop eax\n";
-        }
-    }
-    else
-    {
-        codbuffer += "push eax\n";
-        codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
-        codbuffer += "mul dword [" + autoName(para1) + "]\n";
-        codbuffer += "mov [" + autoName(para3) + "], eax\n";
-        codbuffer += "pop eax\n";
-    }
-    codbuffer += "\n";  //make end block of code
-}
-
-void doDivision(int &index)
-{
-    int offset;
-    string para1;  //b
-    string para2;  //c
-    string para3;  //a
-    string trash;
-    string trash1;
-    string trash2;
-    // a = b * c
-    codbuffer += "\n";  //make new asm block of code
-
-    offset = getReversedIndex(' ', parameters, index-1); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //b offset
-    offset = getReversedWord(' ', para1, parameters, offset); //b 
-    reverse(para1.begin(), para1.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //trash offset
-    offset = getReversedWord(' ', trash, parameters, offset); //trash
-    reverse(trash.begin(), trash.end());
-
-    offset = getReversedIndex(' ', parameters, offset); //a offset
-    offset = getReversedWord(' ', para3, parameters, offset); //a
-    reverse(para3.begin(), para3.end());
-
-    index = getWord(' ', para2, parameters, index);  // c
-
-    auto node = varPointers.find(autoName(para1));
-    if (node != varPointers.end())
-    {
-        auto node1 = varPointers.find(autoName(para2));
-        if (node1 != varPointers.end())
-        {
-            if (node1->second != "eax ")
-            {
-                codbuffer += "push eax\n";
-                codbuffer += "mov eax, " + node1->second + "\n";
-            }
-            codbuffer += "div " + node->second + "\n";
-            if (node1->second != "eax ")
-            {
-                codbuffer += "pop " + node1->second + "\n";
-                codbuffer += "xchg eax, " + node1->second + "\n";
-            }
-            codbuffer += "mov [" + autoName(para3) + "], " + node1->second +"\n";
-        }
-        else
-        {
-            codbuffer += "push eax\n";
-            codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
-            codbuffer += "div " + node->second + "\n";
-            codbuffer += "mov [" + autoName(para3) + "], eax\n";
-            codbuffer += "pop eax\n";
-        }
-    }
-    else
-    {
-        codbuffer += "push eax\n";
-        codbuffer += "mov eax, dword [" + autoName(para2) + "]\n";
-        codbuffer += "div dword [" + autoName(para1) + "]\n";
-        codbuffer += "mov [" + autoName(para3) + "], eax\n";
-        codbuffer += "pop eax\n";
-    }
-    codbuffer += "\n";  //make end block of code
 }
 
 void doAND(int &index)
@@ -855,43 +603,85 @@ string getReturn()
     }
 }
 
-void doMath(int &index, string a, string math)
+void doReturn()
 {
-    
+    codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
+    codbuffer += sx() +  "ret\n\n";
+    localVarLocation = 0;
+    localVars.clear();
+    LocalizedVariableNames.pop_back();
 }
 
 void useVar(int &index, string destination)
 {
+    string memReg = getFreeMemReg();
     string reg1;  //register
     string IndexName;  //[b]
     string ifArray;  // = or :
     index = getWord(' ', ifArray, parameters, index); //get the = or :
+
     index = getWord(' ', IndexName, parameters, index); //get the [b]
+
+    int dest1 = getIndex(IndexName);
+    if (Tokens.at(dest1).ifVar)
+    {
+        useVar(index, IndexName);
+        
+    }
+
     // if destination == array 
     // lea esi, destination[Index * 4]
     // if value == array
     // lea edi, destination2[Index * 4]
+    if (ifArray == "+" || ifArray == "-")
+    {
+        string mathOpcode;
+        if (ifArray == "+")
+        {
+            mathOpcode = "add ";
+        }
+        else if (ifArray == "-")
+        {
+            mathOpcode = "sub ";
+        }
 
+        string a = destination;
+        int aIndex = getIndex(a);
+        int bIndex = getIndex(IndexName);
+
+        if (Tokens.at(bIndex).ifArray)
+        {
+            useVar(index, IndexName);
+        }
+        string memReg2 = getFreeMemReg(); //skip
+        memReg2 = getFreeMemReg();  //go to back the original
+
+        codbuffer += mathOpcode + Tokens.at(aIndex).getReg(codbuffer) + ", dword [" + memReg2 + "]\n";
+        codbuffer += "mov [" + destination + "], " + Tokens.at(aIndex).getReg(codbuffer) + "\n";
+    }
     // if destination == var
     // lea esi, destination
     // mov [esi], reg
+    
 
     int dest = getIndex(destination);
     bool ifNum = false;
     getFreeReg();
     string reg2 = regbuffer;
-    if (isdigit(IndexName.at(0)) || isdigit(IndexName.at(0)) == '-')
+    if (IndexName != "")
     {
-        codbuffer += "mov " + reg2 + ", " + IndexName + "\n";
-        ifNum = true;
+        if (isdigit(IndexName.at(0)) || isdigit(IndexName.at(0)) == '-')
+        {
+            codbuffer += "mov " + reg2 + ", " + IndexName + "\n";
+            ifNum = true;
+        }
     }
-    else
+    if (ifNum == false)
     {
         int Index = getIndex(IndexName);
     }
     
 
-    string memReg = getFreeMemReg();
 
     if (Tokens.at(dest).ifArray)
     {
@@ -910,10 +700,15 @@ void useVar(int &index, string destination)
     string value;
     string ifValueArray;
     string skip;
+    bool ifReturnIsInMath = false;
     
     if (ifArray == ":")
     {
         index = getWord(' ', skip, parameters, index);
+        if (skip == "ret")
+        {
+            skippedRet = true;
+        }
         index = getWord(' ', ifValueArray, parameters, index);
         int offset = getWord(' ', value, parameters, index);
         int exist = getIndex(ifValueArray);
@@ -934,27 +729,40 @@ void useVar(int &index, string destination)
         else if (value == "+" || value == "-")
         {
             index = offset;
-            doMath(index, ifValueArray, "+");
+
+            string mathOpcode;
+            if (value == "+")
+            {
+                mathOpcode = "add ";
+            }
+            else if (value == "-")
+            {
+                mathOpcode = "sub ";
+            }
+
+            string b;
+            index = getWord(' ', b, parameters, index);
+            string a = ifValueArray;
+            int aIndex = getIndex(a);
+            int bIndex = getIndex(b);
+
+            if (Tokens.at(bIndex).ifArray)
+            {
+                useVar(index, b);
+            }
+            string memReg2 = getFreeMemReg(); //skip
+            memReg2 = getFreeMemReg();  //go to back the original
+
+            codbuffer += mathOpcode + Tokens.at(bIndex).getReg(codbuffer) + ", dword [" + memReg2 + "]\n";
+            ifReturnIsInMath = true;
+            codbuffer += "mov [" + memReg + "], " + Tokens.at(bIndex).getReg(codbuffer) + "\n";
+            
         }
-        if (Tokens.at(exist).ifVar)
+        if (Tokens.at(exist).ifVar && ifReturnIsInMath == false)
         {
             codbuffer += "mov [" + memReg + "], " + Tokens.at(exist).getReg(codbuffer) + "\n";
         }
     }
-    int dest1 = getIndex(destination);
-    if (Tokens.at(dest1).ifVar)
-    {
-
-    }
-}
-
-void doReturn()
-{
-    codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
-    codbuffer += sx() +  "ret\n\n";
-    localVarLocation = 0;
-    localVars.clear();
-    LocalizedVariableNames.pop_back();
 }
 
 void makeFunc(int &index)
@@ -1394,11 +1202,9 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     }
     if (destination == "+")
     {
-        doAddition(continu);
     }
     if (destination == "-")
     {
-        doSubstraction(continu);
     }
     if (destination == "&")
     {
@@ -1423,16 +1229,15 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     if (destination == "*")
     {
         disconnectFromRegister("eax ");
-        doMultiply(continu);
     }
     if (destination == "/")
     {
         disconnectFromRegister("eax ");
-        doDivision(continu);
     }
-    if (destination == "ret")
+    if (destination == "ret" || skippedRet == true)
     {
         doReturn();
+        skippedRet = false;
     }
     if (destination == "if")
     {

@@ -14,10 +14,6 @@ main:
 push ebp
 mov ebp, esp
 sub esp, 0
-mov esp, ebp
-pop ebp
-ret
-
 
 
 section .data
