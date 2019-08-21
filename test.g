@@ -1,8 +1,10 @@
+var d = 12
 
-var abc : 256
-var efg : 34
-var a = 2
+func banana a b c
+  a = b
+ret
+  
 
 func main 
-  a = a
+  banana d d d 
 ret 

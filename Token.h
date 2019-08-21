@@ -13,6 +13,12 @@ class Token
       ifReal = true;
     }
 
+    void makePtr()
+    {
+        ifPointer = true;
+        ifReal = true;
+    }
+
     void makeName(string name)
     {
         Name = name;
@@ -34,7 +40,7 @@ class Token
     void makeFunc(string func)
     {
         ifFunction = true;
-        FunctionLabelName = func;
+        Name = func;
         ifReal = true;
     }
 
@@ -109,6 +115,7 @@ class Token
     {
         Links.push_back(newLink);
         ifReal = true;
+        ParameterAmount++;
     }
 
     string getNextReg()
@@ -162,12 +169,15 @@ class Token
     bool ifString = false;
     bool ifEqu = false;
     bool ifHasReg = false;
+    bool ifChild = false;
+    string owner = "";
     string FunctionLabelName = "";
     string TypeLabelName = "";
     string Name;
     string Size;
     string Reg;
     int PlaceInType = 0;
+    int ParameterAmount = 0;
     vector <Token> Links;
     int usedregister1 = 0;
 };
