@@ -307,9 +307,52 @@ void doReturn()
     LocalizedVariableNames.pop_back();
 }
 
+void doMath(int &index, string a, string math)
+{
+    string b;
+    index = getWord(' ', b, parameters, index);
+    //a +/*- b
+    int aI = getIndex(a);
+    int bI = getIndex(b);
+    string opCode;
+    if (math == "+")
+    {
+        opCode = "add ";
+    }
+    else if (math == "-")
+    {
+        opCode = "sub ";
+    }
+    else if (math == "/")
+    {
+        opCode = "idiv ";
+    }
+    else
+    {
+        opCode = "imul ";
+    }
+    codbuffer += opCode + Tokens.at(aI).getFullName() + ", " + Tokens.at(bI).getFullName() + "\n";
+}
+
 void useVar(int &index, string destination)
 {
+    //svae the destination to stack.
     makeInitialDestiantion(index, destination);
+    //skip the = mark.
+    string skip;
+    index = getWord(' ', skip, parameters, index);
+    //start the math check.
+    string bPart;
+    index = getWord(' ', bPart, parameters, index);
+    string math;
+    int offset = getWord(' ', math, parameters, index);
+    if (math == "+" || math == "-" || math == "/" || math == "*")
+    {
+        //this means that math exist on this same line of code :D.
+        //so lets make it.
+        index = offset;
+        doMath(index, bPart, math);
+    }
 }
 
 void makeFunc(int &index)

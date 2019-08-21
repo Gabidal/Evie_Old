@@ -24,7 +24,6 @@ mov [ banana.b], ebx
 mov ecx , [ebp+16]
 mov [ banana.c], ecx 
 push banana.c
-push banana.a
 push banana.b
 mov esp, ebp
 pop ebp

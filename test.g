@@ -1,7 +1,7 @@
 var d = 12
 
 func banana a b c
-  a = b
+  a = b + c
 ret
   
 
