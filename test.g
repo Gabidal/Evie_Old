@@ -5,6 +5,6 @@ func banana a b c
 ret
   
 
-func main 
-  banana d d d 
-ret 
+func main
+  banana d d d
+ret

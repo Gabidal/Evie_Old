@@ -33,90 +33,23 @@ ret
  main:
 push ebp
 mov ebp, esp
-sub esp, 1
-; is now Variable.
-mov edx , [ebp+8]
-mov [ main.], edx 
-push main.
-push dword [d]
+sub esp, 0
+push d
+push d
+push d
 call banana
-push d
-push d
-push d
-push main.
 mov esp, ebp
 pop ebp
 ret
 
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
-push main.
 
 
 section .data
 
  d dd 12
- bananaa dd 0
- bananab dd 0
- bananac dd 0
- main dd 0
+ banana.a dd 0
+ banana.b dd 0
+ banana.c dd 0
 
 
 section .bss

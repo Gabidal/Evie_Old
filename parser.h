@@ -201,6 +201,63 @@ void makeVar(int &index)
     Tokens.push_back(variable);
 }
 
+void prepareFunction(int &index, string func)
+{
+    int funcIndex = getIndex(func);
+    string parameter;
+    for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
+    {
+        index = getWord(' ', parameter, parameters, index);
+        int parIndex = getIndex(parameter);
+        codbuffer += "push [" + Tokens.at(parIndex).getFullName() + "]\n";
+    }
+    if (Tokens.at(funcIndex).ifFunction)
+    {
+        codbuffer += "call " + Tokens.at(funcIndex).getFullName() + "\n";
+    }
+    else if (Tokens.at(funcIndex).ifMacro)
+    { 
+        codbuffer += Tokens.at(funcIndex).getFullName() + "\n";
+    }
+    else
+    {
+        cout << "uknown Function type :c\n";
+    }
+    
+}
+
+void makeInitialDestiantion(int &index, string dest)
+{
+    int destIndex = getIndex(dest);
+    if (Tokens.at(destIndex).ifVar)
+    {
+        codbuffer += "push " + Tokens.at(destIndex).getFullName() + "\n";
+    }
+    else if (Tokens.at(destIndex).ifArray)
+    {
+        // get the ":" and the "index".
+        string skip;
+        string arrayIndex;
+        index = getWord(' ', skip, parameters, index);
+        index = getWord(' ', arrayIndex, parameters, index);
+        //mov esi, [arrayIndex]
+        //lea esi, dest[esi * 4]
+        string memReg = getFreeMemReg();
+        codbuffer += "mov " + memReg + ", dword [" + arrayIndex + "]\n";
+        codbuffer += "lea " + memReg + ", " + dest + "[ " + memReg + "* 4]\n";
+        codbuffer += "push " + memReg + "\n";
+    }
+    else if (Tokens.at(destIndex).ifFunction)
+    {
+        // get the parameter's for the function.
+        prepareFunction(index, dest);
+    }
+    else
+    {
+        cout << "bad destination: " + dest + "\n";
+    }
+}
+
 void callFunction(string function, int &index)
 {
     int funcIndex = getIndex(function);
@@ -208,19 +265,19 @@ void callFunction(string function, int &index)
     {
         string parameter;
         index = getWord(' ', parameter, parameters, index);
-        int parameterIndex = getIndex(parameter);
-        if (Tokens.at(parameterIndex).ifVar)
-        {
-            
-        }
-        else if (Tokens.at(parameterIndex).ifArray)
-        {
-            
-        }
-        else
-        {
-            
-        }
+        makeInitialDestiantion(index, parameter);
+    }
+    if (Tokens.at(funcIndex).ifFunction)
+    {
+        codbuffer += "call " + Tokens.at(funcIndex).getFullName() + "\n";
+    }
+    else if (Tokens.at(funcIndex).ifMacro)
+    { 
+        codbuffer += Tokens.at(funcIndex).getFullName() + "\n";
+    }
+    else
+    {
+        cout << "uknown Function type :c\n";
     }
 }
 
@@ -248,32 +305,6 @@ void doReturn()
     localVarLocation = 0;
     localVars.clear();
     LocalizedVariableNames.pop_back();
-}
-
-void makeInitialDestiantion(int &index, string dest)
-{
-    int destIndex = getIndex(dest);
-    if (Tokens.at(destIndex).ifVar)
-    {
-        codbuffer += "push " + Tokens.at(destIndex).getFullName() + "\n";
-    }
-    else if (Tokens.at(destIndex).ifArray)
-    {
-        // get the ":" and the "index".
-        string skip;
-        string arrayIndex;
-        index = getWord(' ', skip, parameters, index);
-        index = getWord(' ', arrayIndex, parameters, index);
-    }
-    else if (Tokens.at(destIndex).ifFunction)
-    {
-        // get the parameter's for the function.
-        callFunction(dest, index);
-    }
-    else
-    {
-        cout << "bad destination: " + dest + "\n";
-    }
 }
 
 void useVar(int &index, string destination)
@@ -371,9 +402,8 @@ void makeFunc(int &index)
             codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
             child.makeVar();
         }
-        
 
-        varbuffer += className.back() + para1 + para3 + " dd 0\n";
+        varbuffer += className.back() + para1 + "." + para3 + " dd 0\n";
 
         codbuffer += sx() + "mov [" + className.back() + para1 + "." + para3 + "], " + reg2 + "\n";
         child.makePrivate(para1, className.back());
@@ -778,27 +808,22 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     {
         makeNewString(continu);
     }
-    auto str = Strings.find(autoName(destination));
-    if (str != Strings.end())
+    int dest = getIndex(destination);
+    if (Tokens.at(dest).ifString)
     {
         useStr(continu, destination);
     }
 
-    for (auto& i : Tokens) 
+    if (Tokens.at(dest).ifVar || Tokens.at(dest).ifArray) 
     {
-        if (i.Name == destination) 
-        {
-            useVar(continu, destination);
-        }
+        useVar(continu, destination);
     }
-    string dest = destination + ".";
-    for (int i = 0; i < functions.size();i++)
+    
+    if (Tokens.at(dest).ifFunction)
     {
-        if (functions[i] == dest)
-        {
-            callFunction(destination, continu);
-        }
+        callFunction(destination, continu);
     }
+
     file = parameters;
     varbuffer1 += varbuffer;
     bssbuffer1 += bssbuffer;
