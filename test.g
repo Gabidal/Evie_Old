@@ -1,11 +1,9 @@
-var d = 12
-var abc : 2
-
-func banana a b c
-  a = b + c - a
-ret
-  
+var a = 1
+var b = 2
+var c = 3
 
 func main
-  banana abc : d d d
+  a = b + c
+  b = c - a
+  c = a * b
 ret

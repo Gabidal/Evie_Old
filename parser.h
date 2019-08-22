@@ -231,7 +231,7 @@ void makeInitialDestiantion(int &index, string dest)
     int destIndex = getIndex(dest);
     if (Tokens.at(destIndex).ifVar)
     {
-        codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
+        codbuffer += "push " + Tokens.at(destIndex).getFullName() + "\n";
     }
     else if (Tokens.at(destIndex).ifArray)
     {
@@ -338,7 +338,7 @@ void doMath(int &index, string a, string math)
     {
         opCode = "imul ";
     }
-    codbuffer += opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n";
+    codbuffer += opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n\n";
     //check if there is more math to do.
     math = "";
     int offset = getWord(' ', math, parameters, index);
