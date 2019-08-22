@@ -4,6 +4,8 @@
 #include <vector>
 using namespace std;
 
+extern int usedregister;
+
 class Token
 {
   public:
@@ -120,25 +122,25 @@ class Token
 
     string getNextReg()
     {
-        if (usedregister1 == 3)
+        if (usedregister == 3)
         {
+            usedregister = 0;
             return "edx ";
-            usedregister1 = 0;
         }
-        else if (usedregister1 == 2)
+        else if (usedregister == 2)
         {
+            usedregister = 3;
             return "ecx ";
-            usedregister1 = 3;
         }
-        else if (usedregister1 == 1)
+        else if (usedregister == 1)
         {
+            usedregister = 2;
             return "ebx ";
-            usedregister1 = 2;
         }
-        else if (usedregister1 == 0)
+        else if (usedregister == 0)
         {
+            usedregister = 1;
             return "eax ";
-            usedregister1 = 1;
         }
         return "eax ";
     }
@@ -148,7 +150,7 @@ class Token
         if (Reg == "")
         {
             Reg = getNextReg();
-            buffer += "mov " + Reg + ", dword [" + Name + "]\n";
+            buffer += "mov " + Reg + ", dword [" + getFullName() + "]\n";
             return Reg;
         }
         else
@@ -179,7 +181,6 @@ class Token
     int PlaceInType = 0;
     int ParameterAmount = 0;
     vector <Token> Links;
-    int usedregister1 = 0;
 };
 
 

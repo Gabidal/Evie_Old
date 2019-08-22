@@ -23,8 +23,14 @@ mov [ banana.b], ebx
 ;c is now Variable.
 mov ecx , [ebp+16]
 mov [ banana.c], ecx 
-push banana.c
-push banana.b
+push dword [banana.a]
+mov edx , dword [banana.c]
+mov eax , dword [banana.b]
+add eax , edx 
+mov ebx , dword [banana.a]
+sub eax , ebx 
+pop esi 
+mov [esi ], eax 
 mov esp, ebp
 pop ebp
 ret
@@ -33,9 +39,11 @@ ret
 push ebp
 mov ebp, esp
 sub esp, 0
-push d
-push d
-push d
+mov edi , dword [d]
+lea edi , abc[ edi * 4]
+push dword [edi ]
+push dword [d]
+push dword [d]
 call banana
 mov esp, ebp
 pop ebp
@@ -46,6 +54,7 @@ ret
 section .data
 
  d dd 12
+ abc.size equ $ -  abc
  banana.a dd 0
  banana.b dd 0
  banana.c dd 0
@@ -53,3 +62,4 @@ section .data
 
 section .bss
 
+ abc resd 2

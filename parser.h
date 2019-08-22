@@ -209,7 +209,7 @@ void prepareFunction(int &index, string func)
     {
         index = getWord(' ', parameter, parameters, index);
         int parIndex = getIndex(parameter);
-        codbuffer += "push [" + Tokens.at(parIndex).getFullName() + "]\n";
+        codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
@@ -231,7 +231,7 @@ void makeInitialDestiantion(int &index, string dest)
     int destIndex = getIndex(dest);
     if (Tokens.at(destIndex).ifVar)
     {
-        codbuffer += "push " + Tokens.at(destIndex).getFullName() + "\n";
+        codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
     }
     else if (Tokens.at(destIndex).ifArray)
     {
@@ -245,7 +245,7 @@ void makeInitialDestiantion(int &index, string dest)
         string memReg = getFreeMemReg();
         codbuffer += "mov " + memReg + ", dword [" + arrayIndex + "]\n";
         codbuffer += "lea " + memReg + ", " + dest + "[ " + memReg + "* 4]\n";
-        codbuffer += "push " + memReg + "\n";
+        codbuffer += "push dword [" + memReg + "]\n";
     }
     else if (Tokens.at(destIndex).ifFunction)
     {
@@ -256,6 +256,13 @@ void makeInitialDestiantion(int &index, string dest)
     {
         cout << "bad destination: " + dest + "\n";
     }
+}
+
+void getInitalDestination(int &index, string destReg)
+{
+    string memReg = getFreeMemReg();
+    codbuffer += "pop " + memReg + "\n";
+    codbuffer += "mov [" + memReg + "], " + destReg + "\n";
 }
 
 void callFunction(string function, int &index)
@@ -331,12 +338,26 @@ void doMath(int &index, string a, string math)
     {
         opCode = "imul ";
     }
-    codbuffer += opCode + Tokens.at(aI).getFullName() + ", " + Tokens.at(bI).getFullName() + "\n";
+    codbuffer += opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n";
+    //check if there is more math to do.
+    math = "";
+    int offset = getWord(' ', math, parameters, index);
+    if (math == "\n" || math == " " || math == "ret")
+    {
+        return;
+    }
+    else if (math == "+" || math == "-" || math == "/" || math == "*")
+    {
+        //this means that math exist on this same line of code :D.
+        //so lets make it.
+        index = offset;
+        doMath(index, a, math);
+    }
 }
 
 void useVar(int &index, string destination)
 {
-    //svae the destination to stack.
+    //save the destination to stack.
     makeInitialDestiantion(index, destination);
     //skip the = mark.
     string skip;
@@ -353,6 +374,9 @@ void useVar(int &index, string destination)
         index = offset;
         doMath(index, bPart, math);
     }
+    //load the inital destination from stack and give it the inital sum.
+    int bIndex = getIndex(bPart);
+    getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer));
 }
 
 void makeFunc(int &index)
@@ -406,6 +430,7 @@ void makeFunc(int &index)
         else
         {
             func.makeLink(Parameter);
+            index = offset;
             break;
         }
         i++;
