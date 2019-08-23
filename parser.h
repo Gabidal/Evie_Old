@@ -56,7 +56,7 @@ int getIndex(string name)
             {
                 secondPriority = i;
             }
-            else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " ")
+            else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " " && Tokens.at(i).owner == FunctionNames.back())
             {
                 return i;
             }
@@ -167,6 +167,7 @@ void makeVar(int &index)
     {
         //if it is public.
         Variable.makePrivate(FunctionNames.back(), className.back());
+        Variable.owner = FunctionNames.back();
     }
 
     if (setting == ":")
@@ -196,8 +197,18 @@ void prepareFunction(int &index, string func)
     for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
     {
         index = getWord(' ', parameter, parameters, index);
-        int parIndex = getIndex(parameter);
-        codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
+        if (parameter.at(0) == '%')
+        {
+            int parIndex = getIndex(parameter);
+            parameter.erase(parameter.begin());
+            codbuffer += "push " + Tokens.at(parIndex).getFullName() + "\n";
+        }
+        else
+        {
+            int parIndex = getIndex(parameter);
+            codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
+        }
+        
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
@@ -217,9 +228,15 @@ void prepareFunction(int &index, string func)
 void makeInitialDestiantion(int &index, string dest)
 {
     int destIndex = getIndex(dest);
-    if (Tokens.at(destIndex).ifVar)
+    if (dest.at(0) == '%')
     {
-        codbuffer += "push " + Tokens.at(destIndex).getFullName() + "\n";
+        dest.erase(dest.begin());
+        int destIndex2 = getIndex(dest);
+        codbuffer += "push " + Tokens.at(destIndex2).getFullName() + "\n";
+    }
+    else if (Tokens.at(destIndex).ifVar)
+    {
+        codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
     }
     else if (Tokens.at(destIndex).ifArray)
     {
@@ -230,10 +247,11 @@ void makeInitialDestiantion(int &index, string dest)
         index = getWord(' ', arrayIndex, parameters, index);
         //mov esi, [arrayIndex]
         //lea esi, dest[esi * 4]
+        int indexIndex = getIndex(arrayIndex);
         string memReg = getFreeMemReg();
-        codbuffer += "mov " + memReg + ", dword [" + arrayIndex + "]\n";
-        codbuffer += "lea " + memReg + ", " + dest + "[ " + memReg + "* 4]\n";
-        codbuffer += "push dword [" + memReg + "]\n";
+        codbuffer += "mov " + memReg + ", dword [" + Tokens.at(indexIndex).getFullName() + "]\n";
+        codbuffer += "lea " + memReg + ", " + Tokens.at(destIndex).getFullName() + "[ " + memReg + "* 4]\n";
+        codbuffer += "push " + memReg + "\n";
     }
     else if (Tokens.at(destIndex).ifFunction)
     {
@@ -255,12 +273,18 @@ void getInitalDestination(int &index, string destReg)
 
 void callFunction(string function, int &index)
 {
+    vector<string> params;
     int funcIndex = getIndex(function);
     for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
     {
         string parameter;
         index = getWord(' ', parameter, parameters, index);
-        makeInitialDestiantion(index, parameter);
+        params.push_back(parameter);
+    }
+    for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
+    {
+        makeInitialDestiantion(index, params.back());
+        params.pop_back();
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
@@ -648,6 +672,30 @@ void useStr(int &index, string destination)
     }
 }
 
+void makeNewMem(int &index)
+{
+    // mem abc : 123
+    string skip;
+    //get the name.
+    string newAllocatedMemName;
+    index = getWord(' ', newAllocatedMemName, parameters, index);
+    //skip the : mark.
+    index = getWord(' ', skip, parameters, index);
+    //get the memory size to allocate on.
+    string newAllocatedSize;
+    index = getWord(' ', newAllocatedSize, parameters, index);
+    codbuffer += newAllocatedMemName + ":\n";
+    for (int i = 0; i < atoi(newAllocatedSize.c_str()); i++)
+    {
+        codbuffer += "nop\n";
+    }
+    Token newMem;
+    newMem.makeName(newAllocatedMemName);
+    newMem.makeArray(newAllocatedSize);
+    newMem.makePublic();
+    Tokens.push_back(newMem);
+}
+
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
 {
     codbuffer = "";
@@ -717,6 +765,10 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     if (destination == "str")
     {
         makeNewString(continu);
+    }
+    if (destination == "mem")
+    {
+        makeNewMem(continu);
     }
     int dest = getIndex(destination);
     if (Tokens.at(dest).ifString)

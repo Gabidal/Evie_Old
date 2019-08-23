@@ -1,11 +1,12 @@
-var a = 0
+var a = 1
+var b = 2
+var c = 3
 
-func banana c
-  var b = 1
-  b = c
-  c = a
+func banana a b c
+  a = b + c
 ret
 
-func main
 
+func main
+  banana a b c
 ret
