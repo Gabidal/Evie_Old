@@ -92,11 +92,6 @@ class Token
         ifReal = true;
     }
 
-    void makeNextPlace()
-    {
-        PlaceInType++;
-    }
-
     string getFullName()
     {
         if (ifGlobal)
@@ -173,12 +168,12 @@ class Token
     bool ifHasReg = false;
     bool ifChild = false;
     string owner = "";
-    string FunctionLabelName = "";
-    string TypeLabelName = "";
+    string FunctionLabelName = " ";
+    string TypeLabelName = " ";
     string Name;
     string Size;
     string Reg;
-    int PlaceInType = 0;
+    int PlaceInStack = 0;
     int ParameterAmount = 0;
     vector <Token> Links;
 };

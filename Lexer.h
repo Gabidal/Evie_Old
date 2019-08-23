@@ -40,7 +40,7 @@ void initializeKeyWords()
     keyWords.push_back("sys");
     keyWords.push_back("str");
     className.push_back(" "); //the global class indicator
-    LocalizedVariableNames.push_back(" ");
+    FunctionNames.push_back(" ");
     Token TokenNull;
     TokenNull.makeName("nullnullTokennullnull");
     Tokens.push_back(TokenNull);

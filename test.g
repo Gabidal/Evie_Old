@@ -1,9 +1,11 @@
-var a = 1
-var b = 2
-var c = 3
+var a = 0
+
+func banana c
+  var b = 1
+  b = c
+  c = a
+ret
 
 func main
-  a = b + c
-  b = c - a
-  c = a * b
+
 ret

@@ -22,20 +22,10 @@ int layerId = 0;
 int returnLayer = 0;
 int savedIfToElse = 0;
 int savedElseToEnd = 0;
-vector<string> LocalizedVariableNames;  //
+vector<string> FunctionNames;  //
 vector<string> ifToElse;
 vector<string> elseToEnd;
 vector<string> jumpToEnd;
-map<string, bool> variables;            //true == global; false == local
-map <string, string> varPointers;      //
-map <string, string> ArrayVariables;   //
-vector<string> functions;               //
-vector<string> Macros;                  
-vector<string> localVars;
-map<string, int> Types;
-map <string, bool> Strings;
-vector<string> equs;
-int localVarLocation;
 bool skippedRet = false;
 vector<string> className;  //className . functionName:
 
@@ -57,15 +47,23 @@ string sx()
 
 int getIndex(string name)
 {
+    int secondPriority = 0;
     for (int i = 0; i < Tokens.size(); i++)
     {
         if (Tokens.at(i).Name == name)
         {
-            return i;
+            if (Tokens.at(i).ifGlobal == true)
+            {
+                secondPriority = i;
+            }
+            else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " ")
+            {
+                return i;
+            }
         }
     }
+    return secondPriority;
     cout << name + "doesnt exist!\n";
-    return 0;
 }
 
 void disconnectFromRegister(string reg)
@@ -150,55 +148,45 @@ string autoName(string name, bool isString = false)
 
 void makeVar(int &index)
 {
-    string para1;
-    string para2;
-    string para3;
-    index = getWord(' ', para1, parameters, index);  //name
-    index = getWord(' ', para2, parameters, index);  // = or :
-    index = getWord(' ', para3, parameters, index);  // value or size
-    Token variable;
-    Token size;
-    if (para2 == ":")
+    string name;
+    string setting;
+    string value;
+    index = getWord(' ', name, parameters, index);  // name
+    index = getWord(' ', setting, parameters, index);  // = or :
+    index = getWord(' ', value, parameters, index);  // value or size
+    Token Variable;
+    Token Size;
+    Variable.makeName(name);
+    // check if it is a local var.
+    if (FunctionNames.back() == " ")
     {
-        if (LocalizedVariableNames.back() == " ")
-        {
-            variable.makePublic();
-            size.makePublic();
-        }
-        else
-        {
-            variable.makePrivate(className.back(), LocalizedVariableNames.back());
-            size.makePrivate(className.back(), LocalizedVariableNames.back());
-        }
-
-        bssbuffer += className.back() + para1 + " resd " + para3 + "\n";
-
-        variable.makeName(para1);
-        variable.makeArray(para3);
-            
-        size.makeEqu();
-        size.makeName(para1 + ".size");
-        variable.makeLink(size);
-
-        varbuffer += className.back() + para1 + ".size equ $ - " + className.back() + para1 + "\n";
+        //if it is global var.
+        Variable.makePublic();
     }
     else
     {
-        if (LocalizedVariableNames.back() == " ")
-        {
-            varbuffer += className.back() + para1 + " dd " + para3 + "\n";
-            variable.makePublic();
-        }
-        else
-        {
-            varbuffer += className.back() + LocalizedVariableNames.back() + para1 + " dd " + para3 + "\n";
-            variable.makePrivate(className.back(), LocalizedVariableNames.back());
-        }
-
-        variable.makeVar();
-        variable.makeName(para1);
+        //if it is public.
+        Variable.makePrivate(FunctionNames.back(), className.back());
     }
-    Tokens.push_back(variable);
+
+    if (setting == ":")
+    {
+        Variable.makeArray(value);
+        Size.makeVar();
+        Size.makeName(name + ".size");
+
+        varbuffer += Size.getFullName() + " dd " + value + "\n";
+        bssbuffer += Variable.getFullName() + " resd " + value + "\n";
+
+        Tokens.push_back(Size);
+    }
+    else
+    {
+        Variable.makeVar();
+        varbuffer += Variable.getFullName() + " dd " + value + "\n";
+    }
+    
+    Tokens.push_back(Variable);
 }
 
 void prepareFunction(int &index, string func)
@@ -309,9 +297,7 @@ void doReturn()
 {
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
     codbuffer += sx() +  "ret\n\n";
-    localVarLocation = 0;
-    localVars.clear();
-    LocalizedVariableNames.pop_back();
+    FunctionNames.pop_back();
 }
 
 void doMath(int &index, string a, string math)
@@ -421,6 +407,7 @@ void makeFunc(int &index)
         }
         if (parameters[offset-2] == '\n')
         {
+            index = offset;
             break;
         }
         if (error != "\n")
@@ -439,7 +426,7 @@ void makeFunc(int &index)
 
     codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
     codbuffer += sx() + "sub esp, " + to_string(func.ParameterAmount) + "\n";
-    LocalizedVariableNames.push_back(para1 + ".");
+    FunctionNames.push_back(para1);
     Tokens.push_back(func);
 
     for (int i = 0; i < func.ParameterAmount; i++)
@@ -522,45 +509,21 @@ string getJump(string condition)
 
 void doComparing(int &i)
 {
-    string para1;  //a
-    string para2;  // ==
-    string para3;  //b
-    i = getWord(' ', para1, parameters, i);
-    i = getWord(' ', para2, parameters, i);
-    i = getWord(' ', para3, parameters, i);
-    para2 = getJump(para2);
-    auto reg1 = varPointers.find(para1);
-    auto reg2 = varPointers.find(para3);
-    if (reg1 != varPointers.end())
-    {
-        if (reg2 != varPointers.end())
-        {
-            codbuffer += sx() +   "cmp " + reg1->second + ", " + reg2->second + "\n";
-        }
-        else
-        {
-            getFreeReg();
-            para1 = regbuffer;
-            codbuffer += sx() +   "mov " + para1 + ", dword [" + autoName(para3) + "]\n";
-            codbuffer += sx() +   "cmp " + reg1->second + ", " + para1 + "\n";
-            varPointers.insert(make_pair(autoName(para3), para1));
-        }
-    }
-    else
-    {
-        getFreeReg();
-        string reg3 = regbuffer;
-        getFreeReg();
-        string reg4 = regbuffer;
-        codbuffer += sx() +   "mov " + reg3 + ", dword [" + autoName(para1) + "]\n";
-        codbuffer += sx() +   "mov " + reg4 + ", dword [" + autoName(para3) + "]\n";
-        codbuffer += sx() +   "cmp " + reg3 + ", " + reg4 + "\n";
-        varPointers.insert(make_pair(autoName(para1), reg3));
-        varPointers.insert(make_pair(autoName(para3), reg4));
-    }
+    string a;  //a
+    string condition;  // ==
+    string b;  //b
+    i = getWord(' ', a, parameters, i);
+    i = getWord(' ', condition, parameters, i);
+    i = getWord(' ', b, parameters, i);
+    condition = getJump(condition);
+    int aI = getIndex(a);
+    int bI = getIndex(b);
+
+    codbuffer += sx() +   "cmp " + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n";
+    
     inLayer++;
     layerId++;
-    codbuffer += sx() +   para2 + "else" + to_string(inLayer) + to_string(layerId) + "\n";
+    codbuffer += sx() + condition + "else" + to_string(inLayer) + to_string(layerId) + "\n";
     ifToElse.push_back(sx() + "else" + to_string(inLayer) + to_string(layerId) + ": \n");
     elseToEnd.push_back(sx() + "end" + to_string(inLayer) + to_string(layerId) + ": \n");
     jumpToEnd.push_back(sx() + "jmp end" + to_string(inLayer) + to_string(layerId) + "\n");
@@ -610,7 +573,8 @@ void makeNewType(int &index)
 {
     string typeName;
     index = getWord(' ', typeName, parameters, index);
-    Types.insert(make_pair(typeName, 0));
+    Token type;
+    type.makeType(typeName);
     className.push_back(typeName + ".");
     varbuffer += "\n" + typeName + ":\n";
 }
@@ -623,105 +587,6 @@ void endType()
 
 void makeNew(int &index)
 {
-    string TypeName;
-    string newTypeBranch;
-    string ifNewBranchIsArray;
-    string ArraySize = "";
-    int initialSize = 0;
-    index = getWord(' ', TypeName, parameters, index);
-    index = getWord(' ', newTypeBranch, parameters, index);
-    int offset = getWord(' ', ifNewBranchIsArray, parameters, index);
-    if (ifNewBranchIsArray == ":")
-    {
-        index = offset;
-        index = getWord(' ', ArraySize, parameters, index);
-    }
-    vector<string> LocalTypeVariables;
-    vector<string> newBranchVariables;
-    vector<string> LocalFunctions;
-    vector<string> newLocalFunctions;
-
-    for (auto& i : variables) 
-    {
-        if (i.first.find(TypeName) != -1) 
-        {
-            LocalTypeVariables.push_back(i.first);
-        }
-    }
-    for (auto& i : ArrayVariables) 
-    {
-        if (i.first.find(TypeName) != -1) 
-        {
-            LocalTypeVariables.push_back(i.first);
-        }
-    }
-    for (auto& i : functions)
-    {
-        if (i.find(TypeName) != -1)
-        {
-            LocalFunctions.push_back(i);
-        }
-    }
-    reverse(LocalFunctions.begin(), LocalFunctions.end());
-    reverse(LocalTypeVariables.begin(), LocalTypeVariables.end());
-    for (int i = 0; 0 < LocalFunctions.size(); i++)
-    {
-        int offset = 1;
-        string dest = "";
-        reverse(LocalFunctions.back().begin(), LocalFunctions.back().end());
-        offset = getWord('.', dest, LocalFunctions.back(), offset);
-        reverse(dest.begin(), dest.end());
-        reverse(LocalFunctions.back().begin(), LocalFunctions.back().end());
-        LocalFunctions.back().pop_back();
-
-        texbuffer += "\n%macro " + newTypeBranch + "." + dest + " 0\n";
-        texbuffer += "  lea edi, [" + newTypeBranch + "]\n";
-        texbuffer += "  call " + LocalFunctions.back() + "\n";
-        texbuffer += "%endmacro\n\n";
-        LocalFunctions.pop_back();
-        Macros.push_back(newTypeBranch + "." + dest);
-        functions.push_back(newTypeBranch + "." + dest + ".");
-        varbuffer += "\n" + newTypeBranch + ":\n";
-
-    }
-    for (int i = 0; 0 < LocalTypeVariables.size(); i++)
-    {
-        int offset = 0;
-        string dest = "";
-        int exponent = 0;
-        reverse(LocalTypeVariables.back().begin(), LocalTypeVariables.back().end());
-        offset = getWord('.', dest,LocalTypeVariables.back(), offset);
-        reverse(dest.begin(), dest.end());
-        for (auto& vars : variables) 
-        {
-            for (auto &j : Types)
-            {
-                string test = "";
-                test = j.first + "." + dest;
-                if (vars.first.find(test) != -1) 
-                {
-                    exponent++;
-                    exponent++;
-                }
-            }
-        }
-        newBranchVariables.push_back(dest);
-        LocalTypeVariables.pop_back();
-        auto node1 = ArrayVariables.find(dest);
-        if (node1 != ArrayVariables.end())
-        {
-            varbuffer += newTypeBranch + "." + newBranchVariables.back() + " times " + autoValue(node1->second, ArraySize, exponent) + " dd 0\n";
-            variables.insert(make_pair(newTypeBranch + "." + newBranchVariables.back(), true));
-            Types.insert(make_pair(newTypeBranch, (atoi(ArraySize.c_str()) * atoi(node1->second.c_str()) * exponent)));
-        }
-        else
-        {
-            varbuffer += newTypeBranch + "." + newBranchVariables.back() + " dd 0\n";
-            variables.insert(make_pair(newTypeBranch + "." + newBranchVariables.back(), true));
-        }
-        newBranchVariables.pop_back();
-    }
-    varbuffer += "\n\n";
 }
 
 void doInterruption(int &index)
@@ -757,29 +622,6 @@ void makeNewString(int &index)
     index = getWord(' ', is, parameters, index);
     index = getWord('"', str, parameters, index);
     index = getWord('"', str, parameters, index);
-    if (LocalizedVariableNames.back() != " ")
-    {
-        Strings.insert(make_pair(name, true));
-        name = className.back() + LocalizedVariableNames.back() + name;
-    }
-    else
-    {
-        Strings.insert(make_pair(name, false));
-        name = className.back() + name;
-    }
-    if (is == "=")
-    {
-        varbuffer += name + " db \"" + str + "\", 0\n";
-        varbuffer += name + ".size equ $ - " + name + "\n\n";
-        equs.push_back(name + ".size");
-    }
-    else
-    {
-        bssbuffer += name + " resb " + str + "\n";
-        varbuffer += name + ".size dd " + str + "\n";
-    }
-    
-
 }
 
 void useStr(int &index, string destination)
