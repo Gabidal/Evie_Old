@@ -611,6 +611,7 @@ void endType()
 
 void makeNew(int &index)
 {
+
 }
 
 void doInterruption(int &index)
@@ -627,11 +628,15 @@ void doInterruption(int &index)
     index = getWord(' ', edx, parameters, index);
     index = getWord(' ', callingnumber, parameters, index);
     index = getWord(' ', carry, parameters, index);
+    int aI = getIndex(eax);
+    int bI = getIndex(ebx);
+    int cI = getIndex(ecx);
+    int dI = getIndex(edx);
     codbuffer += "push eax\n";
-    codbuffer += "mov eax, " + autoName(eax) + "\n";
-    codbuffer += "mov ebx, " + autoName(ebx) + "\n";
-    codbuffer += "mov ecx, " + autoName(ecx) + "\n";
-    codbuffer += "mov edx, " + autoName(edx) + "\n";
+    codbuffer += "mov eax, " + Tokens.at(aI).getFullName() + "\n";
+    codbuffer += "mov ebx, " + Tokens.at(bI).getFullName() + "\n";
+    codbuffer += "mov ecx, " + Tokens.at(cI).getFullName() + "\n";
+    codbuffer += "mov edx, " + Tokens.at(dI).getFullName() + "\n";
     codbuffer += "int " + callingnumber + "\n";
     codbuffer += "mov [" + carry + "], eax\n";
     codbuffer += "pop eax\n";

@@ -27,7 +27,6 @@ int main()
         parsed.pop_back();
     }
     cout << "  G::Done!\n\n";
-
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
     cout << "Lexered  in " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) + "  second's" << endl;
     cout << "Parsered in " + to_string(sum / float(CLOCKS_PER_SEC)) + "  second's" << endl;
