@@ -18,34 +18,18 @@ vector <clock_t> parsed;
 
 void initializeKeyWords()
 {
-    keyWords.push_back("var");
-    keyWords.push_back("type");
-    keyWords.push_back("run");
-    keyWords.push_back("func");
-    keyWords.push_back("%");
-    keyWords.push_back("ret");
-    keyWords.push_back("+");
-    keyWords.push_back("-");
-    keyWords.push_back("/");
-    keyWords.push_back("*");
-    keyWords.push_back("if");
-    keyWords.push_back("else");
-    keyWords.push_back("use");
-    keyWords.push_back("&");
-    keyWords.push_back("!&");
-    keyWords.push_back("!||");
-    keyWords.push_back("!|");
-    keyWords.push_back("||");
-    keyWords.push_back("new");
-    keyWords.push_back("sys");
-    keyWords.push_back("str");
-    keyWords.push_back("mem");
     className.push_back(" "); //the global class indicator
     FunctionNames.push_back(" ");
     Token TokenNull;
     TokenNull.makeName("nullnullTokennullnull");
     Tokens.push_back(TokenNull);
+    Token Returner;
+    Returner.Name = "return";
+    Returner.makeVar();
+    Returner.makePublic();
+    Tokens.push_back(Returner);
 }
+
 string readFile(string name)
 {
     if (name.length() == 0)

@@ -11,184 +11,76 @@ int 80h
 
 GASCode:
 
- gout:
+ sum:
 push ebp
 mov ebp, esp
 sub esp, 2
-;name is now Variable.
+;a is now Variable.
 mov eax , [ebp+8]
-mov [ gout.name], eax 
-;size is now Variable.
+mov [ sum.a], eax 
+;b is now Variable.
 mov ebx , [ebp+12]
-mov [ gout.size], ebx 
-push eax
-mov eax,  .nullnullTokennullnull
-mov ebx,  .nullnullTokennullnull
-mov ecx, gout.name
-mov edx, gout.size
-int 80h
-mov [carry], eax
-pop eax
+mov [ sum.b], ebx 
+push sum.a
+mov ecx , dword [sum.b]
+mov edx , dword [sum.a]
+add edx , ecx 
+
+pop esi 
+mov [esi ], edx 
 mov esp, ebp
 pop ebp
-ret
-
- gin:
-push ebp
-mov ebp, esp
-sub esp, 2
-;name is now Variable.
-mov ecx , [ebp+8]
-mov [ gin.name], ecx 
-;size is now Variable.
-mov edx , [ebp+12]
-mov [ gin.size], edx 
-push eax
-mov eax,  .nullnullTokennullnull
-mov ebx,  .nullnullTokennullnull
-mov ecx, gin.name
-mov edx, gin.size
-int 80h
-mov [carry], eax
 pop eax
-mov esp, ebp
-pop ebp
-ret
+add esp, 8
+push dword [sum.a]
+jmp eax
 
- file.open:
+ negate:
 push ebp
 mov ebp, esp
 sub esp, 1
-;name is now Variable.
+;a is now Variable.
 mov eax , [ebp+8]
-mov [ file.open.name], eax 
-push eax
-mov eax,  .nullnullTokennullnull
-mov ebx, file.open.name
-mov ecx,  .nullnullTokennullnull
-mov edx,  .nullnullTokennullnull
-int 80h
-mov [header], eax
-pop eax
-mov esp, ebp
-pop ebp
-ret
+mov [ negate.a], eax 
+push negate.a
+mov ebx , dword [negate.a]
+sub ebx , ebx 
 
- file.make:
-push ebp
-mov ebp, esp
-sub esp, 1
-;name is now Variable.
-mov ebx , [ebp+8]
-mov [ file.make.name], ebx 
-push eax
-mov eax,  .nullnullTokennullnull
-mov ebx, file.make.name
-mov ecx,  .nullnullTokennullnull
-mov edx,  .nullnullTokennullnull
-int 80h
-mov [header], eax
-pop eax
+pop edi 
+mov [edi ], ebx 
 mov esp, ebp
 pop ebp
-ret
-
- file.close:
-push ebp
-mov ebp, esp
-sub esp, 0
-push eax
-mov eax,  .nullnullTokennullnull
-mov ebx, header
-mov ecx,  .nullnullTokennullnull
-mov edx,  .nullnullTokennullnull
-int 80h
-mov [header], eax
 pop eax
-mov esp, ebp
-pop ebp
-ret
-
- file.write:
-push ebp
-mov ebp, esp
-sub esp, 2
-;text is now Variable.
-mov ecx , [ebp+8]
-mov [ file.write.text], ecx 
-;size is now Variable.
-mov edx , [ebp+12]
-mov [ file.write.size], edx 
-push eax
-mov eax,  .nullnullTokennullnull
-mov ebx,  .nullnullTokennullnull
-mov ecx, file.write.text
-mov edx, file.write.size
-int 80h
-mov [carry], eax
-pop eax
-mov esp, ebp
-pop ebp
-ret
-
- file.read:
-push ebp
-mov ebp, esp
-sub esp, 2
-;name is now Variable.
-mov eax , [ebp+8]
-mov [ file.read.name], eax 
-;size is now Variable.
-mov ebx , [ebp+12]
-mov [ file.read.size], ebx 
-push eax
-mov eax,  .nullnullTokennullnull
-mov ebx, header
-mov ecx, file.read.name
-mov edx, file.read.size
-int 80h
-mov [carry], eax
-pop eax
-mov esp, ebp
-pop ebp
-ret
+add esp, 4
+push dword [negate.a]
+jmp eax
 
  main:
 push ebp
 mov ebp, esp
 sub esp, 0
-push dword [a]
-mov ecx , dword [a]
-imul ecx , ecx 
-
+push a
+pop ecx 
 pop esi 
 mov [esi ], ecx 
-mov esp, ebp
-pop ebp
-ret
-
+push a
+pop edx 
+pop edi 
+mov [edi ], edx 
+push a
+mov eax , dword [ .nullnullTokennullnull]
+pop esi 
+mov [esi ], eax 
 
 
 section .data
 
-return dd 0
-header dd 0
-carry dd 0
-true dd 1
-false dd 0
- gout.name dd 0
- gout.size dd 0
- gin.name dd 0
- gin.size dd 0
- file.open.name dd 0
- file.make.name dd 0
- file.write.text dd 0
- file.write.size dd 0
- file.read.name dd 0
- file.read.size dd 0
 a dd 1
 b dd 2
 c dd 3
+ sum.a dd 0
+ sum.b dd 0
+ negate.a dd 0
 
 
 section .bss

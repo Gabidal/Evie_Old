@@ -145,7 +145,15 @@ class Token
         if (Reg == "")
         {
             Reg = getNextReg();
-            buffer += "mov " + Reg + ", dword [" + getFullName() + "]\n";
+            if (ifFunction)
+            {
+                buffer += "pop " + Reg + "\n";
+            }
+            else
+            {
+                buffer += "mov " + Reg + ", dword [" + getFullName() + "]\n";
+            }
+            
             return Reg;
         }
         else

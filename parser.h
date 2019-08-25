@@ -29,6 +29,9 @@ vector<string> jumpToEnd;
 bool skippedRet = false;
 vector<string> className;  //className . functionName:
 
+string returningDestName;
+string paraAmount;
+
 extern int getError(char, string&, string, int, string&);
 extern int getWord(char, string&, string, int);
 extern int getReversedIndex(char, string, int);
@@ -196,6 +199,7 @@ void prepareFunction(int &index, string func)
     string parameter;
     for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
     {
+        parameter = "";
         index = getWord(' ', parameter, parameters, index);
         if (parameter.at(0) == '%')
         {
@@ -232,11 +236,11 @@ void makeInitialDestiantion(int &index, string dest)
     {
         dest.erase(dest.begin());
         int destIndex2 = getIndex(dest);
-        codbuffer += "push " + Tokens.at(destIndex2).getFullName() + "\n";
+        codbuffer += "push dword [" + Tokens.at(destIndex2).getFullName() + "]\n";
     }
     else if (Tokens.at(destIndex).ifVar)
     {
-        codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
+        codbuffer += "push " + Tokens.at(destIndex).getFullName() + "\n";
     }
     else if (Tokens.at(destIndex).ifArray)
     {
@@ -320,7 +324,20 @@ string getReturn()
 void doReturn()
 {
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
-    codbuffer += sx() +  "ret\n\n";
+    if (returningDestName != "")
+    {
+        int destIndex = getIndex(returningDestName);
+        codbuffer += "pop eax\n";
+        codbuffer += "add esp, " + paraAmount + "\n";
+        codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
+        returningDestName = "";
+        codbuffer += "jmp eax\n\n";
+    }
+    else
+    {
+        codbuffer += sx() +  "ret\n\n";
+    }
+    
     FunctionNames.pop_back();
 }
 
@@ -347,6 +364,10 @@ void doMath(int &index, string a, string math)
     else
     {
         opCode = "imul ";
+    }
+    if (Tokens.at(bI).ifFunction)
+    {
+        prepareFunction(index, b);
     }
     codbuffer += opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n\n";
     //check if there is more math to do.
@@ -394,7 +415,6 @@ void makeFunc(int &index)
     string para1;
     index = getWord(' ', para1, parameters, index);
     codbuffer += sx() + className.back() +  para1 + ":\n";
-
     Token func;
     func.makeFunc(para1);
     if (className.back() != " ")
@@ -488,7 +508,7 @@ void makeFunc(int &index)
         child.makePrivate(para1, className.back());
         Tokens.push_back(child);
     }
-
+    paraAmount = to_string(func.ParameterAmount * 4);
 }
 
 string getJump(string condition)
@@ -633,10 +653,39 @@ void doInterruption(int &index)
     int cI = getIndex(ecx);
     int dI = getIndex(edx);
     codbuffer += "push eax\n";
-    codbuffer += "mov eax, " + Tokens.at(aI).getFullName() + "\n";
-    codbuffer += "mov ebx, " + Tokens.at(bI).getFullName() + "\n";
-    codbuffer += "mov ecx, " + Tokens.at(cI).getFullName() + "\n";
-    codbuffer += "mov edx, " + Tokens.at(dI).getFullName() + "\n";
+    if (isdigit(eax.at(0)) || eax.at(0) == '-')
+    {
+        codbuffer += "mov eax, " + eax + "\n";
+    }
+    else
+    {
+        codbuffer += "mov eax, " + Tokens.at(aI).getFullName() + "\n";
+    }
+    if (isdigit(ebx.at(0)) || ebx.at(0) == '-')
+    {
+        codbuffer += "mov ebx, " + ebx + "\n";
+    }
+    else
+    {
+        codbuffer += "mov ebx, " + Tokens.at(bI).getFullName() + "\n";
+    }
+    if (isdigit(ecx.at(0)) || ecx.at(0) == '-')
+    {
+        codbuffer += "mov ecx, " + ecx + "\n";
+    }
+    else
+    {
+        codbuffer += "mov ecx, " + Tokens.at(cI).getFullName() + "\n";
+    }
+    if (isdigit(edx.at(0)) || edx.at(0) == '-')
+    {
+        codbuffer += "mov edx, " + edx + "\n";
+    }
+    else
+    {
+        codbuffer += "mov edx, " + Tokens.at(dI).getFullName() + "\n";
+    }
+    
     codbuffer += "int " + callingnumber + "\n";
     codbuffer += "mov [" + carry + "], eax\n";
     codbuffer += "pop eax\n";
@@ -701,6 +750,14 @@ void makeNewMem(int &index)
     Tokens.push_back(newMem);
 }
 
+void returnValue(int &index)
+{
+    string dest;
+    index = getWord(' ', dest, parameters, index);
+
+    returningDestName = dest;
+}
+
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
 {
     codbuffer = "";
@@ -708,85 +765,87 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     varbuffer = "";
     bssbuffer = "";
     parameters = file;
-    if (destination == "var")
+    int dest = getIndex(destination);
+    if (destination == "return")
+    {
+        returnValue(continu);
+    }
+    else if (destination == "var")
     {
         makeVar(continu);
     }
-    if (destination == "type")
+    else if (destination == "type")
     {
         makeNewType(continu);
     }
-    if (destination == ";")
+    else if (destination == ";")
     {
         endType();
     }
-    if (destination == "func")
+    else if (destination == "func")
     {
         makeFunc(continu);
     }
-    if (destination == "+")
+    else if (destination == "+")
     {
     }
-    if (destination == "-")
+    else if (destination == "-")
     {
     }
-    if (destination == "*")
-    {
-        disconnectFromRegister("eax ");
-    }
-    if (destination == "/")
+    else if (destination == "*")
     {
         disconnectFromRegister("eax ");
     }
-    if (destination == "ret" || skippedRet == true)
+    else if (destination == "/")
+    {
+        disconnectFromRegister("eax ");
+    }
+    else if (destination == "ret" || skippedRet == true)
     {
         doReturn();
         skippedRet = false;
     }
-    if (destination == "if")
+    else if (destination == "if")
     {
         doComparing(continu);
     }
-    if (destination == "else")
+    else if (destination == "else")
     {
         doElse();
     }
-    if (destination == "end")
+    else if (destination == "end")
     {
         doEnd();
     }
-    if (destination == "use")
+    else if (destination == "use")
     {
         doInclude(continu);
     }
-    if (destination == "new")
+    else if (destination == "new")
     {
         makeNew(continu);
     }
-    if (destination == "sys")
+    else if (destination == "sys")
     {
         doInterruption(continu);
     }
-    if (destination == "str")
+    else if (destination == "str")
     {
         makeNewString(continu);
     }
-    if (destination == "mem")
+    else if (destination == "mem")
     {
         makeNewMem(continu);
     }
-    int dest = getIndex(destination);
-    if (Tokens.at(dest).ifString)
+    else if (Tokens.at(dest).ifString)
     {
         useStr(continu, destination);
     }
-
-    if (Tokens.at(dest).ifVar || Tokens.at(dest).ifArray) 
+    else if (Tokens.at(dest).ifVar || Tokens.at(dest).ifArray) 
     {
         useVar(continu, destination);
     }
-    
-    if (Tokens.at(dest).ifFunction)
+    else if (Tokens.at(dest).ifFunction)
     {
         callFunction(destination, continu);
     }
