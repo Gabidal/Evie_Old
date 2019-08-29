@@ -29,6 +29,10 @@ vector<string> jumpToEnd;
 bool skippedRet = false;
 vector<string> className;  //className . functionName:
 
+bool hasFunctionStackFrame = false;
+int framesAmount = 0;
+bool isElse = false;
+
 string returningDestName;
 string paraAmount;
 
@@ -329,22 +333,32 @@ string getReturn()
 
 void doReturn()
 {
+    if (isElse)
+    {
+        codbuffer += elseToEnd.back();
+        elseToEnd.pop_back();
+        inLayer--;
+        isElse = false;
+    }
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
-    if (returningDestName != "")
+    if (framesAmount == 1)
     {
-        int destIndex = getIndex(returningDestName);
-        codbuffer += "pop eax\n";
-        codbuffer += "add esp, " + paraAmount + "\n";
-        codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
-        returningDestName = "";
-        codbuffer += "jmp eax\n\n";
+        if (returningDestName != "")
+        {
+            int destIndex = getIndex(returningDestName);
+            codbuffer += "pop eax\n";
+            codbuffer += "add esp, " + paraAmount + "\n";
+            codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
+            returningDestName = "";
+            codbuffer += "jmp eax\n\n";
+        }
+        else
+        {
+            codbuffer += sx() +  "ret\n\n";
+        }
+        FunctionNames.pop_back();
     }
-    else
-    {
-        codbuffer += sx() +  "ret\n\n";
-    }
-    
-    FunctionNames.pop_back();
+    framesAmount--;
 }
 
 void doMath(int &index, string a, string math)
@@ -462,27 +476,29 @@ void makeFunc(int &index)
                 Parameter.makeVar();
             }
         }
-        if (parameters[offset-2] == '\n')
+        if (error == "\n")
         {
             index = offset;
+            if (para2 != "(")
+            {
+                func.makeLink(Parameter);
+            }
             break;
-        }
-        if (error != "\n")
-        {
-            index = offset;
         }
         else
         {
             func.makeLink(Parameter);
             index = offset;
-            break;
         }
         i++;
-        func.makeLink(Parameter);
     }
 
     codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
-    codbuffer += sx() + "sub esp, " + to_string(func.ParameterAmount) + "\n";
+    if (func.ParameterAmount > 0)
+    {
+        codbuffer += sx() + "sub esp, " + to_string(func.ParameterAmount) + "\n";
+    }
+    hasFunctionStackFrame = true;
     FunctionNames.push_back(para1);
     Tokens.push_back(func);
 
@@ -596,13 +612,7 @@ void doElse()
     codbuffer += ifToElse.back();
     jumpToEnd.pop_back();
     ifToElse.pop_back();
-}
-
-void doEnd()
-{
-    codbuffer += elseToEnd.back();
-    elseToEnd.pop_back();
-    inLayer--;
+    isElse = true;
 }
 
 bool replace(string& str, const string& from, const string& to) {
@@ -644,7 +654,7 @@ void endType()
 
 void makeNew(int &index)
 {
-
+  //
 }
 
 void doInterruption(int &index)
@@ -807,10 +817,21 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     {
         disconnectFromRegister("eax ");
     }
-    else if (destination == "ret" || skippedRet == true)
+    else if (destination == ")")
     {
         doReturn();
-        skippedRet = false;
+    }
+    else if (destination == "(")
+    {
+        if (hasFunctionStackFrame)
+        {
+            hasFunctionStackFrame = false;
+        }
+        else
+        {
+            codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
+        }
+        framesAmount++;
     }
     else if (destination == "if")
     {
@@ -819,10 +840,6 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == "else")
     {
         doElse();
-    }
-    else if (destination == "end")
-    {
-        doEnd();
     }
     else if (destination == "use")
     {

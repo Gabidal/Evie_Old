@@ -28,6 +28,19 @@ add edx , ecx
 
 pop esi 
 mov [esi ], edx 
+cmp edx , ecx 
+ jge else11
+ push ebp
+ mov ebp, esp
+ mov esp, ebp
+ pop ebp
+ jmp end11
+ else11: 
+ push ebp
+ mov ebp, esp
+ end11: 
+mov esp, ebp
+pop ebp
 mov esp, ebp
 pop ebp
 pop eax
@@ -38,7 +51,6 @@ jmp eax
  main:
 push ebp
 mov ebp, esp
-sub esp, 0
 push a
 push dword [b]
 push dword [a]
@@ -48,8 +60,6 @@ pop edi
 mov [edi ], eax 
 mov esp, ebp
 pop ebp
-ret
-
 
 
 section .data

@@ -3,11 +3,20 @@ var b = 2
 var c = 3
 
 func sum x y
+(
   var z = 0
   z = x + y
-  return z
-ret
+  if x < y
+  (
+    return x
+  )
+  else
+  (
+    return z
+  )
+)
 
 func main
+(
   a = sum a b
-ret
+)
