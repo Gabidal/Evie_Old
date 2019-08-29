@@ -34,19 +34,30 @@ cmp edx , ecx
  mov ebp, esp
  mov esp, ebp
  pop ebp
+pop eax
+add esp, 8
+push dword [sum.x]
+jmp eax
+
+ mov esp, ebp
+ pop ebp
  jmp end11
  else11: 
  push ebp
  mov ebp, esp
+ mov esp, ebp
+ pop ebp
+pop eax
+add esp, 8
+push dword [sum.z]
+jmp eax
+
  end11: 
 mov esp, ebp
 pop ebp
 mov esp, ebp
 pop ebp
-pop eax
-add esp, 8
-push dword [sum.z]
-jmp eax
+ret
 
  main:
 push ebp

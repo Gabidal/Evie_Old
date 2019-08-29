@@ -343,19 +343,7 @@ void doReturn()
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
     if (framesAmount == 1)
     {
-        if (returningDestName != "")
-        {
-            int destIndex = getIndex(returningDestName);
-            codbuffer += "pop eax\n";
-            codbuffer += "add esp, " + paraAmount + "\n";
-            codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
-            returningDestName = "";
-            codbuffer += "jmp eax\n\n";
-        }
-        else
-        {
-            codbuffer += sx() +  "ret\n\n";
-        }
+        codbuffer += sx() +  "ret\n\n";
         FunctionNames.pop_back();
     }
     framesAmount--;
@@ -777,8 +765,12 @@ void returnValue(int &index)
 {
     string dest;
     index = getWord(' ', dest, parameters, index);
-
-    returningDestName = dest;
+    int destIndex = getIndex(dest);
+    codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
+    codbuffer += "pop eax\n";
+    codbuffer += "add esp, " + paraAmount + "\n";
+    codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
+    codbuffer += "jmp eax\n\n";
 }
 
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
