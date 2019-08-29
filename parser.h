@@ -197,22 +197,28 @@ void prepareFunction(int &index, string func)
 {
     int funcIndex = getIndex(func);
     string parameter;
+    vector<string> Params;
     for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
     {
         parameter = "";
         index = getWord(' ', parameter, parameters, index);
+        Params.push_back(parameter);
+    }
+    for (int i = 0; 0 < Params.size(); i++)
+    {
+        parameter = Params.back();
+        Params.pop_back();
         if (parameter.at(0) == '%')
         {
             int parIndex = getIndex(parameter);
             parameter.erase(parameter.begin());
-            codbuffer += "push " + Tokens.at(parIndex).getFullName() + "\n";
+            codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
         }
         else
         {
             int parIndex = getIndex(parameter);
-            codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
+            codbuffer += "push " + Tokens.at(parIndex).getFullName() + "\n";
         }
-        
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
@@ -405,8 +411,15 @@ void useVar(int &index, string destination)
         index = offset;
         doMath(index, bPart, math);
     }
-    //load the inital destination from stack and give it the inital sum.
+
+    // check if B part is a function
     int bIndex = getIndex(bPart);
+    if (Tokens.at(bIndex).ifFunction)
+    {
+        prepareFunction(index, bPart);
+    }
+
+    //load the inital destination from stack and give it the inital sum.
     getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer));
 }
 
@@ -785,12 +798,6 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == "func")
     {
         makeFunc(continu);
-    }
-    else if (destination == "+")
-    {
-    }
-    else if (destination == "-")
-    {
     }
     else if (destination == "*")
     {

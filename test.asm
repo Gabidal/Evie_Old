@@ -15,15 +15,15 @@ GASCode:
 push ebp
 mov ebp, esp
 sub esp, 2
-;a is now Variable.
+;x is now Variable.
 mov eax , [ebp+8]
-mov [ sum.a], eax 
-;b is now Variable.
+mov [ sum.x], eax 
+;y is now Variable.
 mov ebx , [ebp+12]
-mov [ sum.b], ebx 
-push sum.a
-mov ecx , dword [sum.b]
-mov edx , dword [sum.a]
+mov [ sum.y], ebx 
+push sum.z
+mov ecx , dword [sum.y]
+mov edx , dword [sum.x]
 add edx , ecx 
 
 pop esi 
@@ -32,27 +32,7 @@ mov esp, ebp
 pop ebp
 pop eax
 add esp, 8
-push dword [sum.a]
-jmp eax
-
- negate:
-push ebp
-mov ebp, esp
-sub esp, 1
-;a is now Variable.
-mov eax , [ebp+8]
-mov [ negate.a], eax 
-push negate.a
-mov ebx , dword [negate.a]
-sub ebx , ebx 
-
-pop edi 
-mov [edi ], ebx 
-mov esp, ebp
-pop ebp
-pop eax
-add esp, 4
-push dword [negate.a]
+push dword [sum.z]
 jmp eax
 
  main:
@@ -60,17 +40,16 @@ push ebp
 mov ebp, esp
 sub esp, 0
 push a
-pop ecx 
-pop esi 
-mov [esi ], ecx 
+push b
 push a
-pop edx 
+call sum
+pop eax 
 pop edi 
-mov [edi ], edx 
-push a
-mov eax , dword [ .nullnullTokennullnull]
-pop esi 
-mov [esi ], eax 
+mov [edi ], eax 
+mov esp, ebp
+pop ebp
+ret
+
 
 
 section .data
@@ -78,9 +57,9 @@ section .data
 a dd 1
 b dd 2
 c dd 3
- sum.a dd 0
- sum.b dd 0
- negate.a dd 0
+ sum.x dd 0
+ sum.y dd 0
+sum.z dd 0
 
 
 section .bss
