@@ -212,12 +212,12 @@ void prepareFunction(int &index, string func)
         {
             int parIndex = getIndex(parameter);
             parameter.erase(parameter.begin());
-            codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
+            codbuffer += "push " + Tokens.at(parIndex).getFullName() + "\n";
         }
         else
         {
             int parIndex = getIndex(parameter);
-            codbuffer += "push " + Tokens.at(parIndex).getFullName() + "\n";
+            codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
         }
     }
     if (Tokens.at(funcIndex).ifFunction)

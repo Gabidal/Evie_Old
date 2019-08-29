@@ -40,8 +40,8 @@ push ebp
 mov ebp, esp
 sub esp, 0
 push a
-push b
-push a
+push dword [b]
+push dword [a]
 call sum
 pop eax 
 pop edi 
