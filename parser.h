@@ -32,6 +32,8 @@ vector<string> className;  //className . functionName:
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
 bool isElse = false;
+int Syntax = 0;
+bool ifReturnValue = false;
 
 string returningDestName;
 string paraAmount;
@@ -45,7 +47,7 @@ extern string readFile(string name);
 string sx()
 {
     string spaces = "";
-    for (int i = 0; i < inLayer; i++)
+    for (int i = 0; i < Syntax; i++)
     {
         spaces += " ";
     }
@@ -216,17 +218,17 @@ void prepareFunction(int &index, string func)
         {
             int parIndex = getIndex(parameter);
             parameter.erase(parameter.begin());
-            codbuffer += "push " + Tokens.at(parIndex).getFullName() + "\n";
+            codbuffer += sx() + "push " + Tokens.at(parIndex).getFullName() + "\n";
         }
         else
         {
             int parIndex = getIndex(parameter);
-            codbuffer += "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
+            codbuffer += sx() + "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
         }
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
-        codbuffer += "call " + Tokens.at(funcIndex).getFullName() + "\n";
+        codbuffer += sx() + "call " + Tokens.at(funcIndex).getFullName() + "\n";
     }
     else if (Tokens.at(funcIndex).ifMacro)
     { 
@@ -234,7 +236,7 @@ void prepareFunction(int &index, string func)
     }
     else
     {
-        cout << "uknown Function type :c\n";
+        cout << sx() + "uknown Function type :c\n";
     }
     
 }
@@ -246,11 +248,11 @@ void makeInitialDestiantion(int &index, string dest)
     {
         dest.erase(dest.begin());
         int destIndex2 = getIndex(dest);
-        codbuffer += "push dword [" + Tokens.at(destIndex2).getFullName() + "]\n";
+        codbuffer += sx() + "push dword [" + Tokens.at(destIndex2).getFullName() + "]\n";
     }
     else if (Tokens.at(destIndex).ifVar)
     {
-        codbuffer += "push " + Tokens.at(destIndex).getFullName() + "\n";
+        codbuffer += sx() + "push " + Tokens.at(destIndex).getFullName() + "\n";
     }
     else if (Tokens.at(destIndex).ifArray)
     {
@@ -263,9 +265,9 @@ void makeInitialDestiantion(int &index, string dest)
         //lea esi, dest[esi * 4]
         int indexIndex = getIndex(arrayIndex);
         string memReg = getFreeMemReg();
-        codbuffer += "mov " + memReg + ", dword [" + Tokens.at(indexIndex).getFullName() + "]\n";
-        codbuffer += "lea " + memReg + ", " + Tokens.at(destIndex).getFullName() + "[ " + memReg + "* 4]\n";
-        codbuffer += "push " + memReg + "\n";
+        codbuffer += sx() + "mov " + memReg + ", dword [" + Tokens.at(indexIndex).getFullName() + "]\n";
+        codbuffer += sx() + "lea " + memReg + ", " + Tokens.at(destIndex).getFullName() + "[ " + memReg + "* 4]\n";
+        codbuffer += sx() + "push " + memReg + "\n";
     }
     else if (Tokens.at(destIndex).ifFunction)
     {
@@ -281,8 +283,8 @@ void makeInitialDestiantion(int &index, string dest)
 void getInitalDestination(int &index, string destReg)
 {
     string memReg = getFreeMemReg();
-    codbuffer += "pop " + memReg + "\n";
-    codbuffer += "mov [" + memReg + "], " + destReg + "\n";
+    codbuffer += sx() + "pop " + memReg + "\n";
+    codbuffer += sx() + "mov [" + memReg + "], " + destReg + "\n";
 }
 
 void callFunction(string function, int &index)
@@ -302,7 +304,7 @@ void callFunction(string function, int &index)
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
-        codbuffer += "call " + Tokens.at(funcIndex).getFullName() + "\n";
+        codbuffer += sx() + "call " + Tokens.at(funcIndex).getFullName() + "\n";
     }
     else if (Tokens.at(funcIndex).ifMacro)
     { 
@@ -311,23 +313,6 @@ void callFunction(string function, int &index)
     else
     {
         cout << "uknown Function type :c\n";
-    }
-}
-
-string getReturn()
-{
-    int node = getIndex("return");
-    if (Tokens.at(node).ifVar)
-    {
-        return Tokens.at(node).Name;
-    }
-    else
-    {
-        getFreeReg();
-        string returnreg = regbuffer;
-        codbuffer += sx() + "mov " + returnreg + ", dword [return]\n";
-        Tokens.at(node).Reg = returnreg;
-        return returnreg;
     }
 }
 
@@ -340,8 +325,19 @@ void doReturn()
         inLayer--;
         isElse = false;
     }
-    codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
-    if (framesAmount == 1)
+    bool secondphase = false;
+    if (ifReturnValue)
+    {
+        ifReturnValue = false;
+        secondphase = true;
+        framesAmount++;
+    }
+    else
+    {
+        codbuffer += sx() + "\nmov esp, ebp\n" + sx() + "pop ebp\n\n";
+    }
+    Syntax--;
+    if (framesAmount < 2 && secondphase == false)
     {
         codbuffer += sx() +  "ret\n\n";
         FunctionNames.pop_back();
@@ -377,7 +373,7 @@ void doMath(int &index, string a, string math)
     {
         prepareFunction(index, b);
     }
-    codbuffer += opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n\n";
+    codbuffer += sx() + opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n\n";
     //check if there is more math to do.
     math = "";
     int offset = getWord(' ', math, parameters, index);
@@ -429,7 +425,8 @@ void makeFunc(int &index)
 {
     string para1;
     index = getWord(' ', para1, parameters, index);
-    codbuffer += sx() + className.back() +  para1 + ":\n";
+    codbuffer += sx() + className.back() + para1 + ":\n";
+    Syntax++;
     Token func;
     func.makeFunc(para1);
     if (className.back() != " ")
@@ -504,17 +501,18 @@ void makeFunc(int &index)
         child.makeName(para3);
         child.ifChild = true;
         child.owner = para1;
+        child.Reg = reg2;
         if (func.Links.at(i).ifPointer)
         {
             string memreg = getFreeMemReg();
-            codbuffer += ";" + para3 + " is now Pointer.\n";
+            codbuffer += sx() + ";" + para3 + " is now Pointer.\n";
             codbuffer += sx() + "mov " + memreg + ", [ebp + " + to_string(4 * i + 8) + "]\n";
             codbuffer += sx() + "lea " + memreg + ", [" + memreg + "]\n";
             child.makePtr();
         }
         else
         {
-            codbuffer += ";" + para3 + " is now Variable.\n";
+            codbuffer += sx() + ";" + para3 + " is now Variable.\n";
             codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
             child.makeVar();
         }
@@ -585,11 +583,12 @@ void doComparing(int &i)
     inLayer++;
     layerId++;
     codbuffer += sx() + condition + "else" + to_string(inLayer) + to_string(layerId) + "\n";
-    ifToElse.push_back(sx() + "else" + to_string(inLayer) + to_string(layerId) + ": \n");
-    elseToEnd.push_back(sx() + "end" + to_string(inLayer) + to_string(layerId) + ": \n");
-    jumpToEnd.push_back(sx() + "jmp end" + to_string(inLayer) + to_string(layerId) + "\n");
+    ifToElse.push_back(sx() + "\nelse" + to_string(inLayer) + to_string(layerId) + ": \n");
+    elseToEnd.push_back(sx() + "\nend" + to_string(inLayer) + to_string(layerId) + ": \n");
+    jumpToEnd.push_back(sx() + "\njmp end" + to_string(inLayer) + to_string(layerId) + "\n");
     savedIfToElse++;
     savedElseToEnd++;
+    Syntax++;
 }
 
 void doElse()
@@ -601,6 +600,7 @@ void doElse()
     jumpToEnd.pop_back();
     ifToElse.pop_back();
     isElse = true;
+    Syntax++;
 }
 
 bool replace(string& str, const string& from, const string& to) {
@@ -766,11 +766,14 @@ void returnValue(int &index)
     string dest;
     index = getWord(' ', dest, parameters, index);
     int destIndex = getIndex(dest);
-    codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
+    codbuffer += sx() + "\nmov esp, ebp\n" + sx() + "pop ebp\n\n";
     codbuffer += "pop eax\n";
     codbuffer += "add esp, " + paraAmount + "\n";
     codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
-    codbuffer += "jmp eax\n\n";
+    codbuffer += "jmp eax\n";
+    ifReturnValue = true;
+    Syntax--;
+    framesAmount--;
 }
 
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
@@ -821,7 +824,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
         }
         else
         {
-            codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
+            codbuffer += sx() + "\npush ebp\n" + sx() + "mov ebp, esp\n\n";
         }
         framesAmount++;
     }

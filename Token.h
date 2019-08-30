@@ -5,6 +5,7 @@
 using namespace std;
 
 extern int usedregister;
+extern string sx();
 
 class Token
 {
@@ -147,11 +148,11 @@ class Token
             Reg = getNextReg();
             if (ifFunction)
             {
-                buffer += "pop " + Reg + "\n";
+                buffer += sx() + "pop " + Reg + "\n";
             }
             else
             {
-                buffer += "mov " + Reg + ", dword [" + getFullName() + "]\n";
+                buffer += sx() + "mov " + Reg + ", dword [" + getFullName() + "]\n";
             }
             
             return Reg;
