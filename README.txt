@@ -79,9 +79,10 @@ Struct's:
   just type:
 
     type fruit
+    (
       var sugarProsent = 0
       var weight = 0
-    ;
+    )
 
 
   That makes a Struct named fruit.
@@ -135,12 +136,14 @@ Pointer's:
      var a = 123
      str abc = "1234567890"
      func print name size
+     (
        gout name size
-     ret
+     )
      
      func main
+     (
        print %abc %abc.size
-     ret
+     )
 
    As you can see these % mark's are only when you want to call for the function. It is made to give the function parameter's as pointer's so that the gout will get the abc text not the name parameter's text.
    
@@ -168,9 +171,13 @@ If Elses:
    var a = 2
      var b = 3
      if a < b
+     (
        gout %a %a.size
+     )
      else
+     (
        gout %b %b.size
+     )
 
      end
  
