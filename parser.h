@@ -481,7 +481,7 @@ void makeFunc(int &index)
     codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
     if (func.ParameterAmount > 0)
     {
-        codbuffer += sx() + "sub esp, " + to_string(func.ParameterAmount) + "\n";
+        codbuffer += sx() + "sub esp, " + to_string(func.ParameterAmount * 4) + "\n";
     }
     hasFunctionStackFrame = true;
     FunctionNames.push_back(para1);
@@ -770,7 +770,7 @@ void returnValue(int &index)
     codbuffer += "pop eax\n";
     codbuffer += "add esp, " + paraAmount + "\n";
     codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
-    codbuffer += "jmp eax\n";
+    codbuffer += "jmp eax\n\n";
     ifReturnValue = true;
     Syntax--;
     framesAmount--;
