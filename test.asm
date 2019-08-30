@@ -42,9 +42,12 @@ push a
 push dword [b]
 push dword [a]
 call sum
-pop ecx 
+mov ecx , dword [b]
+pop edx 
+add edx , ecx 
+
 pop edi 
-mov [edi ], ecx 
+mov [edi ], edx 
 
 mov esp, ebp
 pop ebp

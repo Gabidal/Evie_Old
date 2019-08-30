@@ -415,6 +415,15 @@ void useVar(int &index, string destination)
     if (Tokens.at(bIndex).ifFunction)
     {
         prepareFunction(index, bPart);
+        string secondareMath;
+        offset = getWord(' ', secondareMath, parameters, index);
+        if (secondareMath == "+" || secondareMath == "-" || secondareMath == "/" || secondareMath == "*")
+        {
+            //this means that math exist on this same line of code :D.
+            //so lets make it.
+            index = offset;
+            doMath(index, bPart, secondareMath);
+        }
     }
 
     //load the inital destination from stack and give it the inital sum.

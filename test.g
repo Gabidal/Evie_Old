@@ -10,5 +10,5 @@ func sum x y
 
 func main
 (
-  a = sum a b
+  a = sum a b + b
 )
