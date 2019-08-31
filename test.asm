@@ -11,84 +11,245 @@ int 80h
 
 GASCode:
 
- sum:
- ;making a function stack frame
- push ebp
- mov ebp, esp
- sub esp, 8
- 
- ;x is now an Variable.
- mov eax , [ebp+8]
- mov [ sum.x], eax 
- 
- ;y is now an Variable.
- mov ebx , [ebp+12]
- mov [ sum.y], ebx 
+ gout:
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
+  sub esp, 8
+  
+  ;name is now an Variable.
+  mov eax , [ebp+8]
+  mov [ gout.name], eax 
+  
+  ;size is now an Variable.
+  mov ebx , [ebp+12]
+  mov [ gout.size], ebx 
 
- ;The inital destination
- push sum.z
- 
+  push eax
+  mov eax, 4
+  mov ebx, 1
+  mov ecx, dword [gout.name]
+  mov edx, dword [gout.size]
+  int 80h
+  mov [carry], eax
+  pop eax
 
- ;Math do: +
- add eax , ebx 
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
+
+ gin:
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
+  sub esp, 8
+  
+  ;name is now an Variable.
+  mov ecx , [ebp+8]
+  mov [ gin.name], ecx 
+  
+  ;size is now an Variable.
+  mov edx , [ebp+12]
+  mov [ gin.size], edx 
+
+  push eax
+  mov eax, 3
+  mov ebx, 2
+  mov ecx, dword [gin.name]
+  mov edx, dword [gin.size]
+  int 80h
+  mov [carry], eax
+  pop eax
 
 
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], eax 
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
 
- ;returning from stack frame
- mov esp, ebp
- pop ebp
+ file.open:
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
+  sub esp, 4
+  
+  ;name is now an Variable.
+  mov eax , [ebp+8]
+  mov [ file.open.name], eax 
 
- ;returning a value from function
-pop eax
-add esp, 8
-push dword [sum.z]
-jmp eax
+  push eax
+  mov eax, 5
+  mov ebx, dword [file.open.name]
+  mov ecx, 0
+  mov edx, 0777
+  int 80h
+  mov [header], eax
+  pop eax
 
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
+
+ file.make:
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
+  sub esp, 4
+  
+  ;name is now an Variable.
+  mov ebx , [ebp+8]
+  mov [ file.make.name], ebx 
+
+  push eax
+  mov eax, 8
+  mov ebx, dword [file.make.name]
+  mov ecx, 0777
+  mov edx, 0
+  int 80h
+  mov [header], eax
+  pop eax
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
+
+ file.close:
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
+
+  push eax
+  mov eax, 6
+  mov ebx, dword [header]
+  mov ecx, 0
+  mov edx, 0
+  int 80h
+  mov [header], eax
+  pop eax
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
+
+ file.write:
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
+  sub esp, 8
+  
+  ;text is now an Variable.
+  mov ecx , [ebp+8]
+  mov [ file.write.text], ecx 
+  
+  ;size is now an Variable.
+  mov edx , [ebp+12]
+  mov [ file.write.size], edx 
+
+  push eax
+  mov eax, 4
+  mov ebx, 1
+  mov ecx, dword [file.write.text]
+  mov edx, dword [file.write.size]
+  int 80h
+  mov [carry], eax
+  pop eax
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
+
+ file.read:
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
+  sub esp, 8
+  
+  ;name is now an Variable.
+  mov eax , [ebp+8]
+  mov [ file.read.name], eax 
+  
+  ;size is now an Variable.
+  mov ebx , [ebp+12]
+  mov [ file.read.size], ebx 
+
+  push eax
+  mov eax, 3
+  mov ebx, dword [header]
+  mov ecx, dword [file.read.name]
+  mov edx, dword [file.read.size]
+  int 80h
+  mov [carry], eax
+  pop eax
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
 
  main:
-;making a function stack frame
-push ebp
-mov ebp, esp
+  ;making a function stack frame
+  push ebp
+  mov ebp, esp
 
-;The inital destination
-push a
+  ;The inital destination
+  lea esi , a[2 * 4]
+  push esi 
+  
+  mov ecx , dword [msg.size]
 
-;Functions Parameters
-push dword [b]
-push dword [a]
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], ecx 
 
-;Call the function
-call sum
+  ;Functions Parameters
+  lea esi , a[2 * 4]
+  push dword [esi ]
+  push msg
+  
+  ;Call the function
+  call gout
 
-;Math do: +
-mov ecx , dword [b]
-pop edx 
-add edx , ecx 
-
-
-;Get the destination to: edi 
-pop edi 
-mov [edi ], edx 
-
-
-;making a stack frame end
-mov esp, ebp
-pop ebp
-ret
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ ret
 
 
 
 section .data
 
-a dd 1
-b dd 2
- sum.x dd 0
- sum.y dd 0
-sum.z dd 0
+return dd 0
+header dd 0
+carry dd 0
+true dd 1
+false dd 0
+ gout.name dd 0
+ gout.size dd 0
+ gin.name dd 0
+ gin.size dd 0
+ file.open.name dd 0
+ file.make.name dd 0
+ file.write.text dd 0
+ file.write.size dd 0
+ file.read.name dd 0
+ file.read.size dd 0
+msg db "hello world!"
+msg.size dd 12
+a.size dd 256
+main.b dd 0
 
 
 section .bss
 
+a resd 256

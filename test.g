@@ -1,14 +1,11 @@
-var a = 1
-var b = 2
+use std.g
 
-func sum x y
-(
-  var z = 0
-  z = x + y
-  return z
-)
+str msg = "hello world!"
+var a : 256
 
 func main
 (
-  a = sum a b + b
+  var b = 0
+  a : 2 = msg.size
+  gout %msg a : 2
 )

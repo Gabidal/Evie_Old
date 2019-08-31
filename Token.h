@@ -6,6 +6,7 @@ using namespace std;
 
 extern int usedregister;
 extern string sx();
+extern string getFreeMemReg();
 
 class Token
 {
@@ -150,9 +151,13 @@ class Token
             {
                 buffer += sx() + "pop " + Reg + "\n";
             }
-            else
+            else if (ifVar)
             {
                 buffer += sx() + "mov " + Reg + ", dword [" + getFullName() + "]\n";
+            }
+            else if (ifArray)
+            {
+                buffer += sx() + "lea " + Reg + ", [" + getFullName() + "]\n";
             }
             
             return Reg;

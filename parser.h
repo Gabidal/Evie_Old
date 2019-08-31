@@ -184,6 +184,7 @@ void makeVar(int &index)
         Variable.makeArray(value);
         Size.makeVar();
         Size.makeName(name + ".size");
+        Size.makePublic();
 
         varbuffer += Size.getFullName() + " dd " + value + "\n";
         bssbuffer += Variable.getFullName() + " resd " + value + "\n";
@@ -215,17 +216,45 @@ void prepareFunction(int &index, string func)
     {
         parameter = Params.back();
         Params.pop_back();
+        int paraIndex = getIndex(parameter);
         if (parameter.at(0) == '%')
         {
-            int parIndex = getIndex(parameter);
             parameter.erase(parameter.begin());
+            int parIndex = getIndex(parameter);
             codbuffer += sx() + "push " + Tokens.at(parIndex).getFullName() + "\n";
         }
-        else
+        else if (Tokens.at(paraIndex).ifVar)
         {
-            int parIndex = getIndex(parameter);
-            codbuffer += sx() + "push dword [" + Tokens.at(parIndex).getFullName() + "]\n";
+            codbuffer += sx() + "push dword [" + Tokens.at(paraIndex).getFullName() + "]\n";
         }
+        else if (Tokens.at(paraIndex).ifArray)
+        {
+            string skip;
+            string bPart;
+            index = getWord(' ', skip, parameters, index);
+            index = getWord(' ', bPart, parameters, index);
+            if (isdigit(bPart.at(0)) || bPart.at(0) == '-')
+            {
+                //lea esi, a[123 * 4]
+                //push dword [esi]
+                string reg1 = getFreeMemReg();
+                codbuffer += sx() + "lea " + reg1 + ", " + Tokens.at(paraIndex).getFullName() + "[" + bPart + " * 4]\n";
+                codbuffer += sx() + "push dword [" + reg1 + "]\n";
+            }
+            else
+            {
+                //mov edi, dword [index]
+                //lea esi, a[edi * 4]
+                //push dword [esi]
+                string reg1 = getFreeMemReg();
+                string reg2 = getFreeMemReg();
+                int bIndex = getIndex(bPart);
+                codbuffer += sx() + "mov " + reg1 + ", dword [" + Tokens.at(bIndex).getFullName() + "]\n";
+                codbuffer += sx() + "lea " + reg2 + ", " + Tokens.at(paraIndex).getFullName() + "[" + reg1 + "* 4]\n";
+                codbuffer += sx() + "push dword [" + reg2 + "]\n";
+            }
+        }
+        
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
@@ -247,6 +276,10 @@ void makeInitialDestiantion(int &index, string dest)
 {
     codbuffer += sx() + ";The inital destination\n";
     int destIndex = getIndex(dest);
+    if (dest.size() < 1)
+    {
+        return;
+    }
     if (dest.at(0) == '%')
     {
         dest.erase(dest.begin());
@@ -264,13 +297,27 @@ void makeInitialDestiantion(int &index, string dest)
         string arrayIndex;
         index = getWord(' ', skip, parameters, index);
         index = getWord(' ', arrayIndex, parameters, index);
-        //mov esi, [arrayIndex]
-        //lea esi, dest[esi * 4]
-        int indexIndex = getIndex(arrayIndex);
-        string memReg = getFreeMemReg();
-        codbuffer += sx() + "mov " + memReg + ", dword [" + Tokens.at(indexIndex).getFullName() + "]\n";
-        codbuffer += sx() + "lea " + memReg + ", " + Tokens.at(destIndex).getFullName() + "[ " + memReg + "* 4]\n";
-        codbuffer += sx() + "push " + memReg + "\n";
+        if (isdigit(arrayIndex.at(0)) || arrayIndex.at(0) == '-')
+        {
+            //lea esi, a[123 * 4]
+            //push dword [esi]
+            string reg1 = getFreeMemReg();
+            codbuffer += sx() + "lea " + reg1 + ", " + Tokens.at(destIndex).getFullName() + "[" + arrayIndex + " * 4]\n";
+            codbuffer += sx() + "push " + reg1 + "\n";
+        }
+        else
+        {
+            //mov edi, dword [banana]
+            //lea esi, a[edi * 4]
+            //push dword [esi]
+            string reg1 = getFreeMemReg();
+            string reg2 = getFreeMemReg();
+            int indexIndex = getIndex(arrayIndex);
+            codbuffer += sx() + "mov " + reg1 + ", dword [" + Tokens.at(indexIndex).getFullName() + "]\n";
+            codbuffer += sx() + "lea " + reg2 + ", " + Tokens.at(destIndex).getFullName() + "[" + reg1 + "* 4]\n";
+            codbuffer += sx() + "push " + reg2 + "\n";
+        }
+        
     }
     else if (Tokens.at(destIndex).ifFunction)
     {
@@ -294,31 +341,7 @@ void getInitalDestination(int &index, string destReg)
 
 void callFunction(string function, int &index)
 {
-    vector<string> params;
-    int funcIndex = getIndex(function);
-    for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
-    {
-        string parameter;
-        index = getWord(' ', parameter, parameters, index);
-        params.push_back(parameter);
-    }
-    for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
-    {
-        makeInitialDestiantion(index, params.back());
-        params.pop_back();
-    }
-    if (Tokens.at(funcIndex).ifFunction)
-    {
-        codbuffer += sx() + "call " + Tokens.at(funcIndex).getFullName() + "\n";
-    }
-    else if (Tokens.at(funcIndex).ifMacro)
-    { 
-        codbuffer += Tokens.at(funcIndex).getFullName() + "\n";
-    }
-    else
-    {
-        cout << "uknown Function type :c\n";
-    }
+    prepareFunction(index, function);
 }
 
 void doReturn()
@@ -348,6 +371,7 @@ void doReturn()
     {
         codbuffer += sx() +  "ret\n\n";
         FunctionNames.pop_back();
+        Syntax--;
     }
     else
     {
@@ -440,6 +464,37 @@ void useVar(int &index, string destination)
         }
     }
 
+    //if B part is a array
+    if (Tokens.at(bIndex).ifArray)
+    {
+        //mov esi, dword array[index]
+        string memReg = getFreeMemReg();
+        index = getWord(' ', skip, parameters, index);
+        string cPart;
+        index = getWord(' ', cPart, parameters, index);
+        if (isdigit(cPart.at(0)) || cPart.at(0) == '-')
+        {
+            codbuffer += sx() + "lea " + memReg + ", " +Tokens.at(bIndex).getFullName() + "[" + cPart + " * 4]\n";
+            getFreeReg();
+            string reg = regbuffer;
+            codbuffer += sx() + "mov " + reg + ", [" + memReg + "]\n";
+            getInitalDestination(index, reg);
+            return;
+        }
+        else
+        {
+            int cIndex = getIndex(cPart);
+            codbuffer += sx() + "mov " + memReg + ", dword [" + Tokens.at(cIndex).getFullName() + "]\n";
+            string memReg2 = getFreeMemReg();
+            codbuffer += sx() + "lea " + memReg2 + ", " + Tokens.at(bIndex).getFullName() + "[" + memReg + "* 4]\n";
+            getFreeReg();
+            string reg = regbuffer;
+            codbuffer += sx() + "mov " + reg + ", [" + memReg2 + "]\n";
+            getInitalDestination(index, reg);
+            return;
+        }
+    }
+
     //load the inital destination from stack and give it the inital sum.
     getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer));
 }
@@ -448,7 +503,8 @@ void makeFunc(int &index)
 {
     string para1;
     index = getWord(' ', para1, parameters, index);
-    codbuffer += sx() + className.back() + para1 + ":\n";
+    codbuffer += className.back() + para1 + ":\n";
+    Syntax++;
     Syntax++;
     Token func;
     func.makeFunc(para1);
@@ -687,43 +743,43 @@ void doInterruption(int &index)
     int bI = getIndex(ebx);
     int cI = getIndex(ecx);
     int dI = getIndex(edx);
-    codbuffer += "push eax\n";
+    codbuffer += "\n" + sx() + "push eax\n";
     if (isdigit(eax.at(0)) || eax.at(0) == '-')
     {
-        codbuffer += "mov eax, " + eax + "\n";
+        codbuffer += sx() + "mov eax, " + eax + "\n";
     }
     else
     {
-        codbuffer += "mov eax, " + Tokens.at(aI).getFullName() + "\n";
+        codbuffer += sx() + "mov eax, dword [" + Tokens.at(aI).getFullName() + "]\n";
     }
     if (isdigit(ebx.at(0)) || ebx.at(0) == '-')
     {
-        codbuffer += "mov ebx, " + ebx + "\n";
+        codbuffer += sx() + "mov ebx, " + ebx + "\n";
     }
     else
     {
-        codbuffer += "mov ebx, " + Tokens.at(bI).getFullName() + "\n";
+        codbuffer += sx() + "mov ebx, dword [" + Tokens.at(bI).getFullName() + "]\n";
     }
     if (isdigit(ecx.at(0)) || ecx.at(0) == '-')
     {
-        codbuffer += "mov ecx, " + ecx + "\n";
+        codbuffer += sx() + "mov ecx, " + ecx + "\n";
     }
     else
     {
-        codbuffer += "mov ecx, " + Tokens.at(cI).getFullName() + "\n";
+        codbuffer += sx() + "mov ecx, dword [" + Tokens.at(cI).getFullName() + "]\n";
     }
     if (isdigit(edx.at(0)) || edx.at(0) == '-')
     {
-        codbuffer += "mov edx, " + edx + "\n";
+        codbuffer += sx() + "mov edx, " + edx + "\n";
     }
     else
     {
-        codbuffer += "mov edx, " + Tokens.at(dI).getFullName() + "\n";
+        codbuffer += sx() + "mov edx, dword [" + Tokens.at(dI).getFullName() + "]\n";
     }
     
-    codbuffer += "int " + callingnumber + "\n";
-    codbuffer += "mov [" + carry + "], eax\n";
-    codbuffer += "pop eax\n";
+    codbuffer += sx() + "int " + callingnumber + "\n";
+    codbuffer += sx() + "mov [" + carry + "], eax\n";
+    codbuffer += sx() + "pop eax\n\n";
 }
 
 void makeNewString(int &index)
@@ -735,6 +791,25 @@ void makeNewString(int &index)
     index = getWord(' ', is, parameters, index);
     index = getWord('"', str, parameters, index);
     index = getWord('"', str, parameters, index);
+    Token String;
+    String.makeString();
+    String.makeName(name);
+    if (FunctionNames.back() == " ")
+    {
+        String.makePublic();
+    }
+    else
+    {
+        String.makePrivate(FunctionNames.back(), className.back());
+    }
+    varbuffer += String.getFullName() + " db \"" + str + "\"\n";
+    varbuffer += String.getFullName() + ".size dd " + to_string(str.size()) + "\n";
+    Token Size;
+    Size.makeVar();
+    Size.makeName(String.getFullName() + ".size");
+    Size.makePublic();
+    Tokens.push_back(Size);
+    Tokens.push_back(String);
 }
 
 void useStr(int &index, string destination)
@@ -793,12 +868,12 @@ void returnValue(int &index)
     codbuffer += sx() + ";returning from stack frame\n";
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n\n";
     codbuffer += sx() + ";returning a value from function\n";
-    codbuffer += "pop eax\n";
-    codbuffer += "add esp, " + paraAmount + "\n";
-    codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
-    codbuffer += "jmp eax\n\n";
-    ifReturnValue = true;
+    codbuffer += sx() + "pop eax\n";
+    codbuffer += sx() + "add esp, " + paraAmount + "\n";
+    codbuffer += sx() + "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
     Syntax--;
+    codbuffer += sx() + "jmp eax\n\n";
+    ifReturnValue = true;
     framesAmount--;
 }
 
