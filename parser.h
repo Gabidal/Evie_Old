@@ -201,6 +201,7 @@ void makeVar(int &index)
 
 void prepareFunction(int &index, string func)
 {
+    codbuffer += sx() + ";Functions Parameters\n";
     int funcIndex = getIndex(func);
     string parameter;
     vector<string> Params;
@@ -228,6 +229,7 @@ void prepareFunction(int &index, string func)
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
+        codbuffer += sx() + "\n" + sx() + ";Call the function\n";
         codbuffer += sx() + "call " + Tokens.at(funcIndex).getFullName() + "\n";
     }
     else if (Tokens.at(funcIndex).ifMacro)
@@ -243,6 +245,7 @@ void prepareFunction(int &index, string func)
 
 void makeInitialDestiantion(int &index, string dest)
 {
+    codbuffer += sx() + ";The inital destination\n";
     int destIndex = getIndex(dest);
     if (dest.at(0) == '%')
     {
@@ -278,13 +281,15 @@ void makeInitialDestiantion(int &index, string dest)
     {
         cout << "bad destination: " + dest + "\n";
     }
+    codbuffer += sx() + "\n";
 }
 
 void getInitalDestination(int &index, string destReg)
 {
     string memReg = getFreeMemReg();
+    codbuffer += "\n" + sx() + ";Get the destination to: " + memReg + "\n";
     codbuffer += sx() + "pop " + memReg + "\n";
-    codbuffer += sx() + "mov [" + memReg + "], " + destReg + "\n";
+    codbuffer += sx() + "mov [" + memReg + "], " + destReg + "\n\n";
 }
 
 void callFunction(string function, int &index)
@@ -334,7 +339,9 @@ void doReturn()
     }
     else
     {
-        codbuffer += sx() + "\nmov esp, ebp\n" + sx() + "pop ebp\n\n";
+        codbuffer += "\n";
+        codbuffer += sx() + ";making a stack frame end\n";
+        codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
     }
     Syntax--;
     if (framesAmount < 2 && secondphase == false)
@@ -342,11 +349,17 @@ void doReturn()
         codbuffer += sx() +  "ret\n\n";
         FunctionNames.pop_back();
     }
+    else
+    {
+        codbuffer += "\n";
+    }
+    
     framesAmount--;
 }
 
 void doMath(int &index, string a, string math)
 {
+    codbuffer += "\n" + sx() + ";Math do: " + math + "\n";
     string b;
     index = getWord(' ', b, parameters, index);
     //a +/*- b
@@ -392,6 +405,7 @@ void doMath(int &index, string a, string math)
 
 void useVar(int &index, string destination)
 {
+    codbuffer += "\n"; //giving some readability
     //save the destination to stack.
     makeInitialDestiantion(index, destination);
     //skip the = mark.
@@ -486,7 +500,7 @@ void makeFunc(int &index)
         }
         i++;
     }
-
+    codbuffer += sx() + ";making a function stack frame\n";
     codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
     if (func.ParameterAmount > 0)
     {
@@ -511,17 +525,18 @@ void makeFunc(int &index)
         child.ifChild = true;
         child.owner = para1;
         child.Reg = reg2;
+        codbuffer += sx() + "\n";
         if (func.Links.at(i).ifPointer)
         {
             string memreg = getFreeMemReg();
-            codbuffer += sx() + ";" + para3 + " is now Pointer.\n";
+            codbuffer += sx() + ";" + para3 + " is now an Pointer.\n";
             codbuffer += sx() + "mov " + memreg + ", [ebp + " + to_string(4 * i + 8) + "]\n";
             codbuffer += sx() + "lea " + memreg + ", [" + memreg + "]\n";
             child.makePtr();
         }
         else
         {
-            codbuffer += sx() + ";" + para3 + " is now Variable.\n";
+            codbuffer += sx() + ";" + para3 + " is now an Variable.\n";
             codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
             child.makeVar();
         }
@@ -775,7 +790,9 @@ void returnValue(int &index)
     string dest;
     index = getWord(' ', dest, parameters, index);
     int destIndex = getIndex(dest);
-    codbuffer += sx() + "\nmov esp, ebp\n" + sx() + "pop ebp\n\n";
+    codbuffer += sx() + ";returning from stack frame\n";
+    codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n\n";
+    codbuffer += sx() + ";returning a value from function\n";
     codbuffer += "pop eax\n";
     codbuffer += "add esp, " + paraAmount + "\n";
     codbuffer += "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
@@ -833,6 +850,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
         }
         else
         {
+            codbuffer += sx() + ";making a stack frame start";
             codbuffer += sx() + "\npush ebp\n" + sx() + "mov ebp, esp\n\n";
         }
         framesAmount++;
