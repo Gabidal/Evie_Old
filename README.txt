@@ -182,7 +182,9 @@ If Elses:
      end
  
    
-Using the actual GAS(It is better to use Linux).First do:
+Linux:
+Using the actual GAS.
+First do:
 
     sudo apt install yasm
   
@@ -218,3 +220,33 @@ Just type:
 
 And it will run :D
  
+ 
+
+Windows:
+First do:
+
+    download yasm for windows 64
+    download g++ for windows 64
+  
+then go to your folder where the GAS source code is:
+    
+    cd Bananas/GAS
+    i686-w64-mingw32-g++ -o GAS.exe main.cpp
+    
+Then do this:
+
+    GAS.exe
+    
+This will launch the GAS compiler. After compiling you have the source file but with the *.asm marking at the end of the file name.
+That is the output that GAS gave you.You need now to give it to yasm:
+    
+    yasm -f win32 -o banana.exe banana.asm
+    
+That will make it executable.
+And then youre done! Now you can always run the script that you made in GAS. 
+
+Just type:
+    
+    banana.exe
+
+And it will run :D

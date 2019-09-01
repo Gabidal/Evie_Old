@@ -15,6 +15,7 @@ GASCode:
   ;making a function stack frame
   push ebp
   mov ebp, esp
+
   sub esp, 8
   
   ;name is now an Variable.
@@ -44,6 +45,7 @@ GASCode:
   ;making a function stack frame
   push ebp
   mov ebp, esp
+
   sub esp, 8
   
   ;name is now an Variable.
@@ -73,6 +75,7 @@ GASCode:
   ;making a function stack frame
   push ebp
   mov ebp, esp
+
   sub esp, 4
   
   ;name is now an Variable.
@@ -98,6 +101,7 @@ GASCode:
   ;making a function stack frame
   push ebp
   mov ebp, esp
+
   sub esp, 4
   
   ;name is now an Variable.
@@ -124,6 +128,7 @@ GASCode:
   push ebp
   mov ebp, esp
 
+
   push eax
   mov eax, 6
   mov ebx, dword [header]
@@ -143,6 +148,7 @@ GASCode:
   ;making a function stack frame
   push ebp
   mov ebp, esp
+
   sub esp, 8
   
   ;text is now an Variable.
@@ -172,6 +178,7 @@ GASCode:
   ;making a function stack frame
   push ebp
   mov ebp, esp
+
   sub esp, 8
   
   ;name is now an Variable.
@@ -202,23 +209,61 @@ GASCode:
   push ebp
   mov ebp, esp
 
+
   ;The inital destination
-  lea esi , a[2 * 4]
+  mov esi , dword [b]
+  lea esi , a[esi * 4]
   push esi 
   
-  mov ecx , dword [msg.size]
+  mov ecx , dword [b]
 
   ;Get the destination to: edi 
   pop edi 
   mov [edi ], ecx 
 
-  ;Functions Parameters
-  lea esi , a[2 * 4]
-  push dword [esi ]
-  push msg
-  
-  ;Call the function
-  call gout
+  mov esi , dword [b]
+  lea esi , a[esi * 4]
+  mov edx , dword [esi ]
+  mov edi , dword [c]
+  lea edi , a[edi * 4]
+  mov eax , dword [edi ]
+  cmp edx , eax 
+  jne else11
+
+   ;making a stack frame start
+   push ebp
+   mov ebp, esp
+
+   ;Functions Parameters
+   push dword [msg.size]
+   push msg
+   
+   ;Call the function
+   call gout
+
+   ;making a stack frame end
+   mov esp, ebp
+   pop ebp
+
+  jmp end11
+  else11:
+
+   ;making a stack frame start
+   push ebp
+   mov ebp, esp
+
+   ;Functions Parameters
+   push dword [msg.size]
+   push msg2
+   
+   ;Call the function
+   call gout
+
+   ;making a stack frame end
+   mov esp, ebp
+   pop ebp
+  end11:
+
 
   ;making a stack frame end
   mov esp, ebp
@@ -246,8 +291,11 @@ false dd 0
  file.read.size dd 0
 msg db "hello world!"
 msg.size dd 12
+msg2 db "bananas!"
+msg2.size dd 8
 a.size dd 256
-main.b dd 0
+b dd 3
+c dd 2
 
 
 section .bss
