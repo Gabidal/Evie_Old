@@ -34,6 +34,7 @@ int framesAmount = 0;
 bool isElse = false;
 int Syntax = 0;
 bool ifReturnValue = false;
+bool isIf = false;
 
 string returningDestName;
 string paraAmount;
@@ -272,6 +273,34 @@ void prepareFunction(int &index, string func)
     
 }
 
+string arrayInitialization(int &index, int destIndex)
+{
+    // get the ":" and the "index".
+    string skip;
+    string arrayIndex;
+    index = getWord(' ', skip, parameters, index);
+    index = getWord(' ', arrayIndex, parameters, index);
+    if (isdigit(arrayIndex.at(0)) || arrayIndex.at(0) == '-')
+    {
+        //lea esi, a[123 * 4]
+        //push dword [esi]
+        string reg1 = getFreeMemReg();
+        codbuffer += sx() + "lea " + reg1 + ", " + Tokens.at(destIndex).getFullName() + "[" + arrayIndex + " * 4]\n";
+        return reg1;
+    }
+    else
+    {
+        //mov edi, dword [banana]
+        //lea esi, a[edi * 4]
+        //push dword [esi]
+        string reg1 = getFreeMemReg();
+        int indexIndex = getIndex(arrayIndex);
+        codbuffer += sx() + "mov " + reg1 + ", dword [" + Tokens.at(indexIndex).getFullName() + "]\n";
+        codbuffer += sx() + "lea " + reg1 + ", " + Tokens.at(destIndex).getFullName() + "[" + reg1 + "* 4]\n";
+        return reg1;
+    }
+}
+
 void makeInitialDestiantion(int &index, string dest)
 {
     codbuffer += sx() + ";The inital destination\n";
@@ -292,32 +321,7 @@ void makeInitialDestiantion(int &index, string dest)
     }
     else if (Tokens.at(destIndex).ifArray)
     {
-        // get the ":" and the "index".
-        string skip;
-        string arrayIndex;
-        index = getWord(' ', skip, parameters, index);
-        index = getWord(' ', arrayIndex, parameters, index);
-        if (isdigit(arrayIndex.at(0)) || arrayIndex.at(0) == '-')
-        {
-            //lea esi, a[123 * 4]
-            //push dword [esi]
-            string reg1 = getFreeMemReg();
-            codbuffer += sx() + "lea " + reg1 + ", " + Tokens.at(destIndex).getFullName() + "[" + arrayIndex + " * 4]\n";
-            codbuffer += sx() + "push " + reg1 + "\n";
-        }
-        else
-        {
-            //mov edi, dword [banana]
-            //lea esi, a[edi * 4]
-            //push dword [esi]
-            string reg1 = getFreeMemReg();
-            string reg2 = getFreeMemReg();
-            int indexIndex = getIndex(arrayIndex);
-            codbuffer += sx() + "mov " + reg1 + ", dword [" + Tokens.at(indexIndex).getFullName() + "]\n";
-            codbuffer += sx() + "lea " + reg2 + ", " + Tokens.at(destIndex).getFullName() + "[" + reg1 + "* 4]\n";
-            codbuffer += sx() + "push " + reg2 + "\n";
-        }
-        
+        codbuffer += sx() + "push " + arrayInitialization(index, destIndex) + "\n";
     }
     else if (Tokens.at(destIndex).ifFunction)
     {
@@ -346,19 +350,15 @@ void callFunction(string function, int &index)
 
 void doReturn()
 {
-    if (isElse)
-    {
-        codbuffer += elseToEnd.back();
-        elseToEnd.pop_back();
-        inLayer--;
-        isElse = false;
-    }
+    bool waselse = false;
+    bool wasif = false;
     bool secondphase = false;
     if (ifReturnValue)
     {
         ifReturnValue = false;
         secondphase = true;
         framesAmount++;
+        return;
     }
     else
     {
@@ -367,18 +367,29 @@ void doReturn()
         codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n";
     }
     Syntax--;
-    if (framesAmount < 2 && secondphase == false)
+    if (isElse)
+    {
+        codbuffer += elseToEnd.back();
+        elseToEnd.pop_back();
+        inLayer--;
+        isElse = false;
+        waselse = true;
+    }
+    else if (isIf)
+    {
+        isIf = false;
+        wasif = true;
+    }
+    if (framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
     {
         codbuffer += sx() +  "ret\n\n";
         FunctionNames.pop_back();
-        Syntax--;
+        Syntax = 0;
     }
     else
     {
         codbuffer += "\n";
     }
-    
-    framesAmount--;
 }
 
 void doMath(int &index, string a, string math)
@@ -468,31 +479,11 @@ void useVar(int &index, string destination)
     if (Tokens.at(bIndex).ifArray)
     {
         //mov esi, dword array[index]
-        string memReg = getFreeMemReg();
-        index = getWord(' ', skip, parameters, index);
-        string cPart;
-        index = getWord(' ', cPart, parameters, index);
-        if (isdigit(cPart.at(0)) || cPart.at(0) == '-')
-        {
-            codbuffer += sx() + "lea " + memReg + ", " +Tokens.at(bIndex).getFullName() + "[" + cPart + " * 4]\n";
-            getFreeReg();
-            string reg = regbuffer;
-            codbuffer += sx() + "mov " + reg + ", [" + memReg + "]\n";
-            getInitalDestination(index, reg);
-            return;
-        }
-        else
-        {
-            int cIndex = getIndex(cPart);
-            codbuffer += sx() + "mov " + memReg + ", dword [" + Tokens.at(cIndex).getFullName() + "]\n";
-            string memReg2 = getFreeMemReg();
-            codbuffer += sx() + "lea " + memReg2 + ", " + Tokens.at(bIndex).getFullName() + "[" + memReg + "* 4]\n";
-            getFreeReg();
-            string reg = regbuffer;
-            codbuffer += sx() + "mov " + reg + ", [" + memReg2 + "]\n";
-            getInitalDestination(index, reg);
-            return;
-        }
+        getFreeReg();
+        string reg1 = regbuffer;
+        codbuffer += sx() + "mov " + reg1 + ", dword [" + arrayInitialization(index, bIndex) + "]\n";
+        getInitalDestination(index, reg1);
+        return;
     }
 
     //load the inital destination from stack and give it the inital sum.
@@ -542,10 +533,10 @@ void makeFunc(int &index)
         }
         if (error == "\n")
         {
-            index = offset;
             if (para2 != "(")
             {
                 func.makeLink(Parameter);
+                index = offset;
             }
             break;
         }
@@ -557,7 +548,7 @@ void makeFunc(int &index)
         i++;
     }
     codbuffer += sx() + ";making a function stack frame\n";
-    codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n";
+    codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n\n";
     if (func.ParameterAmount > 0)
     {
         codbuffer += sx() + "sub esp, " + to_string(func.ParameterAmount * 4) + "\n";
@@ -648,24 +639,44 @@ string getJump(string condition)
 
 void doComparing(int &i)
 {
+    isIf = true;
     string a;  //a
     string condition;  // ==
     string b;  //b
+    string acomp;
+    string bcomp;
     i = getWord(' ', a, parameters, i);
+    int aI = getIndex(a);
+    if (Tokens.at(aI).ifArray)
+    {
+        acomp = arrayInitialization(i, aI);
+    }
+    else
+    {
+        acomp = Tokens.at(aI).getReg(codbuffer);
+    }
+    
     i = getWord(' ', condition, parameters, i);
     i = getWord(' ', b, parameters, i);
-    condition = getJump(condition);
-    int aI = getIndex(a);
     int bI = getIndex(b);
-
-    codbuffer += sx() +   "cmp " + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n";
+    if (Tokens.at(bI).ifArray)
+    {
+        bcomp = arrayInitialization(i, bI);
+    }
+    else
+    {
+        bcomp = Tokens.at(bI).getReg(codbuffer);
+    }
+    condition = getJump(condition);
+    
+    codbuffer += sx() +   "cmp " + acomp + ", " + bcomp + "\n";
     
     inLayer++;
     layerId++;
     codbuffer += sx() + condition + "else" + to_string(inLayer) + to_string(layerId) + "\n";
-    ifToElse.push_back(sx() + "\nelse" + to_string(inLayer) + to_string(layerId) + ": \n");
-    elseToEnd.push_back(sx() + "\nend" + to_string(inLayer) + to_string(layerId) + ": \n");
-    jumpToEnd.push_back(sx() + "\njmp end" + to_string(inLayer) + to_string(layerId) + "\n");
+    ifToElse.push_back(sx() + "else" + to_string(inLayer) + to_string(layerId) + ":\n");
+    elseToEnd.push_back(sx() + "end" + to_string(inLayer) + to_string(layerId) + ":\n");
+    jumpToEnd.push_back(sx() + "jmp end" + to_string(inLayer) + to_string(layerId) + "\n");
     savedIfToElse++;
     savedElseToEnd++;
     Syntax++;
@@ -874,7 +885,6 @@ void returnValue(int &index)
     Syntax--;
     codbuffer += sx() + "jmp eax\n\n";
     ifReturnValue = true;
-    framesAmount--;
 }
 
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
@@ -916,6 +926,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == ")")
     {
         doReturn();
+        framesAmount--;
     }
     else if (destination == "(")
     {
@@ -925,8 +936,8 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
         }
         else
         {
-            codbuffer += sx() + ";making a stack frame start";
-            codbuffer += sx() + "\npush ebp\n" + sx() + "mov ebp, esp\n\n";
+            codbuffer += "\n" + sx() + ";making a stack frame start\n";
+            codbuffer += sx() + "push ebp\n" + sx() + "mov ebp, esp\n\n";
         }
         framesAmount++;
     }

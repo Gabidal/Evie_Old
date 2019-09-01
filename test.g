@@ -1,11 +1,19 @@
 use std.g
 
 str msg = "hello world!"
+str msg2 = "bananas!"
 var a : 256
+var b = 3
+var c = 2
 
 func main
 (
-  var b = 0
-  a : 2 = msg.size
-  gout %msg a : 2
+  if b == c
+  (
+    gout %msg msg.size
+  )
+  else
+  (
+    gout %msg2 msg.size
+  )
 )
