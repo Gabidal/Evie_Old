@@ -1,17 +1,18 @@
-var return = 0
 var header = 0
 var carry = 0
-var true = 1
-var false = 0
 
-func gout name size
+func gout name
 (
-  sys 4 1 name size 80h carry
+  var getLenght = 0
+  getLenght = len name
+  sys 4 1 name getLenght 80h carry
 )
 
-func gin name size
+func gin name
 (
-  sys 3 2 name size 80h carry
+  var getLenght = 0
+  getLenght = len name
+  sys 3 2 name getLenght 80h carry
 )
 
 func file.open name

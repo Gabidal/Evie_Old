@@ -183,14 +183,7 @@ void makeVar(int &index)
     if (setting == ":")
     {
         Variable.makeArray(value);
-        Size.makeVar();
-        Size.makeName(name + ".size");
-        Size.makePublic();
-
-        varbuffer += Size.getFullName() + " dd " + value + "\n";
         bssbuffer += Variable.getFullName() + " resd " + value + "\n";
-
-        Tokens.push_back(Size);
     }
     else
     {
@@ -446,6 +439,34 @@ void useVar(int &index, string destination)
     //skip the = mark.
     string skip;
     index = getWord(' ', skip, parameters, index);
+    //check if increas reguest.
+    if (skip == "+=" || skip == "-=")
+    {
+        string upcrease;
+        index = getWord(' ', upcrease, parameters, index);
+        string condition;
+        if (skip == "+=")
+        {
+            condition = "add ";
+        }
+        else
+        {
+            condition = "sub ";
+        }
+        int destIndex = getIndex(destination);
+        if (isdigit(upcrease.at(0)) || upcrease.at(0) == '-')
+        {
+            codbuffer += sx() + condition + Tokens.at(destIndex).getReg(codbuffer) + ", "+ upcrease +"\n";
+        }
+        else
+        {
+            int upcreaseI = getIndex(upcrease);
+            codbuffer += sx() + condition + Tokens.at(destIndex).getReg(codbuffer) + ", "+ Tokens.at(upcreaseI).getReg(codbuffer) +"\n";
+        }
+        
+        getInitalDestination(index, Tokens.at(destIndex).getReg(codbuffer));
+        return;
+    }
     //start the math check.
     string bPart;
     index = getWord(' ', bPart, parameters, index);
@@ -495,7 +516,6 @@ void makeFunc(int &index)
     string para1;
     index = getWord(' ', para1, parameters, index);
     codbuffer += className.back() + para1 + ":\n";
-    Syntax++;
     Syntax++;
     Token func;
     func.makeFunc(para1);
@@ -819,13 +839,7 @@ void makeNewString(int &index)
     {
         String.makePrivate(FunctionNames.back(), className.back());
     }
-    varbuffer += String.getFullName() + " db \"" + str + "\"\n";
-    varbuffer += String.getFullName() + ".size dd " + to_string(str.size()) + "\n";
-    Token Size;
-    Size.makeVar();
-    Size.makeName(String.getFullName() + ".size");
-    Size.makePublic();
-    Tokens.push_back(Size);
+    varbuffer += String.getFullName() + " db \"" + str + "\", 0\n";
     Tokens.push_back(String);
 }
 

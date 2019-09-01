@@ -7,6 +7,7 @@
 #include <vector>
 #include <cstring>
 #include "parser.h"
+#include "asmTools.h"
 using namespace std;
 vector<string> keyWords;
 string includes1 = "";
@@ -23,11 +24,8 @@ void initializeKeyWords()
     Token TokenNull;
     TokenNull.makeName("nullnullTokennullnull");
     Tokens.push_back(TokenNull);
-    Token Returner;
-    Returner.Name = "return";
-    Returner.makeVar();
-    Returner.makePublic();
-    Tokens.push_back(Returner);
+
+    initialize(Tokens, texbuffer1);
 }
 
 string readFile(string name)
