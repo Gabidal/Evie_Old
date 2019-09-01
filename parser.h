@@ -649,7 +649,10 @@ void doComparing(int &i)
     int aI = getIndex(a);
     if (Tokens.at(aI).ifArray)
     {
-        acomp = arrayInitialization(i, aI);
+        getFreeReg();
+        string reg1 = regbuffer;
+        codbuffer += sx() + "mov " + reg1 + ", dword [" + arrayInitialization(i, aI) + "]\n";
+        acomp = reg1;
     }
     else
     {
@@ -661,7 +664,10 @@ void doComparing(int &i)
     int bI = getIndex(b);
     if (Tokens.at(bI).ifArray)
     {
-        bcomp = arrayInitialization(i, bI);
+        getFreeReg();
+        string reg1 = regbuffer;
+        codbuffer += sx() + "mov " + reg1 + ", dword [" + arrayInitialization(i, bI) + "]\n";
+        bcomp = reg1;
     }
     else
     {

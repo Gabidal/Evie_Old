@@ -8,7 +8,8 @@ var c = 2
 
 func main
 (
-  if b == c
+  a : b = b
+  if a : b == a : c
   (
     gout %msg msg.size
   )
