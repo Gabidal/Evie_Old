@@ -2,13 +2,19 @@ use std.g
 
 var vector = 0
 var a = 4
-var b = 2
-var c = 3
+var b = 100
+var c = 0
+
+func setit name
+(
+  name = c
+)
 
 func main
 (
-  vector = alloc 123
-  vector += b
-  vector -= c
-  gout %vector
+  #vector = alloc 101
+  #vector += b
+  #setit vector
+  #vector -= b
+  #gout %vector
 )

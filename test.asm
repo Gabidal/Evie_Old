@@ -256,53 +256,37 @@ ret
  pop ebp
 ret
 
+ setit:
+ ;making a function stack frame
+ push ebp
+ mov ebp, esp
+
+ sub esp, 4
+ 
+ ;name is now an Variable.
+ mov ebx , [ebp+8]
+ mov [ setit.name], ebx 
+
+ ;The inital destination
+ push setit.name
+ 
+ mov ecx , dword [c]
+
+ ;Get the destination to: esi 
+ pop esi 
+ mov [esi ], ecx 
+
+
+ ;making a stack frame end
+ mov esp, ebp
+ pop ebp
+ret
+
  main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
-
- ;The inital destination
- push vector
- 
- ;Functions Parameters
- 
- ;Call the function
- call alloc
- pop ebx 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ebx 
-
-
- ;The inital destination
- push vector
- 
- mov ecx , dword [b]
- mov edx , dword [vector]
- add edx , ecx 
-
- ;Get the destination to: edi 
- pop edi 
- mov [edi ], edx 
-
-
- ;The inital destination
- push vector
- 
- mov eax , dword [c]
- sub edx , eax 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], edx 
-
- ;Functions Parameters
- push vector
- 
- ;Call the function
- call gout
 
  ;making a stack frame end
  mov esp, ebp
@@ -327,8 +311,9 @@ gin.getLenght dd 0
  file.read.size dd 0
 vector dd 0
 a dd 4
-b dd 2
-c dd 3
+b dd 100
+c dd 0
+ setit.name dd 0
 
 
 section .bss

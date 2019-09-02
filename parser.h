@@ -915,7 +915,12 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     bssbuffer = "";
     parameters = file;
     int dest = getIndex(destination);
-    if (destination == "return")
+    if (destination.size() > 0 && destination.at(0) == '#')
+    {
+        string trash;
+        continu = getWord('\n', trash, parameters, continu);
+    }
+    else if (destination == "return")
     {
         returnValue(continu);
     }
