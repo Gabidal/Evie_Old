@@ -51,7 +51,7 @@ GASCode:
  
  ;name is now an Variable.
  mov eax , [ebp+8]
- mov [ gout.name], eax 
+ mov [gout.name], eax 
 
  ;The inital destination
  push gout.getLenght
@@ -92,7 +92,7 @@ ret
  
  ;name is now an Variable.
  mov ecx , [ebp+8]
- mov [ gin.name], ecx 
+ mov [gin.name], ecx 
 
  ;The inital destination
  push gin.getLenght
@@ -132,7 +132,7 @@ ret
  
  ;name is now an Variable.
  mov edx , [ebp+8]
- mov [ file.open.name], edx 
+ mov [file.open.name], edx 
 
  push eax
  mov eax, 5
@@ -158,7 +158,7 @@ ret
  
  ;name is now an Variable.
  mov eax , [ebp+8]
- mov [ file.make.name], eax 
+ mov [file.make.name], eax 
 
  push eax
  mov eax, 8
@@ -205,11 +205,11 @@ ret
  
  ;text is now an Variable.
  mov ebx , [ebp+8]
- mov [ file.write.text], ebx 
+ mov [file.write.text], ebx 
  
  ;size is now an Variable.
  mov ecx , [ebp+12]
- mov [ file.write.size], ecx 
+ mov [file.write.size], ecx 
 
  push eax
  mov eax, 4
@@ -235,11 +235,11 @@ ret
  
  ;name is now an Variable.
  mov edx , [ebp+8]
- mov [ file.read.name], edx 
+ mov [file.read.name], edx 
  
  ;size is now an Variable.
  mov eax , [ebp+12]
- mov [ file.read.size], eax 
+ mov [file.read.size], eax 
 
  push eax
  mov eax, 3
@@ -256,56 +256,54 @@ ret
  pop ebp
 ret
 
- setit:
+
+;making a stack frame start
+push ebp
+mov ebp, esp
+
+fruitinit:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
- sub esp, 4
+ sub esp, 12
  
- ;name is now an Variable.
+ ;a is now an Variable.
  mov ebx , [ebp+8]
- mov [ setit.name], ebx 
- ;returning from stack frame
+ mov [fruit.init.a], ebx 
+ 
+ ;b is now an Variable.
+ mov ecx , [ebp+12]
+ mov [fruit.init.b], ecx 
+ 
+ ;c is now an Variable.
+ mov edx , [ebp+16]
+ mov [fruit.init.c], edx 
+
+ ;The inital destination
+ push fruit.init.a
+ 
+
+ ;Get the destination to: esi 
+ pop esi 
+ mov [esi ], ecx 
+
+
+ ;making a stack frame end
  mov esp, ebp
  pop ebp
 
- ;returning a value from function
- pop eax
- add esp, 4
- push dword [setit.name]
-jmp eax
+
+;making a stack frame end
+mov esp, ebp
+pop ebp
+ret
 
  main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
- ;Functions Parameters
- push banana
- 
- ;Call the function
- call gout
-
- ;Load the destination.
- lea edi, [banana]
- ;Load the source.
- ;Functions Parameters
- push apple
- 
- ;Call the function
- call setit
-
- ;Load the destination.
- call len
- pop ecx
- repnz movsb 
-
- ;Functions Parameters
- push banana
- 
- ;Call the function
- call gout
 
  ;making a stack frame end
  mov esp, ebp
@@ -334,7 +332,13 @@ b dd 100
 c dd 0
 banana db "bananas", 0
 apple db "apples", 0
- setit.name dd 0
+
+fruit:
+a dd 0
+fruitinit.a dd 0
+fruitinit.b dd 0
+fruitinit.c dd 0
+fruit.init.a dd 0
 
 
 section .bss

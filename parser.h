@@ -35,6 +35,7 @@ bool isElse = false;
 int Syntax = 0;
 bool ifReturnValue = false;
 bool isIf = false;
+bool isType = false;
 
 string returningDestName;
 string paraAmount;
@@ -372,6 +373,11 @@ void doReturn()
         isIf = false;
         wasif = true;
     }
+    else if (isType)
+    {
+        className.pop_back();
+        isType = false;
+    }
     if (framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
     {
         codbuffer += sx() +  "ret\n\n";
@@ -609,8 +615,8 @@ void makeFunc(int &index)
 
         varbuffer += className.back() + para1 + "." + para3 + " dd 0\n";
 
-        codbuffer += sx() + "mov [" + className.back() + para1 + "." + para3 + "], " + reg2 + "\n";
         child.makePrivate(para1, className.back());
+        codbuffer += sx() + "mov [" + child.getFullName() + "], " + reg2 + "\n";
         Tokens.push_back(child);
     }
     paraAmount = to_string(func.ParameterAmount * 4);
@@ -746,14 +752,10 @@ void makeNewType(int &index)
     index = getWord(' ', typeName, parameters, index);
     Token type;
     type.makeType(typeName);
-    className.push_back(typeName + ".");
+    type.makePublic();
+    className.push_back(typeName);
     varbuffer += "\n" + typeName + ":\n";
-}
-
-void endType()
-{
-    className.pop_back();
-    varbuffer += "\n\n";
+    isType = true;
 }
 
 void makeNew(int &index)
@@ -914,10 +916,6 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == "type")
     {
         makeNewType(continu);
-    }
-    else if (destination == ";")
-    {
-        endType();
     }
     else if (destination == "func")
     {

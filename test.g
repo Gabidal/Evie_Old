@@ -7,19 +7,17 @@ var c = 0
 str banana = "bananas"
 str apple = "apples"
 
-func setit name
+type fruit
 (
-  return name
+  var a = 0
+  func init a b c
+  (
+    var a = 0
+    a = b
+  )
 )
 
 func main
 (
-  #vector = alloc 101
-  #vector += b
-  #setit vector
-  #vector -= b
-  #gout %vector
-  gout %banana
-  banana = setit %apple
-  gout %banana
+
 )
