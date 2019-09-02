@@ -350,7 +350,6 @@ void doReturn()
     {
         ifReturnValue = false;
         secondphase = true;
-        framesAmount++;
         return;
     }
     else
@@ -846,49 +845,33 @@ void makeNewString(int &index)
 void useStr(int &index, string destination)
 {
     string command;
-    string firstStr;
+    string b;
 
     index = getWord(' ', command, parameters, index);
-    index = getWord(' ', firstStr, parameters, index);
+    index = getWord(' ', b, parameters, index);
+    int destI = getIndex(destination);
+    int bI = getIndex(b);
 
-    if (command == "=")
+    if (Tokens.at(bI).ifString)
     {
-        codbuffer += "lea edi, [" + autoName(destination, true) + "]\n";
-        codbuffer += "lea esi, [" + autoName(firstStr, true) + "]\n";
-
-        codbuffer += "push ecx\n";
-        codbuffer += "mov ecx, [" + autoName(firstStr, true) + ".size]\n";
-        codbuffer += "repz movsb \n";
+        codbuffer += "\n" + sx() + ";Load the destination.\n";
+        codbuffer += sx() + "lea edi, [" + Tokens.at(destI).getFullName() + "]\n";
+        codbuffer += sx() + ";Load the source.\n";
+        codbuffer += sx() + "lea esi, [" + Tokens.at(bI).getFullName() + "]\n";
+        codbuffer += sx() + "push esi\n";
     }
     else
     {
-        // if this occurs it mean it's time for some functions baby!
-        
+        codbuffer += "\n" + sx() + ";Load the destination.\n";
+        codbuffer += sx() + "lea edi, [" + Tokens.at(destI).getFullName() + "]\n";
+        codbuffer += sx() + ";Load the source.\n";
+        prepareFunction(index, b);
     }
-}
 
-void makeNewMem(int &index)
-{
-    // mem abc : 123
-    string skip;
-    //get the name.
-    string newAllocatedMemName;
-    index = getWord(' ', newAllocatedMemName, parameters, index);
-    //skip the : mark.
-    index = getWord(' ', skip, parameters, index);
-    //get the memory size to allocate on.
-    string newAllocatedSize;
-    index = getWord(' ', newAllocatedSize, parameters, index);
-    codbuffer += newAllocatedMemName + ":\n";
-    for (int i = 0; i < atoi(newAllocatedSize.c_str()); i++)
-    {
-        codbuffer += "nop\n";
-    }
-    Token newMem;
-    newMem.makeName(newAllocatedMemName);
-    newMem.makeArray(newAllocatedSize);
-    newMem.makePublic();
-    Tokens.push_back(newMem);
+    codbuffer += "\n" + sx() + ";Load the destination.\n";
+    codbuffer += sx() + "call len\n";
+    codbuffer += sx() + "pop ecx\n";
+    codbuffer += sx() + "repnz movsb \n\n";
 }
 
 void returnValue(int &index)
@@ -989,10 +972,6 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == "str")
     {
         makeNewString(continu);
-    }
-    else if (destination == "mem")
-    {
-        makeNewMem(continu);
     }
     else if (Tokens.at(dest).ifString)
     {

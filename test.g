@@ -4,10 +4,12 @@ var vector = 0
 var a = 4
 var b = 100
 var c = 0
+str banana = "bananas"
+str apple = "apples"
 
 func setit name
 (
-  name = c
+  return name
 )
 
 func main
@@ -17,4 +19,7 @@ func main
   #setit vector
   #vector -= b
   #gout %vector
+  gout %banana
+  banana = setit %apple
+  gout %banana
 )

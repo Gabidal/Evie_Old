@@ -266,27 +266,46 @@ ret
  ;name is now an Variable.
  mov ebx , [ebp+8]
  mov [ setit.name], ebx 
-
- ;The inital destination
- push setit.name
- 
- mov ecx , dword [c]
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ecx 
-
-
- ;making a stack frame end
+ ;returning from stack frame
  mov esp, ebp
  pop ebp
-ret
+
+ ;returning a value from function
+ pop eax
+ add esp, 4
+ push dword [setit.name]
+jmp eax
 
  main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
+ ;Functions Parameters
+ push banana
+ 
+ ;Call the function
+ call gout
+
+ ;Load the destination.
+ lea edi, [banana]
+ ;Load the source.
+ ;Functions Parameters
+ push apple
+ 
+ ;Call the function
+ call setit
+
+ ;Load the destination.
+ call len
+ pop ecx
+ repnz movsb 
+
+ ;Functions Parameters
+ push banana
+ 
+ ;Call the function
+ call gout
 
  ;making a stack frame end
  mov esp, ebp
@@ -313,6 +332,8 @@ vector dd 0
 a dd 4
 b dd 100
 c dd 0
+banana db "bananas", 0
+apple db "apples", 0
  setit.name dd 0
 
 
