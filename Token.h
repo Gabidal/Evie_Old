@@ -28,10 +28,9 @@ class Token
         Name = name;
     }
 
-    void makePrivate(string funcName, string typeName)
+    void makePrivate(string funcName)
     {
         FunctionLabelName = funcName;
-        TypeLabelName = typeName;
         ifReal = true;
     }
 
@@ -50,7 +49,6 @@ class Token
 
     void makeType(string typeName)
     {
-        TypeLabelName = typeName;
         ifType = true;
         ifReal = true;
     }
@@ -99,10 +97,6 @@ class Token
         if (ifGlobal)
         {
             return Name;
-        }
-        else if (TypeLabelName != " ")
-        {
-            return TypeLabelName + "." + FunctionLabelName + "." + Name;
         }
         else
         {
@@ -183,7 +177,6 @@ class Token
     bool ifChild = false;
     string owner = "";
     string FunctionLabelName = " ";
-    string TypeLabelName = " ";
     string Name;
     string Size;
     string Reg;

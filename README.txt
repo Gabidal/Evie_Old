@@ -124,7 +124,7 @@ The STD lib
   The STD.g is like other's. It just makes your life easier:
 
      str abc = "bananas"
-     gout abc abc.size
+     gout abc
 
    Will for example print out the word "bananas".
    But, this is still WIP. So I need volunteers to help me with developing this STD.g lib further! 
@@ -133,16 +133,17 @@ The STD lib
 Pointer's:
  To use a pointer do something like this for example:
 
-     var a = 123
      str abc = "1234567890"
-     func print name size
+     func print %name
      (
-       gout name size
+       #disable the double pointer system
+       gout %name
      )
      
      func main
      (
-       print %abc %abc.size
+       #make a pointer out of a pointer
+       print %abc
      )
 
    As you can see these % mark's are only when you want to call for the function. It is made to give the function parameter's as pointer's so that the gout will get the abc text not the name parameter's text.
@@ -152,17 +153,19 @@ Array:
    To make an array do as same as making a variable ynly switch the = to : and the value is then the initial size of the array your making.
 
      var abc : 123
+     var a = 321
+     var b = 1
 
    Will make a array named abc and it's length is 123 variables.
    To acces or modify these Array's just write:
 
-     abc : 2 = 123
+     abc : b = a
 
-   Will put number 123, into abc.at(2).
+   Will put number from variable a, into abc.at(variable b).
 
-     a = abc : 2
+     a = abc : b
 
-   Will put to variable a, number at abc.at(2)
+   Will put to variable a, number at abc.at(variable b)
  
  
 If Elses:

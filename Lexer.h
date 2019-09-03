@@ -11,7 +11,7 @@
 using namespace std;
 vector<string> keyWords;
 string includes1 = "";
-string codbuffer1 = "global _start\n_start:\ncall main\nmov eax, 1\nmov ebx, 0\nint 80h\n\nGASCode:\n\n";
+string codbuffer1 = "global _start\n_start:\ncall function_main\nmov eax, 1\nmov ebx, 0\nint 80h\n\nGASCode:\n\n";
 string varbuffer1 = "\n\nsection .data\n\n";
 string texbuffer1 = "\n\nsection .text\n\n";
 string bssbuffer1 = "\n\nsection .bss\n\n";
@@ -19,7 +19,6 @@ vector <clock_t> parsed;
 
 void initializeKeyWords()
 {
-    className.push_back(" "); //the global class indicator
     FunctionNames.push_back(" ");
     Token TokenNull;
     TokenNull.makeName("nullnullTokennullnull");

@@ -9,7 +9,7 @@ using namespace std;
 void initialize(vector <Token> &Tokens, string &buffer)
 {
     buffer +=
-    "\nlen:\n"
+    "\nfunction_size:\n"
     "pop ebx\n"
     "pop edx\n"
     "xor eax, eax\n"
@@ -25,15 +25,15 @@ void initialize(vector <Token> &Tokens, string &buffer)
     "ret\n\n"
     ;
     Token sizer;
-    sizer.makeFunc("len");
-    sizer.makeName("len");
+    sizer.makeFunc("size");
+    sizer.makeName("size");
     sizer.makePublic();
     sizer.ParameterAmount = 1;
     Tokens.push_back(sizer);
 
 
     buffer += 
-    "alloc:\n"
+    "function_alloc:\n"
     "push dword 0\n"
     "push dword -1\n"
     "push dword 0x22\n"

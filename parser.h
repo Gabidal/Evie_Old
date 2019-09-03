@@ -27,7 +27,6 @@ vector<string> ifToElse;
 vector<string> elseToEnd;
 vector<string> jumpToEnd;
 bool skippedRet = false;
-vector<string> className;  //className . functionName:
 
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
@@ -177,7 +176,7 @@ void makeVar(int &index)
     else
     {
         //if it is public.
-        Variable.makePrivate(FunctionNames.back(), className.back());
+        Variable.makePrivate(FunctionNames.back());
         Variable.owner = FunctionNames.back();
     }
 
@@ -258,7 +257,7 @@ void prepareFunction(int &index, string func)
     if (Tokens.at(funcIndex).ifFunction)
     {
         codbuffer += sx() + "\n" + sx() + ";Call the function\n";
-        codbuffer += sx() + "call " + Tokens.at(funcIndex).getFullName() + "\n";
+        codbuffer += sx() + "call function_" + Tokens.at(funcIndex).getFullName() + "\n";
     }
     else if (Tokens.at(funcIndex).ifMacro)
     { 
@@ -376,11 +375,6 @@ void doReturn()
     {
         isIf = false;
         wasif = true;
-    }
-    else if (isType)
-    {
-        className.pop_back();
-        isType = false;
     }
     if (framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
     {
@@ -523,19 +517,12 @@ void useVar(int &index, string destination)
 void makeFunc(int &index)
 {
     string para1;
-    index = getWord(' ', para1, parameters, index);
-    codbuffer += className.back() + para1 + ":\n";
+    index = getWord('(', para1, parameters, index);
+    codbuffer += "function_" + para1 + ":\n";
     Syntax++;
     Token func;
     func.makeFunc(para1);
-    if (className.back() != " ")
-    {
-        func.makePrivate("", className.back());
-    }
-    else
-    {
-        func.makePublic();
-    }
+    func.makePublic();
     
     returnLayer++;
     vector<string> paraOrder;
@@ -545,10 +532,26 @@ void makeFunc(int &index)
     {
         string para2;
         string error;
-        int offset = getError(' ', para2, parameters, index, error);
+        int offset = getError(',', para2, parameters, index, error);
+        if (para2.size() < 1 || para2.find(')') != -1)
+        {
+            para2 = "";
+            offset = getError(')', para2, parameters, index, error);
+            if (para2 == "")
+            {
+                //if no parameters
+                func.ParameterAmount = 0;
+                index = offset;
+                break;
+            }
+        }
+        else
+        {
+            offset++; // skip the " " after the ,
+        }
         Token Parameter;
         Parameter.makeName(para2);
-        Parameter.makePrivate(para1, className.back());
+        Parameter.makePrivate(para1);
         if (para2.length() > 0) 
         {
             if (para2.find('%')!= string::npos)
@@ -567,6 +570,12 @@ void makeFunc(int &index)
                 func.makeLink(Parameter);
                 index = offset;
             }
+            break;
+        }
+        else if (error == ")")
+        {
+            index = offset;
+            func.makeLink(Parameter);
             break;
         }
         else
@@ -617,9 +626,9 @@ void makeFunc(int &index)
             child.makeVar();
         }
 
-        varbuffer += className.back() + para1 + "." + para3 + " dd 0\n";
+        varbuffer += para1 + "." + para3 + " dd 0\n";
 
-        child.makePrivate(para1, className.back());
+        child.makePrivate(para1);
         codbuffer += sx() + "mov [" + child.getFullName() + "], " + reg2 + "\n";
         Tokens.push_back(child);
     }
@@ -757,7 +766,6 @@ void makeNewType(int &index)
     Token type;
     type.makeType(typeName);
     type.makePublic();
-    className.push_back(typeName);
     varbuffer += "\n" + typeName + ":\n";
     isType = true;
 }
@@ -842,7 +850,7 @@ void makeNewString(int &index)
     }
     else
     {
-        String.makePrivate(FunctionNames.back(), className.back());
+        String.makePrivate(FunctionNames.back());
     }
     varbuffer += String.getFullName() + " db \"" + str + "\", 0\n";
     Tokens.push_back(String);
