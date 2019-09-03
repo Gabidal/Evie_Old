@@ -256,54 +256,16 @@ ret
  pop ebp
 ret
 
-
-;making a stack frame start
-push ebp
-mov ebp, esp
-
-fruitinit:
- ;making a function stack frame
- push ebp
- mov ebp, esp
-
- sub esp, 12
- 
- ;a is now an Variable.
- mov ebx , [ebp+8]
- mov [fruit.init.a], ebx 
- 
- ;b is now an Variable.
- mov ecx , [ebp+12]
- mov [fruit.init.b], ecx 
- 
- ;c is now an Variable.
- mov edx , [ebp+16]
- mov [fruit.init.c], edx 
-
- ;The inital destination
- push fruit.init.a
- 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ecx 
-
-
- ;making a stack frame end
- mov esp, ebp
- pop ebp
-
-
-;making a stack frame end
-mov esp, ebp
-pop ebp
-ret
-
  main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
+ ;Functions Parameters
+ push banana
+ 
+ ;Call the function
+ call gout
 
  ;making a stack frame end
  mov esp, ebp
@@ -330,15 +292,8 @@ vector dd 0
 a dd 4
 b dd 100
 c dd 0
-banana db "bananas", 0
+banana db "bananas!", 0
 apple db "apples", 0
-
-fruit:
-a dd 0
-fruitinit.a dd 0
-fruitinit.b dd 0
-fruitinit.c dd 0
-fruit.init.a dd 0
 
 
 section .bss

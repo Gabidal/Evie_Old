@@ -222,6 +222,10 @@ void prepareFunction(int &index, string func)
         {
             codbuffer += sx() + "push dword [" + Tokens.at(paraIndex).getFullName() + "]\n";
         }
+        else if (Tokens.at(paraIndex).ifString)
+        {
+            codbuffer += sx() + "push " + Tokens.at(paraIndex).getFullName() + "\n";
+        }
         else if (Tokens.at(paraIndex).ifArray)
         {
             string skip;
