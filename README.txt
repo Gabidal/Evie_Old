@@ -134,16 +134,16 @@ Pointer's:
  To use a pointer do something like this for example:
 
      str abc = "1234567890"
-     func print %name
+     func print(%name)
      (
        #disable the double pointer system
-       gout %name
+       gout(%name)
      )
      
-     func main
+     func main()
      (
        #make a pointer out of a pointer
-       print %abc
+       print(%abc)
      )
 
    As you can see these % mark's are only when you want to call for the function. It is made to give the function parameter's as pointer's so that the gout will get the abc text not the name parameter's text.
@@ -171,18 +171,19 @@ Array:
 If Elses:
   To create an If Else condition do this:
   
-   var a = 2
+     var a = 2
      var b = 3
+     str banana = "bananas!"
+     str apple = "apples!"
+
      if a < b
      (
-       gout %a %a.size
+       gout(banana)
      )
      else
      (
-       gout %b %b.size
+       gout(apple)
      )
-
-     end
  
    
 Linux:
