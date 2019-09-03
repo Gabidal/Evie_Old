@@ -215,6 +215,10 @@ void prepareFunction(int &index, string func)
                 index = offset;
                 break;
             }
+            else if (error == ")")
+            {
+                index = offset;
+            }
         }
         Params.push_back(para2);
     }
@@ -485,17 +489,6 @@ void useVar(int &index, string destination)
     //start the math check.
     string bPart;
     index = getWord(' ', bPart, parameters, index);
-    string math;
-    int offset = getWord(' ', math, parameters, index);
-    if (math == "+" || math == "-" || math == "/" || math == "*")
-    {
-        //this means that math exist on this same line of code :D.
-        //so lets make it.
-        index = offset;
-        doMath(index, bPart, math);
-    }
-
-    // check if B part is a function
     string destTest;
 
     if (bPart.find('(') != -1)
@@ -509,6 +502,20 @@ void useVar(int &index, string destination)
         }
     }
     int bIndex = getIndex(bPart);
+    string math;
+    int offset = getWord(' ', math, parameters, index);
+    if (Tokens.at(bIndex).ifFunction != true)
+    {
+        if (math == "+" || math == "-" || math == "/" || math == "*")
+        {
+            //this means that math exist on this same line of code :D.
+            //so lets make it.
+            index = offset;
+            doMath(index, bPart, math);
+        }
+    }
+
+    // check if B part is a function
     if (Tokens.at(bIndex).ifFunction)
     {
         prepareFunction(index, bPart);
