@@ -202,9 +202,21 @@ void prepareFunction(int &index, string func)
     vector<string> Params;
     for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
     {
-        parameter = "";
-        index = getWord(' ', parameter, parameters, index);
-        Params.push_back(parameter);
+        string para2;
+        string error;
+        int offset = getError(',', para2, parameters, index, error);
+        if (para2.size() < 1 || para2.find(')') != -1)
+        {
+            para2 = "";
+            offset = getError(')', para2, parameters, index, error);
+            if (para2 == "")
+            {
+                //if no parameters
+                index = offset;
+                break;
+            }
+        }
+        Params.push_back(para2);
     }
     for (int i = 0; 0 < Params.size(); i++)
     {
@@ -484,6 +496,18 @@ void useVar(int &index, string destination)
     }
 
     // check if B part is a function
+    string destTest;
+
+    if (bPart.find('(') != -1)
+    {
+        int offset = getWord('(', destTest, bPart, 0);
+        if (int i = getIndex(destTest) != 0)
+        {
+            int recruit = getReversedIndex('(', bPart, bPart.size());
+            bPart = destTest;
+            index -= recruit;
+        }
+    }
     int bIndex = getIndex(bPart);
     if (Tokens.at(bIndex).ifFunction)
     {
@@ -911,6 +935,19 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     varbuffer = "";
     bssbuffer = "";
     parameters = file;
+    string destTest;
+
+    if (destination.find('(') != -1)
+    {
+        int offset = getWord('(', destTest, destination, 0);
+        if (int i = getIndex(destTest) != 0)
+        {
+            int recruit = getReversedIndex('(', destination, destination.size());
+            destination = destTest;
+            continu -= recruit;
+        }
+    }
+
     int dest = getIndex(destination);
     if (destination.size() > 0 && destination.at(0) == '#')
     {

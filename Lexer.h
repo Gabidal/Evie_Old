@@ -99,15 +99,17 @@ int getError(char end, string &destination, string source, int continu, string &
 int getReversedIndex(char end, string source, int continu)
 {
     int i = continu;
+    int index = 0;
     while (i > 0)
     {
-        if (source[i] == end || source[i] == '\n')
+        if (source[i] != end)
         {
             i--;
+            index++;
         }
         else
         {
-            return i;
+            return index;
         }
         
     }

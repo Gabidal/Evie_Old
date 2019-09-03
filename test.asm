@@ -56,6 +56,12 @@ function_gout:
  ;The inital destination
  push gout.getLenght
  
+ ;Functions Parameters
+ push dword [gout.name]
+ 
+ ;Call the function
+ call function_size
+ pop ebx 
 
  ;Get the destination to: esi 
  pop esi 
@@ -91,6 +97,11 @@ function_gin:
  ;The inital destination
  push gin.getLenght
  
+ ;Functions Parameters
+ push dword [gin.name]
+ 
+ ;Call the function
+ call function_size
 
  ;Get the destination to: edi 
  pop edi 
@@ -250,6 +261,11 @@ function_main:
  push ebp
  mov ebp, esp
 
+ ;Functions Parameters
+ push bananas
+ 
+ ;Call the function
+ call function_gout
 
  ;making a stack frame end
  mov esp, ebp
