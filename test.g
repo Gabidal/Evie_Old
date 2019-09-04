@@ -1,17 +1,12 @@
+#use std library functions
 use std.g
-str bananas = "Hello world"
+#make a string named abc
+str abc : 256
 
-func apple(a)
-(
-  return a
-)
-
-func orange(a)
-(
-  return a
-)
-
+#make function main
 func main()
 (
-  gout( apple( orange(banana) ) )
+  #print to console where abc points.
+  gin(abc)
+  gout(abc)
 )

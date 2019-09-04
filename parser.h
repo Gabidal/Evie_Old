@@ -35,7 +35,6 @@ int Syntax = 0;
 bool ifReturnValue = false;
 bool isIf = false;
 bool isType = false;
-int functionsAmount = 0;
 
 string returningDestName;
 string paraAmount;
@@ -195,28 +194,6 @@ void makeVar(int &index)
     Tokens.push_back(Variable);
 }
 
-int lookFor(char look, string source, vector<string> &functions)
-{
-    int result = 0;
-    int offset = 0;
-    while(true)
-    {
-        string skip;
-        offset = getWord('(', skip, source, offset);
-        if (skip.size() < 1)
-        {
-            break;
-        }
-        int real = getIndex(skip);
-        if (Tokens.at(real).ifFunction)
-        {
-            result++;
-            functions.push_back(skip);
-        }
-    }
-    return result;
-}
-
 void prepareFunction(int &index, string func)
 {
     codbuffer += sx() + ";Functions Parameters\n";
@@ -232,7 +209,6 @@ void prepareFunction(int &index, string func)
         {
             para2 = "";
             offset = getError(')', para2, parameters, index, error);
-            functionsAmount = lookFor('(', para2, Params);
             if (para2 == "")
             {
                 //if no parameters
@@ -264,10 +240,6 @@ void prepareFunction(int &index, string func)
         else if (Tokens.at(paraIndex).ifString)
         {
             codbuffer += sx() + "push " + Tokens.at(paraIndex).getFullName() + "\n";
-        }
-        else if (true)
-        {
-            
         }
         else if (Tokens.at(paraIndex).ifArray)
         {
@@ -394,12 +366,6 @@ void doReturn()
     bool waselse = false;
     bool wasif = false;
     bool secondphase = false;
-    if (functionsAmount != 0)
-    {
-        functionsAmount--;
-        framesAmount++;
-        return;
-    }
     if (ifReturnValue)
     {
         ifReturnValue = false;
@@ -904,8 +870,6 @@ void makeNewString(int &index)
     string str;
     index = getWord(' ', name, parameters, index);
     index = getWord(' ', is, parameters, index);
-    index = getWord('"', str, parameters, index);
-    index = getWord('"', str, parameters, index);
     Token String;
     String.makeString();
     String.makeName(name);
@@ -917,7 +881,19 @@ void makeNewString(int &index)
     {
         String.makePrivate(FunctionNames.back());
     }
-    varbuffer += String.getFullName() + " db \"" + str + "\", 0\n";
+    if (is != ":")
+    {
+        index = getWord('"', str, parameters, index);
+        index = getWord('"', str, parameters, index);
+        varbuffer += String.getFullName() + " db \"" + str + "\", 0\n";
+    }
+    else
+    {
+        index = getWord(' ', str, parameters, index);
+        varbuffer += String.getFullName() + " times " + str + " db 1\n";
+        varbuffer += " dd 0\n";
+    }
+    
     Tokens.push_back(String);
 }
 

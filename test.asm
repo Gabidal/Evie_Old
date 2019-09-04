@@ -102,6 +102,7 @@ function_gin:
  
  ;Call the function
  call function_size
+ pop ebx 
 
  ;Get the destination to: edi 
  pop edi 
@@ -256,52 +257,18 @@ function_file.read:
  pop ebp
 ret
 
-function_apple:
- ;making a function stack frame
- push ebp
- mov ebp, esp
-
- sub esp, 4
- 
- ;a is now an Variable.
- mov ebx , [ebp+8]
- mov [apple.a], ebx 
- ;returning from stack frame
- mov esp, ebp
- pop ebp
-
- ;returning a value from function
- pop eax
- add esp, 4
- push dword [apple.a]
-jmp eax
-
-function_orange:
- ;making a function stack frame
- push ebp
- mov ebp, esp
-
- sub esp, 4
- 
- ;a is now an Variable.
- mov ecx , [ebp+8]
- mov [orange.a], ecx 
- ;returning from stack frame
- mov esp, ebp
- pop ebp
-
- ;returning a value from function
- pop eax
- add esp, 4
- push dword [orange.a]
-jmp eax
-
 function_main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
  ;Functions Parameters
+ push abc
+ 
+ ;Call the function
+ call function_gin
+ ;Functions Parameters
+ push abc
  
  ;Call the function
  call function_gout
@@ -327,9 +294,8 @@ file.write.text dd 0
 file.write.size dd 0
 file.read.name dd 0
 file.read.size dd 0
-bananas db "Hello world", 0
-apple.a dd 0
-orange.a dd 0
+abc times 256 db 1
+ dd 0
 
 
 section .bss

@@ -158,6 +158,10 @@ class Token
         }
         else
         {
+            if (ifFunction)
+            {
+                buffer += sx() + "pop " + Reg + "\n";
+            }
             return Reg;
         }
     }
