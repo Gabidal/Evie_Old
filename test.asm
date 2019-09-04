@@ -256,13 +256,52 @@ function_file.read:
  pop ebp
 ret
 
+function_apple:
+ ;making a function stack frame
+ push ebp
+ mov ebp, esp
+
+ sub esp, 4
+ 
+ ;a is now an Variable.
+ mov ebx , [ebp+8]
+ mov [apple.a], ebx 
+ ;returning from stack frame
+ mov esp, ebp
+ pop ebp
+
+ ;returning a value from function
+ pop eax
+ add esp, 4
+ push dword [apple.a]
+jmp eax
+
+function_orange:
+ ;making a function stack frame
+ push ebp
+ mov ebp, esp
+
+ sub esp, 4
+ 
+ ;a is now an Variable.
+ mov ecx , [ebp+8]
+ mov [orange.a], ecx 
+ ;returning from stack frame
+ mov esp, ebp
+ pop ebp
+
+ ;returning a value from function
+ pop eax
+ add esp, 4
+ push dword [orange.a]
+jmp eax
+
 function_main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
  ;Functions Parameters
- push bananas
  
  ;Call the function
  call function_gout
@@ -270,7 +309,6 @@ function_main:
  ;making a stack frame end
  mov esp, ebp
  pop ebp
-ret
 
 
 
@@ -289,6 +327,8 @@ file.write.size dd 0
 file.read.name dd 0
 file.read.size dd 0
 bananas db "Hello world", 0
+apple.a dd 0
+orange.a dd 0
 
 
 section .bss
