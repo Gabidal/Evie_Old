@@ -397,6 +397,7 @@ void doReturn()
     if (functionsAmount != 0)
     {
         functionsAmount--;
+        framesAmount++;
         return;
     }
     if (ifReturnValue)

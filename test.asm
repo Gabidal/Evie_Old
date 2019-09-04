@@ -309,6 +309,7 @@ function_main:
  ;making a stack frame end
  mov esp, ebp
  pop ebp
+ret
 
 
 
