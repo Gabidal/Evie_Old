@@ -158,12 +158,17 @@ class Token
         }
         else
         {
-            if (ifFunction)
+            if (ifReturner)
             {
                 buffer += sx() + "pop " + Reg + "\n";
             }
             return Reg;
         }
+    }
+
+    void makeReturnable()
+    {
+        ifReturner = true;
     }
 
     bool ifReal = false;
@@ -179,6 +184,7 @@ class Token
     bool ifEqu = false;
     bool ifHasReg = false;
     bool ifChild = false;
+    bool ifReturner = false;
     string owner = "";
     string FunctionLabelName = " ";
     string Name;

@@ -1,12 +1,13 @@
-#use std library functions
+#use std library functions.
 use std.g
-#make a string named abc
+#make a string named abc.
 str abc : 256
 
-#make function main
+#make function main.
 func main()
 (
-  #print to console where abc points.
+  #get user input.
   gin(abc)
+  #print user input.
   gout(abc)
 )

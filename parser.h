@@ -943,6 +943,8 @@ void returnValue(int &index)
     Syntax--;
     codbuffer += sx() + "jmp eax\n\n";
     ifReturnValue = true;
+    int func = getIndex(FunctionNames.back());
+    Tokens.at(func).makeReturnable();
 }
 
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)

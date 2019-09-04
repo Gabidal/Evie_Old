@@ -29,6 +29,7 @@ void initialize(vector <Token> &Tokens, string &buffer)
     sizer.makeName("size");
     sizer.makePublic();
     sizer.ParameterAmount = 1;
+    sizer.makeReturnable();
     Tokens.push_back(sizer);
 
 
@@ -53,6 +54,7 @@ void initialize(vector <Token> &Tokens, string &buffer)
     alloc.makeName("alloc");
     alloc.makePublic();
     alloc.ParameterAmount = 1;
+    alloc.makeReturnable();
     Tokens.push_back(alloc);
 
 
