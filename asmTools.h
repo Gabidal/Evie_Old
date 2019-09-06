@@ -37,7 +37,7 @@ void initialize(vector <Token> &Tokens, string &buffer)
     "function_alloc:\n"
     "push dword 0\n"
     "push dword -1\n"
-    "push dword 0x22\n"
+    "push dword 0x22\n" //0x22 == heap
     "push dword 0x03\n"
     "push dword [esp+16]\n"
     "push dword 0\n"

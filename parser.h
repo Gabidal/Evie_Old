@@ -220,6 +220,10 @@ void prepareFunction(int &index, string func)
                 index = offset;
             }
         }
+        if (error == ",")
+        {
+            index = offset + 1;
+        }
         Params.push_back(para2);
     }
     for (int i = 0; 0 < Params.size(); i++)
