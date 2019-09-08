@@ -10,14 +10,14 @@ using namespace std;
 int main()
 {
     getOptions();
-    cout << "  G::Do you want to assembly the output to a binary?\n(y = yeas / n = no)\n: ";
+    cout << "  G::Make a binary out of the assembly?\n(y = yes / n = no)\n: ";
     string YN;
     cin >> YN;
     if (YN.size() > 0 && YN.at(0) == 'n')
     {
         return 0;
     }
-    cout << "  G::Linux or Windows?\n(l == linux / w == windows)\n: ";
+    cout << "  G::For Linux or Windows?\n(l == linux / w == windows)\n: ";
     string option;
     cin >> option;
     string newOut;
@@ -31,7 +31,8 @@ int main()
         codbuffer1 = "global _main\n_main:\ncall function_main\nmov eax, 1\nmov ebx, 0\nint 80h\n\nGASCode:\n\n";
     }
 
-    cout << "\n  G::Reading input file...\n";
+    cout << "\n  G::GAS is now:";
+    cout << "\n  G::Reading the input file...\n";
     string input = readFile(inFile);
     string output;
     cout << "  G::Lexer analysing...\n";
@@ -48,12 +49,10 @@ int main()
         sum += parsed.back();
         parsed.pop_back();
     }
-    cout << "  G::Done!\n\n";
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
-    cout << "Lexered  in " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) + "  second's" << endl;
-    cout << "Parsered in " + to_string(sum / float(CLOCKS_PER_SEC)) + "  second's" << endl;
+    cout << "Lexered  in " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) + "  seconds" << endl;
+    cout << "Parsered in " + to_string(sum / float(CLOCKS_PER_SEC)) + "  seconds" << endl;
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
-
 
     if (option.size() > 0 && option.at(0) == 'l')
     {
