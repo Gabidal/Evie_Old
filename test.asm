@@ -33,8 +33,8 @@ function_malloc:
   push eax
 jmp ebx
 
-global _start
-_start:
+global _main
+_main:
 call function_main
 mov eax, 1
 mov ebx, 0
