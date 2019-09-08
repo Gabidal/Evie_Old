@@ -974,8 +974,12 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     int dest = getIndex(destination);
     if (destination.size() > 0 && destination.at(0) == '#')
     {
-        string trash;
-        continu = getWord('\n', trash, parameters, continu);
+        string comment;
+        continu = getWord('\n', comment, parameters, continu);
+        destination.at(0) = ' ';
+        //codbuffer += "\n" + sx() + ";-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_;\n";
+        codbuffer += "\n" + sx() + ";usr::" + destination + ' ' + comment + "\n";
+        //codbuffer += sx() + ";-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_;\n";
     }
     else if (destination == "return")
     {

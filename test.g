@@ -7,6 +7,6 @@ str abc = "moikkamoi!"
 #make main.
 func main()
 (
-  #print user input.
+  #print string abc.
   gout(abc)
 )
