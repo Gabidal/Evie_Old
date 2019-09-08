@@ -54,6 +54,7 @@ int main()
     cout << "Parsered in " + to_string(sum / float(CLOCKS_PER_SEC)) + "  second's" << endl;
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
 
+
     if (option.size() > 0 && option.at(0) == 'l')
     {
         system(("yasm -g dwarf2 -f elf32 -o " + newOut + ".o " + outFile).c_str());

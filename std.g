@@ -10,6 +10,7 @@ func gout(name)
   sys 4 1 name getLenght 80h carry
 )
 
+
 #func gin(name)
 #(
 #  var getLenght = 0
