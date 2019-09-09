@@ -29,6 +29,7 @@ vector<string> jumpToEnd;
 bool skippedRet = false;
 vector<string> whiles;
 int WhileID = 0;
+vector<string> whileParams;
 
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
@@ -410,10 +411,11 @@ void doReturn()
     }
     else if (whiles.size() > 0)
     {
-        codbuffer += sx() + "mov eax, [esp+4]\n";
+        codbuffer += sx() + "mov eax, dword [" + whileParams.back() + "]\n";
         codbuffer += sx() + "add eax, 1\n";
-        codbuffer += sx() + "mov [esp+4], eax\n";
-        codbuffer += sx() + "cmp eax, dword [esp+0]\n";
+        codbuffer += sx() + "mov [" + whileParams.back() + "], eax\n";
+        whileParams.pop_back();
+        codbuffer += sx() + "cmp eax, dword [" + whileParams.back() + "]\n";
         codbuffer += sx() + "jl " + whiles.back() + "\n";
         whiles.pop_back();
     }
@@ -959,18 +961,15 @@ void returnValue(int &index)
     Tokens.at(func).makeReturnable();
 }
 
-/*i dd 0  ;parameter
-push dword [i]
-push dword [a]
-
+/*
 while:
   ;stack start
   ;...
   ;stack end
-  mov eax, [ebp+4]
+  mov eax, dword [i]
   add eax, 1
-  mov [ebp+4], eax
-  cmp eax, dword [ebp+0]
+  mov [i], eax
+  cmp eax, dword [a]
   jl while
 
 while (a : b)
@@ -988,7 +987,8 @@ void While(int &index)
     index = getWord(' ', a, parameters, index);
     index = getWord(':', skip, parameters, index);
     index = getWord(')', b, parameters, index);
-    codbuffer += sx() + "push dword [" + a + "]\n";
+    /*codbuffer += sx() + "push dword [" + a + "]\n";
+
     if (isdigit(b.at(0)) || b.at(0) == '-')
     {
         codbuffer += sx() + "push dword " + b + "\n";
@@ -996,7 +996,11 @@ void While(int &index)
     else
     {
         codbuffer += sx() + "push dword [" + b + "]\n";
-    }
+    }*/
+
+    whileParams.push_back(b);
+    whileParams.push_back(a);
+
     codbuffer += sx() + "While_" + to_string(WhileID) + ":\n";
     whiles.push_back("While_" + to_string(WhileID));
     WhileID++;

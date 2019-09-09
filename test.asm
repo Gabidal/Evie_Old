@@ -133,8 +133,6 @@ function_main:
  push ebp
  mov ebp, esp
 
- push dword [i]
- push dword [a]
  While_0:
 
  ;making a stack frame start
@@ -151,10 +149,10 @@ function_main:
  ;making a stack frame end
  mov esp, ebp
  pop ebp
-mov eax, [esp+4]
+mov eax, dword [i]
 add eax, 1
-mov [esp+4], eax
-cmp eax, dword [esp+0]
+mov [i], eax
+cmp eax, dword [a]
 jl While_0
 
 ;making a stack frame end
