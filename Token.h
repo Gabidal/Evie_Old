@@ -190,6 +190,7 @@ class Token
     string Name;
     string Size;
     string Reg;
+    string Value;
     int PlaceInStack = 0;
     int ParameterAmount = 0;
     vector <Token> Links;

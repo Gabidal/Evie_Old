@@ -42,8 +42,6 @@ int 80h
 
 GASCode:
 
-
-;usr:: std library functions.
 function_gout:
  ;making a function stack frame
  push ebp
@@ -130,124 +128,38 @@ function_gin:
  pop ebp
 ret
 
-
-;usr:: std library functions.
-
-;usr:: make a string.
-
-;usr:: make main.
 function_main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
+ push dword [i]
+ push dword [a]
+ While_0:
 
- ;usr:: print string abc.
+ ;making a stack frame start
+ push ebp
+ mov ebp, esp
+
  ;Functions Parameters
  push abc
  
  ;Call the function
  call function_gout
-
- ;usr:: if destination is same as first parameter. fix!
-
- ;The inital destination
- push a
- 
-
- ;Math do: *
- mov eax , dword [a]
- imul eax , eax 
-
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], eax 
-
-
- ;The inital destination
- push b
- 
-
- ;Math do: *
- mov ebx , dword [b]
- imul ebx , ebx 
-
-
- ;Get the destination to: edi 
- pop edi 
- mov [edi ], ebx 
-
-
- ;The inital destination
- push c
- 
-
- ;Math do: +
- add eax , ebx 
-
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], eax 
-
- mov ecx , dword [a]
- cmp ecx , ebx 
- jne else11
-
-  ;making a stack frame start
-  push ebp
-  mov ebp, esp
-
-
-  ;The inital destination
-  push c
-  
-
-  ;Math do: +
-  mov edx , dword [c]
-  add edx , ebx 
-
-
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], edx 
-
-
-  ;making a stack frame end
-  mov esp, ebp
-  pop ebp
-
- jmp end11
- else11:
-
-  ;making a stack frame start
-  push ebp
-  mov ebp, esp
-
-
-  ;The inital destination
-  push c
-  
-
-  ;Math do: +
-  add edx , ecx 
-
-
-  ;Get the destination to: esi 
-  pop esi 
-  mov [esi ], edx 
-
-
-  ;making a stack frame end
-  mov esp, ebp
-  pop ebp
- end11:
-
+ add esp, 4
 
  ;making a stack frame end
  mov esp, ebp
  pop ebp
+mov eax, [esp+4]
+add eax, 1
+mov [esp+4], eax
+cmp eax, dword [esp+0]
+jl While_0
+
+;making a stack frame end
+mov esp, ebp
+pop ebp
 ret
 
 
@@ -261,9 +173,8 @@ gout.getLenght dd 0
 gin.name dd 0
 gin.getLenght dd 0
 abc db "moikkamoi!", 0
-a dd 2
-b dd 2
-c dd 0
+a dd 10
+i dd 0
 
 
 section .bss

@@ -1,28 +1,14 @@
-#std library functions.
 use std.g
 
-#make a string.
 str abc = "moikkamoi!"
 
-var a = 2
-var b = 2
-var c = 0
+var a = 10
+var i = 0
 
-#make main.
 func main()
 (
-  #print string abc.
-  gout(abc)
-  #if destination is same as first parameter. fix!
-  a = a * a
-  b = b * b
-  c = a + b
-  if a == b
+  while (i : a)
   (
-    c = c + b
-  )
-  else
-  (
-    c = c + a
+    gout(abc)
   )
 )

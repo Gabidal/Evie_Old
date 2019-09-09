@@ -27,6 +27,8 @@ vector<string> ifToElse;
 vector<string> elseToEnd;
 vector<string> jumpToEnd;
 bool skippedRet = false;
+vector<string> whiles;
+int WhileID = 0;
 
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
@@ -280,6 +282,10 @@ void prepareFunction(int &index, string func)
     {
         codbuffer += sx() + "\n" + sx() + ";Call the function\n";
         codbuffer += sx() + "call function_" + Tokens.at(funcIndex).getFullName() + "\n";
+        if (Tokens.at(funcIndex).ifReturner == false)
+        {
+            codbuffer += sx() + "add esp, " + to_string(Tokens.at(funcIndex).ParameterAmount * 4) + "\n";
+        }
     }
     else if (Tokens.at(funcIndex).ifMacro)
     { 
@@ -402,7 +408,16 @@ void doReturn()
         isIf = false;
         wasif = true;
     }
-    if (framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
+    else if (whiles.size() > 0)
+    {
+        codbuffer += sx() + "mov eax, [esp+4]\n";
+        codbuffer += sx() + "add eax, 1\n";
+        codbuffer += sx() + "mov [esp+4], eax\n";
+        codbuffer += sx() + "cmp eax, dword [esp+0]\n";
+        codbuffer += sx() + "jl " + whiles.back() + "\n";
+        whiles.pop_back();
+    }
+    else if (framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
     {
         codbuffer += sx() +  "ret\n\n";
         FunctionNames.pop_back();
@@ -936,13 +951,55 @@ void returnValue(int &index)
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n\n";
     codbuffer += sx() + ";returning a value from function\n";
     codbuffer += sx() + "pop eax\n";
-    codbuffer += sx() + "add esp, " + paraAmount + "\n";
     codbuffer += sx() + "push dword [" + Tokens.at(destIndex).getFullName() + "]\n";
     Syntax--;
     codbuffer += sx() + "jmp eax\n\n";
     ifReturnValue = true;
     int func = getIndex(FunctionNames.back());
     Tokens.at(func).makeReturnable();
+}
+
+/*i dd 0  ;parameter
+push dword [i]
+push dword [a]
+
+while:
+  ;stack start
+  ;...
+  ;stack end
+  mov eax, [ebp+4]
+  add eax, 1
+  mov [ebp+4], eax
+  cmp eax, dword [ebp+0]
+  jl while
+
+while (a : b)
+(
+
+)
+  */
+
+void While(int &index)
+{
+    string skip;
+    string a;
+    string b;
+    index = getWord('(', skip, parameters, index);
+    index = getWord(' ', a, parameters, index);
+    index = getWord(':', skip, parameters, index);
+    index = getWord(')', b, parameters, index);
+    codbuffer += sx() + "push dword [" + a + "]\n";
+    if (isdigit(b.at(0)) || b.at(0) == '-')
+    {
+        codbuffer += sx() + "push dword " + b + "\n";
+    }
+    else
+    {
+        codbuffer += sx() + "push dword [" + b + "]\n";
+    }
+    codbuffer += sx() + "While_" + to_string(WhileID) + ":\n";
+    whiles.push_back("While_" + to_string(WhileID));
+    WhileID++;
 }
 
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
@@ -1016,6 +1073,10 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == "else")
     {
         doElse();
+    }
+    else if (destination == "while")
+    {
+        While(continu);
     }
     else if (destination == "use")
     {
