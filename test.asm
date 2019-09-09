@@ -33,6 +33,13 @@ function_malloc:
   push eax
 jmp ebx
 
+function_char:
+  pop edx
+  pop eax
+  mov ecx, 48
+  add eax, ecx
+  push eax
+  jmp edx
 global _start
 _start:
 call function_main
@@ -157,8 +164,23 @@ function_main:
  push ebp
  mov ebp, esp
 
+
+ ;The inital destination
+ push c
+ 
  ;Functions Parameters
- push abc
+ push dword [main.y]
+ 
+ ;Call the function
+ call function_char
+ pop eax 
+
+ ;Get the destination to: esi 
+ pop esi 
+ mov [esi ], eax 
+
+ ;Functions Parameters
+ push c
  
  ;Call the function
  call function_gout
@@ -203,6 +225,7 @@ gin.name dd 0
 gin.getLenght dd 0
 abc db "moikkamoi!", 0
 a dd 10
+c dd 0
 main.x dd 0
 main.y dd 0
 

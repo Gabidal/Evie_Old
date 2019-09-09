@@ -26,7 +26,6 @@ void initialize(vector <Token> &Tokens, string &buffer)
     ;
     Token sizer;
     sizer.makeFunc("size");
-    sizer.makeName("size");
     sizer.makePublic();
     sizer.ParameterAmount = 1;
     sizer.makeReturnable();
@@ -51,12 +50,26 @@ void initialize(vector <Token> &Tokens, string &buffer)
     ;
     Token alloc;
     alloc.makeFunc("malloc");
-    alloc.makeName("malloc");
     alloc.makePublic();
     alloc.ParameterAmount = 1;
     alloc.makeReturnable();
     Tokens.push_back(alloc);
 
+    buffer += 
+    "function_char:\n"
+    "  pop edx\n"
+    "  pop eax\n"
+    "  mov ecx, 48\n"
+    "  add eax, ecx\n"
+    "  push eax\n"
+    "  jmp edx\n"
+    ;
+    Token toChar;
+    toChar.makeFunc("char");
+    toChar.makePublic();
+    toChar.ParameterAmount = 1;
+    toChar.makeReturnable();
+    Tokens.push_back(toChar);
 
 }
 
