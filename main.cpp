@@ -13,10 +13,6 @@ int main()
     cout << "  G::Make a binary out of the assembly?\n(y = yes / n = no)\n: ";
     string YN;
     cin >> YN;
-    if (YN.size() > 0 && YN.at(0) == 'n')
-    {
-        return 0;
-    }
     cout << "  G::For Linux or Windows?\n(l == linux / w == windows)\n: ";
     string option;
     cin >> option;
@@ -53,6 +49,10 @@ int main()
     cout << "Lexered  in " + to_string((lexerTimerE - lexerTimerS)/ float(CLOCKS_PER_SEC)) + "  seconds" << endl;
     cout << "Parsered in " + to_string(sum / float(CLOCKS_PER_SEC)) + "  seconds" << endl;
     cout << "-_-_-_-_-_-_-_-_-_-" << endl;
+    if (YN.size() > 0 && YN.at(0) == 'n')
+    {
+        return 0;
+    }
 
     if (option.size() > 0 && option.at(0) == 'l')
     {

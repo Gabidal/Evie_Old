@@ -76,21 +76,6 @@ int getIndex(string name)
     cout << name + "doesnt exist!\n";
 }
 
-void disconnectFromRegister(string reg)
-{
-    for (auto i = Tokens.rbegin(); i != Tokens.rend(); )
-    {
-        if (i->Reg == reg)
-        {
-            i->eraseReg();
-        }
-        else
-        {
-            i++;
-        }
-    }
-}
-
 string autoValue(string normalSize, string multiplyer, int layer)
 {
     if (multiplyer.size() > 0)
@@ -104,27 +89,42 @@ string autoValue(string normalSize, string multiplyer, int layer)
     
 }
 
+void disconnectReg(string reg)
+{
+    for (int i = 0; i < Tokens.size(); i++)
+    {
+        if (Tokens.at(i).Reg == reg)
+        {
+            Tokens.at(i).Reg.erase();
+        }
+    }
+}
+
 void getFreeReg()
 {
     if (usedregister == 3)
     {
         regbuffer = "edx ";
         usedregister = 0;
+        disconnectReg("edx ");
     }
     else if (usedregister == 2)
     {
         regbuffer = "ecx ";
         usedregister = 3;
+        disconnectReg("ecx ");
     }
     else if (usedregister == 1)
     {
         regbuffer = "ebx ";
         usedregister = 2;
+        disconnectReg("ebx ");
     }
     else if (usedregister == 0)
     {
         regbuffer = "eax ";
         usedregister = 1;
+        disconnectReg("eax ");
     }
 }
 
@@ -134,11 +134,13 @@ string getFreeMemReg()
     {
         freeMemReg++;
         return "esi ";
+        disconnectReg("esi ");
     }
     else
     {
         freeMemReg--;
         return "edi ";
+        disconnectReg("edi ");
     }
 }
 
@@ -358,6 +360,7 @@ void getInitalDestination(int &index, string destReg)
     codbuffer += "\n" + sx() + ";Get the destination to: " + memReg + "\n";
     codbuffer += sx() + "pop " + memReg + "\n";
     codbuffer += sx() + "mov [" + memReg + "], " + destReg + "\n\n";
+    disconnectReg(destReg);
 }
 
 void callFunction(string function, int &index)
@@ -441,7 +444,7 @@ void doMath(int &index, string a, string math)
     //check if there is more math to do.
     math = "";
     int offset = getWord(' ', math, parameters, index);
-    if (math == "\n" || math == " " || math == "ret")
+    if (math == "\n" || math == " " || math == ")")
     {
         return;
     }
@@ -462,34 +465,6 @@ void useVar(int &index, string destination)
     //skip the = mark.
     string skip;
     index = getWord(' ', skip, parameters, index);
-    //check if increas reguest.
-    if (skip == "+=" || skip == "-=")
-    {
-        string upcrease;
-        index = getWord(' ', upcrease, parameters, index);
-        string condition;
-        if (skip == "+=")
-        {
-            condition = "add ";
-        }
-        else
-        {
-            condition = "sub ";
-        }
-        int destIndex = getIndex(destination);
-        if (isdigit(upcrease.at(0)) || upcrease.at(0) == '-')
-        {
-            codbuffer += sx() + condition + Tokens.at(destIndex).getReg(codbuffer) + ", "+ upcrease +"\n";
-        }
-        else
-        {
-            int upcreaseI = getIndex(upcrease);
-            codbuffer += sx() + condition + Tokens.at(destIndex).getReg(codbuffer) + ", "+ Tokens.at(upcreaseI).getReg(codbuffer) +"\n";
-        }
-        
-        getInitalDestination(index, Tokens.at(destIndex).getReg(codbuffer));
-        return;
-    }
     //start the math check.
     string bPart;
     index = getWord(' ', bPart, parameters, index);
@@ -996,14 +971,6 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == "func")
     {
         makeFunc(continu);
-    }
-    else if (destination == "*")
-    {
-        disconnectFromRegister("eax ");
-    }
-    else if (destination == "/")
-    {
-        disconnectFromRegister("eax ");
     }
     else if (destination == ")")
     {
