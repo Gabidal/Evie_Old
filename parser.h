@@ -193,7 +193,19 @@ void makeVar(int &index)
     else
     {
         Variable.makeVar();
-        varbuffer += Variable.getFullName() + " dd " + value + "\n";
+        if (Variable.ifGlobal)
+        {
+            varbuffer += Variable.getFullName() + " dd " + value + "\n";
+        }
+        else
+        {
+            varbuffer += Variable.getFullName() + " dd 0\n";
+            getFreeReg();
+            codbuffer += sx() + ";Set the value to local var\n";
+            codbuffer += sx() + "mov " + regbuffer + ", " + value + "\n";
+            codbuffer += sx() + "mov [" + Variable.getFullName() + "], " + regbuffer + "\n";
+        }
+        
     }
     
     Tokens.push_back(Variable);
@@ -411,11 +423,15 @@ void doReturn()
     }
     else if (whiles.size() > 0)
     {
-        codbuffer += sx() + "mov eax, dword [" + whileParams.back() + "]\n";
-        codbuffer += sx() + "add eax, 1\n";
-        codbuffer += sx() + "mov [" + whileParams.back() + "], eax\n";
+        string a = whileParams.back();
         whileParams.pop_back();
-        codbuffer += sx() + "cmp eax, dword [" + whileParams.back() + "]\n";
+        string b = whileParams.back();
+        whileParams.pop_back();
+        codbuffer += "\n" + sx() + ";cheking the while.\n";
+        codbuffer += sx() + "mov eax, dword [" + Tokens.at(getIndex(a)).getFullName() + "]\n";
+        codbuffer += sx() + "add eax, 1\n";
+        codbuffer += sx() + "mov [" + Tokens.at(getIndex(a)).getFullName() + "], eax\n";
+        codbuffer += sx() + "cmp eax, dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
         codbuffer += sx() + "jl " + whiles.back() + "\n";
         whiles.pop_back();
     }
@@ -960,23 +976,6 @@ void returnValue(int &index)
     int func = getIndex(FunctionNames.back());
     Tokens.at(func).makeReturnable();
 }
-
-/*
-while:
-  ;stack start
-  ;...
-  ;stack end
-  mov eax, dword [i]
-  add eax, 1
-  mov [i], eax
-  cmp eax, dword [a]
-  jl while
-
-while (a : b)
-(
-
-)
-  */
 
 void While(int &index)
 {

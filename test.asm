@@ -52,6 +52,9 @@ function_gout:
  ;name is now an Variable.
  mov eax , [ebp+8]
  mov [gout.name], eax 
+ ;Set the value to local var
+ mov ebx , 0
+ mov [gout.getLenght], ebx 
 
  ;usr:: get the string length
 
@@ -63,11 +66,11 @@ function_gout:
  
  ;Call the function
  call function_size
- pop ebx 
+ pop ecx 
 
  ;Get the destination to: esi 
  pop esi 
- mov [esi ], ebx 
+ mov [esi ], ecx 
 
 
  ;usr:: call sys print
@@ -95,8 +98,11 @@ function_gin:
  sub esp, 4
  
  ;name is now an Variable.
- mov ecx , [ebp+8]
- mov [gin.name], ecx 
+ mov edx , [ebp+8]
+ mov [gin.name], edx 
+ ;Set the value to local var
+ mov eax , 0
+ mov [gin.getLenght], eax 
 
  ;The inital destination
  push gin.getLenght
@@ -106,11 +112,11 @@ function_gin:
  
  ;Call the function
  call function_size
- pop edx 
+ pop ebx 
 
  ;Get the destination to: edi 
  pop edi 
- mov [edi ], edx 
+ mov [edi ], ebx 
 
 
  push eax
@@ -133,7 +139,19 @@ function_main:
  push ebp
  mov ebp, esp
 
+ ;Set the value to local var
+ mov ecx , 0
+ mov [main.x], ecx 
  While_0:
+
+ ;making a stack frame start
+ push ebp
+ mov ebp, esp
+
+ ;Set the value to local var
+ mov edx , 0
+ mov [main.y], edx 
+ While_1:
 
  ;making a stack frame start
  push ebp
@@ -149,9 +167,22 @@ function_main:
  ;making a stack frame end
  mov esp, ebp
  pop ebp
-mov eax, dword [i]
+
+;cheking the while.
+mov eax, dword [main.y]
 add eax, 1
-mov [i], eax
+mov [main.y], eax
+cmp eax, dword [a]
+jl While_1
+
+;making a stack frame end
+mov esp, ebp
+pop ebp
+
+;cheking the while.
+mov eax, dword [main.x]
+add eax, 1
+mov [main.x], eax
 cmp eax, dword [a]
 jl While_0
 
@@ -172,7 +203,8 @@ gin.name dd 0
 gin.getLenght dd 0
 abc db "moikkamoi!", 0
 a dd 10
-i dd 0
+main.x dd 0
+main.y dd 0
 
 
 section .bss

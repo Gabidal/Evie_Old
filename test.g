@@ -3,12 +3,16 @@ use std.g
 str abc = "moikkamoi!"
 
 var a = 10
-var i = 0
 
 func main()
 (
-  while (i : a)
+  var x = 0
+  while (x : a)
   (
-    gout(abc)
+    var y = 0
+    while (y : a)
+    (
+      gout(abc)
+    )
   )
 )
