@@ -149,6 +149,8 @@ function_main:
  ;Call the function
  call function_gout
 
+ ;usr:: if destination is same as first parameter. fix!
+
  ;The inital destination
  push a
  
@@ -182,17 +184,15 @@ function_main:
  
 
  ;Math do: +
- mov ecx , dword [b]
- mov edx , dword [a]
- add edx , ecx 
+ add eax , ebx 
 
 
  ;Get the destination to: esi 
  pop esi 
- mov [esi ], edx 
+ mov [esi ], eax 
 
- mov eax , dword [a]
- cmp eax , ecx 
+ mov ecx , dword [a]
+ cmp ecx , ebx 
  jne else11
 
   ;making a stack frame start
@@ -205,13 +205,13 @@ function_main:
   
 
   ;Math do: +
-  mov ebx , dword [c]
-  add ebx , ecx 
+  mov edx , dword [c]
+  add edx , ebx 
 
 
   ;Get the destination to: edi 
   pop edi 
-  mov [edi ], ebx 
+  mov [edi ], edx 
 
 
   ;making a stack frame end
@@ -231,13 +231,12 @@ function_main:
   
 
   ;Math do: +
-  mov ecx , dword [c]
-  add ecx , eax 
+  add edx , ecx 
 
 
   ;Get the destination to: esi 
   pop esi 
-  mov [esi ], ecx 
+  mov [esi ], edx 
 
 
   ;making a stack frame end

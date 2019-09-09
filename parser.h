@@ -354,13 +354,16 @@ void makeInitialDestiantion(int &index, string dest)
     codbuffer += sx() + "\n";
 }
 
-void getInitalDestination(int &index, string destReg)
+void getInitalDestination(int &index, string destReg, bool sameParaAsDest)
 {
     string memReg = getFreeMemReg();
     codbuffer += "\n" + sx() + ";Get the destination to: " + memReg + "\n";
     codbuffer += sx() + "pop " + memReg + "\n";
     codbuffer += sx() + "mov [" + memReg + "], " + destReg + "\n\n";
-    disconnectReg(destReg);
+    if (sameParaAsDest == false)
+    {
+        disconnectReg(destReg);
+    }
 }
 
 void callFunction(string function, int &index)
@@ -516,12 +519,28 @@ void useVar(int &index, string destination)
         getFreeReg();
         string reg1 = regbuffer;
         codbuffer += sx() + "mov " + reg1 + ", dword [" + arrayInitialization(index, bIndex) + "]\n";
-        getInitalDestination(index, reg1);
+
+        if (bPart == destination)
+        {
+            getInitalDestination(index, reg1, true);
+        }
+        else
+        {
+            getInitalDestination(index, reg1, true);
+        }
+        
         return;
     }
 
     //load the inital destination from stack and give it the inital sum.
-    getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer));
+        if (bPart == destination)
+        {
+            getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer), true);
+        }
+        else
+        {
+            getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer), false);
+        }
 }
 
 void makeFunc(int &index)

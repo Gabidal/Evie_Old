@@ -13,6 +13,7 @@ func main()
 (
   #print string abc.
   gout(abc)
+  #if destination is same as first parameter. fix!
   a = a * a
   b = b * b
   c = a + b
