@@ -297,8 +297,10 @@ void prepareFunction(int &index, string func)
         codbuffer += sx() + "call function_" + Tokens.at(funcIndex).getFullName() + "\n";
         if (Tokens.at(funcIndex).ifReturner == false)
         {
+            codbuffer += sx() + ";deleteing the parameters from stack\n";
             codbuffer += sx() + "add esp, " + to_string(Tokens.at(funcIndex).ParameterAmount * 4) + "\n";
         }
+        codbuffer += "\n";
     }
     else if (Tokens.at(funcIndex).ifMacro)
     { 
@@ -432,7 +434,7 @@ void doReturn()
         codbuffer += sx() + "add eax, 1\n";
         codbuffer += sx() + "mov [" + Tokens.at(getIndex(a)).getFullName() + "], eax\n";
         codbuffer += sx() + "cmp eax, dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
-        codbuffer += sx() + "jl " + whiles.back() + "\n";
+        codbuffer += sx() + "jl " + whiles.back() + "\n\n";
         whiles.pop_back();
     }
     else if (framesAmount == 1 && secondphase == false && waselse == false && wasif == false)

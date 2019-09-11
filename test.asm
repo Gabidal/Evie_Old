@@ -34,12 +34,65 @@ function_malloc:
 jmp ebx
 
 function_char:
+  pop edi
+  pop eax
+  printRAX:
+    lea ecx, [char.s]
+    mov ebx, 10
+    mov [ecx], ebx
+    inc ecx
+    mov [char.i], ecx
+  charLoop:
+    mov edx, 0
+    mov ebx, 10
+    div ebx
+    push eax
+    add edx, 48
+    mov ecx, [char.i]
+    mov [ecx], dl
+    inc ecx
+    mov [char.i], ecx
+    pop eax
+    cmp eax, 0
+    jne charLoop
+  push char.s
+jmp edi
+
+function_num:
   pop edx
   pop eax
   mov ecx, 48
-  add eax, ecx
+  sub eax, ecx
   push eax
   jmp edx
+
+function_reverse:
+  push ebp
+  mov ebp, esp
+  mov esi, [ebp+8]
+  push esi
+  call function_size
+  pop ecx
+  mov eax, esi
+  add eax, ecx
+  mov edi, eax
+  dec edi       ; edi points to end of string
+  shr ecx, 1    ; ecx is count (length/2)
+  jz reverse.done
+  reverseLoop:
+  mov al, [esi] ; load characters
+  mov bl, [edi]
+  mov [esi], bl ; and swap
+  mov [edi], al
+  inc esi       ; adjust pointers
+  dec edi
+  dec ecx       ; and loop
+  jnz reverseLoop
+  reverse.done:
+  mov esp, ebp
+  pop ebp
+  ret
+
 global _start
 _start:
 call function_main
@@ -73,6 +126,7 @@ function_gout:
  
  ;Call the function
  call function_size
+
  pop ecx 
 
  ;Get the destination to: esi 
@@ -119,6 +173,7 @@ function_gin:
  
  ;Call the function
  call function_size
+
  pop ebx 
 
  ;Get the destination to: edi 
@@ -141,24 +196,33 @@ function_gin:
  pop ebp
 ret
 
+function_exit:
+ ;making a function stack frame
+ push ebp
+ mov ebp, esp
+
+
+ push eax
+ mov eax, 1
+ mov ebx, 0
+ mov ecx, 0
+ mov edx, 0
+ int 80h
+ mov [carry], eax
+ pop eax
+
+
+ ;making a stack frame end
+ mov esp, ebp
+ pop ebp
+ret
+
 function_main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
- ;Set the value to local var
- mov ecx , 0
- mov [main.x], ecx 
  While_0:
-
- ;making a stack frame start
- push ebp
- mov ebp, esp
-
- ;Set the value to local var
- mov edx , 0
- mov [main.y], edx 
- While_1:
 
  ;making a stack frame start
  push ebp
@@ -169,44 +233,45 @@ function_main:
  push c
  
  ;Functions Parameters
- push dword [main.y]
+ push dword [x]
  
  ;Call the function
  call function_char
- pop eax 
+
+ pop ecx 
 
  ;Get the destination to: esi 
  pop esi 
- mov [esi ], eax 
+ mov [esi ], ecx 
 
  ;Functions Parameters
- push c
+ push dword [c]
+ 
+ ;Call the function
+ call function_reverse
+ ;deleteing the parameters from stack
+ add esp, 4
+
+ ;Functions Parameters
+ push dword [c]
  
  ;Call the function
  call function_gout
+ ;deleteing the parameters from stack
  add esp, 4
+
 
  ;making a stack frame end
  mov esp, ebp
  pop ebp
 
 ;cheking the while.
-mov eax, dword [main.y]
+mov eax, dword [x]
 add eax, 1
-mov [main.y], eax
-cmp eax, dword [a]
-jl While_1
-
-;making a stack frame end
-mov esp, ebp
-pop ebp
-
-;cheking the while.
-mov eax, dword [main.x]
-add eax, 1
-mov [main.x], eax
+mov [x], eax
 cmp eax, dword [a]
 jl While_0
+
 
 ;making a stack frame end
 mov esp, ebp
@@ -219,15 +284,18 @@ section .data
 
 header dd 0
 carry dd 0
+char.i dd 0
+char.s times 20 db 1
+ dd 0
+reverse.s times 512 db 1
+ dd 0
 gout.name dd 0
 gout.getLenght dd 0
 gin.name dd 0
 gin.getLenght dd 0
-abc db "moikkamoi!", 0
-a dd 10
+a dd 100
 c dd 0
-main.x dd 0
-main.y dd 0
+x dd 0
 
 
 section .bss
