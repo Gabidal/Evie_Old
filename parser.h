@@ -202,8 +202,7 @@ void makeVar(int &index)
             varbuffer += Variable.getFullName() + " dd 0\n";
             getFreeReg();
             codbuffer += sx() + ";Set the value to local var\n";
-            codbuffer += sx() + "mov " + regbuffer + ", " + value + "\n";
-            codbuffer += sx() + "mov [" + Variable.getFullName() + "], " + regbuffer + "\n";
+            codbuffer += sx() + "mov dword [" + Variable.getFullName() + "], " + value + "\n";
         }
         
     }
@@ -430,10 +429,8 @@ void doReturn()
         string b = whileParams.back();
         whileParams.pop_back();
         codbuffer += "\n" + sx() + ";cheking the while.\n";
-        codbuffer += sx() + "mov eax, dword [" + Tokens.at(getIndex(a)).getFullName() + "]\n";
-        codbuffer += sx() + "add eax, 1\n";
-        codbuffer += sx() + "mov [" + Tokens.at(getIndex(a)).getFullName() + "], eax\n";
-        codbuffer += sx() + "cmp eax, dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
+        codbuffer += sx() + "add dword [" + Tokens.at(getIndex(a)).getFullName() + "], 1\n";
+        codbuffer += sx() + "cmp " + Tokens.at(getIndex(a)).getReg(codbuffer) + ", dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
         codbuffer += sx() + "jl " + whiles.back() + "\n\n";
         whiles.pop_back();
     }
@@ -478,7 +475,17 @@ void doMath(int &index, string a, string math)
     {
         prepareFunction(index, b);
     }
-    codbuffer += sx() + opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n\n";
+    if (opCode != "idiv ")
+    {
+        codbuffer += sx() + opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n\n";
+    }
+    else
+    {
+        disconnectReg("eax ");
+        codbuffer += sx() + "mov eax, " + Tokens.at(aI).getReg(codbuffer) + "\n";
+        codbuffer += sx() + opCode + Tokens.at(bI).getReg(codbuffer) + "\n";
+    }
+    
     //check if there is more math to do.
     math = "";
     int offset = getWord(' ', math, parameters, index);
@@ -766,14 +773,11 @@ void doComparing(int &i)
     int bI = getIndex(b);
     if (Tokens.at(bI).ifArray)
     {
-        getFreeReg();
-        string reg1 = regbuffer;
-        codbuffer += sx() + "mov " + reg1 + ", dword [" + arrayInitialization(i, bI) + "]\n";
-        bcomp = reg1;
+        bcomp = "dword [" + arrayInitialization(i, bI) + "]";
     }
     else
     {
-        bcomp = Tokens.at(bI).getReg(codbuffer);
+        bcomp = "dword [" + Tokens.at(bI).getFullName() + "]";
     }
     condition = getJump(condition);
     

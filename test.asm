@@ -113,8 +113,7 @@ function_gout:
  mov eax , [ebp+8]
  mov [gout.name], eax 
  ;Set the value to local var
- mov ebx , 0
- mov [gout.getLenght], ebx 
+ mov dword [gout.getLenght], 0
 
  ;usr:: get the string length
 
@@ -162,8 +161,7 @@ function_gin:
  mov edx , [ebp+8]
  mov [gin.name], edx 
  ;Set the value to local var
- mov eax , 0
- mov [gin.getLenght], eax 
+ mov dword [gin.getLenght], 0
 
  ;The inital destination
  push gin.getLenght
@@ -228,48 +226,102 @@ function_main:
  push ebp
  mov ebp, esp
 
+ mov ecx , dword [a]
+ cmp ecx , dword [b]
+ jne else11
 
- ;The inital destination
- push c
- 
- ;Functions Parameters
- push dword [x]
- 
- ;Call the function
- call function_char
+  ;making a stack frame start
+  push ebp
+  mov ebp, esp
 
- pop ecx 
 
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ecx 
+  ;The inital destination
+  push a
+  
+  ;Functions Parameters
+  push dword [a]
+  
+  ;Call the function
+  call function_char
 
- ;Functions Parameters
- push dword [c]
- 
- ;Call the function
- call function_reverse
- ;deleteing the parameters from stack
- add esp, 4
+  pop edx 
 
- ;Functions Parameters
- push dword [c]
- 
- ;Call the function
- call function_gout
- ;deleteing the parameters from stack
- add esp, 4
+  ;Get the destination to: esi 
+  pop esi 
+  mov [esi ], edx 
 
+  ;Functions Parameters
+  push dword [a]
+  
+  ;Call the function
+  call function_reverse
+  ;deleteing the parameters from stack
+  add esp, 4
+
+  ;Functions Parameters
+  push dword [a]
+  
+  ;Call the function
+  call function_gout
+  ;deleteing the parameters from stack
+  add esp, 4
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ jmp end11
+ else11:
+
+  ;making a stack frame start
+  push ebp
+  mov ebp, esp
+
+
+  ;The inital destination
+  push b
+  
+  ;Functions Parameters
+  push dword [b]
+  
+  ;Call the function
+  call function_char
+
+  pop eax 
+
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], eax 
+
+  ;Functions Parameters
+  push dword [b]
+  
+  ;Call the function
+  call function_reverse
+  ;deleteing the parameters from stack
+  add esp, 4
+
+  ;Functions Parameters
+  push dword [b]
+  
+  ;Call the function
+  call function_gout
+  ;deleteing the parameters from stack
+  add esp, 4
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ end11:
 
  ;making a stack frame end
  mov esp, ebp
  pop ebp
 
 ;cheking the while.
-mov eax, dword [x]
-add eax, 1
-mov [x], eax
-cmp eax, dword [a]
+add dword [a], 1
+cmp ecx , dword [c]
 jl While_0
 
 
@@ -282,20 +334,20 @@ ret
 
 section .data
 
-header dd 0
-carry dd 0
 char.i dd 0
 char.s times 20 db 1
  dd 0
 reverse.s times 512 db 1
  dd 0
+header dd 0
+carry dd 0
 gout.name dd 0
 gout.getLenght dd 0
 gin.name dd 0
 gin.getLenght dd 0
-a dd 100
-c dd 0
-x dd 0
+a dd 1
+b dd 2
+c dd 10
 
 
 section .bss
