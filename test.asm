@@ -23,7 +23,7 @@ function_malloc:
   push dword -1
   push dword 0x22
   push dword 0x03
-  push dword [esp+16]
+  push dword [esp+20]
   push dword 0
   mov eax, 0x5a
   mov ebx, esp
@@ -220,114 +220,91 @@ function_main:
  push ebp
  mov ebp, esp
 
- While_0:
 
- ;making a stack frame start
- push ebp
- mov ebp, esp
+ ;The inital destination
+ push a
+ 
+ ;Math do: +
+ mov ecx , dword [b]
+ mov edx , dword [a]
+ add edx , ecx 
 
- mov ecx , dword [a]
- cmp ecx , dword [b]
- jne else11
-
-  ;making a stack frame start
-  push ebp
-  mov ebp, esp
-
-
-  ;The inital destination
-  push a
-  
-  ;Functions Parameters
-  push dword [a]
-  
-  ;Call the function
-  call function_char
-
-  pop edx 
-
-  ;Get the destination to: esi 
-  pop esi 
-  mov [esi ], edx 
-
-  ;Functions Parameters
-  push dword [a]
-  
-  ;Call the function
-  call function_reverse
-  ;deleteing the parameters from stack
-  add esp, 4
-
-  ;Functions Parameters
-  push dword [a]
-  
-  ;Call the function
-  call function_gout
-  ;deleteing the parameters from stack
-  add esp, 4
+ ;Get the destination to: esi 
+ pop esi 
+ mov [esi ], edx 
 
 
-  ;making a stack frame end
-  mov esp, ebp
-  pop ebp
- jmp end11
- else11:
+ ;The inital destination
+ push a
+ 
+ ;Math do: -
+ sub edx , ecx 
 
-  ;making a stack frame start
-  push ebp
-  mov ebp, esp
-
-
-  ;The inital destination
-  push b
-  
-  ;Functions Parameters
-  push dword [b]
-  
-  ;Call the function
-  call function_char
-
-  pop eax 
-
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], eax 
-
-  ;Functions Parameters
-  push dword [b]
-  
-  ;Call the function
-  call function_reverse
-  ;deleteing the parameters from stack
-  add esp, 4
-
-  ;Functions Parameters
-  push dword [b]
-  
-  ;Call the function
-  call function_gout
-  ;deleteing the parameters from stack
-  add esp, 4
+ ;Get the destination to: edi 
+ pop edi 
+ mov [edi ], edx 
 
 
-  ;making a stack frame end
-  mov esp, ebp
-  pop ebp
- end11:
+ ;The inital destination
+ push a
+ 
+ ;Math do: *
+ mov eax , dword [c]
+ imul eax , ecx 
+
+ ;Get the destination to: esi 
+ pop esi 
+ mov [esi ], eax 
+
+
+ ;The inital destination
+ push a
+ 
+ ;Math do: %
+ xor edx, edx
+ mov eax, dword [b]
+ idiv dword [c]
+
+ ;Get the destination to: edi 
+ pop edi 
+ mov [edi ], edx 
+
+
+ ;The inital destination
+ push a
+ 
+ ;Functions Parameters
+ push dword [a]
+ 
+ ;Call the function
+ call function_char
+
+ pop ebx 
+
+ ;Get the destination to: esi 
+ pop esi 
+ mov [esi ], ebx 
+
+ ;Functions Parameters
+ push dword [a]
+ 
+ ;Call the function
+ call function_reverse
+ ;deleteing the parameters from stack
+ add esp, 4
+
+ ;Functions Parameters
+ push dword [a]
+ 
+ ;Call the function
+ call function_gout
+ ;deleteing the parameters from stack
+ add esp, 4
+
 
  ;making a stack frame end
  mov esp, ebp
  pop ebp
-
-;cheking the while.
-add dword [a], 1
-cmp ecx , dword [c]
-jl While_0
-
-
-;making a stack frame end
-mov esp, ebp
-pop ebp
 ret
 
 
@@ -345,9 +322,9 @@ gout.name dd 0
 gout.getLenght dd 0
 gin.name dd 0
 gin.getLenght dd 0
-a dd 1
+a dd 2
 b dd 2
-c dd 10
+c dd 3
 
 
 section .bss

@@ -38,7 +38,7 @@ void initialize(vector <Token> &Tokens, string &buffer)
     "  push dword -1\n"
     "  push dword 0x22\n" //0x22 == heap
     "  push dword 0x03\n"
-    "  push dword [esp+16]\n"
+    "  push dword [esp+20]\n"
     "  push dword 0\n"
     "  mov eax, 0x5a\n"
     "  mov ebx, esp\n"

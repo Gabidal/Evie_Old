@@ -1,24 +1,16 @@
 use std.g
 
-var a = 1
+var a = 2
 var b = 2
-var c = 10
+var c = 3
 
 func main()
 (
-  while (a : c)
-  (
-    if a == b
-    (
-      a = char(a)
-      reverse(a)
-      gout(a)
-    )
-    else
-    (
-      b = char(b)
-      reverse(b)
-      gout(b)
-    )
-  )
+  a = a + b
+  a = a - b
+  a = c * b
+  a = b % c
+  a = char(a)
+  reverse(a)
+  gout(a)
 )

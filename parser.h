@@ -38,6 +38,7 @@ int Syntax = 0;
 bool ifReturnValue = false;
 bool isIf = false;
 bool isType = false;
+bool fastMath = false;
 
 string returningDestName;
 string paraAmount;
@@ -247,7 +248,7 @@ void prepareFunction(int &index, string func)
         parameter = Params.back();
         Params.pop_back();
         int paraIndex = getIndex(parameter);
-        if (parameter.at(0) == '%')
+        if (parameter.at(0) == '&')
         {
             parameter.erase(parameter.begin());
             int parIndex = getIndex(parameter);
@@ -348,7 +349,7 @@ void makeInitialDestiantion(int &index, string dest)
     {
         return;
     }
-    if (dest.at(0) == '%')
+    if (dest.at(0) == '&')
     {
         dest.erase(dest.begin());
         int destIndex2 = getIndex(dest);
@@ -446,9 +447,9 @@ void doReturn()
     }
 }
 
-void doMath(int &index, string a, string math)
+void doMath(int &index, string a, string math, string destination)
 {
-    codbuffer += "\n" + sx() + ";Math do: " + math + "\n";
+    codbuffer += sx() + ";Math do: " + math + "\n";
     string b;
     index = getWord(' ', b, parameters, index);
     //a +/*- b
@@ -467,6 +468,10 @@ void doMath(int &index, string a, string math)
     {
         opCode = "idiv ";
     }
+    else if (math == "%")
+    {
+        opCode = "idiv ";
+    }
     else
     {
         opCode = "imul ";
@@ -477,14 +482,43 @@ void doMath(int &index, string a, string math)
     }
     if (opCode != "idiv ")
     {
-        codbuffer += sx() + opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n\n";
+        codbuffer += sx() + opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n";
+    }
+    else if (math == "%")
+    {
+        disconnectReg("eax ");
+        disconnectReg("edx ");
+        codbuffer += sx() + "xor edx, edx\n";
+        codbuffer += sx() + "mov eax, dword [" + Tokens.at(aI).getFullName() + "]\n";
+        codbuffer += sx() + opCode + "dword [" + Tokens.at(bI).getFullName() + "]\n";
+        if (b == destination)
+        {
+            getInitalDestination(index, "edx ", true);
+        }
+        else
+        {
+            getInitalDestination(index, "edx ", false);
+        }
+        fastMath = true;
     }
     else
     {
         disconnectReg("eax ");
-        codbuffer += sx() + "mov eax, " + Tokens.at(aI).getReg(codbuffer) + "\n";
-        codbuffer += sx() + opCode + Tokens.at(bI).getReg(codbuffer) + "\n";
+        disconnectReg("edx ");
+        codbuffer += sx() + "xor edx, edx\n";
+        codbuffer += sx() + "mov eax, dword [" + Tokens.at(aI).getFullName() + "]\n";
+        codbuffer += sx() + opCode + "dword [" + Tokens.at(bI).getFullName() + "]\n";
+        if (b == destination)
+        {
+            getInitalDestination(index, "eax ", true);
+        }
+        else
+        {
+            getInitalDestination(index, "eax ", false);
+        }
+        fastMath = true;
     }
+    
     
     //check if there is more math to do.
     math = "";
@@ -493,12 +527,12 @@ void doMath(int &index, string a, string math)
     {
         return;
     }
-    else if (math == "+" || math == "-" || math == "/" || math == "*")
+    else if (math == "+" || math == "-" || math == "/" || math == "*" || math == "%")
     {
         //this means that math exist on this same line of code :D.
         //so lets make it.
         index = offset;
-        doMath(index, a, math);
+        doMath(index, a, math, destination);
     }
 }
 
@@ -530,12 +564,12 @@ void useVar(int &index, string destination)
     int offset = getWord(' ', math, parameters, index);
     if (Tokens.at(bIndex).ifFunction != true)
     {
-        if (math == "+" || math == "-" || math == "/" || math == "*")
+        if (math == "+" || math == "-" || math == "/" || math == "*" || math == "%")
         {
             //this means that math exist on this same line of code :D.
             //so lets make it.
             index = offset;
-            doMath(index, bPart, math);
+            doMath(index, bPart, math, destination);
         }
     }
 
@@ -545,12 +579,12 @@ void useVar(int &index, string destination)
         prepareFunction(index, bPart);
         string secondareMath;
         offset = getWord(' ', secondareMath, parameters, index);
-        if (secondareMath == "+" || secondareMath == "-" || secondareMath == "/" || secondareMath == "*")
+        if (secondareMath == "+" || secondareMath == "-" || secondareMath == "/" || secondareMath == "*" || secondareMath == "%")
         {
             //this means that math exist on this same line of code :D.
             //so lets make it.
             index = offset;
-            doMath(index, bPart, secondareMath);
+            doMath(index, bPart, secondareMath, destination);
         }
     }
 
@@ -561,21 +595,24 @@ void useVar(int &index, string destination)
         getFreeReg();
         string reg1 = regbuffer;
         codbuffer += sx() + "mov " + reg1 + ", dword [" + arrayInitialization(index, bIndex) + "]\n";
-
         if (bPart == destination)
         {
             getInitalDestination(index, reg1, true);
         }
         else
         {
-            getInitalDestination(index, reg1, true);
+            getInitalDestination(index, reg1, false);
         }
         
         return;
     }
 
     //load the inital destination from stack and give it the inital sum.
-        if (bPart == destination)
+        if (fastMath)
+        {
+            fastMath = false;
+        }
+        else if (bPart == destination)
         {
             getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer), true);
         }
@@ -625,7 +662,7 @@ void makeFunc(int &index)
         Parameter.makePrivate(para1);
         if (para2.length() > 0) 
         {
-            if (para2.find('%')!= string::npos)
+            if (para2.find('&')!= string::npos)
             {
                 Parameter.makePtr();
             }
