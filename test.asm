@@ -102,113 +102,101 @@ int 80h
 
 GASCode:
 
-function_gout:
+function_apple:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
  sub esp, 4
  
- ;name is now an Variable.
+ ;b is now an Variable.
  mov eax , [ebp+8]
- mov [gout.name], eax 
- ;Set the value to local var
- mov dword [gout.getLenght], 0
-
- ;usr:: get the string length
-
- ;The inital destination
- push gout.getLenght
- 
- ;Functions Parameters
- push dword [gout.name]
- 
- ;Call the function
- call function_size
-
- pop ecx 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ecx 
-
-
- ;usr:: call sys print
-
- push eax
- mov eax, 4
- mov ebx, 1
- mov ecx, dword [gout.name]
- mov edx, dword [gout.getLenght]
- int 80h
- mov [carry], eax
- pop eax
-
-
- ;making a stack frame end
+ mov [apple.b], eax 
+ ;returning from stack frame
  mov esp, ebp
  pop ebp
-ret
 
-function_gin:
+ ;returning a value from function
+ pop eax
+ push dword [apple.b]
+jmp eax
+
+function_banana:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
  sub esp, 4
  
- ;name is now an Variable.
- mov edx , [ebp+8]
- mov [gin.name], edx 
- ;Set the value to local var
- mov dword [gin.getLenght], 0
-
- ;The inital destination
- push gin.getLenght
- 
- ;Functions Parameters
- push dword [gin.name]
- 
- ;Call the function
- call function_size
-
- pop ebx 
-
- ;Get the destination to: edi 
- pop edi 
- mov [edi ], ebx 
-
-
- push eax
- mov eax, 3
- mov ebx, 2
- mov ecx, dword [gin.name]
- mov edx, dword [gin.getLenght]
- int 80h
- mov [carry], eax
- pop eax
-
-
- ;making a stack frame end
+ ;a is now an Variable.
+ mov ebx , [ebp+8]
+ mov [banana.a], ebx 
+ ;returning from stack frame
  mov esp, ebp
  pop ebp
-ret
 
-function_exit:
+ ;returning a value from function
+ pop eax
+ push dword [banana.a]
+jmp eax
+
+function_vector:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
+ sub esp, 4
+ 
+ ;a is now an Variable.
+ mov ecx , [ebp+8]
+ mov [vector.a], ecx 
+ ;Set the value to local var
+ mov dword [vector.b], 1
+ cmp ecx , dword [vector.b]
+ jne else11
 
- push eax
- mov eax, 1
- mov ebx, 0
- mov ecx, 0
- mov edx, 0
- int 80h
- mov [carry], eax
- pop eax
+  ;making a stack frame start
+  push ebp
+  mov ebp, esp
 
+
+  ;The inital destination
+  lea esi , vector.c[0 * 4]
+  push esi 
+  
+  lea eax , [function_apple]
+
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], eax 
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ jmp end11
+ else11:
+
+  ;making a stack frame start
+  push ebp
+  mov ebp, esp
+
+
+  ;The inital destination
+  lea esi , vector.c[0 * 4]
+  push esi 
+  
+  lea ebx , [function_banana]
+
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], ebx 
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ end11:
 
  ;making a stack frame end
  mov esp, ebp
@@ -220,87 +208,8 @@ function_main:
  push ebp
  mov ebp, esp
 
-
- ;The inital destination
- push a
- 
- ;Math do: +
- mov ecx , dword [b]
- mov edx , dword [a]
- add edx , ecx 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], edx 
-
-
- ;The inital destination
- push a
- 
- ;Math do: -
- sub edx , ecx 
-
- ;Get the destination to: edi 
- pop edi 
- mov [edi ], edx 
-
-
- ;The inital destination
- push a
- 
- ;Math do: *
- mov eax , dword [c]
- imul eax , ecx 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], eax 
-
-
- ;The inital destination
- push a
- 
- ;Math do: %
- xor edx, edx
- mov eax, dword [b]
- idiv dword [c]
-
- ;Get the destination to: edi 
- pop edi 
- mov [edi ], edx 
-
-
- ;The inital destination
- push a
- 
- ;Functions Parameters
- push dword [a]
- 
- ;Call the function
- call function_char
-
- pop ebx 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ebx 
-
- ;Functions Parameters
- push dword [a]
- 
- ;Call the function
- call function_reverse
- ;deleteing the parameters from stack
- add esp, 4
-
- ;Functions Parameters
- push dword [a]
- 
- ;Call the function
- call function_gout
- ;deleteing the parameters from stack
- add esp, 4
-
+ ;Set the value to local var
+ mov dword [main.a], 1
 
  ;making a stack frame end
  mov esp, ebp
@@ -316,15 +225,30 @@ char.s times 20 db 1
  dd 0
 reverse.s times 512 db 1
  dd 0
-header dd 0
-carry dd 0
-gout.name dd 0
-gout.getLenght dd 0
-gin.name dd 0
-gin.getLenght dd 0
-a dd 2
-b dd 2
-c dd 3
+
+startOfLayerVariables_0:
+apple.b dd 0
+endOfLayerVariables_0:
+
+
+startOfLayerVariables_1:
+banana.a dd 0
+endOfLayerVariables_1:
+
+
+vector:
+
+startOfLayerVariables_2:
+vector.a dd 0
+vector.b dd 0
+vector.c times 2 dd 0
+endOfLayerVariables_2:
+
+
+startOfLayerVariables_3:
+main.a dd 0
+endOfLayerVariables_3:
+
 
 
 section .bss

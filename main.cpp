@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <ctime>
-#include <sys/mman.h>
 #include "Lexer.h"
 #include "io.h"
 using namespace std;

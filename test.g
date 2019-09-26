@@ -1,16 +1,31 @@
-use std.g
+use util.g
 
-var a = 2
-var b = 2
-var c = 3
+func apple(b)
+(
+  return b
+)
+
+func banana(a)
+(
+  return a
+)
+
+type vector(a)
+(
+  var b = 1
+  var c : 2
+  if a == b
+  (
+    c : 0 = &apple(b)
+  )
+  else
+  (
+    c : 0 = &banana(a)
+  )
+)
 
 func main()
 (
-  a = a + b
-  a = a - b
-  a = c * b
-  a = b % c
-  a = char(a)
-  reverse(a)
-  gout(a)
+  var a = 1
+  new vector(a) foo
 )

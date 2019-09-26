@@ -22,6 +22,7 @@ int layerId = 0;
 int returnLayer = 0;
 int savedIfToElse = 0;
 int savedElseToEnd = 0;
+int funcID = 0;
 vector<string> FunctionNames;  //
 vector<string> ifToElse;
 vector<string> elseToEnd;
@@ -70,7 +71,7 @@ int getIndex(string name)
             {
                 secondPriority = i;
             }
-            else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " " && Tokens.at(i).owner == FunctionNames.back())
+            else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " " && (Tokens.at(i).owner == FunctionNames.back() || Tokens.at(getIndex(Tokens.at(i).owner)).ifType))
             {
                 return i;
             }
@@ -189,7 +190,7 @@ void makeVar(int &index)
     if (setting == ":")
     {
         Variable.makeArray(value);
-        bssbuffer += Variable.getFullName() + " resd " + value + "\n";
+        varbuffer += Variable.getFullName() + " times " + value + " dd 0\n";
     }
     else
     {
@@ -214,7 +215,9 @@ void makeVar(int &index)
 void prepareFunction(int &index, string func)
 {
     codbuffer += sx() + ";Functions Parameters\n";
+
     int funcIndex = getIndex(func);
+    
     string parameter;
     vector<string> Params;
     for (int i = 0; i < Tokens.at(funcIndex).ParameterAmount; i++)
@@ -435,11 +438,13 @@ void doReturn()
         codbuffer += sx() + "jl " + whiles.back() + "\n\n";
         whiles.pop_back();
     }
-    else if (framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
+    else if (framesAmount < 3 && isType || framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
     {
         codbuffer += sx() +  "ret\n\n";
         FunctionNames.pop_back();
         Syntax = 0;
+        varbuffer += "endOfLayerVariables_" + to_string(funcID) + ":\n\n";
+        funcID++;
     }
     else
     {
@@ -536,6 +541,28 @@ void doMath(int &index, string a, string math, string destination)
     }
 }
 
+bool ifreturnAddress(int &index, string name)
+{
+    if (name.size() > 0 && name.at(0) == '&')
+    {
+        string name2;
+        int offset = getWord('(', name2, name, 0);
+        name = name2;
+        name.erase(name.begin());
+        int funcIndex = getIndex(name);
+        //return just func location as ptr.
+        getFreeReg();
+        string reg = regbuffer;
+        codbuffer += sx() + "lea " + reg + ", [function_" + Tokens.at(funcIndex).getFullName() + "]\n";
+        getInitalDestination(index, reg, false);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 void useVar(int &index, string destination)
 {
     codbuffer += "\n"; //giving some readability
@@ -548,6 +575,7 @@ void useVar(int &index, string destination)
     string bPart;
     index = getWord(' ', bPart, parameters, index);
     string destTest;
+    bool ifAddressReturningFunction = false;
 
     if (bPart.find('(') != -1)
     {
@@ -574,6 +602,12 @@ void useVar(int &index, string destination)
     }
 
     // check if B part is a function
+    ifAddressReturningFunction = ifreturnAddress(index, bPart);
+    if (ifAddressReturningFunction)
+    {
+        return;
+    }
+
     if (Tokens.at(bIndex).ifFunction)
     {
         prepareFunction(index, bPart);
@@ -612,6 +646,10 @@ void useVar(int &index, string destination)
         {
             fastMath = false;
         }
+        else if (ifAddressReturningFunction)
+        {
+            return;
+        }
         else if (bPart == destination)
         {
             getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer), true);
@@ -627,10 +665,17 @@ void makeFunc(int &index)
     string para1;
     index = getWord('(', para1, parameters, index);
     codbuffer += "function_" + para1 + ":\n";
+    varbuffer += "\nstartOfLayerVariables_" + to_string(funcID) + ":\n";
     Syntax++;
     Token func;
     func.makeFunc(para1);
     func.makePublic();
+
+    if (framesAmount > 1)
+    {
+        varbuffer += "ptr_function_" + para1 + ":\n";
+        varbuffer += "dd function_" + para1 + "\n";
+    }
     
     returnLayer++;
     vector<string> paraOrder;
@@ -843,7 +888,8 @@ void doElse()
     Syntax++;
 }
 
-bool replace(string& str, const string& from, const string& to) {
+bool replace(string& str, const string& from, const string& to)
+{
     size_t start_pos = str.find(from);
     if(start_pos == string::npos)
         return false;
@@ -866,18 +912,26 @@ void doInclude(int &i)
 
 void makeNewType(int &index)
 {
-    string typeName;
-    index = getWord(' ', typeName, parameters, index);
+    string name;
+    int offset = getWord('(', name, parameters, index);
+    varbuffer += "\n" + name + ":\n";
+    makeFunc(index);
     Token type;
-    type.makeType(typeName);
+    type = Tokens.at(getIndex(name));
+    Tokens.erase(Tokens.begin()+getIndex(name));
+    type.makeType(name);
     type.makePublic();
-    varbuffer += "\n" + typeName + ":\n";
     isType = true;
+    Tokens.push_back(type);
 }
 
 void makeNew(int &index)
 {
-  //
+    string type;
+    string name;
+    index = getWord(' ', type, parameters, index);
+    index = getWord(' ', name, parameters, index);
+
 }
 
 void doInterruption(int &index)
@@ -1018,6 +1072,8 @@ void returnValue(int &index)
     ifReturnValue = true;
     int func = getIndex(FunctionNames.back());
     Tokens.at(func).makeReturnable();
+    varbuffer += "endOfLayerVariables_" + to_string(funcID) + ":\n\n";
+    funcID++;
 }
 
 void While(int &index)
