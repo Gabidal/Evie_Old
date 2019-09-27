@@ -16,11 +16,11 @@ type vector(a)
   var c : 2
   if a == b
   (
-    c : 0 = &apple(b)
+    c : 0 = &apple()
   )
   else
   (
-    c : 0 = &banana(a)
+    c : 0 = &banana()
   )
 )
 
