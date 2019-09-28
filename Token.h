@@ -94,6 +94,12 @@ class Token
 
     string getFullName()
     {
+        if (ifType == false && PlaceInStack > 0)
+        {
+            string result;
+            result = typeName + " + " + to_string(PlaceInStack);
+            return result;
+        }
         if (ifGlobal)
         {
             return Name;
@@ -115,6 +121,7 @@ class Token
     {
         PlaceInStack++;
         t.PlaceInStack = PlaceInStack * 4;
+        t.typeName = Name;
         Links.push_back(t);
     }
 
@@ -192,6 +199,7 @@ class Token
     bool ifHasReg = false;
     bool ifChild = false;
     bool ifReturner = false;
+    string typeName = "";
     string owner = "";
     string FunctionLabelName = " ";
     string Name;

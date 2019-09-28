@@ -363,6 +363,13 @@ void makeInitialDestiantion(int &index, string dest)
         int destIndex2 = getIndex(dest);
         codbuffer += sx() + "push dword [" + Tokens.at(destIndex2).getFullName() + "]\n";
     }
+    else if (Tokens.at(destIndex).PlaceInStack > 0 && Tokens.at(destIndex).ifType == false)
+    {
+        string initialName = Tokens.at(destIndex).typeName;
+        string reg = getFreeMemReg();
+        codbuffer += sx() + "lea " + reg + ", " + initialName + "[" + to_string(Tokens.at(destIndex).PlaceInStack) + "]\n";
+        codbuffer += sx() + "push " + reg ;
+    }
     else if (Tokens.at(destIndex).ifVar)
     {
         codbuffer += sx() + "push " + Tokens.at(destIndex).getFullName() + "\n";
@@ -472,6 +479,16 @@ void doMath(int &index, string a, string math, string destination)
     string b;
     index = getWord(' ', b, parameters, index);
     //a +/*- b
+    if (a == "->")
+    {
+        a = "";
+        index = getWord(' ', a, parameters, index);
+    }
+    if (b == "->")
+    {
+        b = "";
+        index = getWord(' ', b, parameters, index);
+    }
     int aI = getIndex(a);
     int bI = getIndex(b);
     string opCode;
@@ -601,6 +618,13 @@ void useVar(int &index, string destination)
             index -= recruit;
         }
     }
+
+    if (bPart == "->")
+    {
+        bPart = "";
+        index = getWord(' ', bPart, parameters, index);
+    }
+
     int bIndex = getIndex(bPart);
     string math;
     int offset = getWord(' ', math, parameters, index);
@@ -1146,6 +1170,13 @@ void While(int &index)
     WhileID++;
 }
 
+void getThis(int &index)
+{
+    string name;
+    index = getWord(' ', name, parameters, index);
+    useVar(index, name);
+}
+
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
 {
     codbuffer = "";
@@ -1237,6 +1268,10 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (destination == "str")
     {
         makeNewString(continu);
+    }
+    else if (destination == "->")
+    {
+        getThis(continu);
     }
     else if (Tokens.at(dest).ifString)
     {

@@ -147,13 +147,42 @@ type_vector:
 
  ;Set the value to local var
  mov dword [vector.b], 1
+ ;Set the value to local var
+ mov dword [vector.a], 2
 function_c:
   ;making a function stack frame
   push ebp
   mov ebp, esp
 
-  ;Set the value to local var
-  mov dword [c.d], 0
+  sub esp, 4
+  
+  ;d is now an Variable.
+  mov eax , [ebp+8]
+  mov [c.d], eax 
+
+  ;The inital destination
+  lea esi , vector[4]
+  push esi   
+  ;Math do: *
+  mov ebx , dword [vector + 8]
+  imul eax , ebx 
+
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], eax 
+
+
+  ;The inital destination
+  push c.d
+  
+  ;Math do: +
+  mov ecx , dword [vector + 4]
+  add ecx , ecx 
+
+  ;Get the destination to: esi 
+  pop esi 
+  mov [esi ], ecx 
+
   ;returning from stack frame
   mov esp, ebp
   pop ebp
@@ -202,6 +231,7 @@ endVariables_banana:
 
 vector:
 vector.b dd 0
+vector.a dd 0
 
 startVariables_c:
 c.d dd 0

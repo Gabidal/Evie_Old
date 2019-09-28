@@ -12,9 +12,11 @@ func banana(a)
 type vector()
 (
   var b = 1
-  func c()
+  var a = 2
+  func c(d)
   (
-    var d = 0
+    -> b = d * -> a
+    d = -> b + -> b
     return d
   )
 )
