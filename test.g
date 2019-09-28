@@ -1,4 +1,3 @@
-use util.g
 
 func apple(b)
 (
@@ -10,22 +9,19 @@ func banana(a)
   return a
 )
 
-type vector(a)
+type vector()
 (
   var b = 1
-  var c : 2
-  if a == b
+  func c()
   (
-    c : 0 = &apple()
-  )
-  else
-  (
-    c : 0 = &banana()
+    var d = 0
+    return d
   )
 )
 
 func main()
 (
   var a = 1
-  new vector(a) foo
+  new static vector foo
+  foo.c()
 )

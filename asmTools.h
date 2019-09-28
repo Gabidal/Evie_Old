@@ -88,6 +88,20 @@ void initialize(vector <Token> &Tokens, string &buffer)
     toChar.makeReturnable();
     Tokens.push_back(toChar);
 
+    Token chari;
+    chari.makeVar();
+    chari.makeName("char.i");
+    chari.makePrivate("char");
+    varbuffer1 += "char.i dd 0\n";
+    Tokens.push_back(chari);
+
+    Token chars;
+    chars.makeString();
+    chars.makeName("char.s");
+    chars.makePrivate("char");
+    varbuffer1 += "char.s dd 0\n";
+    Tokens.push_back(chars);
+
     buffer += 
     "function_num:\n"
     "  pop edx\n"
@@ -137,6 +151,13 @@ void initialize(vector <Token> &Tokens, string &buffer)
     Reverse.makePublic();
     Reverse.ParameterAmount = 1;
     Tokens.push_back(Reverse);
+
+    Token reverses;
+    reverses.makeString();
+    reverses.makeName("reverse.s");
+    reverses.makePrivate("reverse");
+    varbuffer1 += "reverse.s dd 0\n";
+    Tokens.push_back(reverses);
 
 }
 

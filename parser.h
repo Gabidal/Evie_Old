@@ -31,6 +31,7 @@ bool skippedRet = false;
 vector<string> whiles;
 int WhileID = 0;
 vector<string> whileParams;
+vector<string> TypeNames;
 
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
@@ -208,7 +209,11 @@ void makeVar(int &index)
         }
         
     }
-    
+    if (TypeNames.size() > 0)
+    {
+        int type = getIndex(TypeNames.back());
+        Tokens.at(type).addChild(Variable);
+    }
     Tokens.push_back(Variable);
 }
 
@@ -441,10 +446,19 @@ void doReturn()
     else if (framesAmount < 3 && isType || framesAmount == 1 && secondphase == false && waselse == false && wasif == false)
     {
         codbuffer += sx() +  "ret\n\n";
-        FunctionNames.pop_back();
         Syntax = 0;
-        varbuffer += "endOfLayerVariables_" + to_string(funcID) + ":\n\n";
+        if (isType && framesAmount == 1)
+        {
+            varbuffer += TypeNames.back() + "_end:\n";
+            TypeNames.pop_back();
+            isType = false;
+        }
+        else
+        {
+            varbuffer += "endVariables_" + FunctionNames.back() + ":\n\n";
+        }
         funcID++;
+        FunctionNames.pop_back();
     }
     else
     {
@@ -664,8 +678,16 @@ void makeFunc(int &index)
 {
     string para1;
     index = getWord('(', para1, parameters, index);
-    codbuffer += "function_" + para1 + ":\n";
-    varbuffer += "\nstartOfLayerVariables_" + to_string(funcID) + ":\n";
+    if (TypeNames.size() > 0 && TypeNames.back() == para1)
+    {
+        codbuffer += "type_" + para1 + ":\n";
+    }
+    else
+    {
+        codbuffer += "function_" + para1 + ":\n";
+        varbuffer += "\nstartVariables_" + para1 + ":\n";
+    }
+    
     Syntax++;
     Token func;
     func.makeFunc(para1);
@@ -915,6 +937,7 @@ void makeNewType(int &index)
     string name;
     int offset = getWord('(', name, parameters, index);
     varbuffer += "\n" + name + ":\n";
+    TypeNames.push_back(name);
     makeFunc(index);
     Token type;
     type = Tokens.at(getIndex(name));
@@ -929,9 +952,28 @@ void makeNew(int &index)
 {
     string type;
     string name;
+    string ifStatic;
+    bool isStatic = false;
+    int offset = getWord(' ', ifStatic, parameters, index);
+    if (ifStatic == "static")
+    {
+        index = offset;
+        isStatic = true;
+    }
     index = getWord(' ', type, parameters, index);
     index = getWord(' ', name, parameters, index);
+    Token newType = Tokens.at(getIndex(type));
+    if (isStatic)
+    {
+        //if making an new static class.
 
+    }
+    else
+    {
+        //dynamic malloc class.
+        
+    }
+    
 }
 
 void doInterruption(int &index)
@@ -1072,7 +1114,7 @@ void returnValue(int &index)
     ifReturnValue = true;
     int func = getIndex(FunctionNames.back());
     Tokens.at(func).makeReturnable();
-    varbuffer += "endOfLayerVariables_" + to_string(funcID) + ":\n\n";
+    varbuffer += "endVariables_" + FunctionNames.back() + ":\n\n";
     funcID++;
 }
 

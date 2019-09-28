@@ -111,6 +111,13 @@ class Token
         ParameterAmount++;
     }
 
+    void addChild(Token &t)
+    {
+        PlaceInStack++;
+        t.PlaceInStack = PlaceInStack * 4;
+        Links.push_back(t);
+    }
+
     string getNextReg()
     {
         if (usedregister == 3)

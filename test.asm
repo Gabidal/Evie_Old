@@ -140,63 +140,29 @@ function_banana:
  push dword [banana.a]
 jmp eax
 
-function_vector:
+type_vector:
  ;making a function stack frame
  push ebp
  mov ebp, esp
 
- sub esp, 4
- 
- ;a is now an Variable.
- mov ecx , [ebp+8]
- mov [vector.a], ecx 
  ;Set the value to local var
  mov dword [vector.b], 1
- cmp ecx , dword [vector.b]
- jne else11
-
-  ;making a stack frame start
+function_c:
+  ;making a function stack frame
   push ebp
   mov ebp, esp
 
-
-  ;The inital destination
-  lea esi , vector.c[0 * 4]
-  push esi 
-  
-  lea eax , [function_apple]
-
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], eax 
-
-
-  ;making a stack frame end
+  ;Set the value to local var
+  mov dword [c.d], 0
+  ;returning from stack frame
   mov esp, ebp
   pop ebp
- jmp end11
- else11:
 
-  ;making a stack frame start
-  push ebp
-  mov ebp, esp
+  ;returning a value from function
+  pop eax
+  push dword [c.d]
+ jmp eax
 
-
-  ;The inital destination
-  lea esi , vector.c[0 * 4]
-  push esi 
-  
-  lea ebx , [function_banana]
-
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], ebx 
-
-
-  ;making a stack frame end
-  mov esp, ebp
-  pop ebp
- end11:
 
  ;making a stack frame end
  mov esp, ebp
@@ -221,33 +187,31 @@ ret
 section .data
 
 char.i dd 0
-char.s times 20 db 1
- dd 0
-reverse.s times 512 db 1
- dd 0
+char.s dd 0
+reverse.s dd 0
 
-startOfLayerVariables_0:
+startVariables_apple:
 apple.b dd 0
-endOfLayerVariables_0:
+endVariables_apple:
 
 
-startOfLayerVariables_1:
+startVariables_banana:
 banana.a dd 0
-endOfLayerVariables_1:
+endVariables_banana:
 
 
 vector:
-
-startOfLayerVariables_2:
-vector.a dd 0
 vector.b dd 0
-vector.c times 2 dd 0
-endOfLayerVariables_2:
 
+startVariables_c:
+c.d dd 0
+endVariables_c:
 
-startOfLayerVariables_3:
+vector_end:
+
+startVariables_main:
 main.a dd 0
-endOfLayerVariables_3:
+endVariables_main:
 
 
 

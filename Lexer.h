@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 #include <cstring>
-#include "parser.h"
-#include "asmTools.h"
 using namespace std;
 vector<string> keyWords;
 string includes1 = "";
@@ -15,6 +13,8 @@ string codbuffer1;
 string varbuffer1 = "\n\nsection .data\n\n";
 string texbuffer1 = "\n\nsection .text\n\n";
 string bssbuffer1 = "\n\nsection .bss\n\n";
+#include "parser.h"
+#include "asmTools.h"
 vector <clock_t> parsed;
 
 void initializeKeyWords()
