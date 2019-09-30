@@ -10,6 +10,8 @@ extern string getFreeMemReg();
 extern void getFreeReg();
 extern string regbuffer;
 extern string codbuffer;
+class Token;
+extern vector<Token> Tokens;
 
 class Token
 {
@@ -97,7 +99,7 @@ class Token
 
     string getFullName()
     {
-        if (ifType == false && PlaceInStack > 0)
+        if (ifType == false && ifInStack)
         {
             string result;
             result = typeName + " + " + to_string(PlaceInStack);
@@ -122,8 +124,9 @@ class Token
 
     void addChild(Token &t)
     {
-        PlaceInStack++;
         t.PlaceInStack = PlaceInStack * 4;
+        PlaceInStack++;
+        t.ifInStack = true;
         t.typeName = Name;
         Links.push_back(t);
     }
@@ -178,6 +181,7 @@ class Token
     bool ifHasReg = false;
     bool ifChild = false;
     bool ifReturner = false;
+    bool ifInStack = false;
     string typeName = "";
     string owner = "";
     string FunctionLabelName = " ";

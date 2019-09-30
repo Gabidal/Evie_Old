@@ -123,10 +123,10 @@ function_c:
   mov [c.this], ecx 
 
   ;The inital destination
-  lea esi , vector[8]
+  lea esi , vector[4]
   push esi   
   ;Math do: +
-  mov edx , dword [vector + 8]
+  mov edx , dword [vector + 4]
   add edx , edx 
 
   ;Get the destination to: edi 
@@ -135,15 +135,15 @@ function_c:
 
 
   ;The inital destination
-  lea esi , vector[4]
-  push esi   
+  push vector + 0
+  
   ;Math do: *
-  mov eax , dword [vector + 4]
+  mov eax , dword [vector + 0]
   imul eax , edx 
 
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], eax 
+  ;Get the destination to: esi 
+  pop esi 
+  mov [esi ], eax 
 
   ;returning from stack frame
   mov esp, ebp
@@ -151,7 +151,7 @@ function_c:
 
   ;returning a value from function
   pop eax
-  push dword [vector + 8]
+  push dword [vector + 4]
  jmp eax
 
 
@@ -164,6 +164,7 @@ function_main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
+
 
  ;making a stack frame end
  mov esp, ebp
