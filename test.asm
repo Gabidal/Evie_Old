@@ -111,39 +111,41 @@ type_vector:
  mov dword [vector.b], 1
  ;Set the value to local var
  mov dword [vector.a], 2
-function_c:
+ function_c:
   ;making a function stack frame
   push ebp
   mov ebp, esp
 
   sub esp, 4
   
-  ;this is now an Variable.
-  mov ecx , [ebp+8]
-  mov [c.this], ecx 
+  ;this is CLASS address.
+  mov esi , [ebp + 8]
 
   ;The inital destination
-  lea esi , vector[4]
-  push esi   
-  ;Math do: +
-  mov edx , dword [vector + 4]
-  add edx , edx 
-
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], edx 
-
-
-  ;The inital destination
-  push vector + 0
+  lea edi , [esi + 4]
+  push edi 
   
-  ;Math do: *
-  mov eax , dword [vector + 0]
-  imul eax , edx 
+  ;Math do: +
+  mov edx , dword [esi + 4]
+  add edx , edx 
 
   ;Get the destination to: esi 
   pop esi 
-  mov [esi ], eax 
+  mov [esi ], edx 
+
+
+  ;The inital destination
+  mov esi , [ebp + 8]
+  lea edi , [esi + 0]
+  push edi 
+  
+  ;Math do: *
+  mov eax , dword [esi + 0]
+  imul eax , edx 
+
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], eax 
 
   ;returning from stack frame
   mov esp, ebp
@@ -151,7 +153,7 @@ function_c:
 
   ;returning a value from function
   pop eax
-  push dword [vector + 4]
+  push dword [esi + 4]
  jmp eax
 
 
@@ -184,7 +186,6 @@ vector.b dd 0
 vector.a dd 0
 
 startVariables_c:
-c.this dd 0
 endVariables_c:
 
 vector_end:

@@ -101,7 +101,11 @@ void disconnectReg(string reg)
     {
         if (Tokens.at(i).Reg == reg)
         {
-            Tokens.at(i).Reg.erase();
+            Tokens.at(i).Reg = "";
+        }
+        if (Tokens.at(i).This == reg)
+        {
+            Tokens.at(i).This = "";
         }
     }
 }
@@ -139,14 +143,14 @@ string getFreeMemReg()
     if (freeMemReg == 0)
     {
         freeMemReg++;
-        return "esi ";
         disconnectReg("esi ");
+        return "esi ";
     }
     else
     {
         freeMemReg--;
-        return "edi ";
         disconnectReg("edi ");
+        return "edi ";
     }
 }
 
@@ -183,7 +187,7 @@ void makeVar(int &index)
     }
     else
     {
-        //if it is public.
+        //if it is private.
         Variable.makePrivate(FunctionNames.back());
         Variable.owner = FunctionNames.back();
     }
@@ -363,12 +367,11 @@ void makeInitialDestiantion(int &index, string dest)
         int destIndex2 = getIndex(dest);
         codbuffer += sx() + "push dword [" + Tokens.at(destIndex2).getFullName() + "]\n";
     }
-    else if (Tokens.at(destIndex).PlaceInStack > 0 && Tokens.at(destIndex).ifType == false)
+    else if (Tokens.at(destIndex).ifInStack && Tokens.at(destIndex).ifType == false)
     {
-        string initialName = Tokens.at(destIndex).typeName;
         string reg = getFreeMemReg();
-        codbuffer += sx() + "lea " + reg + ", " + initialName + "[" + to_string(Tokens.at(destIndex).PlaceInStack) + "]\n";
-        codbuffer += sx() + "push " + reg ;
+        codbuffer += sx() + "lea " + reg + ", [" + Tokens.at(destIndex).getFullName() + "]\n";
+        codbuffer += sx() + "push " + reg + "\n";
     }
     else if (Tokens.at(destIndex).ifVar)
     {
@@ -708,7 +711,7 @@ void makeFunc(int &index)
     }
     else
     {
-        codbuffer += "function_" + para1 + ":\n";
+        codbuffer += sx() + "function_" + para1 + ":\n";
         varbuffer += "\nstartVariables_" + para1 + ":\n";
     }
     
@@ -717,11 +720,6 @@ void makeFunc(int &index)
     func.makeFunc(para1);
     func.makePublic();
 
-    if (framesAmount > 1)
-    {
-        varbuffer += "ptr_function_" + para1 + ":\n";
-        varbuffer += "dd function_" + para1 + "\n";
-    }
     
     returnLayer++;
     vector<string> paraOrder;
@@ -792,7 +790,6 @@ void makeFunc(int &index)
     }
     hasFunctionStackFrame = true;
     FunctionNames.push_back(para1);
-    Tokens.push_back(func);
 
     for (int i = 0; i < func.ParameterAmount; i++)
     {
@@ -804,13 +801,21 @@ void makeFunc(int &index)
             para3.erase(para3.begin());
         }
 
+
         Token child;
         child.makeName(para3);
         child.ifChild = true;
         child.owner = para1;
         child.Reg = reg2;
         codbuffer += sx() + "\n";
-        if (func.Links.at(i).ifPointer)
+        if (para3 == "this")
+        {
+            codbuffer += sx() + ";" + para3 + " is CLASS address.\n";
+            string addreg = getFreeMemReg();
+            func.This = addreg;
+            codbuffer += sx() + "mov " + addreg + ", [ebp + 8]\n";
+        }
+        else if (func.Links.at(i).ifPointer)
         {
             string memreg = getFreeMemReg();
             codbuffer += sx() + ";" + para3 + " is now an Pointer.\n";
@@ -821,17 +826,25 @@ void makeFunc(int &index)
         else
         {
             codbuffer += sx() + ";" + para3 + " is now an Variable.\n";
-            codbuffer += sx() + "mov " + reg2 + ", [ebp+" + to_string(4 * i + 8) + "]\n";
+            codbuffer += sx() + "mov " + reg2 + ", [ebp +" + to_string(4 * i + 8) + "]\n";
             child.makeVar();
         }
+        if (para3 == "this")
+        {
 
-        varbuffer += para1 + "." + para3 + " dd 0\n";
+        }
+        else
+        {
+            varbuffer += para1 + "." + para3 + " dd 0\n";
 
-        child.makePrivate(para1);
-        codbuffer += sx() + "mov [" + child.getFullName() + "], " + reg2 + "\n";
-        Tokens.push_back(child);
+            child.makePrivate(para1);
+            codbuffer += sx() + "mov [" + child.getFullName() + "], " + reg2 + "\n";
+            Tokens.push_back(child);
+        }
     }
     paraAmount = to_string(func.ParameterAmount * 4);
+
+    Tokens.push_back(func);
 }
 
 string getJump(string condition)

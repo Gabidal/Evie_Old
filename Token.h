@@ -12,6 +12,8 @@ extern string regbuffer;
 extern string codbuffer;
 class Token;
 extern vector<Token> Tokens;
+extern vector<string> FunctionNames;
+extern int getIndex(string name);
 
 class Token
 {
@@ -101,8 +103,17 @@ class Token
     {
         if (ifType == false && ifInStack)
         {
+            if (Tokens.at(getIndex(FunctionNames.back())).This == "")
+            {
+                //if the class address is deleted in midle of function.
+                string reg = getFreeMemReg();
+                codbuffer += sx() + "mov " + reg + ", [ebp + 8]\n";
+                Tokens.at(getIndex(FunctionNames.back())).This = reg;
+            }
             string result;
-            result = typeName + " + " + to_string(PlaceInStack);
+            string funcThisReg = Tokens.at(getIndex(FunctionNames.back())).This;
+            This = funcThisReg;
+            result = This + "+ " + to_string(PlaceInStack);
             return result;
         }
         if (ifGlobal)
@@ -128,6 +139,7 @@ class Token
         PlaceInStack++;
         t.ifInStack = true;
         t.typeName = Name;
+        t.This = this->This;
         Links.push_back(t);
     }
 
@@ -189,6 +201,7 @@ class Token
     string Size;
     string Reg;
     string Value;
+    string This;
     int PlaceInStack = 0;
     int ParameterAmount = 0;
     vector <Token> Links;
