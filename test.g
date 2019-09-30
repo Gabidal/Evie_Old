@@ -13,5 +13,10 @@ type vector()
 
 func main()
 (
-  
+  var a = 0
+  var b = 10
+  while (a : b)
+  (
+    new vector banana
+  )
 )

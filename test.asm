@@ -167,10 +167,31 @@ function_main:
  push ebp
  mov ebp, esp
 
+ ;Set the value to local var
+ mov dword [main.a], 0
+ ;Set the value to local var
+ mov dword [main.b], 10
+ While_0:
+
+ ;making a stack frame start
+ push ebp
+ mov ebp, esp
+
 
  ;making a stack frame end
  mov esp, ebp
  pop ebp
+
+;cheking the while.
+add dword [main.a], 1
+mov edx , dword [main.a]
+cmp edx , dword [main.b]
+jl While_0
+
+
+;making a stack frame end
+mov esp, ebp
+pop ebp
 ret
 
 
@@ -180,6 +201,9 @@ section .data
 char.i dd 0
 char.s dd 0
 reverse.s dd 0
+
+;this is where the new dynamically allocated Type address goes.
+ReturnClassAddress dd 0
 
 vector:
 vector.b dd 0
@@ -191,6 +215,8 @@ endVariables_c:
 vector_end:
 
 startVariables_main:
+main.a dd 0
+main.b dd 0
 endVariables_main:
 
 

@@ -72,7 +72,7 @@ int getIndex(string name)
             {
                 secondPriority = i;
             }
-            else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " " && (Tokens.at(i).owner == FunctionNames.back() || Tokens.at(getIndex(Tokens.at(i).owner)).ifType))
+            else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " " && (Tokens.at(i).owner == FunctionNames.back() || (Tokens.at(getIndex(Tokens.at(i).owner)).ifType && isType)))
             {
                 return i;
             }
@@ -1003,11 +1003,13 @@ void makeNew(int &index)
     if (isStatic)
     {
         //if making an new static class.
-
+        //aka. total copy of the original class.
+        
     }
     else
     {
         //dynamic malloc class.
+        //in runtime made class.
         
     }
     

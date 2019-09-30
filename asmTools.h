@@ -159,6 +159,14 @@ void initialize(vector <Token> &Tokens, string &buffer)
     varbuffer1 += "reverse.s dd 0\n";
     Tokens.push_back(reverses);
 
+    Token ReturnClassAddress;
+    ReturnClassAddress.makeName("ReturnClassAddress");
+    ReturnClassAddress.makeVar();
+    ReturnClassAddress.makePublic();
+    varbuffer1 += "\n;this is where the new dynamically allocated Type address goes.\n";
+    varbuffer1 += "ReturnClassAddress dd 0\n";
+    Tokens.push_back(ReturnClassAddress);
+
 }
 
 
