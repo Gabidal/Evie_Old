@@ -102,44 +102,6 @@ int 80h
 
 GASCode:
 
-function_apple:
- ;making a function stack frame
- push ebp
- mov ebp, esp
-
- sub esp, 4
- 
- ;b is now an Variable.
- mov eax , [ebp+8]
- mov [apple.b], eax 
- ;returning from stack frame
- mov esp, ebp
- pop ebp
-
- ;returning a value from function
- pop eax
- push dword [apple.b]
-jmp eax
-
-function_banana:
- ;making a function stack frame
- push ebp
- mov ebp, esp
-
- sub esp, 4
- 
- ;a is now an Variable.
- mov ebx , [ebp+8]
- mov [banana.a], ebx 
- ;returning from stack frame
- mov esp, ebp
- pop ebp
-
- ;returning a value from function
- pop eax
- push dword [banana.a]
-jmp eax
-
 type_vector:
  ;making a function stack frame
  push ebp
@@ -156,32 +118,32 @@ function_c:
 
   sub esp, 4
   
-  ;d is now an Variable.
-  mov eax , [ebp+8]
-  mov [c.d], eax 
+  ;this is now an Variable.
+  mov ecx , [ebp+8]
+  mov [c.this], ecx 
+
+  ;The inital destination
+  lea esi , vector[8]
+  push esi   
+  ;Math do: +
+  mov edx , dword [vector + 8]
+  add edx , edx 
+
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], edx 
+
 
   ;The inital destination
   lea esi , vector[4]
   push esi   
   ;Math do: *
-  mov ebx , dword [vector + 8]
-  imul eax , ebx 
+  mov eax , dword [vector + 4]
+  imul eax , edx 
 
   ;Get the destination to: edi 
   pop edi 
   mov [edi ], eax 
-
-
-  ;The inital destination
-  push c.d
-  
-  ;Math do: +
-  mov ecx , dword [vector + 4]
-  add ecx , ecx 
-
-  ;Get the destination to: esi 
-  pop esi 
-  mov [esi ], ecx 
 
   ;returning from stack frame
   mov esp, ebp
@@ -189,7 +151,7 @@ function_c:
 
   ;returning a value from function
   pop eax
-  push dword [c.d]
+  push dword [vector + 8]
  jmp eax
 
 
@@ -202,9 +164,6 @@ function_main:
  ;making a function stack frame
  push ebp
  mov ebp, esp
-
- ;Set the value to local var
- mov dword [main.a], 1
 
  ;making a stack frame end
  mov esp, ebp
@@ -219,28 +178,17 @@ char.i dd 0
 char.s dd 0
 reverse.s dd 0
 
-startVariables_apple:
-apple.b dd 0
-endVariables_apple:
-
-
-startVariables_banana:
-banana.a dd 0
-endVariables_banana:
-
-
 vector:
 vector.b dd 0
 vector.a dd 0
 
 startVariables_c:
-c.d dd 0
+c.this dd 0
 endVariables_c:
 
 vector_end:
 
 startVariables_main:
-main.a dd 0
 endVariables_main:
 
 

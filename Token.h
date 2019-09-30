@@ -7,6 +7,9 @@ using namespace std;
 extern int usedregister;
 extern string sx();
 extern string getFreeMemReg();
+extern void getFreeReg();
+extern string regbuffer;
+extern string codbuffer;
 
 class Token
 {
@@ -125,47 +128,23 @@ class Token
         Links.push_back(t);
     }
 
-    string getNextReg()
-    {
-        if (usedregister == 3)
-        {
-            usedregister = 0;
-            return "edx ";
-        }
-        else if (usedregister == 2)
-        {
-            usedregister = 3;
-            return "ecx ";
-        }
-        else if (usedregister == 1)
-        {
-            usedregister = 2;
-            return "ebx ";
-        }
-        else if (usedregister == 0)
-        {
-            usedregister = 1;
-            return "eax ";
-        }
-        return "eax ";
-    }
-
-    string getReg(string &buffer)
+    string getReg()
     {
         if (Reg == "")
         {
-            Reg = getNextReg();
+            getFreeReg();
+            Reg = regbuffer;
             if (ifFunction)
             {
-                buffer += sx() + "pop " + Reg + "\n";
+                codbuffer += sx() + "pop " + Reg + "\n";
             }
             else if (ifVar)
             {
-                buffer += sx() + "mov " + Reg + ", dword [" + getFullName() + "]\n";
+                codbuffer += sx() + "mov " + Reg + ", dword [" + getFullName() + "]\n";
             }
             else if (ifArray)
             {
-                buffer += sx() + "lea " + Reg + ", [" + getFullName() + "]\n";
+                codbuffer += sx() + "lea " + Reg + ", [" + getFullName() + "]\n";
             }
             
             return Reg;
@@ -174,7 +153,7 @@ class Token
         {
             if (ifReturner)
             {
-                buffer += sx() + "pop " + Reg + "\n";
+                codbuffer += sx() + "pop " + Reg + "\n";
             }
             return Reg;
         }

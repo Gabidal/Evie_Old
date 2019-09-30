@@ -1,29 +1,17 @@
 
-func apple(b)
-(
-  return b
-)
-
-func banana(a)
-(
-  return a
-)
-
 type vector()
 (
   var b = 1
   var a = 2
-  func c(d)
+  func c(this)
   (
-    -> b = d * -> a
-    d = -> b + -> b
-    return d
+    -> a = -> a + -> a
+    -> b = -> b * -> a
+    return -> a
   )
 )
 
 func main()
 (
-  var a = 1
-  new static vector foo
-  foo.c()
+  
 )

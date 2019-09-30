@@ -446,7 +446,7 @@ void doReturn()
         whileParams.pop_back();
         codbuffer += "\n" + sx() + ";cheking the while.\n";
         codbuffer += sx() + "add dword [" + Tokens.at(getIndex(a)).getFullName() + "], 1\n";
-        codbuffer += sx() + "cmp " + Tokens.at(getIndex(a)).getReg(codbuffer) + ", dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
+        codbuffer += sx() + "cmp " + Tokens.at(getIndex(a)).getReg() + ", dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
         codbuffer += sx() + "jl " + whiles.back() + "\n\n";
         whiles.pop_back();
     }
@@ -518,7 +518,7 @@ void doMath(int &index, string a, string math, string destination)
     }
     if (opCode != "idiv ")
     {
-        codbuffer += sx() + opCode + Tokens.at(aI).getReg(codbuffer) + ", " + Tokens.at(bI).getReg(codbuffer) + "\n";
+        codbuffer += sx() + opCode + Tokens.at(aI).getReg() + ", " + Tokens.at(bI).getReg() + "\n";
     }
     else if (math == "%")
     {
@@ -690,11 +690,11 @@ void useVar(int &index, string destination)
         }
         else if (bPart == destination)
         {
-            getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer), true);
+            getInitalDestination(index, Tokens.at(bIndex).getReg(), true);
         }
         else
         {
-            getInitalDestination(index, Tokens.at(bIndex).getReg(codbuffer), false);
+            getInitalDestination(index, Tokens.at(bIndex).getReg(), false);
         }
 }
 
@@ -893,7 +893,7 @@ void doComparing(int &i)
     }
     else
     {
-        acomp = Tokens.at(aI).getReg(codbuffer);
+        acomp = Tokens.at(aI).getReg();
     }
     
     i = getWord(' ', condition, parameters, i);
@@ -1127,6 +1127,11 @@ void returnValue(int &index)
 {
     string dest;
     index = getWord(' ', dest, parameters, index);
+    if (dest == "->")
+    {
+        dest = "";
+        index = getWord(' ', dest, parameters, index);
+    }
     int destIndex = getIndex(dest);
     codbuffer += sx() + ";returning from stack frame\n";
     codbuffer += sx() + "mov esp, ebp\n" + sx() + "pop ebp\n\n";
