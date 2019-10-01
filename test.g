@@ -18,5 +18,6 @@ func main()
   while (a : b)
   (
     new vector banana
+    #this makes pointer variable named banana that points to the new class vector.
   )
 )

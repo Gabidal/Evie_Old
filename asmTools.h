@@ -38,7 +38,7 @@ void initialize(vector <Token> &Tokens, string &buffer)
     "  push dword -1\n"
     "  push dword 0x22\n" //0x22 == heap
     "  push dword 0x03\n"
-    "  push dword [esp+20]\n"
+    "  push dword [esp+20]\n" // size
     "  push dword 0\n"
     "  mov eax, 0x5a\n"
     "  mov ebx, esp\n"
@@ -96,7 +96,7 @@ void initialize(vector <Token> &Tokens, string &buffer)
     Tokens.push_back(chari);
 
     Token chars;
-    chars.makeString();
+    chars.makeString(4);
     chars.makeName("char.s");
     chars.makePrivate("char");
     varbuffer1 += "char.s dd 0\n";
@@ -153,20 +153,11 @@ void initialize(vector <Token> &Tokens, string &buffer)
     Tokens.push_back(Reverse);
 
     Token reverses;
-    reverses.makeString();
+    reverses.makeString(4);
     reverses.makeName("reverse.s");
     reverses.makePrivate("reverse");
     varbuffer1 += "reverse.s dd 0\n";
     Tokens.push_back(reverses);
-
-    Token ReturnClassAddress;
-    ReturnClassAddress.makeName("ReturnClassAddress");
-    ReturnClassAddress.makeVar();
-    ReturnClassAddress.makePublic();
-    varbuffer1 += "\n;this is where the new dynamically allocated Type address goes.\n";
-    varbuffer1 += "ReturnClassAddress dd 0\n";
-    Tokens.push_back(ReturnClassAddress);
-
 }
 
 

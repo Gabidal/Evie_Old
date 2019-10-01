@@ -177,6 +177,15 @@ function_main:
  push ebp
  mov ebp, esp
 
+ ;Give malloc Type size.
+ push 8
+ ;Call malloc.
+ call function_malloc
+ ;Save new Type address.
+ pop dword [main.banana]
+
+
+ ;usr:: this makes pointer variable named banana that points to the new class vector.
 
  ;making a stack frame end
  mov esp, ebp
@@ -202,9 +211,6 @@ char.i dd 0
 char.s dd 0
 reverse.s dd 0
 
-;this is where the new dynamically allocated Type address goes.
-ReturnClassAddress dd 0
-
 vector:
 vector.b dd 0
 vector.a dd 0
@@ -217,6 +223,7 @@ vector_end:
 startVariables_main:
 main.a dd 0
 main.b dd 0
+main.banana dd 0
 endVariables_main:
 
 

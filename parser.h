@@ -194,7 +194,7 @@ void makeVar(int &index)
 
     if (setting == ":")
     {
-        Variable.makeArray(value);
+        Variable.makeArray(stoi(value));
         varbuffer += Variable.getFullName() + " times " + value + " dd 0\n";
     }
     else
@@ -1004,13 +1004,33 @@ void makeNew(int &index)
     {
         //if making an new static class.
         //aka. total copy of the original class.
-        
     }
     else
     {
         //dynamic malloc class.
         //in runtime made class.
-        
+        Token ptr;
+        ptr.makeName(name);
+        if (FunctionNames.size() > 0 && FunctionNames.back() == " ")
+        {
+            //it is public.
+            ptr.makePublic();
+        }
+        else
+        {
+            //it is private.
+            ptr.makePrivate(FunctionNames.back());
+        }
+        ptr.makePtr();
+        varbuffer += ptr.getFullName() + " dd 0\n";
+        //get the template class size.
+        codbuffer += sx() + ";Give malloc Type size.\n";
+        codbuffer += sx() + "push " + to_string(Tokens.at(getIndex(type)).Size) + "\n";
+        codbuffer += sx() + ";Call malloc.\n";
+        codbuffer += sx() + "call function_malloc\n";
+        codbuffer += sx() + ";Save new Type address.\n";
+        codbuffer += sx() + "pop dword [" + ptr.getFullName() + "]\n\n";
+        Tokens.push_back(ptr);
     }
     
 }
@@ -1080,8 +1100,8 @@ void makeNewString(int &index)
     index = getWord(' ', name, parameters, index);
     index = getWord(' ', is, parameters, index);
     Token String;
-    String.makeString();
     String.makeName(name);
+    int Size = 0;
     if (FunctionNames.back() == " ")
     {
         String.makePublic();
@@ -1095,14 +1115,16 @@ void makeNewString(int &index)
         index = getWord('"', str, parameters, index);
         index = getWord('"', str, parameters, index);
         varbuffer += String.getFullName() + " db \"" + str + "\", 0\n";
+        Size = str.size();
     }
     else
     {
         index = getWord(' ', str, parameters, index);
         varbuffer += String.getFullName() + " times " + str + " db 1\n";
         varbuffer += " dd 0\n";
+        Size = str.size();
     }
-    
+    String.makeString(Size);
     Tokens.push_back(String);
 }
 

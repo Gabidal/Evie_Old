@@ -22,12 +22,14 @@ class Token
     {
       ifVar = true;
       ifReal = true;
+      Size = 4;
     }
 
     void makePtr()
     {
         ifPointer = true;
         ifReal = true;
+        Size = 4;
     }
 
     void makeName(string name)
@@ -66,23 +68,25 @@ class Token
         ifReal = true;
     }
 
-    void makeArray(string size)
+    void makeArray(int size)
     {
         Size = size;
         ifArray = true;
         ifReal = true;
     }
 
-    void makeString()
+    void makeString(int size)
     {
         ifString = true;
         ifReal = true;
+        Size = size;
     }
 
     void makeEqu()
     {
         ifEqu = true;
         ifReal = true;
+        Size = 2;
     }
 
     void linkToReg(string reg)
@@ -140,6 +144,7 @@ class Token
         t.ifInStack = true;
         t.typeName = Name;
         t.This = this->This;
+        this->Size += t.Size;
         Links.push_back(t);
     }
 
@@ -198,7 +203,7 @@ class Token
     string owner = "";
     string FunctionLabelName = " ";
     string Name;
-    string Size;
+    int Size = 0;
     string Reg;
     string Value;
     string This;
