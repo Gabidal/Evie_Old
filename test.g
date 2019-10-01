@@ -13,11 +13,6 @@ type vector()
 
 func main()
 (
-  var a = 0
-  var b = 10
-  while (a : b)
-  (
-    new vector banana
-    #this makes pointer variable named banana that points to the new class vector.
-  )
+  new vector banana
+  banana.c()
 )

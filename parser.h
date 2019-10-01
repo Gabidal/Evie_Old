@@ -1219,6 +1219,17 @@ void getThis(int &index)
     useVar(index, name);
 }
 
+void fetchTypeFunction(int &index, string statement)
+{
+    string type;
+    string func;
+    int offset = getWord('.', type, statement, 0);
+    offset = getWord('(', func, statement, offset);
+    codbuffer += "\n" + sx() + ";Giving the function Type address.\n";
+    codbuffer += sx() + "push dword [" + Tokens.at(getIndex(type)).getFullName() + "]\n";
+    prepareFunction(index, func);
+}
+
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
 {
     codbuffer = "";
@@ -1326,6 +1337,10 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     else if (Tokens.at(dest).ifFunction)
     {
         callFunction(destination, continu);
+    }
+    else if (destination.find('.') != -1)
+    {
+        fetchTypeFunction(continu, destination);
     }
 
     file = parameters;

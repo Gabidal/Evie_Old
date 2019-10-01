@@ -167,16 +167,6 @@ function_main:
  push ebp
  mov ebp, esp
 
- ;Set the value to local var
- mov dword [main.a], 0
- ;Set the value to local var
- mov dword [main.b], 10
- While_0:
-
- ;making a stack frame start
- push ebp
- mov ebp, esp
-
  ;Give malloc Type size.
  push 8
  ;Call malloc.
@@ -185,23 +175,12 @@ function_main:
  pop dword [main.banana]
 
 
- ;usr:: this makes pointer variable named banana that points to the new class vector.
-
- ;making a stack frame end
- mov esp, ebp
- pop ebp
-
-;cheking the while.
-add dword [main.a], 1
-mov edx , dword [main.a]
-cmp edx , dword [main.b]
-jl While_0
-
-
-;making a stack frame end
-mov esp, ebp
-pop ebp
-ret
+ ;Giving the function Type address.
+ push dword [main.banana]
+ ;Functions Parameters
+ 
+ ;Call the function
+ call function_c
 
 
 
@@ -221,11 +200,7 @@ endVariables_c:
 vector_end:
 
 startVariables_main:
-main.a dd 0
-main.b dd 0
 main.banana dd 0
-endVariables_main:
-
 
 
 section .bss

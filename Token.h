@@ -41,6 +41,7 @@ class Token
     {
         FunctionLabelName = funcName;
         ifReal = true;
+        owner = funcName;
     }
 
     void makePublic()
