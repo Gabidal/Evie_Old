@@ -14,6 +14,7 @@ class Token;
 extern vector<Token> Tokens;
 extern vector<string> FunctionNames;
 extern int getIndex(string name);
+extern bool isType;
 
 class Token
 {
@@ -149,13 +150,17 @@ class Token
         Links.push_back(t);
     }
 
-    string getReg()
+    string getReg(Token t)
     {
         if (Reg == "")
         {
             getFreeReg();
             Reg = regbuffer;
-            if (ifFunction)
+            if (isType == false && ifInStack)
+            {
+                codbuffer += sx() + "mov " + Reg + ", dword " + t.getFullName() + "[" + to_string(PlaceInStack) + "]\n";
+            }
+            else if (ifFunction)
             {
                 codbuffer += sx() + "pop " + Reg + "\n";
             }
@@ -200,6 +205,8 @@ class Token
     bool ifChild = false;
     bool ifReturner = false;
     bool ifInStack = false;
+    bool ifMirrored = false;
+    string origin = "";
     string typeName = "";
     string owner = "";
     string FunctionLabelName = " ";

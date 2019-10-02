@@ -64,6 +64,17 @@ string sx()
 int getIndex(string name)
 {
     int secondPriority = 0;
+    bool ifChild = false;
+    if (name.find('.') != -1)
+    {
+        string type;
+        string child;
+        int offset = getWord('.', type, name, 0);
+        offset = getWord(' ', child, name, offset);
+        name = child;
+        isType = true;
+        ifChild = true;
+    }
     for (int i = 0; i < Tokens.size(); i++)
     {
         if (Tokens.at(i).Name == name)
@@ -74,9 +85,17 @@ int getIndex(string name)
             }
             else if (Tokens.at(i).FunctionLabelName != " " && FunctionNames.back() != " " && (Tokens.at(i).owner == FunctionNames.back() || (Tokens.at(getIndex(Tokens.at(i).owner)).ifType && isType)))
             {
+                if (ifChild)
+                {
+                    isType = false;
+                }
                 return i;
             }
         }
+    }
+    if (ifChild)
+    {
+        isType = false;
     }
     return secondPriority;
     cout << name + "doesnt exist!\n";
@@ -355,11 +374,27 @@ string arrayInitialization(int &index, int destIndex)
 
 void makeInitialDestiantion(int &index, string dest)
 {
-    codbuffer += sx() + ";The inital destination\n";
-    int destIndex = getIndex(dest);
+    int destIndex;
     if (dest.size() < 1)
     {
         return;
+    }
+    codbuffer += sx() + ";The inital destination\n";
+    if (dest.find('.') != -1)
+    {
+        string type;
+        string child;
+        int offset = getWord('.', type, dest, 0);
+        offset = getWord(' ', child, dest, offset);
+        isType = true;
+        destIndex = getIndex(child);
+        isType = false;
+        codbuffer += sx() + "push " + Tokens.at(getIndex(type)).getFullName() + " + " + to_string(Tokens.at(destIndex).PlaceInStack) + "\n";
+        return; 
+    }
+    else
+    {
+        destIndex = getIndex(dest);
     }
     if (dest.at(0) == '&')
     {
@@ -367,7 +402,7 @@ void makeInitialDestiantion(int &index, string dest)
         int destIndex2 = getIndex(dest);
         codbuffer += sx() + "push dword [" + Tokens.at(destIndex2).getFullName() + "]\n";
     }
-    else if (Tokens.at(destIndex).ifInStack && Tokens.at(destIndex).ifType == false)
+    else if (Tokens.at(destIndex).ifInStack && Tokens.at(destIndex).ifType == false && isType)
     {
         string reg = getFreeMemReg();
         codbuffer += sx() + "lea " + reg + ", [" + Tokens.at(destIndex).getFullName() + "]\n";
@@ -444,12 +479,16 @@ void doReturn()
     else if (whiles.size() > 0)
     {
         string a = whileParams.back();
+        string Atype;
+        string Btype;
+        int offset = getWord('.', Atype, a, 0);
         whileParams.pop_back();
         string b = whileParams.back();
+        offset = getWord('.', Btype, b, 0);
         whileParams.pop_back();
         codbuffer += "\n" + sx() + ";cheking the while.\n";
         codbuffer += sx() + "add dword [" + Tokens.at(getIndex(a)).getFullName() + "], 1\n";
-        codbuffer += sx() + "cmp " + Tokens.at(getIndex(a)).getReg() + ", dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
+        codbuffer += sx() + "cmp " + Tokens.at(getIndex(a)).getReg(Tokens.at(getIndex(Atype))) + ", dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
         codbuffer += sx() + "jl " + whiles.back() + "\n\n";
         whiles.pop_back();
     }
@@ -457,6 +496,12 @@ void doReturn()
     {
         codbuffer += sx() +  "ret\n\n";
         Syntax = 0;
+        disconnectReg("eax ");
+        disconnectReg("ebx ");
+        disconnectReg("ecx ");
+        disconnectReg("edx ");
+        disconnectReg("esi ");
+        disconnectReg("edi ");
         if (isType && framesAmount == 1)
         {
             varbuffer += TypeNames.back() + "_end:\n";
@@ -492,6 +537,14 @@ void doMath(int &index, string a, string math, string destination)
         b = "";
         index = getWord(' ', b, parameters, index);
     }
+    else if (b.find('.') != -1)
+    {
+
+    }
+    string Aowner;
+    string Bowner;
+    int offset1 = getWord('.', Aowner, destination, 0);
+    offset1 = getWord('.', Bowner, b, 0);
     int aI = getIndex(a);
     int bI = getIndex(b);
     string opCode;
@@ -521,7 +574,7 @@ void doMath(int &index, string a, string math, string destination)
     }
     if (opCode != "idiv ")
     {
-        codbuffer += sx() + opCode + Tokens.at(aI).getReg() + ", " + Tokens.at(bI).getReg() + "\n";
+        codbuffer += sx() + opCode + Tokens.at(aI).getReg(Tokens.at(getIndex(Aowner))) + ", " + Tokens.at(bI).getReg(Tokens.at(getIndex(Bowner))) + "\n";
     }
     else if (math == "%")
     {
@@ -601,6 +654,7 @@ void useVar(int &index, string destination)
 {
     codbuffer += "\n"; //giving some readability
     //save the destination to stack.
+
     makeInitialDestiantion(index, destination);
     //skip the = mark.
     string skip;
@@ -610,6 +664,7 @@ void useVar(int &index, string destination)
     index = getWord(' ', bPart, parameters, index);
     string destTest;
     bool ifAddressReturningFunction = false;
+
 
     if (bPart.find('(') != -1)
     {
@@ -629,6 +684,8 @@ void useVar(int &index, string destination)
     }
 
     int bIndex = getIndex(bPart);
+
+
     string math;
     int offset = getWord(' ', math, parameters, index);
     if (Tokens.at(bIndex).ifFunction != true)
@@ -693,11 +750,15 @@ void useVar(int &index, string destination)
         }
         else if (bPart == destination)
         {
-            getInitalDestination(index, Tokens.at(bIndex).getReg(), true);
+            string type;
+            int offset = getWord('.', type, bPart, 0);
+            getInitalDestination(index, Tokens.at(bIndex).getReg(Tokens.at(getIndex(type))), true);
         }
         else
         {
-            getInitalDestination(index, Tokens.at(bIndex).getReg(), false);
+            string type;
+            int offset = getWord('.', type, bPart, 0);
+            getInitalDestination(index, Tokens.at(bIndex).getReg(Tokens.at(getIndex(type))), false);
         }
 }
 
@@ -906,7 +967,9 @@ void doComparing(int &i)
     }
     else
     {
-        acomp = Tokens.at(aI).getReg();
+        string type;
+        int offset = getWord('.', type, a, 0);
+        acomp = Tokens.at(aI).getReg(Tokens.at(getIndex(type)));
     }
     
     i = getWord(' ', condition, parameters, i);
@@ -1011,6 +1074,8 @@ void makeNew(int &index)
         //in runtime made class.
         Token ptr;
         ptr.makeName(name);
+        ptr.ifMirrored = true;
+        ptr.origin = type;
         if (FunctionNames.size() > 0 && FunctionNames.back() == " ")
         {
             //it is public.
@@ -1219,15 +1284,29 @@ void getThis(int &index)
     useVar(index, name);
 }
 
-void fetchTypeFunction(int &index, string statement)
+void TypeFetch(int &index, string statement)
 {
     string type;
-    string func;
+    string child;
     int offset = getWord('.', type, statement, 0);
-    offset = getWord('(', func, statement, offset);
-    codbuffer += "\n" + sx() + ";Giving the function Type address.\n";
-    codbuffer += sx() + "push dword [" + Tokens.at(getIndex(type)).getFullName() + "]\n";
-    prepareFunction(index, func);
+    int childIndex = offset;
+    offset = getWord(' ', child, statement, offset);
+    if (child.find('(') != -1)
+    {
+        child = "";
+        offset = getWord('(', child, statement, childIndex);
+        codbuffer += "\n" + sx() + ";Giving the function Type address.\n";
+        codbuffer += sx() + "push dword [" + Tokens.at(getIndex(type)).getFullName() + "]\n";
+        prepareFunction(index, child);
+    }
+    else if (Tokens.at(getIndex(child)).ifVar)
+    {
+        useVar(index, statement);
+    }
+    else if (Tokens.at(getIndex(child)).ifArray)
+    {
+
+    }
 }
 
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
@@ -1340,7 +1419,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     }
     else if (destination.find('.') != -1)
     {
-        fetchTypeFunction(continu, destination);
+        TypeFetch(continu, destination);
     }
 
     file = parameters;

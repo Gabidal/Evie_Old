@@ -3,6 +3,7 @@ type vector()
 (
   var b = 1
   var a = 2
+
   func c(this)
   (
     -> a = -> a + -> a
@@ -13,6 +14,7 @@ type vector()
 
 func main()
 (
+  var a = 123
   new vector banana
-  banana.c()
+  banana.a = banana.a + banana.b
 )
