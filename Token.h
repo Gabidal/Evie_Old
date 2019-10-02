@@ -105,10 +105,15 @@ class Token
         ifReal = true;
     }
 
-    string getFullName()
+
+    string getFullName(Token t)
     {
         if (ifType == false && ifInStack)
         {
+            if (isType == false)
+            {
+                return (t.getFullName(t) + "[" + to_string(PlaceInStack) + "]\n");
+            }
             if (Tokens.at(getIndex(FunctionNames.back())).This == "")
             {
                 //if the class address is deleted in midle of function.
@@ -130,6 +135,11 @@ class Token
         {
             return FunctionLabelName + "." + Name;
         }
+    }
+
+    string getFullName()
+    {
+        return getFullName(Token());
     }
 
     void makeLink(Token newLink)

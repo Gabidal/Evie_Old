@@ -14,7 +14,15 @@ type vector()
 
 func main()
 (
-  var a = 123
   new vector banana
-  banana.a = banana.a + banana.b
+  new vector apple
+  apple.a = banana.a + apple.b
+  if apple.a == banana.a
+  (
+
+  )
+  else
+  (
+
+  )
 )

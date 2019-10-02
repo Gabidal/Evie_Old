@@ -981,7 +981,9 @@ void doComparing(int &i)
     }
     else
     {
-        bcomp = "dword [" + Tokens.at(bI).getFullName() + "]";
+        string type;
+        int offset = getWord('.', type, b, 0);
+        bcomp = "dword " + Tokens.at(bI).getFullName(Tokens.at(getIndex(type)));
     }
     condition = getJump(condition);
     

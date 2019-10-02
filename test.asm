@@ -167,8 +167,6 @@ function_main:
  push ebp
  mov ebp, esp
 
- ;Set the value to local var
- mov dword [main.a], 123
  ;Give malloc Type size.
  push 8
  ;Call malloc.
@@ -176,18 +174,50 @@ function_main:
  ;Save new Type address.
  pop dword [main.banana]
 
+ ;Give malloc Type size.
+ push 8
+ ;Call malloc.
+ call function_malloc
+ ;Save new Type address.
+ pop dword [main.apple]
+
 
  ;The inital destination
- push main.banana + 4
+ push main.apple + 4
  ;Math do: +
- mov ecx , dword main.banana[0]
- mov edx , dword main.banana[4]
- add edx , ecx 
+ mov ebx , dword main.apple[0]
+ mov ecx , dword main.apple[4]
+ add ecx , ebx 
 
  ;Get the destination to: esi 
  pop esi 
- mov [esi ], edx 
+ mov [esi ], ecx 
 
+ mov edx , dword main.apple[4]
+ cmp edx , dword main.banana[4]
+
+ jne else11
+
+  ;making a stack frame start
+  push ebp
+  mov ebp, esp
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ jmp end11
+ else11:
+
+  ;making a stack frame start
+  push ebp
+  mov ebp, esp
+
+
+  ;making a stack frame end
+  mov esp, ebp
+  pop ebp
+ end11:
 
  ;making a stack frame end
  mov esp, ebp
@@ -212,8 +242,8 @@ endVariables_c:
 vector_end:
 
 startVariables_main:
-main.a dd 0
 main.banana dd 0
+main.apple dd 0
 endVariables_main:
 
 
