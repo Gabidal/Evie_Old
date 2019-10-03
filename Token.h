@@ -13,7 +13,9 @@ extern string codbuffer;
 class Token;
 extern vector<Token> Tokens;
 extern vector<string> FunctionNames;
+extern vector<string> TypesInFunction;
 extern int getIndex(string name);
+extern int getTypesInFunctions(vector<string> v, string wanted);
 extern bool isType;
 
 class Token
@@ -106,20 +108,25 @@ class Token
     }
 
 
-    string getFullName(Token t)
+    string getFullName(string fetcher = "")
     {
         if (ifType == false && ifInStack)
         {
-            if (isType == false)
-            {
-                return (t.getFullName(t) + "[" + to_string(PlaceInStack) + "]\n");
-            }
-            if (Tokens.at(getIndex(FunctionNames.back())).This == "")
+            if (Tokens.at(getIndex(FunctionNames.back())).This == "" || Tokens.at(getIndex(FunctionNames.back())).reason != fetcher)
             {
                 //if the class address is deleted in midle of function.
                 string reg = getFreeMemReg();
-                codbuffer += sx() + "mov " + reg + ", [ebp + 8]\n";
+                if (fetcher.size() > 0 && TypesInFunction.size() > 0)
+                {
+                    int fetcherIndex = getTypesInFunctions(TypesInFunction, fetcher);
+                    codbuffer += sx() + "mov " + reg + ", [esp + " + to_string( (TypesInFunction.size() - fetcherIndex - 1) * 4) + "]\n";
+                }
+                else
+                {
+                    codbuffer += sx() + "mov " + reg + ", [ebp + 8]\n";
+                }
                 Tokens.at(getIndex(FunctionNames.back())).This = reg;
+                Tokens.at(getIndex(FunctionNames.back())).reason = fetcher;
             }
             string result;
             string funcThisReg = Tokens.at(getIndex(FunctionNames.back())).This;
@@ -135,11 +142,6 @@ class Token
         {
             return FunctionLabelName + "." + Name;
         }
-    }
-
-    string getFullName()
-    {
-        return getFullName(Token());
     }
 
     void makeLink(Token newLink)
@@ -160,27 +162,23 @@ class Token
         Links.push_back(t);
     }
 
-    string getReg(Token t)
+    string getReg(string fetcher = "")
     {
         if (Reg == "")
         {
             getFreeReg();
             Reg = regbuffer;
-            if (isType == false && ifInStack)
-            {
-                codbuffer += sx() + "mov " + Reg + ", dword " + t.getFullName() + "[" + to_string(PlaceInStack) + "]\n";
-            }
-            else if (ifFunction)
+            if (ifFunction)
             {
                 codbuffer += sx() + "pop " + Reg + "\n";
             }
             else if (ifVar)
             {
-                codbuffer += sx() + "mov " + Reg + ", dword [" + getFullName() + "]\n";
+                codbuffer += sx() + "mov " + Reg + ", dword [" + getFullName(fetcher) + "]\n";
             }
             else if (ifArray)
             {
-                codbuffer += sx() + "lea " + Reg + ", [" + getFullName() + "]\n";
+                codbuffer += sx() + "lea " + Reg + ", [" + getFullName(fetcher) + "]\n";
             }
             
             return Reg;
@@ -225,6 +223,7 @@ class Token
     string Reg;
     string Value;
     string This;
+    string reason;
     int PlaceInStack = 0;
     int ParameterAmount = 0;
     vector <Token> Links;

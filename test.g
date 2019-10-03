@@ -17,12 +17,5 @@ func main()
   new vector banana
   new vector apple
   apple.a = banana.a + apple.b
-  if apple.a == banana.a
-  (
-
-  )
-  else
-  (
-
-  )
+  apple.b = banana.a + apple.a
 )

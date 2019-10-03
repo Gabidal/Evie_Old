@@ -32,6 +32,7 @@ vector<string> whiles;
 int WhileID = 0;
 vector<string> whileParams;
 vector<string> TypeNames;
+vector<string> TypesInFunction;
 
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
@@ -59,6 +60,17 @@ string sx()
         spaces += " ";
     }
     return spaces;
+}
+
+int getTypesInFunctions(vector<string> v, string wanted)
+{
+    for (int i = 0; i < v.size() ; i++)
+    {
+        if (v.at(i) == wanted)
+        {
+            return i;
+        }
+    }
 }
 
 int getIndex(string name)
@@ -382,14 +394,15 @@ void makeInitialDestiantion(int &index, string dest)
     codbuffer += sx() + ";The inital destination\n";
     if (dest.find('.') != -1)
     {
+        codbuffer += sx() + ";put to stack the class address\n";
         string type;
         string child;
         int offset = getWord('.', type, dest, 0);
+        string Reg = getFreeMemReg();
         offset = getWord(' ', child, dest, offset);
-        isType = true;
-        destIndex = getIndex(child);
-        isType = false;
-        codbuffer += sx() + "push " + Tokens.at(getIndex(type)).getFullName() + " + " + to_string(Tokens.at(destIndex).PlaceInStack) + "\n";
+        codbuffer += sx() + "lea " + Reg + ", [" + Tokens.at(getIndex(type)).getFullName() + "]\n";
+        codbuffer += sx() + "push dword [" + Reg + "+ " + to_string(Tokens.at(getIndex(child)).PlaceInStack) + "]\n";
+        TypesInFunction.push_back(child);
         return; 
     }
     else
@@ -487,8 +500,9 @@ void doReturn()
         offset = getWord('.', Btype, b, 0);
         whileParams.pop_back();
         codbuffer += "\n" + sx() + ";cheking the while.\n";
+        
         codbuffer += sx() + "add dword [" + Tokens.at(getIndex(a)).getFullName() + "], 1\n";
-        codbuffer += sx() + "cmp " + Tokens.at(getIndex(a)).getReg(Tokens.at(getIndex(Atype))) + ", dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
+        codbuffer += sx() + "cmp " + Tokens.at(getIndex(a)).getReg() + ", dword [" + Tokens.at(getIndex(b)).getFullName() + "]\n";
         codbuffer += sx() + "jl " + whiles.back() + "\n\n";
         whiles.pop_back();
     }
@@ -507,6 +521,7 @@ void doReturn()
             varbuffer += TypeNames.back() + "_end:\n";
             TypeNames.pop_back();
             isType = false;
+            FunctionNames.pop_back();
         }
         else
         {
@@ -543,7 +558,7 @@ void doMath(int &index, string a, string math, string destination)
     }
     string Aowner;
     string Bowner;
-    int offset1 = getWord('.', Aowner, destination, 0);
+    int offset1 = getWord('.', Aowner, a, 0);
     offset1 = getWord('.', Bowner, b, 0);
     int aI = getIndex(a);
     int bI = getIndex(b);
@@ -574,15 +589,15 @@ void doMath(int &index, string a, string math, string destination)
     }
     if (opCode != "idiv ")
     {
-        codbuffer += sx() + opCode + Tokens.at(aI).getReg(Tokens.at(getIndex(Aowner))) + ", " + Tokens.at(bI).getReg(Tokens.at(getIndex(Bowner))) + "\n";
+        codbuffer += sx() + opCode + Tokens.at(aI).getReg(Aowner) + ", " + Tokens.at(bI).getReg(Bowner) + "\n";
     }
     else if (math == "%")
     {
         disconnectReg("eax ");
         disconnectReg("edx ");
         codbuffer += sx() + "xor edx, edx\n";
-        codbuffer += sx() + "mov eax, dword [" + Tokens.at(aI).getFullName() + "]\n";
-        codbuffer += sx() + opCode + "dword [" + Tokens.at(bI).getFullName() + "]\n";
+        codbuffer += sx() + "mov eax, dword [" + Tokens.at(aI).getFullName(Aowner) + "]\n";
+        codbuffer += sx() + opCode + "dword [" + Tokens.at(bI).getFullName(Bowner) + "]\n";
         if (b == destination)
         {
             getInitalDestination(index, "edx ", true);
@@ -598,8 +613,8 @@ void doMath(int &index, string a, string math, string destination)
         disconnectReg("eax ");
         disconnectReg("edx ");
         codbuffer += sx() + "xor edx, edx\n";
-        codbuffer += sx() + "mov eax, dword [" + Tokens.at(aI).getFullName() + "]\n";
-        codbuffer += sx() + opCode + "dword [" + Tokens.at(bI).getFullName() + "]\n";
+        codbuffer += sx() + "mov eax, dword [" + Tokens.at(aI).getFullName(Aowner) + "]\n";
+        codbuffer += sx() + opCode + "dword [" + Tokens.at(bI).getFullName(Bowner) + "]\n";
         if (b == destination)
         {
             getInitalDestination(index, "eax ", true);
@@ -750,15 +765,11 @@ void useVar(int &index, string destination)
         }
         else if (bPart == destination)
         {
-            string type;
-            int offset = getWord('.', type, bPart, 0);
-            getInitalDestination(index, Tokens.at(bIndex).getReg(Tokens.at(getIndex(type))), true);
+            getInitalDestination(index, Tokens.at(bIndex).getReg(), true);
         }
         else
         {
-            string type;
-            int offset = getWord('.', type, bPart, 0);
-            getInitalDestination(index, Tokens.at(bIndex).getReg(Tokens.at(getIndex(type))), false);
+            getInitalDestination(index, Tokens.at(bIndex).getReg(), false);
         }
 }
 
@@ -969,7 +980,7 @@ void doComparing(int &i)
     {
         string type;
         int offset = getWord('.', type, a, 0);
-        acomp = Tokens.at(aI).getReg(Tokens.at(getIndex(type)));
+        acomp = Tokens.at(aI).getReg();
     }
     
     i = getWord(' ', condition, parameters, i);
@@ -983,7 +994,7 @@ void doComparing(int &i)
     {
         string type;
         int offset = getWord('.', type, b, 0);
-        bcomp = "dword " + Tokens.at(bI).getFullName(Tokens.at(getIndex(type)));
+        bcomp = "dword " + Tokens.at(bI).getFullName();
     }
     condition = getJump(condition);
     
@@ -1092,12 +1103,12 @@ void makeNew(int &index)
         varbuffer += ptr.getFullName() + " dd 0\n";
         //get the template class size.
         codbuffer += sx() + ";Give malloc Type size.\n";
-        codbuffer += sx() + "push " + to_string(Tokens.at(getIndex(type)).Size) + "\n";
+        codbuffer += sx() + "push " + to_string(Tokens.at(getIndex(type)).Size) + "\n\n";
         codbuffer += sx() + ";Call malloc.\n";
-        codbuffer += sx() + "call function_malloc\n";
-        codbuffer += sx() + ";Save new Type address.\n";
-        codbuffer += sx() + "pop dword [" + ptr.getFullName() + "]\n\n";
+        codbuffer += sx() + "call function_malloc\n\n";
+        codbuffer += sx() + ";Save new Type address in stack at(" + to_string(TypesInFunction.size() * 4) + ")\n";
         Tokens.push_back(ptr);
+        TypesInFunction.push_back(ptr.Name);
     }
     
 }

@@ -126,20 +126,22 @@ type_vector:
   push edi 
   
   ;Math do: +
+  mov esi , [ebp + 8]
   mov edx , dword [esi + 4]
   add edx , edx 
 
-  ;Get the destination to: esi 
-  pop esi 
-  mov [esi ], edx 
+  ;Get the destination to: edi 
+  pop edi 
+  mov [edi ], edx 
 
 
   ;The inital destination
-  mov esi , [ebp + 8]
-  lea edi , [esi + 0]
-  push edi 
+  mov edi , [ebp + 8]
+  lea esi , [edi + 0]
+  push esi 
   
   ;Math do: *
+  mov esi , [ebp + 8]
   mov eax , dword [esi + 0]
   imul eax , edx 
 
@@ -153,6 +155,7 @@ type_vector:
 
   ;returning a value from function
   pop eax
+  mov esi , [ebp + 8]
   push dword [esi + 4]
  jmp eax
 
@@ -169,55 +172,48 @@ function_main:
 
  ;Give malloc Type size.
  push 8
+
  ;Call malloc.
  call function_malloc
- ;Save new Type address.
- pop dword [main.banana]
 
+ ;Save new Type address in stack at(0)
  ;Give malloc Type size.
  push 8
+
  ;Call malloc.
  call function_malloc
- ;Save new Type address.
- pop dword [main.apple]
 
+ ;Save new Type address in stack at(4)
 
  ;The inital destination
- push main.apple + 4
+ ;put to stack the class address
+ lea edi , [main.apple]
+ push dword [edi + 0]
  ;Math do: +
- mov ebx , dword main.apple[0]
- mov ecx , dword main.apple[4]
+ mov esi , [esp + 4]
+ mov ebx , dword [esi + 0]
+ mov edi , [esp + 8]
+ mov ecx , dword [edi + 4]
  add ecx , ebx 
 
  ;Get the destination to: esi 
  pop esi 
  mov [esi ], ecx 
 
- mov edx , dword main.apple[4]
- cmp edx , dword main.banana[4]
 
- jne else11
+ ;The inital destination
+ ;put to stack the class address
+ lea edi , [main.apple]
+ push dword [edi + 0]
+ ;Math do: +
+ mov esi , [esp + 8]
+ mov edx , dword [esi + 4]
+ add edx , edx 
 
-  ;making a stack frame start
-  push ebp
-  mov ebp, esp
+ ;Get the destination to: edi 
+ pop edi 
+ mov [edi ], edx 
 
-
-  ;making a stack frame end
-  mov esp, ebp
-  pop ebp
- jmp end11
- else11:
-
-  ;making a stack frame start
-  push ebp
-  mov ebp, esp
-
-
-  ;making a stack frame end
-  mov esp, ebp
-  pop ebp
- end11:
 
  ;making a stack frame end
  mov esp, ebp
