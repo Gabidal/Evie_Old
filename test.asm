@@ -176,11 +176,11 @@ function_main:
  ;Call malloc.
  call function_malloc
 
- pop eax
+ pop dword [main.banana]
  ;deleteing the parameters from stack
  add esp, 4
  ;Save new Type address in stack at(0)
- push eax
+ push dword [main.banana]
 
  ;Give malloc Type size.
  push 8
@@ -188,30 +188,30 @@ function_main:
  ;Call malloc.
  call function_malloc
 
- pop eax
+ pop dword [main.apple]
  ;deleteing the parameters from stack
  add esp, 4
  ;Save new Type address in stack at(4)
- push eax
+ push dword [main.apple]
 
-
- ;Giving the function Type address.
- push dword [main.banana]
  ;Functions Parameters
  push dword [main.b]
  push dword [main.a]
+
+ ;Giving the function Type address.
+ push dword [main.banana]
  
  ;Call the function
  call function_init
  ;deleteing the parameters from stack
  add esp, 12
 
-
- ;Giving the function Type address.
- push dword [main.apple]
  ;Functions Parameters
  push dword [main.b]
  push dword [main.a]
+
+ ;Giving the function Type address.
+ push dword [main.apple]
  
  ;Call the function
  call function_init

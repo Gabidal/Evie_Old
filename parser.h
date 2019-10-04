@@ -33,6 +33,7 @@ int WhileID = 0;
 vector<string> whileParams;
 vector<string> TypeNames;
 vector<string> Stack;
+vector<string> ThisParameters;
 
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
@@ -336,6 +337,12 @@ void prepareFunction(int &index, string func)
     }
     if (Tokens.at(funcIndex).ifFunction)
     {
+        if (ThisParameters.size() > 0)
+        {
+            codbuffer += "\n" + sx() + ";Giving the function Type address.\n";
+            codbuffer += sx() + "push dword [" + ThisParameters.back() + "]\n";
+            ThisParameters.pop_back();
+        }
         codbuffer += sx() + "\n" + sx() + ";Call the function\n";
         codbuffer += sx() + "call function_" + Tokens.at(funcIndex).getFullName() + "\n";
         if (Tokens.at(funcIndex).ifReturner == false)
@@ -1108,11 +1115,11 @@ void makeNew(int &index)
         codbuffer += sx() + "push " + to_string(Tokens.at(getIndex(type)).Size) + "\n\n";
         codbuffer += sx() + ";Call malloc.\n";
         codbuffer += sx() + "call function_malloc\n\n";
-        codbuffer += sx() + "pop eax\n";
+        codbuffer += sx() + "pop dword [" + ptr.getFullName() + "]\n";
         codbuffer += sx() + ";deleteing the parameters from stack\n";
         codbuffer += sx() + "add esp, 4\n";
         codbuffer += sx() + ";Save new Type address in stack at(" + to_string(Stack.size() * 4) + ")\n";
-        codbuffer += sx() + "push eax\n\n";
+        codbuffer += sx() + "push dword [" + ptr.getFullName() + "]\n\n";
         Tokens.push_back(ptr);
         Stack.push_back(ptr.Name);
     }
@@ -1314,8 +1321,7 @@ void TypeFetch(int &index, string statement)
     {
         child = "";
         offset = getWord('(', child, statement, childIndex);
-        codbuffer += "\n" + sx() + ";Giving the function Type address.\n";
-        codbuffer += sx() + "push dword [" + Tokens.at(getIndex(type)).getFullName() + "]\n";
+        ThisParameters.push_back(Tokens.at(getIndex(type)).getFullName());
         prepareFunction(index, child);
     }
     else if (Tokens.at(getIndex(child)).ifVar)
