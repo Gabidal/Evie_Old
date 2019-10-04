@@ -111,58 +111,54 @@ type_vector:
  mov dword [vector.b], 1
  ;Set the value to local var
  mov dword [vector.a], 2
- function_c:
+ function_init:
   ;making a function stack frame
   push ebp
   mov ebp, esp
 
-  sub esp, 4
+  sub esp, 12
   
   ;this is CLASS address.
   mov esi , [ebp + 8]
+  
+  ;aa is now an Variable.
+  mov edx , [ebp +12]
+  mov [init.aa], edx 
+  
+  ;bb is now an Variable.
+  mov eax , [ebp +16]
+  mov [init.bb], eax 
 
   ;The inital destination
   lea edi , [esi + 4]
   push edi 
   
-  ;Math do: +
-  mov esi , [ebp + 8]
-  mov edx , dword [esi + 4]
-  add edx , edx 
 
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], edx 
+  ;Get the destination to: esi 
+  pop esi 
+  mov [esi ], edx 
 
 
   ;The inital destination
-  mov edi , [ebp + 8]
-  lea esi , [edi + 0]
-  push esi 
-  
-  ;Math do: *
   mov esi , [ebp + 8]
-  mov eax , dword [esi + 0]
-  imul eax , edx 
+  lea edi , [esi + 0]
+  push edi 
+  
 
   ;Get the destination to: edi 
   pop edi 
   mov [edi ], eax 
 
-  ;returning from stack frame
+
+  ;making a stack frame end
   mov esp, ebp
   pop ebp
-
-  ;returning a value from function
-  pop eax
-  mov esi , [ebp + 8]
-  push dword [esi + 4]
- jmp eax
+ ret
 
 
- ;making a stack frame end
- mov esp, ebp
- pop ebp
+;making a stack frame end
+mov esp, ebp
+pop ebp
 ret
 
 function_main:
@@ -170,49 +166,57 @@ function_main:
  push ebp
  mov ebp, esp
 
+ ;Set the value to local var
+ mov dword [main.a], 1
+ ;Set the value to local var
+ mov dword [main.b], 2
  ;Give malloc Type size.
  push 8
 
  ;Call malloc.
  call function_malloc
 
+ pop eax
+ ;deleteing the parameters from stack
+ add esp, 4
  ;Save new Type address in stack at(0)
+ push eax
+
  ;Give malloc Type size.
  push 8
 
  ;Call malloc.
  call function_malloc
 
+ pop eax
+ ;deleteing the parameters from stack
+ add esp, 4
  ;Save new Type address in stack at(4)
-
- ;The inital destination
- ;put to stack the class address
- lea edi , [main.apple]
- push dword [edi + 0]
- ;Math do: +
- mov esi , [esp + 4]
- mov ebx , dword [esi + 0]
- mov edi , [esp + 8]
- mov ecx , dword [edi + 4]
- add ecx , ebx 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ecx 
+ push eax
 
 
- ;The inital destination
- ;put to stack the class address
- lea edi , [main.apple]
- push dword [edi + 0]
- ;Math do: +
- mov esi , [esp + 8]
- mov edx , dword [esi + 4]
- add edx , edx 
+ ;Giving the function Type address.
+ push dword [main.banana]
+ ;Functions Parameters
+ push dword [main.b]
+ push dword [main.a]
+ 
+ ;Call the function
+ call function_init
+ ;deleteing the parameters from stack
+ add esp, 12
 
- ;Get the destination to: edi 
- pop edi 
- mov [edi ], edx 
+
+ ;Giving the function Type address.
+ push dword [main.apple]
+ ;Functions Parameters
+ push dword [main.b]
+ push dword [main.a]
+ 
+ ;Call the function
+ call function_init
+ ;deleteing the parameters from stack
+ add esp, 12
 
 
  ;making a stack frame end
@@ -232,12 +236,16 @@ vector:
 vector.b dd 0
 vector.a dd 0
 
-startVariables_c:
-endVariables_c:
+startVariables_init:
+init.aa dd 0
+init.bb dd 0
+endVariables_init:
 
 vector_end:
 
 startVariables_main:
+main.a dd 0
+main.b dd 0
 main.banana dd 0
 main.apple dd 0
 endVariables_main:

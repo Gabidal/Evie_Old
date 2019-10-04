@@ -13,7 +13,7 @@ extern string codbuffer;
 class Token;
 extern vector<Token> Tokens;
 extern vector<string> FunctionNames;
-extern vector<string> TypesInFunction;
+extern vector<string> Stack;
 extern int getIndex(string name);
 extern int getTypesInFunctions(vector<string> v, string wanted);
 extern bool isType;
@@ -116,10 +116,10 @@ class Token
             {
                 //if the class address is deleted in midle of function.
                 string reg = getFreeMemReg();
-                if (fetcher.size() > 0 && TypesInFunction.size() > 0)
+                if (fetcher.size() > 0 && Stack.size() > 0)
                 {
-                    int fetcherIndex = getTypesInFunctions(TypesInFunction, fetcher);
-                    codbuffer += sx() + "mov " + reg + ", [esp + " + to_string( (TypesInFunction.size() - fetcherIndex - 1) * 4) + "]\n";
+                    int fetcherIndex = getTypesInFunctions(Stack, fetcher);
+                    codbuffer += sx() + "mov " + reg + ", [esp + " + to_string( (Stack.size() - fetcherIndex - 1) * 4) + "]\n";
                 }
                 else
                 {

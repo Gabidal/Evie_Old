@@ -32,7 +32,7 @@ vector<string> whiles;
 int WhileID = 0;
 vector<string> whileParams;
 vector<string> TypeNames;
-vector<string> TypesInFunction;
+vector<string> Stack;
 
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
@@ -402,7 +402,7 @@ void makeInitialDestiantion(int &index, string dest)
         offset = getWord(' ', child, dest, offset);
         codbuffer += sx() + "lea " + Reg + ", [" + Tokens.at(getIndex(type)).getFullName() + "]\n";
         codbuffer += sx() + "push dword [" + Reg + "+ " + to_string(Tokens.at(getIndex(child)).PlaceInStack) + "]\n";
-        TypesInFunction.push_back(child);
+        Stack.push_back(child);
         return; 
     }
     else
@@ -439,6 +439,7 @@ void makeInitialDestiantion(int &index, string dest)
         cout << "bad destination: " + dest + "\n";
     }
     codbuffer += sx() + "\n";
+    Stack.push_back(dest);
 }
 
 void getInitalDestination(int &index, string destReg, bool sameParaAsDest)
@@ -451,6 +452,7 @@ void getInitalDestination(int &index, string destReg, bool sameParaAsDest)
     {
         disconnectReg(destReg);
     }
+    Stack.pop_back();
 }
 
 void callFunction(string function, int &index)
@@ -1106,9 +1108,13 @@ void makeNew(int &index)
         codbuffer += sx() + "push " + to_string(Tokens.at(getIndex(type)).Size) + "\n\n";
         codbuffer += sx() + ";Call malloc.\n";
         codbuffer += sx() + "call function_malloc\n\n";
-        codbuffer += sx() + ";Save new Type address in stack at(" + to_string(TypesInFunction.size() * 4) + ")\n";
+        codbuffer += sx() + "pop eax\n";
+        codbuffer += sx() + ";deleteing the parameters from stack\n";
+        codbuffer += sx() + "add esp, 4\n";
+        codbuffer += sx() + ";Save new Type address in stack at(" + to_string(Stack.size() * 4) + ")\n";
+        codbuffer += sx() + "push eax\n\n";
         Tokens.push_back(ptr);
-        TypesInFunction.push_back(ptr.Name);
+        Stack.push_back(ptr.Name);
     }
     
 }
@@ -1304,7 +1310,7 @@ void TypeFetch(int &index, string statement)
     int offset = getWord('.', type, statement, 0);
     int childIndex = offset;
     offset = getWord(' ', child, statement, offset);
-    if (child.find('(') != -1)
+    if (Tokens.at(getIndex(child)).ifFunction)
     {
         child = "";
         offset = getWord('(', child, statement, childIndex);
@@ -1426,13 +1432,13 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     {
         useVar(continu, destination);
     }
-    else if (Tokens.at(dest).ifFunction)
-    {
-        callFunction(destination, continu);
-    }
     else if (destination.find('.') != -1)
     {
         TypeFetch(continu, destination);
+    }
+    else if (Tokens.at(dest).ifFunction)
+    {
+        callFunction(destination, continu);
     }
 
     file = parameters;
