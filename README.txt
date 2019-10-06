@@ -15,7 +15,7 @@ Manual:
 
 -3. Functions.
 
--4. Struct's.
+-4. Types.
 
 -5. Math.
 
@@ -28,6 +28,8 @@ Manual:
 -9. Array's
 
 -10. If elses.
+
+-11. loops.
 
 -11. Using the actual GAS.
 
@@ -50,46 +52,54 @@ Strings:
 
   And that makes you a string named "name" which contains that bananas word init.
   You can also set two string's and later in the code overwrite the other string with the other:
+
     str banana = "bananas"
     str apple = "apples"
-    gout %banana %banana.size
+    gout(banana)
+
   Will print out "bananas"
   But if you do this:
+
     banana = apple
-    gout %banana %banana.size
+    gout(banana)
+
   Will print out "apples"
   
 
 Functions:
   to create a function just type:
 
-    func 
+    func [name] ([parameter], [second parameter])
+    (
+      #code....
+    )
 
   That indicates that you are creating a function.
-  Then, to add parameter's, type a space followed by the name of the parameter.
-    func apple a b c d e f g 
-  That leaves you with a functon named apple
-  Which has 7 parameters called a, b, c, d, e, f, g.
-  Remember to put "ret" word for the function indicating that the function is ended.
 
 
-Struct's:
-  Struct's are super simple.
-  The way they work is similiar to how struct's work in C.
+Types:
+  Types are super simple.
+  The way they work is similiar to how classes work in C++.
   just type:
 
-    type fruit
+    type fruit()
     (
       var sugarProsent = 0
       var weight = 0
+      func init(this, a, b)
+      {
+        -> sugarProsent = a
+        -> weight = b
+      }
     )
 
+  The parameter named [this] will tell the GAS compiler to reserve one more place for allocated type address. 
 
-  That makes a Struct named fruit.
-  And this Fruit struct has two variables init sugarProsent and weight.
+  That makes a Type named fruit.
+  And this Fruit type has two variables init sugarProsent and weight.
   To use them you need to make a new one, for example:
     new fruit banana
-  That makes a new Struct named banana that has the same variables inside as the fruit struct.
+  This will allocate memory on runtime.
 
 
 Math:
@@ -103,12 +113,9 @@ Math:
     var b = 1
     var c = 2
 
-  And now let's use the + to count the sum between b and c:
-
-    a = b + c
+    a = b + c * a - c / b
 
   That's it!
-  Same works for substraction multiplication and division.
   
   
 Multi File:
@@ -133,24 +140,24 @@ The STD lib
 Pointer's:
  To use a pointer do something like this for example:
 
-     str abc = "1234567890"
-     func print(%name)
+ [(Pointers are still in under developing. So if you have some cool suggestion join the GAS community and say it :D )]
+
+     var a : 10
+     var b = 0
+     func doSomethigPlz(&list)
      (
-       #disable the double pointer system
-       gout(%name)
+       var a = list + 1
      )
      
      func main()
      (
-       #make a pointer out of a pointer
-       print(%abc)
+       var a : 12
+       doSomethigPlz(a)
      )
 
-   As you can see these % mark's are only when you want to call for the function. It is made to give the function parameter's as pointer's so that the gout will get the abc text not the name parameter's text.
-   
    
 Array:
-   To make an array do as same as making a variable ynly switch the = to : and the value is then the initial size of the array your making.
+   To make an array do as same as making a variable only switch the = to : and the value is then the initial size of the array your making.
 
      var abc : 123
      var a = 321
@@ -170,6 +177,7 @@ Array:
  
 If Elses:
   To create an If Else condition do this:
+  [( Yeah if'n elses do not have the () thing :D )]
   
      var a = 2
      var b = 3
@@ -186,6 +194,14 @@ If Elses:
      )
  
    
+Loops:
+  in GAS there is only one looper XD.
+  while ([variable start] : [variable to pursue])
+  (
+    #code that loops....
+  )
+  the Variable [start] will increase until is same as the goal/end Variable.
+
 Linux:
 Using the actual GAS.
 First do:
