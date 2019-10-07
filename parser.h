@@ -63,7 +63,7 @@ string sx()
     return spaces;
 }
 
-int getTypesInFunctions(vector<string> v, string wanted)
+int getFromList(vector<string> v, string wanted)
 {
     for (int i = 0; i < v.size() ; i++)
     {
@@ -200,6 +200,44 @@ string autoName(string name, bool isString = false)
     
 }
 
+string addOffset(int &index, string name)
+{
+    string skip;
+    string offset;
+    int offsetI;
+    index = getWord(' ', skip, parameters, index);
+    index = getWord(' ', offset, parameters, index);
+    string test;
+    offsetI = getWord(' ', test, parameters, index);
+    string Reg;
+    if (isdigit(offset.at(0)) || offset.at(0) == '-' && offset != "->")
+    {
+        getFreeReg();
+        Reg = regbuffer;
+        codbuffer += sx() + "mov " + Reg + ", dword [" + Tokens.at(getIndex(name)).getReg() + " + " + offset + "]\n";
+    }
+    else if (Tokens.at(getIndex(offset)).ifVar || Tokens.at(getIndex(test)).ifVar)
+    {
+        if (offset == "->")
+        {
+            index = offsetI;
+            //its this time. :D
+            getFreeReg();
+            Reg = regbuffer;
+            codbuffer += sx() + "mov " + Reg + ", dword [" + Tokens.at(getIndex(name)).getReg() + " + " + Tokens.at(getIndex(test)).getReg() + "]\n";
+        }
+        else
+        {
+            //no this time this time :D.
+            getFreeReg();
+            Reg = regbuffer;
+            codbuffer += sx() + "mov " + Reg + ", dword [" + Tokens.at(getIndex(name)).getReg() + " + " + Tokens.at(getIndex(offset)).getReg() + "]\n";
+        }
+        
+    }
+    return Reg;
+}
+
 void makeVar(int &index)
 {
     string name;
@@ -238,7 +276,7 @@ void makeVar(int &index)
         }
         else
         {
-            varbuffer += Variable.getFullName() + " dd 0\n";
+            varbuffer += Variable.getFullName() + " dd " + value + "\n";
             getFreeReg();
             codbuffer += sx() + ";Set the value to local var\n";
             codbuffer += sx() + "mov dword [" + Variable.getFullName() + "], " + value + "\n";
@@ -311,27 +349,37 @@ void prepareFunction(int &index, string func)
             string skip;
             string bPart;
             index = getWord(' ', skip, parameters, index);
-            index = getWord(' ', bPart, parameters, index);
-            if (isdigit(bPart.at(0)) || bPart.at(0) == '-')
+            if (skip != ":")
             {
-                //lea esi, a[123 * 4]
-                //push dword [esi]
-                string reg1 = getFreeMemReg();
-                codbuffer += sx() + "lea " + reg1 + ", " + Tokens.at(paraIndex).getFullName() + "[" + bPart + " * 4]\n";
-                codbuffer += sx() + "push dword [" + reg1 + "]\n";
+                //just give the array as an pointer.
+                int parIndex = getIndex(parameter);
+                codbuffer += sx() + "push " + Tokens.at(parIndex).getFullName() + "\n";
             }
             else
             {
-                //mov edi, dword [index]
-                //lea esi, a[edi * 4]
-                //push dword [esi]
-                string reg1 = getFreeMemReg();
-                string reg2 = getFreeMemReg();
-                int bIndex = getIndex(bPart);
-                codbuffer += sx() + "mov " + reg1 + ", dword [" + Tokens.at(bIndex).getFullName() + "]\n";
-                codbuffer += sx() + "lea " + reg2 + ", " + Tokens.at(paraIndex).getFullName() + "[" + reg1 + "* 4]\n";
-                codbuffer += sx() + "push dword [" + reg2 + "]\n";
+                index = getWord(' ', bPart, parameters, index);
+                if (isdigit(bPart.at(0)) || bPart.at(0) == '-')
+                {
+                    //lea esi, a[123 * 4]
+                    //push dword [esi]
+                    string reg1 = getFreeMemReg();
+                    codbuffer += sx() + "lea " + reg1 + ", " + Tokens.at(paraIndex).getFullName() + "[" + bPart + " * 4]\n";
+                    codbuffer += sx() + "push dword [" + reg1 + "]\n";
+                }
+                else
+                {
+                    //mov edi, dword [index]
+                    //lea esi, a[edi * 4]
+                    //push dword [esi]
+                    string reg1 = getFreeMemReg();
+                    string reg2 = getFreeMemReg();
+                    int bIndex = getIndex(bPart);
+                    codbuffer += sx() + "mov " + reg1 + ", dword [" + Tokens.at(bIndex).getFullName() + "]\n";
+                    codbuffer += sx() + "lea " + reg2 + ", " + Tokens.at(paraIndex).getFullName() + "[" + reg1 + "* 4]\n";
+                    codbuffer += sx() + "push dword [" + reg2 + "]\n";
+                }
             }
+            
         }
         
     }
@@ -745,19 +793,15 @@ void useVar(int &index, string destination)
     }
 
     //if B part is a array
-    if (Tokens.at(bIndex).ifArray)
+    if (math == ":")
     {
-        //mov esi, dword array[index]
-        getFreeReg();
-        string reg1 = regbuffer;
-        codbuffer += sx() + "mov " + reg1 + ", dword [" + arrayInitialization(index, bIndex) + "]\n";
         if (bPart == destination)
         {
-            getInitalDestination(index, reg1, true);
+            getInitalDestination(index, addOffset(index, bPart), true);
         }
         else
         {
-            getInitalDestination(index, reg1, false);
+            getInitalDestination(index, addOffset(index, bPart), false);
         }
         
         return;

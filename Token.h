@@ -15,7 +15,7 @@ extern vector<Token> Tokens;
 extern vector<string> FunctionNames;
 extern vector<string> Stack;
 extern int getIndex(string name);
-extern int getTypesInFunctions(vector<string> v, string wanted);
+extern int getFromList(vector<string> v, string wanted);
 extern bool isType;
 
 class Token
@@ -118,7 +118,7 @@ class Token
                 string reg = getFreeMemReg();
                 if (fetcher.size() > 0 && Stack.size() > 0)
                 {
-                    int fetcherIndex = getTypesInFunctions(Stack, fetcher);
+                    int fetcherIndex = getFromList(Stack, fetcher);
                     codbuffer += sx() + "mov " + reg + ", [esp + " + to_string( (Stack.size() - fetcherIndex - 1) * 4) + "]\n";
                 }
                 else

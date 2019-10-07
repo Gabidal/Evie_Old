@@ -144,10 +144,12 @@ type_vector:
   lea edi , [esi + 0]
   push edi 
   
+  mov ecx , dword [init.aa]
+  mov ebx , dword [eax  + ecx ]
 
   ;Get the destination to: edi 
   pop edi 
-  mov [edi ], eax 
+  mov [edi ], ebx 
 
 
   ;making a stack frame end
@@ -176,38 +178,14 @@ function_main:
  ;Call malloc.
  call function_malloc
 
- pop dword [main.banana]
- ;deleteing the parameters from stack
- add esp, 4
- ;Save new Type address in stack at(0)
- push dword [main.banana]
-
- ;Give malloc Type size.
- push 8
-
- ;Call malloc.
- call function_malloc
-
  pop dword [main.apple]
  ;deleteing the parameters from stack
  add esp, 4
- ;Save new Type address in stack at(4)
+ ;Save new Type address in stack at(0)
  push dword [main.apple]
 
  ;Functions Parameters
- push dword [main.b]
- push dword [main.a]
-
- ;Giving the function Type address.
- push dword [main.banana]
- 
- ;Call the function
- call function_init
- ;deleteing the parameters from stack
- add esp, 12
-
- ;Functions Parameters
- push dword [main.b]
+ push main.c
  push dword [main.a]
 
  ;Giving the function Type address.
@@ -217,12 +195,6 @@ function_main:
  call function_init
  ;deleteing the parameters from stack
  add esp, 12
-
-
- ;making a stack frame end
- mov esp, ebp
- pop ebp
-ret
 
 
 
@@ -233,8 +205,8 @@ char.s dd 0
 reverse.s dd 0
 
 vector:
-vector.b dd 0
-vector.a dd 0
+vector.b dd 1
+vector.a dd 2
 
 startVariables_init:
 init.aa dd 0
@@ -244,12 +216,10 @@ endVariables_init:
 vector_end:
 
 startVariables_main:
-main.a dd 0
-main.b dd 0
-main.banana dd 0
+main.a dd 1
+main.b dd 2
+main.c times 10 dd 0
 main.apple dd 0
-endVariables_main:
-
 
 
 section .bss

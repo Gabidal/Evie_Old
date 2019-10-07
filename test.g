@@ -7,16 +7,16 @@ type vector()
   func init(this, aa, bb)
   (
     -> a = aa
-    -> b = bb
+    -> b = bb : aa
   )
+  
 )
 
 func main()
 (
   var a = 1
   var b = 2
-  new vector banana
+  var c : 10
   new vector apple
-  banana.init(a, b)
-  apple.init(a, b)
+  apple.init(a, c)
 )
