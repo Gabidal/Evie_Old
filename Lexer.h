@@ -24,7 +24,12 @@ void initializeKeyWords()
     TokenNull.makeName("nullnullTokennullnull");
     Tokens.push_back(TokenNull);
 
-    initialize(Tokens, texbuffer1);
+    setters.insert(make_pair("size", init_size));
+    setters.insert(make_pair("malloc", init_malloc));
+    setters.insert(make_pair("char", init_char));
+    setters.insert(make_pair("num", init_num));
+    setters.insert(make_pair("reverse", init_reverse));
+
 }
 
 string readFile(string name)

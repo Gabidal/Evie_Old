@@ -2,22 +2,6 @@
 
 section .text
 
-
-function_size:
-  pop ebx
-  pop edx
-  xor eax, eax
-  jmp check
-  top:
-  inc edx
-  inc eax
-  check:
-  cmp byte [edx], 0
-  jnz top
-  push eax
-  push ebx
-ret
-
 function_malloc:
   push dword 0
   push dword -1
@@ -32,66 +16,6 @@ function_malloc:
   pop ebx
   push eax
 jmp ebx
-
-function_char:
-  pop edi
-  pop eax
-  printRAX:
-    lea ecx, [char.s]
-    mov ebx, 10
-    mov [ecx], ebx
-    inc ecx
-    mov [char.i], ecx
-  charLoop:
-    mov edx, 0
-    mov ebx, 10
-    div ebx
-    push eax
-    add edx, 48
-    mov ecx, [char.i]
-    mov [ecx], dl
-    inc ecx
-    mov [char.i], ecx
-    pop eax
-    cmp eax, 0
-    jne charLoop
-  push char.s
-jmp edi
-
-function_num:
-  pop edx
-  pop eax
-  mov ecx, 48
-  sub eax, ecx
-  push eax
-  jmp edx
-
-function_reverse:
-  push ebp
-  mov ebp, esp
-  mov esi, [ebp+8]
-  push esi
-  call function_size
-  pop ecx
-  mov eax, esi
-  add eax, ecx
-  mov edi, eax
-  dec edi       ; edi points to end of string
-  shr ecx, 1    ; ecx is count (length/2)
-  jz reverse.done
-  reverseLoop:
-  mov al, [esi] ; load characters
-  mov bl, [edi]
-  mov [esi], bl ; and swap
-  mov [edi], al
-  inc esi       ; adjust pointers
-  dec edi
-  dec ecx       ; and loop
-  jnz reverseLoop
-  reverse.done:
-  mov esp, ebp
-  pop ebp
-  ret
 
 global _start
 _start:
@@ -144,7 +68,7 @@ type_vector:
   lea edi , [esi + 0]
   push edi 
   
-  mov ecx , dword [init.aa]
+  mov ecx , dword [esi + 4]
   mov ebx , dword [eax  + ecx ]
 
   ;Get the destination to: edi 
@@ -206,9 +130,6 @@ ret
 
 section .data
 
-char.i dd 0
-char.s dd 0
-reverse.s dd 0
 
 vector:
 vector.b dd 1

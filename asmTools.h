@@ -6,9 +6,9 @@ using namespace std;
 
 #include "Token.h"
 
-void initialize(vector <Token> &Tokens, string &buffer)
+string init_size(vector <Token> &Tokens)
 {
-    buffer +=
+    string b = 
     "\nfunction_size:\n"
     "  pop ebx\n"
     "  pop edx\n"
@@ -30,9 +30,12 @@ void initialize(vector <Token> &Tokens, string &buffer)
     sizer.ParameterAmount = 1;
     sizer.makeReturnable();
     Tokens.push_back(sizer);
+    return b;
+}
 
-
-    buffer += 
+string init_malloc(vector <Token> &Tokens)
+{
+    string b =  
     "function_malloc:\n"
     "  push dword 0\n"
     "  push dword -1\n"
@@ -54,8 +57,12 @@ void initialize(vector <Token> &Tokens, string &buffer)
     alloc.ParameterAmount = 1;
     alloc.makeReturnable();
     Tokens.push_back(alloc);
+    return b;
+}
 
-    buffer += 
+string init_char(vector <Token> &Tokens)
+{
+    string b = 
     "function_char:\n"
     "  pop edi\n"
     "  pop eax\n"
@@ -102,7 +109,12 @@ void initialize(vector <Token> &Tokens, string &buffer)
     varbuffer1 += "char.s dd 0\n";
     Tokens.push_back(chars);
 
-    buffer += 
+    return b;
+}
+
+string init_num(vector <Token> &Tokens)
+{
+    string b = 
     "function_num:\n"
     "  pop edx\n"
     "  pop eax\n"
@@ -117,8 +129,12 @@ void initialize(vector <Token> &Tokens, string &buffer)
     toNum.ParameterAmount = 1;
     toNum.makeReturnable();
     Tokens.push_back(toNum);
+    return b;
+}
 
-    buffer += 
+string init_reverse(vector <Token> &Tokens)
+{
+    string b = 
     "function_reverse:\n"
     "  push ebp\n"
     "  mov ebp, esp\n"
@@ -158,6 +174,7 @@ void initialize(vector <Token> &Tokens, string &buffer)
     reverses.makePrivate("reverse");
     varbuffer1 += "reverse.s dd 0\n";
     Tokens.push_back(reverses);
+    return b;
 }
 
 

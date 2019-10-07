@@ -1,4 +1,3 @@
-
 type vector()
 (
   var b = 1
@@ -7,7 +6,7 @@ type vector()
   func init(this, aa, bb)
   (
     -> a = aa
-    -> b = bb : aa
+    -> b = bb : -> a
   )
 )
 

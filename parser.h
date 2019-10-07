@@ -35,6 +35,9 @@ vector<string> TypeNames;
 vector<string> Stack;
 vector<string> ThisParameters;
 
+vector<string> settedFuncs;
+map <string, string(*)(vector<Token> &)> setters;
+
 bool hasFunctionStackFrame = false;
 int framesAmount = 0;
 bool isElse = false;
@@ -52,6 +55,27 @@ extern int getWord(char, string&, string, int);
 extern int getReversedIndex(char, string, int);
 extern int getReversedWord(char, string&, string, int);
 extern string readFile(string name);
+
+
+void check(string name)
+{
+    bool ifNotsetted = false;
+    for (int i = 0; i < settedFuncs.size(); i++)
+    {
+        if (settedFuncs.at(i) == name)
+        {
+            ifNotsetted = true;
+            break;
+        }
+    }
+    if (ifNotsetted == false && setters.find(name) != setters.end())
+    {
+        codbuffer1 = setters.find(name)->second(Tokens) + codbuffer1;
+        settedFuncs.push_back(name);
+    }
+
+}
+
 
 string sx()
 {
@@ -209,7 +233,12 @@ string addOffset(int &index, string name)
     index = getWord(' ', offset, parameters, index);
     string test;
     offsetI = getWord(' ', test, parameters, index);
-    string Reg;
+    string Reg = "";
+    string loopReg = "";
+    if (Tokens.at(getIndex(offset)).ifArray)
+    {
+        loopReg = addOffset(index, offset);
+    }
     if (isdigit(offset.at(0)) || offset.at(0) == '-' && offset != "->")
     {
         getFreeReg();
@@ -1159,6 +1188,7 @@ void makeNew(int &index)
         codbuffer += sx() + ";Give malloc Type size.\n";
         codbuffer += sx() + "push " + to_string(Tokens.at(getIndex(type)).Size) + "\n\n";
         codbuffer += sx() + ";Call malloc.\n";
+        check("malloc");
         codbuffer += sx() + "call function_malloc\n\n";
         codbuffer += sx() + "pop dword [" + ptr.getFullName() + "]\n";
         codbuffer += sx() + ";deleteing the parameters from stack\n";
@@ -1379,6 +1409,7 @@ void TypeFetch(int &index, string statement)
     }
 }
 
+
 void parser(string destination, string &file, int &continu, string &varbuffer1, string &codbuffer1, string &texbuffer1, string &includes1, string &bssbuffer1)
 {
     codbuffer = "";
@@ -1489,6 +1520,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     }
     else if (Tokens.at(dest).ifFunction)
     {
+        check(destination);
         callFunction(destination, continu);
     }
 
