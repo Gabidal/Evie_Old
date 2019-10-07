@@ -197,6 +197,12 @@ function_main:
  add esp, 12
 
 
+ ;making a stack frame end
+ mov esp, ebp
+ pop ebp
+ret
+
+
 
 section .data
 
@@ -220,6 +226,8 @@ main.a dd 1
 main.b dd 2
 main.c times 10 dd 0
 main.apple dd 0
+endVariables_main:
+
 
 
 section .bss

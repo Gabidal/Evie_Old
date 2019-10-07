@@ -9,7 +9,6 @@ type vector()
     -> a = aa
     -> b = bb : aa
   )
-  
 )
 
 func main()

@@ -348,7 +348,7 @@ void prepareFunction(int &index, string func)
         {
             string skip;
             string bPart;
-            index = getWord(' ', skip, parameters, index);
+            int offset = getWord(' ', skip, parameters, index);
             if (skip != ":")
             {
                 //just give the array as an pointer.
@@ -357,6 +357,7 @@ void prepareFunction(int &index, string func)
             }
             else
             {
+                index = offset;
                 index = getWord(' ', bPart, parameters, index);
                 if (isdigit(bPart.at(0)) || bPart.at(0) == '-')
                 {
