@@ -771,6 +771,7 @@ void useVar(int &index, string destination)
     if (bPart.find('(') != -1)
     {
         int offset = getWord('(', destTest, bPart, 0);
+        check(destTest);
         if (int i = getIndex(destTest) != 0)
         {
             int recruit = getReversedIndex('(', bPart, bPart.size());

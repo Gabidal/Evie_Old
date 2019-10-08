@@ -1,7 +1,3 @@
-
-var char.i = 0
-str char.s : 20
-str reverse.s : 512
 var header = 0
 var carry = 0
 
