@@ -29,6 +29,7 @@ void initializeKeyWords()
     setters.insert(make_pair("char", init_char));
     setters.insert(make_pair("num", init_num));
     setters.insert(make_pair("reverse", init_reverse));
+    setters.insert(make_pair("gout", init_gout));
 
 }
 

@@ -2,6 +2,23 @@
 
 section .text
 
+function_gout:
+ ;making a function stack frame
+ push ebp
+ mov ebp, esp
+ sub esp, 4
+ ;[ebp +8 ]  ;gout.name
+ push dword [ebp + 8]
+ call function_size
+ pop edx
+ mov eax, 4
+ mov ebx, 1
+ mov ecx, [ebp + 8]
+ int 80h
+ ;making a stack frame end
+ mov esp, ebp
+ pop ebp
+ret
 function_malloc:
   push dword 0
   push dword -1
@@ -42,54 +59,6 @@ int 80h
 
 GASCode:
 
-function_gout:
- ;making a function stack frame
- push ebp
- mov ebp, esp
-
- sub esp, 4
- 
- ;name is now an Variable.
- mov eax , [ebp +8]
- mov [gout.name], eax 
- ;Set the value to local var
- mov dword [gout.getLenght], 0
-
- ;usr:: get the string length
-
- ;The inital destination
- push gout.getLenght
- 
- ;Functions Parameters
- push dword [gout.name]
- 
- ;Call the function
- call function_size
-
- pop ecx 
-
- ;Get the destination to: esi 
- pop esi 
- mov [esi ], ecx 
-
-
- ;usr:: call sys print
-
- push eax
- mov eax, 4
- mov ebx, 1
- mov ecx, dword [gout.name]
- mov edx, dword [gout.getLenght]
- int 80h
- mov [carry], eax
- pop eax
-
-
- ;making a stack frame end
- mov esp, ebp
- pop ebp
-ret
-
 function_gin:
  ;making a function stack frame
  push ebp
@@ -98,8 +67,8 @@ function_gin:
  sub esp, 4
  
  ;name is now an Variable.
- mov edx , [ebp +8]
- mov [gin.name], edx 
+ mov eax , [ebp +8]
+ mov [gin.name], eax 
  ;Set the value to local var
  mov dword [gin.getLenght], 0
 
@@ -112,11 +81,11 @@ function_gin:
  ;Call the function
  call function_size
 
- pop ebx 
+ pop ecx 
 
- ;Get the destination to: edi 
- pop edi 
- mov [edi ], ebx 
+ ;Get the destination to: esi 
+ pop esi 
+ mov [esi ], ecx 
 
 
  push eax
@@ -172,37 +141,37 @@ type_vector:
   sub esp, 12
   
   ;this is CLASS address.
-  mov esi , [ebp + 8]
+  mov edi , [ebp + 8]
   
   ;aa is now an Variable.
-  mov ebx , [ebp +12]
-  mov [init.aa], ebx 
+  mov ecx , [ebp +12]
+  mov [init.aa], ecx 
   
   ;bb is now an Variable.
-  mov ecx , [ebp +16]
-  mov [init.bb], ecx 
+  mov edx , [ebp +16]
+  mov [init.bb], edx 
 
   ;The inital destination
-  lea edi , [esi + 4]
-  push edi 
+  lea esi , [edi + 4]
+  push esi 
   
-
-  ;Get the destination to: esi 
-  pop esi 
-  mov [esi ], ebx 
-
-
-  ;The inital destination
-  mov esi , [ebp + 8]
-  lea edi , [esi + 0]
-  push edi 
-  
-  mov eax , dword [esi + 4]
-  mov edx , dword [ecx  + eax ]
 
   ;Get the destination to: edi 
   pop edi 
-  mov [edi ], edx 
+  mov [edi ], ecx 
+
+
+  ;The inital destination
+  mov edi , [ebp + 8]
+  lea esi , [edi + 0]
+  push esi 
+  
+  mov ebx , dword [edi + 4]
+  mov eax , dword [edx  + ebx ]
+
+  ;Get the destination to: esi 
+  pop esi 
+  mov [esi ], eax 
 
 
   ;making a stack frame end
@@ -269,12 +238,6 @@ section .data
 
 header dd 0
 carry dd 0
-
-startVariables_gout:
-gout.name dd 0
-gout.getLenght dd 0
-endVariables_gout:
-
 
 startVariables_gin:
 gin.name dd 0

@@ -1423,6 +1423,7 @@ void parser(string destination, string &file, int &continu, string &varbuffer1, 
     if (destination.find('(') != -1)
     {
         int offset = getWord('(', destTest, destination, 0);
+        check(destTest);
         if (int i = getIndex(destTest) != 0)
         {
             int recruit = getReversedIndex('(', destination, destination.size());

@@ -178,4 +178,37 @@ string init_reverse(vector <Token> &Tokens)
 }
 
 
+string init_gout(vector <Token> &Tokens)
+{
+    string b = 
+    "function_gout:\n"
+    " ;making a function stack frame\n"
+    " push ebp\n"
+    " mov ebp, esp\n"
+    " sub esp, 4\n"
+    " ;[ebp +8 ]  ;gout.name\n"
+    " push dword [ebp + 8]\n"
+    " call function_size\n"
+    " pop edx\n"
+    " mov eax, 4\n"
+    " mov ebx, 1\n"
+    " mov ecx, [ebp + 8]\n"
+    " int 80h\n"
+    " ;making a stack frame end\n"
+    " mov esp, ebp\n"
+    " pop ebp\n"
+    "ret\n"
+    ;
+    check("size");
+    Token gout;
+    gout.makeFunc("gout");
+    gout.makePublic();
+    gout.ParameterAmount = 1;
+    Tokens.push_back(gout);
+
+    return b;
+}
+
+
+
 #endif
