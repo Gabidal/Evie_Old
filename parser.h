@@ -365,7 +365,7 @@ void prepareFunction(int &index, string func)
             int parIndex = getIndex(parameter);
             codbuffer += sx() + "push " + Tokens.at(parIndex).getFullName() + "\n";
         }
-        else if (Tokens.at(paraIndex).ifVar)
+        else if (Tokens.at(paraIndex).ifVar || Tokens.at(paraIndex).ifType)
         {
             codbuffer += sx() + "push dword [" + Tokens.at(paraIndex).getFullName() + "]\n";
         }
@@ -411,6 +411,7 @@ void prepareFunction(int &index, string func)
             }
             
         }
+
         
     }
     if (Tokens.at(funcIndex).ifFunction)
@@ -1139,7 +1140,8 @@ void makeNewType(int &index)
     Token type;
     type = Tokens.at(getIndex(name));
     Tokens.erase(Tokens.begin()+getIndex(name));
-    type.makeType(name);
+    type.makeName(name);
+    type.makeType();
     type.makePublic();
     isType = true;
     Tokens.push_back(type);
@@ -1173,6 +1175,7 @@ void makeNew(int &index)
         ptr.makeName(name);
         ptr.ifMirrored = true;
         ptr.origin = type;
+        ptr.makeType();
         if (FunctionNames.size() > 0 && FunctionNames.back() == " ")
         {
             //it is public.

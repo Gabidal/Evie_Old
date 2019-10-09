@@ -60,7 +60,7 @@ class Token
         ifReal = true;
     }
 
-    void makeType(string typeName)
+    void makeType()
     {
         ifType = true;
         ifReal = true;

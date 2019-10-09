@@ -2,23 +2,20 @@ use std.g
 
 type vector()
 (
-  var b = 1
   var a = 2
+  var b = 1
 
-  func init(this, aa, bb)
+  func combine(this, other)
   (
-    -> a = aa
-    -> b = bb : -> a
+    -> a = -> a + other : 0
+    -> b = -> b + other : 1
   )
 )
 
 func main()
 (
-  var a = 1
-  var b = 2
-  var c : 10
-  str d = "hello joonas!"
-  new vector apple
-  apple.init(a, c)
-  gout(d)
+  new vector a
+  new vector b
+  a.combine(b)
+  
 )

@@ -2,23 +2,6 @@
 
 section .text
 
-function_gout:
- ;making a function stack frame
- push ebp
- mov ebp, esp
- sub esp, 4
- ;[ebp +8 ]  ;gout.name
- push dword [ebp + 8]
- call function_size
- pop edx
- mov eax, 4
- mov ebx, 1
- mov ecx, [ebp + 8]
- int 80h
- ;making a stack frame end
- mov esp, ebp
- pop ebp
-ret
 function_malloc:
   push dword 0
   push dword -1
@@ -130,44 +113,46 @@ type_vector:
  mov ebp, esp
 
  ;Set the value to local var
- mov dword [vector.b], 1
- ;Set the value to local var
  mov dword [vector.a], 2
- function_init:
+ ;Set the value to local var
+ mov dword [vector.b], 1
+ function_combine:
   ;making a function stack frame
   push ebp
   mov ebp, esp
 
-  sub esp, 12
+  sub esp, 8
   
   ;this is CLASS address.
   mov edi , [ebp + 8]
   
-  ;aa is now an Variable.
+  ;other is now an Variable.
   mov ecx , [ebp +12]
-  mov [init.aa], ecx 
-  
-  ;bb is now an Variable.
-  mov edx , [ebp +16]
-  mov [init.bb], edx 
+  mov [combine.other], ecx 
 
   ;The inital destination
-  lea esi , [edi + 4]
-  push esi 
-  
-
-  ;Get the destination to: edi 
-  pop edi 
-  mov [edi ], ecx 
-
-
-  ;The inital destination
-  mov edi , [ebp + 8]
   lea esi , [edi + 0]
   push esi 
   
-  mov ebx , dword [edi + 4]
-  mov eax , dword [edx  + ebx ]
+  ;Math do: +
+  mov edi , [esp + 0]
+  mov edx , dword [edi + 0]
+  add edx , ecx 
+
+  ;Get the destination to: esi 
+  pop esi 
+  mov [esi ], edx 
+
+
+  ;The inital destination
+  mov esi , [ebp + 8]
+  lea edi , [esi + 4]
+  push edi 
+  
+  ;Math do: +
+  mov edi , [esp + 0]
+  mov eax , dword [edi + 4]
+  add eax , ecx 
 
   ;Get the destination to: esi 
   pop esi 
@@ -190,41 +175,40 @@ function_main:
  push ebp
  mov ebp, esp
 
- ;Set the value to local var
- mov dword [main.a], 1
- ;Set the value to local var
- mov dword [main.b], 2
  ;Give malloc Type size.
  push 8
 
  ;Call malloc.
  call function_malloc
 
- pop dword [main.apple]
+ pop dword [main.a]
  ;deleteing the parameters from stack
  add esp, 4
  ;Save new Type address in stack at(0)
- push dword [main.apple]
-
- ;Functions Parameters
- push main.c
  push dword [main.a]
 
- ;Giving the function Type address.
- push dword [main.apple]
- 
- ;Call the function
- call function_init
- ;deleteing the parameters from stack
- add esp, 12
+ ;Give malloc Type size.
+ push 8
 
- ;Functions Parameters
- push main.d
- 
- ;Call the function
- call function_gout
+ ;Call malloc.
+ call function_malloc
+
+ pop dword [main.b]
  ;deleteing the parameters from stack
  add esp, 4
+ ;Save new Type address in stack at(4)
+ push dword [main.b]
+
+ ;Functions Parameters
+ push dword [main.b]
+
+ ;Giving the function Type address.
+ push dword [main.a]
+ 
+ ;Call the function
+ call function_combine
+ ;deleteing the parameters from stack
+ add esp, 8
 
 
  ;making a stack frame end
@@ -250,22 +234,18 @@ endVariables_exit:
 
 
 vector:
-vector.b dd 1
 vector.a dd 2
+vector.b dd 1
 
-startVariables_init:
-init.aa dd 0
-init.bb dd 0
-endVariables_init:
+startVariables_combine:
+combine.other dd 0
+endVariables_combine:
 
 vector_end:
 
 startVariables_main:
-main.a dd 1
-main.b dd 2
-main.c times 10 dd 0
-main.d db "hello joonas!", 0
-main.apple dd 0
+main.a dd 0
+main.b dd 0
 endVariables_main:
 
 
