@@ -59,6 +59,7 @@ class Token
     string getFullName();
     Register getNewRegister();
     string getReg();
+    string InitToken(Token *t);
 };
 
 

@@ -1,5 +1,9 @@
+
+#include <string>
 #include "H/Token.h"
 #include "H/Register.h"
+#include "H/Assembly_Definitions.h"
+using namespace std;
 
 int RegisterTurn = 0;
 
@@ -11,6 +15,7 @@ bool Token::is(int flag)
 string Token::getFullName()
 {
     string name;
+    
     if (is(Public))
     {
         name = Name;
@@ -72,5 +77,32 @@ string Token::getReg()
     {
         return Reg.Name;
     }
+    
+}
+
+
+string Token::InitToken(Token *t)
+{
+    string result = "";
+    if (t->is(Member))
+    {
+        Register ParentReg = t->ParentFunc->Reg;
+        if (NULL(ParentReg.Name))
+        {
+            //allocate new Register for class address place holding.
+            t->ParentFunc->Reg = t->getReg();
+            result = MOV + ParentReg.Name + FROM + FRAME(t->ParentFunc->getFullName()) + NL;
+        }
+        result += MOV + t->Reg.Name + FROM + DWORD + FRAME(ParentReg.Name + OFFSET + to_string(t->StackOffset)) + NL;
+    }
+    else if (t->is(Public))
+    {
+        result = MOV + t->Reg.Name + FROM + DWORD + FRAME(t->getFullName()) + NL;
+    }
+    else if (t->is(Equ))
+    {
+        result = MOV + t->Reg.Name + FROM + t->getFullName() + NL;
+    }
+    return result;
     
 }
