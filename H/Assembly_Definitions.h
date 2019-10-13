@@ -14,6 +14,7 @@
 #define JG "jg "
 #define JNG "jng "
 #define JL "jl "
+
 #define JNL "jnl "
 #define JZ "jz "
 #define RET "ret "

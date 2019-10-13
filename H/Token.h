@@ -10,11 +10,11 @@ using namespace std;
 #define KeyWord (1<<0)
 #define Public (1<<1)
 #define Member (1<<2)
-#define Useful (1<<3)
+#define Used (1<<3)
 #define Real (1<<4)
-#define Func (1<<6)
+#define Function (1<<6)
 #define Macro (1<<7)
-#define Type (1<<8)
+#define TYPE (1<<8)
 #define Define (1<<9)
 //Variables
 #define Number (1<<10)
@@ -38,6 +38,7 @@ using namespace std;
 #define Parameter (1<<24)
 #define Prototype (1<<25)
 #define Private (1<<26)
+#define This (1<<27)
 
 class Token
 {
@@ -48,18 +49,18 @@ class Token
     int StackOffset = 0;
     int ParameterCount = 0;
     int AddedOffset = 0;
+    int ParameterOffset = 0;
     Token *ParentType;
     Token *ParentFunc;
     string Name = "";
-    Register Reg;
-
-    vector <Token> Childs;
+    Register *Reg;
 
     bool is(int flag);
     string getFullName();
-    Register getNewRegister();
-    string getReg();
-    string InitToken(Token *t);
+    Register *getNewRegister();
+    Register *getReg();
+    string InitToken(Token *v, Token *type, string &code);
+    string InitToken(Token *v, string &code);
 };
 
 
