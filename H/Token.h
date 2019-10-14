@@ -50,6 +50,7 @@ class Token
     int ParameterCount = 0;
     int AddedOffset = 0;
     int ParameterOffset = 0;
+    int ID = 0;
     Token *ParentType;
     Token *ParentFunc;
     string Name = "";
@@ -59,8 +60,13 @@ class Token
     string getFullName();
     Register *getNewRegister();
     Register *getReg();
-    string InitToken(Token *v, Token *type, string &code);
-    string InitToken(Token *v, string &code);
+    string InitToken(string &code);
+    string MOVE(Token *Source, string &output);
+    string SUM(Token *Source, string &output);
+    string SUBSTRACT(Token *Source, string &output);
+    string MULTIPLY(Token *Source, string &output);
+    string DIVIDE(Token *Source, string &output);
+    string COMPARE(Token *Source, string &output);
 };
 
 
