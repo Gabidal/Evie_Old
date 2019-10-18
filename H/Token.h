@@ -14,7 +14,7 @@ using namespace std;
 #define Real (1<<4)
 #define Function (1<<6)
 #define Macro (1<<7)
-#define TYPE (1<<8)
+#define Typee (1<<8)
 #define Define (1<<9)
 //Variables
 #define Number (1<<10)

@@ -8,6 +8,7 @@ class Type : public Father
   public:
     vector<Token*> Functions;
     void addFunc(Func *func);
+    void InitType(string &output);
 };
 
 

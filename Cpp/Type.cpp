@@ -7,3 +7,5 @@ void Type::addFunc(Func *func)
     func->Parent = this;
     func->Flags |= Prototype;
 }
+
+

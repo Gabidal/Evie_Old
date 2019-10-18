@@ -16,4 +16,5 @@ func main()
 (
   new vector a
   new vector b
+  a.combine(b)
 )

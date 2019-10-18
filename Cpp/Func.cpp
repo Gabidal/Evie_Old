@@ -6,6 +6,7 @@ void Father::addChild(Token *local)
     local->ParentFunc = this;
     local->StackOffset = this->StackOffset;
     this->StackOffset += local->Size;
+    this->Size += local->Size;
 	local->Flags |= Private;
 }
 
@@ -21,5 +22,17 @@ Func::Func(bool getsThisAsParameter)
     if (getsThisAsParameter)
     {
         this->Flags |= This;
+    }
+}
+
+void Func::InitFunction(string &output)
+{
+    if (is(Member))
+    {
+        output += LABEL(TYPE(ParentType->Name, FUNC(this->Name)));
+    }
+    else
+    {
+        output += LABEL(FUNC(this->Name));
     }
 }

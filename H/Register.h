@@ -2,6 +2,8 @@
 #define _REGISTER_H_
 
 #include <string>
+#include "Token.h"
+#include <vector>
 using namespace std;
 
 class Register
@@ -12,11 +14,17 @@ public:
     bool TaskForMovingParameter = false;
     string Name = "";
     int Value = 0;
+    vector<Token*> Users;
+    Token *Owner;
     Register(string name)
     {
         Name = name;
     }
-
+    void Link(Token *Reguester)
+    {
+        Users.push_back(Reguester);
+        Owner = Reguester;
+    }
 };
 
 static Register *NUL = new Register("null");

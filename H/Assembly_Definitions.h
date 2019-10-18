@@ -7,6 +7,8 @@
 #define SUB "sub "
 #define MUL "mul "
 #define DIV "div "
+#define IMUL "imul "
+#define IDIV "idiv "
 #define XOR "xor "
 #define CMP "cmp "
 #define JE "je "
@@ -23,13 +25,19 @@
 #define FROM ", "
 #define NL "\n"
 #define OFFSET " + "
+#define DEOFFSET " - "
 #define SCALE " * "
+#define LABEL(name) (name + ": \n")
+#define FUNC(name) (name + "()")
+#define TYPE(type, name) (type + "::" + name)
 
 
 #define DWORD "dword "
 #define QWORD "qword "
 #define BYTE "byte "
 #define FRAME(name) ("[" + name + "]")
+#define PUSH(name) ("push " + name + "\n")
+#define POP(name) ("pop " + name + "\n")
 
 
 #endif

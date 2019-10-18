@@ -4,6 +4,7 @@
 #include <string>
 #include "Token.h"
 #include "Register.h"
+#include "Assembly_Definitions.h"
 
 class Father : public Token
 {
@@ -18,7 +19,10 @@ class Func : public Father
     Token *Parent;
     void addParameter(Token *Param);
     Func(bool getsThisAsParameter);
+    void InitFunction(string &output);
+    void CallFunc(string &output);
 };
+
 
 
 #endif

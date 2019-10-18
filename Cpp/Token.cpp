@@ -24,13 +24,14 @@ string Token::getFullName()
     {
         if (is(Parameter))
         {
-            name = EBP->Name + " + " + to_string(StackOffset);
+            name = EBP->Name + OFFSET + to_string(StackOffset);
         }
         else
         {
-            name = EBP->Name + " - " + to_string(StackOffset);
+            name = EBP->Name + DEOFFSET + to_string(StackOffset);
         }
     }
+    return name;
 }
 
 Register *Token::getNewRegister()
@@ -130,13 +131,13 @@ string Token::SUBSTRACT(Token *Source, string &output)
 
 string Token::MULTIPLY(Token *Source, string &output)
 {
-    output += MUL + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += IMUL + this->InitToken(output) + FROM + Source->InitToken(output);
     return this->Reg->Name;
 }
 
 string Token::DIVIDE(Token *Source, string &output)
 {
-    output += DIV + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += IDIV + this->InitToken(output) + FROM + Source->InitToken(output);
     return this->Reg->Name;
 }
 
@@ -145,4 +146,3 @@ string Token::COMPARE(Token *Source, string &output)
     output += CMP + this->InitToken(output) + FROM + Source->InitToken(output);
     return this->Reg->Name;
 }
-
