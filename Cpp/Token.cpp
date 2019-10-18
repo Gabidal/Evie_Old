@@ -77,7 +77,7 @@ Register *Token::getReg()
     return Reg;
 }
 
-string Token::InitToken(string &code)
+string Token::InitVariable()
 {
     string result = "";
     if (NULL(this->Reg->Name))
@@ -90,17 +90,17 @@ string Token::InitToken(string &code)
             {
                 //allocate new Register for class address place holding.
                 this->ParentFunc->Reg = this->getReg();
-                code += MOV + ParentReg->Name + FROM + FRAME(ParentType->getFullName()) + NL;
+                output += MOV + ParentReg->Name + FROM + FRAME(ParentType->getFullName()) + NL;
             }
-            code += MOV + this->Reg->Name + FROM + DWORD + FRAME(ParentReg->Name + OFFSET + to_string(this->StackOffset)) + NL;
+            output += MOV + this->Reg->Name + FROM + DWORD + FRAME(ParentReg->Name + OFFSET + to_string(this->StackOffset)) + NL;
         }
         else if (this->is(Public))
         {
-            code += MOV + this->Reg->Name + FROM + DWORD + FRAME(this->getFullName()) + NL;
+            output += MOV + this->Reg->Name + FROM + DWORD + FRAME(this->getFullName()) + NL;
         }
         else if (this->is(Equ))
         {
-            code += MOV + this->Reg->Name + FROM + this->getFullName() + NL;
+            output += MOV + this->Reg->Name + FROM + this->getFullName() + NL;
         }
         result = this->Reg->Name;
     }
@@ -111,38 +111,43 @@ string Token::InitToken(string &code)
     return result;
 }
 
-string Token::MOVE(Token *Source, string &output)
+string Token::MOVE(Token *Source)
 {
-    output += MOV + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += MOV + this->InitVariable() + FROM + Source->InitVariable();
     return this->Reg->Name;
 }
 
-string Token::SUM(Token *Source, string &output)
+string Token::SUM(Token *Source)
 {
-    output += ADD + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += ADD + this->InitVariable() + FROM + Source->InitVariable();
     return this->Reg->Name;
 }
 
-string Token::SUBSTRACT(Token *Source, string &output)
+string Token::SUBSTRACT(Token *Source)
 {
-    output += SUB + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += SUB + this->InitVariable() + FROM + Source->InitVariable();
     return this->Reg->Name;
 }
 
-string Token::MULTIPLY(Token *Source, string &output)
+string Token::MULTIPLY(Token *Source)
 {
-    output += IMUL + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += IMUL + this->InitVariable() + FROM + Source->InitVariable();
     return this->Reg->Name;
 }
 
-string Token::DIVIDE(Token *Source, string &output)
+string Token::DIVIDE(Token *Source)
 {
-    output += IDIV + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += IDIV + this->InitVariable() + FROM + Source->InitVariable();
     return this->Reg->Name;
 }
 
-string Token::COMPARE(Token *Source, string &output)
+string Token::COMPARE(Token *Source)
 {
-    output += CMP + this->InitToken(output) + FROM + Source->InitToken(output);
+    output += CMP + this->InitVariable() + FROM + Source->InitVariable();
     return this->Reg->Name;
+}
+
+string Token::MOVEINSTACK()
+{
+    output += PUSH(this->getFullName());
 }

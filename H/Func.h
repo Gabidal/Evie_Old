@@ -8,6 +8,7 @@
 
 class Father : public Token
 {
+  public:
     vector<Token*> Childs;
     void addChild(Token *t);
 };
@@ -15,10 +16,9 @@ class Father : public Token
 class Func : public Father
 {
   public:
-    vector<Token*> Parameters;
-    Token *Parent;
-    void addParameter(Token *Param);
     Func(bool getsThisAsParameter);
+    vector<Token*> Parameters;
+    void addParameter(Token *Param);
     void InitFunction(string &output);
     void CallFunc(string &output);
 };

@@ -14,7 +14,7 @@ using namespace std;
 #define Real (1<<4)
 #define Function (1<<6)
 #define Macro (1<<7)
-#define Typee (1<<8)
+#define TypE (1<<8)
 #define Define (1<<9)
 //Variables
 #define Number (1<<10)
@@ -42,7 +42,7 @@ using namespace std;
 
 class Token
 {
- public:
+  public:
     int Flags = 0;
     int Size = 0;
     int Value = 0;
@@ -55,18 +55,21 @@ class Token
     Token *ParentFunc;
     string Name = "";
     Register *Reg;
+    string &output;
+    Token(string &out) {output = out;}
 
     bool is(int flag);
     string getFullName();
     Register *getNewRegister();
     Register *getReg();
-    string InitToken(string &code);
-    string MOVE(Token *Source, string &output);
-    string SUM(Token *Source, string &output);
-    string SUBSTRACT(Token *Source, string &output);
-    string MULTIPLY(Token *Source, string &output);
-    string DIVIDE(Token *Source, string &output);
-    string COMPARE(Token *Source, string &output);
+    string InitVariable();
+    string MOVE(Token *Source);
+    string SUM(Token *Source);
+    string SUBSTRACT(Token *Source);
+    string MULTIPLY(Token *Source);
+    string DIVIDE(Token *Source);
+    string COMPARE(Token *Source);
+    string MOVEINSTACK();
 };
 
 

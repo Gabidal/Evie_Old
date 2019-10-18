@@ -30,6 +30,7 @@
 #define LABEL(name) (name + ": \n")
 #define FUNC(name) (name + "()")
 #define TYPE(type, name) (type + "::" + name)
+#define COMMENT(name) ("; " + name + NL)
 
 
 #define DWORD "dword "
