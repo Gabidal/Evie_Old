@@ -1,4 +1,4 @@
-#include "H/Func.h"
+#include "H/Parser/Func.h"
 
 void Father::addChild(Token *local) 
 {
@@ -17,7 +17,7 @@ void Func::addParameter(Token *Param)
     this->ParameterOffset += Param->Size;
 }
 
-Func::Func(bool getsThisAsParameter)
+Func::Func(bool getsThisAsParameter, string &output) : Father(output)
 {
     if (getsThisAsParameter)
     {

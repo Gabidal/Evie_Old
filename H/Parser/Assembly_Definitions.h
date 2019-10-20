@@ -27,18 +27,16 @@
 #define OFFSET " + "
 #define DEOFFSET " - "
 #define SCALE " * "
-#define LABEL(name) (name + ": \n")
+#define LABEL(name) (name + ": " + NL)
 #define FUNC(name) (name + "()")
 #define TYPE(type, name) (type + "::" + name)
-#define COMMENT(name) ("; " + name + NL)
-
+#define COMMENT(name) (string(NL) + "; " + name + NL)
 
 #define DWORD "dword "
 #define QWORD "qword "
 #define BYTE "byte "
 #define FRAME(name) ("[" + name + "]")
-#define PUSH(name) ("push " + name + "\n")
-#define POP(name) ("pop " + name + "\n")
-
+#define PUSH(name) ("push " + name + NL)
+#define POP(name) ("pop " + name + NL)
 
 #endif

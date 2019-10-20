@@ -7,10 +7,11 @@
 class Type : public Father
 {
   public:
+    using Father::Father;
     bool initted = false;
     vector<Token*> Functions;
     void addFunc(Func *func);
-    void InitType(string &output);
+    void InitType();
 };
 
 

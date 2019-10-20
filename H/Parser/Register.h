@@ -2,9 +2,10 @@
 #define _REGISTER_H_
 
 #include <string>
-#include "Token.h"
 #include <vector>
 using namespace std;
+
+class Token;
 
 class Register
 {

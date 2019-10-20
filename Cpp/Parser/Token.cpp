@@ -1,8 +1,8 @@
 
 #include <string>
-#include "H/Token.h"
-#include "H/Register.h"
-#include "H/Assembly_Definitions.h"
+#include "H/Parser/Token.h"
+#include "H/Parser/Register.h"
+#include "H/Parser/Assembly_Definitions.h"
 using namespace std;
 
 int RegisterTurn = 0;

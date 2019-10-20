@@ -56,7 +56,7 @@ class Token
     string Name = "";
     Register *Reg;
     string &output;
-    Token(string &out) {output = out;}
+    Token(string &out) : output(out){}
 
     bool is(int flag);
     string getFullName();
