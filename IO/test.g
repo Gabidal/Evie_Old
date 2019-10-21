@@ -7,14 +7,14 @@ type vector()
 
   func combine(this, other)
   (
-    -> a = -> a + other : 0
-    -> b = -> b + other : 1
+    this : a = this : a + other : a
+    this : b = this : b + other : b
   )
 )
 
 func main()
 (
-  new vector a
+  new static vector a
   new vector b
   a.combine(b)
 )
