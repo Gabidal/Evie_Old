@@ -1,246 +1,84 @@
 #include "../../H/Lexer/Definer.h"
 
-void Definer::MakeKeyword(string s)
+int Definer::getWord(char end, string &destination, string source, int continu)
 {
-    if(s == "type" || s == "func")
+    for (;source[continu] == ' ';)
     {
+        continu++;
+    }
+    for (int i = continu; i < source.size();i++)
+    {
+        if (source[i] != end && source[i] != '\n')
+        {
+            destination += source[i];
+        }
+        else
+        {
+            i++;
+            return i;
+        }
+        
+    }
 
+    return source.size();
+}
+
+void Definer::Pattern_Func(int i)
+{
+    //look if Function is made to whole or into an prototype
+    if (Lines.at(i).find("func") != -1)
+    {
+        string name;
+        int offset = getWord(' ', name, Lines.at(i), 0);
+        name = "";
+        offset = getWord('(', name, Lines.at(i), offset);
+        Word func = Word(name);
+        func.Flags |= FUNCTION;
+        output.push_back(func);
     }
 }
 
-void Definer::MakeStartParenthesis(string s)
+void Definer::Pattern_Parenthesis(int i)
 {
-    if(s == "(")
+    Word Paranthes = Word("");
+    if (Lines.at(i).find("func") != -1)
     {
+        //for parameters
+        for (int i = 0; i < )
+        {
 
+        }
     }
+    else if (Lines.at(i-1).find("func") != -1)
+    {
+        if (Lines.at(i).find("(") != -1)
+        {
+            Paranthes.WORD = "(";
+            Paranthes.Flags |= FUNCTION_START_PARENTHESIS;
+        }
+        else if (Lines.at(i).find(")") != -1)
+        {
+            Paranthes.WORD = ")";
+            Paranthes.Flags |= FUNCTION_END_PARENTHESIS;
+        }
+    }
+    else if (Lines.at(i-1).find("type") != -1)
+    {
+        if (Lines.at(i).find("(") != -1)
+        {
+            Paranthes.WORD = "(";
+            Paranthes.Flags |= TYPE_START_PARENTHESIS;
+        }
+        else if (Lines.at(i).find(")") != -1)
+        {
+            Paranthes.WORD = ")";
+            Paranthes.Flags |= TYPE_END_PARENTHESIS;
+        }
+    }
+    output.push_back(Paranthes);
 }
 
-void Definer::MakeEndParenthesis(string s)
-{
-    if(s == ")")
-    {
-
-    }
-}
-
-void Definer::MakeFunction(string s)
-{
-    if(s == "func")
-    {
-
-    }
-}
-
-void Definer::MakeFUNCTION_START_PARENTHESIS(string s)
-{
-    if(s == "(")
-    {
-
-    }
-}
-
-void Definer::MakeFUNCTION_END_PARENTHESIS(string s)
-{
-    if(s == ")")
-    {
-
-    }
-}
-
-void Definer::MakeTYPE(string s)
-{
-    if(s == "type")
-    {
-
-    }
-}
-
-void Definer::MakeTYPE_START_PARENTHESIS(string s)
-{
-    if(s == "(")
-    {
-
-    }
-}
-
-void Definer::MakeTYPE_END_PARENTHESIS(string s)
-{
-    if(s == ")")
-    {
-
-    }
-}
-
-void Definer::MakeVARIABLE(string s)
-{
-    if(s == "var")
-    {
-
-    }
-}
-
-void Definer::MakeIF(string s)
-{
-    if(s == "if")
-    {
-
-    }
-}
-
-void Definer::MakeELSE(string s)
-{
-    if(s == "else")
-    {
-
-    }
-}
-
-void  Definer::MakeELSEIF(string s)
-{
-    if(s == "else if")
-    {
-
-    }
-}
-
-void Definer::MakeLOOP(string s)
-{
-    if(s == "loop")
-    {
-
-    }
-}
-
-void Definer::MakeNUMBER(string s)
-{
-    if(isdigit(s.at(0)) || s.at(0) == '-')
-    {
-
-    }
-}
-
-void Definer::MakeRETURN(string s)
-{
-    if(s == "return")
-    {
-
-    }
-}
-
-void Definer::MakePROTOTYPE(string s)
-{
-    if(s == "func")
-    {
-
-    }
-}
-
-void Definer::MakeOFFSET(string s)
-{
-    if(s == ":")
-    {
-
-    }
-}
-
-void Definer::MakePARAMETER(string s)
-{
-    if(s == ",")
-    {
-
-    }
-}
-
-void Definer::MakeADDITION(string s)
-{
-    if(s == "+")
-    {
-
-    }
-}
-
-void Definer::MakeSUBTRACTION(string s)
-{
-    if(s == "-")
-    {
-
-    }
-}
-
-void Definer::MakeMULTIPLY(string s)
-{
-    if(s == "*")
-    {
-
-    }
-}
-
-void Definer::MakeDIVIDE(string s)
-{
-    if(s == "/")
-    {
-
-    }
-}
-
-void Definer::MakeCOMMENT(string s)
-{
-    if(s == "#")
-    {
-
-    }
-}
-
-void Definer::MakeCALL(string s)
-{
-    if(s == "")
-    {
-
-    }
-}
-
-void Definer::MakeINCLUDE(string s)
-{
-    if(s == "using")
-    {
-
-    }
-}
-
-void Definer::MakeVARIABLE_FETCH(string s)
-{
-    if(s == ".")
-    {
-
-    }
-}
-
-void Definer::MakeFUNCTION_FETCH(string s)
-{
-    if(s == ".")
-    {
-
-    }
-}
-
-void Definer::MakeLOCATER(string s)
-{
-    if(s == "&")
-    {
-
-    }
-}
-
-void Definer::MakeNew(string s)
-{
-    if(s == "new")
-    {
-
-    }
-}
-
-void Definer::Define()
+void Definer::Define(int i)
 {
 
 }

@@ -34,6 +34,7 @@ using namespace std;
 #define FUNCTION_FETCH (1<<27)
 #define LOCATER (1<<28)
 #define NEW (1<<29)
+#define USED (1<<30)
 
 
 class Word
@@ -45,9 +46,17 @@ public:
     string WORD = "";
     int Priority = 0;
     int Flags = 0;
+    bool is(int flag);
     Word(string w);
     ~Word();
 };
+
+
+bool Word::is(int flag)
+{
+    return (Flags & flag) == flag;
+}
+
 
 Word::Word(string w) : WORD(w)
 {}
