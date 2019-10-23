@@ -11,13 +11,22 @@ class Definer
 private:
     vector<string> Lines;
     vector<Word> output;
+    Word &Previus;
 public:
+    bool INSIDE_OF_TYPE = false;
+    bool INSIDE_OF_FUNC = false;
+
     Definer(string fileName);
     ~Definer();
     void Define(int i);
     void Pattern_Func(int i);
-    void Definer::Pattern_Parenthesis(int i);
+    void Pattern_Parenthesis(int i);
     int getWord(char end, string &destination, string source, int continu);
+    int getReverseWord(char end, string &destination, string source, int continu);
+    int findWord(string name);
+    void Pattern_Locater(int i, Word &name);
+    void Pattern_Variable(int i);
+    void Pattern_Use(int i);
 };
 
 Definer::Definer(string fileName)

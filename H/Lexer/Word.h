@@ -35,6 +35,9 @@ using namespace std;
 #define LOCATER (1<<28)
 #define NEW (1<<29)
 #define USED (1<<30)
+#define MEMBER (1<<31)
+#define PRIVATE (1<<32)
+#define OPERATOR (1<<33)
 
 
 class Word
@@ -45,7 +48,7 @@ public:
     int LineNumber = 0;
     string WORD = "";
     int Priority = 0;
-    int Flags = 0;
+    __int128_t Flags = 0;
     bool is(int flag);
     Word(string w);
     ~Word();
