@@ -31,6 +31,7 @@ int getWord(string source, int continu)
         }
         i++;
     }while(LayerCount > 0);
+    return i;
 }
 
 	bool IsOperator(char c)
@@ -135,6 +136,7 @@ int getWord(string source, int continu)
         {
             return _END;
         }
+        return 0;
     }
 
 void Definer::Define()
@@ -148,23 +150,21 @@ void Definer::Define()
         {
             i = getWord(Lines, i);
             Word word("");
-            word.WORD = Lines.substr(start, i+1);
+            word.WORD = Lines.substr(start, i-start+1);
             word.Flags |= translateIdentity(Base, word.WORD, word);
             output.push_back(word);
-            continue;
-        }
-        
-        if (Base == UNSPECIFIED)
-        {
             Base = Current;
             start = i;
+            continue;
         }
-        else if (Current != Base)
+        if (Current != Base)
         {
             Word word("");
-            word.WORD = Lines.substr(start, i);
+            word.WORD = Lines.substr(start, i-start);
             word.Flags |= translateIdentity(Base, word.WORD, word);
             output.push_back(word);
+            Base = Current;
+            start = i;
         }
     }
 }

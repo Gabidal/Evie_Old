@@ -2,8 +2,9 @@
 #define _DEFINER_H_
 #include <vector>
 #include <string>
-#include "Reader.h"
 #include "Word.h"
+#include <fstream>
+#include <iostream>
 using namespace std;
 
 class Definer
@@ -14,27 +15,40 @@ public:
     bool INSIDE_OF_TYPE = false;
     bool INSIDE_OF_FUNC = false;
 
-    Definer(const char* fileName);
-    Definer(string raw);
-    ~Definer();
     void Define();
+
+    Definer(string raw)
+    {
+        Lines = raw;
+        Define();
+    }
+    
+    Definer(const char* fileName)
+    {
+        
+    ifstream file(fileName);
+    string BUFFER;
+    if (file.is_open() != true)
+    {
+        cout << "File not found!\n";
+        exit(1);
+    }
+    else
+    {
+        string Line;
+        while (getline(file, Line))
+        {
+            BUFFER += Line;
+        }
+    }
+    Lines = BUFFER;
+        Define();
+    }
+    
+    ~Definer()
+    {
+    }
 };
-
-Definer::Definer(string raw)
-{
-    Lines = raw;
-    Define();
-}
-
-Definer::Definer(const char* fileName)
-{
-    Lines = Reader(fileName);
-    Define();
-}
-
-Definer::~Definer()
-{
-}
 
 
 #endif

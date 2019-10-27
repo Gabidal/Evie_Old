@@ -2,12 +2,12 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "g++ build active file",
+            "label": "build",
             "command": "/usr/bin/g++",
             "args": [
                 "-g",
-                "Cpp/Lexer/main.cpp",
-                "Cpp/Lexer/Definer.cpp",
+                "${fileDirname}/main.cpp",
+                "${fileDirname}/Definer.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

@@ -4,6 +4,6 @@ using namespace std;
 
 int main()
 {
-    Definer d("test.g");
+    Definer d("/home/gabidalg/GAS/IO/test.g");
     return 0;
 }

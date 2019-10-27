@@ -1,5 +1,5 @@
 #ifndef _WORD_H_
-#define __WORD_H_
+#define _WORD_H_
 #include <vector>
 #include <string>
 using namespace std;
@@ -24,23 +24,18 @@ public:
     int LineNumber = 0;
     string WORD = "";
     int Flags = 0;
-    bool is(int flag);
-    Word(string w);
-    ~Word();
+
+    bool is(int flag)
+    {
+        return (Flags & flag) == flag;
+    }
+    Word(string w) : WORD(w)
+    {}
+    
+    ~Word()
+    {}
 };
 
-
-bool Word::is(int flag)
-{
-    return (Flags & flag) == flag;
-}
-
-
-Word::Word(string w) : WORD(w)
-{}
-
-Word::~Word()
-{}
 
 
 #endif
