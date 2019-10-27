@@ -8,38 +8,28 @@ using namespace std;
 
 class Definer
 {
-private:
-    vector<string> Lines;
-    vector<Word> output;
 public:
+    string Lines;
+    vector<Word> output;
     bool INSIDE_OF_TYPE = false;
     bool INSIDE_OF_FUNC = false;
 
-    Definer(string fileName);
+    Definer(const char* fileName);
+    Definer(string raw);
     ~Definer();
-    void Define(int i);
-    int skipReverseParenthesis(int i, string &source);
-    int Find(string name, vector<Word> source);
-    void Pattern_Use(int i, string name);
-    void Pattern_Func(int i);
-    void Pattern_Parenthesis(int i);
-    int getWord(char end, string &destination, string source, int continu);
-    int getReverseWord(char end, string &destination, string source, int continu);
-    int getAmount(char end, vector<int> &destination, string source);
-    int findWord(string name);
-    void Pattern_Locater(int i, Word &name);
-    void Pattern_Variable(int i);
-    void Pattern_Equ(int i);
-    void Pattern_Math(int i);
+    void Define();
 };
 
-Definer::Definer(string fileName)
+Definer::Definer(string raw)
+{
+    Lines = raw;
+    Define();
+}
+
+Definer::Definer(const char* fileName)
 {
     Lines = Reader(fileName);
-    for (int i = 0; i < Lines.size(); i++)
-    {
-        Define(i);
-    }
+    Define();
 }
 
 Definer::~Definer()
