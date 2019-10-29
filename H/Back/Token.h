@@ -7,7 +7,7 @@
 using namespace std;
 
 //creators
-#define KeyWord (1<<0)
+#define null (1<<0)
 #define Public (1<<1)
 #define Member (1<<2)
 #define Used (1<<3)
@@ -19,7 +19,7 @@ using namespace std;
 //Variables
 #define Number (1<<10)
 #define Ptr (1<<11)
-#define Var (1<<12)
+#define Variable (1<<12)
 #define Array (1<<13)
 #define Equ (1<<14)
 //Logical
@@ -51,6 +51,7 @@ class Token
     int AddedOffset = 0;
     int ParameterOffset = 0;
     int ID = 0;
+    Token *Offsetter;
     Token *ParentType;
     Token *ParentFunc;
     string Name = "";

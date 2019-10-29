@@ -1,4 +1,4 @@
-#include "H/Parser/Type.h"
+#include "H/Back/Type.h"
 
 void Type::addFunc(Func *func)
 {

@@ -1,4 +1,4 @@
-#include "H/Parser/Func.h"
+#include "H/Back/Func.h"
 
 void Father::addChild(Token *local) 
 {
