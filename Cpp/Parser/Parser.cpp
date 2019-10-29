@@ -20,11 +20,16 @@ void Parser::Pattern_Variable(int i)
         Output.push_back(Var);
         Input.at(i).UsedToken = true;
     }
-    
+}
+
+void Parser::Pattern_Equal(int i)
+{
+    //set variable value;
     if (Input.at(i).is(_OPERATOR) && Input.at(i-1).is(_TEXT) && Input.at(i).WORD == "=")
     {
-        //set variable value;
+        //check for Array definitions;
         Pattern_Array(i-1);
+
     }
 }
 
@@ -78,6 +83,65 @@ void Parser::Pattern_Array(int i)
     }
 }
 
+void Parser::Pattern_Locator(int i)
+{
+    if (Input.at(i).WORD == "&")
+    {
+        Token ptr(Assembly);
+        ptr.Flags |= Ptr;
+        ptr.Name = Input.at(i+1).WORD;
+        Output.push_back(ptr);
+    }
+}
+
+void Parser::Pattern_Function(int i)
+{
+    //func banana(a, &b, c, &d)
+    if (Input.at(i).is(_KEYWORD) && Input.at(i).WORD == "func")
+    {
+        //make new Function;
+        Token Name(Assembly);
+        Name.Flags |= Function;
+        Name.Flags |= Real;
+        Name.Name = Input.at(i+1).WORD;
+        if (InsideOfType)
+        {
+            Name.ParentType = ParentType;
+            Name.Flags |= Member;
+        }
+        
+        //make the parameters;
+        for (int j = 0; j < Input.at(i+2).Tokens.size(); j++)
+        {
+            if (Input.at(i+2).Tokens.at(j).WORD == "&")
+            {
+                Token ptr(Assembly);
+                ptr.Flags |= Ptr;
+                ptr.Flags |= Parameter;
+                ptr.Size = 4;
+                ptr.Name = Input.at(i+2).Tokens.at(j+1).WORD;
+                ptr.ParameterOffset = Name.ParameterCount;
+                Name.Parameters.push_back(ptr);
+                Name.ParameterCount += ptr.Size;
+                j++;
+            }
+            else if (Input.at(i+2).Tokens.at(j).is(_TEXT))
+            {
+                Token var(Assembly);
+                var.Flags |= Parameter;
+                var.Flags |= Variable;
+                var.Size = 4;
+                var.Name = Input.at(i+2).Tokens.at(j).WORD;
+                var.ParameterOffset = Name.ParameterCount;
+                Name.Parameters.push_back(var);
+                Name.ParameterCount += var.Size;
+            }
+        }
+        Output.push_back(Name);
+        ParentFunc = &Output.back();
+    }
+    
+}
 
 void Parser::Factory()
 {

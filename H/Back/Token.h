@@ -54,6 +54,8 @@ class Token
     Token *Offsetter;
     Token *ParentType;
     Token *ParentFunc;
+    vector<Token> Parameters;
+    vector<Token> Childs;
     string Name = "";
     Register *Reg;
     string &output;
