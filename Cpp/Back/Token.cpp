@@ -151,3 +151,59 @@ string Token::MOVEINSTACK()
 {
     output += PUSH(this->getFullName());
 }
+
+
+void Token::addChild(Token local) 
+{
+    Childs.push_back(local);
+    local.ParentFunc = this;
+    local.StackOffset = this->StackOffset;
+    this->StackOffset += local.Size;
+    this->Size += local.Size;
+	local.Flags |= Private;
+}
+
+void Token::addParameter(Token Param)
+{
+    Parameters.push_back(Param);
+    Param.ParameterOffset = this->ParameterOffset;
+    this->ParameterOffset += Param.Size;
+}
+
+void Token::InitFunction()
+{
+    if (is(Member))
+    {
+        output += LABEL(TYPE(ParentType->Name, FUNC(this->Name)));
+    }
+    else
+    {
+        output += LABEL(FUNC(this->Name));
+    }
+}
+
+
+void Token::addFunc(Token func)
+{
+    func.ParentType = this;
+    Functions.push_back(func);
+}
+
+void Token::InitType()
+{
+    if (initted)
+    {
+        return;
+    }
+    for (Token t : Childs)
+    {
+        if (t.is(Used) != true)
+        {
+            output += COMMENT("Variable not used!");
+        }
+        else
+        { 
+            output += MOV + FRAME(t.getFullName()) + FROM + to_string(t.Value) + NL;
+        }
+    }
+}

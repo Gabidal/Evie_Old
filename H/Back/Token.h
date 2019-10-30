@@ -36,9 +36,8 @@ using namespace std;
 #define Stored (1<<22)
 #define Original (1<<23)
 #define Parameter (1<<24)
-#define Prototype (1<<25)
-#define Private (1<<26)
-#define This (1<<27)
+#define Private (1<<25)
+#define This (1<<26)
 
 class Token
 {
@@ -65,6 +64,7 @@ class Token
     string getFullName();
     Register *getNewRegister();
     Register *getReg();
+    //var
     string InitVariable();
     string MOVE(Token *Source);
     string SUM(Token *Source);
@@ -73,6 +73,16 @@ class Token
     string DIVIDE(Token *Source);
     string COMPARE(Token *Source);
     string MOVEINSTACK();
+    //func
+    void addChild(Token t);
+    void addParameter(Token Param);
+    void InitFunction();
+    //void CallFunc();
+    //type
+    bool initted = false;
+    vector<Token> Functions;
+    void addFunc(Token func);
+    void InitType();
 };
 
 

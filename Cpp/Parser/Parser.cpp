@@ -12,12 +12,17 @@ void Parser::Pattern_Variable(int i)
         if (InsideOfType && InsideOfFunction != true)
         {
             Var.Flags |= Member;
+            ParentType->addChild(Var);
         }
         else if (InsideOfFunction)
         {
-            Var.Flags |= Public;
+            Var.Flags |= Private;
+            ParentFunc->addChild(Var);
         }
-        Output.push_back(Var);
+        else
+        {
+            Output.push_back(Var);
+        }
         Input.at(i).UsedToken = true;
     }
 }
@@ -137,13 +142,50 @@ void Parser::Pattern_Function(int i)
                 Name.ParameterCount += var.Size;
             }
         }
-        Output.push_back(Name);
+        Input.erase(Input.begin() + i + 2);
+        if (InsideOfType)
+        {
+            ParentType->addFunc(Name);
+        }
+        else
+        {
+            Output.push_back(Name);
+        }
         ParentFunc = &Output.back();
+    }
+    
+}
+
+void Parser::Pattern_Type(int i)
+{
+    //type banana
+    if (Input.at(i).WORD == "type")
+    {
+        Token Type(Assembly);
+        Type.Flags |= TypE;
+        Type.Flags |= Real;
+        Type.Name = Input.at(i+1).WORD;
+        Output.push_back(Type);
+        ParentType = &Output.back();
+    }
+}
+
+void Parser::Pattern_Parenthesis(int i)
+{
+    /*func banana   <deleted () >
+    (
+
+    )*/
+    if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-2).WORD == "func" && ParentFunc != 0)
+    {
+        ParentFunc->Flags |= Used;
+        InsideOfFunction = true;
+        
     }
     
 }
 
 void Parser::Factory()
 {
-
+ 
 }
