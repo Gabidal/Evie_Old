@@ -38,6 +38,7 @@ using namespace std;
 #define Parameter (1<<24)
 #define Private (1<<25)
 #define This (1<<26)
+#define PARENT (1<<27)
 
 class Token
 {

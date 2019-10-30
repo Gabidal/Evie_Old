@@ -4,6 +4,7 @@
 #include <string>
 #include "../Lexer/Word.h"
 #include "../Back/Token.h"
+#include "../Back/StackFrame.h"
 using namespace std;
 
 class Parser
@@ -26,9 +27,10 @@ public:
     void Pattern_Type(int i);
     void Pattern_Parenthesis(int i);
     void Factory();
-    Parser()
+    Parser(vector<Word>in)
     {
-
+        Input = in;
+        Factory();
     }
     
     ~Parser()
