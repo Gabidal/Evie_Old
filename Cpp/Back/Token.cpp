@@ -182,7 +182,6 @@ void Token::InitFunction()
     }
 }
 
-
 void Token::addFunc(Token func)
 {
     func.ParentType = this;

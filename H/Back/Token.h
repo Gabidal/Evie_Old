@@ -28,7 +28,7 @@ using namespace std;
 #define While (1<<17)
 #define Returning (1<<18)
 //Arithmetic
-#define Math (1<<19)
+#define OPERATOR (1<<19)
 
 //Personan
 #define Registered (1<<20)

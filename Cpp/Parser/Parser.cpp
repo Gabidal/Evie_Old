@@ -27,14 +27,18 @@ void Parser::Pattern_Variable(int i)
     }
 }
 
-void Parser::Pattern_Equal(int i)
+void Parser::Pattern_Operators(int i)
 {
     //set variable value;
-    if (Input.at(i).is(_OPERATOR) && Input.at(i-1).is(_TEXT) && Input.at(i).WORD == "=")
+    //a = b
+    if (Input.at(i).is(_OPERATOR) && Input.at(i-1).is(_TEXT) && Input.at(i).UsedToken == true)
     {
-        //check for Array definitions;
-        Pattern_Array(i-1);
+        Token OP(Assembly);
+        OP.Flags |= OPERATOR;
+        OP.Name = Input.at(i).WORD;
 
+        Token A(Assembly);
+        
     }
 }
 
@@ -216,13 +220,77 @@ void Parser::Pattern_Parenthesis(int i)
         Parser parser1(Input.at(i).Tokens);
 
         for (int i = 0; i < parser1.Output.size(); i++)
-        ParentType->addParameter(parser1.Output.at(i));
+        IF.addParameter(parser1.Output.at(i));
 
         Parser parser2(Input.at(i+2).Tokens);
 
         for (int i = 0; i < parser2.Output.size(); i++)
-        ParentType->addChild(parser2.Output.at(i));
+        IF.addChild(parser2.Output.at(i));
 
+        Output.push_back(IF);
+    }
+    /*while (a < b)
+    (
+        var 1
+    )*/
+    else if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-1).WORD == "while")
+    {
+        Token WHILE(Assembly);
+        WHILE.Flags |= PARENT & If & Used;
+        WHILE.Name = to_string(ID) + "_while";
+
+        Parser parser1(Input.at(i).Tokens);
+
+        for (int i = 0; i < parser1.Output.size(); i++)
+        WHILE.addParameter(parser1.Output.at(i));
+
+        Parser parser2(Input.at(i+2).Tokens);
+
+        for (int i = 0; i < parser2.Output.size(); i++)
+        WHILE.addChild(parser2.Output.at(i));
+
+        Output.push_back(WHILE);
+    }
+    
+}
+
+void Parser::Pattern_Init_Operators(int i)
+{
+    //a = b + c
+    if (Input.at(i).is(_OPERATOR) && Input.at(i).UsedToken != true)
+    {
+        Input.at(i).Tokens.push_back(Input.at(i-1)); //b
+        Input.at(i).Tokens.push_back(Input.at(i+1)); //c
+        Input.erase(Input.begin() + i-1);
+        Input.erase(Input.begin() + i+1);
+        Input.at(i).UsedToken = true;
+    }
+}
+
+void Parser::Find(string name)
+{
+    vector<Token> insides;
+    if (InsideOfFunction)
+    {
+        insides.reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
+        insides.insert(insides.end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
+        insides.insert(insides.end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+    }
+    else if (InsideOfType)
+    {
+        insides = ParentType->Childs;
+    }
+    else
+    {
+        insides = Output;
+    }
+    
+    for (Token i : insides)
+    {
+        if (i.Name == name)
+        {
+            
+        }
     }
 }
 

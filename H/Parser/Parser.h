@@ -26,6 +26,9 @@ public:
     void Pattern_Function(int i);
     void Pattern_Type(int i);
     void Pattern_Parenthesis(int i);
+    void Pattern_Operators(int i);
+    void Pattern_Init_Operators(int i);
+    void Find(string name);
     void Factory();
     Parser(vector<Word>in)
     {
