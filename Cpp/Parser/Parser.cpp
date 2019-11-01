@@ -30,15 +30,19 @@ void Parser::Pattern_Variable(int i)
 void Parser::Pattern_Operators(int i)
 {
     //set variable value;
-    //a = b
+    //a : a = b
+    //a() + b
     if (Input.at(i).is(_OPERATOR) && Input.at(i-1).is(_TEXT) && Input.at(i).UsedToken == true)
     {
         Token OP(Assembly);
         OP.Flags |= OPERATOR;
         OP.Name = Input.at(i).WORD;
 
-        Token A(Assembly);
+        Token A = Pattern_Child(Input.at(i).Tokens.at(0));
+        Token B = Pattern_Child(Input.at(i).Tokens.at(1));
         
+        OP.Parameters.push_back(A);
+        OP.Childs.push_back(B);
     }
 }
 
@@ -69,22 +73,6 @@ void Parser::Pattern_Array(int i)
     
     if (Input.at(Mark).UsedToken == false)
     {
-        //it is highly possible that the most fresh push to the output vector is the owner of the ofsetter!
-        Token *Offsetter;
-        Offsetter->Flags |= Array;
-        if (Input.at(Offset).is(_NUMBER))
-        {
-            Offsetter->Flags |= Number;
-        }
-        else if (Input.at(Offset).is(_TEXT))
-        {
-            Offsetter->Flags |= Variable;
-        }
-        Offsetter->Name = Input.at(Offset).WORD;
-
-        Token &Owner = Output.back();
-        Owner.Offsetter = Offsetter;
-
         Input.at(_Owner).Offsetter = &Input.at(Offset);
         
         Input.erase(Input.begin() + Mark);
@@ -139,6 +127,7 @@ void Parser::Pattern_Function(int i)
                 var.Flags |= Variable;
                 var.Size = 4;
                 var.Name = Input.at(i+2).Tokens.at(j).WORD;
+                
                 Name.addParameter(var);
             }
         }
@@ -267,30 +256,41 @@ void Parser::Pattern_Init_Operators(int i)
     }
 }
 
-void Parser::Find(string name)
+Token Parser::Pattern_Child(Word w)
 {
-    vector<Token> insides;
+    Token t(Assembly);
+    t.Name = w.WORD;
     if (InsideOfFunction)
     {
-        insides.reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
-        insides.insert(insides.end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
-        insides.insert(insides.end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+        t.Flags |= Private;
     }
-    else if (InsideOfType)
+    if (InsideOfType)
     {
-        insides = ParentType->Childs;
+        t.Flags |= Member;
+    }
+    if (w.Offsetter != 0)
+    {
+        t.Flags |= Array;
+    }
+    if (w._func)
+    {
+        t.Flags |= Call;
     }
     else
     {
-        insides = Output;
+        t.Flags |= Variable;
+        t.Size = 4;
     }
-    
-    for (Token i : insides)
+    return t;
+}
+
+void Parser::Pattern_Call_Func(int i)
+{
+    if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-1).is(_TEXT))
     {
-        if (i.Name == name)
-        {
-            
-        }
+        Input.at(i).WORD = Input.at(i-1).WORD;
+        Input.at(i)._func = true;
+        Input.erase(Input.begin() + i-1);
     }
 }
 

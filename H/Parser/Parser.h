@@ -28,7 +28,8 @@ public:
     void Pattern_Parenthesis(int i);
     void Pattern_Operators(int i);
     void Pattern_Init_Operators(int i);
-    void Find(string name);
+    Token Pattern_Child(Word w);
+    void Pattern_Call_Func(int i);
     void Factory();
     Parser(vector<Word>in)
     {

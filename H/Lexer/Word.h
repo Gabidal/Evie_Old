@@ -22,6 +22,7 @@ private:
 public:
     bool UsedToken = false;
     Word *Offsetter = 0;
+    bool _func = false;
     vector<Word> Tokens;
     int LineNumber = 0;
     string WORD = "";
