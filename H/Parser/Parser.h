@@ -29,12 +29,13 @@ public:
     void Pattern_Operators(int i);
     void Pattern_Init_Operators(int i);
     Token Pattern_Child(Word w);
+    void Pattern_Init_Call_Func(int i);
     void Pattern_Call_Func(int i);
+    int Find(string name, int flags, vector<Token> list);
     void Factory();
     Parser(vector<Word>in)
     {
         Input = in;
-        Factory();
     }
     
     ~Parser()
