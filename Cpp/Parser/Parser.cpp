@@ -46,7 +46,7 @@ void Parser::Pattern_Operators(int i)
     }
 }
 
-void Parser::Pattern_Array(int i)
+void Parser::Pattern_Init_Array(int i)
 {
     // a : a
     int Mark;
@@ -80,7 +80,7 @@ void Parser::Pattern_Array(int i)
     }
 }
 
-void Parser::Pattern_Locator(int i)
+void Parser::Pattern_Init_Locator(int i)
 {
     if (Input.at(i).WORD == "&")
     {
@@ -281,6 +281,7 @@ Token Parser::Pattern_Child(Word w)
 
 void Parser::Pattern_Init_Call_Func(int i)
 {
+    //banana(1, 2)
     if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-1).is(_TEXT) && Input.at(i-2).WORD != "func")
     {
         Input.at(i).WORD = Input.at(i-1).WORD;
@@ -296,20 +297,20 @@ void Parser::Pattern_Call_Func(int i)
         Token func(Assembly);
         func.Flags |= Call && Function;
         func.Name = Input.at(i).WORD;
-        vector<Token> t;
+        vector<Token> *t;
         if (ParentType != 0)
         {
-            t = ParentType->Childs;
+            t = &ParentType->Childs;
         }
         else if (ParentType == 0)
         {
-            t = Output;
+            t = &Output;
         }
         
         
-        if (int j = Find(func.Name, Function, t) != -1)
+        if (int j = Find(func.Name, Function, *t) != -1)
         {
-            Output.at(j).Flags |= Used;
+            t->at(j).Flags |= Used;
         }
         for (int j = 0; j < Input.at(i).Tokens.size(); j++)
         {
@@ -335,8 +336,20 @@ void Parser::Pattern_Call_Func(int i)
             }
         }
         
-        Output.push_back(func);
+        t->push_back(func);
     }
+    
+}
+
+void Parser::Pattern_Init_Type(int i)
+{
+    /*type banana
+    (
+        var a = 1
+        apple(a, b, c)
+    )
+    b.apple(a, b, c)
+    */
     
 }
 
@@ -354,5 +367,4 @@ int Parser::Find(string name, int flag, vector<Token> list)
 
 void Parser::Factory()
 {
- 
 }

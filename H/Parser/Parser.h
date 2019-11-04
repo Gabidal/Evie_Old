@@ -21,8 +21,8 @@ public:
     vector<Token> Output;
     void Pattern_Variable(int i);
     void Pattern_Equal(int i);
-    void Pattern_Array(int i);
-    void Pattern_Locator(int i);
+    void Pattern_Init_Array(int i);
+    void Pattern_Init_Locator(int i);
     void Pattern_Function(int i);
     void Pattern_Type(int i);
     void Pattern_Parenthesis(int i);
@@ -31,6 +31,7 @@ public:
     Token Pattern_Child(Word w);
     void Pattern_Init_Call_Func(int i);
     void Pattern_Call_Func(int i);
+    void Pattern_Init_Type(int i);
     int Find(string name, int flags, vector<Token> list);
     void Factory();
     Parser(vector<Word>in)
