@@ -30,16 +30,19 @@ void Parser::Pattern_Variable(int i)
 void Parser::Pattern_Operators(int i)
 {
     //set variable value;
-    //a : a = b
-    //a() + b
+    //a <: a> = b
+    //c = a<()> + b
     if (Input.at(i).is(_OPERATOR) && Input.at(i-1).is(_TEXT) && Input.at(i).UsedToken == true)
     {
         Token OP(Assembly);
         OP.Flags |= OPERATOR;
         OP.Name = Input.at(i).WORD;
 
-        Token A = Pattern_Child(Input.at(i).Tokens.at(0));
-        Token B = Pattern_Child(Input.at(i).Tokens.at(1));
+        Parser p(Input.at(i).Tokens);
+        p.Factory();
+        //check this also in debugging!!!
+        Token A = p.Output.at(0);
+        Token B = p.Output.at(1);
         
         OP.Parameters.push_back(A);
         OP.Childs.push_back(B);
@@ -240,43 +243,15 @@ void Parser::Pattern_Parenthesis(int i)
 
 void Parser::Pattern_Init_Operators(int i)
 {
-    //a = b + c
+    //<a = b>
     if (Input.at(i).is(_OPERATOR) && Input.at(i).UsedToken != true)
     {
-        Input.at(i).Tokens.push_back(Input.at(i-1)); //b
-        Input.at(i).Tokens.push_back(Input.at(i+1)); //c
+        Input.at(i).Tokens.push_back(Input.at(i-1)); //a
+        Input.at(i).Tokens.push_back(Input.at(i+1)); //b
         Input.erase(Input.begin() + i-1);
         Input.erase(Input.begin() + i+1);
         Input.at(i).UsedToken = true;
     }
-}
-
-Token Parser::Pattern_Child(Word w)
-{
-    Token t(Assembly);
-    t.Name = w.WORD;
-    if (InsideOfFunction)
-    {
-        t.Flags |= Private;
-    }
-    if (InsideOfType)
-    {
-        t.Flags |= Member;
-    }
-    if (w.Offsetter != 0)
-    {
-        t.Flags |= Array;
-    }
-    if (w._func)
-    {
-        t.Flags |= Call;
-    }
-    else
-    {
-        t.Flags |= Variable;
-        t.Size = 4;
-    }
-    return t;
 }
 
 void Parser::Pattern_Init_Call_Func(int i)
@@ -286,6 +261,7 @@ void Parser::Pattern_Init_Call_Func(int i)
     {
         Input.at(i).WORD = Input.at(i-1).WORD;
         Input.at(i)._func = true;
+        Input.at(i)._type = Input.at(i-1)._type;
         Input.erase(Input.begin() + i-1);
     }
 }
@@ -306,12 +282,20 @@ void Parser::Pattern_Call_Func(int i)
         {
             t = &Output;
         }
-        
-        
-        if (int j = Find(func.Name, Function, *t) != -1)
+        if (Input.at(i)._type)
         {
+            func.Flags |= This;
+            int j = Find(Input.at(i).Fetcher, TypE, Output);
+            func.ParentType = &Output.at(j);
+        }
+        
+        
+        if (Find(func.Name, Function, *t) != -1)
+        {
+            int j = Find(func.Name, Function, *t);
             t->at(j).Flags |= Used;
         }
+
         for (int j = 0; j < Input.at(i).Tokens.size(); j++)
         {
             if (Input.at(i+2).Tokens.at(j).WORD == "&")
@@ -348,9 +332,17 @@ void Parser::Pattern_Init_Type(int i)
         var a = 1
         apple(a, b, c)
     )
-    b.apple(a, b, c)
+    new banana b
+    <b.apple>(a, b, c)
+    <b.a> : <b.a> = <b.a> : <b.a>
     */
-    
+    if (Input.at(i).is(_OPERATOR) && Input.at(i).WORD == ".")
+    {
+        Input.at(i+1)._type = true;
+        Input.at(i+1).Fetcher = Input.at(i-1).WORD;
+        Input.erase(Input.begin() + i);
+        Input.erase(Input.begin() + i-1);
+    }
 }
 
 int Parser::Find(string name, int flag, vector<Token> list)

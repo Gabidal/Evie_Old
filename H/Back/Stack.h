@@ -9,7 +9,7 @@ using namespace std;
 class Stack
 {
   private:
-    int Secrets;
+    int Secrets; //find the number
   public:
     vector<StackFrame> StackFrames;
     Stack();
