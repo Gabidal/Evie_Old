@@ -25,6 +25,29 @@ void Parser::Pattern_Variable(int i)
         }
         Input.at(i).UsedToken = true;
     }
+
+    vector<Token> *T;
+    if (InsideOfFunction)
+    {
+        T->reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
+        T->insert(T->end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
+        T->insert(T->end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+    }
+    else if (InsideOfType)
+    {
+        T = &ParentType->Childs;
+    }
+    else
+    {
+        T = &Output;
+    }
+    
+    if (Input.at(i).is(_TEXT) && Find(Input.at(i).WORD, Variable, *T) != -1)
+    {
+        int j = Find(Input.at(i).WORD, Variable, *T);
+        Token t = T->at(j);
+        T->at(j).Flags |= Used;
+    }
 }
 
 void Parser::Pattern_Operators(int i)
@@ -289,7 +312,7 @@ void Parser::Pattern_Call_Func(int i)
             func.ParentType = &Output.at(j);
         }
         
-        
+
         if (Find(func.Name, Function, *t) != -1)
         {
             int j = Find(func.Name, Function, *t);
