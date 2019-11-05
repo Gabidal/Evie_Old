@@ -368,6 +368,25 @@ void Parser::Pattern_Init_Type(int i)
     }
 }
 
+void Parser::Pattern_New(int i)
+{
+    /*
+    new banana b
+    */
+    if (Input.at(i).is(_KEYWORD) && Input.at(i).WORD == "new")
+    {
+        int j = Find(Input.at(i+1).WORD, TypE, Output);
+        Token t = Output.at(j);
+        t.Name = Input.at(i+2).WORD;
+        t.Origin = &Output.at(j);
+        t.Flags |= _NEW & NotOriginal;
+        Output.at(j).Flags |= Used;
+        Input.erase(Input.begin() + i);
+        Input.erase(Input.begin() + i + 1);
+        Input.erase(Input.begin() + i + 2);
+    }
+}
+
 int Parser::Find(string name, int flag, vector<Token> list)
 {
     for (int i = 0; i < list.size(); i++)
@@ -382,4 +401,18 @@ int Parser::Find(string name, int flag, vector<Token> list)
 
 void Parser::Factory()
 {
+    for (int i = 0; i < Input.size(); i++)
+    {
+        //for Inits;
+        Pattern_Init_Type(i);
+        Pattern_Init_Call_Func(i);
+        Pattern_Init_Array(i);
+        Pattern_Init_Operators(i);
+    }
+    for (int i = 0; i < Input.size(); i++)
+    {
+        //for Makers;
+        Pattern_New(i);
+        Pattern_Parenthesis(i);
+    }
 }

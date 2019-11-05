@@ -1,4 +1,5 @@
-#include "../../H/Lexer/Definer.h"
+#include "../H/Lexer/Definer.h"
+#include "../H/Parser/Parser.h"
 #include <iostream>
 using namespace std;
 

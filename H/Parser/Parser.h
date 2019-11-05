@@ -31,6 +31,7 @@ public:
     void Pattern_Init_Call_Func(int i);
     void Pattern_Call_Func(int i);
     void Pattern_Init_Type(int i);
+    void Pattern_New(int i);
     int Find(string name, int flags, vector<Token> list);
     void Factory();
     Parser(vector<Word>in)

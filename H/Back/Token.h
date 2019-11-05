@@ -34,12 +34,13 @@ using namespace std;
 #define Registered (1<<20)
 #define Stacked (1<<21)
 #define Stored (1<<22)
-#define Original (1<<23)
+#define NotOriginal (1<<23)
 #define Parameter (1<<24)
 #define Private (1<<25)
 #define This (1<<26)
 #define PARENT (1<<27)
 #define Call (1<<28)
+#define _NEW (1<<29)
 
 class Token
 {
@@ -82,6 +83,7 @@ class Token
     //void CallFunc();
     //type
     bool initted = false;
+    Token *Origin;
     vector<Token> Functions;
     void addFunc(Token func);
     void InitType();
