@@ -106,7 +106,7 @@ void Parser::Pattern_Init_Array(int i)
     }
 }
 
-void Parser::Pattern_Init_Locator(int i)
+/*void Parser::Pattern_Init_Locator(int i)
 {
     if (Input.at(i).WORD == "&")
     {
@@ -115,7 +115,7 @@ void Parser::Pattern_Init_Locator(int i)
         ptr.Name = Input.at(i+1).WORD;
         Output.push_back(ptr);
     }
-}
+}*/
 
 void Parser::Pattern_Function(int i)
 {
@@ -413,6 +413,11 @@ void Parser::Factory()
     {
         //for Makers;
         Pattern_New(i);
+        Pattern_Function(i);
+        Pattern_Type(i);
         Pattern_Parenthesis(i);
+        Pattern_Call_Func(i);
+        Pattern_Operators(i);
+        Pattern_Variable(i);
     }
 }
