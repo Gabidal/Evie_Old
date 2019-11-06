@@ -7,7 +7,7 @@
 using namespace std;
 
 //creators
-#define null (1<<0)
+#define _NULL_ (1<<0)
 #define Public (1<<1)
 #define Member (1<<2)
 #define Used (1<<3)

@@ -1,8 +1,8 @@
 
 #include <string>
-#include "H/Back/Token.h"
-#include "H/Back/Register.h"
-#include "H/Back/Assembly_Definitions.h"
+#include "../../H/Back/Token.h"
+#include "../../H/Back/Register.h"
+#include "../../H/Back/Assembly_Definitions.h"
 using namespace std;
 
 int RegisterTurn = 0;
@@ -80,13 +80,13 @@ Register *Token::getReg()
 string Token::InitVariable()
 {
     string result = "";
-    if (NULL(this->Reg->Name))
+    if (_NULL(this->Reg->Name))
     {
 
         if (this->is(Member))
         {
             Register *ParentReg = this->ParentFunc->Reg;
-            if (NULL(ParentReg->Name))
+            if (_NULL(ParentReg->Name))
             {
                 //allocate new Register for class address place holding.
                 this->ParentFunc->Reg = this->getReg();

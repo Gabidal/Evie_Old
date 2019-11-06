@@ -17,32 +17,11 @@ public:
 
     void Define();
 
-    Definer(string raw)
-    {
-        Lines = raw;
-        Define();
-    }
+    void OpenFile(const char* fileName);
+    void Direct(string raw);
     
-    Definer(const char* fileName)
+    Definer()
     {
-        
-    ifstream file(fileName);
-    string BUFFER;
-    if (file.is_open() != true)
-    {
-        cout << "File not found!\n";
-        exit(1);
-    }
-    else
-    {
-        string Line;
-        while (getline(file, Line))
-        {
-            BUFFER += Line;
-        }
-    }
-    Lines = BUFFER;
-        Define();
     }
     
     ~Definer()

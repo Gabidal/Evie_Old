@@ -121,7 +121,8 @@ int getWord(string source, int continu)
         }
         else if (t == CONTENT)
         {
-            Definer d(text.substr(1, text.size() - 1));
+            Definer d;
+            d.Direct(text.substr(1, text.size() - 1));
             w.Tokens = d.output;
         }
         else if (t == OPERATOR)
@@ -167,4 +168,31 @@ void Definer::Define()
             start = i;
         }
     }
+}
+
+void Definer::OpenFile(const char* fileName)
+{
+    ifstream file(fileName);
+    string BUFFER;
+    if (file.is_open() != true)
+    {
+        cout << "File not found!\n";
+        exit(1);
+    }
+    else
+    {
+        string Line;
+        while (getline(file, Line))
+        {
+            BUFFER += Line;
+        }
+    }
+    Lines = BUFFER;
+        Define();
+}
+
+void Definer::Direct(string raw)
+{
+    Lines = raw;
+    Define();
 }

@@ -21,7 +21,7 @@
 #define JZ "jz "
 #define RET "ret "
 #define INT "int "
-#define NULL(name) (name == "null" || name == "")
+#define _NULL(name) (name == "null" || name == "")
 #define FROM ", "
 #define NL "\n"
 #define OFFSET " + "

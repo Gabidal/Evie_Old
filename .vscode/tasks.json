@@ -6,7 +6,7 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-g",
-                "${fileDirname}/Parser.cpp",
+                "${fileDirname}/main.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

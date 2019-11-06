@@ -5,7 +5,8 @@ using namespace std;
 
 int main()
 {
-    Definer d("/home/gabidalg/GAS/IO/test.g");
+    Definer d;
+    d.OpenFile("/home/gabidalg/GAS/IO/test.g");
     Parser p(d.output);
     return 0;
 }
