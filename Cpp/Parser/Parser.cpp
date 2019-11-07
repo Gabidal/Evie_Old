@@ -9,6 +9,7 @@ void Parser::Pattern_Variable(int i)
         Token Var(Assembly);
         Var.Flags |= Variable;
         Var.Flags |= Real;
+        Var.Name = Input.at(i+1).WORD;
         if (InsideOfType && InsideOfFunction != true)
         {
             Var.Flags |= Member;
@@ -96,6 +97,11 @@ void Parser::Pattern_Init_Array(int i)
         Mark = i;
         Offset = i+1;
     }
+    else
+    {
+        return;
+    }
+    
     
     if (Input.at(Mark).UsedToken == false)
     {
@@ -407,6 +413,7 @@ void Parser::Factory()
         Pattern_Init_Type(i);
         Pattern_Init_Call_Func(i);
         Pattern_Init_Array(i);
+        Pattern_Variable(i);
         Pattern_Init_Operators(i);
     }
     for (int i = 0; i < Input.size(); i++)
@@ -418,6 +425,5 @@ void Parser::Factory()
         Pattern_Parenthesis(i);
         Pattern_Call_Func(i);
         Pattern_Operators(i);
-        Pattern_Variable(i);
     }
 }
