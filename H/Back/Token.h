@@ -40,7 +40,7 @@ using namespace std;
 #define This (1<<26)
 #define PARENT (1<<27)
 #define Call (1<<28)
-#define _NEW (1<<29)
+#define __NEW (1<<29)
 
 class Token
 {

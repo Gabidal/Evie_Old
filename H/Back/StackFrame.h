@@ -10,13 +10,13 @@ class StackFrame
   private:
     string &output;
   public:
-  StackFrame::StackFrame(string &output) : output(output)
+  StackFrame(string &output) : output(output)
   {
       this->output += PUSH(EBP->Name);
       this->output += MOV + EBP->Name + FROM + ESP->Name;
   }
   
-  StackFrame::~StackFrame()
+  ~StackFrame()
   {
       this->output += MOV + ESP->Name + FROM + EBP->Name;
       this->output += POP(EBP->Name);

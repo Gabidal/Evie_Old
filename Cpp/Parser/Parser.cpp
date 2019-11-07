@@ -379,7 +379,7 @@ void Parser::Pattern_New(int i)
         Token t = Output.at(j);
         t.Name = Input.at(i+2).WORD;
         t.Origin = &Output.at(j);
-        t.Flags |= _NEW & NotOriginal;
+        t.Flags |= __NEW & NotOriginal;
         Output.at(j).Flags |= Used;
         Input.erase(Input.begin() + i);
         Input.erase(Input.begin() + i + 1);

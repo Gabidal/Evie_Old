@@ -66,6 +66,7 @@ Register *Token::getNewRegister()
         return EDI;
         RegisterTurn = 0;
     }
+    return NUL;
 }
 
 Register *Token::getReg()
@@ -150,8 +151,8 @@ string Token::COMPARE(Token *Source)
 string Token::MOVEINSTACK()
 {
     output += PUSH(this->getFullName());
+    return this->getReg()->Name;
 }
-
 
 void Token::addChild(Token local) 
 {
