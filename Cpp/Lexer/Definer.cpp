@@ -155,15 +155,33 @@ void Definer::Define()
             Base = Current;
 			start = i;
         }
-        if (Base != Current)
+
+        if (Base == CONTENT && Current == CONTENT)
+        {
+            i = getWord(Lines, i);
+            Word w("");
+            w.WORD = Lines.substr(start, i-start);
+            w.Flags = translateIdentity(Base, w.WORD, w);
+            output.push_back(w);
+            Base = UNSPECIFIED;
+            i--;
+        }
+        
+        if (Base != Current && Base != UNSPECIFIED)
         {
             Word w("");
             w.WORD = Lines.substr(start, i-start);
             w.Flags = translateIdentity(Base, w.WORD, w);
+            output.push_back(w);
+            Base = UNSPECIFIED;
+            i--;
         }
-        
     }
-    
+
+	 Word w("");
+    w.WORD = Lines.substr(start, i-start);
+    w.Flags = translateIdentity(Base, w.WORD, w);
+    output.push_back(w);
 }
 
 void Definer::OpenFile(const char* fileName)

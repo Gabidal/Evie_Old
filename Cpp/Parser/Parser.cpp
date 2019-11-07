@@ -78,19 +78,19 @@ void Parser::Pattern_Init_Array(int i)
     int Mark;
     int Offset;
     int _Owner;
-    if (Input.at(i+1).WORD == ":")
+    if (i > 0 && Input.at(i+1).WORD == ":")
     {
         _Owner = i;
         Mark = i+1;
         Offset = i+2;
     }
-    else if (Input.at(i-1).WORD == ":")
+    else if (i > 0 && Input.at(i-1).WORD == ":")
     {
         _Owner = i-2;
         Mark = i-1;
         Offset = i;
     }
-    else if (Input.at(i).WORD == ":")
+    else if (i > 0 && Input.at(i).WORD == ":")
     {
         _Owner = i-1;
         Mark = i;
