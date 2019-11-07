@@ -7,6 +7,10 @@
             "args": [
                 "-g",
                 "${fileDirname}/main.cpp",
+                "${fileDirname}/Back/Token.cpp",
+                "${fileDirname}/Back/Register.cpp",
+                "${fileDirname}/Lexer/Definer.cpp",
+                "${fileDirname}/Parser/Parser.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

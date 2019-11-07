@@ -207,3 +207,27 @@ void Token::InitType()
         }
     }
 }
+
+Token &Token::operator=(const Token& name)
+{
+    Flags = name.Flags;
+    Size = name.Size;
+    Value = name.Value;
+    StackOffset = name.StackOffset;
+    ParameterCount = name.ParameterCount;
+    AddedOffset = name.AddedOffset;
+    ParameterOffset = name.ParameterOffset;
+    ID = name.ID;
+    Offsetter = name.Offsetter;
+    ParentType = name.ParentType;
+    ParentFunc = name.ParentFunc;
+    Parameters = name.Parameters;
+    Childs = name.Childs;
+    Name = name.Name;
+    Reg = name.Reg;
+    output = name.output;
+    initted = name.initted;
+    Origin = name.Origin;
+    Functions = name.Functions;
+    return *this;
+}

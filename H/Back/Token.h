@@ -62,6 +62,7 @@ class Token
     Register *Reg;
     string &output;
     Token(string &out) : output(out){}
+    Token &operator=(const Token& name);
 
     bool is(int flag);
     string getFullName();

@@ -15,18 +15,14 @@ public:
     bool INSIDE_OF_TYPE = false;
     bool INSIDE_OF_FUNC = false;
 
+    Definer(){}
+    ~Definer(){}
+
     void Define();
 
     void OpenFile(const char* fileName);
     void Direct(string raw);
     
-    Definer()
-    {
-    }
-    
-    ~Definer()
-    {
-    }
 };
 
 
