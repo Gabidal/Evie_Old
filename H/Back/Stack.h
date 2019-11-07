@@ -12,22 +12,20 @@ class Stack
     int Secrets; //find the number
   public:
     vector<StackFrame> StackFrames;
-    Stack();
-    ~Stack();
+  Stack::Stack()
+  {
+      Secrets = int(&StackFrames);
+  }
+  
+  Stack::~Stack()
+  {
+      if (StackFrames.size() != 0)
+      {
+          cout << "Frames remaining!" << endl;
+      }
+  }
 };
 
-Stack::Stack()
-{
-    Secrets = int(&StackFrames);
-}
-
-Stack::~Stack()
-{
-    if (StackFrames.size() != 0)
-    {
-        cout << "Frames remaining!" << endl;
-    }
-}
 
 
 #endif
