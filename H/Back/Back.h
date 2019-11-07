@@ -8,7 +8,8 @@
 class Back
 {
 private:
-    
+	 // nej
+    // joonas was here. 20:09 thu 7.11.19;
 public:
 
     void Factory();
@@ -19,6 +20,7 @@ public:
     
     Back::~Back()
     {
+        
     }
 };
 

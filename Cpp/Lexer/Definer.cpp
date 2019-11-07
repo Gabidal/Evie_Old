@@ -25,11 +25,12 @@ int getWord(string source, int continu)
         {
             LayerCount++;
         }
-        else if (source[i] == ')')
+        if (source[i] == ')')
         {
             LayerCount--;
         }
         i++;
+        
     }while(LayerCount > 0);
     return i;
 }
@@ -122,7 +123,7 @@ int getWord(string source, int continu)
         else if (t == CONTENT)
         {
             Definer d;
-            d.Direct(text.substr(1, text.size() - 1));
+            d.Direct(text.substr(1, text.size() - 2));
             w.Tokens = d.output;
         }
         else if (t == OPERATOR)
@@ -143,31 +144,26 @@ int getWord(string source, int continu)
 void Definer::Define()
 {
     Type Base = UNSPECIFIED;
+	Type Current = UNSPECIFIED;
     int start = 0;
+	int i = 0;
     for (int i = 0; i < Lines.size(); i++)
     {
-        Type Current = GetType(Lines.at(i));
-        if (Current == CONTENT)
+        Current = GetType(Lines.at(i));
+        if (Base == UNSPECIFIED)
         {
-            i = getWord(Lines, i);
-            Word word("");
-            word.WORD = Lines.substr(start, i-start+1);
-            word.Flags |= translateIdentity(Base, word.WORD, word);
-            output.push_back(word);
             Base = Current;
-            start = i;
-            continue;
+			start = i;
         }
-        if (Current != Base)
+        if (Base != Current)
         {
-            Word word("");
-            word.WORD = Lines.substr(start, i-start);
-            word.Flags |= translateIdentity(Base, word.WORD, word);
-            output.push_back(word);
-            Base = Current;
-            start = i;
+            Word w("");
+            w.WORD = Lines.substr(start, i-start);
+            w.Flags = translateIdentity(Base, w.WORD, w);
         }
+        
     }
+    
 }
 
 void Definer::OpenFile(const char* fileName)
@@ -184,7 +180,7 @@ void Definer::OpenFile(const char* fileName)
         string Line;
         while (getline(file, Line))
         {
-            BUFFER += Line;
+            BUFFER += Line + "\n";
         }
     }
     Lines = BUFFER;
