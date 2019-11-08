@@ -47,7 +47,11 @@ void Parser::Pattern_Variable(int i)
     {
         int j = Find(Input.at(i).WORD, Variable, *T);
         Token t = T->at(j);
-        T->at(j).Flags |= Used;
+        if (Input.at(i-1).WORD != "var")
+        {
+            T->at(j).Flags |= Used;
+        }
+        //var a = 1
     }
 }
 
@@ -79,6 +83,10 @@ void Parser::Pattern_Init_Array(int i)
     int Mark;
     int Offset;
     int _Owner;
+    if (i == Input.size() - 1)
+    {
+        return;
+    }
     if (i > 0 && Input.at(i+1).WORD == ":")
     {
         _Owner = i;
@@ -270,7 +278,7 @@ void Parser::Pattern_Parenthesis(int i)
     
 }
 
-void Parser::Pattern_Init_Operators(int i)
+void Parser::Pattern_Init_Operators(int &i)
 {
     //<a = b>
     if (Input.at(i).is(_OPERATOR) && Input.at(i).UsedToken != true)
@@ -278,8 +286,9 @@ void Parser::Pattern_Init_Operators(int i)
         Input.at(i).Tokens.push_back(Input.at(i-1)); //a
         Input.at(i).Tokens.push_back(Input.at(i+1)); //b
         Input.erase(Input.begin() + i-1);
-        Input.erase(Input.begin() + i+1);
-        Input.at(i).UsedToken = true;
+        Input.erase(Input.begin() + i);
+        Input.at(i-1).UsedToken = true;
+        i--;
     }
 }
 

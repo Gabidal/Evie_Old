@@ -26,7 +26,7 @@ public:
     void Pattern_Operators(int i);
     void Pattern_Call_Func(int i);
     void Pattern_New(int i);
-    void Pattern_Init_Operators(int i);
+    void Pattern_Init_Operators(int &i);
     void Pattern_Init_Type(int i);
     void Pattern_Init_Call_Func(int i);
     void Pattern_Init_Array(int i);
