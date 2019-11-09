@@ -47,11 +47,11 @@ void Parser::Pattern_Variable(int i)
     {
         int j = Find(Input.at(i).WORD, Variable, *T);
         Token t = T->at(j);
-        if (Input.at(i-1).WORD != "var")
+        if ((i > 0 && Input.at(i-1).WORD != "var") || Started != 0)
         {
             T->at(j).Flags |= Used;
         }
-        //var a = 1
+        T->push_back(t);
     }
 }
 
@@ -60,17 +60,17 @@ void Parser::Pattern_Operators(int i)
     //set variable value;
     //a <: a> = b
     //c = a<()> + b
-    if (Input.at(i).is(_OPERATOR) && Input.at(i-1).is(_TEXT) && Input.at(i).UsedToken == true)
+    if (Input.at(i).is(_OPERATOR) && Input.at(i).Tokens.size() > 0 && Input.at(i).UsedToken == true)
     {
         Token OP(Assembly);
         OP.Flags |= OPERATOR;
         OP.Name = Input.at(i).WORD;
 
-        Parser p(Input.at(i).Tokens);
+        Parser p(Input.at(i).Tokens, Output);
         p.Factory();
         //check this also in debugging!!!
-        Token A = p.Output.at(0);
-        Token B = p.Output.at(1);
+        Token A = p.Output.at(p.Started + 0);
+        Token B = p.Output.at(p.Started + 1);
         
         OP.Parameters.push_back(A);
         OP.Childs.push_back(B);
@@ -196,17 +196,17 @@ void Parser::Pattern_Parenthesis(int i)
         var c = a + a
         b = d + c
     )*/
-    if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-3).WORD == "func" && ParentFunc != 0)
+    if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-3).WORD == "func")
     {
         InsideOfFunction = true;
         Layer++;
 
-        Parser parser(Input.at(i).Tokens);
+        Parser parser(Input.at(i).Tokens, Output);
         parser.ParentFunc = &Output.back();
         parser.Factory();
         ParentFunc = parser.ParentFunc;
 
-        for (int i = 0; i < parser.Output.size(); i++)
+        for (int i = parser.Started; i < parser.Output.size(); i++)
         ParentFunc->addChild(parser.Output.at(i));
         ParentFunc->Flags |= PARENT;
 
@@ -216,16 +216,16 @@ void Parser::Pattern_Parenthesis(int i)
     (
         var 1
     )*/
-    else if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-3).WORD == "type" && ParentType != 0)
+    else if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-3).WORD == "type")
     {
         InsideOfType = true;
         Layer++;
-        Parser parser(Input.at(i).Tokens);
+        Parser parser(Input.at(i).Tokens, Output);
         parser.ParentType = &Output.back();
         parser.Factory();
         ParentType = parser.ParentType;
 
-        for (int i = 0; i < parser.Output.size(); i++)
+        for (int i = parser.Started; i < parser.Output.size(); i++)
         ParentType->addChild(parser.Output.at(i));
         ParentType->Flags |= PARENT;
 
@@ -241,14 +241,14 @@ void Parser::Pattern_Parenthesis(int i)
         IF.Flags |= PARENT & If & Used;
         IF.Name = to_string(ID) + "_if";
 
-        Parser parser1(Input.at(i).Tokens);
+        Parser parser1(Input.at(i).Tokens, Output);
 
-        for (int i = 0; i < parser1.Output.size(); i++)
+        for (int i = parser1.Started; i < parser1.Output.size(); i++)
         IF.addParameter(parser1.Output.at(i));
 
         Parser parser2(Input.at(i+2).Tokens);
 
-        for (int i = 0; i < parser2.Output.size(); i++)
+        for (int i = parser2.Started; i < parser2.Output.size(); i++)
         IF.addChild(parser2.Output.at(i));
 
         Output.push_back(IF);

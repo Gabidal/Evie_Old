@@ -125,6 +125,7 @@ int getWord(string source, int continu)
             Definer d;
             d.Direct(text.substr(1, text.size() - 2));
             w.Tokens = d.output;
+            return _PAREHTHESIS;
         }
         else if (t == OPERATOR)
         {

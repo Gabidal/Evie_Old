@@ -14,6 +14,7 @@ public:
     Token *ParentFunc = 0;
     int Layer = 0;
     int ID = 0;
+    int Started = 0;
     bool InsideOfType = false;
     bool InsideOfFunction = false;
     string Assembly = "";
@@ -32,9 +33,15 @@ public:
     void Pattern_Init_Array(int i);
     int Find(string name, int flags, vector<Token> list);
     void Factory();
-    Parser(vector<Word>in)
+    Parser(vector<Word> in)
     {
         Input = in;
+    }
+    Parser(vector<Word> in, vector<Token> out)
+    {
+        Input = in;
+        Output = out;
+        Started = out.size();
     }
     
     ~Parser()

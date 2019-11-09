@@ -1,9 +1,5 @@
-dynamic type vector
+type vector
 (
-  vector(
-    a = 0
-    b = 1
-  )
   var a = 2
   var b = 1
 
@@ -15,13 +11,8 @@ dynamic type vector
   )
 )
 
-dynamic type string
+type string
 (
-  string(
-    a = 0
-    b = 1
-    c = 2
-  )
   var a = 1
   var b = 2
   var c = 3
@@ -35,10 +26,8 @@ dynamic type string
 
 func banana(this, uncleBeens)
 (
-  banana(
-    this : mask = uncleBeens : mask
-    uncleBeens : mask = this : mask
-  )
+  this : mask = uncleBeens : mask
+  uncleBeens : mask = this : mask
   this : a = uncleBeens : b * uncleBeens : c
 )
 
