@@ -1,6 +1,6 @@
 #include "../../H/Parser/Parser.h"
 
-void Parser::Pattern_Variable(int i)
+void Parser::Pattern_Init_Variable(int i)
 {
     //((var) (a) (:) (b) (= 123))
     if (Input.at(i).is(_KEYWORD) && Input.at(i+1).is(_TEXT) && Input.at(i).WORD == "var" && Input.at(i).UsedToken == false)
@@ -26,7 +26,10 @@ void Parser::Pattern_Variable(int i)
         }
         Input.at(i).UsedToken = true;
     }
+}
 
+void Parser::Pattern_Variable(int i)
+{
     vector<Token> *T;
     if (InsideOfFunction)
     {
@@ -42,7 +45,6 @@ void Parser::Pattern_Variable(int i)
     {
         T = &Output;
     }
-    
     if (Input.at(i).is(_TEXT) && Find(Input.at(i).WORD, Variable, *T) != -1)
     {
         int j = Find(Input.at(i).WORD, Variable, *T);
@@ -51,7 +53,35 @@ void Parser::Pattern_Variable(int i)
         {
             T->at(j).Flags |= Used;
         }
+        if (Input.at(i).Offsetter != 0)
+        {
+            //if it is an array
+            //if the offsetter is a Variable
+            int k = Find(Input.at(i).Offsetter->WORD, Variable, *T);
+            if (k == -1)
+            {
+                //if the offsetter is a number
+                k = Find(Input.at(i).Offsetter->WORD, Number, *T);
+            }
+            if (k == -1)
+            {
+                //if the offsetter is a function
+                k = Find(Input.at(i).Offsetter->WORD, Call, *T);
+            }
+            
+            Token *ofsetter = &T->at(k);
+            t.Offsetter = ofsetter;
+            t.Flags |= Array;
+        }
+        
         T->push_back(t);
+    }
+    if (Input.at(i).is(_NUMBER))
+    {
+        Token n(Assembly);
+        n.Flags |= Number & Real & Used;
+        n.Name = Input.at(i).WORD;
+        T->push_back(n);
     }
 }
 
@@ -87,19 +117,24 @@ void Parser::Pattern_Init_Array(int i)
     {
         return;
     }
-    if (i > 0 && Input.at(i+1).WORD == ":")
+    else if (i < 1)
+    {
+        return;
+    }
+    
+    if (Input.at(i+1).WORD == ":")
     {
         _Owner = i;
         Mark = i+1;
         Offset = i+2;
     }
-    else if (i > 0 && Input.at(i-1).WORD == ":")
+    else if (Input.at(i-1).WORD == ":")
     {
         _Owner = i-2;
         Mark = i-1;
         Offset = i;
     }
-    else if (i > 0 && Input.at(i).WORD == ":")
+    else if (Input.at(i).WORD == ":")
     {
         _Owner = i-1;
         Mark = i;
@@ -109,8 +144,6 @@ void Parser::Pattern_Init_Array(int i)
     {
         return;
     }
-    
-    
     if (Input.at(Mark).UsedToken == false)
     {
         Input.at(_Owner).Offsetter = &Input.at(Offset);
@@ -422,7 +455,7 @@ void Parser::Factory()
         Pattern_Init_Type(i);
         Pattern_Init_Call_Func(i);
         Pattern_Init_Array(i);
-        Pattern_Variable(i);
+        Pattern_Init_Variable(i);
         Pattern_Init_Operators(i);
     }
     for (int i = 0; i < Input.size(); i++)
@@ -434,5 +467,6 @@ void Parser::Factory()
         Pattern_Parenthesis(i);
         Pattern_Call_Func(i);
         Pattern_Operators(i);
+        Pattern_Variable(i);
     }
 }

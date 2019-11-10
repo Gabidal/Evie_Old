@@ -11,7 +11,7 @@ using namespace std;
 #define Public (1<<1)
 #define Member (1<<2)
 #define Used (1<<3)
-#define Real (1<<4)
+#define Real (1<<4) 
 #define Function (1<<6)
 #define Macro (1<<7)
 #define TypE (1<<8)
