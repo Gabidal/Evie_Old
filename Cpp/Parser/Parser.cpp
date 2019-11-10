@@ -66,15 +66,21 @@ void Parser::Pattern_Variable(int i)
             t.Offsetter = ofsetter;
             t.Flags |= Array;
         }
+        if (Priority)
+        {
+            T->push_back(t);
+        }
         
-        T->push_back(t);
     }
     if (Input.at(i).is(_NUMBER))
     {
         Token n(Assembly);
         n.Flags |= Number & Real & Used;
         n.Name = Input.at(i).WORD;
-        T->push_back(n);
+        if (Priority)
+        {
+            T->push_back(n);
+        }
     }
 }
 
@@ -92,29 +98,37 @@ void Parser::Pattern_Operators(int i)
         Parser p = *this;
         p.Input = Input.at(i).Tokens;
         p.Started = Input.at(i).Tokens.size();
+        p.Priority = true;
         
         p.Factory();
         //check this also in debugging!!!
-        Token *A;
-        Token *B;
+        Token A(Assembly);
+        Token B(Assembly);
         if (InsideOfFunction)
         {
-            A = &ParentFunc->Childs.at(ParentFunc->Childs.size() - 2);
-            B = &ParentFunc->Childs.at(ParentFunc->Childs.size() - 1);
+            A = ParentFunc->Childs.at(ParentFunc->Childs.size() - 2);
+            B = ParentFunc->Childs.at(ParentFunc->Childs.size() - 1);
+            ParentFunc->Childs.erase(ParentFunc->Childs.begin() + ParentFunc->Childs.size() - 1);
+            ParentFunc->Childs.erase(ParentFunc->Childs.begin() + ParentFunc->Childs.size() - 1);
         }
         else if (InsideOfType)
         {
-            A = &ParentType->Childs.at(ParentType->Childs.size() - 2);
-            B = &ParentType->Childs.at(ParentType->Childs.size() - 1);
+            A = ParentType->Childs.at(ParentType->Childs.size() - 2);
+            B = ParentType->Childs.at(ParentType->Childs.size() - 1);
+            ParentType->Childs.erase(ParentType->Childs.begin() + ParentType->Childs.size() - 1);
+            ParentType->Childs.erase(ParentType->Childs.begin() + ParentType->Childs.size() - 1);
         }
         else
         {
-            A = &p.Output.at(p.Started + 0);
-            B = &p.Output.at(p.Started + 1);
+            A = p.Output.at(p.Started + 0);
+            B = p.Output.at(p.Started + 1);
+            p.Output.erase(p.Output.begin() + p.Started - 1);
+            p.Output.erase(p.Output.begin() + p.Started - 1);
         }
         
-        OP.Parameters.push_back(*A);
-        OP.Childs.push_back(*B);
+        OP.Parameters.push_back(A);
+        OP.Childs.push_back(B);
+        
         vector<Token> *T;
         Give_Output(T);
         T->push_back(OP);

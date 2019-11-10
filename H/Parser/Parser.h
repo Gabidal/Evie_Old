@@ -17,6 +17,7 @@ public:
     int Started = 0;
     bool InsideOfType = false;
     bool InsideOfFunction = false;
+    bool Priority = false;
     string Assembly = "";
     vector<Word> Input;
     vector<Token> Output;
@@ -35,6 +36,37 @@ public:
     void Give_Output(vector<Token> *&T);
     int Find(string name, int flags, vector<Token> list);
     void Factory();
+    Parser &operator=(const Parser& other)
+    {
+        ParentType = other.ParentType;
+        ParentFunc = other.ParentFunc;
+        Layer = other.Layer;
+        ID = other.ID;
+        Started = other.Started;
+        InsideOfType = other.InsideOfType;
+        InsideOfFunction = other.InsideOfFunction;
+        //Priority = other.Priority; DO NOT USE THIS <THIS IS THE RED BUTTON>
+        Priority = false;
+        Assembly = other.Assembly;
+        Input = other.Input;
+        Output = other.Output;
+        return *this;
+    }
+    Parser(Parser & other)
+    {
+        ParentType = other.ParentType;
+        ParentFunc = other.ParentFunc;
+        Layer = other.Layer;
+        ID = other.ID;
+        Started = other.Started;
+        InsideOfType = other.InsideOfType;
+        InsideOfFunction = other.InsideOfFunction;
+        //Priority = other.Priority; DO NOT USE THIS <THIS IS THE RED BUTTON>
+        Priority = false;
+        Assembly = other.Assembly;
+        Input = other.Input;
+        Output = other.Output;
+    }
     Parser(vector<Word> in)
     {
         Input = in;
@@ -45,7 +77,6 @@ public:
         Output = out;
         Started = out.size();
     }
-    
     ~Parser()
     {
     }
