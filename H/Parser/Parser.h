@@ -32,6 +32,7 @@ public:
     void Pattern_Init_Type(int i);
     void Pattern_Init_Call_Func(int i);
     void Pattern_Init_Array(int i);
+    void Give_Output(vector<Token> *&T);
     int Find(string name, int flags, vector<Token> list);
     void Factory();
     Parser(vector<Word> in)

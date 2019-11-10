@@ -31,28 +31,21 @@ void Parser::Pattern_Init_Variable(int i)
 void Parser::Pattern_Variable(int i)
 {
     vector<Token> *T;
-    if (InsideOfFunction)
+    if ((Input.at(i).is(_TEXT) == false) && (Input.at(i).is(_NUMBER) == false))
     {
-        T->reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
-        T->insert(T->end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
-        T->insert(T->end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+        return;
     }
-    else if (InsideOfType)
-    {
-        T = &ParentType->Childs;
-    }
-    else
-    {
-        T = &Output;
-    }
+
+    Give_Output(T);
+    
     if (Input.at(i).is(_TEXT) && Find(Input.at(i).WORD, Variable, *T) != -1)
     {
         int j = Find(Input.at(i).WORD, Variable, *T);
-        Token t = T->at(j);
         if ((i > 0 && Input.at(i-1).WORD != "var") || Started != 0)
         {
             T->at(j).Flags |= Used;
         }
+        Token t = T->at(j);
         if (Input.at(i).Offsetter != 0)
         {
             //if it is an array
@@ -96,14 +89,35 @@ void Parser::Pattern_Operators(int i)
         OP.Flags |= OPERATOR;
         OP.Name = Input.at(i).WORD;
 
-        Parser p(Input.at(i).Tokens, Output);
+        Parser p = *this;
+        p.Input = Input.at(i).Tokens;
+        p.Started = Input.at(i).Tokens.size();
+        
         p.Factory();
         //check this also in debugging!!!
-        Token A = p.Output.at(p.Started + 0);
-        Token B = p.Output.at(p.Started + 1);
+        Token *A;
+        Token *B;
+        if (InsideOfFunction)
+        {
+            A = &ParentFunc->Childs.at(ParentFunc->Childs.size() - 2);
+            B = &ParentFunc->Childs.at(ParentFunc->Childs.size() - 1);
+        }
+        else if (InsideOfType)
+        {
+            A = &ParentType->Childs.at(ParentType->Childs.size() - 2);
+            B = &ParentType->Childs.at(ParentType->Childs.size() - 1);
+        }
+        else
+        {
+            A = &p.Output.at(p.Started + 0);
+            B = &p.Output.at(p.Started + 1);
+        }
         
-        OP.Parameters.push_back(A);
-        OP.Childs.push_back(B);
+        OP.Parameters.push_back(*A);
+        OP.Childs.push_back(*B);
+        vector<Token> *T;
+        Give_Output(T);
+        T->push_back(OP);
     }
 }
 
@@ -205,6 +219,9 @@ void Parser::Pattern_Function(int i)
             }
         }
         Input.erase(Input.begin() + i + 2);
+        vector<Token> *T;
+        Give_Output(T);
+        T->push_back(Name);
     }
     
 }
@@ -218,7 +235,8 @@ void Parser::Pattern_Type(int i)
         Type.Flags |= TypE;
         Type.Flags |= Real;
         Type.Name = Input.at(i+1).WORD;
-        Output.push_back(Type);
+        vector<Token> *T;
+        T->push_back(Type);
     }
 }
 
@@ -231,18 +249,18 @@ void Parser::Pattern_Parenthesis(int i)
     )*/
     if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-3).WORD == "func")
     {
-        InsideOfFunction = true;
+        vector<Token> *T;
+        Give_Output(T);
+        int j = Find(Input.at(i-2).WORD, Function, *T);
+        ParentFunc = &Output.at(j);
+
         Layer++;
-
-        Parser parser(Input.at(i).Tokens, Output);
-        parser.ParentFunc = &Output.back();
+        Parser parser = *this;
+        parser.Input = Input.at(i).Tokens;
+        parser.InsideOfFunction = true;
+        parser.Started = Output.size();
         parser.Factory();
-        ParentFunc = parser.ParentFunc;
-
-        for (int i = parser.Started; i < parser.Output.size(); i++)
-        ParentFunc->addChild(parser.Output.at(i));
         ParentFunc->Flags |= PARENT;
-
         Layer--;
     }
     /*type banana
@@ -251,17 +269,19 @@ void Parser::Pattern_Parenthesis(int i)
     )*/
     else if (Input.at(i).is(_PAREHTHESIS) && Input.at(i-3).WORD == "type")
     {
-        InsideOfType = true;
+        vector<Token> *T;
+        Give_Output(T);
+
+        int j = Find(Input.at(i-2).WORD, TypE, *T);
+        ParentType = &Output.at(j);
+
         Layer++;
-        Parser parser(Input.at(i).Tokens, Output);
-        parser.ParentType = &Output.back();
+        Parser parser = *this;
+        parser.Input = Input.at(i).Tokens;
+        parser.InsideOfType = true;
+        parser.Started = Output.size();
         parser.Factory();
-        ParentType = parser.ParentType;
-
-        for (int i = parser.Started; i < parser.Output.size(); i++)
-        ParentType->addChild(parser.Output.at(i));
         ParentType->Flags |= PARENT;
-
         Layer--;
     }
     /*if ( a == b & a == c)
@@ -284,7 +304,8 @@ void Parser::Pattern_Parenthesis(int i)
         for (int i = parser2.Started; i < parser2.Output.size(); i++)
         IF.addChild(parser2.Output.at(i));
 
-        Output.push_back(IF);
+        vector<Token> *T;
+        T->push_back(IF);
     }
     /*while (a < b)
     (
@@ -306,7 +327,8 @@ void Parser::Pattern_Parenthesis(int i)
         for (int i = 0; i < parser2.Output.size(); i++)
         WHILE.addChild(parser2.Output.at(i));
 
-        Output.push_back(WHILE);
+        vector<Token> *T;
+        T->push_back(WHILE);
     }
     
 }
@@ -423,12 +445,14 @@ void Parser::Pattern_New(int i)
     */
     if (Input.at(i).is(_KEYWORD) && Input.at(i).WORD == "new")
     {
-        int j = Find(Input.at(i+1).WORD, TypE, Output);
-        Token t = Output.at(j);
+        vector<Token> *T;
+        Give_Output(T);
+        int j = Find(Input.at(i+1).WORD, TypE, *T);
+        Token t = T->at(j);
         t.Name = Input.at(i+2).WORD;
-        t.Origin = &Output.at(j);
+        t.Origin = &T->at(j);
         t.Flags |= __NEW & NotOriginal;
-        Output.at(j).Flags |= Used;
+        T->at(j).Flags |= Used;
         Input.erase(Input.begin() + i);
         Input.erase(Input.begin() + i + 1);
         Input.erase(Input.begin() + i + 2);
@@ -445,6 +469,33 @@ int Parser::Find(string name, int flag, vector<Token> list)
         }
     }
     return -1;
+}
+
+void Parser::Give_Output(vector<Token> *&T)
+{
+    if (InsideOfFunction)
+    {
+        if (ParentFunc->Parameters.size() > 0)
+        {
+            T = new vector<Token>;
+            T->reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
+            T->insert(T->end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
+            T->insert(T->end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+        }
+        else
+        {
+            T = &ParentFunc->Childs;
+        }
+        
+    }
+    else if (InsideOfType)
+    {
+        T = &ParentType->Childs;
+    }
+    else
+    {
+        T = &Output;
+    }
 }
 
 void Parser::Factory()
