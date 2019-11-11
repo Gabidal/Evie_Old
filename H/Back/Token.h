@@ -56,8 +56,8 @@ class Token
     Token *Offsetter;
     Token *ParentType;
     Token *ParentFunc;
-    vector<Token> Parameters;
-    vector<Token> Childs;
+    vector<Token*> Parameters;
+    vector<Token*> Childs;
     string Name = "";
     Register *Reg;
     string &output;
@@ -78,15 +78,15 @@ class Token
     string COMPARE(Token *Source);
     string MOVEINSTACK();
     //func
-    void addChild(Token t);
-    void addParameter(Token Param);
+    void addChild(Token *t);
+    void addParameter(Token *Param);
     void InitFunction();
     //void CallFunc();
     //type
     bool initted = false;
     Token *Origin;
-    vector<Token> Functions;
-    void addFunc(Token func);
+    vector<Token*> Functions;
+    void addFunc(Token *func);
     void InitType();
 };
 

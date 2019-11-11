@@ -11,7 +11,7 @@ class Definer
 {
 public:
     string Lines;
-    vector<Word> output;
+    vector<Word*> output;
     bool INSIDE_OF_TYPE = false;
     bool INSIDE_OF_FUNC = false;
 

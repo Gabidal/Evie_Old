@@ -19,8 +19,8 @@ public:
     bool InsideOfFunction = false;
     bool Priority = false;
     string Assembly = "";
-    vector<Word> Input;
-    vector<Token> Output;
+    vector<Word*> Input;
+    vector<Token*> Output;
     void Pattern_Variable(int i);
     void Pattern_Function(int i);
     void Pattern_Type(int i);
@@ -35,8 +35,8 @@ public:
     void Pattern_Init_Array(int i);
     void Pattern_Return(int i);
     void Clean_Cilds();
-    void Give_Output(vector<Token> *&T);
-    int Find(string name, int flags, vector<Token> list);
+    void Give_Output(vector<Token*> *&T);
+    int Find(string name, int flags, vector<Token*> list);
     void Factory();
     Parser &operator=(const Parser& other)
     {
@@ -69,11 +69,11 @@ public:
         Input = other.Input;
         Output = other.Output;
     }
-    Parser(vector<Word> in)
+    Parser(vector<Word*> in)
     {
         Input = in;
     }
-    Parser(vector<Word> in, vector<Token> out)
+    Parser(vector<Word*> in, vector<Token*> out)
     {
         Input = in;
         Output = out;

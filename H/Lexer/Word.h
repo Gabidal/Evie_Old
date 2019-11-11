@@ -25,7 +25,7 @@ public:
     string Fetcher = "";
     bool _func = false;
     bool _type = false;
-    vector<Word> Tokens;
+    vector<Word*> Tokens;
     int LineNumber = 0;
     string WORD = "";
     int Flags = 0;

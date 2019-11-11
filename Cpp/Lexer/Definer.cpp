@@ -99,7 +99,7 @@ int getWord(string source, int continu)
 		return UNSPECIFIED;
 	}
 
-    int translateIdentity(Type t, string text, Word &w)
+    int translateIdentity(Type t, string text, Word *&w)
     {
         if (t == TEXT)
         {
@@ -124,7 +124,7 @@ int getWord(string source, int continu)
         {
             Definer d;
             d.Direct(text.substr(1, text.size() - 2));
-            w.Tokens = d.output;
+            w->Tokens = d.output;
             return _PAREHTHESIS;
         }
         else if (t == OPERATOR)
@@ -160,9 +160,9 @@ void Definer::Define()
         if (Base == CONTENT && Current == CONTENT)
         {
             i = getWord(Lines, i);
-            Word w("");
-            w.WORD = Lines.substr(start, i-start);
-            w.Flags = translateIdentity(Base, w.WORD, w);
+            Word *w = new Word("");
+            w->WORD = Lines.substr(start, i-start);
+            w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
             Base = UNSPECIFIED;
             i--;
@@ -170,18 +170,18 @@ void Definer::Define()
         
         if (Base != Current && Base != UNSPECIFIED)
         {
-            Word w("");
-            w.WORD = Lines.substr(start, i-start);
-            w.Flags = translateIdentity(Base, w.WORD, w);
+            Word *w = new Word("");
+            w->WORD = Lines.substr(start, i-start);
+            w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
             Base = UNSPECIFIED;
             i--;
         }
     }
 
-	 Word w("");
-    w.WORD = Lines.substr(start, i-start);
-    w.Flags = translateIdentity(Base, w.WORD, w);
+	 Word *w = new Word("");
+    w->WORD = Lines.substr(start, i-start);
+    w->Flags = translateIdentity(Base, w->WORD, w);
     output.push_back(w);
 }
 

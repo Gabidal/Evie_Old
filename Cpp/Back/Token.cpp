@@ -154,21 +154,21 @@ string Token::MOVEINSTACK()
     return this->getReg()->Name;
 }
 
-void Token::addChild(Token local) 
+void Token::addChild(Token *local) 
 {
     Childs.push_back(local);
-    local.ParentFunc = this;
-    local.StackOffset = this->StackOffset;
-    this->StackOffset += local.Size;
-    this->Size += local.Size;
-	local.Flags |= Private;
+    local->ParentFunc = this;
+    local->StackOffset = this->StackOffset;
+    this->StackOffset += local->Size;
+    this->Size += local->Size;
+	local->Flags |= Private;
 }
 
-void Token::addParameter(Token Param)
+void Token::addParameter(Token *Param)
 {
     Parameters.push_back(Param);
-    Param.ParameterOffset = this->ParameterOffset;
-    this->ParameterOffset += Param.Size;
+    Param->ParameterOffset = this->ParameterOffset;
+    this->ParameterOffset += Param->Size;
 }
 
 void Token::InitFunction()
@@ -183,9 +183,9 @@ void Token::InitFunction()
     }
 }
 
-void Token::addFunc(Token func)
+void Token::addFunc(Token *func)
 {
-    func.ParentType = this;
+    func->ParentType = this;
     Functions.push_back(func);
 }
 
@@ -195,15 +195,15 @@ void Token::InitType()
     {
         return;
     }
-    for (Token t : Childs)
+    for (Token *t : Childs)
     {
-        if (t.is(Used) != true)
+        if (t->is(Used) != true)
         {
             output += COMMENT("Variable not used!");
         }
         else
         { 
-            output += MOV + FRAME(t.getFullName()) + FROM + to_string(t.Value) + NL;
+            output += MOV + FRAME(t->getFullName()) + FROM + to_string(t->Value) + NL;
         }
     }
 }
