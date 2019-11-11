@@ -148,7 +148,7 @@ void Definer::Define()
 	Type Current = UNSPECIFIED;
     int start = 0;
 	int i = 0;
-    for (int i = 0; i < Lines.size(); i++)
+    for (; i < Lines.size(); i++)
     {
         Current = GetType(Lines.at(i));
         if (Base == UNSPECIFIED)

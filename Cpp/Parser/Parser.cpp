@@ -61,6 +61,12 @@ void Parser::Pattern_Variable(int i)
                 //if the offsetter is a function
                 k = Find(Input.at(i).Offsetter->WORD, Call, *T);
             }
+            if (k == -1)
+            {
+                //go foo youre self
+                return;
+            }
+            
             
             Token *ofsetter = &T->at(k);
             t.Offsetter = ofsetter;
@@ -250,6 +256,7 @@ void Parser::Pattern_Type(int i)
         Type.Flags |= Real;
         Type.Name = Input.at(i+1).WORD;
         vector<Token> *T;
+        Give_Output(T);
         T->push_back(Type);
     }
 }
@@ -266,7 +273,7 @@ void Parser::Pattern_Parenthesis(int i)
         vector<Token> *T;
         Give_Output(T);
         int j = Find(Input.at(i-2).WORD, Function, *T);
-        ParentFunc = &Output.at(j);
+        ParentFunc = &T->at(j);
 
         Layer++;
         Parser parser = *this;
@@ -287,7 +294,7 @@ void Parser::Pattern_Parenthesis(int i)
         Give_Output(T);
 
         int j = Find(Input.at(i-2).WORD, TypE, *T);
-        ParentType = &Output.at(j);
+        ParentType = &T->at(j);
 
         Layer++;
         Parser parser = *this;
@@ -459,14 +466,16 @@ void Parser::Pattern_New(int i)
     */
     if (Input.at(i).is(_KEYWORD) && Input.at(i).WORD == "new")
     {
+        /* // the template type classes are always made global
         vector<Token> *T;
         Give_Output(T);
-        int j = Find(Input.at(i+1).WORD, TypE, *T);
-        Token t = T->at(j);
+        */
+        int j = Find(Input.at(i+1).WORD, TypE, Output);
+        Token t = Output.at(j);
         t.Name = Input.at(i+2).WORD;
-        t.Origin = &T->at(j);
+        t.Origin = &Output.at(j);
         t.Flags |= __NEW & NotOriginal;
-        T->at(j).Flags |= Used;
+        Output.at(j).Flags |= Used;
         Input.erase(Input.begin() + i);
         Input.erase(Input.begin() + i + 1);
         Input.erase(Input.begin() + i + 2);
