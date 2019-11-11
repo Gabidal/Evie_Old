@@ -35,6 +35,11 @@ void Parser::Pattern_Variable(int i)
     {
         return;
     }
+    if (Priority == false)
+    {
+        return;
+    }
+    
 
     Give_Output(T);
     
@@ -88,6 +93,10 @@ void Parser::Pattern_Variable(int i)
             T->push_back(n);
         }
     }
+    if (InsideOfFunction)
+    {
+       Clean_Cilds();
+    }
 }
 
 void Parser::Pattern_Operators(int i)
@@ -134,10 +143,31 @@ void Parser::Pattern_Operators(int i)
         
         OP.Parameters.push_back(A);
         OP.Childs.push_back(B);
-        
+
         vector<Token> *T;
         Give_Output(T);
         T->push_back(OP);
+
+        if (InsideOfFunction == false || ParentFunc->Parameters.size() < 1)
+        {
+            return;
+        }
+        
+        for (int j = 0; j < ParentFunc->Parameters.size(); j++)
+        { 
+            for (int k = 0; k < ParentFunc->Parameters.size(); k++)
+            {
+                if (ParentFunc->Childs.size() < 1 || ParentFunc->Parameters.size() < 1)
+                {
+                    return;
+                }
+                if (ParentFunc->Childs.at(k).Name == ParentFunc->Parameters.at(j).Name)
+                {
+                    ParentFunc->Childs.erase(ParentFunc->Childs.begin() + k);
+                    k--;
+                }
+            }
+        }
     }
 }
 
@@ -183,7 +213,7 @@ void Parser::Pattern_Init_Array(int i)
         Input.at(_Owner).Offsetter = &Input.at(Offset);
         
         Input.erase(Input.begin() + Mark);
-        Input.erase(Input.begin() + Offset);
+        Input.erase(Input.begin() + Offset - 1);
     }
 }
 
@@ -482,6 +512,50 @@ void Parser::Pattern_New(int i)
     }
 }
 
+void Parser::Pattern_Return(int i)
+{
+    //return <a : b>
+    if (Input.at(i).is(_KEYWORD) && Input.at(i).WORD == "return")
+    {
+        Token r(Assembly);
+        Parser p = *this;
+        p.Priority = true;
+        p.Started = Output.size();
+        p.Input.clear();
+        p.Input.push_back(Input.at(i+1));
+        p.Factory();
+        r.Name = "return";
+        r.Childs.push_back(ParentFunc->Childs.at(ParentFunc->Childs.size() - 1));
+        ParentFunc->Childs.erase(ParentFunc->Childs.begin() + ParentFunc->Childs.size() - 1);
+        ParentFunc->Childs.push_back(r);
+        ParentFunc->Flags |= Returning;
+    }
+    
+}
+
+void Parser::Clean_Cilds()
+{
+    for (int j = 0; j < ParentFunc->Parameters.size(); j++)
+    { 
+        /*for (int k = 0; k < ParentFunc->Parameters.size(); k++)
+        {
+            if (ParentFunc->Childs.size() < 1 || ParentFunc->Parameters.size() < 1)
+            {
+                return;
+            }
+            if (ParentFunc->Childs.at(k).Name == ParentFunc->Parameters.at(j).Name)
+            {
+                ParentFunc->Childs.erase(ParentFunc->Childs.begin() + k);
+                k--;
+            }
+        }*/
+        if (ParentFunc->Childs.at(j).Name == ParentFunc->Parameters.at(j).Name)
+        {
+            ParentFunc->Childs.erase(ParentFunc->Childs.begin() + j);
+        }
+    }
+}
+
 int Parser::Find(string name, int flag, vector<Token> list)
 {
     for (int i = 0; i < list.size(); i++)
@@ -500,10 +574,13 @@ void Parser::Give_Output(vector<Token> *&T)
     {
         if (ParentFunc->Parameters.size() > 0)
         {
-            T = new vector<Token>;
-            T->reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
-            T->insert(T->end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
-            T->insert(T->end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+            vector<Token> TMP;
+            TMP.reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
+            TMP.insert(TMP.end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
+            TMP.insert(TMP.end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+            ParentFunc->Childs.clear();
+            ParentFunc->Childs = TMP;
+            T = &ParentFunc->Childs;
         }
         else
         {
@@ -542,5 +619,6 @@ void Parser::Factory()
         Pattern_Call_Func(i);
         Pattern_Operators(i);
         Pattern_Variable(i);
+        Pattern_Return(i);
     }
 }

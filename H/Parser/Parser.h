@@ -33,6 +33,8 @@ public:
     void Pattern_Init_Type(int i);
     void Pattern_Init_Call_Func(int i);
     void Pattern_Init_Array(int i);
+    void Pattern_Return(int i);
+    void Clean_Cilds();
     void Give_Output(vector<Token> *&T);
     int Find(string name, int flags, vector<Token> list);
     void Factory();
