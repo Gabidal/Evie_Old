@@ -8,7 +8,6 @@ void Parser::Pattern_Init_Variable(int i)
         //create new variable;
         Token *Var = new Token(Assembly);
         Var->Flags |= Variable;
-        Var->Flags |= Real;
         Var->Name = Input.at(i+1)->WORD;
         if (InsideOfType && InsideOfFunction != true)
         {
@@ -40,16 +39,15 @@ void Parser::Pattern_Variable(int i)
         return;
     }
     
-
-    Give_Output(T);
+    Give_Input(T);
     
     if (Input.at(i)->is(_TEXT) && Find(Input.at(i)->WORD, Variable, *T) != -1)
     {
         int j = Find(Input.at(i)->WORD, Variable, *T);
-        if ((i > 0 && Input.at(i-1)->WORD != "var") || Started != 0)
+        /*if ((i > 0 && Input.at(i-1)->WORD != "var") || Started != 0)
         {
             T->at(j)->Flags |= Used;
-        }
+        }*/
         Token *t = T->at(j);
         if (Input.at(i)->Offsetter != 0)
         {
@@ -68,7 +66,7 @@ void Parser::Pattern_Variable(int i)
             }
             if (k == -1)
             {
-                //go foo youre self
+                //go foo youre self!
                 return;
             }
             
@@ -79,6 +77,7 @@ void Parser::Pattern_Variable(int i)
         }
         if (Priority)
         {
+            Give_Output(T);
             T->push_back(t);
         }
         
@@ -90,12 +89,9 @@ void Parser::Pattern_Variable(int i)
         n->Name = Input.at(i)->WORD;
         if (Priority)
         {
+            Give_Output(T);
             T->push_back(n);
         }
-    }
-    if (InsideOfFunction)
-    {
-       Clean_Cilds();
     }
 }
 
@@ -147,27 +143,6 @@ void Parser::Pattern_Operators(int i)
         vector<Token*> *T;
         Give_Output(T);
         T->push_back(OP);
-
-        if (InsideOfFunction == false || ParentFunc->Parameters.size() < 1)
-        {
-            return;
-        }
-        
-        for (int j = 0; j < ParentFunc->Parameters.size(); j++)
-        { 
-            for (int k = 0; k < ParentFunc->Parameters.size(); k++)
-            {
-                if (ParentFunc->Childs.size() < 1 || ParentFunc->Parameters.size() < 1)
-                {
-                    return;
-                }
-                if (ParentFunc->Childs.at(k)->Name == ParentFunc->Parameters.at(j)->Name)
-                {
-                    ParentFunc->Childs.erase(ParentFunc->Childs.begin() + k);
-                    k--;
-                }
-            }
-        }
     }
 }
 
@@ -568,25 +543,33 @@ int Parser::Find(string name, int flag, vector<Token*> list)
     return -1;
 }
 
-void Parser::Give_Output(vector<Token*> *&T)
+void Parser::Give_Input(vector<Token*> *&T)
 {
+    T = new vector<Token*>;
     if (InsideOfFunction)
     {
         if (ParentFunc->Parameters.size() > 0)
         {
-            vector<Token*> TMP;
-            TMP.reserve(ParentFunc->Parameters.size() + ParentFunc->Childs.size());
-            TMP.insert(TMP.end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
-            TMP.insert(TMP.end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
-            ParentFunc->Childs.clear();
-            ParentFunc->Childs = TMP;
-            T = &ParentFunc->Childs;
+            for (int i = 0; i < ParentFunc->Parameters.size(); i++)
+                T->push_back(ParentFunc->Parameters.at(i));
         }
-        else
-        {
-            T = &ParentFunc->Childs;
-        }
-        
+        for (int i = 0; i < ParentFunc->Childs.size(); i++)
+            T->push_back(ParentFunc->Childs.at(i));
+    }
+    if (InsideOfType)
+    {
+        for (int i = 0; i < ParentType->Childs.size(); i++)
+            T->push_back(ParentType->Childs.at(i));
+    }
+    for (int i = 0; i < Output.size(); i++)
+        T->push_back(Output.at(i));
+}
+
+void Parser::Give_Output(vector<Token*> *&T)
+{
+    if (InsideOfFunction)
+    {
+        T = &ParentFunc->Childs;
     }
     else if (InsideOfType)
     {

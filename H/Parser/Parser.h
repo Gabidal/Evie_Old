@@ -36,6 +36,7 @@ public:
     void Pattern_Return(int i);
     void Clean_Cilds();
     void Give_Output(vector<Token*> *&T);
+    void Give_Input(vector<Token*> *&T);
     int Find(string name, int flags, vector<Token*> list);
     void Factory();
     Parser &operator=(const Parser& other)
