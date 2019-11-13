@@ -11,5 +11,6 @@ mov esi, [ebp - 12]
 mov esi, ebx
 imul esi, edx
 imul esi, edx
+add null, edi
 mov esp, ebp
 pop ebp

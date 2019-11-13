@@ -47,7 +47,37 @@ void Parser::Pattern_Variable(int i)
         int j = Find(Input.at(i)->WORD, Variable, *T);
         if ((i > 0 && Input.at(i-1)->WORD != "var") || Started != 0)
         {
-            T->at(j)->Flags |= Used;
+            int k = -1;
+            if (InsideOfFunction)
+            {
+                k = Find(Input.at(i)->WORD, Variable, ParentFunc->Parameters);
+                if (k != -1)
+                {
+                    ParentFunc->Parameters.at(k)->Flags |= Used;
+                }
+                k = Find(Input.at(i)->WORD, Variable, ParentFunc->Childs);
+                if (k != -1)
+                {
+                    ParentFunc->Childs.at(k)->Flags |= Used;
+                }
+            }
+            if (InsideOfType)
+            {
+                k = Find(Input.at(i)->WORD, Variable, ParentType->Childs);
+                if (k != -1)
+                {
+                    ParentType->Childs.at(k)->Flags |= Used;
+                }
+            }
+            if (true)
+            {
+                k = Find(Input.at(i)->WORD, Variable, Output);
+                if (k != -1)
+                {
+                    Output.at(k)->Flags |= Used;
+                }
+            }
+            
         }
         Token *t = T->at(j);
         t->Size = 4;
@@ -110,6 +140,7 @@ void Parser::Pattern_Operators(int i)
     {
         Token *OP = new Token(Assembly);
         OP->Flags |= OPERATOR;
+        OP->Flags |= Used;
         OP->Name = Input.at(i)->WORD;
 
         Parser p = *this;
@@ -428,23 +459,23 @@ void Parser::Pattern_Call_Func(int i)
 
         for (int j = 0; j < Input.at(i)->Tokens.size(); j++)
         {
-            if (Input.at(i+2)->Tokens.at(j)->WORD == "&")
+            if (Input.at(i)->Tokens.at(j)->WORD == "&")
             {
                 Token *ptr = new Token(Assembly);
                 ptr->Flags |= Ptr;
                 ptr->Flags |= Parameter;
                 ptr->Size = 4;
-                ptr->Name = Input.at(i+2)->Tokens.at(j+1)->WORD;
+                ptr->Name = Input.at(i)->Tokens.at(j+1)->WORD;
                 func->addParameter(ptr);
                 j++;
             }
-            else if (Input.at(i+2)->Tokens.at(j)->is(_TEXT))
+            else if (Input.at(i)->Tokens.at(j)->is(_TEXT))
             {
                 Token *var = new Token(Assembly);
                 var->Flags |= Parameter;
                 var->Flags |= Variable;
                 var->Size = 4;
-                var->Name = Input.at(i+2)->Tokens.at(j)->WORD;
+                var->Name = Input.at(i)->Tokens.at(j)->WORD;
                 
                 func->addParameter(var);
             }
