@@ -23,7 +23,7 @@ void Back::Handle_Operators(int i)
             b.Factory();
             this->Dest = b.Dest;
         }
-        if (Input.at(i)->Childs.at(0)->is(Variable))
+        if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number))
         {
             Source = Input.at(i)->Childs.at(0);
         }
@@ -104,9 +104,23 @@ void Back::Handle_Call_Function(int i)
     }
 }
 
-void Back::Factory()
+void Back::Handle_Arrays(int i)
 {
 
+}
+
+void Back::Factory()
+{
+    for (int i = 0; i < Input.size(); i++)
+    {
+        //Handle_Usation(i);
+        Handle_Type_Init(i);
+        Handle_Function_Init(i);
+        Handle_Call_Function(i);
+        Handle_Operators(i);
+        Handle_Arrays(i);
+        Handle_Variables(i);
+    }
 }
 
 
@@ -116,4 +130,5 @@ Back &Back::operator=(const Back& name)
     Input = name.Input;
     Dest = name.Dest;
     Source = name.Source;
+    return *this;
 }

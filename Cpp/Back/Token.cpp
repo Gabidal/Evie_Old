@@ -14,7 +14,7 @@ bool Token::is(int flag)
 
 string Token::getFullName()
 {
-    string name;
+    string name = "";
     
     if (is(Public))
     {
@@ -87,17 +87,17 @@ Register *Token::getReg()
 string Token::InitVariable()
 {
     string result = "";
-    if (_NULL(this->Reg->Name))
+    if (this->Reg == nullptr)
     {
         this->Reg = getNewRegister();
         if (this->is(Member))
         {
             Register *ParentReg = this->ParentFunc->Reg;
-            if (_NULL(ParentReg->Name))
+            if (ParentReg == nullptr)
             {
                 //allocate new Register for class address place holding.
                 this->ParentFunc->Reg = this->getReg();
-                output += MOV + ParentReg->Name + FROM + FRAME(ParentType->getFullName()) + NL;
+                output += MOV + ParentReg->Name + FROM + FRAME(ParentFunc->getFullName()) + NL;
             }
             output += MOV + this->Reg->Name + FROM + FRAME(ParentReg->Name + OFFSET + to_string(this->StackOffset)) + NL;
         }
@@ -113,6 +113,11 @@ string Token::InitVariable()
         {
             output += MOV + this->Reg->Name + FROM + this->getFullName() + NL;
         }
+        else if (this->is(Number))
+        {
+            output += MOV + this->Reg->Name + FROM + this->Name + NL;
+        }
+        
         result = this->Reg->Name;
     }
     else
@@ -218,10 +223,10 @@ Token &Token::operator=(const Token& name)
 
 void Register::Link(Token *Requester)
 {
-    Base.push_back(Requester);
     Current = Requester;
     for (int i = 0; i < Base.size(); i++)
     {
         Base.at(i)->Reg->Name = "null";
     }
+    Base.push_back(Requester);
 }

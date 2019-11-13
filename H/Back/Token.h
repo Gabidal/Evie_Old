@@ -59,7 +59,7 @@ class Token
     vector<Token*> Parameters;
     vector<Token*> Childs;
     string Name = "";
-    Register *Reg;
+    Register *Reg = 0;
     string &output;
     Token(string &out) : output(out){}
     Token &operator=(const Token& name);

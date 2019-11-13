@@ -82,10 +82,13 @@ void Parser::Pattern_Variable(int i)
         }
         
     }
+    Give_Input(T);
     if (Input.at(i)->is(_NUMBER))
     {
         Token *n = new Token(Assembly);
-        n->Flags |= Number & Real & Used;
+        n->Flags |= Number;
+        n->Flags |= Real;
+        n->Flags |= Used;
         n->Name = Input.at(i)->WORD;
         if (Priority)
         {
