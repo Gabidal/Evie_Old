@@ -9,16 +9,18 @@ class Back
 {
 private:
 	 // nej
-    // joonas was here. 20:09 thu 7.11.19;
+    // Mörkönenä was here. 20:09 thu 7.11.19;
 public:
-
+    string &Output;
+    vector<Token*> Input;
     void Factory();
-    Back::Back()
+    string Get_Output() { return Output;}
+    Back(vector<Token*> In, string &out) : Input(In), Output(out)
     {
         
     }
     
-    Back::~Back()
+    ~Back()
     {
         
     }

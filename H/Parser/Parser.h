@@ -18,7 +18,7 @@ public:
     bool InsideOfType = false;
     bool InsideOfFunction = false;
     bool Priority = false;
-    string Assembly = "";
+    string &Assembly;
     vector<Word*> Input;
     vector<Token*> Output;
     void Pattern_Variable(int i);
@@ -55,7 +55,7 @@ public:
         Output = other.Output;
         return *this;
     }
-    Parser(Parser & other)
+    Parser(Parser & other) : Assembly(other.Assembly)
     {
         ParentType = other.ParentType;
         ParentFunc = other.ParentFunc;
@@ -66,15 +66,14 @@ public:
         InsideOfFunction = other.InsideOfFunction;
         //Priority = other.Priority; DO NOT USE THIS <THIS IS THE RED BUTTON>
         Priority = false;
-        Assembly = other.Assembly;
         Input = other.Input;
         Output = other.Output;
     }
-    Parser(vector<Word*> in)
+    Parser(vector<Word*> in, string &a) : Assembly(a) 
     {
         Input = in;
     }
-    Parser(vector<Word*> in, vector<Token*> out)
+    Parser(vector<Word*> in, vector<Token*> out, string &a) : Assembly(a)
     {
         Input = in;
         Output = out;

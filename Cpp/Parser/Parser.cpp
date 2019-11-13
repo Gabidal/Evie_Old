@@ -320,12 +320,14 @@ void Parser::Pattern_Parenthesis(int i)
         IF->Flags |= PARENT & If & Used;
         IF->Name = to_string(ID) + "_if";
 
-        Parser parser1(Input.at(i)->Tokens, Output);
+        Parser parser1 = *this;
+        parser1.Input = Input.at(i)->Tokens;
 
         for (int i = parser1.Started; i < parser1.Output.size(); i++)
         IF->addParameter(parser1.Output.at(i));
 
-        Parser parser2(Input.at(i+2)->Tokens);
+        Parser parser2 = *this;
+        parser2.Input = Input.at(i+2)->Tokens;
 
         for (int i = parser2.Started; i < parser2.Output.size(); i++)
         IF->addChild(parser2.Output.at(i));
@@ -343,12 +345,14 @@ void Parser::Pattern_Parenthesis(int i)
         WHILE->Flags |= PARENT & If & Used;
         WHILE->Name = to_string(ID) + "_while";
 
-        Parser parser1(Input.at(i)->Tokens);
+        Parser parser1 = *this;
+        parser1.Input = Input.at(i)->Tokens;
 
         for (int i = 0; i < parser1.Output.size(); i++)
         WHILE->addParameter(parser1.Output.at(i));
 
-        Parser parser2(Input.at(i+2)->Tokens);
+        Parser parser2 = *this;
+        parser2.Input = Input.at(i+2)->Tokens;
 
         for (int i = 0; i < parser2.Output.size(); i++)
         WHILE->addChild(parser2.Output.at(i));
