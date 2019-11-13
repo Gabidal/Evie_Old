@@ -15,17 +15,13 @@ public:
     bool TaskForMovingParameter = false;
     string Name = "";
     int Value = 0;
-    vector<Token*> Users;
-    Token *Owner;
+    vector<Token*> Base;
+    Token *Current;
     Register(string name)
     {
         Name = name;
     }
-    void Link(Token *Reguester)
-    {
-        Users.push_back(Reguester);
-        Owner = Reguester;
-    }
+    void Link(Token *Requester);
 };
 
 static Register *NUL = new Register("null");

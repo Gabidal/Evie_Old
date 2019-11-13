@@ -83,11 +83,7 @@ class Token
     void InitFunction();
     //void CallFunc();
     //type
-    bool initted = false;
     Token *Origin;
-    vector<Token*> Functions;
-    void addFunc(Token *func);
-    void InitType();
 };
 
 

@@ -93,7 +93,11 @@ string Token::InitVariable()
                 this->ParentFunc->Reg = this->getReg();
                 output += MOV + ParentReg->Name + FROM + FRAME(ParentType->getFullName()) + NL;
             }
-            output += MOV + this->Reg->Name + FROM + DWORD + FRAME(ParentReg->Name + OFFSET + to_string(this->StackOffset)) + NL;
+            output += MOV + this->Reg->Name + FROM + FRAME(ParentReg->Name + OFFSET + to_string(this->StackOffset)) + NL;
+        }
+        else if (this->is(Private))
+        {
+            output += MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
         }
         else if (this->is(Public))
         {
@@ -183,31 +187,6 @@ void Token::InitFunction()
     }
 }
 
-void Token::addFunc(Token *func)
-{
-    func->ParentType = this;
-    Functions.push_back(func);
-}
-
-void Token::InitType()
-{
-    if (initted)
-    {
-        return;
-    }
-    for (Token *t : Childs)
-    {
-        if (t->is(Used) != true)
-        {
-            output += COMMENT("Variable not used!");
-        }
-        else
-        { 
-            output += MOV + FRAME(t->getFullName()) + FROM + to_string(t->Value) + NL;
-        }
-    }
-}
-
 Token &Token::operator=(const Token& name)
 {
     Flags = name.Flags;
@@ -226,8 +205,6 @@ Token &Token::operator=(const Token& name)
     Name = name.Name;
     Reg = name.Reg;
     output = name.output;
-    initted = name.initted;
     Origin = name.Origin;
-    Functions = name.Functions;
     return *this;
 }
