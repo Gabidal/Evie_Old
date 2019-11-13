@@ -2,6 +2,10 @@
     "files.associations": {
         "string": "cpp",
         "new": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "memory_resource": "cpp",
+        "fstream": "cpp",
+        "memory": "cpp",
+        "sstream": "cpp"
     }
 }

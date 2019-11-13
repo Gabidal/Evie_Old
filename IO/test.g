@@ -1,12 +1,6 @@
-type PTR
+func banana()
 (
-  var N = 0
-  func get(this)
-  (
-    return this
-  )
-  func add(this, n)
-  (
-    N = n + 1
-  )
+  var m = 3
+  var c = 2998
+  var q = m * c * c
 )

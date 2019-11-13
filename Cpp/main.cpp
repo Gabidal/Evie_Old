@@ -17,6 +17,9 @@ int main()
 
     Back b(p.Output, OUTPUT);
     b.Factory();
-    //14
+
+    ofstream o("/home/gabidalg/GAS/IO/test.asm");
+    o << b.Output;
+    o.close();
     return 0;
 }

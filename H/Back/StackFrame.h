@@ -14,12 +14,12 @@ class StackFrame
   StackFrame(string &output) : output(output)
   {
       this->output += PUSH(EBP->Name);
-      this->output += MOV + EBP->Name + FROM + ESP->Name;
+      this->output += MOV + EBP->Name + FROM + ESP->Name + NL;
   }
   
   ~StackFrame()
   {
-      this->output += MOV + ESP->Name + FROM + EBP->Name;
+      this->output += MOV + ESP->Name + FROM + EBP->Name + NL;
       this->output += POP(EBP->Name);
   }
 };

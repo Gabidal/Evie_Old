@@ -96,7 +96,8 @@ string Token::InitVariable()
             if (ParentReg == nullptr)
             {
                 //allocate new Register for class address place holding.
-                this->ParentFunc->Reg = this->getReg();
+                ParentReg = this->getReg();
+                ParentFunc->Reg = ParentReg;
                 output += MOV + ParentReg->Name + FROM + FRAME(ParentFunc->getFullName()) + NL;
             }
             output += MOV + this->Reg->Name + FROM + FRAME(ParentReg->Name + OFFSET + to_string(this->StackOffset)) + NL;
@@ -129,37 +130,37 @@ string Token::InitVariable()
 
 string Token::MOVE(Token *Source)
 {
-    output += MOV + this->InitVariable() + FROM + Source->InitVariable();
+    output += MOV + this->InitVariable() + FROM + Source->InitVariable() + NL;
     return this->Reg->Name;
 }
 
 string Token::SUM(Token *Source)
 {
-    output += ADD + this->InitVariable() + FROM + Source->InitVariable();
+    output += ADD + this->InitVariable() + FROM + Source->InitVariable() + NL;
     return this->Reg->Name;
 }
 
 string Token::SUBSTRACT(Token *Source)
 {
-    output += SUB + this->InitVariable() + FROM + Source->InitVariable();
+    output += SUB + this->InitVariable() + FROM + Source->InitVariable() + NL;
     return this->Reg->Name;
 }
 
 string Token::MULTIPLY(Token *Source)
 {
-    output += IMUL + this->InitVariable() + FROM + Source->InitVariable();
+    output += IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL;
     return this->Reg->Name;
 }
 
 string Token::DIVIDE(Token *Source)
 {
-    output += IDIV + this->InitVariable() + FROM + Source->InitVariable();
+    output += IDIV + this->InitVariable() + FROM + Source->InitVariable() + NL;
     return this->Reg->Name;
 }
 
 string Token::COMPARE(Token *Source)
 {
-    output += CMP + this->InitVariable() + FROM + Source->InitVariable();
+    output += CMP + this->InitVariable() + FROM + Source->InitVariable() + NL;
     return this->Reg->Name;
 }
 
@@ -219,7 +220,6 @@ Token &Token::operator=(const Token& name)
     Origin = name.Origin;
     return *this;
 }
-
 
 void Register::Link(Token *Requester)
 {

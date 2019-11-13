@@ -85,7 +85,6 @@ class Token
     //type
     Token *Origin;
 };
-
 class Register
 {
 public:

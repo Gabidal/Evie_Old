@@ -113,6 +113,10 @@ void Back::Factory()
 {
     for (int i = 0; i < Input.size(); i++)
     {
+        /*if (Input.at(i)->is(Used) == false)
+        {
+            continue;
+        }*/
         //Handle_Usation(i);
         Handle_Type_Init(i);
         Handle_Function_Init(i);

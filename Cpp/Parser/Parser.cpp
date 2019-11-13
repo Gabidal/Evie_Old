@@ -9,6 +9,7 @@ void Parser::Pattern_Init_Variable(int i)
         Token *Var = new Token(Assembly);
         Var->Flags |= Variable;
         Var->Name = Input.at(i+1)->WORD;
+        Var->Size = 4;
         if (InsideOfType && InsideOfFunction != true)
         {
             Var->Flags |= Member;
@@ -44,11 +45,12 @@ void Parser::Pattern_Variable(int i)
     if (Input.at(i)->is(_TEXT) && Find(Input.at(i)->WORD, Variable, *T) != -1)
     {
         int j = Find(Input.at(i)->WORD, Variable, *T);
-        /*if ((i > 0 && Input.at(i-1)->WORD != "var") || Started != 0)
+        if ((i > 0 && Input.at(i-1)->WORD != "var") || Started != 0)
         {
             T->at(j)->Flags |= Used;
-        }*/
+        }
         Token *t = T->at(j);
+        t->Size = 4;
         if (Input.at(i)->Offsetter != 0)
         {
             //if it is an array
@@ -74,6 +76,7 @@ void Parser::Pattern_Variable(int i)
             Token *ofsetter = T->at(k);
             t->Offsetter = ofsetter;
             t->Flags |= Array;
+            t->Size = 4;
         }
         if (Priority)
         {
@@ -134,10 +137,10 @@ void Parser::Pattern_Operators(int i)
         }
         else
         {
-            A = p.Output.at(p.Started + 0);
-            B = p.Output.at(p.Started + 1);
-            p.Output.erase(p.Output.begin() + p.Started - 1);
-            p.Output.erase(p.Output.begin() + p.Started - 1);
+            A = p.Output.at(p.Output.size() - 2);
+            B = p.Output.at(p.Output.size() - 1);
+            p.Output.erase(p.Output.begin() + p.Output.size() - 1);
+            p.Output.erase(p.Output.begin() + p.Output.size() - 1);
         }
         
         OP->Parameters.push_back(A);
@@ -216,6 +219,7 @@ void Parser::Pattern_Function(int i)
         Name->Flags |= Function;
         Name->Flags |= Real;
         Name->Name = Input.at(i+1)->WORD;
+        Name->StackOffset = 4;
         if (InsideOfType)
         {
             Name->ParentType = ParentType;
