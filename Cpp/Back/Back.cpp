@@ -61,7 +61,10 @@ void Back::Handle_Variables(int i)
 {
     if (Input.at(i)->is(Variable))
     {
-        
+        if (Priority_For_Parametering)
+        {
+            PUSH(Input.at(i)->InitVariable());
+        }
     }
 }
 
@@ -71,9 +74,8 @@ void Back::Handle_Function_Init(int i)
     {
         Input.at(i)->InitFunction();
         Back b = *this;
-        b.Input = Input.at(i)->Parameters;
-        b.Factory();
         b.Input = Input.at(i)->Childs;
+        StackFrame stack(Output);
         b.Factory();
     }
 }
@@ -96,9 +98,9 @@ void Back::Handle_Call_Function(int i)
         {
             Back b = *this;
             b.Input = Input.at(i)->Parameters;
-            
+            b.Priority_For_Parametering = true;
+            b.Factory();
         }
-        
     }
 }
 

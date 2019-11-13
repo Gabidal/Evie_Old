@@ -3,8 +3,8 @@
 #include "Token.h"
 #include <vector>
 #include <string>
-#include "Register.h"
 #include "Assembly_Definitions.h"
+#include "StackFrame.h"
 
 class Back
 {
@@ -16,6 +16,7 @@ public:
     vector<Token*> Input;
     Token *Dest;
     Token *Source;
+    bool Priority_For_Parametering = false;
 
     void Handle_Usation(int &i);
     void Handle_Operators(int i);

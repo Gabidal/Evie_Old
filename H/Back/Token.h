@@ -2,7 +2,6 @@
 #define _TOKEN_H_
 #include <string>
 #include <vector>
-#include "Register.h"
 
 using namespace std;
 
@@ -41,6 +40,7 @@ using namespace std;
 #define PARENT (1<<27)
 #define Call (1<<28)
 #define __NEW (1<<29)
+class Register;
 
 class Token
 {
@@ -86,5 +86,21 @@ class Token
     Token *Origin;
 };
 
-
+class Register
+{
+public:
+    bool TaskForReturning = false;
+    bool TaskForTypeAddress = false;
+    bool TaskForMovingParameter = false;
+    string Name = "";
+    int Value = 0;
+    vector<Token*> Base;
+    Token *Current;
+    Register(string name)
+    {
+        Name = name;
+    }
+    void Link(Token *Requester);
+};
 #endif
+

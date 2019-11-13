@@ -3,6 +3,7 @@
 #include "Assembly_Definitions.h"
 #include <string>
 #include "Token.h"
+#include "Registers.h"
 using namespace std;
 
 class StackFrame

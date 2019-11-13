@@ -1,8 +1,8 @@
 
 #include <string>
 #include "../../H/Back/Token.h"
-#include "../../H/Back/Register.h"
 #include "../../H/Back/Assembly_Definitions.h"
+#include "../../H/Back/Registers.h"
 using namespace std;
 
 int RegisterTurn = 0;
@@ -38,33 +38,39 @@ Register *Token::getNewRegister()
 {
     if (RegisterTurn == 0)
     {
-        return EAX;
         RegisterTurn = 1;
+        EAX->Link(this);
+        return EAX;
     }
     else if (RegisterTurn == 1)
     {
-        return EBX;
         RegisterTurn = 2;
+        EBX->Link(this);
+        return EBX;
     }
     else if (RegisterTurn == 2)
     {
-        return ECX;
         RegisterTurn = 3;
+        ECX->Link(this);
+        return ECX;
     }
     else if (RegisterTurn == 3)
     {
-        return EDX;
         RegisterTurn = 4;
+        EDX->Link(this);
+        return EDX;
     }
     else if (RegisterTurn == 4)
     {
-        return ESI;
         RegisterTurn = 5;
+        ESI->Link(this);
+        return ESI;
     }
     else if (RegisterTurn == 5)
     {
-        return EDI;
         RegisterTurn = 0;
+        ESI->Link(this);
+        return EDI;
     }
     return NUL;
 }
@@ -83,7 +89,7 @@ string Token::InitVariable()
     string result = "";
     if (_NULL(this->Reg->Name))
     {
-
+        this->Reg = getNewRegister();
         if (this->is(Member))
         {
             Register *ParentReg = this->ParentFunc->Reg;
@@ -207,4 +213,15 @@ Token &Token::operator=(const Token& name)
     output = name.output;
     Origin = name.Origin;
     return *this;
+}
+
+
+void Register::Link(Token *Requester)
+{
+    Base.push_back(Requester);
+    Current = Requester;
+    for (int i = 0; i < Base.size(); i++)
+    {
+        Base.at(i)->Reg->Name = "null";
+    }
 }
