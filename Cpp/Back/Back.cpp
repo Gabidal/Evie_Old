@@ -75,7 +75,7 @@ void Back::Handle_Function_Init(int i)
         Input.at(i)->InitFunction();
         Back b = *this;
         b.Input = Input.at(i)->Childs;
-        StackFrame stack(Output);
+        StackFrame stack(Output, true);
         b.Factory();
     }
 }

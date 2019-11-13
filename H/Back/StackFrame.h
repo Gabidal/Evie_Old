@@ -10,17 +10,24 @@ class StackFrame
 {
   private:
     string &output;
+    bool EndFunc = false;
   public:
-  StackFrame(string &output) : output(output)
+  StackFrame(string &output, bool Endfunc) : output(output)
   {
       this->output += PUSH(EBP->Name);
       this->output += MOV + EBP->Name + FROM + ESP->Name + NL;
+      EndFunc = Endfunc;
   }
   
   ~StackFrame()
   {
       this->output += MOV + ESP->Name + FROM + EBP->Name + NL;
       this->output += POP(EBP->Name);
+      if (EndFunc)
+      {
+        this->output += "ret" + string(NL) + NL;
+      }
+      
   }
 };
 

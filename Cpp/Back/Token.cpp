@@ -130,37 +130,37 @@ string Token::InitVariable()
 
 string Token::MOVE(Token *Source)
 {
-    output += MOV + this->InitVariable() + FROM + Source->InitVariable() + NL;
+    output += MOV + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
     return this->Reg->Name;
 }
 
 string Token::SUM(Token *Source)
 {
-    output += ADD + this->InitVariable() + FROM + Source->InitVariable() + NL;
+    output += ADD + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
     return this->Reg->Name;
 }
 
 string Token::SUBSTRACT(Token *Source)
 {
-    output += SUB + this->InitVariable() + FROM + Source->InitVariable() + NL;
+    output += SUB + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
     return this->Reg->Name;
 }
 
 string Token::MULTIPLY(Token *Source)
 {
-    output += IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL;
+    output += IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
     return this->Reg->Name;
 }
 
 string Token::DIVIDE(Token *Source)
 {
-    output += IDIV + this->InitVariable() + FROM + Source->InitVariable() + NL;
+    output += IDIV + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
     return this->Reg->Name;
 }
 
 string Token::COMPARE(Token *Source)
 {
-    output += CMP + this->InitVariable() + FROM + Source->InitVariable() + NL;
+    output += CMP + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
     return this->Reg->Name;
 }
 
