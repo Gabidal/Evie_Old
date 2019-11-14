@@ -199,6 +199,17 @@ void Token::InitFunction()
     }
 }
 
+void Token::CallFunc(Token *Fetcher)
+{
+    //check if its fetched;
+    if (this->is(This))
+    {
+        //fetcher is needed;
+        
+    }
+    
+}
+
 Token &Token::operator=(const Token& name)
 {
     Flags = name.Flags;

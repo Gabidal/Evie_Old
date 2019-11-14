@@ -1,12 +1,12 @@
 #include "../../H/Back/Back.h"
 
-void Back::Handle_Usation(int &i)
+/*void Back::Handle_Usation(int &i)
 {
     if (Input.at(i)->is(Used) == false)
     {
         i++;
     }
-}
+}*/
 
 void Back::Handle_Operators(int i)
 {
@@ -100,6 +100,14 @@ void Back::Handle_Call_Function(int i)
             b.Input = Input.at(i)->Parameters;
             b.Priority_For_Parametering = true;
             b.Factory();
+            if (Input.at(i)->is(This))
+            {
+                //for function fetching in types;
+                //b.Input = 
+                b.Priority_For_Parametering = true;
+                b.Factory();
+            }
+            
         }
     }
 }

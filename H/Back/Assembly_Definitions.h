@@ -28,8 +28,8 @@
 #define DEOFFSET " - "
 #define SCALE " * "
 #define LABEL(name) (name + ": " + NL)
-#define FUNC(name) (name + "()")
-#define TYPE(type, name) (type + "::" + name)
+#define FUNC(name) (name)
+#define TYPE(type, name) (type + "_" + name)
 #define COMMENT(name) (string(NL) + "; " + name + NL)
 
 #define DWORD "dword "

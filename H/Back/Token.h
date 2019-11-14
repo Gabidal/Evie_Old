@@ -40,6 +40,7 @@ using namespace std;
 #define PARENT (1<<27)
 #define Call (1<<28)
 #define __NEW (1<<29)
+#define HAS_FETCHER (1<<30)
 class Register;
 
 class Token
@@ -48,9 +49,9 @@ class Token
     int Flags = 0;
     int Size = 0;
     int Value = 0;
-    int StackOffset = 0;
+    int StackOffset = 4;
     int ParameterCount = 0;
-    int AddedOffset = 0;
+    int AddedOffset = 4;
     int ParameterOffset = 0;
     int ID = 0;
     Token *Offsetter;
@@ -81,9 +82,11 @@ class Token
     void addChild(Token *t);
     void addParameter(Token *Param);
     void InitFunction();
-    //void CallFunc();
+    void CallFunc(Token *Fetcher);
     //type
     Token *Origin;
+    //Fetcher
+    Token *Fetcher;
 };
 class Register
 {

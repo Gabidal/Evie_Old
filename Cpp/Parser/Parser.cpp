@@ -250,7 +250,6 @@ void Parser::Pattern_Function(int i)
         Name->Flags |= Function;
         Name->Flags |= Real;
         Name->Name = Input.at(i+1)->WORD;
-        Name->StackOffset = 4;
         if (InsideOfType)
         {
             Name->ParentType = ParentType;
@@ -311,7 +310,7 @@ void Parser::Pattern_Parenthesis(int i)
         var c = a + a
         b = d + c
     )*/
-    if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-3)->WORD == "func")
+    if (Input.at(i)->is(_PAREHTHESIS) && (Input.at(i-3)->WORD == "func"))
     {
         vector<Token*> *T;
         Give_Output(T);
@@ -420,10 +419,9 @@ void Parser::Pattern_Init_Call_Func(int i)
     //banana(1, 2)
     if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->is(_TEXT) && Input.at(i-2)->WORD != "func")
     {
-        Input.at(i)->WORD = Input.at(i-1)->WORD;
-        Input.at(i)->_func = true;
-        Input.at(i)->_type = Input.at(i-1)->_type;
-        Input.erase(Input.begin() + i-1);
+        Input.at(i-1)->Tokens = Input.at(i)->Tokens;
+        Input.at(i-1)->_func = true;
+        Input.erase(Input.begin() + i);
     }
 }
 
@@ -435,19 +433,11 @@ void Parser::Pattern_Call_Func(int i)
         func->Flags |= Call && Function;
         func->Name = Input.at(i)->WORD;
         vector<Token*> *t;
-        if (ParentType != 0)
-        {
-            t = &ParentType->Childs;
-        }
-        else if (ParentType == 0)
-        {
-            t = &Output;
-        }
+        Give_Output(t);
         if (Input.at(i)->_type)
         {
             func->Flags |= This;
-            int j = Find(Input.at(i)->Fetcher, TypE, Output);
-            func->ParentType = Output.at(j);
+            func->Fetcher = Pattern_Fetcher(i);
         }
         
 
@@ -480,7 +470,7 @@ void Parser::Pattern_Call_Func(int i)
                 func->addParameter(var);
             }
         }
-        
+        Give_Output(t);
         t->push_back(func);
     }
     
@@ -506,6 +496,20 @@ void Parser::Pattern_Init_Type(int i)
     }
 }
 
+void Parser::Pattern_Init_New(int i)
+{
+    /*
+    new banana b
+    */
+    if (Input.at(i)->is(_KEYWORD) && Input.at(i)->WORD == "new")
+    {
+        Input.at(i)->Tokens.push_back(Input.at(i+1));
+        Input.at(i)->Tokens.push_back(Input.at(i+2));
+        Input.erase(Input.begin() + i + 1);
+        Input.erase(Input.begin() + i + 1);
+    }
+}
+
 void Parser::Pattern_New(int i)
 {
     /*
@@ -513,19 +517,18 @@ void Parser::Pattern_New(int i)
     */
     if (Input.at(i)->is(_KEYWORD) && Input.at(i)->WORD == "new")
     {
-        /* // the template type classes are always made global
-        vector<Token> *T;
+        // the template type classes are always made global
+        vector<Token*> *T;
         Give_Output(T);
-        */
-        int j = Find(Input.at(i+1)->WORD, TypE, Output);
-        Token *t = Output.at(j);
-        t->Name = Input.at(i+2)->WORD;
+        int j = Find(Input.at(i)->Tokens.at(0)->WORD, TypE, Output);
+        Token *t = new Token(Assembly);
+        t->Childs = Output.at(j)->Childs;
+        t->Name = Input.at(i)->Tokens.at(1)->WORD;
         t->Origin = Output.at(j);
-        t->Flags |= __NEW & NotOriginal;
+        t->Flags |= __NEW;
+        t->Flags |= NotOriginal;
         Output.at(j)->Flags |= Used;
-        Input.erase(Input.begin() + i);
-        Input.erase(Input.begin() + i + 1);
-        Input.erase(Input.begin() + i + 2);
+        T->push_back(t);
     }
 }
 
@@ -570,6 +573,24 @@ void Parser::Clean_Cilds()
         {
             ParentFunc->Childs.erase(ParentFunc->Childs.begin() + j);
         }
+    }
+}
+
+Token *Parser::Pattern_Fetcher(int i)
+{
+    //banana.a
+    if (Input.at(i)->_type)
+    {
+        vector<Token*> *T;
+        Give_Input(T);
+        int j = Find(Input.at(i)->Fetcher, TypE, *T);
+        Token *t = new Token(Assembly);
+        if (j == -1)
+        {
+            return t;
+        }
+        t = T->at(j);
+        return t;
     }
 }
 
@@ -628,6 +649,7 @@ void Parser::Factory()
     for (int i = 0; i < Input.size(); i++)
     {
         //for Inits;
+        Pattern_Init_New(i);
         Pattern_Init_Type(i);
         Pattern_Init_Call_Func(i);
         Pattern_Init_Array(i);

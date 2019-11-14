@@ -1,8 +1,16 @@
-func banana()
+type banana
 (
-  var m = 3
-  var c = 2998
-  var q = m * c * c
+  var a = 2
+  func v(this, c)
+  (
+    return this : c
+  )
 )
 
-banana()
+func main()
+(
+  new banana b
+  b.v(0)
+)
+
+main()
