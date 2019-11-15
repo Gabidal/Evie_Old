@@ -59,7 +59,7 @@ void Back::Handle_Operators(int i)
 
 void Back::Handle_Variables(int i)
 {
-    if (Input.at(i)->is(Variable))
+    if (Input.at(i)->is(Variable) || Input.at(i)->is(NotOriginal))
     {
         if (Priority_For_Parametering)
         {
@@ -70,8 +70,9 @@ void Back::Handle_Variables(int i)
 
 void Back::Handle_Function_Init(int i)
 {
-    if (Input.at(i)->is(Function))
+    if (Input.at(i)->is(Function) && Input.at(i)->is(Call) == false)
     {
+        //134479964
         Input.at(i)->InitFunction();
         Back b = *this;
         b.Input = Input.at(i)->Childs;
@@ -82,7 +83,7 @@ void Back::Handle_Function_Init(int i)
 
 void Back::Handle_Type_Init(int i)
 {
-    if (Input.at(i)->is(TypE))
+    if (Input.at(i)->is(TypE) && Input.at(i)->is(__NEW) == false)
     {
         Back b = *this;
         b.Input = Input.at(i)->Childs;
@@ -92,7 +93,7 @@ void Back::Handle_Type_Init(int i)
 
 void Back::Handle_Call_Function(int i)
 {
-    if (Input.at(i)->is(Function) && Input.at(i)->is(Call))
+    if (Input.at(i)->is(Call))
     {
         if (Input.at(i)->Parameters.size() > 0)
         {
@@ -103,12 +104,12 @@ void Back::Handle_Call_Function(int i)
             if (Input.at(i)->is(This))
             {
                 //for function fetching in types;
-                //b.Input = 
+                b.Input.push_back(Input.at(i)->Fetcher);
                 b.Priority_For_Parametering = true;
                 b.Factory();
             }
-            
         }
+        CALL(Input.at(i)->getFullName());
     }
 }
 
@@ -121,10 +122,10 @@ void Back::Factory()
 {
     for (int i = 0; i < Input.size(); i++)
     {
-        if (Input.at(i)->is(Used) == false)
+        /*if (Input.at(i)->is(Used) == false)
         {
             continue;
-        }
+        }*/
         //Handle_Usation(i);
         Handle_Type_Init(i);
         Handle_Function_Init(i);

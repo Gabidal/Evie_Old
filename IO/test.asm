@@ -19,6 +19,10 @@ mov ecx, 3
 mov edx, [ebp - 4]
 mov edx, ecx
 
+add ebx, edx
+
+add ebx, edx
+
 mov esp, ebp
 pop ebp
 ret

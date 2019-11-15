@@ -15,6 +15,17 @@ bool Token::is(int flag)
 string Token::getFullName()
 {
     string name = "";
+    if (is(Call))
+    {
+        if (is(Private))
+        {
+            return TYPE(this->ParentType->Name, this->Name);
+        }
+        else
+        {
+            return this->Name;
+        }
+    }
     
     if (is(Public))
     {

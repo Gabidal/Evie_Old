@@ -411,10 +411,10 @@ void Parser::Pattern_Call_Func(int i)
     if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i)->_func)
     {
         Token *func = new Token(Assembly);
-        func->Flags |= Call && Function;
+        func->Flags |= Call;
+        //func->Flags |= Function;
         func->Name = Input.at(i)->WORD;
         vector<Token*> *t;
-        Give_Input(t);
         if (Input.at(i)->_type)
         {
             func->Flags |= This;
@@ -422,11 +422,13 @@ void Parser::Pattern_Call_Func(int i)
         }
         
 
+        /*
+        Give_Input(t);
         if (Find(func->Name, Function, *t) != -1)
         {
             int j = Find(func->Name, Function, *t);
             t->at(j)->Flags |= Used;
-        }
+        }*/
 
         if (Input.at(i)->Tokens.size() > 0)
         {

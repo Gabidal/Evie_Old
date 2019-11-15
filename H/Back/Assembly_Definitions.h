@@ -31,6 +31,7 @@
 #define FUNC(name) (name)
 #define TYPE(type, name) (type + "_" + name)
 #define COMMENT(name) (string(NL) + "; " + name + NL)
+#define CALL(name) ("call" + name + NL + NL)
 
 #define DWORD "dword "
 #define QWORD "qword "
