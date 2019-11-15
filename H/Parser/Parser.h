@@ -18,9 +18,11 @@ public:
     bool InsideOfType = false;
     bool InsideOfFunction = false;
     bool Priority = false;
+    bool GetDirect = false;
     string &Assembly;
     vector<Word*> Input;
     vector<Token*> Output;
+    vector<Token*> Direct;
     void Pattern_Variable(int i);
     void Pattern_Function(int i);
     void Pattern_Type(int i);

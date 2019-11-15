@@ -3,7 +3,7 @@ type banana
   var a = 2
   func v(this, c)
   (
-    return this : c
+    return c + a
   )
 )
 
