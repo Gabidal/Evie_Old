@@ -14,7 +14,7 @@ class StackFrame
   public:
   StackFrame(string &output, bool Endfunc) : output(output)
   {
-      this->output += PUSH(EBP->Name);
+      this->output += PUSH + EBP->Name + NL;
       this->output += MOV + EBP->Name + FROM + ESP->Name + NL + NL;
       EndFunc = Endfunc;
   }
@@ -22,7 +22,7 @@ class StackFrame
   ~StackFrame()
   {
       this->output += MOV + ESP->Name + FROM + EBP->Name + NL;
-      this->output += POP(EBP->Name);
+      this->output += POP + EBP->Name + NL;
       if (EndFunc)
       {
         this->output += "ret" + string(NL) + NL;

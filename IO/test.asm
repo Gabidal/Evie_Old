@@ -15,15 +15,14 @@ main:
 push ebp
 mov ebp, esp
 
-mov ecx, 3
-mov edx, [ebp - 4]
-mov edx, ecx
-
-add ebx, edx
-
-add ebx, edx
+mov ecx, [ebp - 4]
+push ecx
+push [ebp - 4]
+call banana_v
 
 mov esp, ebp
 pop ebp
 ret
+
+call main
 

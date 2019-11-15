@@ -19,7 +19,7 @@ string Token::getFullName()
     {
         if (is(Private))
         {
-            return TYPE(this->ParentType->Name, this->Name);
+            return TYPE(this->Fetcher->Origin->Name, this->Name);
         }
         else
         {
@@ -177,8 +177,13 @@ string Token::COMPARE(Token *Source)
 
 string Token::MOVEINSTACK()
 {
-    output += PUSH(this->getFullName());
+    output += PUSH + this->getFullName();
     return this->getReg()->Name;
+}
+
+string Token::GetAddress()
+{
+    return FRAME(getFullName());
 }
 
 void Token::addChild(Token *local) 

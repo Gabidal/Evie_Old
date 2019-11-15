@@ -84,7 +84,7 @@ void Parser::Pattern_Variable(int i)
         {
             //do fetching;
             Give_Input(T);
-            int k = Find(Input.at(i)->Fetcher, TypE, *T);
+            int k = Find(Input.at(i)->Fetcher, NotOriginal, *T);
             t->Fetcher = T->at(k);
         }
         
@@ -419,6 +419,7 @@ void Parser::Pattern_Call_Func(int i)
         {
             func->Flags |= This;
             func->Fetcher = Pattern_Fetcher(i);
+            func->Flags |= Private;
         }
         
 
@@ -497,7 +498,16 @@ void Parser::Pattern_New(int i)
         t->Origin = Output.at(j);
         t->Flags |= __NEW;
         t->Flags |= NotOriginal;
-        t->Flags |= TypE;
+        t->Flags |= Ptr;
+        for (int k = 0; k < t->Childs.size(); k++)
+        {
+            if (t->Childs.at(k)->Size > 0)
+            {
+                t->Size += t->Childs.at(k)->Size;
+            }
+        }
+        
+
         Output.at(j)->Flags |= Used;
         T->push_back(t);
     }
@@ -554,7 +564,7 @@ Token *Parser::Pattern_Fetcher(int i)
     {
         vector<Token*> *T;
         Give_Input(T);
-        int j = Find(Input.at(i)->Fetcher, TypE, *T);
+        int j = Find(Input.at(i)->Fetcher, NotOriginal, *T);
         Token *t = new Token(Assembly);
         if (j == -1)
         {

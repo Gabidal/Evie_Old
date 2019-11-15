@@ -59,11 +59,18 @@ void Back::Handle_Operators(int i)
 
 void Back::Handle_Variables(int i)
 {
-    if (Input.at(i)->is(Variable) || Input.at(i)->is(NotOriginal))
+    if (Input.at(i)->is(Variable) || Input.at(i)->is(Ptr))
     {
         if (Priority_For_Parametering)
         {
-            PUSH(Input.at(i)->InitVariable());
+            if (Input.at(i)->is(Ptr))
+            {
+                Output += PUSH + Input.at(i)->GetAddress() + NL;
+            }
+            else
+            {
+                Output += PUSH + Input.at(i)->InitVariable() + NL;
+            }
         }
     }
 }
@@ -104,12 +111,13 @@ void Back::Handle_Call_Function(int i)
             if (Input.at(i)->is(This))
             {
                 //for function fetching in types;
+                b.Input.clear();
                 b.Input.push_back(Input.at(i)->Fetcher);
                 b.Priority_For_Parametering = true;
                 b.Factory();
             }
         }
-        CALL(Input.at(i)->getFullName());
+        Output += CALL + Input.at(i)->getFullName() + NL + NL;
     }
 }
 

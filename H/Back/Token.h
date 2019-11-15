@@ -78,6 +78,7 @@ class Token
     string DIVIDE(Token *Source);
     string COMPARE(Token *Source);
     string MOVEINSTACK();
+    string GetAddress();
     //func
     void addChild(Token *t);
     void addParameter(Token *Param);
