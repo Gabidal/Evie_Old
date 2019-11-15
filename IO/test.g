@@ -10,7 +10,8 @@ type banana
 func main()
 (
   new banana b
-  b.v(0)
+  var d = 3
+  b.v(b.a + d)
 )
 
 main()

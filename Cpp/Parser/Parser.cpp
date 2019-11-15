@@ -421,6 +421,7 @@ void Parser::Pattern_Init_Call_Func(int i)
     {
         Input.at(i-1)->Tokens = Input.at(i)->Tokens;
         Input.at(i-1)->_func = true;
+        Input.at(i-1)->Flags |= _PAREHTHESIS;
         Input.erase(Input.begin() + i);
     }
 }
@@ -433,7 +434,7 @@ void Parser::Pattern_Call_Func(int i)
         func->Flags |= Call && Function;
         func->Name = Input.at(i)->WORD;
         vector<Token*> *t;
-        Give_Output(t);
+        Give_Input(t);
         if (Input.at(i)->_type)
         {
             func->Flags |= This;
@@ -527,6 +528,7 @@ void Parser::Pattern_New(int i)
         t->Origin = Output.at(j);
         t->Flags |= __NEW;
         t->Flags |= NotOriginal;
+        t->Flags |= TypE;
         Output.at(j)->Flags |= Used;
         T->push_back(t);
     }

@@ -15,7 +15,7 @@ class StackFrame
   StackFrame(string &output, bool Endfunc) : output(output)
   {
       this->output += PUSH(EBP->Name);
-      this->output += MOV + EBP->Name + FROM + ESP->Name + NL;
+      this->output += MOV + EBP->Name + FROM + ESP->Name + NL + NL;
       EndFunc = Endfunc;
   }
   
