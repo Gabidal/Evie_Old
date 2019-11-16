@@ -150,7 +150,9 @@ string Token::MOVE(Token *Source)
     if (Source->is(Number) || Source->is(Ptr) || Source->is(Variable))
     {
         // straight movation
-        output += MOV + this->GetAddress() + FROM + Source->InitVariable() + NL + NL;
+        output += MOV + this->GetAddress() + FROM + Source->InitVariable() + NL;
+        this->Reg = Source->Reg;
+        Source->Reg->Link(this);
     }
     return "";
 }
@@ -159,11 +161,11 @@ string Token::SUM(Token *Source)
 {
     if (Source->is(Number))
     {
-        output += ADD + this->InitVariable() + FROM + Source->Name + NL + NL;
+        output += ADD + this->InitVariable() + FROM + Source->Name + NL;
     }
     else
     {
-        output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+        output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL;
     }
     return this->Reg->Name;
 }
@@ -172,11 +174,11 @@ string Token::SUBSTRACT(Token *Source)
 {
     if (Source->is(Number))
     {
-        output += SUB + this->InitVariable() + FROM + Source->Name + NL + NL;
+        output += SUB + this->InitVariable() + FROM + Source->Name + NL;
     }
     else
     {
-        output += SUB + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+        output += SUB + this->InitVariable() + FROM + Source->GetAddress() + NL;
     }
     return this->Reg->Name;
 }
@@ -185,11 +187,11 @@ string Token::MULTIPLY(Token *Source)
 {
     if (Source->is(Number))
     {
-        output += IMUL + this->InitVariable() + FROM + Source->Name + NL + NL;
+        output += IMUL + this->InitVariable() + FROM + Source->Name + NL;
     }
     else
     {
-        output += IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+        output += IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL;
     }
     return this->Reg->Name;
 }
@@ -198,11 +200,11 @@ string Token::DIVIDE(Token *Source)
 {
     if (Source->is(Number))
     {
-        output += DIV + this->InitVariable() + FROM + Source->Name + NL + NL;
+        output += DIV + this->InitVariable() + FROM + Source->Name + NL;
     }
     else
     {
-        output += DIV + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+        output += DIV + this->InitVariable() + FROM + Source->GetAddress() + NL;
     }
     return this->Reg->Name;
 }
@@ -298,7 +300,7 @@ void Register::Link(Token *Requester)
     Current = Requester;
     if (Base != nullptr)
     {
-        Base->Reg->Name = "null";
+        Base->Reg = NUL;
     }
-    Base = Requester;
+    Base = Current;
 }
