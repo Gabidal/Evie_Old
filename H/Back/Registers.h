@@ -1,15 +1,20 @@
 #ifndef _REGISTERS_H_
 #define _REGISTERS_H_
 #include "Token.h"
+#include <map>
+extern map<string, Register*> registers;
 
-static Register *NUL = new Register("null");
-static Register *EAX = new Register("eax");
-static Register *EBX = new Register("ebx");
-static Register *ECX = new Register("ecx");
-static Register *EDX = new Register("edx");
-static Register *ESI = new Register("esi");
-static Register *EDI = new Register("edi");
-static Register *EBP = new Register("ebp");
-static Register *ESP = new Register("esp");
+extern void Init_Registers();
+
+extern Register *NUL;
+extern Register *EAX;
+extern Register *EBX;
+extern Register *ECX;
+extern Register *EDX;
+extern Register *ESI;
+extern Register *EDI;
+extern Register *EBP;
+extern Register *ESP;
+
 
 #endif

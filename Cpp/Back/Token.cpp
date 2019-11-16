@@ -158,8 +158,10 @@ string Token::SUM(Token *Source)
     {
         output += ADD + this->InitVariable() + FROM + Source->Name + NL + NL;
     }
-    
-    output += ADD + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
+    else
+    {
+        output += ADD + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
+    }
     return this->Reg->Name;
 }
 

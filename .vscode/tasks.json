@@ -9,6 +9,7 @@
                 "${fileDirname}/main.cpp",
                 "${fileDirname}/Back/Token.cpp",
                 "${fileDirname}/Back/Back.cpp",
+                "${fileDirname}/Back/Registers.cpp",
                 "${fileDirname}/Lexer/Definer.cpp",
                 "${fileDirname}/Parser/Parser.cpp",
                 "-o",

@@ -20,7 +20,9 @@ void Back::Handle_Operators(int i)
         {
             Back b = *this;
             b.Input = Input.at(i)->Parameters;
+            b.Layer++;
             b.Factory();
+            b.Layer--;
             this->Dest = b.Dest;
         }
         if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number))
@@ -31,28 +33,37 @@ void Back::Handle_Operators(int i)
         {
             Back b = *this;
             b.Input = Input.at(i)->Parameters;
+            b.Layer++;
             b.Factory();
+            b.Layer--;
             this->Source = b.Source;
         }
+        string reg = "";
         if (Input.at(i)->Name == "+")
         {
-            Dest->SUM(Source);
+            reg = Dest->SUM(Source);
         }
         else if (Input.at(i)->Name == "-")
         {
-            Dest->SUBSTRACT(Source);
+            reg = Dest->SUBSTRACT(Source);
         }
         else if (Input.at(i)->Name == "*")
         {
-            Dest->MULTIPLY(Source);
+            reg = Dest->MULTIPLY(Source);
         }
         else if (Input.at(i)->Name == "/")
         {
-            Dest->DIVIDE(Source);
+            reg = Dest->DIVIDE(Source);
         }
         else if (Input.at(i)->Name == "=")
         {
             Dest->MOVE(Source);
+            reg = "";
+        }
+        if (reg.size() > 0 && Layer == 0)
+        {
+            Dest->Reg = registers[reg];
+            Output += MOV + Dest->GetAddress() + FROM + Dest->Reg->Name + NL + NL;
         }
     }
 }
@@ -172,5 +183,6 @@ Back &Back::operator=(const Back& name)
     Input = name.Input;
     Dest = name.Dest;
     Source = name.Source;
+    Layer = name.Layer;
     return *this;
 }

@@ -6,6 +6,7 @@ using namespace std;
 
 int main()
 {
+    Init_Registers();
 
     string OUTPUT = "";
 
