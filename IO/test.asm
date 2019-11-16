@@ -5,26 +5,49 @@ mov ebp, esp
 mov eax, 1
 mov [ebp - 4], eax
 
-mov ebx, [ebp - 4]
-add ebx, 2
+mov ebx, 2
+mov [ebp - 8], ebx
 
-add ebx, 1
+mov ecx, 3
+mov [ebp - 12], ecx
 
-add ebx, ebx
+mov edx, 4
+mov [ebp - 16], edx
 
-mov [ebp - 4], ebx
+mov esi, [ebp - 8]
+add esi, [ebp - 12]
 
-mov ecx, 1
-mov [ebp - 8], ecx
+sub esi, [ebp - 16]
 
-mov edx, [ebp - 8]
-add edx, 2
+imul esi, [ebp - 4]
 
-add edx, 1
+mov [ebp - 4], esi
 
-add edx, edx
+mov edi, [ebp - 12]
+div edi, [ebp - 16]
 
-mov [ebp - 8], edx
+add edi, [ebp - 4]
+
+sub edi, [ebp - 8]
+
+mov [ebp - 8], edi
+
+mov null, [ebp - 16]
+imul null, [ebp - 4]
+
+div null, [ebp - 8]
+
+add null, [ebp - 12]
+
+mov [ebp - 12], null
+
+sub esi, [ebp - 8]
+
+imul esi, [ebp - 12]
+
+div esi, [ebp - 16]
+
+mov [ebp - 16], esi
 
 mov esp, ebp
 pop ebp

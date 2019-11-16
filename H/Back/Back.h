@@ -16,8 +16,10 @@ public:
     vector<Token*> Input;
     Token *Dest;
     Token *Source;
+    Token *Cheat;
     bool Priority_For_Parametering = false;
     int Layer = 0;
+
 
     void Handle_Usation(int &i);
     void Handle_Operators(int i);

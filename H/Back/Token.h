@@ -89,6 +89,7 @@ class Token
     //Fetcher
     Token *Fetcher;
 };
+
 class Register
 {
 public:
@@ -97,7 +98,7 @@ public:
     bool TaskForMovingParameter = false;
     string Name = "";
     int Value = 0;
-    vector<Token*> Base;
+    Token *Base;
     Token *Current;
     Register(string name)
     {

@@ -24,6 +24,7 @@ void Back::Handle_Operators(int i)
             b.Factory();
             b.Layer--;
             this->Dest = b.Dest;
+            this->Cheat = b.Cheat;
         }
         if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number))
         {
@@ -37,6 +38,7 @@ void Back::Handle_Operators(int i)
             b.Factory();
             b.Layer--;
             this->Source = b.Source;
+            this->Cheat = b.Cheat;
         }
         string reg = "";
         if (Input.at(i)->Name == "+")
@@ -55,13 +57,20 @@ void Back::Handle_Operators(int i)
         {
             reg = Dest->DIVIDE(Source);
         }
-        else if (Input.at(i)->Name == "=")
+        else if (Input.at(i)->Name == "=" && Layer == 0)
         {
             Dest->MOVE(Source);
             reg = "";
         }
+        else if (Layer != 0)
+        {
+            Cheat = Dest;
+            Dest = Source;
+        }
+        
         if (reg.size() > 0 && Layer == 0)
         {
+            Dest = Cheat;
             Dest->Reg = registers[reg];
             Output += MOV + Dest->GetAddress() + FROM + Dest->Reg->Name + NL + NL;
         }
@@ -184,5 +193,6 @@ Back &Back::operator=(const Back& name)
     Dest = name.Dest;
     Source = name.Source;
     Layer = name.Layer;
+    Cheat = name.Cheat;
     return *this;
 }

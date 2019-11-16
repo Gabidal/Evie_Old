@@ -77,18 +77,21 @@ Register *Token::getNewRegister()
         ESI->Link(this);
         return ESI;
     }
-    else if (RegisterTurn == 5)
+    else if (RegisterTurn >= 5)
     {
         RegisterTurn = 0;
-        ESI->Link(this);
+        EDI->Link(this);
         return EDI;
     }
-    return NUL;
+    else
+    {
+        return NULL;
+    }
 }
 
 Register *Token::getReg()
 {
-    if (Reg->Name == "null")
+    if (Reg == nullptr|| Reg->Name == "null")
     {
         this->Reg = getNewRegister();
     }
@@ -100,7 +103,7 @@ string Token::InitVariable()
     string result = "";
     if (this->Reg == nullptr)
     {
-        this->Reg = getNewRegister();
+        this->Reg = getReg();
         if (this->is(Member))
         {
             Register *ParentReg = this->ParentFunc->Reg;
@@ -160,32 +163,53 @@ string Token::SUM(Token *Source)
     }
     else
     {
-        output += ADD + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
+        output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
     }
     return this->Reg->Name;
 }
 
 string Token::SUBSTRACT(Token *Source)
 {
-    output += SUB + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
+    if (Source->is(Number))
+    {
+        output += SUB + this->InitVariable() + FROM + Source->Name + NL + NL;
+    }
+    else
+    {
+        output += SUB + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+    }
     return this->Reg->Name;
 }
 
 string Token::MULTIPLY(Token *Source)
 {
-    output += IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
+    if (Source->is(Number))
+    {
+        output += IMUL + this->InitVariable() + FROM + Source->Name + NL + NL;
+    }
+    else
+    {
+        output += IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+    }
     return this->Reg->Name;
 }
 
 string Token::DIVIDE(Token *Source)
 {
-    output += IDIV + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
+    if (Source->is(Number))
+    {
+        output += DIV + this->InitVariable() + FROM + Source->Name + NL + NL;
+    }
+    else
+    {
+        output += DIV + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+    }
     return this->Reg->Name;
 }
 
 string Token::COMPARE(Token *Source)
 {
-    output += CMP + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
+    output += CMP + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
     return this->Reg->Name;
 }
 
@@ -272,9 +296,9 @@ Token &Token::operator=(const Token& name)
 void Register::Link(Token *Requester)
 {
     Current = Requester;
-    for (int i = 0; i < Base.size(); i++)
+    if (Base != nullptr)
     {
-        Base.at(i)->Reg->Name = "null";
+        Base->Reg->Name = "null";
     }
-    Base.push_back(Requester);
+    Base = Requester;
 }

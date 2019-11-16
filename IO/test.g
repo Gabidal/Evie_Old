@@ -1,5 +1,11 @@
 func main()
 (
-  var x = 1 + 2 + 1 + x
-  var y = 1 + 2 + 1 + y
+  var a = 1
+  var b = 2
+  var c = 3
+  var d = 4
+  a = b + c - d * a
+  b = c / d + a - b
+  c = d * a / b + c
+  d = a - b * c / d
 )
