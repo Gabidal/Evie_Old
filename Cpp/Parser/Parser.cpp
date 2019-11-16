@@ -283,6 +283,48 @@ void Parser::Pattern_Type(int i)
     }
 }
 
+void Parser::Pattern_Condition(int i)
+{
+    //if ( a == b & a == c)
+    if (Input.at(i)->_condition)
+    {
+        Token *condition = new Token(Assembly);
+
+        if (Input.at(i)->WORD != "else")
+        {
+            Parser p = *this;
+            p.Input = Input.at(i)->Tokens;
+            p.GetDirect = true;
+            p.Factory();
+            condition->Parameters = p.Direct;
+            if (Input.at(i)->_else_if)
+            {
+                condition->Flags |= If;
+                condition->Flags |= Else;
+            }
+            else if (Input.at(i)->WORD == "if")
+            {
+                condition->Flags |= If;
+            }
+            else if (Input.at(i)->WORD == "while")
+            {
+                condition->Flags |= While;
+            }
+        }
+        else
+        {
+            condition->Flags |= Else;
+        }
+        
+        condition->Name = Input.at(i)->WORD;
+        vector<Token*> *T;
+        Give_Output(T);
+        T->push_back(condition);
+        ParentCondition = condition;
+    }
+    
+}
+
 void Parser::Pattern_Parenthesis(int i)
 {
     /*func banana <deleted () > \n
@@ -331,53 +373,79 @@ void Parser::Pattern_Parenthesis(int i)
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->WORD == "if")
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "if")
     {
-        Token *IF = new Token(Assembly);
-        IF->Flags |= PARENT & If & Used;
-        IF->Name = to_string(ID) + "_if";
-
-        Parser parser1 = *this;
-        parser1.Input = Input.at(i)->Tokens;
-
-        for (int i = parser1.Started; i < parser1.Output.size(); i++)
-        IF->addParameter(parser1.Output.at(i));
-
-        Parser parser2 = *this;
-        parser2.Input = Input.at(i+2)->Tokens;
-
-        for (int i = parser2.Started; i < parser2.Output.size(); i++)
-        IF->addChild(parser2.Output.at(i));
-
-        vector<Token*> *T;
-        T->push_back(IF);
+        Layer++;
+        Parser parser = *this;
+        parser.Input = Input.at(i)->Tokens;
+        parser.InsideOfCondition = true;
+        parser.Started = Output.size();
+        parser.Factory();
+        ParentFunc->Flags |= PARENT;
+        Layer--;
+    }
+    /*else
+    (
+        var 1
+    )*/
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "else")
+    {
+        Layer++;
+        Parser parser = *this;
+        parser.Input = Input.at(i)->Tokens;
+        parser.InsideOfCondition = true;
+        parser.Started = Output.size();
+        parser.Factory();
+        ParentFunc->Flags |= PARENT;
+        Layer--;
     }
     /*while (a < b)
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->WORD == "while")
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "while")
     {
-        Token *WHILE = new Token(Assembly);
-        WHILE->Flags |= PARENT & If & Used;
-        WHILE->Name = to_string(ID) + "_while";
-
-        Parser parser1 = *this;
-        parser1.Input = Input.at(i)->Tokens;
-
-        for (int i = 0; i < parser1.Output.size(); i++)
-        WHILE->addParameter(parser1.Output.at(i));
-
-        Parser parser2 = *this;
-        parser2.Input = Input.at(i+2)->Tokens;
-
-        for (int i = 0; i < parser2.Output.size(); i++)
-        WHILE->addChild(parser2.Output.at(i));
-
-        vector<Token*> *T;
-        T->push_back(WHILE);
+        Layer++;
+        Parser parser = *this;
+        parser.Input = Input.at(i)->Tokens;
+        parser.InsideOfCondition = true;
+        parser.Started = Output.size();
+        parser.Factory();
+        ParentFunc->Flags |= PARENT;
+        Layer--;
     }
     
+}
+
+void Parser::Pattern_Init_Condition(int i)
+{
+    if (Input.at(i)->is(_KEYWORD) && (Input.at(i)->WORD == "if" || Input.at(i)->WORD == "else" || Input.at(i)->WORD == "while"))
+    {
+        //if (<a == <a + b>>)
+        if (Input.at(i)->WORD == "else")
+        {
+            if (Input.at(i+1)->WORD == "if")
+            {
+                //else if;
+                i++;
+                Input.at(i)->Tokens = Input.at(i+1)->Tokens;
+                Input.erase(Input.begin() + i + 1);
+                Input.at(i)->_else_if = true;
+                Input.erase(Input.begin() + i - 1);
+                i--;
+            }
+            else
+            {
+                //just else;
+            }
+        }
+        else
+        {
+            Input.at(i)->Tokens = Input.at(i+1)->Tokens;
+            Input.erase(Input.begin() + i + 1);
+        }
+        Input.at(i)->_condition = true;
+    }
 }
 
 void Parser::Pattern_Init_Operators(int &i)
@@ -625,6 +693,10 @@ void Parser::Give_Output(vector<Token*> *&T)
     {
         T = &Direct;
     }
+    else if (InsideOfCondition)
+    {
+        T = &ParentCondition->Childs;
+    }
     else if (InsideOfFunction)
     {
         T = &ParentFunc->Childs;
@@ -650,6 +722,7 @@ void Parser::Factory()
         Pattern_Init_Array(i);
         Pattern_Init_Variable(i);
         Pattern_Init_Operators(i);
+        Pattern_Init_Condition(i);
     }
     for (int i = 0; i < Input.size(); i++)
     {
@@ -662,5 +735,6 @@ void Parser::Factory()
         Pattern_Operators(i);
         Pattern_Variable(i);
         Pattern_Return(i);
+        Pattern_Condition(i);
     }
 }

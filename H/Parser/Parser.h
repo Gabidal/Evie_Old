@@ -12,11 +12,13 @@ class Parser
 public:
     Token *ParentType = 0;
     Token *ParentFunc = 0;
+    Token *ParentCondition = 0;
     int Layer = 0;
     int ID = 0;
     int Started = 0;
     bool InsideOfType = false;
     bool InsideOfFunction = false;
+    bool InsideOfCondition = false;
     bool Priority = false;
     bool GetDirect = false;
     string &Assembly;
@@ -26,10 +28,12 @@ public:
     void Pattern_Variable(int i);
     void Pattern_Function(int i);
     void Pattern_Type(int i);
+    void Pattern_Condition(int i);
     void Pattern_Parenthesis(int i);
     void Pattern_Operators(int i);
     void Pattern_Call_Func(int i);
     void Pattern_New(int i);
+    void Pattern_Init_Condition(int i);
     void Pattern_Init_Variable(int i);
     void Pattern_Init_Operators(int &i);
     void Pattern_Init_Type(int i);
