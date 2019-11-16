@@ -93,8 +93,29 @@ void Back::Handle_Type_Init(int i)
     if (Input.at(i)->is(TypE) && Input.at(i)->is(__NEW) == false)
     {
         Back b = *this;
-        b.Input = Input.at(i)->Childs;
-        b.Factory();
+        vector<Token*> vars;
+        vector<Token*> Functions;
+        for (int j = 0; j < Input.at(i)->Childs.size(); j++)
+        {
+            if (Input.at(i)->Childs.at(j)->is(Variable) || Input.at(i)->Childs.at(j)->is(Ptr))
+            {
+                vars.push_back(Input.at(i)->Childs.at(j));
+            }
+            else
+            {
+                Functions.push_back(Input.at(i)->Childs.at(j));
+            }
+        }
+        if (vars.size() > 0)
+        {
+            b.Input = vars;
+            b.Factory();
+        }
+        if (Functions.size() > 0)
+        {
+            b.Input = Functions;
+            b.Factory();
+        }
     }
 }
 

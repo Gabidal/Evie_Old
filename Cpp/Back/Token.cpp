@@ -129,7 +129,10 @@ string Token::InitVariable()
         {
             output += MOV + this->Reg->Name + FROM + this->Name + NL;
         }
-        
+        else if (this->is(Ptr))
+        {
+            output += MOV + this->Reg->Name + FROM + this->GetAddress() + NL;
+        }
         result = this->Reg->Name;
     }
     else
@@ -141,12 +144,21 @@ string Token::InitVariable()
 
 string Token::MOVE(Token *Source)
 {
-    output += MOV + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
-    return this->Reg->Name;
+    if (Source->is(Number) || Source->is(Ptr) || Source->is(Variable))
+    {
+        // straight movation
+        output += MOV + this->GetAddress() + FROM + Source->InitVariable() + NL + NL;
+    }
+    return "";
 }
 
 string Token::SUM(Token *Source)
 {
+    if (Source->is(Number))
+    {
+        output += ADD + this->InitVariable() + FROM + Source->Name + NL + NL;
+    }
+    
     output += ADD + this->InitVariable() + FROM + Source->InitVariable() + NL + NL;
     return this->Reg->Name;
 }
@@ -183,7 +195,14 @@ string Token::MOVEINSTACK()
 
 string Token::GetAddress()
 {
-    return FRAME(getFullName());
+    if (this->is(Private))
+    {
+        return FRAME(getFullName());
+    }
+    else
+    {
+        return getFullName();
+    }
 }
 
 void Token::addChild(Token *local) 
