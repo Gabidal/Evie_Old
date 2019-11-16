@@ -17,6 +17,8 @@
 #define JNG "jng "
 #define JL "jl "
 #define CALL "call "
+#define CDQ "cdq "
+#define XCHG(dest, source) ("xchg " + string(dest) + FROM + source + NL)
 
 #define JNL "jnl "
 #define JZ "jz "

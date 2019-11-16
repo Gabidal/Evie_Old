@@ -147,7 +147,11 @@ string Token::InitVariable()
 
 string Token::MOVE(Token *Source)
 {
-    if (Source->is(Number) || Source->is(Ptr) || Source->is(Variable))
+    if (Source->is(Number))
+    {
+        output += MOV + string(DWORD) + this->GetAddress() + FROM + Source->Name + NL;
+    }
+    else if (Source->is(Ptr) || Source->is(Variable))
     {
         // straight movation
         output += MOV + this->GetAddress() + FROM + Source->InitVariable() + NL;
@@ -165,7 +169,14 @@ string Token::SUM(Token *Source)
     }
     else
     {
-        output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL;
+        if (Source->Reg == nullptr || Source->Reg->Name == "null")
+        {
+            output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL;
+        }
+        else
+        {
+            output += ADD + this->InitVariable() + FROM + Source->Reg->Name + NL;
+        }
     }
     return this->Reg->Name;
 }
@@ -178,7 +189,14 @@ string Token::SUBSTRACT(Token *Source)
     }
     else
     {
-        output += SUB + this->InitVariable() + FROM + Source->GetAddress() + NL;
+        if (Source->Reg == nullptr || Source->Reg->Name == "null")
+        {
+            output += SUB + this->InitVariable() + FROM + Source->GetAddress() + NL;
+        }
+        else
+        {
+            output += SUB + this->InitVariable() + FROM + Source->Reg->Name + NL;
+        }
     }
     return this->Reg->Name;
 }
@@ -191,7 +209,14 @@ string Token::MULTIPLY(Token *Source)
     }
     else
     {
-        output += IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL;
+        if (Source->Reg == nullptr || Source->Reg->Name == "null")
+        {
+            output += IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL;
+        }
+        else
+        {
+            output += IMUL + this->InitVariable() + FROM + Source->Reg->Name + NL;
+        }
     }
     return this->Reg->Name;
 }
@@ -200,18 +225,39 @@ string Token::DIVIDE(Token *Source)
 {
     if (Source->is(Number))
     {
-        output += DIV + this->InitVariable() + FROM + Source->Name + NL;
+        //cdq
+        output += XCHG(this->InitVariable(), EAX->Name);
+        output += CDQ + string(NL);
+        output += DIV + Source->InitVariable() + NL;
+        EAX->Link(this);
     }
     else
     {
-        output += DIV + this->InitVariable() + FROM + Source->GetAddress() + NL;
+        output += XCHG(this->InitVariable(), EAX->Name);
+        output += CDQ + string(NL);
+        if (Source->Reg == nullptr || Source->Reg->Name == "null")
+        {
+            output += DIV + string(DWORD) + Source->GetAddress() + NL;
+        }
+        else
+        {
+            output += DIV + Source->Reg->Name + NL;
+        }
+        EAX->Link(this);
     }
     return this->Reg->Name;
 }
 
 string Token::COMPARE(Token *Source)
 {
-    output += CMP + this->InitVariable() + FROM + Source->GetAddress() + NL + NL;
+    if (Source->Reg == nullptr || Source->Reg->Name == "null")
+    {
+        output += CMP + this->InitVariable() + FROM + Source->GetAddress() + NL;
+    }
+    else
+    {
+        output += CMP + this->InitVariable() + FROM + Source->Reg->Name + NL + NL;
+    }
     return this->Reg->Name;
 }
 
