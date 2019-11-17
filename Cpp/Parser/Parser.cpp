@@ -54,6 +54,11 @@ void Parser::Pattern_Variable(int i)
         Token *t = new Token(Assembly);
         t = T->at(j);
         t->Size = 4;
+        if (InsideOfFunction || InsideOfType || InsideOfCondition)
+        {
+            t->Flags |= Private;
+        }
+        
         if (Input.at(i)->Offsetter != 0)
         {
             //if it is an array

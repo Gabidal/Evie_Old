@@ -99,6 +99,7 @@ void Back::Handle_Variables(int i)
     }
 }
 
+vector<Token*> *seen = new vector<Token*>();
 int Get_Amount(vector<Token*> list, int flag)
 {
     int ret = 0;
@@ -108,8 +109,9 @@ int Get_Amount(vector<Token*> list, int flag)
        {
            ret += Get_Amount(list.at(i)->Childs, flag);
        }
-       else if (list.at(i)->Any(flag))
+       else if (list.at(i)->Any(flag) && find(seen->begin(), seen->end(), list.at(i)) == seen->end() && find(list.at(i)->Parameters.begin(), list.at(i)->Parameters.end(), list.at(i)) == list.at(i)->Parameters.end())
        {
+           seen->push_back(list.at(i));
            ret++;
        }
     }
