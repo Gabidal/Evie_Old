@@ -1,5 +1,7 @@
 #include "../../H/Parser/Parser.h"
 
+int ID = 0;
+
 void Parser::Pattern_Init_Variable(int i)
 {
     //((var) (a) (:) (b) (= 123))
@@ -325,6 +327,8 @@ void Parser::Pattern_Condition(int i)
         }
         
         condition->Name = Input.at(i)->WORD;
+        condition->ID = ID;
+        ID++;
         vector<Token*> *T;
         Give_Output(T);
         T->push_back(condition);

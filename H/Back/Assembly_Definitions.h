@@ -16,6 +16,10 @@
 #define JG "jg "
 #define JNG "jng "
 #define JL "jl "
+#define JNGE "jnge "
+#define JNLE "jnle "
+#define JGE "jge "
+#define JLE "jle "
 #define CALL "call "
 #define CDQ "cdq "
 #define XCHG(dest, source) ("xchg " + string(dest) + FROM + source + NL)

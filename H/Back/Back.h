@@ -30,8 +30,11 @@ public:
     void Handle_Arrays(int i);
     void Handle_Fetching(int i);
     void Handle_Conditions(int i);
+    void Handle_Jumps(int i);
+    string END(int i);
 
     void Factory();
+    int Find(string name, int flag, vector<Token*> list);
     Back &operator=(const Back& name);
     string Get_Output() { return Output;}
     Back(vector<Token*> In, string &out) : Input(In), Output(out)

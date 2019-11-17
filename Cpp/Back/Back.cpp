@@ -171,16 +171,95 @@ void Back::Handle_Arrays(int i)
 
 }
 
+int Back::Find(string name, int flag, vector<Token*> list)
+{
+    for (int i = 0; i < list.size(); i++)
+    {
+        if (list.at(i)->Name == name && list.at(i)->is(flag))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+string Back::END(int i)
+{
+    if (Input.at(i)->is(While))
+    {
+        return string("");
+    }
+    else
+    {
+        return string("END");
+    }
+}
+
+void Back::Handle_Jumps(int i)
+{
+    if (Find("==", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JNE + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+    if (Find("!=", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JE + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+    if (Find(">=", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JNGE + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+    if (Find("<=", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JNLE + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+    if (Find("<", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JG + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+    if (Find(">", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JL + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+    if (Find("!<", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JGE + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+    if (Find("!>", OPERATOR, Input.at(i)->Parameters) != -1)
+    {
+        Output += JLE + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL;
+    }
+}
+
 void Back::Handle_Conditions(int i)
 {
-    if (Input.at(i)->is(If) && Input.at(i)->is(Else) != true)
+    if (Input.at(i)->is(If) || Input.at(i)->is(Else))
     {
         Back b = *this;
-        b.Input = Input.at(i)->Parameters;
-        b.Factory();
-        
+        Output += LABEL(Input.at(i)->getFullName() + to_string(Input.at(i)->ID));
+
+        //if
+        if (Input.at(i)->Parameters.size() > 0 && Input.at(i)->is(While) != true)
+        {
+            b.Input = Input.at(i)->Parameters;
+            b.Factory();
+            Handle_Jumps(i);
+        }
+        //( ...)
+        if (Input.at(i)->Childs.size() > 0)
+        {
+            b.Input = Input.at(i)->Childs;
+            b.Factory();
+        }
+        //while
+        if (Input.at(i)->Parameters.size() > 0 && Input.at(i)->is(While))
+        {
+            b.Input = Input.at(i)->Parameters;
+            b.Factory();
+            Handle_Jumps(i);
+        }
+        Output += LABEL(Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i));
     }
-    
 }
 
 void Back::Factory()

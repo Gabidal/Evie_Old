@@ -15,7 +15,7 @@ bool Token::is(int flag)
 string Token::getFullName()
 {
     string name = "";
-    if (is(Call))
+    if (is(Call) || is(If) || is(Else) || is(While))
     {
         if (is(Private))
         {
