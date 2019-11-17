@@ -69,6 +69,7 @@ class Token
     Token &operator=(const Token& name);
 
     bool is(int flag);
+    bool Any(int flags);
     string getFullName();
     Register *getNewRegister();
     Register *getReg();

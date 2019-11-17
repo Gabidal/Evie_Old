@@ -322,6 +322,7 @@ void Parser::Pattern_Condition(int i)
             }
             else if (Input.at(i)->WORD == "while")
             {
+                condition->Flags |= If;
                 condition->Flags |= While;
             }
         }
@@ -403,7 +404,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.InsideOfCondition = true;
         parser.Started = Output.size();
         parser.Factory();
-        ParentFunc->Flags |= PARENT;
+        ParentCondition->Flags |= PARENT;
         if (Input.at(i-2)->_else_if)
         {
             ParentCondition->Flags |= Successour;
@@ -426,7 +427,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.InsideOfCondition = true;
         parser.Started = Output.size();
         parser.Factory();
-        ParentFunc->Flags |= PARENT;
+        ParentCondition->Flags |= PARENT;
         ParentCondition->Flags |= Successour;
         Substitute->SuccessorToken.push_back(ParentCondition);
         ParentCondition->Former = Substitute;

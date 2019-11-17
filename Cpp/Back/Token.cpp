@@ -12,6 +12,11 @@ bool Token::is(int flag)
     return (Flags & flag) == flag;
 }
 
+bool Token::Any(int flags)
+{
+    return (Flags & flags) != 0;
+}
+
 string Token::getFullName()
 {
     string name = "";

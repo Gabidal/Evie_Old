@@ -99,6 +99,23 @@ void Back::Handle_Variables(int i)
     }
 }
 
+int Get_Amount(vector<Token*> list, int flag)
+{
+    int ret = 0;
+    for (int i = 0; i < list.size(); i++)
+    {
+       if (list.at(i)->Childs.size() > 0)
+       {
+           ret += Get_Amount(list.at(i)->Childs, flag);
+       }
+       else if (list.at(i)->Any(flag))
+       {
+           ret++;
+       }
+    }
+    return ret;
+}
+
 void Back::Handle_Function_Init(int i)
 {
     if (Input.at(i)->is(Function) && Input.at(i)->is(Call) == false)
@@ -108,6 +125,8 @@ void Back::Handle_Function_Init(int i)
         Back b = *this;
         b.Input = Input.at(i)->Childs;
         StackFrame stack(Output, true);
+        int care = Variable | Ptr;
+        Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care) * 4) + NL + NL;
         b.Factory();
     }
 }
