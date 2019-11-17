@@ -62,6 +62,10 @@ void Back::Handle_Operators(int i)
             Dest->MOVE(Source);
             reg = "";
         }
+        else if (Input.at(i)->Name == "==" || Input.at(i)->Name == ">=" || Input.at(i)->Name == "<=" || Input.at(i)->Name == ">" || Input.at(i)->Name == "<" || Input.at(i)->Name == "!=" || Input.at(i)->Name == "!>" || Input.at(i)->Name == "!<")
+        {
+            Dest->COMPARE(Source);
+        }
         else if (Layer != 0)
         {
             Cheat = Dest;
@@ -169,6 +173,13 @@ void Back::Handle_Arrays(int i)
 
 void Back::Handle_Conditions(int i)
 {
+    if (Input.at(i)->is(If) && Input.at(i)->is(Else) != true)
+    {
+        Back b = *this;
+        b.Input = Input.at(i)->Parameters;
+        b.Factory();
+        
+    }
     
 }
 

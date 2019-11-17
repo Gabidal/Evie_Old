@@ -307,6 +307,7 @@ void Parser::Pattern_Condition(int i)
             {
                 condition->Flags |= If;
                 condition->Flags |= Else;
+                Substitute = ParentCondition;  // give if an place to be for time being;
             }
             else if (Input.at(i)->WORD == "if")
             {
@@ -320,6 +321,7 @@ void Parser::Pattern_Condition(int i)
         else
         {
             condition->Flags |= Else;
+            Substitute = ParentCondition; // give if an place to be for time being;
         }
         
         condition->Name = Input.at(i)->WORD;
@@ -388,6 +390,13 @@ void Parser::Pattern_Parenthesis(int i)
         parser.Started = Output.size();
         parser.Factory();
         ParentFunc->Flags |= PARENT;
+        if (Input.at(i-2)->_else_if)
+        {
+            Substitute->Flags |= Successour;
+            Substitute->SuccessorToken.push_back(ParentCondition);
+            ParentCondition = Substitute;
+        }
+        
         Layer--;
     }
     /*else
@@ -403,6 +412,9 @@ void Parser::Pattern_Parenthesis(int i)
         parser.Started = Output.size();
         parser.Factory();
         ParentFunc->Flags |= PARENT;
+        Substitute->Flags |= Successour;
+        Substitute->SuccessorToken.push_back(ParentCondition);
+        ParentCondition = Substitute;
         Layer--;
     }
     /*while (a < b)

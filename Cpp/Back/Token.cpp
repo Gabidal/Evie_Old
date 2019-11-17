@@ -333,6 +333,7 @@ Token &Token::operator=(const Token& name)
     ParentType = name.ParentType;
     ParentFunc = name.ParentFunc;
     Parameters = name.Parameters;
+    SuccessorToken = name.SuccessorToken;
     Childs = name.Childs;
     Name = name.Name;
     Reg = name.Reg;

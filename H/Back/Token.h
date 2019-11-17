@@ -41,6 +41,7 @@ using namespace std;
 #define Call (1<<28)
 #define __NEW (1<<29)
 #define HAS_FETCHER (1<<30)
+#define Successour (1<<31)
 class Register;
 
 class Token
@@ -57,6 +58,7 @@ class Token
     Token *Offsetter;
     Token *ParentType;
     Token *ParentFunc;
+    vector<Token*> SuccessorToken;
     vector<Token*> Parameters;
     vector<Token*> Childs;
     string Name = "";

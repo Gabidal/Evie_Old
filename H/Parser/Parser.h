@@ -13,6 +13,7 @@ public:
     Token *ParentType = 0;
     Token *ParentFunc = 0;
     Token *ParentCondition = 0;
+    Token *Substitute;
     int Layer = 0;
     int ID = 0;
     int Started = 0;
@@ -69,6 +70,7 @@ public:
         ParentType = other.ParentType;
         ParentFunc = other.ParentFunc;
         ParentCondition = other.ParentCondition;
+        Substitute = other.Substitute;
         Layer = other.Layer;
         ID = other.ID;
         Started = other.Started;
