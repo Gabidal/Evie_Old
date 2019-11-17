@@ -61,17 +61,20 @@ public:
         Assembly = other.Assembly;
         Input = other.Input;
         Output = other.Output;
+        InsideOfCondition = other.InsideOfCondition;
         return *this;
     }
     Parser(Parser & other) : Assembly(other.Assembly)
     {
         ParentType = other.ParentType;
         ParentFunc = other.ParentFunc;
+        ParentCondition = other.ParentCondition;
         Layer = other.Layer;
         ID = other.ID;
         Started = other.Started;
         InsideOfType = other.InsideOfType;
         InsideOfFunction = other.InsideOfFunction;
+        InsideOfCondition = other.InsideOfCondition;
         //Priority = other.Priority; DO NOT USE THIS <THIS IS THE RED BUTTON>
         Priority = false;
         Input = other.Input;

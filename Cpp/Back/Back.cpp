@@ -167,6 +167,11 @@ void Back::Handle_Arrays(int i)
 
 }
 
+void Back::Handle_Conditions(int i)
+{
+    
+}
+
 void Back::Factory()
 {
     for (int i = 0; i < Input.size(); i++)
@@ -182,6 +187,7 @@ void Back::Factory()
         Handle_Operators(i);
         Handle_Arrays(i);
         Handle_Variables(i);
+        Handle_Conditions(i);
     }
 }
 

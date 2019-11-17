@@ -73,7 +73,6 @@ void Parser::Pattern_Variable(int i)
                 return;
             }
             
-            
             Token *ofsetter = new Token(Assembly);
             t = T->at(k);
             t->Offsetter = ofsetter;
@@ -132,7 +131,14 @@ void Parser::Pattern_Operators(int i)
         //check this also in debugging!!!
         Token *A = new Token(Assembly);
         Token *B = new Token(Assembly);
-        if (InsideOfFunction)
+        if (InsideOfCondition)
+        {
+            A = ParentCondition->Childs.at(ParentCondition->Childs.size() - 2);
+            B = ParentCondition->Childs.at(ParentCondition->Childs.size() - 1);
+            ParentCondition->Childs.erase(ParentCondition->Childs.begin() + ParentCondition->Childs.size() - 1);
+            ParentCondition->Childs.erase(ParentCondition->Childs.begin() + ParentCondition->Childs.size() - 1);
+        }
+        else if (InsideOfFunction)
         {
             A = ParentFunc->Childs.at(ParentFunc->Childs.size() - 2);
             B = ParentFunc->Childs.at(ParentFunc->Childs.size() - 1);
@@ -373,7 +379,7 @@ void Parser::Pattern_Parenthesis(int i)
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "if")
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "if" && Input.at(i-2)->_condition)
     {
         Layer++;
         Parser parser = *this;
@@ -388,7 +394,7 @@ void Parser::Pattern_Parenthesis(int i)
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "else")
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "else" &&  Input.at(i-2)->_condition)
     {
         Layer++;
         Parser parser = *this;
@@ -403,7 +409,7 @@ void Parser::Pattern_Parenthesis(int i)
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "while")
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-2)->WORD == "while" &&  Input.at(i-2)->_condition)
     {
         Layer++;
         Parser parser = *this;

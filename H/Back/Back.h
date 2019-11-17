@@ -29,6 +29,7 @@ public:
     void Handle_Call_Function(int i);
     void Handle_Arrays(int i);
     void Handle_Fetching(int i);
+    void Handle_Conditions(int i);
 
     void Factory();
     Back &operator=(const Back& name);
