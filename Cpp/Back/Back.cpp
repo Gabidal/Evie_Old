@@ -225,6 +225,7 @@ void Back::Handle_Jumps(int i)
     }
     string destination = "";
     int ID = 0;
+    string endd = "";
     if (Input.at(i)->is(Successour))
     {
         destination = Input.at(i)->Former->SuccessorToken.at(0)->getFullName();
@@ -240,9 +241,10 @@ void Back::Handle_Jumps(int i)
     {
         destination = Input.at(i)->getFullName();
         ID = Input.at(i)->ID;
+        endd = "END";
     }
     
-    Output += conditionJump + destination + to_string(ID) + NL;
+    Output += conditionJump + destination + to_string(ID) + endd + NL;
 }
 
 void Back::Handle_Conditions(int i)

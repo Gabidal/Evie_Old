@@ -101,7 +101,7 @@ Register *Token::getReg()
 string Token::InitVariable()
 {
     string result = "";
-    if (this->Reg == nullptr)
+    if (this->Reg == nullptr || this->Reg->Name == "null")
     {
         this->Reg = getReg();
         if (this->is(Member))

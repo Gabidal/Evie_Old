@@ -4,7 +4,7 @@ func main()
   var b = 3
   if (a - b < 0)
   (
-    a = a + 1
+    a = a - 1
   )
   else if (a == b)
   (
@@ -13,5 +13,9 @@ func main()
   else
   (
     a = b
+  )
+  if (a == b)
+  (
+    a = b + a
   )
 )
