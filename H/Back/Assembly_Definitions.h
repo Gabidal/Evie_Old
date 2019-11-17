@@ -20,6 +20,7 @@
 #define JNLE "jnle "
 #define JGE "jge "
 #define JLE "jle "
+#define JMP "jmp "
 #define CALL "call "
 #define CDQ "cdq "
 #define XCHG(dest, source) ("xchg " + string(dest) + FROM + source + NL)

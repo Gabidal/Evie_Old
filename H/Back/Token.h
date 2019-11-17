@@ -59,6 +59,7 @@ class Token
     Token *ParentType;
     Token *ParentFunc;
     vector<Token*> SuccessorToken;
+    Token *Former;
     vector<Token*> Parameters;
     vector<Token*> Childs;
     string Name = "";

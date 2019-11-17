@@ -17,7 +17,7 @@ string Token::getFullName()
     string name = "";
     if (is(Call) || is(If) || is(Else) || is(While))
     {
-        if (is(Private))
+        if (is(Member))
         {
             return TYPE(this->Fetcher->Origin->Name, this->Name);
         }

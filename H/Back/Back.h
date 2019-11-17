@@ -5,6 +5,7 @@
 #include <string>
 #include "Assembly_Definitions.h"
 #include "StackFrame.h"
+#include <algorithm>
 
 class Back
 {

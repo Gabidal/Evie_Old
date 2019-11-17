@@ -103,6 +103,11 @@ void Parser::Pattern_Variable(int i)
         n->Flags |= Number;
         n->Flags |= Real;
         n->Flags |= Used;
+        if (InsideOfType || InsideOfFunction)
+        {
+            n->Flags |= Private;
+        }
+        
         n->Name = Input.at(i)->WORD;
         if (Priority)
         {
@@ -329,6 +334,11 @@ void Parser::Pattern_Condition(int i)
         condition->Name = Input.at(i)->WORD;
         condition->ID = ID;
         ID++;
+        if (InsideOfFunction || InsideOfType)
+        {
+            condition->Flags |= Private;
+        }
+        
         vector<Token*> *T;
         Give_Output(T);
         T->push_back(condition);
@@ -396,8 +406,9 @@ void Parser::Pattern_Parenthesis(int i)
         ParentFunc->Flags |= PARENT;
         if (Input.at(i-2)->_else_if)
         {
-            Substitute->Flags |= Successour;
+            ParentCondition->Flags |= Successour;
             Substitute->SuccessorToken.push_back(ParentCondition);
+            ParentCondition->Former = Substitute;
             ParentCondition = Substitute;
         }
         
@@ -416,8 +427,9 @@ void Parser::Pattern_Parenthesis(int i)
         parser.Started = Output.size();
         parser.Factory();
         ParentFunc->Flags |= PARENT;
-        Substitute->Flags |= Successour;
+        ParentCondition->Flags |= Successour;
         Substitute->SuccessorToken.push_back(ParentCondition);
+        ParentCondition->Former = Substitute;
         ParentCondition = Substitute;
         Layer--;
     }
