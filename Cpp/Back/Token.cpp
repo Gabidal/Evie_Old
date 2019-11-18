@@ -163,16 +163,25 @@ string Token::MOVE(Token *Source)
         this->Reg = Source->Reg;
         Source->Reg->Link(this);
     }
+    else if (Source->is(Returning))
+    {
+        output += POP + string(DWORD) + this->GetAddress() + NL + NL;
+    }
+    
     return "";
 }
 
 string Token::SUM(Token *Source)
 {
+    if (Source->is(Returning))
+    {
+        output += POP + this->InitVariable() + NL + NL;
+    }
     if (Source->is(Number))
     {
         output += ADD + this->InitVariable() + FROM + Source->Name + NL;
     }
-    else
+    else if (Source->is(Ptr) || Source->is(Variable))
     {
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
@@ -188,11 +197,15 @@ string Token::SUM(Token *Source)
 
 string Token::SUBSTRACT(Token *Source)
 {
+    if (Source->is(Returning))
+    {
+        output += POP + this->InitVariable() + NL + NL;
+    }
     if (Source->is(Number))
     {
         output += SUB + this->InitVariable() + FROM + Source->Name + NL;
     }
-    else
+    else if (Source->is(Ptr) || Source->is(Variable))
     {
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
@@ -208,11 +221,15 @@ string Token::SUBSTRACT(Token *Source)
 
 string Token::MULTIPLY(Token *Source)
 {
+    if (Source->is(Returning))
+    {
+        output += POP + this->InitVariable() + NL + NL;
+    }
     if (Source->is(Number))
     {
         output += IMUL + this->InitVariable() + FROM + Source->Name + NL;
     }
-    else
+    else if (Source->is(Ptr) || Source->is(Variable))
     {
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
@@ -228,6 +245,13 @@ string Token::MULTIPLY(Token *Source)
 
 string Token::DIVIDE(Token *Source)
 {
+    if (Source->is(Returning))
+    {
+        output += POP + EAX->Name + NL;
+        output += CDQ + string(NL);
+        output += DIV + this->InitVariable() + NL;
+        EAX->Link(this);
+    }
     if (Source->is(Number))
     {
         //cdq
@@ -236,7 +260,7 @@ string Token::DIVIDE(Token *Source)
         output += DIV + Source->InitVariable() + NL;
         EAX->Link(this);
     }
-    else
+    else if (Source->is(Ptr) || Source->is(Variable))
     {
         output += XCHG(this->InitVariable(), EAX->Name);
         output += CDQ + string(NL);

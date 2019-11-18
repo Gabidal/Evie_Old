@@ -33,7 +33,7 @@ void Back::Handle_Operators(int i)
         else
         {
             Back b = *this;
-            b.Input = Input.at(i)->Parameters;
+            b.Input = Input.at(i)->Childs;
             b.Layer++;
             b.Factory();
             b.Layer--;
@@ -184,6 +184,11 @@ void Back::Handle_Call_Function(int i)
             }
         }
         Output += CALL + Input.at(i)->getFullName() + NL + NL;
+        if (Input.at(i)->is(Returning))
+        {
+            Source = Input.at(i);
+        }
+        
     }
 }
 

@@ -355,6 +355,11 @@ void Parser::Pattern_Condition(int i)
 
 void Parser::Pattern_Parenthesis(int i)
 {
+    if (Input.size() - 1 < 2)
+    {
+        return;
+    }
+    
     /*func banana <deleted () > \n
     (
         var c = a + a
@@ -493,6 +498,7 @@ void Parser::Pattern_Init_Operators(int &i)
     //<a = b>
     if (Input.at(i)->is(_OPERATOR) && Input.at(i)->UsedToken != true)
     {
+        Pattern_Init_Call_Func(i+2);
         Input.at(i)->Tokens.push_back(Input.at(i-1)); //a
         Input.at(i)->Tokens.push_back(Input.at(i+1)); //b
         Input.erase(Input.begin() + i-1);
@@ -505,7 +511,12 @@ void Parser::Pattern_Init_Operators(int &i)
 void Parser::Pattern_Init_Call_Func(int i)
 {
     //banana(1, 2)
-    if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->is(_TEXT) && Input.at(i-2)->WORD != "func")
+    if (Input.size() - 1 < 3)
+    {
+        return;
+    }
+    
+    if (Input.at(i)->_func == false && Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->is(_TEXT) && Input.at(i-2)->WORD != "func")
     {
         Input.at(i-1)->Tokens = Input.at(i)->Tokens;
         Input.at(i-1)->_func = true;
@@ -529,7 +540,6 @@ void Parser::Pattern_Call_Func(int i)
             func->Fetcher = Pattern_Fetcher(i);
             func->Flags |= Private;
         }
-        
 
         /*
         Give_Input(t);
@@ -538,6 +548,13 @@ void Parser::Pattern_Call_Func(int i)
             int j = Find(func->Name, Function, *t);
             t->at(j)->Flags |= Used;
         }*/
+        Give_Input(t);
+        int j = 0;
+        if (j = Find(func->Name, Returning, *t) != -1)
+        {
+            func->Flags |= Returning;
+        }
+        
 
         if (Input.at(i)->Tokens.size() > 0)
         {
