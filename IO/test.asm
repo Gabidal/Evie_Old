@@ -4,9 +4,15 @@ mov ebp, esp
 
 sub esp, 4
 
-mov eax, [ebp + 4]
-add eax, [ebp + 4]
-mov [ebp + 4], eax
+mov eax, [ebp + 8]
+add eax, [ebp + 8]
+mov [ebp + 8], eax
+
+mov esp, ebp
+pop ebp
+pop ebx
+push dword [ebp + 8]
+jmp ebx
 
 mov esp, ebp
 pop ebp
@@ -20,14 +26,15 @@ sub esp, 8
 
 mov dword [ebp - 4], 2
 mov dword [ebp - 8], 3
-mov ebx, [ebp - 4]
-add ebx, [ebp - 4]
+mov ecx, [ebp - 4]
+push ecx
 call banana
 
-pop ebx
+add esp, 4
+pop ecx
 
-imul ebx, [ebp - 8]
-mov [ebp - 8], ebx
+imul ecx, [ebp - 8]
+mov [ebp - 8], ecx
 
 mov esp, ebp
 pop ebp

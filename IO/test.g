@@ -9,5 +9,5 @@ func main()
 (
   var a = 2
   var b = 3
-  b = a + banana(a + a) * b
+  b = a + banana(a) * b
 )

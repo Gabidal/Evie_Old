@@ -19,6 +19,7 @@ public:
     Token *Source;
     Token *Cheat;
     bool Priority_For_Parametering = false;
+    bool Get_Direct = false;
     int Layer = 0;
 
 
@@ -32,6 +33,7 @@ public:
     void Handle_Fetching(int i);
     void Handle_Conditions(int i);
     void Handle_Jumps(int i);
+    void Handle_Returning(int i);
     string END(int i);
 
     void Factory();

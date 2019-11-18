@@ -40,7 +40,7 @@ string Token::getFullName()
     {
         if (is(Parameter))
         {
-            name = EBP->Name + OFFSET + to_string(StackOffset);
+            name = EBP->Name + OFFSET + to_string(StackOffset + 4);
         }
         else
         {
@@ -165,6 +165,10 @@ string Token::MOVE(Token *Source)
     }
     else if (Source->is(Returning))
     {
+        if (Source->Parameters.size() > 0)
+        {
+            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+        }
         output += POP + string(DWORD) + this->GetAddress() + NL + NL;
     }
     
@@ -175,6 +179,10 @@ string Token::SUM(Token *Source)
 {
     if (Source->is(Returning))
     {
+        if (Source->Parameters.size() > 0)
+        {
+            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+        }
         output += POP + this->InitVariable() + NL + NL;
     }
     if (Source->is(Number))
@@ -199,6 +207,10 @@ string Token::SUBSTRACT(Token *Source)
 {
     if (Source->is(Returning))
     {
+        if (Source->Parameters.size() > 0)
+        {
+            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+        }
         output += POP + this->InitVariable() + NL + NL;
     }
     if (Source->is(Number))
@@ -223,6 +235,10 @@ string Token::MULTIPLY(Token *Source)
 {
     if (Source->is(Returning))
     {
+        if (Source->Parameters.size() > 0)
+        {
+            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+        }
         output += POP + this->InitVariable() + NL + NL;
     }
     if (Source->is(Number))
@@ -247,6 +263,10 @@ string Token::DIVIDE(Token *Source)
 {
     if (Source->is(Returning))
     {
+        if (Source->Parameters.size() > 0)
+        {
+            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+        }
         output += POP + EAX->Name + NL;
         output += CDQ + string(NL);
         output += DIV + this->InitVariable() + NL;

@@ -96,6 +96,10 @@ void Back::Handle_Variables(int i)
                 Output += PUSH + Input.at(i)->InitVariable() + NL;
             }
         }
+        if (Get_Direct)
+        {
+            Dest = Input.at(i);
+        }
     }
 }
 
@@ -306,6 +310,27 @@ void Back::Handle_Conditions(int i)
     }
 }
 
+void Back::Handle_Returning(int i)
+{
+    if (Input.at(i)->Name == "return")
+    {
+        if (Input.at(i)->Childs.size() > 0)
+        {
+            Back b = *this;
+            b.Input = Input.at(i)->Childs;
+            b.Get_Direct = true;
+            b.Factory();
+            Token *returnAddress = new Token(Output);
+            returnAddress->getReg();
+            Output += MOV + ESP->Name + FROM + EBP->Name + NL;
+            Output += POP + EBP->Name + NL;
+            Output += POP + returnAddress->Reg->Name + NL;
+            Output += PUSH + string(DWORD) + b.Dest->GetAddress() + NL;
+            Output += JMP + returnAddress->Reg->Name + NL + NL;
+        }
+    }
+}
+
 void Back::Factory()
 {
     for (int i = 0; i < Input.size(); i++)
@@ -322,6 +347,7 @@ void Back::Factory()
         Handle_Arrays(i);
         Handle_Variables(i);
         Handle_Conditions(i);
+        Handle_Returning(i);
     }
 }
 
