@@ -42,6 +42,7 @@ public:
     void Pattern_Init_Array(int i);
     void Pattern_Init_New(int i);
     void Pattern_Return(int i);
+    void Pattern_Array(int i);
     Token *Pattern_Fetcher(int i);
     void Clean_Cilds();
     void Give_Output(vector<Token*> *&T);

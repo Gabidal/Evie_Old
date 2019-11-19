@@ -52,7 +52,7 @@ void Parser::Pattern_Variable(int i)
             T->at(j)->Flags |= Used;
         }
         Token *t = new Token(Assembly);
-        t = T->at(j);
+        *t = *T->at(j);
         t->Size = 4;
         if (InsideOfFunction || InsideOfType || InsideOfCondition)
         {
@@ -69,8 +69,6 @@ void Parser::Pattern_Variable(int i)
             p.Factory();
             Token *off = new Token(Assembly);
             off = p.Direct.at(0);
-            off->Flags |= Array;
-            off->Flags |= Ptr;
             t->Offsetter = off;
         }
 
@@ -79,7 +77,7 @@ void Parser::Pattern_Variable(int i)
             //do fetching;
             Give_Input(T);
             int k = Find(Input.at(i)->Fetcher, NotOriginal, *T);
-            t->Fetcher = T->at(k);
+            *t->Fetcher = *T->at(k);
         }
         
         if (Priority)
@@ -725,6 +723,16 @@ void Parser::Give_Output(vector<Token*> *&T)
     }
 }
 
+void Parser::Pattern_Array(int i)
+{
+    vector<Token*> *T;
+    Give_Output(T);
+    if (T->at(i)->Offsetter != 0)
+    {
+        T->at(i)->Flags |= Ptr;
+    }
+}
+
 void Parser::Factory()
 {
     for (int i = 0; i < Input.size(); i++)
@@ -754,4 +762,11 @@ void Parser::Factory()
         Pattern_Return(i);
         Pattern_Condition(i);
     }
+    vector<Token*> *T;
+    Give_Output(T);
+    for (int i = 0; i < T->size(); i++)
+    {
+        Pattern_Array(i);
+    }
+    
 }

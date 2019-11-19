@@ -2,14 +2,17 @@ dsum:
 push ebp
 mov ebp, esp
 
-sub esp, 4
+sub esp, 8
 
 mov eax, [ebp + 8]
-add eax, [ebp + 8]
-mov [ebp + 8], eax
+mov ebx, [ebp + 8]
+add ebx, [eax + 4]
+mov [ebx + 4], ebx
 
-add eax, [ebp + 8]
-mov [ebp + 8], eax
+mov ecx, [ebp + 8]
+mov edx, [ebp + 8]
+add edx, [ecx + 0]
+mov [edx + 0], edx
 
 mov esp, ebp
 pop ebp
