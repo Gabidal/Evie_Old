@@ -40,7 +40,7 @@ string Token::getFullName()
     {
         if (is(Parameter))
         {
-            name = EBP->Name + OFFSET + to_string(StackOffset + 4);
+            name = EBP->Name + OFFSET + to_string(this->ParameterOffset + 4);
         }
         else
         {
@@ -357,8 +357,8 @@ void Token::addChild(Token *local)
 
 void Token::addParameter(Token *Param)
 {
-    Parameters.push_back(Param);
     Param->ParameterOffset = this->ParameterOffset;
+    Parameters.push_back(Param);
     this->ParameterOffset += Param->Size;
 }
 
