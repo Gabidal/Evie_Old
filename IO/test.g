@@ -1,13 +1,18 @@
-func banana(a)
+func dsum(this, other)
 (
-  a = a + a
-  return a
+  this : 0 = this : 0 + other : 0
+  this : 1 = this : 1 + other : 1
 )
 
+type double
+(
+  var HI
+  var LO
+)
 
 func main()
 (
-  var a = 2
-  var b = 3
-  b = a + banana(a) * b
+  new double a
+  new double b
+  a.dsum(b)
 )

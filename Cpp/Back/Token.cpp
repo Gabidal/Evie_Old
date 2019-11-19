@@ -121,6 +121,10 @@ string Token::InitVariable()
             }
             output += MOV + this->Reg->Name + FROM + FRAME(ParentReg->Name + OFFSET + to_string(this->StackOffset)) + NL;
         }
+        else if (this->is(Ptr))
+        {
+            output += MOV + this->Reg->Name + FROM + this->GetAddress() + NL;
+        }
         else if (this->is(Private))
         {
             output += MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
@@ -136,10 +140,6 @@ string Token::InitVariable()
         else if (this->is(Number))
         {
             output += MOV + this->Reg->Name + FROM + this->Name + NL;
-        }
-        else if (this->is(Ptr))
-        {
-            output += MOV + this->Reg->Name + FROM + this->GetAddress() + NL;
         }
         result = this->Reg->Name;
     }
@@ -318,6 +318,11 @@ string Token::MOVEINSTACK()
 
 string Token::GetAddress()
 {
+    if (this->is(Array))
+    {
+        this->Offsetter->InitVariable();
+        return FRAME(SUM(Offsetter));
+    }
     if (this->is(Private))
     {
         return FRAME(getFullName());

@@ -83,7 +83,7 @@ void Back::Handle_Operators(int i)
 
 void Back::Handle_Variables(int i)
 {
-    if (Input.at(i)->is(Variable) || Input.at(i)->is(Ptr))
+    if (Input.at(i)->is(Variable) || Input.at(i)->is(Ptr) || Input.at(i)->is(Number))
     {
         if (Priority_For_Parametering)
         {
@@ -91,9 +91,13 @@ void Back::Handle_Variables(int i)
             {
                 Output += PUSH + Input.at(i)->GetAddress() + NL;
             }
-            else
+            else if (Input.at(i)->is(Variable))
             {
                 Output += PUSH + Input.at(i)->InitVariable() + NL;
+            }
+            else
+            {
+                Output += PUSH + Input.at(i)->Name + NL;
             }
         }
         if (Get_Direct)

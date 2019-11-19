@@ -61,31 +61,19 @@ void Parser::Pattern_Variable(int i)
         
         if (Input.at(i)->Offsetter != 0)
         {
-            //if it is an array
-            //if the offsetter is a Variable
-            int k = Find(Input.at(i)->Offsetter->WORD, Variable, *T);
-            if (k == -1)
-            {
-                //if the offsetter is a number
-                k = Find(Input.at(i)->Offsetter->WORD, Number, *T);
-            }
-            if (k == -1)
-            {
-                //if the offsetter is a function
-                k = Find(Input.at(i)->Offsetter->WORD, Call, *T);
-            }
-            if (k == -1)
-            {
-                //go foo youre self!
-                return;
-            }
-            
-            Token *ofsetter = new Token(Assembly);
-            t = T->at(k);
-            t->Offsetter = ofsetter;
-            t->Flags |= Array;
-            t->Size = 4;
+            Parser p = *this;
+            p.Input.clear();
+            p.Input.push_back(Input.at(i)->Offsetter);
+            p.GetDirect = true;
+            p.Priority = true;
+            p.Factory();
+            Token *off = new Token(Assembly);
+            off = p.Direct.at(0);
+            off->Flags |= Array;
+            off->Flags |= Ptr;
+            t->Offsetter = off;
         }
+
         if (Input.at(i)->_type)
         {
             //do fetching;
@@ -184,46 +172,15 @@ void Parser::Pattern_Operators(int i)
 void Parser::Pattern_Init_Array(int i)
 {
     // a : a
-    int Mark;
-    int Offset;
-    int _Owner;
-    if (i == Input.size() - 1)
+    if (Input.at(i)->is(_OPERATOR) && Input.at(i)->WORD == ":")
     {
-        return;
-    }
-    else if (i < 1)
-    {
-        return;
-    }
-    
-    if (Input.at(i+1)->WORD == ":")
-    {
-        _Owner = i;
-        Mark = i+1;
-        Offset = i+2;
-    }
-    else if (Input.at(i-1)->WORD == ":")
-    {
-        _Owner = i-2;
-        Mark = i-1;
-        Offset = i;
-    }
-    else if (Input.at(i)->WORD == ":")
-    {
-        _Owner = i-1;
-        Mark = i;
-        Offset = i+1;
-    }
-    else
-    {
-        return;
-    }
-    if (Input.at(Mark)->UsedToken == false)
-    {
-        Input.at(_Owner)->Offsetter = Input.at(Offset);
-        
-        Input.erase(Input.begin() + Mark);
-        Input.erase(Input.begin() + Offset - 1);
+        Pattern_Init_Type(i + 2);
+        Pattern_Init_Type(i - 2);
+        Pattern_Init_Call_Func(i + 1);
+        Pattern_Init_Call_Func(i - 1);
+        Input.at(i-1)->Offsetter = Input.at(i+1);
+        Input.erase(Input.begin() + i); // :
+        Input.erase(Input.begin() + i); // offsetter
     }
 }
 
@@ -511,7 +468,7 @@ void Parser::Pattern_Init_Operators(int &i)
 void Parser::Pattern_Init_Call_Func(int i)
 {
     //banana(1, 2)
-    if (Input.size() - 1 < 3)
+    if (Input.size() - 1 < i)
     {
         return;
     }
@@ -772,11 +729,14 @@ void Parser::Factory()
 {
     for (int i = 0; i < Input.size(); i++)
     {
+        Pattern_Init_Array(i);
+    }
+    for (int i = 0; i < Input.size(); i++)
+    {
         //for Inits;
         Pattern_Init_New(i);
         Pattern_Init_Type(i);
         Pattern_Init_Call_Func(i);
-        Pattern_Init_Array(i);
         Pattern_Init_Variable(i);
         Pattern_Init_Operators(i);
         Pattern_Init_Condition(i);
