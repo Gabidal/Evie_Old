@@ -1,30 +1,30 @@
-dsum: 
+a: 
 push ebp
 mov ebp, esp
 
-sub esp, 8
+sub esp, 4
 
-mov eax, [ebp + 8]
-mov ebx, [ebp + 4]
-add ebx, [eax + 4]
-mov [ebx + 4], ebx
-
-mov ecx, [ebp + 8]
-mov edx, [ebp + 4]
-add edx, [ecx + 0]
-mov [edx + 0], edx
+mov esp, ebp
+pop ebp
+pop eax
+push dword [ebp + 4]
+jmp eax
 
 mov esp, ebp
 pop ebp
 ret
 
-main: 
+c: 
 push ebp
 mov ebp, esp
 
-sub esp, 8
+sub esp, 4
 
-call dsum
+mov esp, ebp
+pop ebp
+pop ebx
+push dword [ebp + 4]
+jmp ebx
 
 mov esp, ebp
 pop ebp

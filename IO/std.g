@@ -1,3 +1,4 @@
+using "test.g"
 func a(b)
 (
   return b

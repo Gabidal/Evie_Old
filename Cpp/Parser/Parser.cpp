@@ -761,10 +761,12 @@ void Parser::Pattern_Include(int i)
     if (Input.at(i)->WORD == "using")
     {
         string tmp = "/home/gabidalg/GAS/IO/";
-        string tmp2 = (tmp + Input.at(i+1)->WORD).c_str();
-        Definer d;
-        d.OpenFile(tmp2.c_str());
-        Parser p(d.output, Assembly);
+        string tmp2 = (tmp + Input.at(i + 1)->WORD).c_str();
+        Input.erase(Input.begin() + i);
+        Input.erase(Input.begin() + i);
+        Definer *d = new Definer();
+        d->OpenFile(tmp2.c_str());
+        Parser p(d->output, Assembly);
         p.Factory();
         
         for (int j = 0; j < p.Output.size(); j++)

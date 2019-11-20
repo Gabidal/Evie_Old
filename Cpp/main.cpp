@@ -11,7 +11,7 @@ int main()
     string OUTPUT = "";
 
     Definer d;
-    d.OpenFile("/home/gabidalg/GAS/IO/test.g");
+    d.OpenFile("/home/gabidalg/GAS/IO/std.g");
 
     Parser p(d.output, OUTPUT);
     p.Factory();
