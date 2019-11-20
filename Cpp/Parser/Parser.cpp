@@ -310,7 +310,7 @@ void Parser::Pattern_Condition(int i)
 
 void Parser::Pattern_Parenthesis(int i)
 {
-    if (Input.size() - 1 < 2)
+    if (Input.size() - 1 < i && Input.size() - 1 - 3 < 0)
     {
         return;
     }
@@ -733,8 +733,56 @@ void Parser::Pattern_Array(int i)
     }
 }
 
+void Parser::Pattern_Init_String(int i)
+{
+    if (Input.at(i)->is(_STRING) || Input.at(i)->WORD == "\"")
+    {
+        string Result = "";
+        for (int j = i + 1; j < Input.size(); j++)
+        {
+            if (Input.at(j)->is(_STRING) || Input.at(j)->WORD == "\"")
+            {
+                Input.erase(Input.begin() + j);
+                break;
+            }
+            else
+            {
+                Result += Input.at(j)->WORD;
+                Input.erase(Input.begin() + j);
+                j--;
+            }
+        }
+        Input.at(i)->WORD = Result;
+    }
+}
+
+void Parser::Pattern_Include(int i)
+{
+    if (Input.at(i)->WORD == "using")
+    {
+        string tmp = "/home/gabidalg/GAS/IO/";
+        string tmp2 = (tmp + Input.at(i+1)->WORD).c_str();
+        Definer d;
+        d.OpenFile(tmp2.c_str());
+        Parser p(d.output, Assembly);
+        p.Factory();
+        
+        for (int j = 0; j < p.Output.size(); j++)
+            Output.push_back(p.Output.at(j));
+        
+    }
+}
+
 void Parser::Factory()
 {
+    for (int i = 0; i < Input.size(); i++)
+    {
+        Pattern_Init_String(i);
+    }
+    for (int i = 0; i < Input.size(); i++)
+    {
+        Pattern_Include(i);
+    }
     for (int i = 0; i < Input.size(); i++)
     {
         Pattern_Init_Array(i);

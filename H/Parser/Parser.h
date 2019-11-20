@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "../Lexer/Word.h"
+#include "../Lexer/Definer.h"
 #include "../Back/Token.h"
 #include "../Back/StackFrame.h"
 using namespace std;
@@ -26,6 +27,7 @@ public:
     vector<Word*> Input;
     vector<Token*> Output;
     vector<Token*> Direct;
+    vector<string*> Included_Files; //for loop holes to not exist
     void Pattern_Variable(int i);
     void Pattern_Function(int i);
     void Pattern_Type(int i);
@@ -43,6 +45,8 @@ public:
     void Pattern_Init_New(int i);
     void Pattern_Return(int i);
     void Pattern_Array(int i);
+    void Pattern_Init_String(int i);
+    void Pattern_Include(int i);
     Token *Pattern_Fetcher(int i);
     void Clean_Cilds();
     void Give_Output(vector<Token*> *&T);
