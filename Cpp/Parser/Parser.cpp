@@ -495,13 +495,14 @@ void Parser::Pattern_Call_Func(int i)
             func->Flags |= Private;
         }
 
-        /*
-        Give_Input(t);
+        
+        Give_Output(t);
         if (Find(func->Name, Function, *t) != -1)
         {
             int j = Find(func->Name, Function, *t);
             t->at(j)->Flags |= Used;
-        }*/
+        }
+
         Give_Input(t);
         int j = 0;
         if ((j = Find(func->Name, Returning, *t)) != -1)

@@ -7,3 +7,5 @@ func main()
 
   )
 )
+
+main()
