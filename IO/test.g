@@ -1,12 +1,9 @@
-func banana()
-(
-
-)
-
-var a = 0
-var b = 1
+using "std.g"
 
 func main()
 (
+  if (true == true)
+  (
 
+  )
 )

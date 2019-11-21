@@ -48,10 +48,6 @@ void Parser::Pattern_Variable(int i)
     if (Input.at(i)->is(_TEXT) && Find(Input.at(i)->WORD, Variable, *T) != -1)
     {
         int j = Find(Input.at(i)->WORD, Variable, *T);
-        if ((i > 0 && Input.at(i-1)->WORD != "var") || Started != 0)
-        {
-            T->at(j)->Flags |= Used;
-        }
         Token *t = new Token(Assembly);
         *t = *T->at(j);
         t->Size = 4;
@@ -98,7 +94,6 @@ void Parser::Pattern_Variable(int i)
         Token *n = new Token(Assembly);
         n->Flags |= Number;
         n->Flags |= Real;
-        n->Flags |= Used;
         if (InsideOfType || InsideOfFunction)
         {
             n->Flags |= Private;
@@ -122,7 +117,6 @@ void Parser::Pattern_Operators(int i)
     {
         Token *OP = new Token(Assembly);
         OP->Flags |= OPERATOR;
-        OP->Flags |= Used;
         OP->Name = Input.at(i)->WORD;
 
         Parser p = *this;
@@ -591,9 +585,6 @@ void Parser::Pattern_New(int i)
                 t->Size += t->Childs.at(k)->Size;
             }
         }
-        
-
-        Output.at(j)->Flags |= Used;
         T->push_back(t);
     }
 }
@@ -781,8 +772,33 @@ void Parser::Pattern_Include(int i)
     }
 }
 
+void Parser::Pattern_Comments(int i)
+{
+    if (Input.at(i)->is(_COMMENT) || Input.at(i)->WORD == "#")
+    {
+        for (int j = i + 1; j < Input.size(); j++)
+        {
+            if (Input.at(j)->is(_END) || Input.at(j)->WORD == "\n")
+            {
+                Input.erase(Input.begin() + j);
+                break;
+            }
+            else
+            {
+                Input.erase(Input.begin() + j);
+                j--;
+            }
+        }
+        Input.erase(Input.begin() + i);
+    }
+}
+
 void Parser::Factory()
 {
+    for (int i = 0; i < Input.size(); i++)
+    {
+        Pattern_Comments(i);
+    }
     for (int i = 0; i < Input.size(); i++)
     {
         Pattern_Init_String(i);
