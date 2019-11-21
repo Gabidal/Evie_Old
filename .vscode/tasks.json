@@ -5,6 +5,7 @@
             "label": "build",
             "command": "/usr/bin/g++",
             "args": [
+                "-std=c++14",
                 "-g",
                 "${fileDirname}/main.cpp",
                 "${fileDirname}/Back/Token.cpp",

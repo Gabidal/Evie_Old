@@ -24,6 +24,7 @@ void Parser::Pattern_Init_Variable(int i)
         }
         else
         {
+            Var->Flags |= Public;
             Output.push_back(Var);
         }
         Input.at(i)->UsedToken = true;
@@ -57,7 +58,11 @@ void Parser::Pattern_Variable(int i)
         if (InsideOfFunction || InsideOfType || InsideOfCondition)
         {
             t->Flags |= Private;
+        }else
+        {
+            t->Flags |= Public;
         }
+        
         
         if (Input.at(i)->Offsetter != 0)
         {
@@ -505,7 +510,7 @@ void Parser::Pattern_Call_Func(int i)
         }*/
         Give_Input(t);
         int j = 0;
-        if (j = Find(func->Name, Returning, *t) != -1)
+        if ((j = Find(func->Name, Returning, *t)) != -1)
         {
             func->Flags |= Returning;
         }
@@ -648,11 +653,12 @@ Token *Parser::Pattern_Fetcher(int i)
         Token *t = new Token(Assembly);
         if (j == -1)
         {
-            return t;
+            return nullptr;
         }
         t = T->at(j);
         return t;
     }
+    return nullptr;
 }
 
 int Parser::Find(string name, int flag, vector<Token*> list)

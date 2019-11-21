@@ -7,12 +7,14 @@
 #include "StackFrame.h"
 #include <algorithm>
 
+
 class Back
 {
 private:
 	 // nej
     // Mörkönenä was here. 20:09 thu 7.11.19;
 public:
+    int IS_PUBLIC = 0;
     string &Output;
     vector<Token*> Input;
     Token *Dest;
@@ -34,6 +36,7 @@ public:
     void Handle_Conditions(int i);
     void Handle_Jumps(int i);
     void Handle_Returning(int i);
+    void Handle_Variable_Initalization(int i);
     string END(int i);
 
     void Factory();

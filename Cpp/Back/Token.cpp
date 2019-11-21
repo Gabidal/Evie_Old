@@ -154,7 +154,7 @@ string Token::MOVE(Token *Source)
 {
     if (Source->is(Number))
     {
-        output += MOV + string(DWORD) + this->GetAddress() + FROM + Source->Name + NL;
+        output += MOV + this->GetAddress() + FROM + string(DWORD) + Source->Name + NL;
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
@@ -341,7 +341,7 @@ string Token::GetAddress()
     }
     else
     {
-        return getFullName();
+        return FRAME(getFullName());
     }
 }
 

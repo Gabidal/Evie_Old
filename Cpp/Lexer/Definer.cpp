@@ -37,7 +37,7 @@ int getWord(string source, int continu)
 
 	bool IsOperator(char c)
 	{
-		return c >= 33 && c <= 47 && c != COMMENT && c != STRING || c >= 58 && c <= 63 || c == 94 || c == 124 || c == 126;
+		return (c >= 33 && c <= 47 && c != COMMENT && c != STRING) || (c >= 58 && c <= 63) || c == 94 || c == 124 || c == 126;
 	}
 
 	bool IsDigit(char c)
@@ -47,7 +47,7 @@ int getWord(string source, int continu)
 
 	bool IsText(char c)
 	{
-		return c >= 65 && c <= 90 || c >= 97 && c <= 122 || c == 95;
+		return (c >= 65 && c <= 90) || (c >= 97 && c <= 122) || c == 95;
 	}
 
 	bool IsContent(char c)
@@ -179,7 +179,7 @@ void Definer::Define()
         }
     }
 
-	 Word *w = new Word("");
+	Word *w = new Word("");
     w->WORD = Lines.substr(start, i-start);
     w->Flags = translateIdentity(Base, w->WORD, w);
     output.push_back(w);

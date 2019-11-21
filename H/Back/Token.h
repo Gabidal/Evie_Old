@@ -42,6 +42,7 @@ using namespace std;
 #define __NEW (1<<29)
 #define HAS_FETCHER (1<<30)
 #define Successour (1<<31)
+
 class Register;
 
 class Token
@@ -54,6 +55,7 @@ class Token
     int ParameterCount = 0;
     int AddedOffset = 4;
     int ParameterOffset = 0;
+    bool _INITTED = false;
     int ID = 0;
     Token *Offsetter;
     Token *ParentType;

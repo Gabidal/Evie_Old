@@ -46,5 +46,8 @@
 #define FRAME(name) ("[" + name + "]")
 #define PUSH "push "
 #define POP "pop "
+#define DD " resd 1"
+#define CODESEGMENT "section .code\n"
+#define BSSSEGMENT "section .bss\n"
 
 #endif

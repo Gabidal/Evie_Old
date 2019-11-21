@@ -130,14 +130,15 @@ void Back::Handle_Function_Init(int i)
 {
     if (Input.at(i)->is(Function) && Input.at(i)->is(Call) == false)
     {
-        //134479964
         Input.at(i)->InitFunction();
         Back b = *this;
         b.Input = Input.at(i)->Childs;
         StackFrame stack(Output, true);
         int care = Variable | Ptr;
         Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care) * 4) + NL + NL;
+        b.IS_PUBLIC++;
         b.Factory();
+        b.IS_PUBLIC--;
     }
 }
 
@@ -162,12 +163,16 @@ void Back::Handle_Type_Init(int i)
         if (vars.size() > 0)
         {
             b.Input = vars;
+            b.IS_PUBLIC++;
             b.Factory();
+            b.IS_PUBLIC--;
         }
         if (Functions.size() > 0)
         {
             b.Input = Functions;
+            b.IS_PUBLIC++;
             b.Factory();
+            b.IS_PUBLIC--;
         }
     }
 }
@@ -335,8 +340,29 @@ void Back::Handle_Returning(int i)
     }
 }
 
+void Back::Handle_Variable_Initalization(int i)
+{
+    if (Input.at(i)->_INITTED == false && Input.at(i)->is(Variable) && Input.at(i)->is(Public))
+    {
+        Output += Input.at(i)->Name + DD + NL;
+        Input.at(i)->_INITTED = true;
+    }
+}
+
 void Back::Factory()
 {
+    if (IS_PUBLIC == 0)
+    {
+        Output += BSSSEGMENT;
+    }
+    for (int i = 0; i < Input.size(); i++)
+    {
+        Handle_Variable_Initalization(i);
+    }
+    if (IS_PUBLIC == 0)
+    {
+        Output += CODESEGMENT;
+    }
     for (int i = 0; i < Input.size(); i++)
     {
         /*if (Input.at(i)->is(Used) == false)
@@ -364,5 +390,6 @@ Back &Back::operator=(const Back& name)
     Source = name.Source;
     Layer = name.Layer;
     Cheat = name.Cheat;
+    IS_PUBLIC = name.IS_PUBLIC;
     return *this;
 }

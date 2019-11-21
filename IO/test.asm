@@ -1,30 +1,24 @@
-a: 
+section .bss
+a resd 1
+b resd 1
+section .code
+banana: 
 push ebp
 mov ebp, esp
 
-sub esp, 4
-
-mov esp, ebp
-pop ebp
-pop eax
-push dword [ebp + 4]
-jmp eax
+sub esp, 0
 
 mov esp, ebp
 pop ebp
 ret
 
-c: 
+mov [a], dword 0
+mov [b], dword 1
+main: 
 push ebp
 mov ebp, esp
 
-sub esp, 4
-
-mov esp, ebp
-pop ebp
-pop ebx
-push dword [ebp + 4]
-jmp ebx
+sub esp, 0
 
 mov esp, ebp
 pop ebp

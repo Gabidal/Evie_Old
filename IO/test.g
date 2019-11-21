@@ -1,11 +1,12 @@
-
-
-func banana(b)
+func banana()
 (
-  return b
+
 )
 
-func apple(d)
+var a = 0
+var b = 1
+
+func main()
 (
-  return d
+
 )
