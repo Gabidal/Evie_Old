@@ -4,18 +4,18 @@ int ID = 0;
 
 void Parser::Pattern_Init_Sys_Functions()
 {
-    Token *Malloc = new Token(Assembly);
+    Token *Malloc = new Token(Assembly, Output);
     Malloc->Flags |= Function;
     Malloc->ParameterCount = 1;
     Malloc->Flags |= Returning;
     Malloc->Name = "Malloc";
 
-    Token *Print = new Token(Assembly);
+    Token *Print = new Token(Assembly, Output);
     Print->Flags |= Function;
     Print->ParameterCount = 2;
     Print->Name = "raw_print";
     
-    Token *In = new Token(Assembly);
+    Token *In = new Token(Assembly, Output);
     In->Flags |= Function;
     In->ParameterCount = 2;
     In->Flags |= Returning;
@@ -32,7 +32,7 @@ void Parser::Pattern_Init_Variable(int i)
     if (Input.at(i)->is(_KEYWORD) && Input.at(i+1)->is(_TEXT) && Input.at(i)->WORD == "var" && Input.at(i)->UsedToken == false)
     {
         //create new variable;
-        Token *Var = new Token(Assembly);
+        Token *Var = new Token(Assembly, Output);
         Var->Flags |= Variable;
         Var->Name = Input.at(i+1)->WORD;
         Var->Size = 4;
@@ -70,7 +70,7 @@ void Parser::Pattern_Variable(int i)
     if (Input.at(i)->is(_TEXT) && (Find(Output, Input.at(i)->WORD, Variable) != nullptr))
     {
         Token *r = Find(Output, Input.at(i)->WORD, Variable);
-        Token *t = new Token(Assembly);
+        Token *t = new Token(Assembly, Output);
         *t = *r;
         t->Size = 4;
         if (InsideOfFunction || InsideOfType || InsideOfCondition)
@@ -90,7 +90,7 @@ void Parser::Pattern_Variable(int i)
             p.GetDirect = true;
             p.Priority = true;
             p.Factory();
-            Token *off = new Token(Assembly);
+            Token *off = new Token(Assembly, Output);
             off = p.Direct.at(0);
             off->Flags |= Array;
             t->Flags |= Array;
@@ -117,7 +117,7 @@ void Parser::Pattern_Variable(int i)
     Give_Input(T);
     if (Input.at(i)->is(_NUMBER))
     {
-        Token *n = new Token(Assembly);
+        Token *n = new Token(Assembly, Output);
         n->Flags |= Number;
         if (InsideOfType || InsideOfFunction)
         {
@@ -140,7 +140,7 @@ void Parser::Pattern_Operators(int i)
     //c = a<()> + b
     if (Input.at(i)->is(_OPERATOR) && Input.at(i)->Tokens.size() > 0 && Input.at(i)->UsedToken == true)
     {
-        Token *OP = new Token(Assembly);
+        Token *OP = new Token(Assembly, Output);
         OP->Flags |= OPERATOR;
         OP->Name = Input.at(i)->WORD;
 
@@ -151,8 +151,8 @@ void Parser::Pattern_Operators(int i)
         
         p.Factory();
         //check this also in debugging!!!
-        Token *A = new Token(Assembly);
-        Token *B = new Token(Assembly);
+        Token *A = new Token(Assembly, Output);
+        Token *B = new Token(Assembly, Output);
         if (InsideOfCondition)
         {
             A = ParentCondition->Childs.at(ParentCondition->Childs.size() - 2);
@@ -232,7 +232,7 @@ void Parser::Pattern_Function(int i)
     if (Input.at(i)->is(_KEYWORD) && Input.at(i)->WORD == "func")
     {
         //make new Function;
-        Token *Name = new Token(Assembly);
+        Token *Name = new Token(Assembly, Output);
         Name->Flags |= Function;
         Name->Name = Input.at(i+1)->WORD;
         if (InsideOfType)
@@ -246,7 +246,7 @@ void Parser::Pattern_Function(int i)
         {
             if (Input.at(i+2)->Tokens.at(j)->WORD == "&")
             {
-                Token *ptr = new Token(Assembly);
+                Token *ptr = new Token(Assembly, Output);
                 ptr->Flags |= Ptr;
                 ptr->Flags |= Parameter;
                 ptr->Size = 4;
@@ -256,7 +256,7 @@ void Parser::Pattern_Function(int i)
             }
             else if (Input.at(i+2)->Tokens.at(j)->is(_TEXT))
             {
-                Token *var = new Token(Assembly);
+                Token *var = new Token(Assembly, Output);
                 var->Flags |= Parameter;
                 var->Flags |= Variable;
                 var->Size = 4;
@@ -278,7 +278,7 @@ void Parser::Pattern_Type(int i)
     //type banana
     if (Input.at(i)->WORD == "type")
     {
-        Token *Type = new Token(Assembly);
+        Token *Type = new Token(Assembly, Output);
         Type->Flags |= TypE;
         Type->Name = Input.at(i+1)->WORD;
         vector<Token*> *T;
@@ -292,7 +292,7 @@ void Parser::Pattern_Condition(int i)
     //if ( a == b & a == c)
     if (Input.at(i)->_condition)
     {
-        Token *condition = new Token(Assembly);
+        Token *condition = new Token(Assembly, Output);
 
         if (Input.at(i)->WORD != "else")
         {
@@ -519,7 +519,7 @@ void Parser::Pattern_Call_Func(int i)
 {
     if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i)->_func)
     {
-        Token *func = new Token(Assembly);
+        Token *func = new Token(Assembly, Output);
         func->Flags |= Call;
         //func->Flags |= Function;
         func->Name = Input.at(i)->WORD;
@@ -608,7 +608,7 @@ void Parser::Pattern_New(int i)
     */
     if (Input.at(i)->is(_KEYWORD) && Input.at(i)->WORD == "new")
     {
-        Token *n = new Token(Assembly);
+        Token *n = new Token(Assembly, Output);
         n->Flags |= __NEW;
         n->Name = "new";
 
@@ -616,7 +616,7 @@ void Parser::Pattern_New(int i)
         vector<Token*> *T;
         Give_Output(T);
         int j = Find(Input.at(i)->Tokens.at(0)->WORD, TypE, Output);
-        Token *t = new Token(Assembly);
+        Token *t = new Token(Assembly, Output);
         t->Childs = Output.at(j)->Childs;
         t->Name = Input.at(i)->Tokens.at(1)->WORD;
         t->Origin = Output.at(j);
@@ -679,7 +679,7 @@ void Parser::Pattern_Evaluation(int i)
         p.GetDirect = true;
         p.Factory();
 
-        Token *E = new Token(Assembly);
+        Token *E = new Token(Assembly, Output);
         E->Childs = p.Direct;
         E->Flags |= Evaluation;
         E->Name = "?";
@@ -695,7 +695,7 @@ void Parser::Pattern_Return(int i)
     //return <a : b>
     if (Input.at(i)->is(_KEYWORD) && Input.at(i)->WORD == "return")
     {
-        Token *r = new Token(Assembly);
+        Token *r = new Token(Assembly, Output);
         Parser p = *this;
         p.Priority = true;
         p.Input.clear();
@@ -747,7 +747,7 @@ Token *Parser::Pattern_Fetcher(int i)
         vector<Token*> *T;
         Give_Input(T);
         int j = Find(Input.at(i)->Fetcher, NotOriginal, *T);
-        Token *t = new Token(Assembly);
+        Token *t = new Token(Assembly, Output);
         if (j == -1)
         {
             return nullptr;

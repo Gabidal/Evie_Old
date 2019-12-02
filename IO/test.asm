@@ -24,6 +24,15 @@ add eax, [ebp - 12]
  ; Saving result of b into a
 mov [ebp - 4], eax
 
+ ; a has already a register to it
+ ; Return a
+ ; Giving Returning address, ebx
+mov esp, ebp
+pop ebp
+pop ebx
+push eax
+jmp ebx
+
  ; Ending stack frame 
 mov esp, ebp
 pop ebp

@@ -128,36 +128,42 @@ Register *Token::getNewRegister()
     {
         RegisterTurn = 1;
         EAX->Link(this);
+		EAX->Apply(this, &Input);
         return EAX;
     }
     else if (RegisterTurn == 1)
     {
         RegisterTurn = 2;
         EBX->Link(this);
+		EBX->Apply(this, &Input);
         return EBX;
     }
     else if (RegisterTurn == 2)
     {
         RegisterTurn = 3;
         ECX->Link(this);
+		ECX->Apply(this, &Input);
         return ECX;
     }
     else if (RegisterTurn == 3)
     {
         RegisterTurn = 4;
         EDX->Link(this);
+		EDX->Apply(this, &Input);
         return EDX;
     }
     else if (RegisterTurn == 4)
     {
         RegisterTurn = 5;
         ESI->Link(this);
+		ESI->Apply(this, &Input);
         return ESI;
     }
     else if (RegisterTurn >= 5)
     {
         RegisterTurn = 0;
         EDI->Link(this);
+		EDI->Apply(this, & Input);
         return EDI;
     }
     else
@@ -222,7 +228,7 @@ string Token::InitVariable()
     }
     else
     {
-		output += COMMENT + this->Name + "Has already a register to it" + NL;
+		output += COMMENT + this->Name + " has already a register to it" + NL;
         result = this->Reg->Name;
     }
     return result;
@@ -533,96 +539,114 @@ string Token::GetAddress()
 			output += COMMENT + "Give the pointer address" + NL;
             return this->Reg->Name;
         }
-        else
-        {
-            return this->Reg->Name;
-        }
-    }
-    if (this->is(Private))
-    {
+		else
+		{
+		return this->Reg->Name;
+		}
+	}
+	if (this->is(Private))
+	{
 
-        return FRAME(getFullName());
-    }
-    else
-    {
-        return FRAME(getFullName());
-    }
+		return FRAME(getFullName());
+	}
+	else
+	{
+		return FRAME(getFullName());
+	}
 }
 
-void Token::addChild(Token *local, bool func) 
+void Token::addChild(Token* local, bool func)
 {
-    Childs.push_back(local);
-    if (func)
-        local->ParentFunc = this;
-    else if (func == false)
-        local->ParentType = this;
-    local->StackOffset = this->StackOffset;
-    this->StackOffset += local->Size;
-    this->Size += local->Size;
+	Childs.push_back(local);
+	if (func)
+		local->ParentFunc = this;
+	else if (func == false)
+		local->ParentType = this;
+	local->StackOffset = this->StackOffset;
+	this->StackOffset += local->Size;
+	this->Size += local->Size;
 	local->Flags |= Private;
 }
 
-void Token::addParameter(Token *Param)
+void Token::addParameter(Token* Param)
 {
-    Param->ParameterOffset = this->ParameterOffset;
-    Parameters.push_back(Param);
-    this->ParameterOffset += Param->Size;
+	Param->ParameterOffset = this->ParameterOffset;
+	Parameters.push_back(Param);
+	this->ParameterOffset += Param->Size;
 }
 
 void Token::InitFunction()
 {
-    if (is(Member))
-    {
-        output += LABEL(TYPE(ParentType->Name, FUNC(this->Name)));
-    }
-    else
-    {
-        output += LABEL(FUNC(this->Name));
-    }
+	if (is(Member))
+	{
+		output += LABEL(TYPE(ParentType->Name, FUNC(this->Name)));
+	}
+	else
+	{
+		output += LABEL(FUNC(this->Name));
+	}
 }
 
-void Token::CallFunc(Token *Fetcher)
+void Token::CallFunc(Token* Fetcher)
 {
-    //check if its fetched;
-    if (this->is(This))
-    {
-        //fetcher is needed;
-        
-    }
-    
+	//check if its fetched;
+	if (this->is(This))
+	{
+		//fetcher is needed;
+
+	}
+
 }
 
-Token &Token::operator=(const Token& name)
+Token& Token::operator=(const Token& name)
 {
-    Flags = name.Flags;
-    Size = name.Size;
-    Value = name.Value;
-    StackOffset = name.StackOffset;
-    ParameterCount = name.ParameterCount;
-    AddedOffset = name.AddedOffset;
-    ParameterOffset = name.ParameterOffset;
-    ID = name.ID;
-    Offsetter = name.Offsetter;
-    ParentType = name.ParentType;
-    ParentFunc = name.ParentFunc;
-    Parameters = name.Parameters;
-    SuccessorToken = name.SuccessorToken;
-    Childs = name.Childs;
-    Name = name.Name;
-    Reg = name.Reg;
-    output = name.output;
-    Origin = name.Origin;
-    return *this;
+	Flags = name.Flags;
+	Size = name.Size;
+	Value = name.Value;
+	StackOffset = name.StackOffset;
+	ParameterCount = name.ParameterCount;
+	AddedOffset = name.AddedOffset;
+	ParameterOffset = name.ParameterOffset;
+	ID = name.ID;
+	Offsetter = name.Offsetter;
+	ParentType = name.ParentType;
+	ParentFunc = name.ParentFunc;
+	Parameters = name.Parameters;
+	SuccessorToken = name.SuccessorToken;
+	Childs = name.Childs;
+	Name = name.Name;
+	Reg = name.Reg;
+	output = name.output;
+	Origin = name.Origin;
+	return *this;
 }
 
-void Register::Link(Token *Requester)
+void Register::Link(Token* Requester)
 {
-    Current = Requester;
-    if (Base != nullptr)
-    {
-        Base->Reg = NUL;
-    }
-    Base = Current;
+	Current = Requester;
+	if (Base != nullptr)
+	{
+		Base->Reg = NUL;
+	}
+	Base = Current;
+}
+
+void Register::Apply(Token* Requester, vector<Token*> *T)
+{
+	for (int i = 0; i < T->size(); i++)
+	{
+		if (T->at(i)->Childs.size() > 0)
+		{
+			Apply(Requester, &T->at(i)->Childs);
+		}
+		else if (T->at(i)->Name == Requester->Name)
+		{
+			if (T->at(i)->Flags == Requester->Flags)
+			{
+				T->at(i)->Reg = this;
+			}
+		}
+	}
 }
 
 void Token::PTRING(Token *&T)

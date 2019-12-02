@@ -4,6 +4,7 @@ func main()
 	var b = 2
 	var c = 3
 	a = b + c
+	return a
 )
 
 main()

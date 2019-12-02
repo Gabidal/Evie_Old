@@ -67,7 +67,8 @@ class Token
     string Name = "";
     Register *Reg = 0;
     string &output;
-    Token(string &out) : output(out){}
+	vector<Token*> &Input;
+    Token(string &out, vector<Token*> &T) : output(out), Input(T){}
     Token &operator=(const Token& name);
 
     bool is(int flag);
@@ -116,6 +117,7 @@ public:
         Name = name;
     }
     void Link(Token *Requester);
+	void Apply(Token* Requester, vector<Token*> *T);
 };
 #endif
 
