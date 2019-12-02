@@ -35,48 +35,48 @@ string Token::getFullName()
     
     if (is(Public))
     {
-		output += COMMENT + "Public ";
+		//output += COMMENT + "Public ";
         if (this->is(Array))
         {
-			output += "array ";
+			//output += "array ";
             if (Offsetter->is(Number))
             {
-				output += "number " + NL;
+				//output += "number " + NL;
                 int result = atoi(Offsetter->Name.c_str()) * 4;
                 name = Name + OFFSET + to_string(result);
             }
             else
             {
-				output += "variable " + NL;
+				//output += "variable " + NL;
                 name = Name + OFFSET + Offsetter->InitVariable();
             }
         }
         else
         {
-			output += COMMENT + "Public variable" + NL;
+			//output += COMMENT + "Public variable" + NL;
             name = Name;
         }
         
     }
     else
     {
-		output += COMMENT + "Private ";
+		//output += COMMENT + "Private ";
         if (is(Parameter))
         {
-			output +="parameter ";
+			//output +="parameter ";
             if ((Offsetter != nullptr) && is(Array))
             {
-				output += "array ";
+				//output += "array ";
                 if (Offsetter->is(Number))
                 {
-					output += "number " + NL;
+					//output += "number " + NL;
                     int result = atoi(Offsetter->Name.c_str()) * 4;
                     result += (this->ParameterOffset + 4);
                     name = EBP->Name + OFFSET + to_string(result);
                 }
                 else
                 {
-					output += "variable " + NL;
+					//output += "variable " + NL;
                     output += ADD + Offsetter->InitVariable() + FROM + to_string(this->ParameterOffset + 4) + NL;
                     output += PUSH + EBP->Name + NL;
                     output += ADD + EBP->Name  + FROM + Offsetter->Reg->Name + NL;
@@ -86,7 +86,7 @@ string Token::getFullName()
             }
             else
             {
-				output +="variable " + NL;
+				//output +="variable " + NL;
                 name = EBP->Name + OFFSET + to_string(this->ParameterOffset + 4);
             }
         }
@@ -94,17 +94,17 @@ string Token::getFullName()
         {
             if ((Offsetter != nullptr) && is(Array))
             {
-				output += "array ";
+				//output += "array ";
                 if (Offsetter->is(Number))
                 {
-					output += "number " + NL;
+					//output += "number " + NL;
                     int result = atoi(Offsetter->Name.c_str());
                     result += (this->StackOffset);
                     name = EBP->Name + DEOFFSET + to_string(result);
                 }
                 else
                 {
-					output += "variable " + NL;
+					//output += "variable " + NL;
                     output += ADD + Offsetter->InitVariable() + FROM + to_string(this->StackOffset) + NL;
                     output += PUSH + EBP->Name + NL;
                     output += SUB + EBP->Name  + FROM + Offsetter->Reg->Name + NL;
@@ -114,7 +114,7 @@ string Token::getFullName()
             }
             else
             {
-				output += "variable " + NL;
+				//output += "variable " + NL;
                 name = EBP->Name + DEOFFSET + to_string(StackOffset);
             }
         }
@@ -171,7 +171,7 @@ Register *Token::getReg()
     if (Reg == nullptr|| Reg->Name == "null")
     {
         this->Reg = getNewRegister();
-		output += COMMENT + "Giving " + this->Name + " " + this->Reg->Name + NL;
+		output += COMMENT + "Giving " + this->Name + ", " + this->Reg->Name + NL;
     }
     return Reg;
 }

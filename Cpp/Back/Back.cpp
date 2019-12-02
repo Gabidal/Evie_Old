@@ -66,14 +66,17 @@ void Back::Handle_Operators(int i)
         
         if (reg.size() > 0 && Layer == 0)
         {
+			string resulter = Dest->Name;
             Dest = Cheat;
             Dest->Reg = registers[reg];
             if (Dest->is(Member))
             {
+				Output += COMMENT + "Saving result of " + resulter + " into " + Dest->Name + " from " + Dest->Fetcher->Name + NL;
                 Output += MOV + FRAME(Dest->Fetcher->InitVariable() + OFFSET + to_string(Dest->StackOffset - 4)) + FROM + Dest->Reg->Name + NL + NL;
             }
             else
             {
+				Output += COMMENT + "Saving result of " + resulter + " into " + Dest->Name + NL;
                 Output += MOV + Dest->GetAddress() + FROM + Dest->Reg->Name + NL + NL;
             }
             
