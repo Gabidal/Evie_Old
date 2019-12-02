@@ -14,6 +14,7 @@ class StackFrame
   public:
   StackFrame(string &output, bool Endfunc) : output(output)
   {
+	  output += COMMENT + "Making stack frame " + NL;
       this->output += PUSH + EBP->Name + NL;
       this->output += MOV + EBP->Name + FROM + ESP->Name + NL + NL;
       EndFunc = Endfunc;
@@ -21,10 +22,12 @@ class StackFrame
   
   ~StackFrame()
   {
+	  output += COMMENT + "Ending stack frame " + NL;
       this->output += MOV + ESP->Name + FROM + EBP->Name + NL;
       this->output += POP + EBP->Name + NL;
       if (EndFunc)
       {
+		output += COMMENT + "Returning " + NL;
         this->output += "ret" + string(NL) + NL;
       }
       

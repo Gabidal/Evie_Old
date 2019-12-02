@@ -89,10 +89,12 @@ void Back::Handle_Variables(int i)
         {
             if (Input.at(i)->is(Ptr))
             {
+				Output += COMMENT + "Pushing pointter " + NL;
                 Output += PUSH + Input.at(i)->GetAddress() + NL;
             }
             else if (Input.at(i)->is(Variable))
             {
+				Output += COMMENT + "Pushing Variable " + NL;
                 Output += PUSH + Input.at(i)->InitVariable() + NL;
             }
             else
@@ -118,10 +120,10 @@ int Get_Amount(vector<Token*> list, int flag)
 {
     for (Token *t : list)
     {
-        if (t->is(Used) != true)
+        /*if (t->is(Used) != true)
         {
             continue;
-        }
+        }*/
         if ((t->Childs.size() > 0) && (t->is(OPERATOR) != true) && (t->Name != "return"))
         {
             Get_Amount(t->Childs, flag);
@@ -147,11 +149,14 @@ void Back::Handle_Function_Init(int i)
 {
     if (Input.at(i)->is(Function) && Input.at(i)->is(Call) == false && Input.at(i)->Childs.size() > 0)
     {
+		Output += COMMENT + "Function " + Input.at(i)->Name + NL;
+		Input.at(i)->Flags |= Real;
         Input.at(i)->InitFunction();
         Back b = *this;
         b.Input = Input.at(i)->Childs;
         StackFrame stack(Output, true);
         int care = Variable | Ptr | NotOriginal | Array;
+		Output += COMMENT + "Making space for local variables " + NL;
         Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
         b.IS_PUBLIC++;
         b.Factory();
@@ -177,12 +182,21 @@ void Back::Handle_Type_Init(int i)
                 vars.push_back(Input.at(i)->Childs.at(j));
             }
         }
+		Input.at(i)->Flags |= Real;
         if (vars.size() > 0)
         {
-            Output += LABEL("Init_Variables_Of_" + Input.at(i)->Name);
-            b.Input = vars;
+			Token* initter = new Token(Output);
+			initter->Name = "Init_Variables_Of_" + Input.at(i)->Name;
+			initter->Flags |= Function;
+			initter->Flags |= Returning;
+			Token* THIS = new Token(Output);
+			THIS->Flags |= Variable;
+			THIS->Size = 4;
+			THIS->Name = "this";
+			initter->addParameter(THIS);
+			initter->Childs = vars;
+			b.Input.push_back(initter);
             b.IS_PUBLIC++;
-            StackFrame s(Output, true);
             b.Factory();
             b.IS_PUBLIC--;
         }
@@ -206,7 +220,9 @@ void Back::Handle_New(int i)
     if (Input.at(i - 1)->is(__NEW) && Input.at(i)->is(NotOriginal))
     {
         Linux l;
+		Output += COMMENT + "Allocating new memory space for new type " + NL;
         Output += l.Call_Malloc(Input.at(i));
+
     }
 }
 
@@ -214,6 +230,7 @@ void Back::Handle_Call_Function(int i)
 {
     if (Input.at(i)->is(Call))
     {
+		Output += COMMENT + "Calling " + Input.at(i)->Name + NL;
         if (Input.at(i)->Parameters.size() > 0)
         {
             Back b = *this;
@@ -330,6 +347,7 @@ void Back::Handle_Conditions(int i)
             Output += JMP + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL + NL;
         Output += LABEL(Input.at(i)->getFullName() + to_string(Input.at(i)->ID));
 
+		Input.at(i)->Flags |= Real;
         //if
         if (Input.at(i)->Parameters.size() > 0)
         {
@@ -358,6 +376,7 @@ void Back::Handle_Returning(int i)
     {
         if (Input.at(i)->Childs.size() > 0)
         {
+			Input.at(i)->Flags |= Real;
             Back b = *this;
             b.Input = Input.at(i)->Childs;
             b.Get_Direct = true;
@@ -366,6 +385,7 @@ void Back::Handle_Returning(int i)
             b.IS_PUBLIC--;
             b.Dest->Flags |= Storer;
             b.Dest->InitVariable();
+			Output += COMMENT + "Return " + b.Dest->Name + NL;
             Token *returnAddress = new Token(Output);
             returnAddress->getReg();
             Output += MOV + ESP->Name + FROM + EBP->Name + NL;
@@ -406,6 +426,11 @@ void Back::Factory()
         {
             continue;
         }*/
+		if (Input.at(i)->is(Real))
+		{
+			//already written into asm
+			continue;
+		}
         Handle_Type_Init(i);
         Handle_Function_Init(i);
         Handle_Call_Function(i);
@@ -415,6 +440,9 @@ void Back::Factory()
         Handle_Conditions(i);
         Handle_Returning(i);
         Handle_New(i);
+
+		//it is written
+		Input.at(i)->Flags |= Real;
     }
 }
 

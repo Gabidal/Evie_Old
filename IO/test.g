@@ -1,10 +1,9 @@
-using "std.g"
-
 func main()
 (
-	new raw_vector a
-	vector(a, 123)
-	return a
+	var a = 1
+	var b = 2
+	var c = 3
+	a = b + c
 )
 
 main()

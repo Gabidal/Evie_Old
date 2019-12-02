@@ -24,6 +24,7 @@ string Token::getFullName()
     {
         if (is(Member))
         {
+			output += COMMENT + "Adding type owner name to the function name" + NL;
             return TYPE(this->Fetcher->Origin->Name, this->Name);
         }
         else
@@ -34,38 +35,48 @@ string Token::getFullName()
     
     if (is(Public))
     {
+		output += COMMENT + "Public ";
         if (this->is(Array))
         {
+			output += "array ";
             if (Offsetter->is(Number))
             {
+				output += "number " + NL;
                 int result = atoi(Offsetter->Name.c_str()) * 4;
                 name = Name + OFFSET + to_string(result);
             }
             else
             {
+				output += "variable " + NL;
                 name = Name + OFFSET + Offsetter->InitVariable();
             }
         }
         else
         {
+			output += COMMENT + "Public variable" + NL;
             name = Name;
         }
         
     }
     else
     {
+		output += COMMENT + "Private ";
         if (is(Parameter))
         {
+			output +="parameter ";
             if ((Offsetter != nullptr) && is(Array))
             {
+				output += "array ";
                 if (Offsetter->is(Number))
                 {
+					output += "number " + NL;
                     int result = atoi(Offsetter->Name.c_str()) * 4;
                     result += (this->ParameterOffset + 4);
                     name = EBP->Name + OFFSET + to_string(result);
                 }
                 else
                 {
+					output += "variable " + NL;
                     output += ADD + Offsetter->InitVariable() + FROM + to_string(this->ParameterOffset + 4) + NL;
                     output += PUSH + EBP->Name + NL;
                     output += ADD + EBP->Name  + FROM + Offsetter->Reg->Name + NL;
@@ -75,6 +86,7 @@ string Token::getFullName()
             }
             else
             {
+				output +="variable " + NL;
                 name = EBP->Name + OFFSET + to_string(this->ParameterOffset + 4);
             }
         }
@@ -82,14 +94,17 @@ string Token::getFullName()
         {
             if ((Offsetter != nullptr) && is(Array))
             {
+				output += "array ";
                 if (Offsetter->is(Number))
                 {
+					output += "number " + NL;
                     int result = atoi(Offsetter->Name.c_str());
                     result += (this->StackOffset);
                     name = EBP->Name + DEOFFSET + to_string(result);
                 }
                 else
                 {
+					output += "variable " + NL;
                     output += ADD + Offsetter->InitVariable() + FROM + to_string(this->StackOffset) + NL;
                     output += PUSH + EBP->Name + NL;
                     output += SUB + EBP->Name  + FROM + Offsetter->Reg->Name + NL;
@@ -99,6 +114,7 @@ string Token::getFullName()
             }
             else
             {
+				output += "variable " + NL;
                 name = EBP->Name + DEOFFSET + to_string(StackOffset);
             }
         }
@@ -155,6 +171,7 @@ Register *Token::getReg()
     if (Reg == nullptr|| Reg->Name == "null")
     {
         this->Reg = getNewRegister();
+		output += COMMENT + "Giving " + this->Name + " " + this->Reg->Name + NL;
     }
     return Reg;
 }
@@ -164,26 +181,26 @@ string Token::InitVariable()
     string result = "";
     if (this->Reg == nullptr || this->Reg->Name == "null")
     {
-        this->Reg = getReg();
-        if (this->is(Member))
+		this->Reg = getReg();
+		output += COMMENT + "Initializing new register for ";
+        if (this->is(Member) && (this->Fetcher != nullptr))
         {
-            if (Fetcher->Reg == nullptr)
-            {
-                //allocate new Register for class address place holding.
-                Fetcher->InitVariable();
-            }
-            output += MOV + this->getReg()->Name + FROM + FRAME(Fetcher->Reg->Name + OFFSET + to_string(this->StackOffset - 4)) + NL;
+			output +="member variable " + this->Name + NL;
+			if (Fetcher->Reg == nullptr)
+			{
+				//allocate new Register for class address place holding.
+				Fetcher->InitVariable();
+			}
+			output += MOV + this->getReg()->Name + FROM + FRAME(Fetcher->Reg->Name + OFFSET + to_string(this->StackOffset - 4)) + NL;
         }
-        /*else if (this->is(Ptr))
-        {
-            output += MOV + this->Reg->Name + FROM + this->GetAddress() + NL;
-        }*/
         else if (this->is(Private))
         {
+			output +="private  variable " + this->Name + NL;
             output += MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
         }
         else if (this->is(Public))
         {
+			output += "public variable " + this->Name + NL;
             output += MOV + this->Reg->Name + FROM + DWORD + FRAME(this->getFullName()) + NL;
         }
         else if (this->is(Equ))
@@ -192,10 +209,12 @@ string Token::InitVariable()
         }
         else if (this->is(Number))
         {
+			output += "number " + this->Name + NL;
             output += MOV + this->Reg->Name + FROM + this->Name + NL;
         }
         if (this->is(Array) && (this->is(Number) != true) && Needs_Back_Up)
         {
+			output +="array variable " + this->Name + NL;
             output += POP + EBP->Name + NL + NL;
             Needs_Back_Up = false;
         }
@@ -203,6 +222,7 @@ string Token::InitVariable()
     }
     else
     {
+		output += COMMENT + this->Name + "Has already a register to it" + NL;
         result = this->Reg->Name;
     }
     return result;
@@ -213,27 +233,33 @@ string Token::MOVE(Token *Source)
     PTRING(Source);
     if (Source->is(Number))
     {
+		output += COMMENT + "Giving " + this->Name + ", " + Source->Name + NL;
         output += MOV + this->GetAddress() + FROM + string(DWORD) + Source->Name + NL;
     }
-    else if (this->is(Member))
+    else if (this->is(Member) && (this->Fetcher != nullptr))
     {
         // straight movation
+		output += COMMENT + "Feching " + this->Name + " from " + this->Fetcher->Name + NL;
         output += MOV + FRAME(this->Fetcher->InitVariable() + OFFSET + to_string(this->StackOffset - 4)) + FROM + DWORD + Source->InitVariable() + NL;
         this->Reg = Source->Reg;
         Source->Reg->Link(this);
     }
     else if (Source->is(Array))
     {
+		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
         if (Source->is(Number) != true)
         {
+			output += COMMENT + "Fixing Base Pointer" + NL;
             output += POP + EBP->Name + NL + NL;
         }
+		output += COMMENT + "Saving the value from " + Source->Name + " offsetted by " + this->Name + NL;
         output += MOV + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
         // straight movation
+		output += COMMENT + "Saving " + Source->Name + " into " + this->Name + NL;
         output += MOV + GetAddress() + FROM + DWORD + Source->InitVariable() + NL;
         this->Reg = Source->Reg;
         Source->Reg->Link(this);
@@ -242,8 +268,10 @@ string Token::MOVE(Token *Source)
     {
         if (Source->Parameters.size() > 0)
         {
+			output += COMMENT + "Clearing the parameters" + NL;
             output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
         }
+		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
         output += POP + string(DWORD) + this->GetAddress() + NL + NL;
     }
     
@@ -257,31 +285,40 @@ string Token::SUM(Token *Source)
     {
         if (Source->Parameters.size() > 0)
         {
+			output += COMMENT + "Clearing the parameters" + NL;
             output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
         }
+		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
         output += POP + this->InitVariable() + NL + NL;
     }
     if (Source->is(Number))
     {
+		output += COMMENT + "Direct addition" + NL;
         output += ADD + this->InitVariable() + FROM + Source->Name + NL;
     }
     else if (Source->is(Array))
     {
+		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
         if (Source->is(Number) != true)
         {
+			output += COMMENT + "Fixing Base Pointer" + NL;
             output += POP + EBP->Name + NL + NL;
         }
+		output += COMMENT + "Adding the value from " + Source->Name + " offsetted by " + this->Name + NL;
         output += ADD + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
+		output += COMMENT + "Adding " + Source->Name + " into " + this->Name + NL;
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
+			output += COMMENT + "Just directly get address" + NL;
             output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL;
         }
         else
         {
+			output += COMMENT + "There is already register for it, use it" + NL;
             output += ADD + this->InitVariable() + FROM + Source->Reg->Name + NL;
         }
     }
@@ -295,31 +332,40 @@ string Token::SUBSTRACT(Token *Source)
     {
         if (Source->Parameters.size() > 0)
         {
+			output += COMMENT + "Clearing the parameters" + NL;
             output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
         }
+		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
         output += POP + this->InitVariable() + NL + NL;
     }
     if (Source->is(Number))
     {
+		output += COMMENT + "Direct substraction" + NL;
         output += SUB + this->InitVariable() + FROM + Source->Name + NL;
     }
     else if (Source->is(Array))
     {
+		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
         if (Source->is(Number) != true)
         {
+			output += COMMENT + "Fixing Base Pointer" + NL;
             output += POP + EBP->Name + NL + NL;
         }
+		output += COMMENT + "Substracting the value from " + Source->Name + " offsetted by " + this->Name + NL;
         output += SUB + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
+		output += COMMENT + "Substracting " + Source->Name + " into " + this->Name + NL;
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
+			output += COMMENT + "Just directly get address" + NL;
             output += SUB + this->InitVariable() + FROM + Source->GetAddress() + NL;
         }
         else
         {
+			output += COMMENT + "There is already register for it, use it" + NL;
             output += SUB + this->InitVariable() + FROM + Source->Reg->Name + NL;
         }
     }
@@ -333,35 +379,45 @@ string Token::MULTIPLY(Token *Source)
     {
         if (Source->Parameters.size() > 0)
         {
+			output += COMMENT + "Clearing the parameters" + NL;
             output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
         }
+		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
         output += POP + this->InitVariable() + NL + NL;
     }
     if (Source->is(Number))
     {
+		output += COMMENT + "Direct multiplying" + NL;
         output += IMUL + this->InitVariable() + FROM + Source->Name + NL;
     }
     else if (Source->is(Member))
     {
+		output += COMMENT + "Feching " + this->Name + " from " + this->Fetcher->Name + NL;
         output += IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL;
     }
     else if (Source->is(Array))
     {
+		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
         if (Source->is(Number) != true)
         {
+			output += COMMENT + "Fixing Base Pointer" + NL;
             output += POP + EBP->Name + NL + NL;
         }
+		output += COMMENT + "Multiplying the value from " + Source->Name + " offsetted by " + this->Name + NL;
         output += IMUL + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
+		output += COMMENT + "Multiplying " + Source->Name + " into " + this->Name + NL;
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
+			output += COMMENT + "Just directly get address" + NL;
             output += IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL;
         }
         else
         {
+			output += COMMENT + "There is already register for it, use it" + NL;
             output += IMUL + this->InitVariable() + FROM + Source->Reg->Name + NL;
         }
     }
@@ -375,8 +431,10 @@ string Token::DIVIDE(Token *Source)
     {
         if (Source->Parameters.size() > 0)
         {
+			output += COMMENT + "Clearing the parameters" + NL;
             output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
         }
+		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
         output += POP + EAX->Name + NL;
         output += CDQ + string(NL);
         output += DIV + this->InitVariable() + NL;
@@ -385,6 +443,7 @@ string Token::DIVIDE(Token *Source)
     if (Source->is(Number))
     {
         //cdq
+		output += COMMENT + "Direct division" + NL;
         output += XCHG(this->InitVariable(), EAX->Name);
         output += CDQ + string(NL);
         output += DIV + Source->InitVariable() + NL;
@@ -393,21 +452,26 @@ string Token::DIVIDE(Token *Source)
     else if (Source->is(Array))
     {
         //cdq
+		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += XCHG(this->InitVariable(), EAX->Name);
         output += CDQ + string(NL);
+		output += COMMENT + "Dividing the value from " + Source->Name + " offsetted by " + this->Name + NL;
         output += DIV + FRAME(Source->getFullName()) + NL;
         EAX->Link(this);
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
+		output += COMMENT + "Dividing " + Source->Name + " into " + this->Name + NL;
         output += XCHG(this->InitVariable(), EAX->Name);
         output += CDQ + string(NL);
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
+			output += COMMENT + "Just directly get address" + NL;
             output += DIV + string(DWORD) + Source->GetAddress() + NL;
         }
         else
         {
+			output += COMMENT + "There is already register for it, use it" + NL;
             output += DIV + Source->Reg->Name + NL;
         }
         EAX->Link(this);
@@ -419,10 +483,12 @@ string Token::COMPARE(Token *Source)
 {
     if (Source->Reg == nullptr || Source->Reg->Name == "null")
     {
+		output += COMMENT + "Just directly get address" + NL;
         output += CMP + this->InitVariable() + FROM + Source->GetAddress() + NL;
     }
     else
     {
+		output += COMMENT + "There is already register for it, use it" + NL;
         output += CMP + this->InitVariable() + FROM + Source->Reg->Name + NL + NL;
     }
     return this->Reg->Name;
@@ -444,23 +510,27 @@ string Token::GetAddress()
         this->InitVariable();
         if (this->is(Array) && this->Offsetter->is(Number))
         {
+			output += COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
             int a = atoi(this->Offsetter->Name.c_str()) * 4;
             return FRAME(this->Reg->Name + OFFSET + to_string(a));
         }
         else if (this->is(Array) && this->Offsetter->is(Variable))
         {
+			output += COMMENT + "Externally adding the offset of the ofsetter variable to " + this->Name + NL;
             output += ADD + string(getReg()->Name) + FROM + this->Offsetter->InitVariable() + NL;
             return FRAME(this->Reg->Name);
         }
         //lea eax, [eax]
         else if (this->is(Ptr) && this->is(Loader))
         {
+			output += COMMENT + "Load the value inside the pointer" + NL;
             output += LEA + this->Reg->Name + FROM + FRAME(this->Reg->Name) + NL;
             return this->Reg->Name;
         }
         //mov ebx, eax
         else if (this->is(Ptr) && this->is(Storer))
         {
+			output += COMMENT + "Give the pointer address" + NL;
             return this->Reg->Name;
         }
         else
@@ -470,6 +540,7 @@ string Token::GetAddress()
     }
     if (this->is(Private))
     {
+
         return FRAME(getFullName());
     }
     else
@@ -559,11 +630,13 @@ void Token::PTRING(Token *&T)
     if (T->is(Ptr) && this->is(Ptr))
     {
         //* to * operation
+		output += COMMENT + "Pointer to pointer directionation" + NL;
         T->Flags |= Storer;
     }
     else if (T->is(Ptr) && (this->is(Ptr) != true))
     {
         //var to * operation
+		output += COMMENT + "Pointer address value to variable" + NL;
         T->Flags |= Loader;
     }
 }

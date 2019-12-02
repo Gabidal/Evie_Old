@@ -9,12 +9,7 @@ int main()
 {
     Init_Registers();
 
-    string OUTPUT = "global _start" + NL +
-                    "_start:" + NL +
-                    "call main" + NL +
-                    "mov eax, 1" + NL +
-                    "mov ebx, 0" + NL +
-                    "int 80h" + NL + NL;
+	string OUTPUT = "";
 
 
     Definer d;

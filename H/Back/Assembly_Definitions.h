@@ -38,7 +38,7 @@
 #define LABEL(name) (name + ": " + NL)
 #define FUNC(name) (name)
 #define TYPE(type, name) (type + "_" + name)
-#define COMMENT(name) (string(NL) + "; " + name + NL)
+#define COMMENT string(" ; ")
 
 #define DWORD "dword "
 #define QWORD "qword "

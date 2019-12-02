@@ -8,12 +8,10 @@ void Parser::Pattern_Init_Sys_Functions()
     Malloc->Flags |= Function;
     Malloc->ParameterCount = 1;
     Malloc->Flags |= Returning;
-    Malloc->Flags |= Real;
     Malloc->Name = "Malloc";
 
     Token *Print = new Token(Assembly);
     Print->Flags |= Function;
-    Print->Flags |= Real;
     Print->ParameterCount = 2;
     Print->Name = "raw_print";
     
@@ -21,7 +19,6 @@ void Parser::Pattern_Init_Sys_Functions()
     In->Flags |= Function;
     In->ParameterCount = 2;
     In->Flags |= Returning;
-    In->Flags |= Real;
     In->Name = "raw_in";
 
     Output.push_back(Malloc);
@@ -122,7 +119,6 @@ void Parser::Pattern_Variable(int i)
     {
         Token *n = new Token(Assembly);
         n->Flags |= Number;
-        n->Flags |= Real;
         if (InsideOfType || InsideOfFunction)
         {
             n->Flags |= Private;
@@ -238,7 +234,6 @@ void Parser::Pattern_Function(int i)
         //make new Function;
         Token *Name = new Token(Assembly);
         Name->Flags |= Function;
-        Name->Flags |= Real;
         Name->Name = Input.at(i+1)->WORD;
         if (InsideOfType)
         {
@@ -285,7 +280,6 @@ void Parser::Pattern_Type(int i)
     {
         Token *Type = new Token(Assembly);
         Type->Flags |= TypE;
-        Type->Flags |= Real;
         Type->Name = Input.at(i+1)->WORD;
         vector<Token*> *T;
         Give_Output(T);
@@ -714,7 +708,10 @@ void Parser::Pattern_Return(int i)
         vector<Token*> *T;
         Give_Output(T);
         T->push_back(r);
-        ParentFunc->Flags |= Returning;
+		if (ParentFunc != nullptr)
+			ParentFunc->Flags |= Returning;
+		else
+			ParentType->Flags |= Returning;
         Input.erase(Input.begin() + i+1);
     }
 }
@@ -886,7 +883,7 @@ void Parser::Pattern_Include(int i)
         Definer *d = new Definer();
         d->OpenFile(tmp2.c_str());
         Parser p(d->output, Assembly);
-		p.Pattern_Init_Sys_Functions();
+		p.Output = Output;
 		int tmpsize = p.Output.size();
         p.Factory();
         

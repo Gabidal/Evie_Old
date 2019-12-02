@@ -51,6 +51,7 @@ string Linux::Call_Malloc(Token *t)
     string self = "" +
     string(PUSH) + DWORD + to_string(t->Size) + NL +
     CALL + "malloc" + NL +
+	//CALL + "Init_Variables_Of_" + t->Origin->Name + NL +
     POP + DWORD + FRAME(t->getFullName()) + NL;
     return self;
 }

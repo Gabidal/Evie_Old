@@ -27,7 +27,6 @@ public:
     void Optimize_Conditions(int i);
     void Optimize_Math(vector<Token*> &T);
     void Optimize_Variables(int i);
-    void Optimize_Returning(int i);
     void Optimize_Function_Calls(int i);
     void Set_All_References(string name, int Flag, vector<Token*> &T);
     Optimizer(vector<Token*> &In)
