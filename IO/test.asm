@@ -46,24 +46,36 @@ sub esp, 12
 mov [ebp - 4], dword 1
  ; Giving b, 2
 mov [ebp - 8], dword 2
+ ; Giving c, 3
+mov [ebp - 12], dword 3
  ; Calling sum
+ ; Pushing Variable 
+ ; Giving b, ecx
+ ; Initializing new register for private  variable b
+mov ecx, [ebp - 8]
+push ecx
+ ; Pushing Variable 
+ ; Giving c, edx
+ ; Initializing new register for private  variable c
+mov edx, [ebp - 12]
+push edx
 call sum
 
  ; Clearing the parameters
-add esp, 4
+add esp, 8
  ; Giving a the return value
 pop dword [ebp - 4]
 
- ; Giving a, ecx
+ ; Giving a, esi
  ; Initializing new register for private  variable a
-mov ecx, [ebp - 4]
+mov esi, [ebp - 4]
  ; Return a
- ; Giving Returning address, edx
+ ; Giving Returning address, edi
 mov esp, ebp
 pop ebp
-pop edx
-push ecx
-jmp edx
+pop edi
+push esi
+jmp edi
 
  ; Ending stack frame 
 mov esp, ebp

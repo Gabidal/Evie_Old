@@ -49,7 +49,7 @@ int Optimizer::GetSecondaryDestination(vector<Token*> t)
 
 void Optimizer::Optimize_Math(vector<Token*> &T)
 {
-    // <<a = b> + a>
+    // a = a + sum(b, c)
     for (auto t : T)
     {
         if (t->is(OPERATOR) && (t->Name != "="))
@@ -64,17 +64,46 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
         if ((t->Name == "=") && t->Parameters.at(0)->is(Used))
         {
             t->Flags |= Used;
-            if (t->Childs.at(0)->is(Number) != true)
+            if ((t->Childs.at(0)->is(Number) != true) && (t->Childs.at(0)->is(Call) != true))
             {
-                Set_All_References(t->Childs.at(0)->Name, EnyFlag, Global);
+				if (t->Childs.at(0)->is(Private) || t->Childs.at(0)->is(Parameter))
+				{
+					Set_All_References(t->Childs.at(0)->Name, EnyFlag, t->Childs.at(0)->ParentFunc->Childs);
+				}
+				else if (t->Childs.at(0)->is(Member))
+				{
+					Set_All_References(t->Childs.at(0)->Name, EnyFlag, t->Childs.at(0)->ParentType->Childs);
+				}
+				else if (t->Childs.at(0)->is(Public))
+				{
+					Set_All_References(t->Childs.at(0)->Name, EnyFlag, Global);
+				}
             }
+			else if (t->Childs.at(0)->is(Call))
+			{
+				for (int i = 0; i < t->Childs.at(0)->Parameters.size(); i++)
+				{
+					if (t->Childs.at(0)->Parameters.at(i)->is(Private) || t->Childs.at(0)->Parameters.at(i)->is(Parameter))
+					{
+						Set_All_References(t->Childs.at(0)->Parameters.at(i)->Name, EnyFlag, t->Childs.at(0)->Parameters.at(i)->ParentFunc->Childs);
+					}
+					else if (t->Childs.at(0)->is(Member))
+					{
+						Set_All_References(t->Childs.at(0)->Parameters.at(i)->Name, EnyFlag, t->Childs.at(0)->Parameters.at(i)->ParentType->Childs);
+					}
+					else if (t->Childs.at(0)->is(Public))
+					{
+						Set_All_References(t->Childs.at(0)->Parameters.at(i)->Name, EnyFlag, Global);
+					}
+				}
+				t->Childs.at(0)->Flags |= Used;
+			}
         }
         if ((t->Name == "=") && t->Childs.at(0)->is(Call) && (t->Parameters.at(0)->is(Used) != true))
         {
             //cancel the math and make it a callation only.
             *t = *t->Childs.at(0);
         }
-        
     }
 }
 

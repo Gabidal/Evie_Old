@@ -75,10 +75,17 @@ void Parser::Pattern_Variable(int i)
         Token *t = new Token(Assembly, Output);
         *t = *r;
         t->Size = 4;
-        if (InsideOfFunction || InsideOfType || InsideOfCondition)
+        if (InsideOfFunction)
         {
             t->Flags |= Private;
-        }else
+			t->ParentFunc = ParentFunc;
+		}
+		else if (InsideOfType)
+		{
+			t->Flags |= Member;
+			t->ParentType = ParentType;
+		}
+		else
         {
             t->Flags |= Public;
         }
@@ -487,7 +494,7 @@ void Parser::Pattern_Init_Condition(int i)
 void Parser::Pattern_Init_Operators(int &i)
 {
     //<a = b>
-    if (Input.at(i)->is(_OPERATOR) && Input.at(i)->UsedToken != true && Input.at(i)->WORD != "?")
+    if (Input.at(i)->is(_OPERATOR) && Input.at(i)->UsedToken != true && (Input.at(i)->WORD != "?") && (Input.at(i)->WORD != ","))
     {
         Pattern_Init_Call_Func(i+2);
         Input.at(i)->Tokens.push_back(Input.at(i-1)); //a
