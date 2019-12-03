@@ -56,6 +56,7 @@ public:
     void Clean_Cilds();
     void Give_Output(vector<Token*> *&T);
     void Give_Input(vector<Token*> *&T);
+	void Give_Context(vector<Token*>*& T);
     int Find(string name, int flags, vector<Token*> list);
     Token *Find(vector<Token*> T, string name, int flags);
     void Factory();

@@ -66,10 +66,12 @@ void Parser::Pattern_Variable(int i)
     {
         return;
     }
+
+	Give_Context(T);
     
-    if (Input.at(i)->is(_TEXT) && (Find(Output, Input.at(i)->WORD, Variable) != nullptr))
+    if (Input.at(i)->is(_TEXT) && (Find(*T, Input.at(i)->WORD, Variable) != nullptr))
     {
-        Token *r = Find(Output, Input.at(i)->WORD, Variable);
+        Token *r = Find(*T, Input.at(i)->WORD, Variable);
         Token *t = new Token(Assembly, Output);
         *t = *r;
         t->Size = 4;
@@ -813,6 +815,29 @@ void Parser::Give_Input(vector<Token*> *&T)
         T->insert(T->end(), ParentType->Childs.begin(), ParentType->Childs.end());
     }
     T->insert(T->end(), Output.begin(), Output.end());
+}
+
+void Parser::Give_Context(vector<Token*>*& T)
+{
+	T = new vector<Token*>;
+	if (InsideOfCondition)
+	{
+		T->insert(T->end(), ParentCondition->Parameters.begin(), ParentCondition->Parameters.end());
+		T->insert(T->end(), ParentCondition->Childs.begin(), ParentCondition->Childs.end());
+	}
+	else if (InsideOfFunction)
+	{
+		T->insert(T->end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
+		T->insert(T->end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
+	}
+	else if (InsideOfType)
+	{
+		T->insert(T->end(), ParentType->Childs.begin(), ParentType->Childs.end());
+	}
+	else
+	{
+		T = &Output;
+	}
 }
 
 void Parser::Give_Output(vector<Token*> *&T)
