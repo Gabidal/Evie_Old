@@ -1,12 +1,18 @@
-func sum(a, b)
+func sum(x, y)
 (
-	a = a + b
-	return a
+	x = x + y
+	return x
 )
 
+type vector
+(
+	var size = 1
+	var next = 2
+)
 
 func main()
 (
+	new vector v
 	var a = 1
 	var b = 2
 	var c = 3

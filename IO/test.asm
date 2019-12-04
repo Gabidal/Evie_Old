@@ -1,3 +1,17 @@
+malloc: 
+push dword 0
+push dword -1
+push dword 0x22
+push dword 0x03
+push dword [esp + 16]
+push dword 0
+mov eax, 0x5a
+mov ebx, esp
+int 0x80
+add esp, 24
+pop ebx
+push eax
+jmp ebx
 section .bss
 section .code
  ; Function sum
@@ -9,17 +23,17 @@ mov ebp, esp
  ; Making space for local variables 
 sub esp, 0
 
- ; Adding b into a
+ ; Adding y into x
  ; Just directly get address
- ; Giving a, eax
- ; Initializing new register for private  variable a
+ ; Giving x, eax
+ ; Initializing new register for private  variable x
 mov eax, [ebp + 4]
 add eax, [ebp + 8]
- ; Saving result of a into a
+ ; Saving result of x into x
 mov [ebp + 4], eax
 
- ; a has already a register to it
- ; Return a
+ ; x has already a register to it
+ ; Return x
  ; Giving Returning address, ebx
 mov esp, ebp
 pop ebp

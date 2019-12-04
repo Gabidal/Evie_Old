@@ -67,8 +67,8 @@ class Token
     string Name = "";
     Register *Reg = 0;
     string &output;
-	vector<Token*> &Input;
-    Token(string &out, vector<Token*> &T) : output(out), Input(T){}
+	vector<Token*> *Input;
+    Token(string &out, vector<Token*> *T) : output(out), Input(T){}
     Token &operator=(const Token& name);
 
     bool is(int flag);

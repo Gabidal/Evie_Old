@@ -128,42 +128,42 @@ Register *Token::getNewRegister()
     {
         RegisterTurn = 1;
         EAX->Link(this);
-		EAX->Apply(this, &Input);
+		EAX->Apply(this, Input);
         return EAX;
     }
     else if (RegisterTurn == 1)
     {
         RegisterTurn = 2;
         EBX->Link(this);
-		EBX->Apply(this, &Input);
+		EBX->Apply(this, Input);
         return EBX;
     }
     else if (RegisterTurn == 2)
     {
         RegisterTurn = 3;
         ECX->Link(this);
-		ECX->Apply(this, &Input);
+		ECX->Apply(this, Input);
         return ECX;
     }
     else if (RegisterTurn == 3)
     {
         RegisterTurn = 4;
         EDX->Link(this);
-		EDX->Apply(this, &Input);
+		EDX->Apply(this, Input);
         return EDX;
     }
     else if (RegisterTurn == 4)
     {
         RegisterTurn = 5;
         ESI->Link(this);
-		ESI->Apply(this, &Input);
+		ESI->Apply(this, Input);
         return ESI;
     }
     else if (RegisterTurn >= 5)
     {
         RegisterTurn = 0;
         EDI->Link(this);
-		EDI->Apply(this, & Input);
+		EDI->Apply(this, Input);
         return EDI;
     }
     else

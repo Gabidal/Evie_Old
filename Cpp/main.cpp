@@ -19,13 +19,13 @@ int main()
     p.Pattern_Init_Sys_Functions();
     p.Factory();
 
-    Optimizer first(p.Output);
+    Optimizer first(*p.Output);
     first.Factory();
     
-    Optimizer second(p.Output);
+    Optimizer second(*p.Output);
     second.Factory();
 
-    Back b(p.Output, OUTPUT);
+    Back b(*p.Output, OUTPUT);
     b.Factory();
 
     ofstream o("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.asm");

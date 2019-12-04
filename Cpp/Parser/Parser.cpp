@@ -21,9 +21,9 @@ void Parser::Pattern_Init_Sys_Functions()
     In->Flags |= Returning;
     In->Name = "raw_in";
 
-    Output.push_back(Malloc);
-    Output.push_back(Print);
-    Output.push_back(In);
+    Output->push_back(Malloc);
+    Output->push_back(Print);
+    Output->push_back(In);
 }
 
 void Parser::Pattern_Init_Variable(int i)
@@ -49,7 +49,7 @@ void Parser::Pattern_Init_Variable(int i)
         else
         {
             Var->Flags |= Public;
-            Output.push_back(Var);
+            Output->push_back(Var);
         }
         Input.at(i)->UsedToken = true;
     }
@@ -72,7 +72,7 @@ void Parser::Pattern_Variable(int i)
     if (Input.at(i)->is(_TEXT) && (Find(*T, Input.at(i)->WORD, Variable) != nullptr))
     {
         Token *r = Find(*T, Input.at(i)->WORD, Variable);
-        Token *t = new Token(Assembly, Output);
+        Token *t = new Token(Assembly, *&Output);
         *t = *r;
         t->Size = 4;
         if (InsideOfFunction)
@@ -106,10 +106,10 @@ void Parser::Pattern_Variable(int i)
             t->Offsetter = off;
         }
 
-        if (Input.at(i)->_type && (Find(Output, Input.at(i)->Fetcher, NotOriginal) != nullptr))
+        if (Input.at(i)->_type && (Find(*Output, Input.at(i)->Fetcher, NotOriginal) != nullptr))
         {
             //do fetching;
-            t->Fetcher = Find(Output, Input.at(i)->Fetcher, NotOriginal);
+            t->Fetcher = Find(*Output, Input.at(i)->Fetcher, NotOriginal);
         }
 
         if (Input.at(i)->_ptr)
@@ -185,10 +185,10 @@ void Parser::Pattern_Operators(int i)
         }
         else
         {
-            A = p.Output.at(p.Output.size() - 2);
-            B = p.Output.at(p.Output.size() - 1);
-            p.Output.erase(p.Output.begin() + p.Output.size() - 1);
-            p.Output.erase(p.Output.begin() + p.Output.size() - 1);
+            A = p.Output->at(p.Output->size() - 2);
+            B = p.Output->at(p.Output->size() - 1);
+            p.Output->erase(p.Output->begin() + p.Output->size() - 1);
+            p.Output->erase(p.Output->begin() + p.Output->size() - 1);
         }
         
         OP->Parameters.push_back(A);
@@ -372,7 +372,7 @@ void Parser::Pattern_Parenthesis(int i)
         Parser parser = *this;
         parser.Input = Input.at(i)->Tokens;
         parser.InsideOfFunction = true;
-        parser.Started = Output.size();
+        parser.Started = Output->size();
         parser.Factory();
         ParentFunc->Flags |= PARENT;
         ParentFunc = nullptr;
@@ -394,7 +394,7 @@ void Parser::Pattern_Parenthesis(int i)
         Parser parser = *this;
         parser.Input = Input.at(i)->Tokens;
         parser.InsideOfType = true;
-        parser.Started = Output.size();
+        parser.Started = Output->size();
         parser.Factory();
         ParentType->Flags |= PARENT;
         ParentType = nullptr;
@@ -410,7 +410,7 @@ void Parser::Pattern_Parenthesis(int i)
         Parser parser = *this;
         parser.Input = Input.at(i)->Tokens;
         parser.InsideOfCondition = true;
-        parser.Started = Output.size();
+        parser.Started = Output->size();
         parser.Factory();
         ParentCondition->Flags |= PARENT;
         if (Input.at(i-2)->_else_if)
@@ -433,7 +433,7 @@ void Parser::Pattern_Parenthesis(int i)
         Parser parser = *this;
         parser.Input = Input.at(i)->Tokens;
         parser.InsideOfCondition = true;
-        parser.Started = Output.size();
+        parser.Started = Output->size();
         parser.Factory();
         ParentCondition->Flags |= PARENT;
         ParentCondition->Flags |= int(Successour);
@@ -452,7 +452,7 @@ void Parser::Pattern_Parenthesis(int i)
         Parser parser = *this;
         parser.Input = Input.at(i)->Tokens;
         parser.InsideOfCondition = true;
-        parser.Started = Output.size();
+        parser.Started = Output->size();
         parser.Factory();
         ParentFunc->Flags |= PARENT;
         Layer--;
@@ -624,11 +624,11 @@ void Parser::Pattern_New(int i)
         // the template type classes are always made global
         vector<Token*> *T;
         Give_Output(T);
-        int j = Find(Input.at(i)->Tokens.at(0)->WORD, TypE, Output);
+        int j = Find(Input.at(i)->Tokens.at(0)->WORD, TypE, *Output);
         Token *t = new Token(Assembly, Output);
-        t->Childs = Output.at(j)->Childs;
+        t->Childs = Output->at(j)->Childs;
         t->Name = Input.at(i)->Tokens.at(1)->WORD;
-        t->Origin = Output.at(j);
+        t->Origin = Output->at(j);
         t->Flags |= NotOriginal;
         t->Flags |= Ptr;
         t->Flags |= Variable;
@@ -656,10 +656,10 @@ void Parser::Pattern_New(int i)
             Give_Output(T);
             T->push_back(t);
         }
-        Output.at(j)->Callations.push_back(t);
-        j = Find("Malloc", Function, Output);
-        Output.at(j)->Callations.push_back(t);
-        Output.at(j)->CallationAmount++;
+        Output->at(j)->Callations.push_back(t);
+        j = Find("Malloc", Function, *Output);
+        Output->at(j)->Callations.push_back(t);
+        Output->at(j)->CallationAmount++;
     }
 }
 
@@ -821,7 +821,7 @@ void Parser::Give_Input(vector<Token*> *&T)
     {
         T->insert(T->end(), ParentType->Childs.begin(), ParentType->Childs.end());
     }
-    T->insert(T->end(), Output.begin(), Output.end());
+    T->insert(T->end(), Output->begin(), Output->end());
 }
 
 void Parser::Give_Context(vector<Token*>*& T)
@@ -843,7 +843,7 @@ void Parser::Give_Context(vector<Token*>*& T)
 	}
 	else
 	{
-		T = &Output;
+		T = Output;
 	}
 }
 
@@ -867,7 +867,7 @@ void Parser::Give_Output(vector<Token*> *&T)
     }
     else
     {
-        T = &Output;
+        T = Output;
     }
 }
 
@@ -916,11 +916,11 @@ void Parser::Pattern_Include(int i)
         d->OpenFile(tmp2.c_str());
         Parser p(d->output, Assembly);
 		p.Output = Output;
-		int tmpsize = p.Output.size();
+		int tmpsize = p.Output->size();
         p.Factory();
         
-        for (int j = tmpsize; j < int(p.Output.size()); j++)
-            Output.push_back(p.Output.at(j));
+        for (int j = tmpsize; j < int(p.Output->size()); j++)
+            Output->push_back(p.Output->at(j));
         
     }
 }

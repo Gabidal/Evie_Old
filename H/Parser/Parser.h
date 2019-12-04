@@ -25,7 +25,7 @@ public:
     bool GetDirect = false;
     string &Assembly;
     vector<Word*> Input;
-    vector<Token*> Output;
+    vector<Token*> *Output = new vector<Token*>;
     vector<Token*> Direct;
     vector<string*> Included_Files; //for loop holes to not exist
     void Pattern_Init_Sys_Functions();
@@ -98,11 +98,11 @@ public:
     {
         Input = in;
     }
-    Parser(vector<Word*> in, vector<Token*> out, string &a) : Assembly(a)
+    Parser(vector<Word*> in, vector<Token*> *out, string &a) : Assembly(a)
     {
         Input = in;
         Output = out;
-        Started = out.size();
+        Started = out->size();
     }
     ~Parser()
     {

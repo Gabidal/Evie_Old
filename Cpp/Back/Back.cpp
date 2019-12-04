@@ -189,11 +189,11 @@ void Back::Handle_Type_Init(int i)
 		Input.at(i)->Flags |= Real;
         if (vars.size() > 0)
         {
-			Token* initter = new Token(Output, Input);
+			Token* initter = new Token(Output, &Input);
 			initter->Name = "Init_Variables_Of_" + Input.at(i)->Name;
 			initter->Flags |= Function;
 			initter->Flags |= Returning;
-			Token* THIS = new Token(Output, Input);
+			Token* THIS = new Token(Output, &Input);
 			THIS->Flags |= Variable;
 			THIS->Size = 4;
 			THIS->Name = "this";
@@ -390,7 +390,7 @@ void Back::Handle_Returning(int i)
             b.Dest->Flags |= Storer;
             b.Dest->InitVariable();
 			Output += COMMENT + "Return " + b.Dest->Name + NL;
-            Token *returnAddress = new Token(Output, Input);
+            Token *returnAddress = new Token(Output, &Input);
 			returnAddress->Name = "Returning address";
             returnAddress->getReg();
             Output += MOV + ESP->Name + FROM + EBP->Name + NL;
