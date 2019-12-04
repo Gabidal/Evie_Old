@@ -134,7 +134,11 @@ void Optimizer::fix_All(Token* t, vector<Token*>& T)
 		{
 			fix_All(t, u->Childs);
 		}
-		else if ((u->Name == t->Name) && (u->Flags == t->Flags) && (u->fixed_Location == false))
+		if (u->Parameters.size() > 0)
+		{
+			fix_All(t, u->Parameters);
+		}
+		if ((u->Name == t->Name) && (u->Flags == t->Flags))
 		{
 			u->fixed_Location = true;
 			u->StackOffset = t->StackOffset;
@@ -148,14 +152,52 @@ void Optimizer::Optimize_Variables(int i)
     {
         if (Input.at(i)->is(Member))
         {
-            Set_All_References(Input.at(i)->Name, (Variable | Member), Global);
+			if ((Input.at(i)->ParentFunc != nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable | Member), Input.at(i)->ParentFunc->Childs);
+				Set_All_References(Input.at(i)->Fetcher->Name, (NotOriginal), Input.at(i)->ParentFunc->Childs);
+			}
+			if ((Input.at(i)->ParentType != nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable | Member), Input.at(i)->ParentType->Childs);
+				Set_All_References(Input.at(i)->Fetcher->Name, (NotOriginal), Input.at(i)->ParentType->Childs);
+			}
+			if ((Input.at(i)->ParentType == nullptr) && (Input.at(i)->ParentFunc == nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable | Member), Global);
+				Set_All_References(Input.at(i)->Fetcher->Name, (NotOriginal), Global);
+			}
         }
-        if ((Input.at(i)->Offsetter != 0) && Input.at(i)->is(Array))
+        else if ((Input.at(i)->Offsetter != 0) && Input.at(i)->is(Array))
         {
-            Set_All_References(Input.at(i)->Name, (Variable | Array), Global);
+			if ((Input.at(i)->ParentFunc != nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable | Array), Input.at(i)->ParentFunc->Childs);
+			}
+			if ((Input.at(i)->ParentType != nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable | Array), Input.at(i)->ParentType->Childs);
+			}
+			if ((Input.at(i)->ParentType == nullptr) && (Input.at(i)->ParentFunc == nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable | Array), Global);
+			}
         }
-        if (Input.at(i)->is(Variable))
-            Set_All_References(Input.at(i)->Name, Variable, Global);
+		else if (Input.at(i)->is(Variable))
+		{
+			if ((Input.at(i)->ParentFunc != nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable), Input.at(i)->ParentFunc->Childs);
+			}
+			if ((Input.at(i)->ParentType != nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable), Input.at(i)->ParentType->Childs);
+			}
+			if ((Input.at(i)->ParentType == nullptr) && (Input.at(i)->ParentFunc == nullptr))
+			{
+				Set_All_References(Input.at(i)->Name, (Variable), Global);
+			}
+		}
     }
     if (Input.at(i)->is(Number) && Priority_For_Return)
     {

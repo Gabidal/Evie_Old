@@ -632,7 +632,6 @@ void Parser::Pattern_New(int i)
         t->Flags |= NotOriginal;
         t->Flags |= Ptr;
         t->Flags |= Variable;
-		t->Size = 4;
         for (int k = 0; k < int(t->Childs.size()); k++)
         {
             if (t->Childs.at(k)->Size > 0)

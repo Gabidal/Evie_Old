@@ -17,7 +17,8 @@ func main()
 	var c = 3
 	new vector v
 	a = sum(b, c)
-	return v
+	a = a + v.size
+	return a
 )
 
 main()

@@ -128,7 +128,7 @@ int Get_Amount(vector<Token*> list, int flag)
         {
             continue;
         }
-        if ((t->Childs.size() > 0) && (t->is(OPERATOR) != true) && (t->Name != "return"))
+        if ((t->Childs.size() > 0) && (t->is(OPERATOR) != true) && (t->Name != "return") && (t->Origin == nullptr))
         {
             Get_Amount(t->Childs, flag);
         }
