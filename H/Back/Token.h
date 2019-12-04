@@ -87,7 +87,7 @@ class Token
     string MOVEINSTACK();
     string GetAddress();
     //func
-    vector<Token*> Callations;
+    vector<Token*> *Callations = new vector<Token*>;
     int CallationAmount = 0;
     void addChild(Token *t, bool func);
     void addParameter(Token *Param);
@@ -100,6 +100,8 @@ class Token
     //ptr
     void PTRING(Token *&T);
     bool Needs_Back_Up = false;
+	//optimization
+	bool fixed_Location = false;
 };
 
 class Register

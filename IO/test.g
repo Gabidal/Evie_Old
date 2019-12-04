@@ -12,12 +12,12 @@ type vector
 
 func main()
 (
-	new vector v
 	var a = 1
 	var b = 2
 	var c = 3
+	new vector v
 	a = sum(b, c)
-	return a
+	return v
 )
 
 main()

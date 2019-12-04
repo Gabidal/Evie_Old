@@ -1,4 +1,6 @@
-﻿  Parser.cpp
+﻿  Optimizer.cpp
+C:\Users\Quanf\source\repos\GAS\GAS\Cpp\Parser\Optimizer.cpp(84,23): warning C4018: '<': signed/unsigned mismatch
   main.cpp
   Generating Code...
+C:\Users\Quanf\source\repos\GAS\GAS\Cpp\Parser\Optimizer.cpp(230,25): warning C4018: '<': signed/unsigned mismatch
   GAS.vcxproj -> C:\Users\Quanf\source\repos\GAS\Debug\GAS.exe

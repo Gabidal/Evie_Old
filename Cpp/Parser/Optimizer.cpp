@@ -126,6 +126,22 @@ void Optimizer::Set_All_References(string name, int flags, vector<Token*> &T)
     }
 }
 
+void Optimizer::fix_All(Token* t, vector<Token*>& T)
+{
+	for (Token* u : T)
+	{
+		if (u->Childs.size() > 0)
+		{
+			fix_All(t, u->Childs);
+		}
+		else if ((u->Name == t->Name) && (u->Flags == t->Flags) && (u->fixed_Location == false))
+		{
+			u->fixed_Location = true;
+			u->StackOffset = t->StackOffset;
+		}
+	}
+}
+
 void Optimizer::Optimize_Variables(int i)
 {
     if (Input.at(i)->is(Variable) && Priority_For_Return)
@@ -183,19 +199,19 @@ void Optimizer::Optimize_Functions(int i)
 {
     if (Input.at(i)->is(Function) && Input.at(i)->CallationAmount > 0)
     {
-        for (int j = 0; j < int(Input.at(i)->Callations.size()); j++)
+        for (int j = 0; j < int(Input.at(i)->Callations->size()); j++)
         {
-            if (Input.at(i)->Callations.at(j)->ParentFunc != nullptr)
+            if (Input.at(i)->Callations->at(j)->ParentFunc != nullptr)
             {
-                if (Input.at(i)->Callations.at(j)->ParentFunc->is(Used))
+                /*if (Input.at(i)->Callations->at(j)->ParentFunc->is(Used))
                 {
                     //if function callation is inside another function that is called
                     Input.at(i)->Flags |= Used;
                     Optimize_Sys_Functions(Input.at(i));
                     break;
-                }
+                }*/
             }
-            else if (Input.at(i)->Callations.at(j)->ParentType == nullptr)
+            else if (Input.at(i)->Callations->at(j)->ParentType == nullptr)
             {
                 //this functon callation is public
                 Input.at(i)->Flags |= Used;
@@ -211,6 +227,8 @@ void Optimizer::Optimize_Functions(int i)
                     {
                         Input.at(i)->Flags |= Used;
                         Optimize_Sys_Functions(Input.at(i));
+						for (int k = 0; k < Input.at(k)->Callations->size(); k++)
+							Input.at(i)->Callations->at(k)->Flags |= Used;
                         break;
                     }
                 }
@@ -229,19 +247,47 @@ void Optimizer::Optimize_Functions(int i)
     }
 }
 
+void Optimizer::Optimize_Function_Local_Variables_reservation(int i)
+{
+	if (Input.at(i)->is(Function) && (Input.at(i)->is(Used)))
+	{
+		int fixing = 0;
+		for (Token *t : Input.at(i)->Childs)
+		{
+			if ((t->is(Used) != true) && t->Any(Variable | NotOriginal | Ptr))
+			{
+				fixing -= t->Size;
+			}
+			else if (t->is(Used) && t->Any(Variable | NotOriginal | Ptr) && (t->fixed_Location == false))
+			{
+				t->StackOffset += fixing;
+				fixing += t->Size;
+				t->fixed_Location = true;
+				if (t->is(Private))
+					fix_All(t, t->ParentFunc->Childs);
+				else if (t->is(Member))
+					fix_All(t, t->ParentType->Childs);
+			}
+		}
+	}
+}
+
 void Optimizer::Optimize_Function_Calls(int i)
 {
-    if (Input.at(i)->is(Call))
+    /*if (Input.at(i)->is(Call))
     {
-        Input.at(i)->Flags |= Used;
-    }
+		if ((Input.at(i)->ParentFunc == nullptr) || Input.at(i)->ParentFunc->is(Used))
+		{
+			Input.at(i)->Flags |= Used;
+		}
+    }*/
 }
 
 void Optimizer::Optimize_Types(int i)
 {
-    if (Input.at(i)->is(TypE) && (Input.at(i)->Callations.size() > 0))
+    if (Input.at(i)->is(TypE) && (Input.at(i)->Callations->size() > 0))
     {
-        for (Token *t : Input.at(i)->Callations)
+        for (Token *t : *Input.at(i)->Callations)
         {
             if (t->ParentFunc != 0)
             {
@@ -315,6 +361,7 @@ void Optimizer::Factory()
     for (int i = 0; i < int(Input.size()); i++)
     {
         Optimize_Functions(i);
+		Optimize_Function_Local_Variables_reservation(i);
         Optimize_Function_Calls(i);
         Optimize_Types(i);
         Optimize_Variables(i);

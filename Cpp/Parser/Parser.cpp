@@ -548,7 +548,7 @@ void Parser::Pattern_Call_Func(int i)
         {
             int j = Find(func->Name, Function, *t);
             t->at(j)->CallationAmount++;
-            t->at(j)->Callations.push_back(func);
+            t->at(j)->Callations->push_back(func);
         }
 
         Give_Input(t);
@@ -632,6 +632,7 @@ void Parser::Pattern_New(int i)
         t->Flags |= NotOriginal;
         t->Flags |= Ptr;
         t->Flags |= Variable;
+		t->Size = 4;
         for (int k = 0; k < int(t->Childs.size()); k++)
         {
             if (t->Childs.at(k)->Size > 0)
@@ -641,7 +642,7 @@ void Parser::Pattern_New(int i)
         }
         Give_Output(T);
         T->push_back(n);
-        if (InsideOfType && InsideOfFunction != true)
+        if (InsideOfType && (InsideOfFunction != true))
         {
             t->Flags |= Member;
             ParentType->addChild(t, false);
@@ -656,9 +657,9 @@ void Parser::Pattern_New(int i)
             Give_Output(T);
             T->push_back(t);
         }
-        Output->at(j)->Callations.push_back(t);
+        Output->at(j)->Callations->push_back(t);
         j = Find("Malloc", Function, *Output);
-        Output->at(j)->Callations.push_back(t);
+        Output->at(j)->Callations->push_back(t);
         Output->at(j)->CallationAmount++;
     }
 }

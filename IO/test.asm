@@ -1,21 +1,7 @@
-malloc: 
-push dword 0
-push dword -1
-push dword 0x22
-push dword 0x03
-push dword [esp + 16]
-push dword 0
-mov eax, 0x5a
-mov ebx, esp
-int 0x80
-add esp, 24
-pop ebx
-push eax
-jmp ebx
 section .bss
 section .code
- ; Function sum
-sum: 
+ ; Function main
+main: 
  ; Making stack frame 
 push ebp
 mov ebp, esp
@@ -23,17 +9,14 @@ mov ebp, esp
  ; Making space for local variables 
 sub esp, 0
 
- ; Adding y into x
- ; Just directly get address
- ; Giving x, eax
- ; Initializing new register for private  variable x
-mov eax, [ebp + 4]
-add eax, [ebp + 8]
- ; Saving result of x into x
-mov [ebp + 4], eax
-
- ; x has already a register to it
- ; Return x
+ ; Allocating new memory space for new type 
+push dword 12
+call malloc
+pop dword [ebp - 4]
+ ; Giving v, eax
+ ; Initializing new register for private  variable v
+mov eax, [ebp - 16]
+ ; Return v
  ; Giving Returning address, ebx
 mov esp, ebp
 pop ebp
@@ -46,57 +29,4 @@ mov esp, ebp
 pop ebp
  ; Returning 
 ret
-
- ; Function main
-main: 
- ; Making stack frame 
-push ebp
-mov ebp, esp
-
- ; Making space for local variables 
-sub esp, 12
-
- ; Giving a, 1
-mov [ebp - 4], dword 1
- ; Giving b, 2
-mov [ebp - 8], dword 2
- ; Giving c, 3
-mov [ebp - 12], dword 3
- ; Calling sum
- ; Pushing Variable 
- ; Giving b, ecx
- ; Initializing new register for private  variable b
-mov ecx, [ebp - 8]
-push ecx
- ; Pushing Variable 
- ; Giving c, edx
- ; Initializing new register for private  variable c
-mov edx, [ebp - 12]
-push edx
-call sum
-
- ; Clearing the parameters
-add esp, 8
- ; Giving a the return value
-pop dword [ebp - 4]
-
- ; Giving a, esi
- ; Initializing new register for private  variable a
-mov esi, [ebp - 4]
- ; Return a
- ; Giving Returning address, edi
-mov esp, ebp
-pop ebp
-pop edi
-push esi
-jmp edi
-
- ; Ending stack frame 
-mov esp, ebp
-pop ebp
- ; Returning 
-ret
-
- ; Calling main
-call main
 
