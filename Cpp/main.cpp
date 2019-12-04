@@ -11,7 +11,6 @@ int main()
 
 	string OUTPUT = "";
 
-
     Definer d;
     d.OpenFile("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.g");
 

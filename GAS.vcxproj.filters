@@ -21,9 +21,6 @@
     <ClCompile Include="Cpp\Parser\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cpp\Parser\Optimizer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Cpp\Linux\Linux.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -37,6 +34,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Cpp\Back\Back.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cpp\Parser\Optimizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,10 +68,10 @@
     <ClInclude Include="H\Linux\Linux.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\Parser\Optimizer.h">
+    <ClInclude Include="H\Parser\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\Parser\Parser.h">
+    <ClInclude Include="H\Parser\Optimizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
