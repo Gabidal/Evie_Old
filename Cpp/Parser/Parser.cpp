@@ -549,6 +549,7 @@ void Parser::Pattern_Call_Func(int i)
             int j = Find(func->Name, Function, *t);
             t->at(j)->CallationAmount++;
             t->at(j)->Callations->push_back(func);
+			func->daddy_Func = t->at(j);
         }
 
         Give_Input(t);

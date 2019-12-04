@@ -58,7 +58,15 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
             if (GetAbsoluteDestination(t)->is(Used))
             {
                 t->Flags |= Used;
-                Set_All_References(t->Childs.at(0)->Name, EnyFlag, Global);
+				if (t->Childs.at(0)->is(Call))
+				{
+					t->Childs.at(0)->Flags |= Used;
+					t->Childs.at(0)->daddy_Func->Flags |= Used;
+				}
+				else
+				{
+					Set_All_References(t->Childs.at(0)->Name, EnyFlag, Global);
+				}
             }
         }
         if ((t->Name == "=") && t->Parameters.at(0)->is(Used))
@@ -81,6 +89,7 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
             }
 			else if (t->Childs.at(0)->is(Call))
 			{
+				Set_All_References(t->Childs.at(0)->daddy_Func->Name, Function, Global);
 				for (int i = 0; i < t->Childs.at(0)->Parameters.size(); i++)
 				{
 					if (t->Childs.at(0)->Parameters.at(i)->is(Private) || t->Childs.at(0)->Parameters.at(i)->is(Parameter))
@@ -243,17 +252,17 @@ void Optimizer::Optimize_Functions(int i)
     {
         for (int j = 0; j < int(Input.at(i)->Callations->size()); j++)
         {
-            if (Input.at(i)->Callations->at(j)->ParentFunc != nullptr)
+            /*if (Input.at(i)->Callations->at(j)->ParentFunc != nullptr)
             {
-                /*if (Input.at(i)->Callations->at(j)->ParentFunc->is(Used))
+                if (Input.at(i)->Callations->at(j)->ParentFunc->is(Used))
                 {
                     //if function callation is inside another function that is called
                     Input.at(i)->Flags |= Used;
                     Optimize_Sys_Functions(Input.at(i));
                     break;
-                }*/
-            }
-            else if (Input.at(i)->Callations->at(j)->ParentType == nullptr)
+                }
+            }*/
+            if ((Input.at(i)->Callations->at(j)->ParentType == nullptr) && (Input.at(i)->Callations->at(j)->ParentFunc == nullptr))
             {
                 //this functon callation is public
                 Input.at(i)->Flags |= Used;

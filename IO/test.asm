@@ -1,5 +1,38 @@
 section .bss
 section .code
+ ; Function sum
+sum: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+ ; Making space for local variables 
+sub esp, 0
+
+ ; Adding y into x
+ ; Just directly get address
+ ; Giving x, eax
+ ; Initializing new register for private  variable x
+mov eax, [ebp + 4]
+add eax, [ebp + 8]
+ ; Saving result of x into x
+mov [ebp + 4], eax
+
+ ; x has already a register to it
+ ; Return x
+ ; Giving Returning address, ebx
+mov esp, ebp
+pop ebp
+pop ebx
+push eax
+jmp ebx
+
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
  ; Function main
 main: 
  ; Making stack frame 
@@ -9,47 +42,38 @@ mov ebp, esp
  ; Making space for local variables 
 sub esp, 12
 
- ; Giving a, 1
-mov [ebp - 4], dword 1
  ; Giving b, 2
-mov [ebp - 12], dword 2
+mov [ebp - 4], dword 2
  ; Giving c, 3
-mov [ebp - 20], dword 3
+mov [ebp - 12], dword 3
  ; Calling sum
  ; Pushing Variable 
- ; Giving b, eax
+ ; Giving b, ecx
  ; Initializing new register for private  variable b
-mov eax, [ebp - 12]
-push eax
+mov ecx, [ebp - 4]
+push ecx
  ; Pushing Variable 
- ; Giving c, ebx
+ ; Giving c, edx
  ; Initializing new register for private  variable c
-mov ebx, [ebp - 20]
-push ebx
+mov edx, [ebp - 12]
+push edx
 call sum
 
  ; Clearing the parameters
 add esp, 8
  ; Giving a the return value
-pop dword [ebp - 4]
+pop dword [ebp - 20]
 
- ; Adding size into a
- ; Just directly get address
- ; Giving a, ecx
+ ; Giving a, esi
  ; Initializing new register for private  variable a
-mov ecx, [ebp - 4]
-add ecx, [ebp - 4]
- ; Saving result of a into a
-mov [ebp - 4], ecx
-
- ; a has already a register to it
+mov esi, [ebp - 20]
  ; Return a
- ; Giving Returning address, edx
+ ; Giving Returning address, edi
 mov esp, ebp
 pop ebp
-pop edx
-push ecx
-jmp edx
+pop edi
+push esi
+jmp edi
 
  ; Ending stack frame 
 mov esp, ebp

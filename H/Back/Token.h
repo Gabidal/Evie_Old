@@ -89,6 +89,7 @@ class Token
     //func
     vector<Token*> *Callations = new vector<Token*>;
     int CallationAmount = 0;
+	Token* daddy_Func = nullptr;
     void addChild(Token *t, bool func);
     void addParameter(Token *Param);
     void InitFunction();
