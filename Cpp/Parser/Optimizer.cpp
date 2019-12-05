@@ -312,7 +312,6 @@ void Optimizer::Optimize_Function_Local_Variables_reservation(int i)
 			else if (t->is(Used) && t->Any(Variable | NotOriginal | Ptr) && (t->fixed_Location == false))
 			{
 				t->StackOffset += fixing;
-				fixing += t->Size;
 				t->fixed_Location = true;
 				if (t->is(Private))
 					fix_All(t, t->ParentFunc->Childs);

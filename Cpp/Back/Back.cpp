@@ -99,7 +99,14 @@ void Back::Handle_Variables(int i)
             else if (Input.at(i)->is(Variable))
             {
 				Output += COMMENT + "Pushing Variable " + NL;
-                Output += PUSH + Input.at(i)->InitVariable() + NL;
+				if (Input.at(i)->Reg == nullptr)
+				{
+					Output += PUSH + Input.at(i)->GetAddress() + NL;
+				}
+				else
+				{
+					Output += PUSH + Input.at(i)->InitVariable() + NL;
+				}
             }
             else
             {
