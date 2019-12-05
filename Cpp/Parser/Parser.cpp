@@ -833,12 +833,12 @@ void Parser::Give_Context(vector<Token*>*& T)
 		T->insert(T->end(), ParentCondition->Parameters.begin(), ParentCondition->Parameters.end());
 		T->insert(T->end(), ParentCondition->Childs.begin(), ParentCondition->Childs.end());
 	}
-	else if (InsideOfFunction)
+	if (InsideOfFunction)
 	{
 		T->insert(T->end(), ParentFunc->Parameters.begin(), ParentFunc->Parameters.end());
 		T->insert(T->end(), ParentFunc->Childs.begin(), ParentFunc->Childs.end());
 	}
-	else if (InsideOfType)
+	if (InsideOfType)
 	{
 		T->insert(T->end(), ParentType->Childs.begin(), ParentType->Childs.end());
 	}

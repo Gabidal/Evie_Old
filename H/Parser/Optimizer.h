@@ -31,6 +31,7 @@ public:
     void Optimize_Function_Calls(int i);
     void Set_All_References(string name, int Flag, vector<Token*> &T);
 	void fix_All(Token* t, vector<Token*>& T);
+	int Find(int Flag, vector<Token*>* T);
     Optimizer(vector<Token*> &In)
     {
         Input = In;

@@ -155,6 +155,26 @@ void Optimizer::fix_All(Token* t, vector<Token*>& T)
 	}
 }
 
+int Optimizer::Find(int Flag, vector<Token*>* T)
+{
+	for (Token* t : *T)
+	{
+		if (t->Childs.size() > 0)
+		{
+			return Find(Flag, &t->Childs);
+		}
+		else if (t->is(OPERATOR))
+		{
+			return Find(Flag, &t->Parameters);
+		}
+		else if (t->Any(Flag))
+		{
+			return 1;
+		}
+	}
+	return -1;
+}
+
 void Optimizer::Optimize_Variables(int i)
 {
     if (Input.at(i)->is(Variable) && Priority_For_Return)
@@ -376,33 +396,18 @@ void Optimizer::Optimize_Conditions(int i)
 {
     if (Input.at(i)->is(If) || Input.at(i)->is(Else) || Input.at(i)->is(While))
     {
-        int j;
-        if ((j = Find("=", OPERATOR, Input.at(i)->Childs)) != -1)
-        {
-            if (Input.at(i)->Childs.at(j)->is(Used))
-            {
-                Input.at(i)->Flags |= Used;
-                if (Input.at(i)->Parameters.size() > 0)
-                {
-                    Optimize_Condition_Variebles(Input.at(i)->Parameters.at(0));
-                }
-            }
-        }
-        else if ((j = GetSecondaryDestination(Input.at(i)->Childs)) != -1)
-        {
-            Set_All_References(Input.at(i)->Name, EnyFlag, Global);
-        }
-        else if ((j = Find("return", Returning, Input.at(i)->Childs)) != -1)
-        {
-            Input.at(i)->Flags |= Used;
-            if (Input.at(i)->Parameters.size() > 0)
-            {
-                Optimize_Condition_Variebles(Input.at(i)->Parameters.at(0));
-            }
-        }
-        Optimizer o = *this;
-        o.Input = (Input.at(i)->Childs);
-        o.Factory();
+		//Find if this condition is even useful for the user.
+		if (Find(Used, &Input.at(i)->Childs) != -1)
+		{
+			Input.at(i)->Flags |= Used;
+			for (int j = 0; j < Input.at(i)->Parameters.size(); j++)
+			{
+				Input.at(i)->Parameters.at(j)->Flags |= Used;
+			}
+			Optimizer o = *this;
+			o.Input = (Input.at(i)->Childs);
+			o.Factory();
+		}
     }
 }
 

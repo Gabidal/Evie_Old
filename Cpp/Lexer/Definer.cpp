@@ -185,6 +185,17 @@ void Definer::Define()
     output.push_back(w);
 }
 
+string ReplaceString(string subject, const string& search, const string& replace)
+{
+	int pos = 0;
+	while ((pos = subject.find(search, pos)) != string::npos)
+	{
+		subject.replace(pos, search.length(), replace);
+		pos += replace.length();
+	}
+	return subject;
+}
+
 void Definer::OpenFile(const char* fileName)
 {
     ifstream file(fileName);
@@ -202,8 +213,8 @@ void Definer::OpenFile(const char* fileName)
             BUFFER += Line + "\n";
         }
     }
-    Lines = BUFFER;
-        Define();
+	Lines = ReplaceString(BUFFER, "\t", "   ");
+    Define();
 }
 
 void Definer::Direct(string raw)
