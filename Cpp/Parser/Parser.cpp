@@ -916,7 +916,7 @@ void Parser::Pattern_Include(int i)
         Definer *d = new Definer();
         d->OpenFile(tmp2.c_str());
         Parser p(d->output, Assembly);
-		p.Output = Output;
+		*p.Output = *Output;
 		int tmpsize = p.Output->size();
         p.Factory();
         
