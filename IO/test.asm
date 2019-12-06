@@ -1,11 +1,5 @@
 section .bss
 true resd 1
-false resd 1
-null resd 1
-size_v resd 1
-size_f resd 1
-size_d resd 1
-size_c resd 1
 section .code
  ; Function main
 main: 
@@ -16,10 +10,10 @@ mov ebp, esp
  ; Making space for local variables 
 sub esp, 0
 
- ; Giving 1, eax
- ; Initializing new register for number 1
-mov eax, 1
- ; Return 1
+ ; Giving true, eax
+ ; Initializing new register for private  variable true
+mov eax, [true]
+ ; Return true
  ; Giving Returning address, ebx
 mov esp, ebp
 pop ebp

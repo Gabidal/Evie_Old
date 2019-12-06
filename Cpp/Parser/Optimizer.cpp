@@ -214,15 +214,15 @@ void Optimizer::Optimize_Variables(int i)
         }
 		else if (Input.at(i)->is(Variable))
 		{
-			if ((Input.at(i)->ParentFunc != nullptr))
+			if ((Input.at(i)->ParentFunc != nullptr) && (Input.at(i)->is(Private)))
 			{
 				Set_All_References(Input.at(i)->Name, (Variable), Input.at(i)->ParentFunc->Childs);
 			}
-			if ((Input.at(i)->ParentType != nullptr))
+			if ((Input.at(i)->ParentType != nullptr) && (Input.at(i)->is(Member)))
 			{
 				Set_All_References(Input.at(i)->Name, (Variable), Input.at(i)->ParentType->Childs);
 			}
-			if ((Input.at(i)->ParentType == nullptr) && (Input.at(i)->ParentFunc == nullptr))
+			if ((Input.at(i)->is(Public)) || (Input.at(i)->ParentType == nullptr) && (Input.at(i)->ParentFunc == nullptr))
 			{
 				Set_All_References(Input.at(i)->Name, (Variable), Global);
 			}

@@ -411,7 +411,7 @@ void Back::Handle_Returning(int i)
 
 void Back::Handle_Variable_Initalization(int i)
 {
-    if (Input.at(i)->_INITTED == false && Input.at(i)->is(Variable) && Input.at(i)->is(Public))
+    if ((Input.at(i)->_INITTED == false) && Input.at(i)->is(Variable) && Input.at(i)->is(Public) && Input.at(i)->is(Used))
     {
         Output += Input.at(i)->Name + DD + NL;
         Input.at(i)->_INITTED = true;
