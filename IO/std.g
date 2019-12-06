@@ -7,7 +7,7 @@ var size_d
 var size_c
 
 #inizaliation of std variables.
-func init()
+func std_init()
 (
 	true = 1
 	false = 0

@@ -101,7 +101,6 @@ void Parser::Pattern_Variable(int i)
             p.Factory();
             Token *off = new Token(Assembly, Output);
             off = p.Direct.at(0);
-            off->Flags |= Array;
             t->Flags |= Array;
             t->Offsetter = off;
         }

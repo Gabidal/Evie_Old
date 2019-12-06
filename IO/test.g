@@ -2,8 +2,10 @@ using "std.g"
 
 func main()
 (
-	init()
-	return true
+	var a = 1
+	std_init()
+	a : true = a : true
+	return a
 )
 
 main()

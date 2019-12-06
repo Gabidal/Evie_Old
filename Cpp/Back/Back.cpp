@@ -168,7 +168,10 @@ void Back::Handle_Function_Init(int i)
         StackFrame stack(Output, true);
         int care = Variable | Ptr | NotOriginal | Array;
 		Output += COMMENT + "Making space for local variables " + NL;
-        Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
+		if (Get_Amount(Input.at(i)->Childs, care) > 0)
+		{
+			Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
+		}
         b.IS_PUBLIC++;
         b.Factory();
         b.IS_PUBLIC--;
