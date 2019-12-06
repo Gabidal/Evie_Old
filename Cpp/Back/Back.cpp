@@ -395,16 +395,27 @@ void Back::Handle_Returning(int i)
             b.Factory();
             b.IS_PUBLIC--;
             b.Dest->Flags |= Storer;
-            b.Dest->InitVariable();
 			Output += COMMENT + "Return " + b.Dest->Name + NL;
-            Token *returnAddress = new Token(Output, &Input);
+			Token* returnAddress = new Token(Output, &Input);
 			returnAddress->Name = "Returning address";
-            returnAddress->getReg();
-            Output += MOV + ESP->Name + FROM + EBP->Name + NL;
-            Output += POP + EBP->Name + NL;
-            Output += POP + returnAddress->Reg->Name + NL;
-            Output += PUSH + b.Dest->Reg->Name + NL;
-            Output += JMP + returnAddress->Reg->Name + NL + NL;
+			returnAddress->getReg();
+			if (b.Dest->is(Public))
+			{
+				Output += MOV + ESP->Name + FROM + EBP->Name + NL;
+				Output += POP + EBP->Name + NL;
+				Output += POP + returnAddress->Reg->Name + NL;
+				Output += PUSH + string(DWORD) + FRAME(b.Dest->Name) + NL;
+				Output += JMP + returnAddress->Reg->Name + NL + NL;
+			}
+			else
+			{
+				b.Dest->InitVariable();
+				Output += MOV + ESP->Name + FROM + EBP->Name + NL;
+				Output += POP + EBP->Name + NL;
+				Output += POP + returnAddress->Reg->Name + NL;
+				Output += PUSH + b.Dest->Reg->Name + NL;
+				Output += JMP + returnAddress->Reg->Name + NL + NL;
+			}
         }
     }
 }

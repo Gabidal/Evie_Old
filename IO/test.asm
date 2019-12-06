@@ -1,6 +1,23 @@
 section .bss
 true resd 1
 section .code
+ ; Function init
+init: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+ ; Making space for local variables 
+sub esp, 0
+
+ ; Giving true, 1
+mov [true], dword 1
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
  ; Function main
 main: 
  ; Making stack frame 
@@ -10,16 +27,13 @@ mov ebp, esp
  ; Making space for local variables 
 sub esp, 0
 
- ; Giving true, eax
- ; Initializing new register for private  variable true
-mov eax, [true]
  ; Return true
- ; Giving Returning address, ebx
+ ; Giving Returning address, eax
 mov esp, ebp
 pop ebp
-pop ebx
-push eax
-jmp ebx
+pop eax
+push dword [true]
+jmp eax
 
  ; Ending stack frame 
 mov esp, ebp
