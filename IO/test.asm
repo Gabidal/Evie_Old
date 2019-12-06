@@ -27,6 +27,9 @@ mov ebp, esp
  ; Making space for local variables 
 sub esp, 0
 
+ ; Calling init
+call init
+
  ; Return true
  ; Giving Returning address, eax
 mov esp, ebp

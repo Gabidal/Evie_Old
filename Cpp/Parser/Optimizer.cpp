@@ -298,7 +298,7 @@ void Optimizer::Optimize_Functions(int i)
                     {
                         Input.at(i)->Flags |= Used;
                         Optimize_Sys_Functions(Input.at(i));
-						for (int k = 0; k < Input.at(k)->Callations->size(); k++)
+						for (int k = 0; k < Input.at(i)->Callations->size(); k++)
 							Input.at(i)->Callations->at(k)->Flags |= Used;
                         break;
                     }
@@ -346,9 +346,13 @@ void Optimizer::Optimize_Function_Calls(int i)
 {
     /*if (Input.at(i)->is(Call))
     {
-		if ((Input.at(i)->ParentFunc == nullptr) || Input.at(i)->ParentFunc->is(Used))
+		if ((Input.at(i)->ParentFunc == nullptr) && (Input.at(i)->ParentType == nullptr))
 		{
-			Input.at(i)->Flags |= Used;
+
+		}
+		for (Token *t : Input.at(i)->daddy_Func->Childs)
+		{
+
 		}
     }*/
 }
