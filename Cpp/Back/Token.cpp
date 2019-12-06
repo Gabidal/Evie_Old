@@ -189,7 +189,12 @@ string Token::InitVariable()
     {
 		this->Reg = getReg();
 		output += COMMENT + "Initializing new register for ";
-        if (this->is(Member) && (this->Fetcher != nullptr))
+		if (this->is(Number))
+		{
+			output += "number " + this->Name + NL;
+			output += MOV + this->Reg->Name + FROM + this->Name + NL;
+		}
+        else if (this->is(Member) && (this->Fetcher != nullptr))
         {
 			output +="member variable " + this->Name + NL;
 			if (Fetcher->Reg == nullptr)
@@ -212,11 +217,6 @@ string Token::InitVariable()
         else if (this->is(Equ))
         {
             output += MOV + this->Reg->Name + FROM + this->getFullName() + NL;
-        }
-        else if (this->is(Number))
-        {
-			output += "number " + this->Name + NL;
-            output += MOV + this->Reg->Name + FROM + this->Name + NL;
         }
         if (this->is(Array) && (this->is(Number) != true) && Needs_Back_Up)
         {

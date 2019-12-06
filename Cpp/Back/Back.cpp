@@ -458,7 +458,6 @@ void Back::Factory()
     }
 }
 
-
 Back &Back::operator=(const Back& name)
 {
     Output = name.Output;
