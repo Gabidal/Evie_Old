@@ -4,7 +4,7 @@ void Back::Handle_Operators(int i)
 {
     if (Input.at(i)->is(OPERATOR))
     {
-        if (Input.at(i)->Parameters.at(0)->is(Variable))
+        if (Input.at(i)->Parameters.at(0)->is(Variable) || Input.at(i)->Parameters.at(0)->is(Ptr))
         {
             Dest = Input.at(i)->Parameters.at(0);
         }
@@ -18,7 +18,7 @@ void Back::Handle_Operators(int i)
             this->Dest = b.Dest;
             this->Cheat = b.Cheat;
         }
-        if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number))
+        if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number) || Input.at(i)->Parameters.at(0)->is(Ptr))
         {
             Source = Input.at(i)->Childs.at(0);
         }

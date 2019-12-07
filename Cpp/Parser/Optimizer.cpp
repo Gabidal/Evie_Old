@@ -222,7 +222,7 @@ void Optimizer::Give_Context(Token *t, vector<Token*>*& T)
 
 void Optimizer::Optimize_Variables(int i)
 {
-    if (Input.at(i)->is(Variable) && Priority_For_Return)
+    if ((Input.at(i)->is(Ptr) || Input.at(i)->is(Variable)) && Priority_For_Return)
     {
         if (Input.at(i)->is(Member))
         {

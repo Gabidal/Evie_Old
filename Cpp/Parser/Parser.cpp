@@ -69,9 +69,9 @@ void Parser::Pattern_Variable(int i)
 
 	Give_Context(T);
     
-    if (Input.at(i)->is(_TEXT) && (Find(*T, Input.at(i)->WORD, Variable) != nullptr))
+    if (Input.at(i)->is(_TEXT) && (Find(*T, Input.at(i)->WORD, Variable | Ptr) != nullptr))
     {
-        Token *r = Find(*T, Input.at(i)->WORD, Variable);
+        Token *r = Find(*T, Input.at(i)->WORD, Variable | Ptr);
         Token *t = new Token(Assembly, *&Output);
         *t = *r;
         t->Size = 4;
@@ -146,7 +146,7 @@ void Parser::Pattern_Operators(int i)
     //set variable value;
     //a <: a> = b
     //c = a<()> + b
-    if (Input.at(i)->is(_OPERATOR) && Input.at(i)->Tokens.size() > 0 && Input.at(i)->UsedToken == true)
+    if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->Tokens.size() > 0) && (Input.at(i)->UsedToken == true) && Input.at(i)->WORD != "&")
     {
         Token *OP = new Token(Assembly, Output);
         OP->Flags |= OPERATOR;
@@ -252,24 +252,23 @@ void Parser::Pattern_Function(int i)
         //make the parameters;
         for (int j = 0; j < int(Input.at(i+2)->Tokens.size()); j++)
         {
-            if (Input.at(i+2)->Tokens.at(j)->WORD == "&")
-            {
-                Token *ptr = new Token(Assembly, Output);
-                ptr->Flags |= Ptr;
-                ptr->Flags |= Parameter;
-                ptr->Size = 4;
-                ptr->Name = Input.at(i+2)->Tokens.at(j+1)->WORD;
-                Name->addParameter(ptr);
-                j++;
-            }
-            else if (Input.at(i+2)->Tokens.at(j)->is(_TEXT))
+            if (Input.at(i+2)->Tokens.at(j)->is(_TEXT))
             {
                 Token *var = new Token(Assembly, Output);
-                var->Flags |= Parameter;
-                var->Flags |= Variable;
-                var->Size = 4;
-                var->Name = Input.at(i+2)->Tokens.at(j)->WORD;
-                
+				if ((j > 0) && (Input.at(i + 2)->Tokens.at(j-1)->WORD == "&"))
+				{
+					var->Flags |= Ptr;
+					var->Flags |= Parameter;
+					var->Size = 4;
+					var->Name = Input.at(i + 2)->Tokens.at(j)->WORD;
+				}
+				else
+				{
+					var->Flags |= Parameter;
+					var->Flags |= Variable;
+					var->Size = 4;
+					var->Name = Input.at(i + 2)->Tokens.at(j)->WORD;
+				}
                 Name->addParameter(var);
             }
         }

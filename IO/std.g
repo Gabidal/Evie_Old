@@ -32,7 +32,7 @@ func ctn(i)
 	return i
 )
 
-func move(x, y, s)
+func move(&x, &y, s)
 (
 	while (s)
 		x : 0 = y : 0

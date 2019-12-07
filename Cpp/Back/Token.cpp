@@ -192,6 +192,8 @@ string Token::MOVE(Token *Source)
     }
     else if (Source->is(Array))
     {
+		//mov eax, [ebp + 8]
+		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
 		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
 		ESI->Link(Source);
@@ -473,33 +475,58 @@ string Token::GetAddress()
 {
     if (this->is(Array) || this->is(Ptr))
     {
+		if (this->is(Ptr))
+		{
+			//mov eax, [ebp + 8]
+			//lea esi, [eax + 0 * 4]
+			getReg();
+			output += MOV + Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+		}
         if (this->is(Array) && this->Offsetter->is(Number))
         {
 			//[(ebp - 8) + 1 * 4]
 			output += COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
-			return FRAME(CONTENT(this->getFullName()) + OFFSET + this->Offsetter->Name + SCALE + "4");
+			if (this->is(Ptr))
+			{
+				return FRAME(this->Reg->Name + OFFSET + this->Offsetter->Name + SCALE + "4");
+			}
+			else
+			{
+				return FRAME(CONTENT(this->getFullName()) + OFFSET + this->Offsetter->Name + SCALE + "4");
+			}
         }
         else if (this->is(Array) && this->Offsetter->is(Variable))
         {
 			//[(ebp - 8) + (ebp - 4) * 4]
-			return FRAME(CONTENT(this->getFullName()) + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
+			if (this->is(Ptr))
+			{
+				return FRAME(this->Reg->Name + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
+			}
+			else
+			{
+				return FRAME(CONTENT(this->getFullName()) + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
+			}
         }
         //lea eax, [eax]
         else if (this->is(Ptr) && this->is(Loader))
         {
+			this->getReg();
 			output += COMMENT + "Load the value inside the pointer" + NL;
             output += LEA + this->Reg->Name + FROM + FRAME(this->Reg->Name) + NL;
-            return this->Reg->Name;
+            return FRAME(this->Reg->Name);
         }
         //mov ebx, eax
         else if (this->is(Ptr) && this->is(Storer))
         {
+			this->getReg();
 			output += COMMENT + "Give the pointer address" + NL;
-            return this->Reg->Name;
+			return FRAME(this->Reg->Name);
         }
+		//lea eax, [ebp - 8]
 		else
 		{
-		return this->Reg->Name;
+
+			return FRAME(getFullName());
 		}
 	}
 	if (this->is(Private))
