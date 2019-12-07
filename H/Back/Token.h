@@ -105,6 +105,7 @@ class Token
 	bool fixed_Location = false;
 	//array
 	bool ARRAY = false;
+	Token* repz = nullptr;
 };
 
 class Register

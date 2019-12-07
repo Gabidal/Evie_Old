@@ -195,13 +195,13 @@ int Optimizer::Find(int Flag, vector<Token*>* T)
 {
 	for (Token* t : *T)
 	{
-		if (t->Childs.size() > 0)
+		if (t->is(OPERATOR))
+		{
+		return Find(Flag, &t->Parameters);
+		}
+		else if (t->Childs.size() > 0)
 		{
 			return Find(Flag, &t->Childs);
-		}
-		else if (t->is(OPERATOR))
-		{
-			return Find(Flag, &t->Parameters);
 		}
 		else if (t->Any(Flag))
 		{
@@ -465,6 +465,21 @@ void Optimizer::Optimize_Conditions(int i)
 			o.Factory();
 		}
     }
+	if (Input.at(i)->is(While) && (Input.at(i)->Childs.size() == 0))
+	{
+		//repz whiler.
+		vector<Token*>* T = new vector<Token*>;
+		Give_Context(Input.at(i)->Parameters.at(0), T);
+		if (Input.at(i)->Parameters.at(0)->is(Number))
+		{
+			Input.at(i)->Parameters.at(0)->Flags |= Used;
+		}
+		else
+		{
+			Set_All_References(Input.at(i)->Parameters.at(0)->Name, EnyFlag, *T);
+		}
+		Input.at(i + 1)->repz = Input.at(i)->Parameters.at(0);
+	}
 }
 
 void Optimizer::Factory()

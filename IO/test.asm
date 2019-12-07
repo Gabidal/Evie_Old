@@ -21,7 +21,7 @@ lea esi, [(ebp - 8) + 0 * 4]
  ; Adding the offset of a by 0
 lea edi, [(ebp - 4) + 0 * 4]
  ; Saving the value from b offsetted by 0
- mov ecx, 10
+mov ecx, [ebp - 8]
 repz movsd
  ; Return a
  ; Giving Returning address, eax

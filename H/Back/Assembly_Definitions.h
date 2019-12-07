@@ -25,6 +25,7 @@
 #define CALL string("call ")
 #define CDQ string("cdq ")
 #define XCHG(dest, source) ("xchg " + string(dest) + FROM + source + NL)
+#define REPZ string("repz ")
 
 #define JNL "jnl "
 #define JZ "jz "

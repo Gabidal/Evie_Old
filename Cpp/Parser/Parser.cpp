@@ -307,6 +307,7 @@ void Parser::Pattern_Condition(int i)
             Parser p = *this;
             p.Input = Input.at(i)->Tokens;
             p.GetDirect = true;
+			p.Priority = true;
             p.Factory();
             condition->Parameters = p.Direct;
             if (Input.at(i)->_else_if)

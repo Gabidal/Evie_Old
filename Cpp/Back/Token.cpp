@@ -201,8 +201,22 @@ string Token::MOVE(Token *Source)
 			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
 			EDI->Link(this);
 			output += COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
-
-			output += MOVSD + NL;
+			if (this->repz != nullptr)
+			{
+				if (repz->is(Number))
+				{
+					output += MOV + ECX->Name + FROM + repz->Name + NL;
+				}
+				else
+				{
+					output += MOV + ECX->Name + FROM + FRAME(repz->getFullName()) + NL;
+				}
+				output += REPZ + MOVSD + NL;
+			}
+			else
+			{
+				output += MOVSD + NL;
+			}
 		}
 		else
 		{

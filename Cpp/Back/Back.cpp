@@ -33,6 +33,10 @@ void Back::Handle_Operators(int i)
             this->Cheat = b.Cheat;
         }
         string reg = "";
+		if (Input.at(i)->repz != nullptr)
+		{
+			Input.at(i)->Parameters.at(0)->repz = Input.at(i)->repz;
+		}
         if (Input.at(i)->Name == "+")
         {
             reg = Dest->SUM(Source);
@@ -300,6 +304,10 @@ string Back::END(int i)
 
 void Back::Handle_Jumps(int i)
 {
+	if (Input.at(i)->Parameters.at(0)->is(OPERATOR) != true)
+	{
+		return;
+	}
     string conditionJump = "";
     if (Find("==", OPERATOR, Input.at(i)->Parameters) != -1)
     {
@@ -359,13 +367,17 @@ void Back::Handle_Jumps(int i)
 
 void Back::Handle_Conditions(int i)
 {
-    if (Input.at(i)->is(If) || Input.at(i)->is(Else))
+    if (Input.at(i)->is(If) || Input.at(i)->is(Else) || Input.at(i)->is(While))
     {
         Back b = *this;
-        if ((Input.at(i)->is(Else) && Input.at(i)->is(If)))
-            Output += JMP + Input.at(i)->Former->SuccessorToken.at(Input.at(i)->Former->SuccessorToken.size() - 1)->getFullName() + to_string(Input.at(i)->Former->SuccessorToken.at(Input.at(i)->Former->SuccessorToken.size() - 1)->ID) + NL;
-        else if ((Input.at(i)->is(Else)))
-            Output += JMP + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL + NL;
+		if ((Input.at(i)->is(Else) && Input.at(i)->is(If)))
+		{
+			Output += JMP + Input.at(i)->Former->SuccessorToken.at(Input.at(i)->Former->SuccessorToken.size() - 1)->getFullName() + to_string(Input.at(i)->Former->SuccessorToken.at(Input.at(i)->Former->SuccessorToken.size() - 1)->ID) + NL;
+		}
+		else if ((Input.at(i)->is(Else)))
+		{
+			Output += JMP + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL + NL;
+		}
         Output += LABEL(Input.at(i)->getFullName() + to_string(Input.at(i)->ID));
 
 		Input.at(i)->Flags |= Real;
