@@ -1,2 +1,3 @@
-﻿  Back.cpp
+﻿  Token.cpp
+C:\Users\Quanf\source\repos\GAS\GAS\Cpp\Back\Token.cpp(580,20): warning C4018: '<': signed/unsigned mismatch
   GAS.vcxproj -> C:\Users\Quanf\source\repos\GAS\Debug\GAS.exe

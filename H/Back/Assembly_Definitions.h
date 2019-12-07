@@ -1,28 +1,29 @@
 #ifndef _ASSEMBLY_DEFINITIONS_H_
 #define _ASSEMBLY_DEFINITIONS_H_
 
-#define MOV "mov "
-#define LEA "lea "
-#define ADD "add "
-#define SUB "sub "
-#define MUL "mul "
-#define DIV "div "
-#define IMUL "imul "
-#define IDIV "idiv "
-#define XOR "xor "
-#define CMP "cmp "
-#define JE "je "
-#define JNE "jne "
-#define JG "jg "
-#define JNG "jng "
-#define JL "jl "
-#define JNGE "jnge "
-#define JNLE "jnle "
-#define JGE "jge "
-#define JLE "jle "
-#define JMP "jmp "
-#define CALL "call "
-#define CDQ "cdq "
+#define MOVSD string("movsd")
+#define MOV string("mov ")
+#define LEA string("lea ")
+#define ADD string("add ")
+#define SUB string("sub ")
+#define MUL string("mul ")
+#define DIV string("div ")
+#define IMUL string("imul ")
+#define IDIV string("idiv ")
+#define XOR string("xor ")
+#define CMP string("cmp ")
+#define JE string("je ")
+#define JNE string("jne ")
+#define JG string("jg ")
+#define JNG string("jng ")
+#define JL string("jl ")
+#define JNGE string("jnge ")
+#define JNLE string("jnle ")
+#define JGE string("jge ")
+#define JLE string("jle ")
+#define JMP string("jmp ")
+#define CALL string("call ")
+#define CDQ string("cdq ")
 #define XCHG(dest, source) ("xchg " + string(dest) + FROM + source + NL)
 
 #define JNL "jnl "
@@ -44,6 +45,7 @@
 #define QWORD "qword "
 #define BYTE "byte "
 #define FRAME(name) ("[" + name + "]")
+#define CONTENT(name) (string("(") + name + ")")
 #define PUSH "push "
 #define POP "pop "
 #define DD " resd 1"

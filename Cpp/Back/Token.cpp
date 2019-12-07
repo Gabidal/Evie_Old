@@ -35,89 +35,20 @@ string Token::getFullName()
     
     if (is(Public))
     {
-		//output += COMMENT + "Public ";
-        if (this->is(Array))
-        {
-			//output += "array ";
-            if (Offsetter->is(Number))
-            {
-				//output += "number " + NL;
-                int result = atoi(Offsetter->Name.c_str()) * 4;
-                name = Name + OFFSET + to_string(result);
-            }
-            else
-            {
-				//output += "variable " + NL;
-                name = Name + OFFSET + Offsetter->InitVariable();
-            }
-        }
-        else
-        {
-			//output += COMMENT + "Public variable" + NL;
-            name = Name;
-        }
-        
+		name = Name;
     }
     else
     {
 		//output += COMMENT + "Private ";
         if (is(Parameter))
         {
-			//output +="parameter ";
-            if ((Offsetter != nullptr) && is(Array))
-            {
-				//output += "array ";
-                if (Offsetter->is(Number))
-                {
-					//output += "number " + NL;
-                    int result = atoi(Offsetter->Name.c_str()) * 4;
-                    result += (this->ParameterOffset + 4);
-                    name = EBP->Name + OFFSET + to_string(result);
-                }
-                else
-                {
-					//output += "variable " + NL;
-                    output += ADD + Offsetter->InitVariable() + FROM + to_string(this->ParameterOffset + 4) + NL;
-                    output += PUSH + EBP->Name + NL;
-                    output += ADD + EBP->Name  + FROM + Offsetter->Reg->Name + NL;
-                    name = EBP->Name;
-                    Needs_Back_Up = true;
-                }
-            }
-            else
-            {
-				//output +="variable " + NL;
-                name = EBP->Name + OFFSET + to_string(this->ParameterOffset + 4);
-            }
+			//output +="variable " + NL;
+            name = EBP->Name + OFFSET + to_string(this->ParameterOffset + 4);
         }
         else
         {
-            if ((Offsetter != nullptr) && is(Array))
-            {
-				//output += "array ";
-                if (Offsetter->is(Number))
-                {
-					//output += "number " + NL;
-                    int result = atoi(Offsetter->Name.c_str()) * 4;
-                    result += (this->StackOffset);
-                    name = EBP->Name + DEOFFSET + to_string(result);
-                }
-                else
-                {
-					//output += "variable " + NL;
-					output += COMMENT + "Add the origin of " + this->Name + NL;
-                    output += ADD + Offsetter->InitVariable() + FROM + to_string(this->StackOffset) + NL;
-                    output += PUSH + EBP->Name + NL;
-                    output += SUB + EBP->Name  + FROM + Offsetter->Reg->Name + NL;
-                    name = EBP->Name;
-                    Needs_Back_Up = true;
-                }
-            }
-            else
-            {
-				//output += "variable " + NL;
-                name = EBP->Name + DEOFFSET + to_string(StackOffset);
-            }
+			//output += "variable " + NL;
+            name = EBP->Name + DEOFFSET + to_string(StackOffset);
         }
     }
     return name;
@@ -233,12 +164,6 @@ string Token::InitVariable()
         {
             output += MOV + this->Reg->Name + FROM + this->getFullName() + NL;
         }
-        if (this->is(Array) && (this->is(Number) != true) && Needs_Back_Up)
-        {
-			output += COMMENT + "Initializing new register for array variable " + this->Name + NL;
-            output += POP + EBP->Name + NL + NL;
-            Needs_Back_Up = false;
-        }
         result = this->Reg->Name;
     }
     else
@@ -267,16 +192,24 @@ string Token::MOVE(Token *Source)
     }
     else if (Source->is(Array))
     {
-		this->ARRAY = true;
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-        output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-        if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
-        {
-			output += COMMENT + "Fixing Base Pointer" + NL;
-            output += POP + EBP->Name + NL + NL;
-        }
-		output += COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
-        output += MOV + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
+		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		ESI->Link(Source);
+		if (this->is(Array))
+		{
+			output += COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
+			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
+			EDI->Link(this);
+			output += COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
+
+			output += MOVSD + NL;
+		}
+		else
+		{
+			//mov [(ebp - 4) + (ebp - 8) * 4], dword eax
+			output += COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
+			output += MOV + this->GetAddress() + FROM + DWORD + ESI->Name + NL + NL;
+		}
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
@@ -526,22 +459,16 @@ string Token::GetAddress()
 {
     if (this->is(Array) || this->is(Ptr))
     {
-        //mov eax, [ebp - 4]
-        //add eax, offset
-        //mov ebx, [eax]
-		//output += LEA + this->Reg->Name + FROM + FRAME(string(this->getFullName())) + NL;
         if (this->is(Array) && this->Offsetter->is(Number))
         {
+			//[(ebp - 8) + 1 * 4]
 			output += COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
-            //int a = atoi(this->Offsetter->Name.c_str()) * 4;
-            return FRAME(this->getFullName());
+			return FRAME(CONTENT(this->getFullName()) + OFFSET + this->Offsetter->Name + SCALE + "4");
         }
         else if (this->is(Array) && this->Offsetter->is(Variable))
         {
-			this->InitVariable();
-			output += COMMENT + "Externally adding the offset of the ofsetter variable to " + this->Name + NL;
-            //output += ADD + string(getReg()->Name) + FROM + this->Offsetter->InitVariable() + NL;
-            return FRAME(this->Reg->Name);
+			//[(ebp - 8) + (ebp - 4) * 4]
+			return FRAME(CONTENT(this->getFullName()) + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
         }
         //lea eax, [eax]
         else if (this->is(Ptr) && this->is(Loader))
