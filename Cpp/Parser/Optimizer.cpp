@@ -80,13 +80,27 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
 			{
 				vector<Token*>* T = new vector<Token*>;
 				Give_Context(t->Parameters.at(0)->Offsetter, T);
-				Set_All_References(t->Parameters.at(0)->Offsetter->Name, EnyFlag, *T);
+				if (t->Parameters.at(0)->Offsetter->is(Number))
+				{
+					t->Parameters.at(0)->Offsetter->Flags |= Used;
+				}
+				else
+				{
+					Set_All_References(t->Parameters.at(0)->Offsetter->Name, EnyFlag, *T);
+				}
 			}
 			if (t->Childs.at(0)->Offsetter != nullptr)
 			{
 				vector<Token*>* T = new vector<Token*>;
 				Give_Context(t->Childs.at(0)->Offsetter, T);
-				Set_All_References(t->Childs.at(0)->Offsetter->Name, EnyFlag, *T);
+				if (t->Parameters.at(0)->Offsetter->is(Number))
+				{
+					t->Childs.at(0)->Offsetter->Flags |= Used;
+				}
+				else
+				{
+					Set_All_References(t->Childs.at(0)->Offsetter->Name, EnyFlag, *T);
+				}
 			}
             if ((t->Childs.at(0)->is(Number) != true) && (t->Childs.at(0)->is(Call) != true))
             {

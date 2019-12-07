@@ -5,8 +5,9 @@ func main()
 	std_init()
 	var a = 1
 	var b = 2
-	true : a = true : a
-	return true
+	while (10)
+		a : 0 = b : 0
+	return a
 )
 
 main()
