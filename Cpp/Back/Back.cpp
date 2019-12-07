@@ -165,16 +165,23 @@ void Back::Handle_Function_Init(int i)
         Input.at(i)->InitFunction();
         Back b = *this;
         b.Input = Input.at(i)->Childs;
-        StackFrame stack(Output, true);
-        int care = Variable | Ptr | NotOriginal | Array;
-		Output += COMMENT + "Making space for local variables " + NL;
-		if (Get_Amount(Input.at(i)->Childs, care) > 0)
+		if ((b.Input.size() - 1) == 0)
 		{
-			Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
+			Output += RET + NL;
 		}
-        b.IS_PUBLIC++;
-        b.Factory();
-        b.IS_PUBLIC--;
+		else
+		{
+			StackFrame stack(Output, true);
+			int care = Variable | Ptr | NotOriginal | Array;
+			if (Get_Amount(Input.at(i)->Childs, care) > 0)
+			{
+				Output += COMMENT + "Making space for local variables " + NL;
+				Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
+			}
+			b.IS_PUBLIC++;
+			b.Factory();
+			b.IS_PUBLIC--;
+		}
     }
 }
 
