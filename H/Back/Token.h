@@ -100,7 +100,7 @@ class Token
     Token *Fetcher = nullptr;
     //ptr
     void PTRING(Token *&T);
-    bool Needs_Back_Up = false;
+	bool Outside_Of_Parameters = false;
 	//optimization
 	bool fixed_Location = false;
 	//array

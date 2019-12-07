@@ -339,7 +339,7 @@ void Optimizer::Optimize_Functions(int i)
                 //if function is using global variables things change a bit!
                 if (t->is(OPERATOR))
                 {
-                    if (GetAbsoluteDestination(t)->is(Used) && GetAbsoluteDestination(t)->is(Public))
+                    if ((GetAbsoluteDestination(t)->is(Used) && GetAbsoluteDestination(t)->is(Public)))
                     {
                         Input.at(i)->Flags |= Used;
                         Optimize_Sys_Functions(Input.at(i));

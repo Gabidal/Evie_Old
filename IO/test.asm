@@ -48,24 +48,34 @@ sub esp, 8
 mov [ebp - 4], dword 1
  ; Giving b, 2
 mov [ebp - 8], dword 2
+ ; Calling move
+ ; Pushing pointter 
+ ; Giving a, edx
+lea edx, [ebp - 4]
+push edx
+ ; Pushing pointter 
+ ; Giving b, esi
+ ; Adding the offset of b by 30
+lea esi, [esi + 30 * 4]
+push esi
+push 70
+call move
+
  ; Clearing the parameters
 add esp, 12
  ; Giving a the return value
- ; Giving a, edx
-mov edx, [ebp - 4]
- ; Adding the offset of a by 30
-pop dword [edx + 30 * 4]
+pop dword [ebp - 4]
 
  ; Return a
- ; Giving Returning address, esi
- ; Giving a, edi
+ ; Giving Returning address, edi
+ ; Giving a, eax
  ; Initializing new register for private  variable a
-mov edi, [ebp - 4]
+mov eax, [ebp - 4]
 mov esp, ebp
 pop ebp
-pop esi
-push edi
-jmp esi
+pop edi
+push eax
+jmp edi
 
  ; Ending stack frame 
 mov esp, ebp

@@ -566,8 +566,11 @@ void Parser::Pattern_Call_Func(int i)
             p.Priority = true;
             p.GetDirect = true;
             p.Factory();
-            for (int k = 0; k < int(p.Direct.size()); k++)
-                func->addParameter(p.Direct.at(k));
+			for (int k = 0; k < int(p.Direct.size()); k++)
+			{
+				p.Direct.at(k)->Outside_Of_Parameters = true;
+				func->addParameter(p.Direct.at(k));
+			}
         }
         Give_Output(t);
         t->push_back(func);

@@ -471,16 +471,30 @@ string Token::MOVEINSTACK()
     return this->getReg()->Name;
 }
 
+bool skip_ptr_check = false;
 string Token::GetAddress()
 {
     if (this->is(Array) || this->is(Ptr))
     {
-		if (this->is(Ptr))
+		if (this->is(Ptr) && (skip_ptr_check == false))
 		{
-			//mov eax, [ebp + 8]
-			//lea esi, [eax + 0 * 4]
-			getReg();
-			output += MOV + Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+			if (this->Outside_Of_Parameters)
+			{
+				skip_ptr_check = true;
+				//lea edx, [ebp - 4]
+				//push edx
+				getReg();
+				output += LEA + Reg->Name + FROM + this->GetAddress() + NL;
+				skip_ptr_check = false;
+				return Reg->Name;
+			}
+			else
+			{
+				//mov eax, [ebp + 8]
+				//lea esi, [eax + 0 * 4]
+				getReg();
+				output += MOV + Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+			}
 		}
         if (this->is(Array) && this->Offsetter->is(Number))
         {
