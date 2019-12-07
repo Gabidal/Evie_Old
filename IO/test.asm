@@ -1,5 +1,21 @@
 section .bss
+true resd 1
 section .code
+ ; Function std_init
+std_init: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+ ; Making space for local variables 
+ ; Giving true, 1
+mov [true], dword 1
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
  ; Function main
 main: 
  ; Making stack frame 
@@ -13,46 +29,32 @@ sub esp, 8
 mov [ebp - 4], dword 1
  ; Giving b, 2
 mov [ebp - 8], dword 2
+ ; Calling std_init
+call std_init
+
  ; Pointer to pointer directionation
- ; From b added address by value of a
- ; Add the origin of b
+ ; From true added address by value of a
  ; Giving a, eax
  ; Initializing new register for private  variable a
 mov eax, [ebp - 4]
-add eax, 8
-push ebp
-sub ebp, eax
- ; Giving b, ebx
-mov ebx, [ebp]
- ; Fixing Base Pointer
-pop ebp
-
- ; Saving the value from b offsetted by a
- ; Giving b, ecx
+ ; Giving true, ebx
+mov ebx, [true + eax]
+ ; Saving the value from true offsetted by a
+ ; Giving true, ecx
+ ; Initializing new register for public variable true
+ ; Giving b, edx
  ; Initializing new register for private  variable b
- ; Add the origin of b
- ; Giving a, edx
- ; Initializing new register for private  variable a
-mov edx, [ebp - 4]
-add edx, 8
-push ebp
-sub ebp, edx
-lea ecx, [ebp]
- ; Initializing new register for array variable b
-pop ebp
-
- ; Externally adding the offset of the ofsetter variable to b
+mov edx, [ebp - 8]
+lea ecx, [true + edx]
+ ; Externally adding the offset of the ofsetter variable to true
 mov [ecx], ebx
 
- ; Return b
+ ; Return true
  ; Giving Returning address, esi
- ; Giving b, edi
- ; Initializing new register for private  variable b
-mov edi, [ebp - 8]
 mov esp, ebp
 pop ebp
 pop esi
-push edi
+push dword [true]
 jmp esi
 
  ; Ending stack frame 

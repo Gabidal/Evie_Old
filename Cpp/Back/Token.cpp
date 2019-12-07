@@ -208,7 +208,14 @@ string Token::InitVariable()
 		else if (this->is(Public))
 		{
 			output += "public variable " + this->Name + NL;
-			output += MOV + this->Reg->Name + FROM + DWORD + FRAME(this->getFullName()) + NL;
+			if (ARRAY)
+			{
+				output += LEA + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+			}
+			else
+			{
+				output += MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+			}
 		}
         else if (this->is(Private))
         {
