@@ -103,6 +103,8 @@ class Token
     bool Needs_Back_Up = false;
 	//optimization
 	bool fixed_Location = false;
+	//array
+	bool ARRAY = false;
 };
 
 class Register

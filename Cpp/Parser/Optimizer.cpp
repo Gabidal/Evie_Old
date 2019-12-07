@@ -66,15 +66,34 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
 				else
 				{
 					Set_All_References(t->Childs.at(0)->Name, EnyFlag, Global);
+					if (t->Childs.at(0)->Offsetter != nullptr)
+					{
+						Set_All_References(t->Childs.at(0)->Offsetter->Name, EnyFlag, Global);
+					}
 				}
             }
         }
         if ((t->Name == "=") && t->Parameters.at(0)->is(Used))
         {
             t->Flags |= Used;
+			if (t->Parameters.at(0)->Offsetter != nullptr)
+			{
+				vector<Token*>* T = new vector<Token*>;
+				Give_Context(t->Parameters.at(0)->Offsetter, T);
+				Set_All_References(t->Parameters.at(0)->Offsetter->Name, EnyFlag, *T);
+			}
+			if (t->Childs.at(0)->Offsetter != nullptr)
+			{
+				vector<Token*>* T = new vector<Token*>;
+				Give_Context(t->Childs.at(0)->Offsetter, T);
+				Set_All_References(t->Childs.at(0)->Offsetter->Name, EnyFlag, *T);
+			}
             if ((t->Childs.at(0)->is(Number) != true) && (t->Childs.at(0)->is(Call) != true))
             {
-				if (t->Childs.at(0)->is(Private) || t->Childs.at(0)->is(Parameter))
+				vector<Token*>*T = new vector<Token*>;
+				Give_Context(t->Childs.at(0), T);
+				Set_All_References(t->Childs.at(0)->Name, EnyFlag, *T);
+				/*if (t->Childs.at(0)->is(Private) || t->Childs.at(0)->is(Parameter))
 				{
 					Set_All_References(t->Childs.at(0)->Name, EnyFlag, t->Childs.at(0)->ParentFunc->Childs);
 				}
@@ -85,14 +104,17 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
 				else if (t->Childs.at(0)->is(Public))
 				{
 					Set_All_References(t->Childs.at(0)->Name, EnyFlag, Global);
-				}
+				}*/
             }
 			else if (t->Childs.at(0)->is(Call))
 			{
 				Set_All_References(t->Childs.at(0)->daddy_Func->Name, Function, Global);
 				for (int i = 0; i < t->Childs.at(0)->Parameters.size(); i++)
 				{
-					if (t->Childs.at(0)->Parameters.at(i)->is(Private) || t->Childs.at(0)->Parameters.at(i)->is(Parameter))
+					vector<Token*>* T = new vector<Token*>;
+					Give_Context(t->Childs.at(0)->Parameters.at(i), T);
+					Set_All_References(t->Childs.at(0)->Parameters.at(i)->Name, EnyFlag, *T);
+					/*if (t->Childs.at(0)->Parameters.at(i)->is(Private) || t->Childs.at(0)->Parameters.at(i)->is(Parameter))
 					{
 						Set_All_References(t->Childs.at(0)->Parameters.at(i)->Name, EnyFlag, t->Childs.at(0)->Parameters.at(i)->ParentFunc->Childs);
 					}
@@ -103,7 +125,7 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
 					else if (t->Childs.at(0)->is(Public))
 					{
 						Set_All_References(t->Childs.at(0)->Parameters.at(i)->Name, EnyFlag, Global);
-					}
+					}*/
 				}
 				t->Childs.at(0)->Flags |= Used;
 			}
@@ -173,6 +195,22 @@ int Optimizer::Find(int Flag, vector<Token*>* T)
 		}
 	}
 	return -1;
+}
+
+void Optimizer::Give_Context(Token *t, vector<Token*>*& T)
+{
+	if (t->is(Private) || t->is(Parameter))
+	{
+		T = &t->ParentFunc->Childs;
+	}
+	else if (t->Childs.at(0)->is(Member))
+	{
+		T = &t->ParentType->Childs;
+	}
+	else if (t->Childs.at(0)->is(Public))
+	{
+		T = &Global;
+	}
 }
 
 void Optimizer::Optimize_Variables(int i)

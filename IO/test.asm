@@ -7,46 +7,48 @@ push ebp
 mov ebp, esp
 
  ; Making space for local variables 
-sub esp, 4
+sub esp, 8
 
  ; Giving a, 1
 mov [ebp - 4], dword 1
+ ; Giving b, 2
+mov [ebp - 8], dword 2
  ; Pointer to pointer directionation
- ; From a added address by value of true
- ; Giving true, eax
- ; Initializing new register for public variable true
-mov eax, dword [true]
-add eax, 4
+ ; From b added address by value of a
+ ; Add the origin of b
+ ; Giving a, eax
+ ; Initializing new register for private  variable a
+mov eax, [ebp - 4]
+add eax, 8
 push ebp
 sub ebp, eax
- ; Giving a, ebx
+ ; Giving b, ebx
 mov ebx, [ebp]
  ; Fixing Base Pointer
 pop ebp
 
- ; Saving the value from a offsetted by true
- ; Giving a, ecx
+ ; Saving the value from b offsetted by a
+ ; Giving b, ecx
+ ; Initializing new register for private  variable b
+ ; Add the origin of b
+ ; Giving a, edx
  ; Initializing new register for private  variable a
- ; Giving true, edx
- ; Initializing new register for public variable true
-mov edx, dword [true]
-add edx, 4
+mov edx, [ebp - 4]
+add edx, 8
 push ebp
 sub ebp, edx
-mov ecx, [ebp]
- ; Initializing new register for array variable a
+lea ecx, [ebp]
+ ; Initializing new register for array variable b
 pop ebp
 
- ; Externally adding the offset of the ofsetter variable to a
- ; true has already a register to it
-add ecx, edx
+ ; Externally adding the offset of the ofsetter variable to b
 mov [ecx], ebx
 
- ; Return a
+ ; Return b
  ; Giving Returning address, esi
- ; Giving a, edi
- ; Initializing new register for private  variable a
-mov edi, [ebp - 4]
+ ; Giving b, edi
+ ; Initializing new register for private  variable b
+mov edi, [ebp - 8]
 mov esp, ebp
 pop ebp
 pop esi

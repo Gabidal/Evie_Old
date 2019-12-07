@@ -105,6 +105,7 @@ string Token::getFullName()
                 else
                 {
 					//output += "variable " + NL;
+					output += COMMENT + "Add the origin of " + this->Name + NL;
                     output += ADD + Offsetter->InitVariable() + FROM + to_string(this->StackOffset) + NL;
                     output += PUSH + EBP->Name + NL;
                     output += SUB + EBP->Name  + FROM + Offsetter->Reg->Name + NL;
@@ -212,7 +213,14 @@ string Token::InitVariable()
         else if (this->is(Private))
         {
 			output +="private  variable " + this->Name + NL;
-            output += MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+			if (ARRAY)
+			{
+				output += LEA + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+			}
+			else
+			{
+				output += MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+			}
         }
         else if (this->is(Equ))
         {
@@ -252,9 +260,10 @@ string Token::MOVE(Token *Source)
     }
     else if (Source->is(Array))
     {
+		this->ARRAY = true;
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-        if (Source->Offsetter->is(Number) != true)
+        if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
         {
 			output += COMMENT + "Fixing Base Pointer" + NL;
             output += POP + EBP->Name + NL + NL;
@@ -306,7 +315,7 @@ string Token::SUM(Token *Source)
 	{
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
 		output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-		if (Source->Offsetter->is(Number) != true)
+		if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
 		{
 			output += COMMENT + "Fixing Base Pointer" + NL;
 			output += POP + EBP->Name + NL + NL;
@@ -353,7 +362,7 @@ string Token::SUBSTRACT(Token *Source)
 	{
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
 		output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-		if (Source->Offsetter->is(Number) != true)
+		if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
 		{
 			output += COMMENT + "Fixing Base Pointer" + NL;
 			output += POP + EBP->Name + NL + NL;
@@ -405,7 +414,7 @@ string Token::MULTIPLY(Token *Source)
     {
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-        if (Source->is(Number) != true)
+		if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
         {
 			output += COMMENT + "Fixing Base Pointer" + NL;
             output += POP + EBP->Name + NL + NL;
@@ -524,7 +533,7 @@ string Token::GetAddress()
         {
 			this->InitVariable();
 			output += COMMENT + "Externally adding the offset of the ofsetter variable to " + this->Name + NL;
-            output += ADD + string(getReg()->Name) + FROM + this->Offsetter->InitVariable() + NL;
+            //output += ADD + string(getReg()->Name) + FROM + this->Offsetter->InitVariable() + NL;
             return FRAME(this->Reg->Name);
         }
         //lea eax, [eax]
@@ -636,6 +645,16 @@ void Register::Apply(Token* Requester, vector<Token*> *T)
 {
 	for (int i = 0; i < T->size(); i++)
 	{
+		if (T->at(i)->Offsetter != nullptr)
+		{
+			if (T->at(i)->Offsetter->Name == Requester->Name)
+			{
+				if (T->at(i)->Offsetter->Flags == Requester->Flags)
+				{
+					T->at(i)->Offsetter->Reg = this;
+				}
+			}
+		}
 		if (T->at(i)->Childs.size() > 0)
 		{
 			Apply(Requester, &T->at(i)->Childs);
