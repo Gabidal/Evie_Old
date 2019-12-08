@@ -106,6 +106,8 @@ class Token
 	//array
 	bool ARRAY = false;
 	Token* repz = nullptr;
+	//tmp
+	Token* tmp = nullptr;
 };
 
 class Register

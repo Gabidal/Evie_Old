@@ -269,15 +269,32 @@ string Token::SUM(Token *Source)
     }
 	else if (Source->is(Array))
 	{
+		//mov eax, [ebp + 8]
+		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-		if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
+		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		ESI->Link(Source);
+		if (this->is(Array))
 		{
-			output += COMMENT + "Fixing Base Pointer" + NL;
-			output += POP + EBP->Name + NL + NL;
+			output += COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
+			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
+			EDI->Link(this);
+			//if (this->repz != nullptr)
+			//{
+				if (this->tmp == nullptr)
+				{
+					this->tmp = new Token(this->output, this->Input);
+					this->tmp->Flags |= Variable;
+				}
+				output += this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
+				output += ADD + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
+			//}
 		}
-		output += COMMENT + "Adding the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
-		output += ADD + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
+		else
+		{
+			//add eax, [(ebp - 4) + (ebp - 8) * 4]
+			output += ADD + this->getReg()->Name + FROM + FRAME(ESI->Name) + NL;
+		}
 	}
     else if (Source->is(Ptr) || Source->is(Variable))
     {
@@ -316,15 +333,34 @@ string Token::SUBSTRACT(Token *Source)
     }
 	else if (Source->is(Array))
 	{
+		//mov eax, [ebp + 8]
+		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-		if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
+		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		ESI->Link(Source);
+		if (this->is(Array))
 		{
-			output += COMMENT + "Fixing Base Pointer" + NL;
-			output += POP + EBP->Name + NL + NL;
+			output += COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
+			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
+			EDI->Link(this);/*if (this->repz != nullptr)
+			{
+			}*/
+			//else
+			//{
+			if (this->tmp == nullptr)
+			{
+				this->tmp = new Token(this->output, this->Input);
+				this->tmp->Flags |= Variable;
+			}
+			output += this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
+			output += SUB + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
+			//}
 		}
-		output += COMMENT + "Substracting the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
-		output += SUB + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
+		else
+		{
+			//add eax, [(ebp - 4) + (ebp - 8) * 4]
+			output += SUB + this->getReg()->Name + FROM + FRAME(ESI->Name) + NL;
+		}
 	}
     else if (Source->is(Ptr) || Source->is(Variable))
     {
@@ -366,18 +402,37 @@ string Token::MULTIPLY(Token *Source)
 		output += COMMENT + "Feching " + this->Name + " from " + this->Fetcher->Name + NL;
         output += IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL;
     }
-    else if (Source->is(Array))
-    {
+	else if (Source->is(Array))
+	{
+		//mov eax, [ebp + 8]
+		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-        output += MOV + Source->getReg()->Name + FROM + FRAME(Source->getFullName()) + NL;
-		if ((Source->Offsetter->is(Number) != true) && (Source->is(Public) != true))
-        {
-			output += COMMENT + "Fixing Base Pointer" + NL;
-            output += POP + EBP->Name + NL + NL;
-        }
-		output += COMMENT + "Multiplying the value from " + Source->Name + " offsetted by " + this->Name + NL;
-        output += IMUL + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
-    }
+		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		ESI->Link(Source);
+		if (this->is(Array))
+		{
+			output += COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
+			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
+			EDI->Link(this);/*if (this->repz != nullptr)
+			{
+			}*/
+			//else
+			//{
+			if (this->tmp == nullptr)
+			{
+				this->tmp = new Token(this->output, this->Input);
+				this->tmp->Flags |= Variable;
+			}
+			output += this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
+			output += IMUL + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
+			//}
+		}
+		else
+		{
+			//add eax, [(ebp - 4) + (ebp - 8) * 4]
+			output += IMUL + this->getReg()->Name + FROM + FRAME(ESI->Name) + NL;
+		}
+	}
     else if (Source->is(Ptr) || Source->is(Variable))
     {
 		output += COMMENT + "Multiplying " + Source->Name + " into " + this->Name + NL;
@@ -422,12 +477,23 @@ string Token::DIVIDE(Token *Source)
     }
     else if (Source->is(Array))
     {
+		//mov eax, [ebp + 8]
+		//lea esi, [eax + 0 * 4]
+		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
+		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		ESI->Link(Source);
+		if (this->is(Array))
+		{
+			output += COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
+			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
+			EDI->Link(this);
+		}
         //cdq
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-        output += XCHG(this->InitVariable(), EAX->Name);
+        output += XCHG(this->Reg->Name, EAX->Name);
         output += CDQ + string(NL);
 		output += COMMENT + "Dividing the value from " + Source->Name + " offsetted by " + this->Name + NL;
-        output += DIV + FRAME(Source->getFullName()) + NL;
+        output += DIV + FRAME(ESI->Name) + NL;
         EAX->Link(this);
     }
     else if (Source->is(Ptr) || Source->is(Variable))
@@ -500,7 +566,7 @@ string Token::GetAddress()
         {
 			//[(ebp - 8) + 1 * 4]
 			output += COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
-			if (this->is(Ptr))
+			if (this->is(Ptr) && (Outside_Of_Parameters == false))
 			{
 				return FRAME(this->Reg->Name + OFFSET + this->Offsetter->Name + SCALE + "4");
 			}
@@ -512,7 +578,7 @@ string Token::GetAddress()
         else if (this->is(Array) && this->Offsetter->is(Variable))
         {
 			//[(ebp - 8) + (ebp - 4) * 4]
-			if (this->is(Ptr))
+			if (this->is(Ptr) && (Outside_Of_Parameters == false))
 			{
 				return FRAME(this->Reg->Name + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
 			}

@@ -147,7 +147,7 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
 
 void Optimizer::Set_All_References(string name, int flags, vector<Token*> &T)
 {
-    for (auto t : T)
+    for (auto *t : T)
     {
         if (t->Childs.size() > 0)
         {
@@ -339,7 +339,7 @@ void Optimizer::Optimize_Functions(int i)
                 //if function is using global variables things change a bit!
                 if (t->is(OPERATOR))
                 {
-                    if ((GetAbsoluteDestination(t)->is(Used) && GetAbsoluteDestination(t)->is(Public)))
+                    if ((GetAbsoluteDestination(t)->is(Used) && GetAbsoluteDestination(t)->is(Public)) || GetAbsoluteDestination(t)->is(Ptr))
                     {
                         Input.at(i)->Flags |= Used;
                         Optimize_Sys_Functions(Input.at(i));
@@ -349,7 +349,7 @@ void Optimizer::Optimize_Functions(int i)
                     }
                 }
                 
-                if (t->is(Used) && t->is(Public))
+                if ((t->is(Used) && t->is(Public)))
                 {
                     Input.at(i)->Flags |= Used;
                     Optimize_Sys_Functions(Input.at(i));
@@ -400,6 +400,27 @@ void Optimizer::Optimize_Function_Calls(int i)
 
 		}
     }*/
+}
+
+void Optimizer::Optimize_Pointters()
+{
+	for (Token *t : Input)
+	{
+		if ((t->is(Function) && t->is(Used)) || (t->is(Call) && t->is(Used)))
+		{
+			for (Token* c : t->Parameters)
+			{
+				if (c->is(Ptr))
+				{
+					Set_All_References(c->Name, Ptr, c->ParentFunc->Childs);
+				}
+				else if (c->is(Number))
+				{
+					c->Flags |= Used;
+				}
+			}
+		}
+	}
 }
 
 void Optimizer::Optimize_Types(int i)
@@ -488,4 +509,5 @@ void Optimizer::Factory()
         Optimize_Conditions(i);
     }
     Optimize_Math(Input);
+	Optimize_Pointters();
 }

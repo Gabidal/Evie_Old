@@ -71,18 +71,16 @@ void Back::Handle_Operators(int i)
         if (reg.size() > 0 && Layer == 0)
         {
 			string resulter = Dest->Name;
+			if (Dest->tmp != nullptr)
+			{
+				Cheat->tmp = new Token(Cheat->output, Cheat->Input);
+				*Cheat->tmp = *Dest->tmp;
+			}
             Dest = Cheat;
             Dest->Reg = registers[reg];
-            if (Dest->is(Member))
-            {
-				Output += COMMENT + "Saving result of " + resulter + " into " + Dest->Name + " from " + Dest->Fetcher->Name + NL;
-                Output += MOV + FRAME(Dest->Fetcher->InitVariable() + OFFSET + to_string(Dest->StackOffset - 4)) + FROM + Dest->Reg->Name + NL + NL;
-            }
-            else
-            {
-				Output += COMMENT + "Saving result of " + resulter + " into " + Dest->Name + NL;
-                Output += MOV + Dest->GetAddress() + FROM + Dest->Reg->Name + NL + NL;
-            }
+
+			Dest->MOVE(Dest->tmp);
+
 			Dest->Reg->Link(Dest);
 			Dest->Reg->Apply(Dest, &Input);
         }
@@ -162,14 +160,14 @@ int Get_Amount(vector<Token*> list, int flag)
 
 void Back::Handle_Function_Init(int i)
 {
-    if (Input.at(i)->is(Function) && Input.at(i)->is(Call) == false && Input.at(i)->Childs.size() > 0)
+    if (Input.at(i)->is(Function) && (Input.at(i)->is(Call) == false) && (Input.at(i)->Childs.size() > 0))
     {
 		Output += COMMENT + "Function " + Input.at(i)->Name + NL;
 		Input.at(i)->Flags |= Real;
         Input.at(i)->InitFunction();
         Back b = *this;
         b.Input = Input.at(i)->Childs;
-		if ((b.Input.size() - 1) == 0)
+		if ((b.Input.size() - 1) < 0)
 		{
 			Output += RET + NL;
 		}

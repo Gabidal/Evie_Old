@@ -269,6 +269,7 @@ void Parser::Pattern_Function(int i)
 					var->Size = 4;
 					var->Name = Input.at(i + 2)->Tokens.at(j)->WORD;
 				}
+				var->ParentFunc = Name;
                 Name->addParameter(var);
             }
         }
