@@ -22,6 +22,7 @@ public:
     void Factory();
     void Optimize_Sys_Functions(Token *t);
     void Optimize_Functions(int i);
+	void Optimize_Inside_Of_Function(vector<Token*>*& t, Token *&f);
 	void Optimize_Function_Local_Variables_reservation(int i);
     void Optimize_Types(int i);
     void Optimize_Condition_Variebles(Token *&T);

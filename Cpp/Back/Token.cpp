@@ -286,7 +286,7 @@ string Token::SUM(Token *Source)
 					this->tmp = new Token(this->output, this->Input);
 					this->tmp->Flags |= Variable;
 				}
-				output += this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
+				output += MOV + this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
 				output += ADD + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
 			//}
 		}
@@ -352,7 +352,7 @@ string Token::SUBSTRACT(Token *Source)
 				this->tmp = new Token(this->output, this->Input);
 				this->tmp->Flags |= Variable;
 			}
-			output += this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
+			output += MOV + this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
 			output += SUB + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
 			//}
 		}
@@ -423,7 +423,7 @@ string Token::MULTIPLY(Token *Source)
 				this->tmp = new Token(this->output, this->Input);
 				this->tmp->Flags |= Variable;
 			}
-			output += this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
+			output += MOV + this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
 			output += IMUL + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
 			//}
 		}
@@ -518,7 +518,12 @@ string Token::DIVIDE(Token *Source)
 
 string Token::COMPARE(Token *Source)
 {
-    if (Source->Reg == nullptr || Source->Reg->Name == "null")
+	if (Source->is(Number))
+	{
+		output += COMMENT + "Just directly get name of the number" + NL;
+		output += CMP + this->InitVariable() + FROM + Source->Name + NL;
+	}
+    else if (Source->Reg == nullptr || Source->Reg->Name == "null")
     {
 		output += COMMENT + "Just directly get address" + NL;
         output += CMP + this->InitVariable() + FROM + Source->GetAddress() + NL;

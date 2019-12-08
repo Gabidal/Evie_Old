@@ -1,5 +1,52 @@
 section .bss
 section .code
+ ; Function move
+move: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+while0: 
+ ; Just directly get name of the number
+ ; Giving s, eax
+ ; Initializing new register for private  variable s
+mov eax, [ebp + 12]
+cmp eax, 0
+jle while0END
+ ; Pointer to pointer directionation
+ ; From y added address by value of s
+ ; Giving y, ebx
+mov ebx, [ebp + 8]
+ ; Giving s, ecx
+ ; Initializing new register for private  variable s
+mov ecx, [ebp + 12]
+lea esi, [ebx + (ecx) * 4]
+ ; From x added address by value of s
+ ; Giving x, edx
+mov edx, [ebp + 4]
+ ; Giving s, esi
+ ; Initializing new register for private  variable s
+mov esi, [ebp + 12]
+lea edi, [edx + (esi) * 4]
+ ; Saving the value from y offsetted by s
+movsd
+ ; Direct addition
+ ; Giving s, edi
+ ; Initializing new register for private  variable s
+mov edi, [ebp + 12]
+add edi, 1
+ ; Saving s into s
+ ; s has already a register to it
+mov [ebp + 12], dword edi
+jmp while0
+
+while0END: 
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
  ; Function main
 main: 
  ; Making stack frame 
@@ -7,41 +54,32 @@ push ebp
 mov ebp, esp
 
  ; Making space for local variables 
-sub esp, 8
+sub esp, 4
 
  ; Giving a, 1
 mov [ebp - 4], dword 1
- ; Giving b, 2
-mov [ebp - 8], dword 2
- ; Pointer to pointer directionation
- ; From b added address by value of 0
- ; Giving b, eax
-mov eax, [ebp - 8]
- ; Adding the offset of b by 0
-lea esi, [eax + 0 * 4]
- ; From a added address by value of 0
- ; Giving a, ebx
-mov ebx, [ebp - 4]
- ; Adding the offset of a by 0
-lea edi, [ebx + 0 * 4]
- ; Giving , ecx
-ecx, [edi]
-add ecx, [esi]
- ; Saving  into a
- ;  has already a register to it
-mov ebx, [ebp - 4]
- ; Adding the offset of a by 0
-mov [ebx + 0 * 4], dword ecx
+ ; Calling move
+ ; Pushing pointter 
+ ; Giving a, eax
+lea eax, [ebp - 4]
+push eax
+ ; Pushing pointter 
+ ; Giving b, ebx
+lea ebx, [ebp - 8]
+push ebx
+push 10
+call move
+
  ; Return a
- ; Giving Returning address, edx
- ; Giving a, esi
+ ; Giving Returning address, ecx
+ ; Giving a, edx
  ; Initializing new register for private  variable a
-mov esi, [ebp - 4]
+mov edx, [ebp - 4]
 mov esp, ebp
 pop ebp
-pop edx
-push esi
-jmp edx
+pop ecx
+push edx
+jmp ecx
 
  ; Ending stack frame 
 mov esp, ebp

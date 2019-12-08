@@ -334,34 +334,47 @@ void Optimizer::Optimize_Functions(int i)
                 Optimize_Sys_Functions(Input.at(i));
                 break;
             }
-            for (auto t : Input.at(i)->Childs)
-            {
-                //if function is using global variables things change a bit!
-                if (t->is(OPERATOR))
-                {
-                    if ((GetAbsoluteDestination(t)->is(Used) && GetAbsoluteDestination(t)->is(Public)) || GetAbsoluteDestination(t)->is(Ptr))
-                    {
-                        Input.at(i)->Flags |= Used;
-                        Optimize_Sys_Functions(Input.at(i));
-						for (int k = 0; k < Input.at(i)->Callations->size(); k++)
-							Input.at(i)->Callations->at(k)->Flags |= Used;
-                        break;
-                    }
-                }
-                
-                if ((t->is(Used) && t->is(Public)))
-                {
-                    Input.at(i)->Flags |= Used;
-                    Optimize_Sys_Functions(Input.at(i));
-                    break;
-                }
-            }
         }
+		auto Childs = &Input.at(i)->Childs;
+		Optimize_Inside_Of_Function(Childs, Input.at(i));
         Optimizer o = *this;
         o.Input = (Input.at(i)->Childs);
         o.Factory();
     }
 }
+
+void Optimizer::Optimize_Inside_Of_Function(vector<Token*>*& T, Token *& f)
+{
+	for (auto t : *T)
+	{
+		//if function is using global variables things change a bit!
+		if (t->is(OPERATOR))
+		{
+			if ((GetAbsoluteDestination(t)->is(Used) && GetAbsoluteDestination(t)->is(Public)) || GetAbsoluteDestination(t)->is(Ptr))
+			{
+				f->Flags |= Used;
+				Optimize_Sys_Functions(t);
+				for (int k = 0; k < f->Callations->size(); k++)
+					f->Callations->at(k)->Flags |= Used;
+			}
+		}
+
+		if ((t->is(Used) && t->is(Public)))
+		{
+			t->Flags |= Used;
+			f->Flags |= Used;
+			Optimize_Sys_Functions(t);
+		}
+
+		if (t->Childs.size() > 0)
+		{
+			auto Childs = &t->Childs;
+			Optimize_Inside_Of_Function(Childs, f);
+		}
+	}
+}
+
+
 
 void Optimizer::Optimize_Function_Local_Variables_reservation(int i)
 {

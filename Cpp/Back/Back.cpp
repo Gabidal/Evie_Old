@@ -75,11 +75,15 @@ void Back::Handle_Operators(int i)
 			{
 				Cheat->tmp = new Token(Cheat->output, Cheat->Input);
 				*Cheat->tmp = *Dest->tmp;
-			}
-            Dest = Cheat;
-            Dest->Reg = registers[reg];
 
-			Dest->MOVE(Dest->tmp);
+				Dest->MOVE(Dest->tmp);
+			}
+			else
+			{
+				Dest = Cheat;
+				Dest->Reg = registers[reg];
+				Dest->MOVE(Dest);
+			}
 
 			Dest->Reg->Link(Dest);
 			Dest->Reg->Apply(Dest, &Input);
@@ -465,7 +469,7 @@ void Back::Factory()
     }
     for (int i = 0; i < int(Input.size()); i++)
     {
-        if (Input.at(i)->is(Used) == false)
+		if (Input.at(i)->is(Used) == false)
         {
             continue;
         }
