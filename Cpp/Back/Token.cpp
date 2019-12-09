@@ -528,7 +528,11 @@ string Token::COMPARE(Token *Source)
 	if (Source->is(Number))
 	{
 		output += COMMENT + "Just directly get name of the number" + NL;
-		output += CMP + this->GetAddress() + FROM + Source->Name + NL;
+		if (Source->Reg == nullptr)
+		{
+			output += MOV + Source->getReg()->Name + FROM + Source->Name + NL;
+		}
+		output += CMP + this->GetAddress() + FROM + Source->Reg->Name + NL;
 	}
     else if (Source->Reg == nullptr || Source->Reg->Name == "null")
     {
@@ -571,8 +575,11 @@ string Token::GetAddress()
 			{
 				//mov eax, [ebp + 8]
 				//lea esi, [eax + 0 * 4]
-				getReg();
-				output += MOV + Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+				if (this->Reg == nullptr)
+				{
+					getReg();
+					output += MOV + Reg->Name + FROM + FRAME(this->getFullName()) + NL;
+				}
 			}
 		}
         if (this->is(Array) && this->Offsetter->is(Number))
@@ -726,6 +733,10 @@ void Register::Apply(Token* Requester, vector<Token*> *T)
 		if (T->at(i)->Childs.size() > 0)
 		{
 			Apply(Requester, &T->at(i)->Childs);
+		}
+		if (T->at(i)->Parameters.size() > 0)
+		{
+			Apply(Requester, &T->at(i)->Parameters);
 		}
 		else if (T->at(i)->Name == Requester->Name)
 		{

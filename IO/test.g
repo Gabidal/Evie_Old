@@ -1,13 +1,12 @@
-func sum(&x, &y)
+using "std.g"
+
+func main()
 (
-	var i = 0
-	while(x : i != 0 y : i != 0)
-	(
-		x : i = x : i + y : i
-		i = i + 1
-	)
+	var a = 1
+	var b = 2
+	var c = 3
+	a = sum(&b, &c)
+	return a
 )
 
-var a 
-var b
-sum(a, b)
+main()

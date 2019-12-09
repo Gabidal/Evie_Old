@@ -26,10 +26,10 @@ func ntc(c)
 )
 
 #char to num.
-func ctn(i)
+func ctn(n)
 (
-	i = i - 48
-	return i
+	n = n - 48
+	return n
 )
 
 func move(&x, &y, s)
@@ -41,11 +41,12 @@ func move(&x, &y, s)
 	)
 )
 
-func sum(&x, &y, &z, s)
+func sum(&x, &y)
 (
-	while(s < 0)
+	var i = 0
+	while(x : i != 0 y : i != 0)
 	(
-		x : s = y : s + z : s
-		s = s + 1
+		x : i = y : i + x : i
+		i = i + 1
 	)
 )
