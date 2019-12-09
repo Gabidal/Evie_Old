@@ -9,7 +9,7 @@ int main()
 {
     Init_Registers();
 
-	string OUTPUT = "section .code";
+	string OUTPUT = "";
 
     Definer d;
     d.OpenFile("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.g");

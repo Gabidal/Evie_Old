@@ -374,8 +374,6 @@ void Optimizer::Optimize_Inside_Of_Function(vector<Token*>*& T, Token *& f)
 	}
 }
 
-
-
 void Optimizer::Optimize_Function_Local_Variables_reservation(int i)
 {
 	if (Input.at(i)->is(Function) && (Input.at(i)->is(Used)))
@@ -482,10 +480,16 @@ void Optimizer::Optimize_Conditions(int i)
 		//Find if this condition is even useful for the user.
 		if (Find(Used, &Input.at(i)->Childs) != -1)
 		{
+			vector<Token*>* T = new vector<Token*>;
 			Input.at(i)->Flags |= Used;
 			for (int j = 0; j < Input.at(i)->Parameters.size(); j++)
 			{
+				Give_Context(Input.at(i)->Parameters.at(j)->Parameters.at(0), T);
 				Input.at(i)->Parameters.at(j)->Flags |= Used;
+				if (Input.at(i)->Parameters.at(j)->Parameters.size() > 0)
+					Set_All_References(Input.at(i)->Parameters.at(j)->Parameters.at(0)->Name, EnyFlag, *T);
+				if (Input.at(i)->Parameters.at(j)->Childs.size() > 0)
+					Set_All_References(Input.at(i)->Parameters.at(j)->Childs.at(0)->Name, EnyFlag, *T);
 			}
 			Optimizer o = *this;
 			o.Input = (Input.at(i)->Childs);
