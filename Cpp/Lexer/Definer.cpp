@@ -210,6 +210,10 @@ void Definer::OpenFile(const char* fileName)
         string Line;
         while (getline(file, Line))
         {
+			if ((Line.size() > 0) && (Line.at(0) == '#'))
+			{
+				continue;
+			}
             BUFFER += Line + "\n";
         }
     }

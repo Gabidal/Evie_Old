@@ -952,10 +952,10 @@ void Parser::Pattern_Comments(int i)
 
 void Parser::Factory()
 {
-    for (int i = 0; i < int(Input.size()); i++)
+    /*for (int i = 0; i < int(Input.size()); i++)
     {
         Pattern_Comments(i);
-    }
+    }*/
     for (int i = 0; i < int(Input.size()); i++)
     {
         Pattern_Init_String(i);
