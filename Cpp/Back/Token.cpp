@@ -79,7 +79,8 @@ Register *Token::getNewRegister()
     }
     else if (RegisterTurn == 3)
     {
-        RegisterTurn = 4;
+		//stop here
+        RegisterTurn = 0;
         EDX->Link(this);
 		EDX->Apply(this, Input);
         return EDX;
@@ -181,6 +182,9 @@ string Token::MOVE(Token *Source)
     {
 		output += COMMENT + "Giving " + this->Name + ", " + Source->Name + NL;
         output += MOV + this->GetAddress() + FROM + string(DWORD) + Source->Name + NL;
+		NUL->Link(this);
+		this->Reg = NUL;
+		return this->Reg->Name;
     }
     else if (this->is(Member) && (this->Fetcher != nullptr))
     {
@@ -189,6 +193,7 @@ string Token::MOVE(Token *Source)
         output += MOV + FRAME(this->Fetcher->InitVariable() + OFFSET + to_string(this->StackOffset - 4)) + FROM + DWORD + Source->InitVariable() + NL;
         this->Reg = Source->Reg;
         Source->Reg->Link(this);
+		return this->Reg->Name;
     }
     else if (Source->is(Array))
     {
@@ -226,6 +231,7 @@ string Token::MOVE(Token *Source)
 			output += COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
 			output += MOV + this->GetAddress() + FROM + DWORD + ESI->Name + NL + NL;
 		}
+		return this->Reg->Name;
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
@@ -234,6 +240,7 @@ string Token::MOVE(Token *Source)
         output += MOV + GetAddress() + FROM + DWORD + Source->InitVariable() + NL;
         this->Reg = Source->Reg;
         Source->Reg->Link(this);
+		return this->Reg->Name;
     }
     else if (Source->is(Returning))
     {
@@ -521,17 +528,18 @@ string Token::COMPARE(Token *Source)
 	if (Source->is(Number))
 	{
 		output += COMMENT + "Just directly get name of the number" + NL;
-		output += CMP + this->InitVariable() + FROM + Source->Name + NL;
+		output += CMP + this->GetAddress() + FROM + Source->Name + NL;
 	}
     else if (Source->Reg == nullptr || Source->Reg->Name == "null")
     {
 		output += COMMENT + "Just directly get address" + NL;
-        output += CMP + this->InitVariable() + FROM + Source->GetAddress() + NL;
+		output += MOV + getReg()->Name + FROM + this->GetAddress() + NL;
+        output += CMP + this->Reg->Name + FROM + Source->GetAddress() + NL;
     }
     else
     {
 		output += COMMENT + "There is already register for it, use it" + NL;
-        output += CMP + this->InitVariable() + FROM + Source->Reg->Name + NL + NL;
+        output += CMP + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
     }
     return this->Reg->Name;
 }
