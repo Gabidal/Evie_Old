@@ -26,10 +26,10 @@ func ntc(c)
 )
 
 #char to num.
-func ctn(n)
+func ctn(i)
 (
-	n = n - 48
-	return n
+	i = i - 48
+	return i
 )
 
 func move(&x, &y, s)

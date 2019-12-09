@@ -777,7 +777,14 @@ Token *Parser::Find(vector<Token*> T, string name, int flag)
     {
         if (T.at(i)->Name == name && T.at(i)->Any(flag))
         {
-            return T.at(i);
+			if ((T.at(i)->is(Public) != true) && (T.at(i)->ParentFunc == ParentFunc))
+			{
+				return T.at(i);
+			}
+			else if (T.at(i)->is(Public))
+			{
+				return T.at(i);
+			}
         }
         if (Find(T.at(i)->Childs, name, flag) != nullptr)
         {

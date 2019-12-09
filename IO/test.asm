@@ -69,7 +69,7 @@ mov [ebp - 4], dword 1
  ; Giving b, 2
 mov [ebp - 8], dword 2
  ; Giving c, 3
-mov [ebp + 4], dword 3
+mov [ebp - 12], dword 3
  ; Calling sum
  ; Pushing pointter 
  ; Giving b, ebx
@@ -77,7 +77,7 @@ lea ebx, [ebp - 8]
 push ebx
  ; Pushing pointter 
  ; Giving c, ecx
-lea ecx, [ebp + 8]
+lea ecx, [ebp - 12]
 push ecx
 call sum
 
