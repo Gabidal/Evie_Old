@@ -9,7 +9,7 @@ int main()
 {
     Init_Registers();
 
-	string OUTPUT = "";
+	string OUTPUT = "section .code";
 
     Definer d;
     d.OpenFile("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.g");
@@ -26,6 +26,8 @@ int main()
 
     Back b(*p.Output, OUTPUT);
     b.Factory();
+
+	b.Factory_Variables();
 
     ofstream o("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.asm");
     o << b.Output;

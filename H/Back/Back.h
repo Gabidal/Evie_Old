@@ -39,6 +39,7 @@ public:
     string END(int i);
 
     void Factory();
+	void Factory_Variables();
     int Find(string name, int flag, vector<Token*> list);
     Back &operator=(const Back& name);
     string Get_Output() { return Output;}

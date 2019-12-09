@@ -386,9 +386,13 @@ void Back::Handle_Conditions(int i)
         //if
         if (Input.at(i)->Parameters.size() > 0)
         {
-            b.Input = Input.at(i)->Parameters;
-            b.Factory();
-            Handle_Jumps(i);
+			for (Token * t : Input.at(i)->Parameters)
+			{
+				b.Input.clear();
+				b.Input.push_back(t);
+				b.Factory();
+				Handle_Jumps(i);
+			}
         }
         //( ...)
         if (Input.at(i)->Childs.size() > 0)
@@ -455,18 +459,6 @@ void Back::Handle_Variable_Initalization(int i)
 
 void Back::Factory()
 {
-    if (IS_PUBLIC == 0)
-    {
-        Output += BSSSEGMENT;
-        for (int i = 0; i < int(Input.size()); i++)
-        {
-            Handle_Variable_Initalization(i);
-        }
-    }
-    if (IS_PUBLIC == 0)
-    {
-        Output += CODESEGMENT;
-    }
     for (int i = 0; i < int(Input.size()); i++)
     {
 		if (Input.at(i)->is(Used) == false)
@@ -491,6 +483,18 @@ void Back::Factory()
 		//it is written
 		Input.at(i)->Flags |= Real;
     }
+}
+
+void Back::Factory_Variables()
+{
+	if (IS_PUBLIC == 0)
+	{
+		Output += BSSSEGMENT;
+		for (int i = 0; i < int(Input.size()); i++)
+		{
+			Handle_Variable_Initalization(i);
+		}
+	}
 }
 
 Back &Back::operator=(const Back& name)

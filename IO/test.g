@@ -1,22 +1,13 @@
-func sum(x, y)
+func sum(&x, &y)
 (
-	x = x + y
-	return x
+	var i = 0
+	while(x : i != 0 y : i != 0)
+	(
+		x : i = x : i + y : i
+		i = i + 1
+	)
 )
 
-#func banana()
-#(
-	
-#)
-
-func main()
-(
-	std_init()
-	var a = 1
-	var b = 2
-	var c = 3
-	a = sum(b, c)
-	return a
-)
-
-main()
+var a 
+var b
+sum(a, b)
