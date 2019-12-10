@@ -545,7 +545,7 @@ string Token::COMPARE(Token *Source)
 		output += COMMENT + "There is already register for it, use it" + NL;
         output += CMP + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
     }
-    return this->Reg->Name;
+	return "";
 }
 
 string Token::MOVEINSTACK()

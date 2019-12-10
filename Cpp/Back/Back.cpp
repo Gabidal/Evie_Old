@@ -315,31 +315,31 @@ void Back::Handle_Jumps(int i)
     {
         conditionJump = JNE ;
     }
-    if (Find("!=", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Find("!=", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JE ;
     }
-    if (Find(">=", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Find(">=", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JNGE ;
     }
-    if (Find("<=", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Find("<=", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JNLE ;
     }
-    if (Find("<", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Find("<", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JGE ;
     }
-    if (Find(">", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Find(">", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JLE ;
     }
-    if (Find("!<", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Find("!<", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JGE ;
     }
-    if (Find("!>", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Find("!>", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JLE ;
     }

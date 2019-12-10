@@ -163,10 +163,10 @@ void Parser::Pattern_Operators(int i)
         Token *B = new Token(Assembly, Output);
         if (InsideOfCondition)
         {
-            A = ParentCondition->Childs.at(ParentCondition->Childs.size() - 2);
-            B = ParentCondition->Childs.at(ParentCondition->Childs.size() - 1);
-            ParentCondition->Childs.erase(ParentCondition->Childs.begin() + ParentCondition->Childs.size() - 1);
-            ParentCondition->Childs.erase(ParentCondition->Childs.begin() + ParentCondition->Childs.size() - 1);
+            A = ParentCondition->back()->Childs.at(ParentCondition->back()->Childs.size() - 2);
+            B = ParentCondition->back()->Childs.at(ParentCondition->back()->Childs.size() - 1);
+            ParentCondition->back()->Childs.erase(ParentCondition->back()->Childs.begin() + ParentCondition->back()->Childs.size() - 1);
+            ParentCondition->back()->Childs.erase(ParentCondition->back()->Childs.begin() + ParentCondition->back()->Childs.size() - 1);
         }
         else if (InsideOfFunction)
         {
@@ -314,7 +314,7 @@ void Parser::Pattern_Condition(int i)
             {
                 condition->Flags |= If;
                 condition->Flags |= Else;
-                Substitute = ParentCondition;  // give if an place to be for time being;
+                Substitute = ParentCondition->back();  // give if an place to be for time being;
             }
             else if (Input.at(i)->WORD == "if")
             {
@@ -325,11 +325,15 @@ void Parser::Pattern_Condition(int i)
                 condition->Flags |= If;
                 condition->Flags |= While;
             }
+			if ((ParentCondition->size() > 0) && (ParentCondition->back()->Name == "if"))
+			{
+				ParentCondition->pop_back();
+			}
         }
         else
         {
             condition->Flags |= Else;
-            Substitute = ParentCondition; // give if an place to be for time being;
+            Substitute = ParentCondition->back(); // give if an place to be for time being;
         }
         
         condition->Name = Input.at(i)->WORD;
@@ -339,11 +343,11 @@ void Parser::Pattern_Condition(int i)
         {
             condition->Flags |= Private;
         }
-        
-        vector<Token*> *T;
+
+        vector<Token*> *T = new vector<Token*>;
         Give_Output(T);
         T->push_back(condition);
-        ParentCondition = condition;
+		ParentCondition->push_back(condition);
     }
     
 }
@@ -377,6 +381,8 @@ void Parser::Pattern_Parenthesis(int i)
         ParentFunc->Flags |= PARENT;
         ParentFunc = nullptr;
         Layer--;
+
+		ParentCondition->clear();
     }
     /*type banana
     (
@@ -399,6 +405,7 @@ void Parser::Pattern_Parenthesis(int i)
         ParentType->Flags |= PARENT;
         ParentType = nullptr;
         Layer--;
+		ParentCondition->clear();
     }
     /*if ( a == b & a == c)
     (
@@ -412,16 +419,24 @@ void Parser::Pattern_Parenthesis(int i)
         parser.InsideOfCondition = true;
         parser.Started = Output->size();
         parser.Factory();
-        ParentCondition->Flags |= PARENT;
+        ParentCondition->back()->Flags |= PARENT;
         if (Input.at(i-2)->_else_if)
         {
-            ParentCondition->Flags |= Successour;
-            Substitute->SuccessorToken.push_back(ParentCondition);
-            ParentCondition->Former = Substitute;
-            ParentCondition = Substitute;
+            ParentCondition->back()->Flags |= Successour;
+            Substitute->SuccessorToken.push_back(ParentCondition->back());
+            ParentCondition->back()->Former = Substitute;
+            ParentCondition->back() = Substitute;
         }
         
         Layer--;
+		if (Input.at(i+2)->WORD == "else")
+		{
+
+		}
+		else
+		{
+			ParentCondition->pop_back();
+		}
     }
     /*else
     (
@@ -435,12 +450,13 @@ void Parser::Pattern_Parenthesis(int i)
         parser.InsideOfCondition = true;
         parser.Started = Output->size();
         parser.Factory();
-        ParentCondition->Flags |= PARENT;
-        ParentCondition->Flags |= int(Successour);
-        Substitute->SuccessorToken.push_back(ParentCondition);
-        ParentCondition->Former = Substitute;
-        ParentCondition = Substitute;
+        ParentCondition->back()->Flags |= PARENT;
+        ParentCondition->back()->Flags |= int(Successour);
+        Substitute->SuccessorToken.push_back(ParentCondition->back());
+        ParentCondition->back()->Former = Substitute;
+        ParentCondition->back() = Substitute;
         Layer--;
+		ParentCondition->pop_back();
     }
     /*while (a < b)
     (
@@ -456,6 +472,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.Factory();
         ParentFunc->Flags |= PARENT;
         Layer--;
+		ParentCondition->pop_back();
     }
     
 }
@@ -840,8 +857,8 @@ void Parser::Give_Context(vector<Token*>*& T)
 	T = new vector<Token*>;
 	if (InsideOfCondition)
 	{
-		T->insert(T->end(), ParentCondition->Parameters.begin(), ParentCondition->Parameters.end());
-		T->insert(T->end(), ParentCondition->Childs.begin(), ParentCondition->Childs.end());
+		T->insert(T->end(), ParentCondition->back()->Parameters.begin(), ParentCondition->back()->Parameters.end());
+		T->insert(T->end(), ParentCondition->back()->Childs.begin(), ParentCondition->back()->Childs.end());
 	}
 	if (InsideOfFunction)
 	{
@@ -866,7 +883,7 @@ void Parser::Give_Output(vector<Token*> *&T)
     }
     else if (InsideOfCondition)
     {
-        T = &ParentCondition->Childs;
+        T = &ParentCondition->back()->Childs;
     }
     else if (InsideOfFunction)
     {

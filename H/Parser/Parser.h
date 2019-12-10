@@ -13,7 +13,7 @@ class Parser
 public:
     Token *ParentType = 0;
     Token *ParentFunc = 0;
-    Token *ParentCondition = 0;
+	vector<Token*>* ParentCondition = new vector<Token*>;
     Token *Substitute;
     int Layer = 0;
     int ID = 0;
