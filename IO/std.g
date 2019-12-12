@@ -34,11 +34,8 @@ func ctn(i)
 
 func move(&x, &y, s)
 (
-	while (s > 0)
-	(
-		x : s = y : s
-		s = s + 1
-	)
+	while (s)
+		x : 0 = y : 0
 )
 
 func sum(&x, &y)

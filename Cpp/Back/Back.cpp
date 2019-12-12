@@ -39,11 +39,11 @@ void Back::Handle_Operators(int i)
 		}
         if (Input.at(i)->Name == "+")
         {
-            reg = Dest->SUM(Source);
+            reg = Dest->SUM(Source, Cheat);
         }
         else if (Input.at(i)->Name == "-")
         {
-            reg = Dest->SUBSTRACT(Source);
+            reg = Dest->SUBSTRACT(Source, Cheat);
         }
         else if (Input.at(i)->Name == "*")
         {
@@ -71,6 +71,13 @@ void Back::Handle_Operators(int i)
         if (reg.size() > 0 && Layer == 0)
         {
 			string resulter = Dest->Name;
+			if (Input.at(i)->Name == "+" || Input.at(i)->Name == "-")
+			{
+				if (Source->is(Number) && (Cheat->Name == Dest->Name))
+				{
+					return;
+				}
+			}
 			if (Dest->tmp != nullptr)
 			{
 				Cheat->tmp = new Token(Cheat->output, Cheat->Input);

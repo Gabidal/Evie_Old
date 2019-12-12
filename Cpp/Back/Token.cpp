@@ -256,7 +256,7 @@ string Token::MOVE(Token *Source)
     return "";
 }
 
-string Token::SUM(Token *Source)
+string Token::SUM(Token *Source, Token *Dest)
 {
     PTRING(Source);
     if (Source->is(Returning))
@@ -272,7 +272,15 @@ string Token::SUM(Token *Source)
     if (Source->is(Number))
     {
 		output += COMMENT + "Direct addition" + NL;
-        output += ADD + this->InitVariable() + FROM + Source->Name + NL;
+		if (Dest->Name == this->Name)
+		{
+			output += ADD + this->GetAddress() + FROM + Source->Name + NL;
+			this->Reg = NUL;
+		}
+		else
+		{
+			output += ADD + this->InitVariable() + FROM + Source->Name + NL;
+		}
     }
 	else if (Source->is(Array))
 	{
@@ -320,7 +328,7 @@ string Token::SUM(Token *Source)
     return this->Reg->Name;
 }
 
-string Token::SUBSTRACT(Token *Source)
+string Token::SUBSTRACT(Token *Source, Token *Dest)
 {
     PTRING(Source);
     if (Source->is(Returning))
@@ -336,7 +344,15 @@ string Token::SUBSTRACT(Token *Source)
     if (Source->is(Number))
     {
 		output += COMMENT + "Direct substraction" + NL;
-        output += SUB + this->InitVariable() + FROM + Source->Name + NL;
+		if (Dest->Name == this->Name)
+		{
+			output += SUB + this->GetAddress() + FROM + Source->Name + NL;
+			this->Reg = NUL;
+		}
+		else
+		{
+			output += SUB + this->InitVariable() + FROM + Source->Name + NL;
+		}
     }
 	else if (Source->is(Array))
 	{

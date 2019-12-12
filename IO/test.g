@@ -4,7 +4,6 @@ func main()
 (
 	var a = 1
 	var b = 4
-	move(&a, &b, 1)
 	while(a != b)
 	(
 		if (a < b)

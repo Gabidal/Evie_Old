@@ -79,8 +79,8 @@ class Token
     //var
     string InitVariable();
     string MOVE(Token *Source);
-    string SUM(Token *Source);
-    string SUBSTRACT(Token *Source);
+    string SUM(Token *Source, Token *Dest);
+    string SUBSTRACT(Token *Source, Token* Dest);
     string MULTIPLY(Token *Source);
     string DIVIDE(Token *Source);
     string COMPARE(Token *Source);
