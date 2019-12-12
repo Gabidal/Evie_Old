@@ -60,6 +60,7 @@ class Token
     Token *Offsetter = nullptr;
     Token *ParentType = nullptr;
     Token *ParentFunc = nullptr;
+	Token* ParentCondition = nullptr;
     vector<Token*> SuccessorToken;
     Token *Former = nullptr;
     vector<Token*> Parameters;
@@ -125,7 +126,7 @@ public:
         Name = name;
     }
     void Link(Token *Requester);
-	void Apply(Token* Requester, vector<Token*> *T);
+	void Apply(Token* Requester, vector<Token*> *&T);
 };
 #endif
 

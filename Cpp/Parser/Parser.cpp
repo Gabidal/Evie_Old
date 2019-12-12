@@ -72,10 +72,22 @@ void Parser::Pattern_Variable(int i)
     if (Input.at(i)->is(_TEXT) && (Find(*T, Input.at(i)->WORD, Variable | Ptr) != nullptr))
     {
         Token *r = Find(*T, Input.at(i)->WORD, Variable | Ptr);
-        Token *t = new Token(Assembly, *&Output);
+		Token* t;
+		if (r->is(Public))
+		{
+			t = new Token(Assembly, *&Output);
+		}
+		else
+		{
+			t = new Token(Assembly, T);
+		}
         *t = *r;
         t->Size = 4;
-        if (InsideOfFunction)
+		if (InsideOfCondition)
+		{
+			t->ParentCondition = ParentCondition->back();
+		}
+        else if (InsideOfFunction)
         {
             t->Flags |= Private;
 			t->ParentFunc = ParentFunc;
@@ -310,6 +322,10 @@ void Parser::Pattern_Condition(int i)
 			p.Priority = true;
             p.Factory();
             condition->Parameters = p.Direct;
+			for (Token* t : condition->Parameters)
+			{
+				t->ParentCondition = condition;
+			}
             if (Input.at(i)->_else_if)
             {
                 condition->Flags |= If;

@@ -93,7 +93,6 @@ void Back::Handle_Operators(int i)
 			}
 
 			Dest->Reg->Link(Dest);
-			Dest->Reg->Apply(Dest, &Input);
         }
     }
 }
