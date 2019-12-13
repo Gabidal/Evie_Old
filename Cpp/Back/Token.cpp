@@ -268,12 +268,12 @@ string Token::SUM(Token *Source, Token *Dest)
 		output += COMMENT + "Direct addition" + NL;
 		if (Dest->Name == this->Name)
 		{
-			output += ADD + this->GetAddress() + FROM + Source->Name + NL;
+			output += ADD + this->GetAddress() + FROM + DWORD + Source->Name + NL;
 			this->Reg = NUL;
 		}
 		else
 		{
-			output += ADD + this->InitVariable() + FROM + Source->Name + NL;
+			output += ADD + this->InitVariable() + FROM + DWORD + Source->Name + NL;
 		}
     }
 	else if (Source->is(Array))
@@ -340,12 +340,12 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 		output += COMMENT + "Direct substraction" + NL;
 		if (Dest->Name == this->Name)
 		{
-			output += SUB + this->GetAddress() + FROM + Source->Name + NL;
+			output += SUB + this->GetAddress() + FROM + DWORD + Source->Name + NL;
 			this->Reg = NUL;
 		}
 		else
 		{
-			output += SUB + this->InitVariable() + FROM + Source->Name + NL;
+			output += SUB + this->InitVariable() + FROM + DWORD + Source->Name + NL;
 		}
     }
 	else if (Source->is(Array))
@@ -535,6 +535,7 @@ string Token::DIVIDE(Token *Source)
 
 string Token::COMPARE(Token *Source)
 {
+	output += COMMENT + "Comparing " + this->Name + " and " + Source->Name + NL;
 	if (Source->is(Number))
 	{
 		output += COMMENT + "Just directly get name of the number" + NL;
@@ -546,7 +547,7 @@ string Token::COMPARE(Token *Source)
 	}
     else if (Source->Reg == nullptr || Source->Reg->Name == "null")
     {
-		output += COMMENT + "Just directly get address" + NL;
+		output += COMMENT + "Just directly get address of " + Source->Name + NL;
 		if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
 		{
 			output += MOV + getReg()->Name + FROM + this->GetAddress() + NL;
@@ -555,8 +556,15 @@ string Token::COMPARE(Token *Source)
     }
     else
     {
-		output += COMMENT + "There is already register for it, use it" + NL;
-        output += CMP + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
+		output += COMMENT + "There is already register for " + Source->Name + " use it" + NL;
+		if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
+		{
+			output += CMP + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
+		}
+		else
+		{
+			output += CMP + this->Reg->Name + FROM + Source->Reg->Name + NL + NL;
+		}
     }
 	return "";
 }

@@ -317,37 +317,46 @@ void Back::Handle_Jumps(int i)
 		return;
 	}
     string conditionJump = "";
+	string sourceJMP = "";
     if (Find("==", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JNE ;
+		sourceJMP = "==";
     }
     else if (Find("!=", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JE ;
+		sourceJMP = "!=";
     }
     else if (Find(">=", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JNGE ;
+		sourceJMP = ">=";
     }
     else if (Find("<=", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JNLE ;
+		sourceJMP = "<=";
     }
     else if (Find("<", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JGE ;
+		sourceJMP = "<";
     }
     else if (Find(">", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JLE ;
+		sourceJMP = ">";
     }
     else if (Find("!<", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JGE ;
+		sourceJMP = "!<";
     }
     else if (Find("!>", OPERATOR, Input.at(i)->Parameters) != -1)
     {
         conditionJump = JLE ;
+		sourceJMP = "!>";
     }
     string destination = "";
     int ID = 0;
@@ -369,7 +378,7 @@ void Back::Handle_Jumps(int i)
         ID = Input.at(i)->ID;
         endd = "END";
     }
-    
+	Output += COMMENT + "Jumping source: \'" + sourceJMP + "\'" + NL;
     Output += conditionJump + destination + to_string(ID) + endd + NL;
 }
 

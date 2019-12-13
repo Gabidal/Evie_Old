@@ -10,17 +10,9 @@ func main()
 		(
 			a = a + 1
 		)
-		else
-		(
-			b = b + 1
-		)
 		if (a > b)
 		(
 			a = a - 1
-		)
-		else
-		(
-			b = b - 1
 		)
 	)
 	return a

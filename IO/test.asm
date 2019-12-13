@@ -12,37 +12,31 @@ mov [ebp - 4], dword 1
  ; Giving b, 4
 mov [ebp - 8], dword 4
 while0: 
- ; Just directly get address
+ ; Comparing a and b
+ ; Just directly get address of b
  ; Giving a, eax
 mov eax, [ebp - 4]
 cmp eax, [ebp - 8]
+ ; Jumping source: '!='
 je while0END
 if1: 
- ; Just directly get address
+ ; Comparing a and b
+ ; Just directly get address of b
 cmp eax, [ebp - 8]
-jge else2
+ ; Jumping source: '<'
+jge if1END
  ; Direct addition
-add [ebp - 4], 1
-jmp else2END
-
-else2: 
- ; Direct addition
-add [ebp - 8], 1
-else2END: 
+add [ebp - 4], dword 1
 if1END: 
-if3: 
- ; Just directly get address
+if2: 
+ ; Comparing a and b
+ ; Just directly get address of b
 cmp eax, [ebp - 8]
-jle else4
+ ; Jumping source: '>'
+jle if2END
  ; Direct substraction
-sub [ebp - 4], 1
-jmp else4END
-
-else4: 
- ; Direct substraction
-sub [ebp - 8], 1
-else4END: 
-if3END: 
+sub [ebp - 4], dword 1
+if2END: 
 jmp while0
 
 while0END: 
