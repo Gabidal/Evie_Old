@@ -6,7 +6,7 @@ func s(a, b)
 
 func main()
 (
-	var a = 12 + a
+	var a = 32 + s(1, 2) + 12
 	return a
 )
 

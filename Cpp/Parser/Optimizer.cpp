@@ -47,16 +47,19 @@ int Optimizer::GetSecondaryDestination(vector<Token*> t)
     return -1;
 }
 
+bool UsedAbseluteVariable = false;
 void Optimizer::Optimize_Math(vector<Token*> &T)
 {
-    // a = a + sum(b, c)
+    // a = a + sum(b, c) + 12
     for (auto t : T)
     {
         if (t->is(OPERATOR) && (t->Name != "="))
         {
             Optimize_Math(t->Parameters);
+			Optimize_Math(t->Childs);
             if (GetAbsoluteDestination(t)->is(Used))
             {
+				UsedAbseluteVariable = true;
                 t->Flags |= Used;
 				if (t->Childs.at(0)->is(Call))
 				{
@@ -107,18 +110,6 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
 				vector<Token*>*T = new vector<Token*>;
 				Give_Context(t->Childs.at(0), T);
 				Set_All_References(t->Childs.at(0)->Name, EnyFlag, *T);
-				/*if (t->Childs.at(0)->is(Private) || t->Childs.at(0)->is(Parameter))
-				{
-					Set_All_References(t->Childs.at(0)->Name, EnyFlag, t->Childs.at(0)->ParentFunc->Childs);
-				}
-				else if (t->Childs.at(0)->is(Member))
-				{
-					Set_All_References(t->Childs.at(0)->Name, EnyFlag, t->Childs.at(0)->ParentType->Childs);
-				}
-				else if (t->Childs.at(0)->is(Public))
-				{
-					Set_All_References(t->Childs.at(0)->Name, EnyFlag, Global);
-				}*/
             }
 			else if (t->Childs.at(0)->is(Call))
 			{
@@ -142,6 +133,14 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
             //cancel the math and make it a callation only.
             *t = *t->Childs.at(0);
         }
+		if (t->is(Call) && t->is(Returning) && UsedAbseluteVariable)
+		{
+			t->Flags |= Used;
+			for (auto *l : t->Parameters)
+			{
+				l->Flags |= Used;
+			}
+		}
     }
 }
 
