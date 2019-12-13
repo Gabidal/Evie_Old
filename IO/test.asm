@@ -19,7 +19,6 @@ cmp eax, [ebp - 8]
 je while0END
 if1: 
  ; Just directly get address
-mov eax, [ebp - 4]
 cmp eax, [ebp - 8]
 jge else2
  ; Direct addition
@@ -33,7 +32,6 @@ else2END:
 if1END: 
 if3: 
  ; Just directly get address
-mov eax, [ebp - 4]
 cmp eax, [ebp - 8]
 jle else4
  ; Direct substraction

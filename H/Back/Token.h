@@ -126,7 +126,7 @@ public:
         Name = name;
     }
     void Link(Token *Requester);
-	void Apply(Token* Requester, vector<Token*> *&T);
+	void Apply(Token* Requester, vector<Token*> &T);
 };
 #endif
 

@@ -547,7 +547,10 @@ string Token::COMPARE(Token *Source)
     else if (Source->Reg == nullptr || Source->Reg->Name == "null")
     {
 		output += COMMENT + "Just directly get address" + NL;
-		output += MOV + getReg()->Name + FROM + this->GetAddress() + NL;
+		if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
+		{
+			output += MOV + getReg()->Name + FROM + this->GetAddress() + NL;
+		}
         output += CMP + this->Reg->Name + FROM + Source->GetAddress() + NL;
     }
     else
@@ -719,76 +722,60 @@ Token& Token::operator=(const Token& name)
 void Register::Link(Token* Requester)
 {
 	Current = Requester;
-	if (Base != nullptr)
+	if ((Base != nullptr) && (Base->Name != Current->Name))
 	{
 		Base->Reg = NUL;
 	}
 	Base = Current;
 	if (Requester->ParentCondition != nullptr)
 	{
-		auto c = &Requester->ParentCondition->Childs;
-		auto p = &Requester->ParentCondition->Parameters;
-		Apply(Requester, c);
-		Apply(Requester, p);
+		Apply(Requester, Requester->ParentCondition->Childs);
+		Apply(Requester, Requester->ParentCondition->Parameters);
 		if ((Requester->ParentCondition->ParentCondition == nullptr) && (Requester->ParentCondition->ParentFunc != nullptr))
 		{
-			auto cc = &Requester->ParentCondition->ParentFunc->Childs;
-			auto pp = &Requester->ParentCondition->ParentFunc->Parameters;
-			Apply(Requester, cc);
-			Apply(Requester, pp);
+			Apply(Requester, Requester->ParentCondition->ParentFunc->Parameters);
+			Apply(Requester, Requester->ParentCondition->ParentFunc->Childs);
 		}
 	}
 	else if (Requester->ParentFunc != nullptr)
 	{
-		auto c = &Requester->ParentFunc->Childs;
-		auto p = &Requester->ParentFunc->Parameters;
-		Apply(Requester, c);
-		Apply(Requester, p);
+		Apply(Requester, Requester->ParentFunc->Parameters);
+		Apply(Requester, Requester->ParentFunc->Childs);
 	}
 	else if (Requester->ParentType != nullptr)
 	{
-		auto c = &Requester->ParentType->Childs;
-		Apply(Requester, c);
+		Apply(Requester, Requester->ParentType->Childs);
 	}
 	else
 	{
-		Apply(Requester, Requester->Input);
+		Apply(Requester, *Requester->Input);
 	}
 }
 
-void Register::Apply(Token* Requester, vector<Token*> *&T)
+void Register::Apply(Token* Requester, vector<Token*> &T)
 {
-	for (int i = 0; i < T->size(); i++)
+	for (auto* t : T)
 	{
-		if (T->at(i)->Offsetter != nullptr)
+		if (t->Childs.size() > 0)
 		{
-			if (T->at(i)->Offsetter->Name == Requester->Name)
+			Apply(Requester, t->Childs);
+		}
+		if (t->Parameters.size() > 0)
+		{
+			Apply(Requester, t->Parameters);
+		}
+		if (t->Offsetter != nullptr)
+		{
+			if ((t->Offsetter->Name == Requester->Name))
 			{
-				if (T->at(i)->Offsetter->Flags == Requester->Flags)
-				{
-					T->at(i)->Offsetter->Reg = this;
-				}
+				t->Offsetter->Reg = this;
 			}
 		}
-		if (T->at(i)->Parameters.size() > 0)
+		if (t->Name == Requester->Name)
 		{
-			auto t = &T->at(i)->Parameters;
-			Apply(Requester, t);
-		}
-		if (T->at(i)->Childs.size() > 0)
-		{
-			auto t = &T->at(i)->Childs;
-			Apply(Requester, t);
-		}
-		else if (T->at(i)->Name == Requester->Name)
-		{
-			if (T->at(i)->Flags == Requester->Flags)
-			{
-				T->at(i)->Reg = this;
-			}
+			t->Reg = this;
 		}
 	}
-	return;
 }
 
 void Token::PTRING(Token *&T)
