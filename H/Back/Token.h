@@ -109,6 +109,8 @@ class Token
 	Token* repz = nullptr;
 	//tmp
 	Token* tmp = nullptr;
+	//callation
+	bool cleaned = false;
 };
 
 class Register

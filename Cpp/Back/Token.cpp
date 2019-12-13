@@ -238,13 +238,14 @@ string Token::MOVE(Token *Source)
     }
     else if (Source->is(Returning))
     {
-        if (Source->Parameters.size() > 0)
+        if ((Source->Parameters.size() > 0) && Source->cleaned == false)
         {
 			output += COMMENT + "Clearing the parameters" + NL;
             output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			Source->cleaned = true;
         }
 		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += POP + string(DWORD) + this->GetAddress() + NL + NL;
+        output += MOV + this->GetAddress() + FROM + EAX->Name + NL + NL;
     }
     
     return "";
@@ -255,14 +256,24 @@ string Token::SUM(Token *Source, Token *Dest)
     PTRING(Source);
     if (Source->is(Returning))
     {
-        if (Source->Parameters.size() > 0)
-        {
+		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
+		{
 			output += COMMENT + "Clearing the parameters" + NL;
-            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-        }
-		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += POP + this->InitVariable() + NL + NL;
+			output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			Source->cleaned = true;
+		}
+		EAX->Link(Source);
     }
+	if (this->is(Returning))
+	{
+		if ((this->Parameters.size() > 0) && this->cleaned == false)
+		{
+			output += COMMENT + "Clearing the parameters" + NL;
+			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			this->cleaned = true;
+		}
+		EAX->Link(this);
+	}
     if (Source->is(Number))
     {
 		output += COMMENT + "Direct addition" + NL;
@@ -276,6 +287,20 @@ string Token::SUM(Token *Source, Token *Dest)
 			output += ADD + this->InitVariable() + FROM + DWORD + Source->Name + NL;
 		}
     }
+	else if (this->is(Number))
+	{
+		output += COMMENT + "Direct addition" + NL;
+		if (Dest->Name == Source->Name)
+		{
+			output += ADD + Dest->GetAddress() + FROM + DWORD + this->Name + NL;
+			this->Reg = NUL;
+		}
+		else
+		{
+			output += ADD + Source->InitVariable() + FROM + DWORD + this->Name + NL;
+			this->Reg = Source->Reg;
+		}
+	}
 	else if (Source->is(Array))
 	{
 		//mov eax, [ebp + 8]
@@ -325,16 +350,26 @@ string Token::SUM(Token *Source, Token *Dest)
 string Token::SUBSTRACT(Token *Source, Token *Dest)
 {
     PTRING(Source);
-    if (Source->is(Returning))
-    {
-        if (Source->Parameters.size() > 0)
-        {
+	if (Source->is(Returning))
+	{
+		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
+		{
 			output += COMMENT + "Clearing the parameters" + NL;
-            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-        }
-		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += POP + this->InitVariable() + NL + NL;
-    }
+			output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			Source->cleaned = true;
+		}
+		EAX->Link(Source);
+	}
+	if (this->is(Returning))
+	{
+		if ((this->Parameters.size() > 0) && this->cleaned == false)
+		{
+			output += COMMENT + "Clearing the parameters" + NL;
+			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			this->cleaned = true;
+		}
+		EAX->Link(this);
+	}
     if (Source->is(Number))
     {
 		output += COMMENT + "Direct substraction" + NL;
@@ -399,16 +434,26 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 string Token::MULTIPLY(Token *Source)
 {
     PTRING(Source);
-    if (Source->is(Returning))
-    {
-        if (Source->Parameters.size() > 0)
-        {
+	if (Source->is(Returning))
+	{
+		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
+		{
 			output += COMMENT + "Clearing the parameters" + NL;
-            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-        }
-		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += POP + this->InitVariable() + NL + NL;
-    }
+			output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			Source->cleaned = true;
+		}
+		EAX->Link(Source);
+	}
+	if (this->is(Returning))
+	{
+		if ((this->Parameters.size() > 0) && this->cleaned == false)
+		{
+			output += COMMENT + "Clearing the parameters" + NL;
+			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			this->cleaned = true;
+		}
+		EAX->Link(this);
+	}
     if (Source->is(Number))
     {
 		output += COMMENT + "Direct multiplying" + NL;
@@ -470,19 +515,30 @@ string Token::MULTIPLY(Token *Source)
 string Token::DIVIDE(Token *Source)
 {
     PTRING(Source);
-    if (Source->is(Returning))
-    {
-        if (Source->Parameters.size() > 0)
-        {
+	if (Source->is(Returning))
+	{
+		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
+		{
 			output += COMMENT + "Clearing the parameters" + NL;
-            output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-        }
-		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += POP + EAX->Name + NL;
-        output += CDQ + string(NL);
-        output += DIV + this->InitVariable() + NL;
-        EAX->Link(this);
-    }
+			output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			Source->cleaned = true;
+		}
+		output += CDQ + string(NL);
+		output += DIV + this->InitVariable() + NL;
+		EAX->Link(this);
+	}
+	if (this->is(Returning))
+	{
+		if ((this->Parameters.size() > 0) && this->cleaned == false)
+		{
+			output += COMMENT + "Clearing the parameters" + NL;
+			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			this->cleaned = true;
+		}
+		output += CDQ + string(NL);
+		output += DIV + this->InitVariable() + NL;
+		EAX->Link(this);
+	}
     if (Source->is(Number))
     {
         //cdq

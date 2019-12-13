@@ -77,6 +77,10 @@ void Back::Handle_Operators(int i)
 				{
 					return;
 				}
+				if (Dest->is(Number) && (Cheat->Name == Source->Name))
+				{
+					return;
+				}
 			}
 			if (Dest->tmp != nullptr)
 			{
@@ -442,23 +446,13 @@ void Back::Handle_Returning(int i)
 			Token* returnAddress = new Token(Output, &Input);
 			returnAddress->Name = "Returning address";
 			returnAddress->getReg();
-			if (b.Dest->is(Public))
+			if ((b.Dest->Reg != nullptr) && (b.Dest->Reg != EAX))
 			{
-				Output += MOV + ESP->Name + FROM + EBP->Name + NL;
-				Output += POP + EBP->Name + NL;
-				Output += POP + returnAddress->Reg->Name + NL;
-				Output += PUSH + string(DWORD) + FRAME(b.Dest->Name) + NL;
-				Output += JMP + returnAddress->Reg->Name + NL + NL;
+				Output += EAX->Name + FROM + FRAME(b.Dest->getFullName()) + NL;
 			}
-			else
-			{
-				b.Dest->InitVariable();
-				Output += MOV + ESP->Name + FROM + EBP->Name + NL;
-				Output += POP + EBP->Name + NL;
-				Output += POP + returnAddress->Reg->Name + NL;
-				Output += PUSH + b.Dest->Reg->Name + NL;
-				Output += JMP + returnAddress->Reg->Name + NL + NL;
-			}
+			Output += MOV + ESP->Name + FROM + EBP->Name + NL;
+			Output += POP + EBP->Name + NL;
+			Output += RET + NL + NL;
         }
     }
 }

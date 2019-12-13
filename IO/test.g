@@ -1,20 +1,12 @@
-using "std.g"
+func s(a, b)
+(
+	a = a + b
+	return a
+)
 
 func main()
 (
-	var a = 1
-	var b = 4
-	while(a != b)
-	(
-		if (a < b)
-		(
-			a = a + 1
-		)
-		if (a > b)
-		(
-			a = a - 1
-		)
-	)
+	var a = 12 + a
 	return a
 )
 
