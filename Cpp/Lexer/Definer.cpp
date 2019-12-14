@@ -217,7 +217,9 @@ void Definer::OpenFile(const char* fileName)
             BUFFER += Line + "\n";
         }
     }
-	Lines = ReplaceString(BUFFER, "\t", "   ");
+	Lines = BUFFER;
+	Lines = ReplaceString(Lines, "\n", "");
+	Lines = ReplaceString(Lines, "\t", " ");
     Define();
 }
 

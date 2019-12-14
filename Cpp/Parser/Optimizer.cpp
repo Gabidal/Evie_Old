@@ -316,16 +316,6 @@ void Optimizer::Optimize_Functions(int i)
     {
         for (int j = 0; j < int(Input.at(i)->Callations->size()); j++)
         {
-            /*if (Input.at(i)->Callations->at(j)->ParentFunc != nullptr)
-            {
-                if (Input.at(i)->Callations->at(j)->ParentFunc->is(Used))
-                {
-                    //if function callation is inside another function that is called
-                    Input.at(i)->Flags |= Used;
-                    Optimize_Sys_Functions(Input.at(i));
-                    break;
-                }
-            }*/
             if ((Input.at(i)->Callations->at(j)->ParentType == nullptr) && (Input.at(i)->Callations->at(j)->ParentFunc == nullptr))
             {
                 //this functon callation is public
@@ -422,7 +412,9 @@ void Optimizer::Optimize_Pointters()
 			{
 				if (c->is(Ptr))
 				{
+					Set_All_References(c->Name, Variable, c->ParentFunc->Childs);
 					Set_All_References(c->Name, Ptr, c->ParentFunc->Childs);
+					Set_All_References(c->Name, Array, c->ParentFunc->Childs);
 				}
 				else if (c->is(Number))
 				{

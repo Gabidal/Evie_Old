@@ -1,12 +1,10 @@
-func s(a, b)
-(
-	a = a + b
-	return a
-)
+using "std.g"
 
-func main()
+func main() 
 (
-	var a = 32 + s(1, 2) + 12
+	var b = 2
+	var a = 3
+	sum(&a, &b)
 	return a
 )
 
