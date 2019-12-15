@@ -1,7 +1,9 @@
+using "std.g"
+
 func main()
 (
-	var a = 3
-	raw_print(1, &a)
+	var a = 31230
+	print(&a)
 	return a
 )
 
