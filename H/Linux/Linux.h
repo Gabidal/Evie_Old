@@ -13,6 +13,8 @@ public:
     string Raw_Print();
     string Raw_In();
     string Call_Malloc(Token *t);
+	string Call_Raw_Print(Token *size, Token *ptrStr);
+	string Call_Raw_In(Token* size, Token* ptrStr);
     Linux()
     { 
     }

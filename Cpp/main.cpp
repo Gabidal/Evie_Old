@@ -5,16 +5,21 @@
 #include <iostream>
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
+	if (argc == 1)
+	{
+		return -1;
+	}
     Init_Registers();
 
 	string OUTPUT = "";
 
     Definer d;
-    d.OpenFile("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.g");
+	d.OpenFile(argv[1]);//"C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.g");
 
     Parser p(d.output, OUTPUT);
+	p.Working_Dir = argv[1];
     p.Pattern_Init_Sys_Functions();
     p.Factory();
 
@@ -29,7 +34,7 @@ int main()
 
 	b.Factory_Variables();
 
-    ofstream o("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.asm");
+	ofstream o(argv[2]);//"C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.asm");
     o << b.Output;
     o.close();
     return 0;

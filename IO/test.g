@@ -1,10 +1,7 @@
-using "std.g"
-
-func main() 
+func main()
 (
-	var b = 2
 	var a = 3
-	sum(&a, &b)
+	raw_print(1, &a)
 	return a
 )
 

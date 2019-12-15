@@ -448,7 +448,7 @@ void Back::Handle_Returning(int i)
 			returnAddress->getReg();
 			if ((b.Dest->Reg != nullptr) && (b.Dest->Reg != EAX))
 			{
-				Output += EAX->Name + FROM + FRAME(b.Dest->getFullName()) + NL;
+				Output += MOV + EAX->Name + FROM + FRAME(b.Dest->getFullName()) + NL;
 			}
 			Output += MOV + ESP->Name + FROM + EBP->Name + NL;
 			Output += POP + EBP->Name + NL;

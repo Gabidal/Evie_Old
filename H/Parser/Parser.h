@@ -11,6 +11,7 @@ using namespace std;
 class Parser
 {
 public:
+	string Working_Dir = "";
     Token *ParentType = 0;
     Token *ParentFunc = 0;
 	vector<Token*>* ParentCondition = new vector<Token*>;

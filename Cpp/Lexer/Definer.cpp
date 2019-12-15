@@ -202,7 +202,7 @@ void Definer::OpenFile(const char* fileName)
     string BUFFER;
     if (file.is_open() != true)
     {
-        cout << "File not found!\n";
+		cout << "File not found: " << fileName << '\n';
         exit(1);
     }
     else

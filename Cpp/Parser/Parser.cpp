@@ -14,6 +14,7 @@ void Parser::Pattern_Init_Sys_Functions()
     Print->Flags |= Function;
     Print->ParameterCount = 2;
     Print->Name = "raw_print";
+	//Print->addParameter({ "s", "p" }, { Variable | Parameter, Ptr | Parameter });
     
     Token *In = new Token(Assembly, Output);
     In->Flags |= Function;
@@ -952,7 +953,8 @@ void Parser::Pattern_Include(int i)
 {
     if (Input.at(i)->WORD == "using")
     {
-        string tmp = "C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\";
+		int end = Working_Dir.find_last_of('\\');
+		string tmp = Working_Dir.substr(0, end + 1);// "C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\";
         string tmp2 = (tmp + Input.at(i + 1)->WORD).c_str();
         Input.erase(Input.begin() + i);
         Input.erase(Input.begin() + i);

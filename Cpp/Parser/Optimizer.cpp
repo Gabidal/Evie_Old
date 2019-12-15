@@ -323,6 +323,10 @@ void Optimizer::Optimize_Functions(int i)
                 Optimize_Sys_Functions(Input.at(i));
                 break;
             }
+			else if (Input.at(i)->Callations->at(j)->ParentFunc->is(Used))
+			{
+				Optimize_Sys_Functions(Input.at(i));
+			}
         }
 		auto Childs = &Input.at(i)->Childs;
 		Optimize_Inside_Of_Function(Childs, Input.at(i));

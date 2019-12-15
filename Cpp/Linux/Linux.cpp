@@ -24,8 +24,8 @@ string Linux::Raw_Print()
 {
     string self =
     LABEL(string("raw_print")) +
-    POP + EDX->Name + NL +
-    POP + ECX->Name + NL +
+    POP + EDX->Name + NL + //lengh
+    POP + ECX->Name + NL + //ptr string
     MOV + EBX->Name + FROM + to_string(1) + NL +
     MOV + EAX->Name + FROM + to_string(4) + NL + 
     INT + "80h" + NL;
@@ -39,8 +39,8 @@ string Linux::Raw_In()
     LABEL(string("raw_in")) +
     MOV + EAX->Name + FROM + to_string(3) + NL +
     MOV + EBX->Name + FROM + to_string(2) + NL +
-    POP + ECX->Name + NL + 
-    POP + EDX->Name + NL +
+    //POP + ECX->Name + NL + 
+    //POP + EDX->Name + NL +
     INT + "80h" + NL;
 
     return self;
@@ -54,4 +54,22 @@ string Linux::Call_Malloc(Token *t)
 	//CALL + "Init_Variables_Of_" + t->Origin->Name + NL +
     POP + DWORD + FRAME(t->getFullName()) + NL;
     return self;
+}
+
+string Linux::Call_Raw_Print(Token* size, Token *PtrStr)
+{
+	string self = "" +
+		MOV + EDX->Name + FROM + size->InitVariable() + NL +
+		MOV + ECX->Name + FROM + PtrStr->InitVariable() + NL +
+		CALL + "raw_print" + NL;
+	return self;
+}
+
+string Linux::Call_Raw_In(Token* size, Token* PtrStr)
+{
+	string self = "" +
+		MOV + EDX->Name + FROM + size->InitVariable() + NL +
+		MOV + ECX->Name + FROM + PtrStr->InitVariable() + NL +
+		CALL + "raw_in" + NL;
+	return self;
 }
