@@ -18,7 +18,7 @@ void Back::Handle_Operators(int i)
             this->Dest = b.Dest;
             this->Cheat = b.Cheat;
         }
-        if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number) || Input.at(i)->Parameters.at(0)->is(Ptr))
+        if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number) || Input.at(i)->Childs.at(0)->is(Ptr) || Input.at(i)->Childs.at(0)->is(String))
         {
             Source = Input.at(i)->Childs.at(0);
         }
@@ -256,10 +256,12 @@ void Back::Handle_New(int i)
     
     if (Input.at(i - 1)->is(__NEW) && Input.at(i)->is(NotOriginal))
     {
-        Linux l;
 		Output += COMMENT + "Allocating new memory space for new type " + NL;
-        Output += l.Call_Malloc(Input.at(i));
-
+		Output += PUSH + Input.at(i)->Size + NL;
+		Output += CALL + "malloc" + NL;
+		Input.at(i)->Reg = EAX;
+		EAX->Link(Input.at(i));
+		Input.at(i)->MOVE(Input.at(i));
     }
 }
 
@@ -466,6 +468,30 @@ void Back::Handle_Variable_Initalization(int i)
     }
 }
 
+int String_Count = 0;
+void Back::Handle_String_Initalization(vector<Token *> *&T)
+{
+	for (auto* t : *T)
+	{
+		if (t->Childs.size() > 0)
+		{
+			auto* k = &t->Childs;
+			Handle_String_Initalization(k);
+		}
+		if (t->Parameters.size() > 0)
+		{
+			auto* k = &t->Parameters;
+			Handle_String_Initalization(k);
+		}
+		if (t->is(String))
+		{
+			t->StringName = "S" + to_string(String_Count) + NL;
+			Output += t->StringName + DB + '\"' + t->Name + '\"' + NL;
+			String_Count++;
+		}
+	}
+}
+
 void Back::Factory()
 {
     for (int i = 0; i < int(Input.size()); i++)
@@ -503,6 +529,9 @@ void Back::Factory_Variables()
 		{
 			Handle_Variable_Initalization(i);
 		}
+		Output += DATASEGMENT;
+		auto* k = &Input;
+		Handle_String_Initalization(k);
 	}
 }
 

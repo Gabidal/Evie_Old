@@ -36,6 +36,7 @@ public:
     void Handle_Returning(int i);
     void Handle_New(int i);
     void Handle_Variable_Initalization(int i);
+	void Handle_String_Initalization(vector<Token *> *&T);
     string END(int i);
 
     void Factory();

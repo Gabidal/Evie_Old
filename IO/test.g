@@ -1,9 +1,7 @@
-using "std.g"
 
 func main()
 (
-	var a = 31230
-	print(&a)
+	var a = "Hello World!"
 	return a
 )
 

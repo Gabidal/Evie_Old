@@ -155,10 +155,6 @@ string Token::InitVariable()
 				output += MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
 			}
         }
-        else if (this->is(Equ))
-        {
-            output += MOV + this->Reg->Name + FROM + this->getFullName() + NL;
-        }
         result = this->Reg->Name;
     }
     else

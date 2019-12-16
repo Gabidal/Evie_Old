@@ -47,19 +47,3 @@ func sum(&x, &y)
 		i = i + 1
 	)
 )
-
-func size_of(&list)
-(
-	var i = 0
-	while(list : i != 0)
-	(
-		i = i + 1
-	)
-	return i
-)
-
-func print(&ptr)
-(
-	var size = size_of(&ptr)
-	raw_print(size, &ptr)
-)

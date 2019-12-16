@@ -7,11 +7,8 @@ mov ebp, esp
  ; Making space for local variables 
 sub esp, 4
 
- ; Giving a, 31230
-mov [ebp - 4], dword 31230
  ; Return a
  ; Giving Returning address, eax
-mov eax, [ebp - 4]
 mov esp, ebp
 pop ebp
 ret 
@@ -22,7 +19,7 @@ pop ebp
  ; Returning 
 ret
 
- ; Calling main
-call main
-
 section .bss
+section .data
+S0
+ db "Hello World!"

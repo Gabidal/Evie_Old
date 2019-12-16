@@ -50,7 +50,9 @@
 #define PUSH "push "
 #define POP "pop "
 #define DD " resd 1"
+#define DB " db "
 #define CODESEGMENT "section .code\n"
 #define BSSSEGMENT "section .bss\n"
+#define DATASEGMENT "section .data\n"
 
 #endif

@@ -59,7 +59,7 @@ void Parser::Pattern_Init_Variable(int i)
 void Parser::Pattern_Variable(int i)
 {
     vector<Token*> *T;
-    if ((Input.at(i)->is(_TEXT) == false) && (Input.at(i)->is(_NUMBER) == false))
+    if ((Input.at(i)->is(_TEXT) == false) && (Input.at(i)->is(_NUMBER) == false) && (Input.at(i)->is(_STRING) == false))
     {
         return;
     }
@@ -152,6 +152,15 @@ void Parser::Pattern_Variable(int i)
             T->push_back(n);
         }
     }
+	if (Input.at(i)->is(_STRING) || Input.at(i)->_string)
+	{
+		Token* S = new Token(Assembly, Output);
+		S->Name = Input.at(i)->WORD;
+		S->Flags |= String;
+		S->Flags |= Public;
+		Give_Output(T);
+		T->push_back(S);
+	}
 }
 
 void Parser::Pattern_Operators(int i)
@@ -527,8 +536,12 @@ void Parser::Pattern_Init_Condition(int i)
 
 void Parser::Pattern_Init_Operators(int &i)
 {
+	if (i + 1 > Input.size() - 1)
+	{
+		return;
+	}
     //<a = b>
-    if (Input.at(i)->is(_OPERATOR) && Input.at(i)->UsedToken != true && (Input.at(i)->WORD != "?") && (Input.at(i)->WORD != ","))
+    if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->UsedToken != true) && (Input.at(i)->WORD != "?") && (Input.at(i)->WORD != ","))
     {
         Pattern_Init_Call_Func(i+2);
         Input.at(i)->Tokens.push_back(Input.at(i-1)); //a
@@ -928,24 +941,36 @@ void Parser::Pattern_Array(int i)
 
 void Parser::Pattern_Init_String(int i)
 {
-    if (Input.at(i)->is(_STRING) || Input.at(i)->WORD == "\"")
+    if ((Input.at(i)->is(_STRING) || (Input.at(i)->WORD == "\"")) && (Input.at(i)->_string == false))
     {
         string Result = "";
+		Word Base("");
         for (int j = i + 1; j < int(Input.size()); j++)
         {
-            if (Input.at(j)->is(_STRING) || Input.at(j)->WORD == "\"")
+            if (Input.at(j)->is(_STRING) || Input.at(j)->WORD.back() == '\"')
             {
+				if (Input.at(j)->WORD.size() > 1)
+				{
+					Result += Input.at(j)->WORD.substr(0, Input.at(j)->WORD.size() - 1);
+				}
                 Input.erase(Input.begin() + j);
                 break;
             }
             else
             {
+				if (Base.is(_TEXT) == Input.at(j)->is(_TEXT))
+				{
+					Result += ' ';
+				}
                 Result += Input.at(j)->WORD;
+				Base = *Input.at(j);
                 Input.erase(Input.begin() + j);
                 j--;
             }
         }
         Input.at(i)->WORD = Result;
+		Input.at(i)->Flags |= _STRING;
+		Input.at(i)->_string = true;
     }
 }
 

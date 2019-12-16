@@ -209,11 +209,11 @@ void Optimizer::Give_Context(Token *t, vector<Token*>*& T)
 	{
 		T = &t->ParentFunc->Childs;
 	}
-	else if (t->Childs.at(0)->is(Member))
+	else if (t->is(Member))
 	{
 		T = &t->ParentType->Childs;
 	}
-	else if (t->Childs.at(0)->is(Public))
+	else if (t->is(Public))
 	{
 		T = &Global;
 	}
@@ -297,16 +297,19 @@ void Optimizer::Optimize_Sys_Functions(Token * t)
     {
         Linux l;
         t->output += l.Malloc();
+		t->Flags |= Used;
     }
     else if (t->Name == "raw_print")
     {
         Linux l;
         t->output += l.Raw_Print();
+		t->Flags |= Used;
     }
     else if (t->Name == "raw_in")
     {
         Linux l;
         t->output += l.Raw_In();
+		t->Flags |= Used;
     }
 }
 
@@ -393,17 +396,26 @@ void Optimizer::Optimize_Function_Local_Variables_reservation(int i)
 
 void Optimizer::Optimize_Function_Calls(int i)
 {
-    /*if (Input.at(i)->is(Call))
+	/*
+	If this occurs the function called is not inside of operation like math.
+	We want to make function callation outside of
+	math only if it changes given parameters as pointters.
+	*/
+    if (Input.at(i)->is(Call) && (Input.at(i)->daddy_Func != nullptr) && (Input.at(i)->daddy_Func->is(Used)))
     {
-		if ((Input.at(i)->ParentFunc == nullptr) && (Input.at(i)->ParentType == nullptr))
+		//Cheking the parameters if there is any pointters.
+		for (Token* t : Input.at(i)->Parameters)
 		{
-
+			if (t->is(Ptr) && t->is(Used))
+			{
+				//We dont need to make all the parameters 'Used'
+				//theyre made elsewhere, what we want, we want to make the callation 'Used'.
+				Input.at(i)->Flags |= Used;
+				//Thats all.
+				break;
+			}
 		}
-		for (Token *t : Input.at(i)->daddy_Func->Childs)
-		{
-
-		}
-    }*/
+    }
 }
 
 void Optimizer::Optimize_Pointters()

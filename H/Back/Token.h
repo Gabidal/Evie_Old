@@ -20,7 +20,7 @@ using namespace std;
 #define Ptr (1<<11)
 #define Variable (1<<12)
 #define Array (1<<13)
-#define Equ (1<<14)
+#define String (1<<14)
 //Logical
 #define If (1<<15)
 #define Else (1<<16)
@@ -66,6 +66,7 @@ class Token
     vector<Token*> Parameters;
     vector<Token*> Childs;
     string Name = "";
+	string StringName = "";
     Register *Reg = 0;
     string &output;
 	vector<Token*> *Input;
