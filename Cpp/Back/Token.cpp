@@ -176,6 +176,12 @@ string Token::MOVE(Token *Source)
 		this->Reg = NUL;
 		return this->Reg->Name;
     }
+	else if (Source->is(String))
+	{
+		output += COMMENT + "Giving" + this->Name + " the address of" + Source->StringName + NL;
+		output += LEA + this->getReg()->Name + FROM + FRAME(Source->StringName) + NL;
+		this->Passing_String = true;
+	}
     else if (this->is(Member) && (this->Fetcher != nullptr))
     {
         // straight movation
@@ -640,7 +646,17 @@ string Token::GetAddress()
 				//lea edx, [ebp - 4]
 				//push edx
 				getReg();
-				output += LEA + Reg->Name + FROM + this->GetAddress() + NL;
+				if (this->Passing_String)
+				{
+					if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
+					{
+						output += MOV + Reg->Name + FROM + this->GetAddress() + NL;
+					}
+				}
+				else
+				{
+					output += LEA + Reg->Name + FROM + this->GetAddress() + NL;
+				}
 				skip_ptr_check = false;
 				return Reg->Name;
 			}

@@ -1,5 +1,24 @@
 #include "../../H/Back/Back.h"
 
+void Back::Set_All_References(string name, int flags, vector<Token*>& T)
+{
+	for (auto* t : T)
+	{
+		if (t->Childs.size() > 0)
+		{
+			Set_All_References(name, flags, t->Childs);
+		}
+		if (t->Parameters.size() > 0)
+		{
+			Set_All_References(name, flags, t->Parameters);
+		}
+		if (t->Name == name && t->Any(flags))
+		{
+			t->Passing_String = true;;
+		}
+	}
+}
+
 void Back::Handle_Operators(int i)
 {
     if (Input.at(i)->is(OPERATOR))
@@ -57,6 +76,17 @@ void Back::Handle_Operators(int i)
         {
             Dest->MOVE(Source);
             reg = "";
+			if (Dest->Passing_String)
+			{
+				if (Dest->is(Private))
+				{
+					Set_All_References(Dest->Name, Ptr, Dest->ParentFunc->Childs);
+				}
+				else
+				{
+					Set_All_References(Dest->Name, Ptr, *Dest->Input);
+				}
+			}
         }
         else if (Input.at(i)->Name == "==" || Input.at(i)->Name == ">=" || Input.at(i)->Name == "<=" || Input.at(i)->Name == ">" || Input.at(i)->Name == "<" || Input.at(i)->Name == "!=" || Input.at(i)->Name == "!>" || Input.at(i)->Name == "!<")
         {
@@ -110,7 +140,7 @@ void Back::Handle_Variables(int i)
             if (Input.at(i)->is(Ptr))
             {
 				Output += COMMENT + "Pushing pointter " + NL;
-                Output += PUSH + Input.at(i)->GetAddress() + NL;
+				Output += PUSH + Input.at(i)->GetAddress() + NL;
             }
             else if (Input.at(i)->is(Variable))
             {
@@ -485,8 +515,8 @@ void Back::Handle_String_Initalization(vector<Token *> *&T)
 		}
 		if (t->is(String))
 		{
-			t->StringName = "S" + to_string(String_Count) + NL;
-			Output += t->StringName + DB + '\"' + t->Name + '\"' + NL;
+			t->StringName = "S" + to_string(String_Count);
+			Strings += t->StringName + NL + DB + '\"' + t->Name + '\"' + NL;
 			String_Count++;
 		}
 	}
@@ -524,12 +554,12 @@ void Back::Factory_Variables()
 {
 	if (IS_PUBLIC == 0)
 	{
-		Output += BSSSEGMENT;
+		Strings += BSSSEGMENT;
 		for (int i = 0; i < int(Input.size()); i++)
 		{
 			Handle_Variable_Initalization(i);
 		}
-		Output += DATASEGMENT;
+		Strings += DATASEGMENT;
 		auto* k = &Input;
 		Handle_String_Initalization(k);
 	}

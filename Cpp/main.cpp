@@ -30,9 +30,10 @@ int main(int argc, char* argv[])
     second.Factory();
 
     Back b(*p.Output, OUTPUT);
-    b.Factory();
-
 	b.Factory_Variables();
+    b.Factory();
+	OUTPUT += b.Strings;
+
 
 	ofstream o(argv[2]);//"C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.asm");
     o << b.Output;

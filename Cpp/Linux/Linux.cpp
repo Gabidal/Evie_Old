@@ -20,25 +20,27 @@ string Linux::Malloc()
 }
 string Linux::Raw_Print()
 {
-    string self =
-    LABEL(string("raw_print")) +
-    POP + EDX->Name + NL + //lengh
-    POP + ECX->Name + NL + //ptr string
-    MOV + EBX->Name + FROM + to_string(1) + NL +
-    MOV + EAX->Name + FROM + to_string(4) + NL + 
-    INT + "80h" + NL;
+	string self =
+		LABEL(string("raw_print")) +
+		POP + EDX->Name + NL + //lengh
+		POP + ECX->Name + NL + //ptr string
+		MOV + EBX->Name + FROM + to_string(1) + NL +
+		MOV + EAX->Name + FROM + to_string(4) + NL +
+		INT + "80h" + NL +
+		RET + NL;
 
     return self;
 }
 string Linux::Raw_In()
 {
-    string self =
-    LABEL(string("raw_in")) +
-    MOV + EAX->Name + FROM + to_string(3) + NL +
-    MOV + EBX->Name + FROM + to_string(2) + NL +
-    //POP + ECX->Name + NL + 
-    //POP + EDX->Name + NL +
-    INT + "80h" + NL;
+	string self =
+		LABEL(string("raw_in")) +
+		MOV + EAX->Name + FROM + to_string(3) + NL +
+		MOV + EBX->Name + FROM + to_string(2) + NL +
+		//POP + ECX->Name + NL + 
+		//POP + EDX->Name + NL +
+		INT + "80h" + NL +
+		RET + NL;
 
     return self;
 }

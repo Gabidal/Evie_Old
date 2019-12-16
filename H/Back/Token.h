@@ -88,6 +88,7 @@ class Token
     string COMPARE(Token *Source);
     string MOVEINSTACK();
     string GetAddress();
+	bool Passing_String = false;
     //func
     vector<Token*> *Callations = new vector<Token*>;
     int CallationAmount = 0;

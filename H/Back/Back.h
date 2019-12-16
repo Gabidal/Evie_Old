@@ -17,6 +17,7 @@ private:
 public:
     int IS_PUBLIC = 0;
     string &Output;
+	string Strings = "";
     vector<Token*> Input;
     Token *Dest = nullptr;
     Token *Source = nullptr;
@@ -37,6 +38,7 @@ public:
     void Handle_New(int i);
     void Handle_Variable_Initalization(int i);
 	void Handle_String_Initalization(vector<Token *> *&T);
+	void Set_All_References(string name, int flags, vector<Token*>& T);
     string END(int i);
 
     void Factory();

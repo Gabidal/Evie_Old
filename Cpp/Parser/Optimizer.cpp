@@ -441,6 +441,10 @@ void Optimizer::Optimize_Pointters()
 	}
 }
 
+void Optimizer::Optimize_String_Parameters()
+{
+}
+
 void Optimizer::Optimize_Types(int i)
 {
     if (Input.at(i)->is(TypE) && (Input.at(i)->Callations->size() > 0))
