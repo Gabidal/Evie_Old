@@ -1002,7 +1002,7 @@ void Parser::Pattern_Comments(int i)
     {
         for (int j = i + 1; j < int(Input.size()); j++)
         {
-            if (Input.at(j)->is(_END) || Input.at(j)->WORD == "\n")
+            if (Input.at(j)->is(_END) || Input.at(j)->WORD == "#")
             {
                 Input.erase(Input.begin() + j);
                 break;

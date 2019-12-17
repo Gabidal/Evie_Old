@@ -12,6 +12,7 @@ public:
     string Malloc();
     string Raw_Print();
     string Raw_In();
+	string SYS_CALL();
     Linux()
     { 
     }

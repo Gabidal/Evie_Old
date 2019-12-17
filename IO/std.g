@@ -6,7 +6,6 @@ var size_f
 var size_d
 var size_c
 
-#inizaliation of std variables.
 func std_init()
 (
 	true = 1
@@ -18,14 +17,12 @@ func std_init()
 	size_c = 1
 )
 
-#num to char.
 func ntc(c)
 (
 	c = c + 48
 	return c
 )
 
-#char to num.
 func ctn(i)
 (
 	i = i - 48

@@ -311,6 +311,12 @@ void Optimizer::Optimize_Sys_Functions(Token * t)
         t->output += l.Raw_In();
 		t->Flags |= Used;
     }
+	else if (t->Name == "sys")
+	{
+		Linux l;
+		t->output += l.SYS_CALL();
+		t->Flags |= Used;
+	}
 }
 
 void Optimizer::Optimize_Functions(int i)

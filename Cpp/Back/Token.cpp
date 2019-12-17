@@ -178,7 +178,7 @@ string Token::MOVE(Token *Source)
     }
 	else if (Source->is(String))
 	{
-		output += COMMENT + "Giving" + this->Name + " the address of" + Source->StringName + NL;
+		output += COMMENT + "Giving " + this->Name + " the address of " + Source->StringName + NL;
 		output += LEA + this->getReg()->Name + FROM + FRAME(Source->StringName) + NL;
 		this->Passing_String = true;
 	}
@@ -500,7 +500,11 @@ string Token::MULTIPLY(Token *Source)
     else if (Source->is(Ptr) || Source->is(Variable))
     {
 		output += COMMENT + "Multiplying " + Source->Name + " into " + this->Name + NL;
-        if (Source->Reg == nullptr || Source->Reg->Name == "null")
+		if (Source->Name == this->Name)
+		{
+			output += IMUL + this->getReg()->Name + FROM + Source->InitVariable() + NL;
+		}
+        else if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
 			output += COMMENT + "Just directly get address" + NL;
             output += IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL;
