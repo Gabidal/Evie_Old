@@ -1,10 +1,13 @@
-using "std.g"
+type A
+(
+	var a = 1
+	var b = 2
+	var c = 3
+)
 
 func main()
 (
-	var a = 1234567890
-	var b = 9876543210
-	sum(&a, &b)
+	new A a
 	return a
 )
 

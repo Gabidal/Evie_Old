@@ -34,13 +34,3 @@ func move(&x, &y, s)
 	while (s)
 		x : 0 = y : 0
 )
-
-func sum(&x, &y)
-(
-	var i = 0
-	while(x : i != 0, y : i != 0)
-	(
-		x : i = y : i + x : i
-		i = i + 1
-	)
-)

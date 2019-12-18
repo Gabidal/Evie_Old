@@ -562,7 +562,7 @@ void Parser::Pattern_Init_Call_Func(int i)
         return;
     }
     
-    if ((Input.at(i)->_evaluate == false) && (Input.at(i)->_func == false) && Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->is(_TEXT) && (Input.at(i-2)->WORD != "func"))
+    if ((Input.at(i)->_evaluate == false) && (Input.at(i)->_func == false) && Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->is(_TEXT) && (Input.at(i-2)->WORD != "func") && (Input.at(i - 2)->WORD != "type"))
     {
         Input.at(i-1)->Tokens = Input.at(i)->Tokens;
         Input.at(i-1)->_func = true;
