@@ -26,12 +26,13 @@ mov eax, [ebp + 4]
  ; Giving o, ebx
  ; Initializing new register for private  variable o
 mov ebx, [ebp + 8]
-lea esi, [eax + (ebx) * 4]
+mov esi, [eax + (ebx) * 4]
  ; Saving the value from t offsetted by o
 mov [ebp - 4], dword esi
 
  ; Return r
  ; Giving Returning address, ecx
+mov eax, [ebp - 4]
 mov esp, ebp
 pop ebp
 ret 
@@ -61,7 +62,7 @@ mov [ebp - 8], dword eax
  ; Pushing Variable 
  ; a has already a register to it
 push eax
-push 0
+push dword 0
 call get
 
  ; Clearing the parameters
@@ -73,7 +74,7 @@ mov [ebp - 4], eax
  ; Pushing Variable 
  ; a has already a register to it
 push eax
-push 4
+push dword 4
 call get
 
  ; Clearing the parameters
@@ -87,6 +88,7 @@ add eax, [ebp - 4]
 mov [ebp - 4], dword eax
  ; Return b
  ; Giving Returning address, edx
+mov eax, [ebp - 4]
 mov esp, ebp
 pop ebp
 ret 

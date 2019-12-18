@@ -34,9 +34,24 @@ int main(int argc, char* argv[])
     b.Factory();
 	OUTPUT += b.Strings;
 
-
 	ofstream o(argv[2]);//"C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\test.asm");
     o << b.Output;
     o.close();
     return 0;
+}
+
+int booboo(void* i, int o)
+{
+	return ((int*)i)[o];
+}
+
+class banana
+{
+
+};
+
+void applr()
+{
+	banana b;
+	int a = booboo(&b, 0);
 }

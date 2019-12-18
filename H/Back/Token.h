@@ -40,7 +40,7 @@ using namespace std;
 #define PARENT (1<<27)
 #define Call (1<<28)
 #define __NEW (1<<29)
-#define HAS_FETCHER (1<<30)
+#define Address_Operator (1<<30)
 #define Successour (1<<31)
 
 class Register;

@@ -35,8 +35,8 @@ func move(&x, &y, s)
 		x : 0 = y : 0
 )
 
-func get(&t, o)
+func get(t, o)
 (
-	var r = t : o
+	var r = &t : o
 	return r
 )

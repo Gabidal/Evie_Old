@@ -196,7 +196,14 @@ string Token::MOVE(Token *Source)
 		//mov eax, [ebp + 8]
 		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		if (Source->is(Address_Operator))
+		{
+			output += MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
+		else
+		{
+			output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
 		ESI->Link(Source);
 		if (this->is(Array))
 		{
@@ -309,7 +316,14 @@ string Token::SUM(Token *Source, Token *Dest)
 		//mov eax, [ebp + 8]
 		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		if (Source->is(Address_Operator))
+		{
+			output += MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
+		else
+		{
+			output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
 		ESI->Link(Source);
 		if (this->is(Array))
 		{
@@ -406,7 +420,14 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 		//mov eax, [ebp + 8]
 		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		if (Source->is(Address_Operator))
+		{
+			output += MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
+		else
+		{
+			output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
 		ESI->Link(Source);
 		if (this->is(Array))
 		{
@@ -502,7 +523,14 @@ string Token::MULTIPLY(Token *Source)
 		//mov eax, [ebp + 8]
 		//lea esi, [eax + 0 * 4]
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		if (Source->is(Address_Operator))
+		{
+			output += MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
+		else
+		{
+			output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+		}
 		ESI->Link(Source);
 		if (this->is(Array))
 		{
@@ -725,6 +753,10 @@ string Token::GetAddress()
         {
 			//[(ebp - 8) + 1 * 4]
 			output += COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
+			if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
+			{
+				this->InitVariable();
+			}
 			if (this->is(Ptr) && (Outside_Of_Parameters == false))
 			{
 				return FRAME(this->Reg->Name + OFFSET + this->Offsetter->Name + SCALE + "4");
@@ -737,6 +769,10 @@ string Token::GetAddress()
         else if (this->is(Array) && this->Offsetter->is(Variable))
         {
 			//[(ebp - 8) + (ebp - 4) * 4]
+			if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
+			{
+				this->InitVariable();
+			}
 			if (this->is(Ptr) && (Outside_Of_Parameters == false))
 			{
 				return FRAME(this->Reg->Name + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");

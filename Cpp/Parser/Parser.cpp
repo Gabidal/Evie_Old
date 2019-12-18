@@ -128,6 +128,11 @@ void Parser::Pattern_Variable(int i)
         {
             t->Flags |= Ptr;
         }
+
+		if (Input.at(i)->_address_operator)
+		{
+			t->Flags |= Address_Operator;
+		}
         
         if (Priority)
         {
@@ -250,7 +255,7 @@ void Parser::Pattern_Init_Locator(int &i)
 {
     if (Input.at(i)->WORD == "&")
     {
-        Input.at(i+1)->_ptr = true;
+        Input.at(i+1)->_address_operator = true;
         Input.erase(Input.begin() + i);
         i--;
     }

@@ -31,6 +31,7 @@ public:
     bool _ptr = false;
     bool _array = false;
 	bool _string = false;
+	bool _address_operator = false;
     vector<Word*> Tokens;
     int LineNumber = 0;
     string WORD = "";

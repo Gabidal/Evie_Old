@@ -156,7 +156,7 @@ void Back::Handle_Variables(int i)
             }
             else
             {
-                Output += PUSH + Input.at(i)->Name + NL;
+                Output += PUSH + string(DWORD) + Input.at(i)->Name + NL;
             }
         }
         if (Get_Direct)
@@ -478,7 +478,7 @@ void Back::Handle_Returning(int i)
 			Token* returnAddress = new Token(Output, &Input);
 			returnAddress->Name = "Returning address";
 			returnAddress->getReg();
-			if ((b.Dest->Reg != nullptr) && (b.Dest->Reg != EAX))
+			if ((b.Dest->Reg != nullptr) || (b.Dest->Reg != EAX))
 			{
 				Output += MOV + EAX->Name + FROM + FRAME(b.Dest->getFullName()) + NL;
 			}
