@@ -10,39 +10,6 @@ mov ebx, esp
 int 0x80
 add esp, 24
 ret 
- ; Function get
-get: 
- ; Making stack frame 
-push ebp
-mov ebp, esp
-
- ; Making space for local variables 
-sub esp, 4
-
- ; Pointer address value to variable
- ; From t added address by value of o
- ; Giving t, eax
-mov eax, [ebp + 4]
- ; Giving o, ebx
- ; Initializing new register for private  variable o
-mov ebx, [ebp + 8]
-mov esi, [eax + (ebx) * 4]
- ; Saving the value from t offsetted by o
-mov [ebp - 4], dword esi
-
- ; Return r
- ; Giving Returning address, ecx
-mov eax, [ebp - 4]
-mov esp, ebp
-pop ebp
-ret 
-
- ; Ending stack frame 
-mov esp, ebp
-pop ebp
- ; Returning 
-ret
-
  ; Function main
 main: 
  ; Making stack frame 
@@ -50,7 +17,7 @@ push ebp
 mov ebp, esp
 
  ; Making space for local variables 
-sub esp, 20
+sub esp, 16
 
  ; Allocating new memory space for new type 
 push 12
@@ -58,36 +25,15 @@ call malloc
  ; Saving a into a
  ; a has already a register to it
 mov [ebp - 8], dword eax
- ; Calling get
- ; Pushing Variable 
- ; a has already a register to it
-push eax
-push dword 0
-call get
+ ; Pointer address value to variable
+ ; From a added address by value of 0
+ ; Adding the offset of a by 0
+mov esi, [eax + 0 * 4]
+ ; Saving the value from a offsetted by 0
+mov [ebp - 4], dword esi
 
- ; Clearing the parameters
-add esp, 8
- ; Giving b the return value
-mov [ebp - 4], eax
-
- ; Calling get
- ; Pushing Variable 
- ; a has already a register to it
-push eax
-push dword 4
-call get
-
- ; Clearing the parameters
-add esp, 8
- ; Adding b into b
- ; Just directly get address
- ; get has already a register to it
-add eax, [ebp - 4]
- ; Saving b into b
- ; b has already a register to it
-mov [ebp - 4], dword eax
  ; Return b
- ; Giving Returning address, edx
+ ; Giving Returning address, eax
 mov eax, [ebp - 4]
 mov esp, ebp
 pop ebp
@@ -98,9 +44,6 @@ mov esp, ebp
 pop ebp
  ; Returning 
 ret
-
- ; Calling main
-call main
 
 section .bss
 section .data

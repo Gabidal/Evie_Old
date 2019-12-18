@@ -10,8 +10,7 @@ type A
 func main()
 (
 	new A a
-	var b = get(a, 0)
-	b = b + get(a, 4)
+	var b = & a:0
 	return b
 )
 
