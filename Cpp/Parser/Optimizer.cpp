@@ -96,7 +96,7 @@ void Optimizer::Optimize_Math(vector<Token*> &T)
 			{
 				vector<Token*>* T = new vector<Token*>;
 				Give_Context(t->Childs.at(0)->Offsetter, T);
-				if (t->Parameters.at(0)->Offsetter->is(Number))
+				if (t->Childs.at(0)->Offsetter->is(Number))
 				{
 					t->Childs.at(0)->Offsetter->Flags |= Used;
 				}

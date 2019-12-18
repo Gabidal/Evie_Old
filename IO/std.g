@@ -34,3 +34,9 @@ func move(&x, &y, s)
 	while (s)
 		x : 0 = y : 0
 )
+
+func get(&t, o)
+(
+	var r = t : o
+	return r
+)

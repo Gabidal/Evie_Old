@@ -1,3 +1,5 @@
+using "std.g"
+
 type A
 (
 	var a = 1
@@ -8,7 +10,9 @@ type A
 func main()
 (
 	new A a
-	return a
+	var b = get(a, 0)
+	b = b + get(a, 4)
+	return b
 )
 
 main()

@@ -287,7 +287,7 @@ void Back::Handle_New(int i)
     if (Input.at(i - 1)->is(__NEW) && Input.at(i)->is(NotOriginal))
     {
 		Output += COMMENT + "Allocating new memory space for new type " + NL;
-		Output += PUSH + Input.at(i)->Size + NL;
+		Output += PUSH + to_string(Input.at(i)->Size) + NL;
 		Output += CALL + "malloc" + NL;
 		Input.at(i)->Reg = EAX;
 		EAX->Link(Input.at(i));

@@ -226,6 +226,7 @@ string Token::MOVE(Token *Source)
 			//mov [(ebp - 4) + (ebp - 8) * 4], dword eax
 			output += COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
 			output += MOV + this->GetAddress() + FROM + DWORD + ESI->Name + NL + NL;
+			this->Reg = Source->Reg;
 		}
 		return this->Reg->Name;
     }
@@ -332,20 +333,35 @@ string Token::SUM(Token *Source, Token *Dest)
 			output += ADD + this->getReg()->Name + FROM + FRAME(ESI->Name) + NL;
 		}
 	}
-    else if (Source->is(Ptr) || Source->is(Variable))
-    {
+	else if (Source->is(Ptr) || Source->is(Variable))
+	{
 		output += COMMENT + "Adding " + Source->Name + " into " + this->Name + NL;
-        if (Source->Reg == nullptr || Source->Reg->Name == "null")
-        {
+		if (Source->Reg == nullptr || Source->Reg->Name == "null")
+		{
 			output += COMMENT + "Just directly get address" + NL;
-            output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL;
-        }
-        else
-        {
+			output += ADD + this->InitVariable() + FROM + Source->GetAddress() + NL;
+		}
+		else
+		{
 			output += COMMENT + "There is already register for it, use it" + NL;
-            output += ADD + this->InitVariable() + FROM + Source->Reg->Name + NL;
-        }
-    }
+			output += ADD + this->InitVariable() + FROM + Source->Reg->Name + NL;
+		}
+	}
+	else if (this->is(Ptr) || this->is(Variable))
+	{
+		output += COMMENT + "Adding " + this->Name + " into " + this->Name + NL;
+		if (this->Reg == nullptr || this->Reg->Name == "null")
+		{
+			output += COMMENT + "Just directly get address" + NL;
+			output += ADD + Source->InitVariable() + FROM + this->GetAddress() + NL;
+			this->Reg = Source->Reg;
+		}
+		else
+		{
+			output += COMMENT + "There is already register for it, use it" + NL;
+			output += ADD + Source->InitVariable() + FROM + this->Reg->Name + NL;
+		}
+	}
     return this->Reg->Name;
 }
 
@@ -430,6 +446,21 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
             output += SUB + this->InitVariable() + FROM + Source->Reg->Name + NL;
         }
     }
+	else if (this->is(Ptr) || this->is(Variable))
+	{
+		output += COMMENT + "Adding " + this->Name + " into " + this->Name + NL;
+		if (this->Reg == nullptr || this->Reg->Name == "null")
+		{
+			output += COMMENT + "Just directly get address" + NL;
+			output += SUB + Source->InitVariable() + FROM + this->GetAddress() + NL;
+			this->Reg = Source->Reg;
+		}
+		else
+		{
+			output += COMMENT + "There is already register for it, use it" + NL;
+			output += SUB + Source->InitVariable() + FROM + this->Reg->Name + NL;
+		}
+	}
     return this->Reg->Name;
 }
 
@@ -515,6 +546,21 @@ string Token::MULTIPLY(Token *Source)
             output += IMUL + this->InitVariable() + FROM + Source->Reg->Name + NL;
         }
     }
+	else if (this->is(Ptr) || this->is(Variable))
+	{
+		output += COMMENT + "Adding " + this->Name + " into " + this->Name + NL;
+		if (this->Reg == nullptr || this->Reg->Name == "null")
+		{
+			output += COMMENT + "Just directly get address" + NL;
+			output += IMUL + Source->InitVariable() + FROM + this->GetAddress() + NL;
+			this->Reg = Source->Reg;
+		}
+		else
+		{
+			output += COMMENT + "There is already register for it, use it" + NL;
+			output += IMUL + Source->InitVariable() + FROM + this->Reg->Name + NL;
+		}
+	}
     return this->Reg->Name;
 }
 

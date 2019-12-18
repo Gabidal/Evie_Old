@@ -681,7 +681,7 @@ void Parser::Pattern_New(int i)
         t->Name = Input.at(i)->Tokens.at(1)->WORD;
         t->Origin = Output->at(j);
         t->Flags |= NotOriginal;
-        t->Flags |= Ptr;
+        //t->Flags |= Ptr;
         t->Flags |= Variable;
         for (int k = 0; k < int(t->Childs.size()); k++)
         {
