@@ -34,7 +34,7 @@ mov [ebp - 4], dword esi
 
  ; Return b
  ; Giving Returning address, eax
-mov eax, [ebp - 4]
+mov eax, dword [ebp - 4]
 mov esp, ebp
 pop ebp
 ret 

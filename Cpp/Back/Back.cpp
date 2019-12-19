@@ -1,5 +1,6 @@
 #include "../../H/Back/Back.h"
 
+
 void Back::Set_All_References(string name, int flags, vector<Token*>& T)
 {
 	for (auto* t : T)
@@ -85,6 +86,17 @@ void Back::Handle_Operators(int i)
 				else
 				{
 					Set_All_References(Dest->Name, Ptr, *Dest->Input);
+				}
+			}
+			else if (Source->is(Array))
+			{
+				if (Dest->is(Private))
+				{
+					Set_All_References(Dest->Name, INT32_MAX, Dest->ParentFunc->Childs);
+				}
+				else
+				{
+					Set_All_References(Dest->Name, INT32_MAX, *Dest->Input);
 				}
 			}
         }
@@ -478,9 +490,13 @@ void Back::Handle_Returning(int i)
 			Token* returnAddress = new Token(Output, &Input);
 			returnAddress->Name = "Returning address";
 			returnAddress->getReg();
-			if ((b.Dest->Reg != nullptr) || (b.Dest->Reg != EAX))
+			if (b.Dest->Reg == nullptr)
 			{
-				Output += MOV + EAX->Name + FROM + FRAME(b.Dest->getFullName()) + NL;
+				Output += MOV + EAX->Name + FROM + DWORD + FRAME(b.Dest->getFullName()) + NL;
+			}
+			else if (b.Dest->Reg != nullptr)
+			{
+				Output += MOV + EAX->Name + FROM + b.Dest->Reg->Name + NL;
 			}
 			Output += MOV + ESP->Name + FROM + EBP->Name + NL;
 			Output += POP + EBP->Name + NL;
