@@ -293,7 +293,7 @@ void Optimizer::GetReturningToken(int i)
 
 void Optimizer::Optimize_Sys_Functions(Token * t)
 {
-    if (t->Name == "Malloc")
+    if (t->Name == "malloc")
     {
         Linux l;
         t->output += l.Malloc();

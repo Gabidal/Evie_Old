@@ -8,7 +8,7 @@ void Parser::Pattern_Init_Sys_Functions()
     Malloc->Flags |= Function;
     Malloc->ParameterCount = 1;
     Malloc->Flags |= Returning;
-    Malloc->Name = "Malloc";
+    Malloc->Name = "malloc";
 
     Token *Print = new Token(Assembly, Output);
     Print->Flags |= Function;

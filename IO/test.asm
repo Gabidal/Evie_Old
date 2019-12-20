@@ -16,23 +16,7 @@ main:
 push ebp
 mov ebp, esp
 
- ; Making space for local variables 
-sub esp, 16
-
- ; Allocating new memory space for new type 
-push 12
-call malloc
- ; Saving a into a
- ; a has already a register to it
-mov [ebp - 8], dword eax
- ; Pointer address value to variable
- ; From a added address by value of 0
- ; Adding the offset of a by 0
-mov esi, [eax + 0 * 4]
- ; Saving the value from a offsetted by 0
-mov [ebp - 4], dword esi
-
- ; Return b
+ ; Return 0
  ; Giving Returning address, eax
 mov eax, dword [ebp - 4]
 mov esp, ebp

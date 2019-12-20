@@ -39,19 +39,3 @@ int main(int argc, char* argv[])
     o.close();
     return 0;
 }
-
-int booboo(void* i, int o)
-{
-	return ((int*)i)[o];
-}
-
-class banana
-{
-
-};
-
-void applr()
-{
-	banana b;
-	int a = booboo(&b, 0);
-}
