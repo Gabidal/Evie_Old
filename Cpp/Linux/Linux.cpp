@@ -8,7 +8,7 @@ string Linux::Malloc()
 		PUSH + DWORD + to_string(-1) + NL +
 		PUSH + DWORD + "0x22" + NL +
 		PUSH + DWORD + "0x03" + NL +
-		PUSH + DWORD + FRAME(ESP->Name + OFFSET + to_string(16)) + NL +
+		PUSH + DWORD + FRAME(ESP->Name + OFFSET + to_string(20)) + NL +
 		PUSH + DWORD + to_string(0) + NL +
 		MOV + EAX->Name + FROM + "0x5a" + NL +
 		MOV + EBX->Name + FROM + ESP->Name + NL +

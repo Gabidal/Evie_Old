@@ -131,6 +131,7 @@
     <ClCompile Include="Cpp\main.cpp" />
     <ClCompile Include="Cpp\Parser\Optimizer.cpp" />
     <ClCompile Include="Cpp\Parser\Parser.cpp" />
+    <ClCompile Include="Cpp\Windows\Windows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="H\Back\Assembly_Definitions.h" />
@@ -144,6 +145,7 @@
     <ClInclude Include="H\Linux\Linux.h" />
     <ClInclude Include="H\Parser\Optimizer.h" />
     <ClInclude Include="H\Parser\Parser.h" />
+    <ClInclude Include="H\Windows\Windows.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

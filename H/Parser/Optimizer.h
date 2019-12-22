@@ -1,10 +1,11 @@
 #ifndef _OPTIMIZER_H_
-#define _OPTiMIZER_H_
+#define _OPTIMIZER_H_
 
 #include "../Back/Token.h"
 #include <vector>
 #include <string>
 #include "../Linux/Linux.h"
+#include "../Windows/Windows.h"
 
 class Optimizer
 {

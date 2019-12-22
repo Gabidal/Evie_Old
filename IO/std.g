@@ -34,3 +34,20 @@ func move(&x, &y, s)
 	while (s)
 		x:0 = y:0
 )
+
+type Array
+(
+	var Size
+	var Address
+	var Child_Size
+)
+
+func Array(this, size, child_size)
+(
+	this = malloc(size)
+	this:0 = size
+	this:8 = child_size
+	var combined_size = size * child_size
+	this:4 = malloc(combined_size)
+	return this
+)

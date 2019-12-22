@@ -293,29 +293,34 @@ void Optimizer::GetReturningToken(int i)
 
 void Optimizer::Optimize_Sys_Functions(Token * t)
 {
-    if (t->Name == "malloc")
+	#ifndef _WIN32_
+	Windows l;
+	#else
+	Linux l;
+	#endif // linux os or not
+    if ((t->Name == "malloc") && (t->_INITTED == false))
     {
-        Linux l;
         t->output += l.Malloc();
 		t->Flags |= Used;
+		t->_INITTED = true;
     }
-    else if (t->Name == "raw_print")
+    else if ((t->Name == "raw_print") && (t->_INITTED == false))
     {
-        Linux l;
         t->output += l.Raw_Print();
 		t->Flags |= Used;
+		t->_INITTED = true;
     }
-    else if (t->Name == "raw_in")
+    else if ((t->Name == "raw_in") && (t->_INITTED == false))
     {
-        Linux l;
         t->output += l.Raw_In();
 		t->Flags |= Used;
+		t->_INITTED = true;
     }
-	else if (t->Name == "sys")
+	else if ((t->Name == "sys") && (t->_INITTED == false))
 	{
-		Linux l;
 		t->output += l.SYS_CALL();
 		t->Flags |= Used;
+		t->_INITTED = true;
 	}
 }
 

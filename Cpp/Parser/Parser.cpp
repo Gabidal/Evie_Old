@@ -713,7 +713,7 @@ void Parser::Pattern_New(int i)
             T->push_back(t);
         }
         Output->at(j)->Callations->push_back(t);
-        j = Find("Malloc", Function, *Output);
+        j = Find("malloc", Function, *Output);
         Output->at(j)->Callations->push_back(t);
         Output->at(j)->CallationAmount++;
     }

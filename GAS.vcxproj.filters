@@ -39,6 +39,9 @@
     <ClCompile Include="Cpp\Parser\Optimizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\Windows\Windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="H\Back\Assembly_Definitions.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\Parser\Optimizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Windows\Windows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
