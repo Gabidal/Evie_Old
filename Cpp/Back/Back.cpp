@@ -494,7 +494,7 @@ void Back::Handle_Returning(int i)
 			{
 				Output += MOV + EAX->Name + FROM + DWORD + FRAME(b.Dest->getFullName()) + NL;
 			}
-			else if (b.Dest->Reg != nullptr)
+			else if ((b.Dest->Reg != nullptr) && (b.Dest->Reg != EAX))
 			{
 				Output += MOV + EAX->Name + FROM + b.Dest->Reg->Name + NL;
 			}

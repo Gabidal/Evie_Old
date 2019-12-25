@@ -1,15 +1,13 @@
+extern _VirtualAlloc@16
+global malloc
 malloc: 
+push dword 0x04
+push dword 0x3000
+push dword [esp + 8]
 push dword 0
-push dword -1
-push dword 0x22
-push dword 0x03
-push dword [esp + 20]
-push dword 0
-mov eax, 0x5a
-mov ebx, esp
-int 0x80
-add esp, 24
+call _VirtualAlloc@16
 ret 
+
  ; Function main
 main: 
  ; Making stack frame 
@@ -27,7 +25,6 @@ call malloc
 mov [ebp - 4], dword eax
  ; Return b
  ; Giving Returning address, eax
-mov eax, eax
 mov esp, ebp
 pop ebp
 ret 

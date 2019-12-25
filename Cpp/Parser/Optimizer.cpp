@@ -294,9 +294,9 @@ void Optimizer::GetReturningToken(int i)
 void Optimizer::Optimize_Sys_Functions(Token * t)
 {
 	#ifndef _WIN32_
-	Windows l;
+		Windows l;
 	#else
-	Linux l;
+		Linux l;
 	#endif // linux os or not
     if ((t->Name == "malloc") && (t->_INITTED == false))
     {
