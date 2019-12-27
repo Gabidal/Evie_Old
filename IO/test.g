@@ -2,7 +2,6 @@ func Feed_Foward(N, W, s)
 (
 	var current = 0
 	var next = 1
-	var tmp
 	while (current <= s)
 	(
 		N:next = N:current * W:current
@@ -12,4 +11,12 @@ func Feed_Foward(N, W, s)
 	return N
 )
 
-Feed_Foward()
+func main()
+(
+	var Nodes = malloc(100)
+	var Weights = malloc(100)
+	Feed_Foward(Nodes, Weights, 100)
+	return Nodes
+)
+
+main()

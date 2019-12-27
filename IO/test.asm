@@ -1,3 +1,13 @@
+extern _VirtualAlloc@16
+global malloc
+malloc: 
+push dword 0x04
+push dword 0x3000
+push dword [esp + 8]
+push dword 0
+call _VirtualAlloc@16
+ret 
+
  ; Function Feed_Foward
 Feed_Foward: 
  ; Making stack frame 
@@ -60,8 +70,51 @@ pop ebp
  ; Returning 
 ret
 
+ ; Function main
+main: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+ ; Making space for local variables 
+sub esp, 12
+
+ ; Calling malloc
+push dword 100
+call malloc
+
+ ; Clearing the parameters
+add esp, 4
+ ; Giving Nodes the return value
+mov [ebp - 4], eax
+
+ ; Calling malloc
+push dword 100
+call malloc
+
  ; Calling Feed_Foward
+ ; Pushing Variable 
+push [ebp - 4]
+ ; Pushing Variable 
+push [ebp - 8]
+push dword 100
 call Feed_Foward
+
+ ; Return Nodes
+ ; Giving Returning address, ecx
+mov eax, dword [ebp - 4]
+mov esp, ebp
+pop ebp
+ret 
+
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
+ ; Calling main
+call main
 
 section .bss
 section .data
