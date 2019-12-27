@@ -173,7 +173,7 @@ void Parser::Pattern_Operators(int i)
     //set variable value;
     //a <: a> = b
     //c = a<()> + b
-    if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->Tokens.size() > 0) && (Input.at(i)->UsedToken == true) && Input.at(i)->WORD != "&")
+    if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->Tokens.size() > 0) && (Input.at(i)->UsedToken == true) && (Input.at(i)->WORD != "&") && (Input.at(i)->WORD != ":"))
     {
         Token *OP = new Token(Assembly, Output);
         OP->Flags |= OPERATOR;
@@ -546,7 +546,7 @@ void Parser::Pattern_Init_Operators(int &i)
 		return;
 	}
     //<a = b>
-    if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->UsedToken != true) && (Input.at(i)->WORD != "?") && (Input.at(i)->WORD != ","))
+    if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->UsedToken != true) && (Input.at(i)->WORD != "?") && (Input.at(i)->WORD != ",") && (Input.at(i)->WORD != ":"))
     {
         Pattern_Init_Call_Func(i+2);
         Input.at(i)->Tokens.push_back(Input.at(i-1)); //a

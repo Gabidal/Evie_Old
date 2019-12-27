@@ -110,7 +110,7 @@ void Back::Handle_Operators(int i)
             Dest = Source;
         }
         
-        if (reg.size() > 0 && Layer == 0)
+        if ((reg.size() > 0) && (Layer == 0))
         {
 			string resulter = Dest->Name;
 			if (Input.at(i)->Name == "+" || Input.at(i)->Name == "-")
@@ -126,16 +126,14 @@ void Back::Handle_Operators(int i)
 			}
 			if (Dest->tmp != nullptr)
 			{
-				Cheat->tmp = new Token(Cheat->output, Cheat->Input);
-				*Cheat->tmp = *Dest->tmp;
-
-				Dest->MOVE(Dest->tmp);
-			}
-			else
-			{
-				Dest = Cheat;
-				Dest->Reg = registers[reg];
-				Dest->MOVE(Dest);
+                if (Cheat->tmp != nullptr)
+                {
+                    Cheat->tmp->MOVE(Dest->tmp);
+                }
+                else
+                {
+                    Cheat->MOVE(Dest->tmp);
+                }
 			}
 
 			Dest->Reg->Link(Dest);
@@ -542,10 +540,10 @@ void Back::Factory()
 {
     for (int i = 0; i < int(Input.size()); i++)
     {
-		if (Input.at(i)->is(Used) == false)
+		/*if (Input.at(i)->is(Used) == false)
         {
             continue;
-        }
+        }*/
 		if (Input.at(i)->is(Real))
 		{
 			//already written into asm

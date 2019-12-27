@@ -1,13 +1,15 @@
-type bananan
+func Feed_Foward(N, W, s)
 (
-	var a
-	var b 
+	var current = 0
+	var next = 1
+	var tmp
+	while (current <= s)
+	(
+		N:next = N:current * W:current
+		current = next
+		next = next + 1
+	)
+	return N
 )
 
-func main()
-(
-	new bananan b
-	return b
-)
-
-main()
+Feed_Foward()
