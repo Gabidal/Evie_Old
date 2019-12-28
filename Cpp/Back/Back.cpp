@@ -150,14 +150,14 @@ void Back::Handle_Variables(int i)
             if (Input.at(i)->is(Ptr))
             {
 				Output += COMMENT + "Pushing pointter " + NL;
-				Output += PUSH + Input.at(i)->GetAddress() + NL;
+				Output += PUSH + string(DWORD) + Input.at(i)->GetAddress() + NL;
             }
             else if (Input.at(i)->is(Variable))
             {
 				Output += COMMENT + "Pushing Variable " + NL;
 				if (Input.at(i)->Reg == nullptr)
 				{
-					Output += PUSH + Input.at(i)->GetAddress() + NL;
+					Output += PUSH + string(DWORD) + Input.at(i)->GetAddress() + NL;
 				}
 				else
 				{
@@ -314,6 +314,7 @@ void Back::Handle_Call_Function(int i)
         {
             Back b = *this;
             b.Input = Input.at(i)->Parameters;
+            reverse(b.Input.begin(), b.Input.end());
             b.Priority_For_Parametering = true;
             b.Factory();
             if (Input.at(i)->is(This))

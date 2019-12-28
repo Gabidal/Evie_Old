@@ -54,7 +54,7 @@ class Token
     int StackOffset = 4;
     int ParameterCount = 0;
     int AddedOffset = 4;
-    int ParameterOffset = 0;
+    int ParameterOffset = 4;
     bool _INITTED = false;
     int ID = 0;
     Token *Offsetter = nullptr;

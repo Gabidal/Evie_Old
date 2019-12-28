@@ -17,6 +17,7 @@ func main()
 	var Weights = malloc(100)
 	Feed_Foward(Nodes, Weights, 100)
 	return Nodes
+	return Weights
 )
 
 main()

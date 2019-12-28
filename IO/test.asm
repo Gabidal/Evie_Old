@@ -1,3 +1,4 @@
+global main
 extern _VirtualAlloc@16
 global malloc
 malloc: 
@@ -26,18 +27,18 @@ while0:
  ; Just directly get address of s
  ; Giving current, eax
 mov eax, [ebp - 4]
-cmp eax, [ebp + 12]
+cmp eax, [ebp + 16]
  ; Jumping source: '<='
 jnle while0END
  ; Pointer to pointer directionation
  ; From W added address by value of current
  ; Giving W, ebx
-mov ebx, [ebp + 8]
+mov ebx, [ebp + 12]
  ; current has already a register to it
 lea esi, [ebx + (eax) * 4]
  ; From N added address by value of current
  ; Giving N, ecx
-mov ecx, [ebp + 4]
+mov ecx, [ebp + 8]
  ; current has already a register to it
 lea edi, [ecx + (eax) * 4]
  ; Giving , edx
@@ -59,7 +60,7 @@ jmp while0
 while0END: 
  ; Return N
  ; Giving Returning address, ebx
-mov eax, dword [ebp + 4]
+mov eax, dword [ebp + 8]
 mov esp, ebp
 pop ebp
 ret 
@@ -77,7 +78,7 @@ push ebp
 mov ebp, esp
 
  ; Making space for local variables 
-sub esp, 12
+sub esp, 16
 
  ; Calling malloc
 push dword 100
@@ -92,17 +93,29 @@ mov [ebp - 4], eax
 push dword 100
 call malloc
 
+ ; Clearing the parameters
+add esp, 4
+ ; Giving Weights the return value
+mov [ebp - 8], eax
+
  ; Calling Feed_Foward
- ; Pushing Variable 
-push [ebp - 4]
- ; Pushing Variable 
-push [ebp - 8]
 push dword 100
+ ; Pushing Variable 
+push dword [ebp - 8]
+ ; Pushing Variable 
+push dword [ebp - 4]
 call Feed_Foward
 
  ; Return Nodes
  ; Giving Returning address, ecx
 mov eax, dword [ebp - 4]
+mov esp, ebp
+pop ebp
+ret 
+
+ ; Return Weights
+ ; Giving Returning address, edx
+mov eax, dword [ebp - 8]
 mov esp, ebp
 pop ebp
 ret 
