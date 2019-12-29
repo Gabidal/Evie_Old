@@ -32,9 +32,6 @@ int main(int argc, char* argv[])
 
     Optimizer first(*p.Output);
     first.Factory();
-    
-    Optimizer second(*p.Output);
-    second.Factory();
 
     Back b(*p.Output, OUTPUT);
 	b.Factory_Variables();

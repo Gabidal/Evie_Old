@@ -1,65 +1,43 @@
 global main
-extern _VirtualAlloc@16
-global malloc
-malloc: 
-push dword 0x04
-push dword 0x3000
-push dword [esp + 8]
-push dword 0
-call _VirtualAlloc@16
-ret 
-
- ; Function Feed_Foward
-Feed_Foward: 
+ ; Function yeet
+yeet: 
  ; Making stack frame 
 push ebp
 mov ebp, esp
 
- ; Making space for local variables 
-sub esp, 8
-
- ; Giving current, 0
-mov [ebp - 4], dword 0
- ; Giving next, 1
-mov [ebp - 8], dword 1
-while0: 
- ; Comparing current and s
- ; Just directly get address of s
- ; Giving current, eax
-mov eax, [ebp - 4]
-cmp eax, [ebp + 16]
- ; Jumping source: '<='
-jnle while0END
- ; Pointer to pointer directionation
- ; From W added address by value of current
- ; Giving W, ebx
-mov ebx, [ebp + 12]
- ; current has already a register to it
-lea esi, [ebx + (eax) * 4]
- ; From N added address by value of current
- ; Giving N, ecx
-mov ecx, [ebp + 8]
- ; current has already a register to it
-lea edi, [ecx + (eax) * 4]
- ; Giving , edx
-mov edx, [edi]
-imul edx, [esi]
- ; Saving  into N
- ;  has already a register to it
- ; Giving next, eax
- ; Initializing new register for private  variable next
-mov eax, [ebp - 8]
-mov [edi + (eax) * 4], dword edx
- ; Saving next into current
- ; next has already a register to it
-mov [ebp - 4], dword eax
  ; Direct addition
-add [ebp - 8], dword 1
-jmp while0
-
-while0END: 
- ; Return N
+add [a], dword 1
+ ; Direct addition
+ ; Giving b, eax
+ ; Initializing new register for public variable b
+mov eax, [b]
+add eax, dword 1
+ ; Return k
  ; Giving Returning address, ebx
+mov eax, dword [ebp - 4]
+mov esp, ebp
+pop ebp
+ret 
+
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
+ ; Function banana
+banana: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+ ; Multiplying y into y
+ ; Giving y, ecx
+ ; Initializing new register for private  variable y
+mov ecx, [ebp + 12]
+imul ecx, ecx
+ ; Return x
+ ; Giving Returning address, edx
 mov eax, dword [ebp + 8]
 mov esp, ebp
 pop ebp
@@ -77,57 +55,63 @@ main:
 push ebp
 mov ebp, esp
 
- ; Making space for local variables 
-sub esp, 16
+ ; Calling yeet
+call yeet
 
- ; Calling malloc
-push dword 100
-call malloc
-
- ; Clearing the parameters
-add esp, 4
- ; Giving Nodes the return value
+ ; Giving c the return value
 mov [ebp - 4], eax
 
- ; Calling malloc
-push dword 100
-call malloc
+ ; Adding b into a
+ ; Just directly get address
+ ; Giving a, eax
+ ; Initializing new register for public variable a
+mov eax, [a]
+add eax, [b]
+ ; Calling banana
+ ; Pushing Variable 
+push dword [b]
+ ; Pushing Variable 
+ ; a has already a register to it
+push eax
+call banana
 
  ; Clearing the parameters
-add esp, 4
- ; Giving Weights the return value
-mov [ebp - 8], eax
+add esp, 8
+ ; Giving c the return value
+mov [ebp - 4], eax
 
- ; Calling Feed_Foward
-push dword 100
- ; Pushing Variable 
-push dword [ebp - 8]
- ; Pushing Variable 
-push dword [ebp - 4]
-call Feed_Foward
-
- ; Return Nodes
+if0: 
+ ; Comparing d and 2
+ ; Just directly get name of the number
+ ; Giving 2, ebx
+mov ebx, 2
+cmp [ebp - 8], ebx
+ ; Jumping source: '=='
+jne if0END
+ ; Return 1
  ; Giving Returning address, ecx
 mov eax, dword [ebp - 4]
 mov esp, ebp
 pop ebp
 ret 
 
- ; Return Weights
+if0END: 
+jmp else1END
+
+else1: 
+ ; Return 2
  ; Giving Returning address, edx
-mov eax, dword [ebp - 8]
+mov eax, ebx
 mov esp, ebp
 pop ebp
 ret 
 
+else1END: 
  ; Ending stack frame 
 mov esp, ebp
 pop ebp
  ; Returning 
 ret
-
- ; Calling main
-call main
 
 section .bss
 section .data

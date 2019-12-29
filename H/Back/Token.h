@@ -57,6 +57,7 @@ class Token
     int ParameterOffset = 4;
     bool _INITTED = false;
     int ID = 0;
+    double Probability = 0.0;
     Token *Offsetter = nullptr;
     Token *ParentType = nullptr;
     Token *ParentFunc = nullptr;

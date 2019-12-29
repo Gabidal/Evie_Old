@@ -1,23 +1,28 @@
-func Feed_Foward(N, W, s)
+var a 
+var b 
+
+func yeet()
 (
-	var current = 0
-	var next = 1
-	while (current <= s)
-	(
-		N:next = N:current * W:current
-		current = next
-		next = next + 1
-	)
-	return N
+    a = a + 1
+    var k
+    k = b + 1
+    return k
 )
 
 func main()
 (
-	var Nodes = malloc(100)
-	var Weights = malloc(100)
-	Feed_Foward(Nodes, Weights, 100)
-	return Nodes
-	return Weights
-)
+    var c
+    var d
+    
+    c = yeet()
+    d = a + b
 
-main()
+    if (d == 2)
+    (
+        return 1
+    )
+    else
+    (
+        return 2
+    )
+)
