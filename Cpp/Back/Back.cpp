@@ -73,7 +73,7 @@ void Back::Handle_Operators(int i)
         {
             reg = Dest->DIVIDE(Source);
         }
-        else if (Input.at(i)->Name == "=" && Layer == 0)
+        if (Input.at(i)->Name == "=" && Layer == 0)
         {
             Dest->MOVE(Source);
             reg = "";
@@ -135,7 +135,10 @@ void Back::Handle_Operators(int i)
                     Cheat->MOVE(Dest->tmp);
                 }
 			}
-
+            else if (Cheat != nullptr)
+            {
+                Cheat->MOVE(Dest);
+            }
 			Dest->Reg->Link(Dest);
         }
     }
@@ -489,7 +492,11 @@ void Back::Handle_Returning(int i)
 			Token* returnAddress = new Token(Output, &Input);
 			returnAddress->Name = "Returning address";
 			returnAddress->getReg();
-			if (b.Dest->Reg == nullptr)
+            if (b.Dest->is(Number))
+            {
+                Output += MOV + EAX->Name + FROM + b.Dest->Name + NL;
+            }
+			else if (b.Dest->Reg == nullptr)
 			{
 				Output += MOV + EAX->Name + FROM + DWORD + FRAME(b.Dest->getFullName()) + NL;
 			}
@@ -541,10 +548,10 @@ void Back::Factory()
 {
     for (int i = 0; i < int(Input.size()); i++)
     {
-		if (Input.at(i)->is(Used) == false)
+		/*if (Input.at(i)->is(Used) == false)
         {
             continue;
-        }
+        }*/
 		if (Input.at(i)->is(Real))
 		{
 			//already written into asm
