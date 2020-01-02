@@ -23,6 +23,15 @@ int Optimizer::Find_Start_Of_Runnable()
 
 void Optimizer::Simulate_Runnable(int start)
 {
-	Emulator* E = new Emulator(Input, start);
+	int eax = 0;
+	int ebx = 0;
+	int ecx = 0;
+	int edx = 0;
+	int edi = 0;
+	int esi = 0;
+	int ebp = 0;
+	int esp = 0;
+	Emulator* E = new Emulator(Input, start, eax, ebx, ecx, edx, edi, esi, esp, ebp);
 	E->Factory();
+	cout << E->_EAX << endl << E->_EBX << endl << E->_ECX << endl << E->_EDX << endl << E->_EDI << endl << E->_ESI << endl << E->_ESP << endl << E->_EBP << endl;
 }

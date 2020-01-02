@@ -7,6 +7,7 @@
 #include "../Linux/Linux.h"
 #include "../Windows/Windows.h"
 #include "../Emulator/Emulator.h"
+#include <iostream>
 
 class Optimizer
 {
