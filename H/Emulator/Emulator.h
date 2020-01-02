@@ -24,6 +24,10 @@ public:
 	vector<Token*> Input;
 	//start point
 	int Start = 0;
+	//Current
+	Token* Current;
+	//Next
+	Token* Next;
 	Emulator(vector<Token*>& In, int start)
 	{
 		Input = In;
@@ -33,7 +37,9 @@ public:
 	{
 	}
 	void Factory();
-
+	void Branch_Picker(int i);
+	void Next_Op_Picker(Token &T);
+	void Unlock_Requem();
 private:
 
 };
