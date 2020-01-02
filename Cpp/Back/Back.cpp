@@ -1,6 +1,5 @@
 #include "../../H/Back/Back.h"
 
-
 void Back::Set_All_References(string name, int flags, vector<Token*>& T)
 {
 	for (auto* t : T)
@@ -515,7 +514,7 @@ void Back::Handle_Variable_Initalization(int i)
 {
     if ((Input.at(i)->_INITTED == false) && Input.at(i)->is(Variable) && Input.at(i)->is(Public) && Input.at(i)->is(Used))
     {
-        Output += Input.at(i)->Name + DD + NL;
+        Strings += Input.at(i)->Name + DD + NL;
         Input.at(i)->_INITTED = true;
     }
 }
@@ -548,10 +547,10 @@ void Back::Factory()
 {
     for (int i = 0; i < int(Input.size()); i++)
     {
-		/*if (Input.at(i)->is(Used) == false)
+		if (Input.at(i)->is(Used) == false)
         {
             continue;
-        }*/
+        }
 		if (Input.at(i)->is(Real))
 		{
 			//already written into asm

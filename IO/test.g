@@ -4,15 +4,18 @@ var b
 func yeet()
 (
     a = a + 1
-    var k = b + 1
+    var k
+    k = b + 1
     return k
 )
 
 func main()
 (
+    var c
+    var d
     
-    var c = yeet()
-    var d = a + b
+    c = yeet()
+    d = a + b
 
     if (d == 2)
     (
@@ -23,3 +26,5 @@ func main()
         return 2
     )
 )
+
+main()

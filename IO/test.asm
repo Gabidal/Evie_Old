@@ -1,63 +1,35 @@
 global main
- ; Function yeet
-yeet: 
- ; Making stack frame 
-push ebp
-mov ebp, esp
-
- ; Direct addition
-add [a], dword 1
- ; Direct addition
- ; Giving b, eax
- ; Initializing new register for public variable b
-mov eax, [b]
-add eax, dword 1
- ; Saving b into k
- ; b has already a register to it
-mov [ebp - 4], dword eax
- ; Return k
- ; Giving Returning address, ebx
-mov esp, ebp
-pop ebp
-ret 
-
- ; Ending stack frame 
-mov esp, ebp
-pop ebp
- ; Returning 
-ret
-
  ; Function main
 main: 
  ; Making stack frame 
 push ebp
 mov ebp, esp
 
+ ; Making space for local variables 
+sub esp, 4
+
  ; Calling yeet
 call yeet
 
- ; Giving c the return value
-mov [ebp - 4], eax
-
  ; Adding b into a
  ; Just directly get address
- ; Giving a, ecx
+ ; Giving a, eax
  ; Initializing new register for public variable a
-mov ecx, [a]
-add ecx, [b]
+mov eax, [a]
+add eax, [b]
  ; Saving a into d
  ; a has already a register to it
-mov [ebp - 8], dword ecx
+mov [ebp - 4], dword eax
 if0: 
  ; Comparing d and 2
  ; Just directly get name of the number
- ; Giving 2, edx
-mov edx, 2
-cmp [ebp - 8], edx
+ ; Giving 2, ebx
+mov ebx, 2
+cmp [ebp - 4], ebx
  ; Jumping source: '=='
-jne if0END
+jne else1
  ; Return 1
- ; Giving Returning address, eax
+ ; Giving Returning address, ecx
 mov eax, 1
 mov esp, ebp
 pop ebp
@@ -68,7 +40,7 @@ jmp else1END
 
 else1: 
  ; Return 2
- ; Giving Returning address, ebx
+ ; Giving Returning address, edx
 mov eax, 2
 mov esp, ebp
 pop ebp
@@ -81,5 +53,9 @@ pop ebp
  ; Returning 
 ret
 
+ ; Calling main
+call main
+
 section .bss
+b resd 1
 section .data
