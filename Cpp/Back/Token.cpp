@@ -56,54 +56,89 @@ string Token::getFullName()
 
 Register *Token::getNewRegister()
 {
-    if (RegisterTurn == 0)
-    {
-        RegisterTurn = 1;
-        EAX->Link(this);
-        return EAX;
-    }
-    else if (RegisterTurn == 1)
-    {
-        RegisterTurn = 2;
-        EBX->Link(this);
-        return EBX;
-    }
-    else if (RegisterTurn == 2)
-    {
-        RegisterTurn = 3;
-        ECX->Link(this);
-        return ECX;
-    }
-    else if (RegisterTurn == 3)
-    {
-		//stop here
-        RegisterTurn = 0;
-        EDX->Link(this);
-        return EDX;
-    }
-    else if (RegisterTurn == 4)
-    {
-        RegisterTurn = 5;
-        ESI->Link(this);
-        return ESI;
-    }
-    else if (RegisterTurn >= 5)
-    {
-        RegisterTurn = 0;
-        EDI->Link(this);
-        return EDI;
-    }
-    else
-    {
-        return NULL;
-    }
+	//optimized register to give to a normal math variable is EAX or EDX
+	//optimized rigister to give to offsetter is ECX
+	//optimized register to give to array is EDi or ESi
+	//optimized register to give to pointers is EBX
+	//this part checks is this named variable already has a register to it's name
+	if ((ECX->Base != nullptr) && (ECX->Base->Name == this->Name))
+	{
+		//this has been a offsetter before
+		ECX->Link(this);
+	}
+	else if ((ECX->Base != nullptr) && (EAX->Base->Name == this->Name))
+	{
+		//this is just a normal  math variable
+		EAX->Link(this);
+	}
+	else if ((ECX->Base != nullptr) && (EDX->Base->Name == this->Name))
+	{
+		//this is just a normal  math variable
+		EDX->Link(this);
+	}
+	else if ((ECX->Base != nullptr) && (EDI->Base->Name == this->Name))
+	{
+		if ((this->Offsetter != nullptr) && (EDI->Base->Offsetter->Name == this->Offsetter->Name))
+		{
+			//same parent variable array, and same offsetters.
+			ECX->Link(this->Offsetter);
+			EDI->Link(this);
+		}
+		//even if this variable has EDI and,
+		//now it doesnt have the same offsetter it wont point to same place enymore
+	}
+	else if ((ECX->Base != nullptr) && (ESI->Base->Name == this->Name))
+	{
+		if ((this->Offsetter != nullptr) && (ESI->Base->Offsetter->Name == this->Offsetter->Name))
+		{
+			//same parent variable array, and same offsetters.
+			ECX->Link(this->Offsetter);
+			ESI->Link(this);
+		}
+		//even if this variable has ESI and,
+		//now it doesnt have the same offsetter it wont point to same place enymore
+	}
+	else if (is(Variable) || is(Number) || is(Ptr))
+	{
+		if (RegisterTurn == 0)
+		{
+			EAX->Link(this);
+			Reg = EAX;
+			RegisterTurn++;
+		}
+		else if (RegisterTurn > 0)
+		{
+			EDX->Link(this);
+			Reg = EDX;
+			RegisterTurn--;
+		}
+	}
+	else if (is(Array) || is(Ptr))
+	{
+		if (RegisterTurn == 0)
+		{
+			EDI->Link(this);
+			Reg = EDI;
+			RegisterTurn++;
+		}
+		else if (RegisterTurn > 0)
+		{
+			ESI->Link(this);
+			Reg = ESI;
+			RegisterTurn--;
+		}
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 Register *Token::getReg()
 {
     if (Reg == nullptr|| Reg->Name == "null")
     {
-        this->Reg = getNewRegister();
+        getNewRegister();
 		output += COMMENT + "Giving " + this->Name + ", " + this->Reg->Name + NL;
     }
     return Reg;
@@ -114,7 +149,7 @@ string Token::InitVariable()
     string result = "";
     if (this->Reg == nullptr || this->Reg->Name == "null")
     {
-		this->Reg = getReg();
+		getReg();
 		output += COMMENT + "Initializing new register for ";
 		if (this->is(Number))
 		{

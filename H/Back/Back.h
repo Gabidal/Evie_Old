@@ -25,6 +25,8 @@ public:
     bool Priority_For_Parametering = false;
     bool Get_Direct = false;
     int Layer = 0;
+    bool Deep_Math = false;
+    bool Deep_Math_Done = false;
 
     void Handle_Operators(int i);
     void Handle_Variables(int i);

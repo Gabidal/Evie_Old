@@ -65,19 +65,19 @@ void Emulator::Next_Op_Picker(Token &T)
 			}
 			if (T.Name == "+")
 			{
-				reg = Dest->SUM(Source, Cheat);
+				//reg = Dest->SUM(Source, Cheat);
 			}
 			else if (T.Name == "-")
 			{
-				reg = Dest->SUBSTRACT(Source, Cheat);
+				//reg = Dest->SUBSTRACT(Source, Cheat);
 			}
 			else if (T.Name == "*")
 			{
-				reg = Dest->MULTIPLY(Source);
+				//reg = Dest->MULTIPLY(Source);
 			}
 			else if (T. Name == "/")
 			{
-				reg = Dest->DIVIDE(Source);
+				//reg = Dest->DIVIDE(Source);
 			}
 			if (T.Name == "=" && Layer == 0)
 			{
@@ -138,38 +138,43 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 	//optimized rigister to give to offsetter is ECX
 	//optimized register to give to array is EDi or ESi
 	//optimized register to give to pointers is EBX
-	if (T->is(Variable))
+	//this part checks is this named variable already has a register to it's name
+	if (ECX->Base->Name == T->Name)
 	{
-		if (ECX->Base->Name == T->Name)
+		//this has been a offsetter before
+		ECX->Link(T);
+	}
+	else if (EAX->Base->Name == T->Name)
+	{
+		//this is just a normal  math variable
+		EAX->Link(T);
+	}
+	else if (EDX->Base->Name == T->Name)
+	{
+		//this is just a normal  math variable
+		EDX->Link(T);
+	}
+	else if (EDI->Base->Name == T->Name)
+	{
+		if ((T->Offsetter != nullptr) && (EDI->Base->Offsetter->Name == T->Offsetter->Name))
 		{
-			//this has been a offsetter before
+			//same parent variable array, and same offsetters.
+			ECX->Link(T->Offsetter);
+			EDI->Link(T);
 		}
-		else if ((EAX->Base->Name == T->Name) || (EDX->Base->Name == T->Name))
-		{
-			//this is just a normal  math variable
-		}
-		else if ((EDI->Base->Name == T->Name) || (ESI->Base->Name == T->Name))
-		{
-			if ((T->Offsetter != nullptr) && ((EDI->Base->Offsetter->Name == T->Offsetter->Name) || (ESI->Base->Offsetter->Name == T->Offsetter->Name)))
-			{
-				//same parent variable array, and same offsetters.
-
-			}
-		}
-		//even if this variable has EDI or ESI and,
+		//even if this variable has EDI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 	}
-	else if (T->is(Ptr))
+	else if (ESI->Base->Name == T->Name)
 	{
-
-	}
-	else if (T->is(Array))
-	{
-		//there are different types of offsetters;
-	}
-	if (EAX->Base->Name != T->Name)
-	{
-
+		if ((T->Offsetter != nullptr) && (ESI->Base->Offsetter->Name == T->Offsetter->Name))
+		{
+			//same parent variable array, and same offsetters.
+			ECX->Link(T->Offsetter);
+			ESI->Link(T);
+		}
+		//even if this variable has ESI and,
+		//now it doesnt have the same offsetter it wont point to same place enymore
 	}
 	return nullptr;
 }
@@ -191,6 +196,7 @@ int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 			Dest->Reg = Source->Reg;
 		}
 	}
+	return 0;
 }
 
 int Emulator::Simulate_Add(Token* Dest, Token* Source, Token* Cheat)

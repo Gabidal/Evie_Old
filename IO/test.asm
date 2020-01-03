@@ -5,35 +5,20 @@ main:
 push ebp
 mov ebp, esp
 
- ; Giving a, 1
-mov [ebp - 4], dword 1
- ; Giving b, 2
-mov [ebp - 8], dword 2
- ; Adding b into a
- ; Just directly get address
- ; Giving a, eax
- ; Initializing new register for private  variable a
-mov eax, [ebp - 4]
-add eax, [ebp - 8]
- ; Saving a into c
- ; a has already a register to it
-mov [ebp - 12], dword eax
- ; Multiplying a into c
- ; Just directly get address
- ; c has already a register to it
-imul eax, [ebp - 4]
- ; Adding b into a
- ; Just directly get address
- ; Giving a, ebx
- ; Initializing new register for private  variable a
-mov ebx, [ebp - 4]
-add ebx, [ebp - 8]
- ; Saving a into c
- ; a has already a register to it
-mov [ebp - 12], dword ebx
+ ; Direct addition
+ ; Giving 12, eax
+ ; Initializing new register for number 12
+mov eax, 12
+add eax, dword 2
+ ; Direct multiplying
+ ; 12 has already a register to it
+imul eax, 4
+ ; Direct substraction
+ ; 12 has already a register to it
+sub eax, dword 5
+mov [ebp - 4], eax
  ; Return d
- ; Giving Returning address, ecx
-mov eax, dword [ebp - 16]
+ ; Giving Returning address, edx
 mov esp, ebp
 pop ebp
 ret 

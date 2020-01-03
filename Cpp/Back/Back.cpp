@@ -34,6 +34,7 @@ void Back::Handle_Operators(int i)
             b.Layer++;
             b.Factory();
             b.Layer--;
+            this->Deep_Math = b.Deep_Math;
             this->Dest = b.Dest;
             this->Cheat = b.Cheat;
         }
@@ -48,6 +49,7 @@ void Back::Handle_Operators(int i)
             b.Layer++;
             b.Factory();
             b.Layer--;
+            this->Deep_Math = b.Deep_Math;
             this->Source = b.Source;
             this->Cheat = b.Cheat;
         }
@@ -72,32 +74,41 @@ void Back::Handle_Operators(int i)
         {
             reg = Dest->DIVIDE(Source);
         }
-        if (Input.at(i)->Name == "=" && Layer == 0)
+        if (Layer == 0)
         {
-            Dest->MOVE(Source);
-            reg = "";
-			if (Dest->Passing_String)
-			{
-				if (Dest->is(Private))
-				{
-					Set_All_References(Dest->Name, Ptr, Dest->ParentFunc->Childs);
-				}
-				else
-				{
-					Set_All_References(Dest->Name, Ptr, *Dest->Input);
-				}
-			}
-			else if (Source->is(Array))
-			{
-				if (Dest->is(Private))
-				{
-					Set_All_References(Dest->Name, INT32_MAX, Dest->ParentFunc->Childs);
-				}
-				else
-				{
-					Set_All_References(Dest->Name, INT32_MAX, *Dest->Input);
-				}
-			}
+            if (Deep_Math == false)
+            {
+                Dest->MOVE(Source);
+                reg = "";
+                if (Dest->Passing_String)
+                {
+                    if (Dest->is(Private))
+                    {
+                        Set_All_References(Dest->Name, Ptr, Dest->ParentFunc->Childs);
+                    }
+                    else
+                    {
+                        Set_All_References(Dest->Name, Ptr, *Dest->Input);
+                    }
+                }
+                else if (Source->is(Array))
+                {
+                    if (Dest->is(Private))
+                    {
+                        Set_All_References(Dest->Name, INT32_MAX, Dest->ParentFunc->Childs);
+                    }
+                    else
+                    {
+                        Set_All_References(Dest->Name, INT32_MAX, *Dest->Input);
+                    }
+                }
+            }
+            else
+            {
+                Deep_Math_Done = true;
+                Output += MOV + Cheat->GetAddress() + FROM + Dest->Reg->Name + NL;
+                Dest->Reg->Link(Cheat);
+            }
         }
         else if (Input.at(i)->Name == "==" || Input.at(i)->Name == ">=" || Input.at(i)->Name == "<=" || Input.at(i)->Name == ">" || Input.at(i)->Name == "<" || Input.at(i)->Name == "!=" || Input.at(i)->Name == "!>" || Input.at(i)->Name == "!<")
         {
@@ -105,8 +116,16 @@ void Back::Handle_Operators(int i)
         }
         else if (Layer != 0)
         {
-            Cheat = Dest;
-            Dest = Source;
+            if (Cheat != nullptr)
+            {
+                //the math operation is more deep than 2 operations
+                Deep_Math = true;
+            }
+            else
+            {
+                Cheat = Dest;
+                Dest = Source;
+            }
         }
         
         if ((reg.size() > 0) && (Layer == 0))
@@ -134,11 +153,16 @@ void Back::Handle_Operators(int i)
                     Cheat->MOVE(Dest->tmp);
                 }
 			}
-            else if (Cheat != nullptr)
+            else if ((Cheat != nullptr) && (Deep_Math == false))
             {
                 Cheat->MOVE(Dest);
             }
 			Dest->Reg->Link(Dest);
+        }
+        if (Deep_Math_Done)
+        {
+            Deep_Math = false;
+            Deep_Math_Done = false;
         }
     }
 }
@@ -490,6 +514,7 @@ void Back::Handle_Returning(int i)
 			Output += COMMENT + "Return " + b.Dest->Name + NL;
 			Token* returnAddress = new Token(Output, &Input);
 			returnAddress->Name = "Returning address";
+            returnAddress->Flags |= Variable;
 			returnAddress->getReg();
             if (b.Dest->is(Number))
             {
