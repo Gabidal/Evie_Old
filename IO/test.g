@@ -1,5 +1,7 @@
 func main()
 (
-	var d = 12 + 2 * 4 - 5
-	return d
+	var a = 1
+	var b = 2
+	var c = a * b
+	return c
 )

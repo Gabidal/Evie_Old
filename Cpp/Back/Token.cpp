@@ -54,7 +54,7 @@ string Token::getFullName()
     return name;
 }
 
-Register *Token::getNewRegister()
+bool Token::Optimize_Register_Usage()
 {
 	//optimized register to give to a normal math variable is EAX or EDX
 	//optimized rigister to give to offsetter is ECX
@@ -65,38 +65,55 @@ Register *Token::getNewRegister()
 	{
 		//this has been a offsetter before
 		ECX->Link(this);
+		return true;
 	}
-	else if ((ECX->Base != nullptr) && (EAX->Base->Name == this->Name))
+	else if ((EAX->Base != nullptr) && (EAX->Base->Name == this->Name))
 	{
 		//this is just a normal  math variable
 		EAX->Link(this);
+		return true;
 	}
-	else if ((ECX->Base != nullptr) && (EDX->Base->Name == this->Name))
+	else if ((EDX->Base != nullptr) && (EDX->Base->Name == this->Name))
 	{
 		//this is just a normal  math variable
 		EDX->Link(this);
+		return true;
 	}
-	else if ((ECX->Base != nullptr) && (EDI->Base->Name == this->Name))
+	else if ((EDI->Base != nullptr) && (EDI->Base->Name == this->Name))
 	{
 		if ((this->Offsetter != nullptr) && (EDI->Base->Offsetter->Name == this->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
 			ECX->Link(this->Offsetter);
 			EDI->Link(this);
+			return true;
 		}
 		//even if this variable has EDI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 	}
-	else if ((ECX->Base != nullptr) && (ESI->Base->Name == this->Name))
+	else if ((ESI->Base != nullptr) && (ESI->Base->Name == this->Name))
 	{
 		if ((this->Offsetter != nullptr) && (ESI->Base->Offsetter->Name == this->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
 			ECX->Link(this->Offsetter);
 			ESI->Link(this);
+			return true;
 		}
 		//even if this variable has ESI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
+	}
+	else
+	{
+		return false;
+	}
+}
+
+Register *Token::getNewRegister()
+{
+	if (Optimize_Register_Usage())
+	{
+		//for safety
 	}
 	else if (is(Variable) || is(Number) || is(Ptr))
 	{

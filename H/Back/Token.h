@@ -76,6 +76,7 @@ class Token
     bool is(int flag);
     bool Any(int flags);
     string getFullName();
+    bool Optimize_Register_Usage();
     Register *getNewRegister();
     Register *getReg();
     //var

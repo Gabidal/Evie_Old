@@ -78,7 +78,14 @@ void Back::Handle_Operators(int i)
         {
             if (Deep_Math == false)
             {
-                Dest->MOVE(Source);
+                if (Cheat != nullptr)
+                {
+                    Cheat->MOVE(Dest);
+                }
+                else
+                {
+                    Dest->MOVE(Source);
+                }
                 reg = "";
                 if (Dest->Passing_String)
                 {
@@ -512,15 +519,12 @@ void Back::Handle_Returning(int i)
             b.IS_PUBLIC--;
             b.Dest->Flags |= Storer;
 			Output += COMMENT + "Return " + b.Dest->Name + NL;
-			Token* returnAddress = new Token(Output, &Input);
-			returnAddress->Name = "Returning address";
-            returnAddress->Flags |= Variable;
-			returnAddress->getReg();
+            b.Dest->Optimize_Register_Usage();
             if (b.Dest->is(Number))
             {
                 Output += MOV + EAX->Name + FROM + b.Dest->Name + NL;
             }
-			else if (b.Dest->Reg == nullptr)
+			else if ((b.Dest->Reg == nullptr) || (b.Dest->Reg->Name == "null"))
 			{
 				Output += MOV + EAX->Name + FROM + DWORD + FRAME(b.Dest->getFullName()) + NL;
 			}
