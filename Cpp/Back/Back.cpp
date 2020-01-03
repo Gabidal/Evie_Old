@@ -547,10 +547,10 @@ void Back::Factory()
 {
     for (int i = 0; i < int(Input.size()); i++)
     {
-		if (Input.at(i)->is(Used) == false)
+		/*if (Input.at(i)->is(Used) == false)
         {
             continue;
-        }
+        }*/
 		if (Input.at(i)->is(Real))
 		{
 			//already written into asm
