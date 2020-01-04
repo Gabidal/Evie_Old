@@ -81,6 +81,7 @@ void Back::Handle_Operators(int i)
                 if (Cheat != nullptr)
                 {
                     Cheat->MOVE(Dest);
+                    Cheat = nullptr;
                 }
                 else
                 {

@@ -65,18 +65,21 @@ bool Token::Optimize_Register_Usage()
 	{
 		//this has been a offsetter before
 		ECX->Link(this);
+		this->Reg = ECX;
 		return true;
 	}
 	else if ((EAX->Base != nullptr) && (EAX->Base->Name == this->Name))
 	{
 		//this is just a normal  math variable
 		EAX->Link(this);
+		this->Reg = EAX;
 		return true;
 	}
 	else if ((EDX->Base != nullptr) && (EDX->Base->Name == this->Name))
 	{
 		//this is just a normal  math variable
 		EDX->Link(this);
+		this->Reg = EDX;
 		return true;
 	}
 	else if ((EDI->Base != nullptr) && (EDI->Base->Name == this->Name))
@@ -85,7 +88,9 @@ bool Token::Optimize_Register_Usage()
 		{
 			//same parent variable array, and same offsetters.
 			ECX->Link(this->Offsetter);
+			this->Offsetter->Reg = ECX;
 			EDI->Link(this);
+			this->Reg = EDI;
 			return true;
 		}
 		//even if this variable has EDI and,
@@ -97,7 +102,9 @@ bool Token::Optimize_Register_Usage()
 		{
 			//same parent variable array, and same offsetters.
 			ECX->Link(this->Offsetter);
+			this->Offsetter->Reg = ECX;
 			ESI->Link(this);
+			this->Reg = ESI;
 			return true;
 		}
 		//even if this variable has ESI and,
@@ -123,7 +130,7 @@ Register *Token::getNewRegister()
 			Reg = EAX;
 			RegisterTurn++;
 		}
-		else if (RegisterTurn > 0)
+		else if (RegisterTurn == 1)
 		{
 			EDX->Link(this);
 			Reg = EDX;
@@ -940,7 +947,7 @@ void Register::Link(Token* Requester)
 	{
 		Base->Reg = NUL;
 	}
-	Base = Current;
+	Base = Current;/*
 	if (Requester->ParentCondition != nullptr)
 	{
 		Apply(Requester, Requester->ParentCondition->Childs);
@@ -963,7 +970,7 @@ void Register::Link(Token* Requester)
 	else
 	{
 		Apply(Requester, *Requester->Input);
-	}
+	}*/
 }
 
 void Register::Apply(Token* Requester, vector<Token*> &T)
