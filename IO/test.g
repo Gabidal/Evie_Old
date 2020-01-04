@@ -2,8 +2,8 @@ func main()
 (
 	var a = 1
 	var b = 2
-	var c = 3
-	var d = 4
+	var c = a * b
+	var d = c * b + a
 	var e = d + c / b * a
 	return e
 )

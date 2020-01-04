@@ -662,8 +662,7 @@ string Token::DIVIDE(Token *Source)
 			output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
 			Source->cleaned = true;
 		}
-		output += CDQ + string(NL);
-		output += DIV + this->InitVariable() + NL;
+		output += IDIV + this->GetAddress() + NL;
 		EAX->Link(this);
 	}
 	if (this->is(Returning))
@@ -674,8 +673,7 @@ string Token::DIVIDE(Token *Source)
 			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
-		output += CDQ + string(NL);
-		output += DIV + this->InitVariable() + NL;
+		output += IDIV + this->GetAddress() + NL;
 		EAX->Link(this);
 	}
     if (Source->is(Number))
@@ -683,8 +681,7 @@ string Token::DIVIDE(Token *Source)
         //cdq
 		output += COMMENT + "Direct division" + NL;
         output += XCHG(this->InitVariable(), EAX->Name);
-        output += CDQ + string(NL);
-        output += DIV + Source->InitVariable() + NL;
+        output += IDIV + Source->Name + NL;
         EAX->Link(this);
     }
     else if (Source->is(Array))
@@ -703,25 +700,26 @@ string Token::DIVIDE(Token *Source)
         //cdq
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += XCHG(this->Reg->Name, EAX->Name);
-        output += CDQ + string(NL);
 		output += COMMENT + "Dividing the value from " + Source->Name + " offsetted by " + this->Name + NL;
-        output += DIV + FRAME(ESI->Name) + NL;
+        output += IDIV + DWORD + FRAME(ESI->Name) + NL;
         EAX->Link(this);
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
 		output += COMMENT + "Dividing " + Source->Name + " into " + this->Name + NL;
-        output += XCHG(this->InitVariable(), EAX->Name);
-        output += CDQ + string(NL);
+		if (this->Reg->Name != "eax")
+		{
+			output += XCHG(this->InitVariable(), EAX->Name);
+		}
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
 			output += COMMENT + "Just directly get address" + NL;
-            output += DIV + string(DWORD) + Source->GetAddress() + NL;
+            output += IDIV + string(DWORD) + Source->GetAddress() + NL;
         }
         else
         {
 			output += COMMENT + "There is already register for it, use it" + NL;
-            output += DIV + Source->Reg->Name + NL;
+            output += IDIV + Source->GetAddress() + NL;
         }
         EAX->Link(this);
     }

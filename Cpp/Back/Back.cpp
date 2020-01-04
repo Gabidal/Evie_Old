@@ -171,6 +171,7 @@ void Back::Handle_Operators(int i)
         {
             Deep_Math = false;
             Deep_Math_Done = false;
+            Cheat = nullptr;
         }
     }
 }
