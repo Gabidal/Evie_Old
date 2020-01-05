@@ -152,6 +152,12 @@ Register *Token::getNewRegister()
 			RegisterTurn--;
 		}
 	}
+	else if (is(Returning))
+	{
+		EAX->Link(this);
+		Reg = EAX;
+		RegisterTurn++;
+	}
 	else
 	{
 		return NULL;
@@ -294,6 +300,10 @@ string Token::MOVE(Token *Source)
 			output += MOV + this->GetAddress() + FROM + DWORD + ESI->Name + NL + NL;
 			this->Reg = Source->Reg;
 		}
+		if (this->Reg == nullptr)
+		{
+			this->Reg = EDI;
+		}
 		return this->Reg->Name;
     }
     else if (Source->is(Ptr) || Source->is(Variable))
@@ -314,7 +324,7 @@ string Token::MOVE(Token *Source)
 			Source->cleaned = true;
         }
 		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += MOV + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
+        output += MOV + this->GetAddress() + FROM + Source->getReg()->Name + NL + NL;
     }
     
     return "";
@@ -879,33 +889,12 @@ string Token::GetAddress()
 				skip_ptr_check = false;
 				return Reg->Name;
 			}
-			else
-			{
-				//mov eax, [ebp + 8]
-				//lea esi, [eax + 0 * 4]
-				if (this->Reg == nullptr)
-				{
-					getReg();
-					output += MOV + Reg->Name + FROM + FRAME(this->getFullName()) + NL;
-				}
-			}
 		}
         if (this->is(Array) && this->Offsetter->is(Number))
         {
 			//[(ebp - 8) + 1 * 4]
 			output += COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
-			if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
-			{
-				this->InitVariable();
-			}
-			if (this->is(Ptr) && (Outside_Of_Parameters == false))
-			{
-				return FRAME(this->Reg->Name + OFFSET + this->Offsetter->Name + SCALE + "4");
-			}
-			else
-			{
-				return FRAME(CONTENT(this->getFullName()) + OFFSET + this->Offsetter->Name + SCALE + "4");
-			}
+			return FRAME(CONTENT(this->getFullName()) + OFFSET + this->Offsetter->Name + SCALE + "4");
         }
         else if (this->is(Array) && this->Offsetter->is(Variable))
         {

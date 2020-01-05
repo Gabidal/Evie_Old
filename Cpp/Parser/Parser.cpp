@@ -411,6 +411,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.Factory();
         ParentFunc->Flags |= PARENT;
         ParentFunc = nullptr;
+        this->ID = parser.ID;
         Layer--;
 
 		ParentCondition->clear();
@@ -435,6 +436,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.Factory();
         ParentType->Flags |= PARENT;
         ParentType = nullptr;
+        this->ID = parser.ID;
         Layer--;
 		ParentCondition->clear();
     }
@@ -450,6 +452,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.InsideOfCondition = true;
         parser.Started = Output->size();
         parser.Factory();
+        this->ID = parser.ID;
         ParentCondition->back()->Flags |= PARENT;
         if (Input.at(i-1)->_else_if)
         {
@@ -481,6 +484,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.InsideOfCondition = true;
         parser.Started = Output->size();
         parser.Factory();
+        this->ID = parser.ID;
         ParentCondition->back()->Flags |= PARENT;
         ParentCondition->back()->Flags |= int(Successour);
         Substitute->SuccessorToken.push_back(ParentCondition->back());
@@ -501,6 +505,7 @@ void Parser::Pattern_Parenthesis(int i)
         parser.InsideOfCondition = true;
         parser.Started = Output->size();
         parser.Factory();
+        this->ID = parser.ID;
         ParentFunc->Flags |= PARENT;
         Layer--;
 		ParentCondition->pop_back();
@@ -994,6 +999,7 @@ void Parser::Pattern_Include(int i)
 		*p.Output = *Output;
 		int tmpsize = p.Output->size();
         p.Factory();
+        this->ID = p.ID;
         
         for (int j = tmpsize; j < int(p.Output->size()); j++)
             Output->push_back(p.Output->at(j));

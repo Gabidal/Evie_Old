@@ -68,6 +68,7 @@ void Back::Handle_Operators(int i)
 		if (Input.at(i)->repz != nullptr)
 		{
 			Input.at(i)->Parameters.at(0)->repz = Input.at(i)->repz;
+            Dest->repz = Input.at(i)->repz;
 		}
         if (Input.at(i)->Name == "+")
         {
