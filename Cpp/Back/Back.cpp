@@ -38,6 +38,10 @@ void Back::Handle_Operators(int i)
             this->Dest = b.Dest;
             this->Cheat = b.Cheat;
         }
+        if (Dest->is(Returning) && Input.at(i)->Childs.at(0)->is(Returning))
+        {
+            Double_Callation = true;
+        }
         if (Input.at(i)->Childs.at(0)->is(Variable) || Input.at(i)->Childs.at(0)->is(Number) || Input.at(i)->Childs.at(0)->is(Ptr) || Input.at(i)->Childs.at(0)->is(String))
         {
             Source = Input.at(i)->Childs.at(0);
@@ -45,6 +49,7 @@ void Back::Handle_Operators(int i)
         else
         {
             Back b = *this;
+            b.Double_Callation = this->Double_Callation;
             b.Input = Input.at(i)->Childs;
             b.Layer++;
             b.Factory();
@@ -52,6 +57,12 @@ void Back::Handle_Operators(int i)
             this->Deep_Math = b.Deep_Math;
             this->Source = b.Source;
             this->Cheat = b.Cheat;
+        }
+        if (Dest->is(Returning) && Input.at(i)->Childs.at(0)->is(Returning))
+        {
+            Double_Callation = false;
+            Dest->Reg = EBX;
+            EBX->Link(Dest);
         }
         string reg = "";
 		if (Input.at(i)->repz != nullptr)
@@ -344,6 +355,13 @@ void Back::Handle_Call_Function(int i)
 {
     if (Input.at(i)->is(Call))
     {
+        if (Double_Callation)
+        {
+            //this means the both of Dest as Source is a function
+            //so we need to save the previus return value into EBX
+            Output += NL + COMMENT + "Saving previus return value into EBX" + NL;
+            Output += MOV + EBX->Name + FROM + EAX->Name + NL + NL;
+        }
 		Output += COMMENT + "Calling " + Input.at(i)->Name + NL;
         if (Input.at(i)->Parameters.size() > 0)
         {
@@ -366,7 +384,6 @@ void Back::Handle_Call_Function(int i)
         {
             Source = Input.at(i);
         }
-        
     }
 }
 

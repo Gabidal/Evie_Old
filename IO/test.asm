@@ -79,6 +79,24 @@ pop ebp
  ; Returning 
 ret
 
+ ; Function banana
+banana: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+ ; Return a
+mov eax, dword [ebp + 8]
+mov esp, ebp
+pop ebp
+ret 
+
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
  ; Function main
 main: 
  ; Making stack frame 
@@ -87,24 +105,43 @@ mov ebp, esp
 
  ; Giving a, 1
 mov [ebp - 4], dword 1
- ; Giving b, 2
-mov [ebp - 8], dword 2
+ ; Calling banana
+ ; Pushing Variable 
+push dword [ebp - 4]
+call banana
+
+
+ ; Saving previus return value into EBX
+mov ebx, eax
+
+ ; Calling banana
+ ; Pushing Variable 
+push dword [ebp - 4]
+call banana
+
+ ; Clearing the parameters
+add esp, 4
+ ; Clearing the parameters
+add esp, 4
+add ebx, eax
+ ; Giving b the return value
+mov [ebp - 8], ebx
+
  ; Calling move
 push dword 1
  ; Pushing pointter 
- ; Giving b, eax
+ ; Giving b, edx
  ; Adding the offset of b by 0
-lea eax, [(ebp - 8) + 0 * 4]
-push dword eax
- ; Pushing pointter 
- ; Giving a, edx
- ; Adding the offset of a by 0
-lea edx, [(ebp - 4) + 0 * 4]
+lea edx, [(ebp - 8) + 0 * 4]
 push dword edx
+ ; Pushing pointter 
+ ; Giving a, eax
+ ; Adding the offset of a by 0
+lea eax, [(ebp - 4) + 0 * 4]
+push dword eax
 call move
 
  ; Return a
-mov eax, edx
 mov esp, ebp
 pop ebp
 ret 

@@ -314,7 +314,7 @@ string Token::MOVE(Token *Source)
 			Source->cleaned = true;
         }
 		output += COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += MOV + this->GetAddress() + FROM + EAX->Name + NL + NL;
+        output += MOV + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
     }
     
     return "";
@@ -332,16 +332,33 @@ string Token::SUM(Token *Source, Token *Dest)
 			Source->cleaned = true;
 		}
 		EAX->Link(Source);
+		Source->Reg = EAX;
+		if (RegisterTurn == 0)
+		{
+			RegisterTurn++;
+		}
     }
 	if (this->is(Returning))
 	{
-		if ((this->Parameters.size() > 0) && this->cleaned == false)
+		if ((this->Parameters.size() > 0) && (this->cleaned == false))
 		{
 			output += COMMENT + "Clearing the parameters" + NL;
 			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
-		EAX->Link(this);
+		//if the both of em are returning functions
+		if (Source->is(Returning))
+		{
+		}
+		else
+		{
+			EAX->Link(this);
+			this->Reg = EAX;
+			if (RegisterTurn == 0)
+			{
+				RegisterTurn++;
+			}
+		}
 	}
     if (Source->is(Number))
     {
@@ -384,11 +401,13 @@ string Token::SUM(Token *Source, Token *Dest)
 			output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
 		}
 		ESI->Link(Source);
+		Source->Reg = ESI;
 		if (this->is(Array))
 		{
 			output += COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
 			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
 			EDI->Link(this);
+			this->Reg = EDI;
 			//if (this->repz != nullptr)
 			//{
 				if (this->tmp == nullptr)
@@ -435,6 +454,10 @@ string Token::SUM(Token *Source, Token *Dest)
 			output += ADD + Source->InitVariable() + FROM + this->Reg->Name + NL;
 		}
 	}
+	else if (Source->is(Returning) && this->is(Returning))
+	{
+		output += ADD + this->Reg->Name + FROM + Source->Reg->Name + NL;
+	}
     return this->Reg->Name;
 }
 
@@ -450,6 +473,11 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 			Source->cleaned = true;
 		}
 		EAX->Link(Source);
+		Source->Reg = EAX;
+		if (RegisterTurn == 0)
+		{
+			RegisterTurn++;
+		}
 	}
 	if (this->is(Returning))
 	{
@@ -459,7 +487,19 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
-		EAX->Link(this);
+		//if the both of em are returning functions
+		if (Source->is(Returning))
+		{
+		}
+		else
+		{
+			EAX->Link(this);
+			this->Reg = EAX;
+			if (RegisterTurn == 0)
+			{
+				RegisterTurn++;
+			}
+		}
 	}
     if (Source->is(Number))
     {
@@ -488,11 +528,13 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 			output += LEA + ESI->Name + FROM + Source->GetAddress() + NL;
 		}
 		ESI->Link(Source);
+		Source->Reg = ESI;
 		if (this->is(Array))
 		{
 			output += COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
 			output += LEA + EDI->Name + FROM + this->GetAddress() + NL;
-			EDI->Link(this);/*if (this->repz != nullptr)
+			EDI->Link(this);
+			this->Reg = EDI;/*if (this->repz != nullptr)
 			{
 			}*/
 			//else
@@ -541,6 +583,10 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 			output += SUB + Source->InitVariable() + FROM + this->Reg->Name + NL;
 		}
 	}
+	else if (Source->is(Returning) && this->is(Returning))
+	{
+		output += SUB + this->Reg->Name + FROM + Source->Reg->Name + NL;
+	}
     return this->Reg->Name;
 }
 
@@ -565,7 +611,19 @@ string Token::MULTIPLY(Token *Source)
 			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
-		EAX->Link(this);
+		//if the both of em are returning functions
+		if (Source->is(Returning))
+		{
+		}
+		else
+		{
+			EAX->Link(this);
+			this->Reg = EAX;
+			if (RegisterTurn == 0)
+			{
+				RegisterTurn++;
+			}
+		}
 	}
     if (Source->is(Number))
     {
@@ -648,6 +706,10 @@ string Token::MULTIPLY(Token *Source)
 			output += IMUL + Source->InitVariable() + FROM + this->Reg->Name + NL;
 		}
 	}
+	else if (Source->is(Returning) && this->is(Returning))
+	{
+		output += IMUL + this->Reg->Name + FROM + Source->Reg->Name + NL;
+	}
     return this->Reg->Name;
 }
 
@@ -675,8 +737,20 @@ string Token::DIVIDE(Token *Source)
 			this->cleaned = true;
 		}
 		output += CDQ + NL;
-		output += IDIV + this->GetAddress() + NL;
-		EAX->Link(this);
+		//if the both of em are returning functions
+		if (Source->is(Returning))
+		{
+			output += IDIV + this->Reg->Name + NL;
+		}
+		else
+		{
+			EAX->Link(this);
+			this->Reg = EAX;
+			if (RegisterTurn == 0)
+			{
+				RegisterTurn++;
+			}
+		}
 	}
     if (Source->is(Number))
     {
@@ -729,6 +803,10 @@ string Token::DIVIDE(Token *Source)
         }
         EAX->Link(this);
     }
+	else if (Source->is(Returning) && this->is(Returning))
+	{
+		output += IDIV + this->Reg->Name + FROM + Source->Reg->Name + NL;
+	}
     return this->Reg->Name;
 }
 
