@@ -662,6 +662,7 @@ string Token::DIVIDE(Token *Source)
 			output += ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
 			Source->cleaned = true;
 		}
+		output += CDQ + NL;
 		output += IDIV + this->GetAddress() + NL;
 		EAX->Link(this);
 	}
@@ -673,6 +674,7 @@ string Token::DIVIDE(Token *Source)
 			output += ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
+		output += CDQ + NL;
 		output += IDIV + this->GetAddress() + NL;
 		EAX->Link(this);
 	}
@@ -681,6 +683,7 @@ string Token::DIVIDE(Token *Source)
         //cdq
 		output += COMMENT + "Direct division" + NL;
         output += XCHG(this->InitVariable(), EAX->Name);
+		output += CDQ + NL;
         output += IDIV + Source->Name + NL;
         EAX->Link(this);
     }
@@ -701,6 +704,7 @@ string Token::DIVIDE(Token *Source)
 		output += COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
         output += XCHG(this->Reg->Name, EAX->Name);
 		output += COMMENT + "Dividing the value from " + Source->Name + " offsetted by " + this->Name + NL;
+		output += CDQ + NL;
         output += IDIV + DWORD + FRAME(ESI->Name) + NL;
         EAX->Link(this);
     }
@@ -714,11 +718,13 @@ string Token::DIVIDE(Token *Source)
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
 			output += COMMENT + "Just directly get address" + NL;
+			output += CDQ + NL;
             output += IDIV + string(DWORD) + Source->GetAddress() + NL;
         }
         else
         {
 			output += COMMENT + "There is already register for it, use it" + NL;
+			output += CDQ + NL;
             output += IDIV + Source->GetAddress() + NL;
         }
         EAX->Link(this);

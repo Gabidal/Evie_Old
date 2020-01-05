@@ -234,12 +234,12 @@ void Parser::Pattern_Init_Array(int &i)
         int s = Input.size() - 1;
         if ((s < (i+2)) != true)
         {
-            i = i + 2;
+            int j = i + 2;
             Pattern_Init_Type(i);
         }
         if (((i-2) < 0) != true)
         {
-            i = i - 2;
+            int j = i - 2;
             Pattern_Init_Type(i);
         }
         Pattern_Init_Call_Func(i + 1);

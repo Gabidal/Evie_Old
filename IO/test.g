@@ -1,9 +1,9 @@
+using "std.g"
+
 func main()
 (
 	var a = 1
 	var b = 2
-	var c = a * b
-	var d = c * b + a
-	var e = d + c / b * a
-	return e
+	move(a:0, b:0, 1)
+	return a
 )

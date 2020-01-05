@@ -498,7 +498,12 @@ void Back::Handle_Conditions(int i)
             b.Factory();
         }
         //while
-        if (Input.at(i)->Parameters.size() > 0 && Input.at(i)->is(While))
+        if (Input.at(i)->is(While) && (Input.at(i)->Childs.size() == 0))
+        {
+            //repz whiler.
+            Input.at(i + 1)->repz = Input.at(i)->Parameters.at(0);
+        }
+        else if (Input.at(i)->Parameters.size() > 0 && Input.at(i)->is(While))
         {
             Output += JMP + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + NL + NL;
         }
