@@ -67,7 +67,8 @@ class Token
     vector<Token*> Childs;
     string Name = "";
 	string StringName = "";
-    Register *Reg = 0;
+    Register *Reg = nullptr; //used for real
+    Register* SReg = nullptr;// used for simualtion
     string &output;
 	vector<Token*> *Input;
     Token(string &out, vector<Token*> *T) : output(out), Input(T){}

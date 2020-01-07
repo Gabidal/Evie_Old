@@ -80,35 +80,25 @@ mov ebp, esp
 
  ; Giving a, 1
 mov [ebp - 4], dword 1
- ; Giving aa, 1
-mov [ebp - 8], dword 1
  ; Giving b, 2
-mov [ebp - 12], dword 2
- ; Giving bb, 2
-mov [ebp - 16], dword 2
- ; Calling move
-push dword 2
- ; Pushing pointter 
+mov [ebp - 8], dword 2
+if1: 
+ ; Saving b into a
  ; Giving b, eax
- ; Adding the offset of b by 0
-lea eax, [(ebp - 12) + 0 * 4]
-push dword eax
- ; Pushing pointter 
- ; Giving a, edx
- ; Adding the offset of a by 0
-lea edx, [(ebp - 4) + 0 * 4]
-push dword edx
-call move
-
- ; Pointer address value to variable
- ; From a added address by value of 0
- ; Adding the offset of a by 0
-mov esi, [(ebp - 4) + 0 * 4]
- ; Saving the value from a offsetted by 0
-mov [ebp - 20], dword esi
-
- ; Return result
-mov eax, dword [ebp - 20]
+ ; Initializing new register for private  variable b
+mov eax, [ebp - 8]
+mov [ebp - 4], dword eax
+ ; Jumping source: '=='
+jne if1END
+ ; Direct addition
+add [ebp - 4], dword 1
+ ; Saving a into a
+ ; Giving a, eax
+ ; Initializing new register for private  variable a
+mov eax, [ebp - 4]
+mov [ebp - 4], dword eax
+if1END: 
+ ; Return a
 mov esp, ebp
 pop ebp
 ret 

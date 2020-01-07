@@ -1018,7 +1018,8 @@ void Register::Link(Token* Requester)
 	{
 		Base->Reg = NUL;
 	}
-	Base = Current;/*
+	Base = Current;
+	Value = Requester->Value;/*
 	if (Requester->ParentCondition != nullptr)
 	{
 		Apply(Requester, Requester->ParentCondition->Childs);

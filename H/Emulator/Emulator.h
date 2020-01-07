@@ -21,6 +21,8 @@ public:
 	Token* Cheat;
 	Token* Dest;
 	Token* Source;
+	//Registers
+	int Register_Turn = 0;
 	
 	Emulator(vector<Token*>& In, int start)
 	{
@@ -39,14 +41,16 @@ public:
 	int Simulate_Equ(Token* Dest, Token* Source);
 	int Simulate_Add(Token* Dest, Token* Source, Token* Cheat);
 	int Simulate_Sub(Token* Dest, Token* Source, Token* Cheat);
-	int Simulate_Mul(Token* Dest, Token* Source);
-	int Simulate_Div(Token* Dest, Token* Source);
+	int Simulate_Mul(Token* Dest, Token* Source, Token* Cheat);
+	int Simulate_Div(Token* Dest, Token* Source, Token* Cheat);
 	Emulator& operator=(const Emulator& other)
 	{
 		//Stack
 		Stack = other.Stack;
 		//math
 		Layer = other.Layer;
+		//cpu
+		Register_Turn = other.Register_Turn;
 	}
 private:
 

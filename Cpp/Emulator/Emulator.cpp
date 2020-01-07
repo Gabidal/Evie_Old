@@ -20,6 +20,7 @@ void Emulator::Next_Op_Picker(Token &T)
 		Emulator E = *this;
 		E.Input = T.Childs;
 		E.Factory();
+		this->Register_Turn = E.Register_Turn;
 	}
 	else if (T.is(Call))
 	{
@@ -59,29 +60,25 @@ void Emulator::Next_Op_Picker(Token &T)
 				this->Cheat = b.Cheat;
 			}
 			string reg = "";
-			if (T.repz != nullptr)
-			{
-				//T.Parameters.at(0)->repz = T.repz;
-			}
 			if (T.Name == "+")
 			{
-				//reg = Dest->SUM(Source, Cheat);
+				Simulate_Add(Dest, Source, Cheat);
 			}
 			else if (T.Name == "-")
 			{
-				//reg = Dest->SUBSTRACT(Source, Cheat);
+				Simulate_Sub(Dest, Source, Cheat);
 			}
 			else if (T.Name == "*")
 			{
-				//reg = Dest->MULTIPLY(Source);
+				Simulate_Mul(Dest, Source, Cheat);
 			}
 			else if (T. Name == "/")
 			{
-				//reg = Dest->DIVIDE(Source);
+				Simulate_Div(Dest, Source, Cheat);
 			}
 			if (T.Name == "=" && Layer == 0)
 			{
-				reg = "";
+				Simulate_Equ(Dest, Source);
 			}
 			else if (T.Name == "==" || T.Name == ">=" || T.Name == "<=" || T.Name == ">" || T.Name == "<" || T.Name == "!=" || T.Name == "!>" || T.Name == "!<")
 			{
@@ -120,10 +117,21 @@ void Emulator::Next_Op_Picker(Token &T)
 				}
 				else if (Cheat != nullptr)
 				{
-					//Cheat->MOVE(Dest);
+					Simulate_Equ(Cheat, Dest);
 				}
+				Dest->SReg->Link(Dest);
 				//Dest->Reg->Link(Dest);
 			}
+	}
+	else if (T.is(If) || (T.is(Else) && T.is(If)) || T.is(While))
+	{
+		if (Unlock_Requem(T))
+		{
+			Emulator E = *this;
+			E.Input = T.Childs;
+			E.Factory();
+			this->Register_Turn = E.Register_Turn;
+		}
 	}
 }
 
@@ -139,44 +147,90 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 	//optimized register to give to array is EDi or ESi
 	//optimized register to give to pointers is EBX
 	//this part checks is this named variable already has a register to it's name
-	if (ECX->Base->Name == T->Name)
+	if ((ECX->Base != nullptr) && (ECX->Base->Name == T->Name))
 	{
 		//this has been a offsetter before
 		ECX->Link(T);
+		T->SReg = ECX;
 	}
-	else if (EAX->Base->Name == T->Name)
+	else if ((EAX->Base != nullptr) && (EAX->Base->Name == T->Name))
 	{
 		//this is just a normal  math variable
 		EAX->Link(T);
+		T->SReg = EAX;
 	}
-	else if (EDX->Base->Name == T->Name)
+	else if ((EDX->Base != nullptr) && (EDX->Base->Name == T->Name))
 	{
 		//this is just a normal  math variable
 		EDX->Link(T);
+		T->SReg = EDX;
 	}
-	else if (EDI->Base->Name == T->Name)
+	else if ((EDI->Base != nullptr) && (EDI->Base->Name == T->Name))
 	{
 		if ((T->Offsetter != nullptr) && (EDI->Base->Offsetter->Name == T->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
 			ECX->Link(T->Offsetter);
+			T->Offsetter->SReg = ECX;
 			EDI->Link(T);
+			T->SReg = EDI;
 		}
 		//even if this variable has EDI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 	}
-	else if (ESI->Base->Name == T->Name)
+	else if ((ESI->Base != nullptr) && (ESI->Base->Name == T->Name))
 	{
 		if ((T->Offsetter != nullptr) && (ESI->Base->Offsetter->Name == T->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
 			ECX->Link(T->Offsetter);
+			T->Offsetter->SReg = ECX;
 			ESI->Link(T);
+			T->SReg = ESI;
 		}
 		//even if this variable has ESI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 	}
-	return nullptr;
+	else if (T->is(Variable) || T->is(Number) || T->is(Ptr))
+	{
+		if (Register_Turn == 0)
+		{
+			EAX->Link(T);
+			T->SReg = EAX;
+			Register_Turn++;
+		}
+		else if (Register_Turn == 1)
+		{
+			EDX->Link(T);
+			T->SReg = EDX;
+			Register_Turn--;
+		}
+	}
+	else if (T->is(Array) || T->is(Ptr))
+	{
+		if (Register_Turn == 0)
+		{
+			EDI->Link(T);
+			T->SReg = EDI;
+			Register_Turn++;
+		}
+		else if (Register_Turn > 0)
+		{
+			ESI->Link(T);
+			T->SReg = ESI;
+			Register_Turn--;
+		}
+	}
+	else if (T->is(Returning))
+	{
+		EAX->Link(T);
+		T->SReg = EAX;
+		Register_Turn++;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 int Emulator::Simulate_Equ(Token* Dest, Token* Source)
@@ -190,31 +244,131 @@ int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 	{
 		//need to get a reg
 		Dest->Value = Source->Value;
-		if ((Source->Reg != nullptr) || (Source->Reg->Name != "null"))
+		if ((Source->SReg != nullptr) && (Source->SReg->Name != "null"))
 		{
-			//link as same registers.
-			Dest->Reg = Source->Reg;
+		}
+		else
+		{
+			Optimized_Register_Giver(Source);
+		}
+		Dest->SReg = Source->SReg;
+		Dest->Value = Dest->SReg->Value;
+	}
+	return Dest->Value;
+}
+
+int Emulator::Simulate_Add(Token* Dest, Token* Source, Token* Cheat)
+{
+	if (Source->is(Number))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value += atoi(Source->Name.c_str());
+		}
+		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value += atoi(Source->Name.c_str());
+		}
+	}
+	else if (Source->is(Variable))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value += Source->Value;
+		}
+		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value += Source->Value;
 		}
 	}
 	return 0;
 }
 
-int Emulator::Simulate_Add(Token* Dest, Token* Source, Token* Cheat)
-{
-	return 0;
-}
-
 int Emulator::Simulate_Sub(Token* Dest, Token* Source, Token* Cheat)
 {
+	if (Source->is(Number))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value -= atoi(Source->Name.c_str());
+		}
+		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value -= atoi(Source->Name.c_str());
+		}
+	}
+	else if (Source->is(Variable))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value -= Source->Value;
+		}
+		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value -= Source->Value;
+		}
+	}
 	return 0;
 }
 
-int Emulator::Simulate_Mul(Token* Dest, Token* Source)
+int Emulator::Simulate_Mul(Token* Dest, Token* Source, Token* Cheat)
 {
+	if (Source->is(Number))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value *= atoi(Source->Name.c_str());
+		}
+		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value *= atoi(Source->Name.c_str());
+		}
+	}
+	else if (Source->is(Variable))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value *= Source->Value;
+		}
+		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value *= Source->Value;
+		}
+	}
 	return 0;
 }
 
-int Emulator::Simulate_Div(Token* Dest, Token* Source)
+int Emulator::Simulate_Div(Token* Dest, Token* Source, Token* Cheat)
 {
+	if (Source->is(Number))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value /= atoi(Source->Name.c_str());
+		}
+		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value /= atoi(Source->Name.c_str());
+		}
+	}
+	else if (Source->is(Variable))
+	{
+		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		{
+			Cheat->Value /= Source->Value;
+		}
+		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		{
+			Optimized_Register_Giver(Dest);
+			Dest->SReg->Value /= Source->Value;
+		}
+	}
 	return 0;
 }
