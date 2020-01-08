@@ -86,7 +86,12 @@ void Back::Handle_Operators(int i)
         {
             reg = Dest->DIVIDE(Source);
         }
-        if (Layer == 0)
+
+        if ((Input.at(i)->Name == "==") || (Input.at(i)->Name == ">=") || (Input.at(i)->Name == "<=") || (Input.at(i)->Name == ">") || (Input.at(i)->Name == "<") || (Input.at(i)->Name == "!=") || (Input.at(i)->Name == "!>") || (Input.at(i)->Name == "!<"))
+        {
+            Dest->COMPARE(Source);
+        }
+        else if (Layer == 0)
         {
             if (Deep_Math == false)
             {
@@ -129,10 +134,6 @@ void Back::Handle_Operators(int i)
                 Output += MOV + Cheat->GetAddress() + FROM + Dest->Reg->Name + NL;
                 Dest->Reg->Link(Cheat);
             }
-        }
-        else if (Input.at(i)->Name == "==" || Input.at(i)->Name == ">=" || Input.at(i)->Name == "<=" || Input.at(i)->Name == ">" || Input.at(i)->Name == "<" || Input.at(i)->Name == "!=" || Input.at(i)->Name == "!>" || Input.at(i)->Name == "!<")
-        {
-            Dest->COMPARE(Source);
         }
         else if (Layer != 0)
         {

@@ -36,11 +36,11 @@ mov [ebp - 4], dword 1
  ; Giving b, 2
 mov [ebp - 8], dword 2
 if0: 
- ; Saving b into a
- ; Giving b, eax
- ; Initializing new register for private  variable b
-mov eax, [ebp - 8]
-mov [ebp - 4], dword eax
+ ; Comparing a and b
+ ; Just directly get address of b
+ ; Giving a, eax
+mov eax, [ebp - 4]
+cmp eax, [ebp - 8]
  ; Jumping source: '<'
 jge if0END
  ; Calling banana
