@@ -1,3 +1,5 @@
+using "std.g"
+
 func banana(x, y)
 (
 	var z = x + y

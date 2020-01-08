@@ -95,6 +95,7 @@ bool Token::Optimize_Register_Usage()
 		}
 		//even if this variable has EDI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
+		return false;
 	}
 	else if ((ESI->Base != nullptr) && (ESI->Base->Name == this->Name))
 	{
@@ -109,6 +110,7 @@ bool Token::Optimize_Register_Usage()
 		}
 		//even if this variable has ESI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
+		return false;
 	}
 	else
 	{
@@ -122,7 +124,7 @@ Register *Token::getNewRegister()
 	{
 		//for safety
 	}
-	else if (is(Variable) || is(Number) || is(Ptr))
+	else if (is(Variable) || is(Number) || is(Ptr) || is(Parameter))
 	{
 		if (RegisterTurn == 0)
 		{
