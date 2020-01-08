@@ -1,11 +1,20 @@
 #include "../../H/Emulator/Emulator.h"
 
-void Emulator::Factory()
+int Emulator::Factory()
 {
 	for (Token* t : Input)
 	{
 		Next_Op_Picker(*t);
+		if (t->Name == "return")
+		{
+			return Find_From_Log(t->Childs.at(0))->Value;
+		}
 	}
+}
+
+void Emulator::Start_Simulation(int start)
+{
+	Next_Op_Picker(*Input.at(start));
 }
 
 void Emulator::Branch_Picker(int i)
@@ -19,6 +28,9 @@ void Emulator::Next_Op_Picker(Token &T)
 	{
 		Emulator E = *this;
 		E.Input = T.Childs;
+		E.Layer = 0;
+		Sync_Parameters(T.Parameters);
+		E.Log = Log;
 		E.Factory();
 		this->Register_Turn = E.Register_Turn;
 	}
@@ -26,106 +38,187 @@ void Emulator::Next_Op_Picker(Token &T)
 	{
 		for (Token* t : T.Parameters)
 		{
-			Stack.push_back(t->Value);
+			Stack.push_back(Find_From_Log(t)->Value);
+		}
+		if (T.daddy_Func->Childs.size() > 0)
+		{
+			Emulator E = *this;
+			E.Input.clear();
+			E.Input.push_back(T.daddy_Func);
+			//Original_Size = Log.size();
+			E.Factory();
+			this->Register_Turn = E.Register_Turn;
 		}
 	}
 	else if (T.is(OPERATOR))
 	{
-			if (T.Parameters.at(0)->is(Variable) || T.Parameters.at(0)->is(Ptr))
+		if (T.Parameters.at(0)->is(Variable) || T.Parameters.at(0)->is(Ptr))
+		{
+			Dest = T.Parameters.at(0);
+		}
+		else
+		{
+			Emulator b = *this;
+			b.Input = T.Parameters;
+			b.Layer++;
+			b.Factory();
+			b.Layer--;
+			this->Deep_Math = b.Deep_Math;
+			this->Dest = b.Dest;
+			this->Cheat = b.Cheat;
+		}
+		if (Dest->is(Returning) && T.Childs.at(0)->is(Returning))
+		{
+			Double_Callation = true;
+		}
+		if (T.Childs.at(0)->is(Variable) || T.Childs.at(0)->is(Number) || T.Childs.at(0)->is(Ptr) || T.Childs.at(0)->is(String))
+		{
+			Source = T.Childs.at(0);
+		}
+		else
+		{
+			Emulator b = *this;
+			b.Double_Callation = this->Double_Callation;
+			b.Input = T.Childs;
+			b.Layer++;
+			b.Factory();
+			b.Layer--;
+			this->Deep_Math = b.Deep_Math;
+			this->Source = b.Source;
+			this->Cheat = b.Cheat;
+		}
+		if (Dest->is(Returning) && T.Childs.at(0)->is(Returning))
+		{
+			Double_Callation = false;
+			Dest->SReg = EBX;
+			EBX->Link(Dest);
+		}
+		string reg = "...";
+		if (T.repz != nullptr)
+		{
+			T.Parameters.at(0)->repz = T.repz;
+			Dest->repz = T.repz;
+		}
+		if (T.Name == "+")
+		{
+			Simulate_Add(Dest, Source, Cheat);
+		}
+		else if (T.Name == "-")
+		{
+			Simulate_Sub(Dest, Source, Cheat);
+		}
+		else if (T.Name == "*")
+		{
+			Simulate_Mul(Dest, Source, Cheat);
+		}
+		else if (T.Name == "/")
+		{
+			Simulate_Div(Dest, Source, Cheat);
+		}
+		if (Layer == 0)
+		{
+			if (Deep_Math == false)
 			{
-				Dest = T.Parameters.at(0);
+				if (Cheat != nullptr)
+				{
+					Simulate_Equ(Cheat, Dest);
+					Cheat = nullptr;
+				}
+				else
+				{
+					Simulate_Equ(Dest, Source);
+				}
+				reg = "";
+				if (Dest->Passing_String)
+				{
+					if (Dest->is(Private))
+					{
+						//Set_All_References(Dest->Name, Ptr, Dest->ParentFunc->Childs);
+					}
+					else
+					{
+						//Set_All_References(Dest->Name, Ptr, *Dest->Input);
+					}
+				}
+				else if (Source->is(Array))
+				{
+					if (Dest->is(Private))
+					{
+						//Set_All_References(Dest->Name, INT32_MAX, Dest->ParentFunc->Childs);
+					}
+					else
+					{
+						//Set_All_References(Dest->Name, INT32_MAX, *Dest->Input);
+					}
+				}
 			}
 			else
 			{
-				Emulator b = *this;
-				b.Input = T.Parameters;
-				b.Layer++;
-				b.Factory();
-				b.Layer--;
-				this->Dest = b.Dest;
-				this->Cheat = b.Cheat;
+				Deep_Math_Done = true;
+				Simulate_Equ(Cheat, Dest);
+				Dest->SReg->Link(Cheat);
 			}
-			if (T.Childs.at(0)->is(Variable) || T.Childs.at(0)->is(Number) || T.Childs.at(0)->is(Ptr) || T.Childs.at(0)->is(String))
+		}
+		else if (T.Name == "==" || T.Name == ">=" || T.Name == "<=" || T.Name == ">" || T.Name == "<" || T.Name == "!=" || T.Name == "!>" || T.Name == "!<")
+		{
+			Unlock_Requem(T);
+		}
+		else if (Layer != 0)
+		{
+			if (Cheat != nullptr)
 			{
-				Source = T.Childs.at(0);
+				//the math operation is more deep than 2 operations
+				Deep_Math = true;
 			}
 			else
-			{
-				Emulator b = *this;
-				b.Input = T.Childs;
-				b.Layer++;
-				b.Factory();
-				b.Layer--;
-				this->Source = b.Source;
-				this->Cheat = b.Cheat;
-			}
-			string reg = "";
-			if (T.Name == "+")
-			{
-				Simulate_Add(Dest, Source, Cheat);
-			}
-			else if (T.Name == "-")
-			{
-				Simulate_Sub(Dest, Source, Cheat);
-			}
-			else if (T.Name == "*")
-			{
-				Simulate_Mul(Dest, Source, Cheat);
-			}
-			else if (T. Name == "/")
-			{
-				Simulate_Div(Dest, Source, Cheat);
-			}
-			if (T.Name == "=" && Layer == 0)
-			{
-				Simulate_Equ(Dest, Source);
-			}
-			else if (T.Name == "==" || T.Name == ">=" || T.Name == "<=" || T.Name == ">" || T.Name == "<" || T.Name == "!=" || T.Name == "!>" || T.Name == "!<")
-			{
-				Unlock_Requem(T);
-			}
-			else if (Layer != 0)
 			{
 				Cheat = Dest;
 				Dest = Source;
 			}
+		}
 
-			if ((reg.size() > 0) && (Layer == 0))
+		if ((reg.size() > 0) && (Layer == 0))
+		{
+			string resulter = Dest->Name;
+			if (T.Name == "+" || T.Name == "-")
 			{
-				string resulter = Dest->Name;
-				if (T.Name == "+" || T.Name == "-")
+				if (Source->is(Number) && (Cheat->Name == Dest->Name))
 				{
-					if (Source->is(Number) && (Cheat->Name == Dest->Name))
-					{
-						return;
-					}
-					if (Dest->is(Number) && (Cheat->Name == Source->Name))
-					{
-						return;
-					}
+					return;
 				}
-				if (Dest->tmp != nullptr)
+				if (Dest->is(Number) && (Cheat->Name == Source->Name))
 				{
-					if (Cheat->tmp != nullptr)
-					{
-						//Cheat->tmp->MOVE(Dest->tmp);
-					}
-					else
-					{
-						//Cheat->MOVE(Dest->tmp);
-					}
+					return;
 				}
-				else if (Cheat != nullptr)
+			}/*
+			if (Dest->tmp != nullptr)
+			{
+				if (Cheat->tmp != nullptr)
 				{
-					Simulate_Equ(Cheat, Dest);
+					//Cheat->tmp->MOVE(Dest->tmp);
+					//Simulate_Equ(Cheat, Dest);
 				}
-				Dest->SReg->Link(Dest);
-				//Dest->Reg->Link(Dest);
+				else
+				{
+					//Cheat->MOVE(Dest->tmp);
+				}
+			}*/
+			if ((Cheat != nullptr) && (Deep_Math == false))
+			{
+				Simulate_Equ(Cheat, Dest);
 			}
+			Dest->SReg->Link(Dest);
+		}
+		if (Deep_Math_Done)
+		{
+			Deep_Math = false;
+			Deep_Math_Done = false;
+			Cheat = nullptr;
+		}
 	}
 	else if (T.is(If) || (T.is(Else) && T.is(If)) || T.is(While))
 	{
-		if (Unlock_Requem(T))
+		if (Unlock_Requem(*T.Parameters.at(0)))
 		{
 			Emulator E = *this;
 			E.Input = T.Childs;
@@ -137,6 +230,50 @@ void Emulator::Next_Op_Picker(Token &T)
 
 bool Emulator::Unlock_Requem(Token &T)
 {
+	int Left = Get_Value_Of(T.Parameters.at(0));
+	int Right = Get_Value_Of(T.Childs.at(0));
+	if (T.Name == "==")
+	{
+		if (Left == Right)
+		{
+			return true;
+		}
+	}
+	else if (T.Name == "!=")
+	{
+		if (Left != Right)
+		{
+			return true;
+		}
+	}
+	else if (T.Name == ">")
+	{
+		if (Left > Right)
+		{
+			return true;
+		}
+	}
+	else if (T.Name == "<")
+	{
+		if (Left < Right)
+		{
+			return true;
+		}
+	}
+	else if (T.Name == "!>")
+	{
+		if (Left <= Right)
+		{
+			return true;
+		}
+	}
+	else if (T.Name == "!<")
+	{
+		if (Left >= Right)
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -233,6 +370,71 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 	}
 }
 
+int Emulator::Get_Value_Of(Token* T)
+{
+	int Result = 0;
+	if (T->is(Number))
+	{
+		return atoi(T->Name.c_str());
+	}
+	else if (T->is(Array))
+	{
+		//too complex atm
+	}
+	else if (T->is(Variable))
+	{
+		return Find_From_Log(T)->Value;
+	}
+	else if (T->is(OPERATOR))
+	{
+		//later
+	}
+	else if (T->is(Returning))
+	{
+		//Later
+	}
+	return 0;
+}
+
+void Emulator::Add_To_Log(Token* T)
+{
+	bool There_Is_Already = false;
+	for (Token* t : Log)
+	{
+		if (t == T)
+		{
+			*t = *T;
+			There_Is_Already = true;
+		}
+	}
+	if (There_Is_Already == false)
+	{
+		Log.push_back(T);
+	}
+}
+
+Token* Emulator::Find_From_Log(Token* T)
+{
+	for (Token *t : Log)
+	{
+		if ((t->Name == T->Name))
+		{
+			return t;
+		}
+	}
+	return nullptr;
+}
+
+void Emulator::Sync_Parameters(vector<Token*> &Parameters)
+{
+	for (Token* t : Parameters)
+	{
+		t->Value = Stack.back();
+		Stack.pop_back();
+		Log.push_back(t);
+	}
+}
+
 int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 {
 	if (Source->is(Number))
@@ -254,6 +456,7 @@ int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 		Dest->SReg = Source->SReg;
 		Dest->Value = Dest->SReg->Value;
 	}
+	Add_To_Log(Dest);
 	return Dest->Value;
 }
 
@@ -261,26 +464,32 @@ int Emulator::Simulate_Add(Token* Dest, Token* Source, Token* Cheat)
 {
 	if (Source->is(Number))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value += atoi(Source->Name.c_str());
+			//direct save the value
+			Find_From_Log(Cheat)->Value += atoi(Source->Name.c_str());
 		}
-		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
 			Dest->SReg->Value += atoi(Source->Name.c_str());
 		}
 	}
 	else if (Source->is(Variable))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value += Source->Value;
+			//direct save the value
+			Find_From_Log(Cheat)->Value += Find_From_Log(Source)->Value;
 		}
-		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value += Source->Value;
+			Dest->SReg->Value += Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;
@@ -290,26 +499,32 @@ int Emulator::Simulate_Sub(Token* Dest, Token* Source, Token* Cheat)
 {
 	if (Source->is(Number))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value -= atoi(Source->Name.c_str());
+			//direct save the value
+			Find_From_Log(Cheat)->Value -= atoi(Source->Name.c_str());
 		}
-		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
 			Dest->SReg->Value -= atoi(Source->Name.c_str());
 		}
 	}
 	else if (Source->is(Variable))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value -= Source->Value;
+			//direct save the value
+			Find_From_Log(Cheat)->Value -= Find_From_Log(Source)->Value;
 		}
-		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value -= Source->Value;
+			Dest->SReg->Value -= Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;
@@ -319,26 +534,32 @@ int Emulator::Simulate_Mul(Token* Dest, Token* Source, Token* Cheat)
 {
 	if (Source->is(Number))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value *= atoi(Source->Name.c_str());
+			//direct save the value
+			Find_From_Log(Cheat)->Value *= atoi(Source->Name.c_str());
 		}
-		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
 			Dest->SReg->Value *= atoi(Source->Name.c_str());
 		}
 	}
 	else if (Source->is(Variable))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value *= Source->Value;
+			//direct save the value
+			Find_From_Log(Cheat)->Value *= Find_From_Log(Source)->Value;
 		}
-		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value *= Source->Value;
+			Dest->SReg->Value *= Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;
@@ -348,26 +569,32 @@ int Emulator::Simulate_Div(Token* Dest, Token* Source, Token* Cheat)
 {
 	if (Source->is(Number))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value /= atoi(Source->Name.c_str());
+			//direct save the value
+			Find_From_Log(Cheat)->Value /= atoi(Source->Name.c_str());
 		}
-		else if ((Dest->SReg == nullptr) && (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
 			Dest->SReg->Value /= atoi(Source->Name.c_str());
 		}
 	}
 	else if (Source->is(Variable))
 	{
-		if ((Cheat != nullptr) && (Cheat->Name == Dest->Name))
+		//we need to get the logged value of dest
+		if (Dest == Cheat)
 		{
-			Cheat->Value /= Source->Value;
+			//direct save the value
+			Find_From_Log(Cheat)->Value /= Find_From_Log(Source)->Value;
 		}
-		else if ((Dest->SReg == nullptr) || (Dest->SReg->Name == "null"))
+		else
 		{
+			//save the value into a S_Register
 			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value /= Source->Value;
+			Dest->SReg->Value /= Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;

@@ -23,6 +23,6 @@ int Optimizer::Find_Start_Of_Runnable()
 
 void Optimizer::Simulate_Runnable(int start)
 {
-	Emulator* E = new Emulator(Input, start);
-	E->Factory();
+	Emulator* E = new Emulator(Input);
+	E->Start_Simulation(start);
 }
