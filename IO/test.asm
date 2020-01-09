@@ -9,26 +9,37 @@ mov ebp, esp
 mov [ebp - 4], dword 1
  ; Giving b, 2
 mov [ebp - 8], dword 2
- ; Adding b into a
- ; Just directly get address
+if0: 
+ ; Comparing a and b
+ ; Just directly get address of b
  ; Giving a, eax
- ; Initializing new register for private  variable a
 mov eax, [ebp - 4]
-add eax, [ebp - 8]
- ; Adding a into a
- ; Just directly get address
- ; a has already a register to it
-add eax, [ebp - 4]
- ; Adding b into a
- ; Just directly get address
- ; a has already a register to it
-add eax, [ebp - 8]
-mov [ebp - 12], eax
- ; Return c
+cmp eax, [ebp - 8]
+ ; Jumping source: '=='
+jne if0END
+ ; Return 1
+mov eax, 1
 mov esp, ebp
 pop ebp
 ret 
 
+if0END: 
+jmp if1
+if1: 
+ ; Comparing a and b
+ ; Just directly get address of b
+ ; Giving a, eax
+mov eax, [ebp - 4]
+cmp eax, [ebp - 8]
+ ; Jumping source: '!='
+je if1END
+ ; Return 2
+mov eax, 2
+mov esp, ebp
+pop ebp
+ret 
+
+if1END: 
  ; Ending stack frame 
 mov esp, ebp
 pop ebp

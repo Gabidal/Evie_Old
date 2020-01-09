@@ -45,6 +45,7 @@ public:
 	void Add_To_Log(Token* T);
 	Token* Find_From_Log(Token* T);
 	void Sync_Parameters(vector<Token*> &Parameters);
+	bool Return_Inside_If(vector<Token*> T);
 
 	int Simulate_Equ(Token* Dest, Token* Source);
 	int Simulate_Add(Token* Dest, Token* Source, Token* Cheat);

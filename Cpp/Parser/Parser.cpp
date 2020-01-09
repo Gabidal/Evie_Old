@@ -463,7 +463,7 @@ void Parser::Pattern_Parenthesis(int i)
         }
         
         Layer--;
-		if (Input.at(i+1)->WORD == "else")
+		if ((Input.at(i+1)->WORD == "else") || (Input.at(i + 1)->_else_if))
 		{
 
 		}

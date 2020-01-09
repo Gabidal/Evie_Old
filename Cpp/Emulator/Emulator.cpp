@@ -4,10 +4,24 @@ int Emulator::Factory()
 {
 	for (Token* t : Input)
 	{
-		Next_Op_Picker(*t);
+		if ((t->is(If) || (t->is(Else) && t->is(If)) || t->is(While)) && (Unlock_Requem(*t->Parameters.at(0))) && Return_Inside_If(t->Childs))
+		{
+			return Next_Op_Picker(*t);
+		}
+		else
+		{
+			Next_Op_Picker(*t);
+		}
 		if (t->Name == "return")
 		{
-			return Find_From_Log(t->Childs.at(0))->Value;
+			if (t->Childs.at(0)->is(Number))
+			{
+				return Get_Value_Of(t->Childs.at(0));
+			}
+			else
+			{
+				return Find_From_Log(t->Childs.at(0))->Value;
+			}
 		}
 	}
 }
@@ -243,8 +257,12 @@ int Emulator::Next_Op_Picker(Token &T)
 		{
 			Emulator E = *this;
 			E.Input = T.Childs;
-			E.Factory();
+			int result = E.Factory();
 			this->Register_Turn = E.Register_Turn;
+			if (Return_Inside_If(T.Childs))
+			{
+				return result;
+			}
 		}
 	}
 }
@@ -464,6 +482,22 @@ void Emulator::Sync_Parameters(vector<Token*> &Parameters)
 		Stack.pop_back();
 		Log.push_back(t);
 	}
+}
+
+bool Emulator::Return_Inside_If(vector<Token*> T)
+{
+	for (Token* t : T)
+	{
+		if (t->Name == "return")
+		{
+			return true;
+		}
+		else if (t->Childs.size() > 0)
+		{
+			return Return_Inside_If(t->Childs);
+		}
+	}
+	return false;
 }
 
 int Emulator::Simulate_Equ(Token* Dest, Token* Source)
