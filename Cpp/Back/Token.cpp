@@ -27,10 +27,14 @@ string Token::getFullName()
 			output += COMMENT + "Adding type owner name to the function name" + NL;
             return TYPE(this->Fetcher->Origin->Name, this->Name);
         }
-        else
+        else if (is(If) || is(Else) || is(While))
         {
             return this->Name + to_string(this->ID);
         }
+		else
+		{
+			return this->Name;
+		}
     }
     
     if (is(Public))

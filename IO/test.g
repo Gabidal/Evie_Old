@@ -1,17 +1,24 @@
+func banana()
+(
+	var a = 4
+	return a
+)
+
 func main()
 (
-	var a = 2
-	var b = 1
+	var a = 1
+	var b = 2
+	var c = a + b
 	if (a == b)
 	(
-		return 1
+		return a
 	)
 	else if	(a < b)
 	(
-		return 2
+		return b
 	)
 	else
 	(
-		return 3
+		return c
 	)
 )
