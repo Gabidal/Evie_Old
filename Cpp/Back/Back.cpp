@@ -411,122 +411,95 @@ string Back::END(int i)
     return string("END");
 }
 
-void Back::Handle_Jumps(int i)
+void Back::Handle_Jumps(Token* Condition, Token owner)
 {
-	if (Input.at(i)->Parameters.at(0)->is(OPERATOR) != true)
-	{
-		return;
-	}
-    string conditionJump = "";
-	string sourceJMP = "";
-    if (Find("==", OPERATOR, Input.at(i)->Parameters) != -1)
+    string Jump_Type = "";
+    if (Condition->Name == "==")
     {
-        conditionJump = JNE ;
-		sourceJMP = "==";
+        Jump_Type = JNE;
     }
-    else if (Find("!=", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Condition->Name == "!=")
     {
-        conditionJump = JE ;
-		sourceJMP = "!=";
+        Jump_Type = JE;
     }
-    else if (Find(">=", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Condition->Name == "<=")
     {
-        conditionJump = JNGE ;
-		sourceJMP = ">=";
+        Jump_Type = JNLE;
     }
-    else if (Find("<=", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Condition->Name == ">=")
     {
-        conditionJump = JNLE ;
-		sourceJMP = "<=";
+        Jump_Type = JNGE;
     }
-    else if (Find("<", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Condition->Name == "!<")
     {
-        conditionJump = JGE ;
-		sourceJMP = "<";
+        Jump_Type = JLE;
     }
-    else if (Find(">", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Condition->Name == "!>")
     {
-        conditionJump = JLE ;
-		sourceJMP = ">";
+        Jump_Type = JGE;
     }
-    else if (Find("!<", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Condition->Name == "<")
     {
-        conditionJump = JGE ;
-		sourceJMP = "!<";
+        Jump_Type = JNL;
     }
-    else if (Find("!>", OPERATOR, Input.at(i)->Parameters) != -1)
+    else if (Condition->Name == ">")
     {
-        conditionJump = JLE ;
-		sourceJMP = "!>";
+        Jump_Type = JNG;
     }
-    string destination = "";
-    int ID = 0;
-    string endd = "";
-    if (Input.at(i)->is(Successour) && Input.at(i)->Former->SuccessorToken.at(0)->is(Used))
+    if (owner.SuccessorToken.size() > 0)
     {
-        destination = Input.at(i)->Former->SuccessorToken.at(0)->getFullName();
-        ID = Input.at(i)->Former->SuccessorToken.at(0)->ID;
+        //first condition
+        Output += Jump_Type + " " + owner.SuccessorToken.at(0)->getFullName() + NL;
     }
-    else if (Input.at(i)->SuccessorToken.size() > 0 && Input.at(i)->SuccessorToken.at(0)->is(Used))
+    else if (owner.Former != nullptr)
     {
-        destination = Input.at(i)->SuccessorToken.at(0)->getFullName();
-        ID = Input.at(i)->SuccessorToken.at(0)->ID;
-        Input.at(i)->SuccessorToken.erase(Input.at(i)->SuccessorToken.begin() + 0);
+        //midle condition
+        owner.Former->SuccessorToken.erase(owner.Former->SuccessorToken.begin());
+        if (owner.Former->SuccessorToken.size() > 0)
+        {
+            Output += Jump_Type + " " + owner.Former->SuccessorToken.at(0)->getFullName() + NL;
+        }
+        else
+        {
+            Output += Jump_Type + " " + owner.getFullName() + NL;
+        }
     }
     else
     {
-        destination = Input.at(i)->getFullName();
-        ID = Input.at(i)->ID;
-        endd = "END";
+        //last condition
+        Output += Jump_Type + " " + owner.getFullName() + NL;
     }
-	Output += COMMENT + "Jumping source: \'" + sourceJMP + "\'" + NL;
-    Output += conditionJump + destination + to_string(ID) + endd + NL;
 }
 
 void Back::Handle_Conditions(int i)
 {
-    if (Input.at(i)->is(If) || Input.at(i)->is(Else) || Input.at(i)->is(While))
+    Token* Condition = Input.at(i);
+    if (Condition->is(If) || Condition->is(While) || Condition->is(Else))
     {
-        Back b = *this;
-		if ((Input.at(i)->is(Else) && Input.at(i)->is(If)))
-		{
-			Output += JMP + Input.at(i)->Former->SuccessorToken.at(Input.at(i)->Former->SuccessorToken.size() - 1)->getFullName() + to_string(Input.at(i)->Former->SuccessorToken.at(Input.at(i)->Former->SuccessorToken.size() - 1)->ID) + NL;
-		}
-		else if ((Input.at(i)->is(Else)))
-		{
-			Output += JMP + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i) + NL + NL;
-		}
-        Output += LABEL(Input.at(i)->getFullName() + to_string(Input.at(i)->ID));
-
-		Input.at(i)->Flags |= Real;
-        //if
-        if (Input.at(i)->Parameters.size() > 0)
+        if (Condition->Name == "else")
         {
-			for (Token * t : Input.at(i)->Parameters)
-			{
-				b.Input.clear();
-				b.Input.push_back(t);
-				b.Factory();
-				Handle_Jumps(i);
-			}
+            Output += JMP + Condition->getFullName() + "END" + NL;
         }
-        //( ...)
-        if (Input.at(i)->Childs.size() > 0)
+        Output += LABEL(Condition->getFullName());
+        for (Token* t : Condition->Parameters)
         {
-            b.Input = Input.at(i)->Childs;
+            Back b = *this;
+            b.Input.clear();
+            b.Input.push_back(t);
             b.Factory();
+            Handle_Jumps(t, *Condition);
         }
-        //while
-        if (Input.at(i)->is(While) && (Input.at(i)->Childs.size() == 0))
+        if (Condition->Childs.size() > 0)
         {
-            //repz whiler.
-            Input.at(i + 1)->repz = Input.at(i)->Parameters.at(0);
+            Back b = *this;
+            b.Input = Condition->Childs;
+            b.Factory();
+            if (Condition->SuccessorToken.size() > 0)
+            {
+                Output += JMP + Condition->SuccessorToken.at(Condition->SuccessorToken.size() - 1)->getFullName() + "END" + NL;
+            }
         }
-        else if (Input.at(i)->Parameters.size() > 0 && Input.at(i)->is(While))
-        {
-            Output += JMP + Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + NL + NL;
-        }
-        Output += LABEL(Input.at(i)->getFullName() + to_string(Input.at(i)->ID) + END(i));
+        Output += LABEL(Condition->getFullName() + "END");
     }
 }
 

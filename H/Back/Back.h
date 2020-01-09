@@ -36,7 +36,7 @@ public:
     void Handle_Call_Function(int i);
     void Handle_Arrays(int i);
     void Handle_Conditions(int i);
-    void Handle_Jumps(int i);
+    void Handle_Jumps(Token *condition, Token owner);
     void Handle_Returning(int i);
     void Handle_New(int i);
     void Handle_Variable_Initalization(int i);

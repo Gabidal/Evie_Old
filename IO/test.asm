@@ -15,24 +15,22 @@ if0:
  ; Giving a, eax
 mov eax, [ebp - 4]
 cmp eax, [ebp - 8]
- ; Jumping source: '=='
-jne if0END
+jne  if1
  ; Return 1
 mov eax, 1
 mov esp, ebp
 pop ebp
 ret 
 
+jmp else2END
 if0END: 
-jmp else2
 if1: 
  ; Comparing a and b
  ; Just directly get address of b
  ; Giving a, eax
 mov eax, [ebp - 4]
 cmp eax, [ebp - 8]
- ; Jumping source: '<'
-jge if1END
+jnl  else2
  ; Return 2
 mov eax, 2
 mov esp, ebp
@@ -41,7 +39,6 @@ ret
 
 if1END: 
 jmp else2END
-
 else2: 
  ; Return 3
 mov eax, 3

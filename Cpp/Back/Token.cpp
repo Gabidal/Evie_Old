@@ -29,7 +29,7 @@ string Token::getFullName()
         }
         else
         {
-            return this->Name;
+            return this->Name + to_string(this->ID);
         }
     }
     
