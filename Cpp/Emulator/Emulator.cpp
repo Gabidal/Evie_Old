@@ -12,9 +12,9 @@ int Emulator::Factory()
 	}
 }
 
-void Emulator::Start_Simulation(int start)
+int Emulator::Start_Simulation(int start)
 {
-	Next_Op_Picker(*Input.at(start));
+	return Next_Op_Picker(*Input.at(start));
 }
 
 void Emulator::Branch_Picker(int i)
@@ -22,7 +22,7 @@ void Emulator::Branch_Picker(int i)
 
 }
 
-void Emulator::Next_Op_Picker(Token &T)
+int Emulator::Next_Op_Picker(Token &T)
 {
 	if (T.is(Function))
 	{
@@ -31,8 +31,12 @@ void Emulator::Next_Op_Picker(Token &T)
 		E.Layer = 0;
 		Sync_Parameters(T.Parameters);
 		E.Log = Log;
-		E.Factory();
+		int result = E.Factory();
 		this->Register_Turn = E.Register_Turn;
+		if (T.is(Returning))
+		{
+			return result;
+		}
 	}
 	else if (T.is(Call))
 	{
@@ -42,6 +46,7 @@ void Emulator::Next_Op_Picker(Token &T)
 		}
 		if (T.daddy_Func->Childs.size() > 0)
 		{
+			reverse(Stack.begin(), Stack.end());
 			Emulator E = *this;
 			E.Input.clear();
 			E.Input.push_back(T.daddy_Func);
@@ -63,6 +68,7 @@ void Emulator::Next_Op_Picker(Token &T)
 			b.Layer++;
 			b.Factory();
 			b.Layer--;
+			this->Log = b.Log;
 			this->Deep_Math = b.Deep_Math;
 			this->Dest = b.Dest;
 			this->Cheat = b.Cheat;
@@ -83,6 +89,7 @@ void Emulator::Next_Op_Picker(Token &T)
 			b.Layer++;
 			b.Factory();
 			b.Layer--;
+			this->Log = b.Log;
 			this->Deep_Math = b.Deep_Math;
 			this->Source = b.Source;
 			this->Cheat = b.Cheat;
@@ -156,7 +163,7 @@ void Emulator::Next_Op_Picker(Token &T)
 			{
 				Deep_Math_Done = true;
 				Simulate_Equ(Cheat, Dest);
-				Dest->SReg->Link(Cheat);
+				Find_From_Log(Dest)->SReg->Link(Find_From_Log(Cheat));
 			}
 		}
 		else if (T.Name == "==" || T.Name == ">=" || T.Name == "<=" || T.Name == ">" || T.Name == "<" || T.Name == "!=" || T.Name == "!>" || T.Name == "!<")
@@ -172,8 +179,22 @@ void Emulator::Next_Op_Picker(Token &T)
 			}
 			else
 			{
-				Cheat = Dest;
-				Dest = Source;
+				if (Find_From_Log(Dest) == nullptr)
+				{
+					Cheat = Dest;
+				}
+				else
+				{
+					Cheat = Find_From_Log(Dest);
+				}
+				if (Find_From_Log(Source) == nullptr)
+				{
+					Dest = Source;
+				}
+				else
+				{
+					Dest = Find_From_Log(Source);
+				}
 			}
 		}
 
@@ -184,11 +205,11 @@ void Emulator::Next_Op_Picker(Token &T)
 			{
 				if (Source->is(Number) && (Cheat->Name == Dest->Name))
 				{
-					return;
+					return 0;
 				}
 				if (Dest->is(Number) && (Cheat->Name == Source->Name))
 				{
-					return;
+					return 0;
 				}
 			}/*
 			if (Dest->tmp != nullptr)
@@ -207,7 +228,7 @@ void Emulator::Next_Op_Picker(Token &T)
 			{
 				Simulate_Equ(Cheat, Dest);
 			}
-			Dest->SReg->Link(Dest);
+			Find_From_Log(Dest)->SReg->Link(Find_From_Log(Dest));
 		}
 		if (Deep_Math_Done)
 		{
@@ -289,18 +310,21 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 		//this has been a offsetter before
 		ECX->Link(T);
 		T->SReg = ECX;
+		return ECX;
 	}
 	else if ((EAX->Base != nullptr) && (EAX->Base->Name == T->Name))
 	{
 		//this is just a normal  math variable
 		EAX->Link(T);
 		T->SReg = EAX;
+		return EAX;
 	}
 	else if ((EDX->Base != nullptr) && (EDX->Base->Name == T->Name))
 	{
 		//this is just a normal  math variable
 		EDX->Link(T);
 		T->SReg = EDX;
+		return EDX;
 	}
 	else if ((EDI->Base != nullptr) && (EDI->Base->Name == T->Name))
 	{
@@ -311,6 +335,7 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 			T->Offsetter->SReg = ECX;
 			EDI->Link(T);
 			T->SReg = EDI;
+			return EDI;
 		}
 		//even if this variable has EDI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
@@ -324,6 +349,7 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 			T->Offsetter->SReg = ECX;
 			ESI->Link(T);
 			T->SReg = ESI;
+			return ESI;
 		}
 		//even if this variable has ESI and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
@@ -335,12 +361,14 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 			EAX->Link(T);
 			T->SReg = EAX;
 			Register_Turn++;
+			return EAX;
 		}
 		else if (Register_Turn == 1)
 		{
 			EDX->Link(T);
 			T->SReg = EDX;
 			Register_Turn--;
+			return EDX;
 		}
 	}
 	else if (T->is(Array) || T->is(Ptr))
@@ -350,12 +378,14 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 			EDI->Link(T);
 			T->SReg = EDI;
 			Register_Turn++;
+			return EDI;
 		}
 		else if (Register_Turn > 0)
 		{
 			ESI->Link(T);
 			T->SReg = ESI;
 			Register_Turn--;
+			return ESI;
 		}
 	}
 	else if (T->is(Returning))
@@ -363,6 +393,7 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 		EAX->Link(T);
 		T->SReg = EAX;
 		Register_Turn++;
+		return EAX;
 	}
 	else
 	{
@@ -445,16 +476,21 @@ int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 	else if (Source->is(Variable))
 	{
 		//need to get a reg
-		Dest->Value = Source->Value;
-		if ((Source->SReg != nullptr) && (Source->SReg->Name != "null"))
+		Register* SR = Find_From_Log(Source)->SReg;
+		if ((SR == nullptr) || (SR->Name == "null"))
 		{
+			Find_From_Log(Source)->SReg = Optimized_Register_Giver(Find_From_Log(Source));
+		}
+		if (Find_From_Log(Dest) == nullptr)
+		{
+			Dest->SReg = Find_From_Log(Source)->SReg;
+			Dest->Value = Dest->SReg->Value;
 		}
 		else
 		{
-			Optimized_Register_Giver(Source);
+			Find_From_Log(Dest)->SReg = Find_From_Log(Source)->SReg;
+			Find_From_Log(Dest)->Value = Find_From_Log(Dest)->SReg->Value;
 		}
-		Dest->SReg = Source->SReg;
-		Dest->Value = Dest->SReg->Value;
 	}
 	Add_To_Log(Dest);
 	return Dest->Value;
@@ -488,8 +524,12 @@ int Emulator::Simulate_Add(Token* Dest, Token* Source, Token* Cheat)
 		else
 		{
 			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value += Find_From_Log(Source)->Value;
+			if (Find_From_Log(Dest)->SReg == nullptr)
+			{
+				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
+				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+			}
+			Find_From_Log(Dest)->SReg->Value += Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;
@@ -523,8 +563,12 @@ int Emulator::Simulate_Sub(Token* Dest, Token* Source, Token* Cheat)
 		else
 		{
 			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value -= Find_From_Log(Source)->Value;
+			if (Find_From_Log(Dest)->SReg == nullptr)
+			{
+				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
+				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+			}
+			Find_From_Log(Dest)->SReg->Value -= Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;
@@ -558,8 +602,12 @@ int Emulator::Simulate_Mul(Token* Dest, Token* Source, Token* Cheat)
 		else
 		{
 			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value *= Find_From_Log(Source)->Value;
+			if (Find_From_Log(Dest)->SReg == nullptr)
+			{
+				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
+				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+			}
+			Find_From_Log(Dest)->SReg->Value *= Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;
@@ -593,8 +641,12 @@ int Emulator::Simulate_Div(Token* Dest, Token* Source, Token* Cheat)
 		else
 		{
 			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value /= Find_From_Log(Source)->Value;
+			if (Find_From_Log(Dest)->SReg == nullptr)
+			{
+				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
+				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+			}
+			Find_From_Log(Dest)->SReg->Value /= Find_From_Log(Source)->Value;
 		}
 	}
 	return 0;
