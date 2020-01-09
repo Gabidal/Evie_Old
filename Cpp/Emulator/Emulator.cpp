@@ -8,6 +8,10 @@ int Emulator::Factory()
 		{
 			return Next_Op_Picker(*t);
 		}
+		else if (t->is(Else) && (t->Name == "else") && (Unlock_Requem(*t->Former->Parameters.at(0)) == false) && Return_Inside_If(t->Childs))
+		{
+			return Next_Op_Picker(*t);
+		}
 		else
 		{
 			Next_Op_Picker(*t);
@@ -263,6 +267,17 @@ int Emulator::Next_Op_Picker(Token &T)
 			{
 				return result;
 			}
+		}
+	}
+	else if (T.is(Else) && (Unlock_Requem(*T.Former->Parameters.at(0)) == false))
+	{
+		Emulator E = *this;
+		E.Input = T.Childs;
+		int result = E.Factory();
+		this->Register_Turn = E.Register_Turn;
+		if (Return_Inside_If(T.Childs))
+		{
+			return result;
 		}
 	}
 }
