@@ -28,6 +28,7 @@ public:
     //if there is no main we need to simulate every function by it self.
     //if there is main function then we can start our simulation from there.
     void Simulate_Runnable(int start);
+    void Free_Registers();
 };
 
 

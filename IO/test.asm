@@ -5,9 +5,26 @@ banana:
 push ebp
 mov ebp, esp
 
- ; Giving a, 4
-mov [ebp - 4], dword 4
- ; Return a
+ ; Return 4
+mov eax, 4
+mov esp, ebp
+pop ebp
+ret 
+
+ ; Ending stack frame 
+mov esp, ebp
+pop ebp
+ ; Returning 
+ret
+
+ ; Function apple
+apple: 
+ ; Making stack frame 
+push ebp
+mov ebp, esp
+
+ ; Return 4
+mov eax, 4
 mov esp, ebp
 pop ebp
 ret 
@@ -43,15 +60,22 @@ call banana
  ; Giving banana, eax
 mov [ebp - 16], eax
 
+ ; Calling apple
+call apple
+
+ ; Giving e the return value
+ ; Giving apple, eax
+mov [ebp - 20], eax
+
 if0: 
- ; Comparing d and 4
- ; Just directly get name of the number
- ; Giving 4, edx
-mov edx, 4
-cmp [ebp - 16], edx
-jne  if0
+ ; Comparing d and e
+ ; Just directly get address of e
+ ; Giving d, edx
+mov edx, [ebp - 16]
+cmp edx, [ebp - 20]
+jne  if0END
  ; Return d
-mov eax, dword [ebp - 16]
+mov eax, edx
 mov esp, ebp
 pop ebp
 ret 

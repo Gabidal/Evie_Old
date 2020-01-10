@@ -467,7 +467,7 @@ void Back::Handle_Jumps(Token* Condition, Token owner)
     else
     {
         //last condition
-        Output += Jump_Type + " " + owner.getFullName() + NL;
+        Output += Jump_Type + " " + owner.getFullName() + "END" + NL;
     }
 }
 
@@ -497,6 +497,10 @@ void Back::Handle_Conditions(int i)
             if (Condition->SuccessorToken.size() > 0)
             {
                 Output += JMP + Condition->SuccessorToken.at(Condition->SuccessorToken.size() - 1)->getFullName() + "END" + NL;
+            }
+            else if (Condition->is(While))
+            {
+                Output += JMP + Condition->getFullName() + NL;
             }
         }
         Output += LABEL(Condition->getFullName() + "END");

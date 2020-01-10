@@ -134,13 +134,13 @@ Register *Token::getNewRegister()
 		{
 			EAX->Link(this);
 			Reg = EAX;
-			RegisterTurn++;
+			RegisterTurn = 1;
 		}
-		else if (RegisterTurn == 1)
+		else if (RegisterTurn > 0)
 		{
 			EDX->Link(this);
 			Reg = EDX;
-			RegisterTurn--;
+			RegisterTurn = 0;
 		}
 	}
 	else if (is(Array) || is(Ptr))
@@ -149,13 +149,13 @@ Register *Token::getNewRegister()
 		{
 			EDI->Link(this);
 			Reg = EDI;
-			RegisterTurn++;
+			RegisterTurn = 1;
 		}
 		else if (RegisterTurn > 0)
 		{
 			ESI->Link(this);
 			Reg = ESI;
-			RegisterTurn--;
+			RegisterTurn = 0;
 		}
 	}
 	else if (is(Returning))
