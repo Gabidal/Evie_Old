@@ -53,7 +53,8 @@ public:
 	int Simulate_Sub(Token* Dest, Token* Source, Token* Cheat);
 	int Simulate_Mul(Token* Dest, Token* Source, Token* Cheat);
 	int Simulate_Div(Token* Dest, Token* Source, Token* Cheat);
-	bool Simulate_Importance(Token *T);
+	bool Simulate_Importance(Token *T); // for function callation
+	bool Simulate_Function_Return_Value(Token* T);
 
 
 	Emulator& operator=(const Emulator& other)

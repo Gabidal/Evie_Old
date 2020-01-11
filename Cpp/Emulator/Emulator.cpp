@@ -48,16 +48,19 @@ int Emulator::Next_Op_Picker(Token &T)
 {
 	if (T.is(Function))
 	{
-		Emulator E = *this;
-		E.Input = T.Childs;
-		E.Layer = 0;
-		E.Clear_Log();
-		E.Sync_Parameters(T.Parameters);
-		int result = E.Factory();
-		this->Register_Turn = E.Register_Turn;
-		if (T.is(Returning))
+		if (Simulate_Function_Return_Value(&T))
 		{
-			return result;
+			Emulator E = *this;
+			E.Input = T.Childs;
+			E.Layer = 0;
+			E.Clear_Log();
+			E.Sync_Parameters(T.Parameters);
+			int result = E.Factory();
+			this->Register_Turn = E.Register_Turn;
+			if (T.is(Returning))
+			{
+				return result;
+			}
 		}
 	}
 	else if (T.is(Call))
@@ -822,6 +825,65 @@ bool Emulator::Simulate_Importance(Token* T)
 	else
 	{
 		//check if this function touches public variables;
+	}
+	return true;
+}
+
+bool Emulator::Simulate_Function_Return_Value(Token* T)
+{
+	if (T->Parameters.size() > 0)
+	{
+		vector<int> results;
+		for (int j = 0; j < 3; j++)
+		{
+			for (int i = 0; i < T->Parameters.size(); i++)
+			{
+				Stack.push_back(rand() * 2);
+			}
+			Emulator e = *this;
+			e.Clear_Log();
+			e.Input = T->Childs;
+			results.push_back(e.Factory());
+			for (int i = 0; i < T->Parameters.size(); i++)
+			{
+				Stack.pop_back();
+			}
+		}
+		if ((results.at(0) == results.at(1)) && (results.at(2) == results.at(1)))
+		{
+			//useless function.
+			T->_Value_Return_ = true;
+			T->Value = results.at(0);
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else if (T->is(Returning))
+	{
+		//check if the function touches global variables
+
+		vector<int> results;
+		for (int j = 0; j < 3; j++)
+		{
+			Emulator e = *this;
+			e.Clear_Log();
+			e.Input = T->Childs;
+			results.push_back(e.Factory());
+		}
+		if ((results.at(0) == results.at(1)) && (results.at(2) == results.at(1)))
+		{
+			//useless function.
+			T->_Value_Return_ = true;
+			T->Value = results.at(0);
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 	return true;
 }

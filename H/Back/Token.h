@@ -56,6 +56,7 @@ class Token
     int AddedOffset = 4;
     int ParameterOffset = 4;
     bool _INITTED = false;
+    bool _Value_Return_ = false;
     int ID = 0;
     Token *Offsetter = nullptr;
     Token *ParentType = nullptr;

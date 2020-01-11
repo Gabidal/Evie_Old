@@ -1,7 +1,6 @@
 func banana(a)
 (
-	a = a + 4
-	return a
+	return 4
 )
 
 func apple(a)

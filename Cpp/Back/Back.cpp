@@ -267,25 +267,33 @@ void Back::Handle_Function_Init(int i)
 		Output += COMMENT + "Function " + Input.at(i)->Name + NL;
 		Input.at(i)->Flags |= Real;
         Input.at(i)->InitFunction();
-        Back b = *this;
-        b.Input = Input.at(i)->Childs;
-		if ((b.Input.size() - 1) < 0)
-		{
-			Output += RET + NL;
-		}
-		else
-		{
-			StackFrame stack(Output, true);
-			int care = Variable | Ptr | NotOriginal | Array;
-			if (Get_Amount(Input.at(i)->Childs, care) > 0)
-			{
-				Output += COMMENT + "Making space for local variables " + NL;
-				Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
-			}
-			b.IS_PUBLIC++;
-			b.Factory();
-			b.IS_PUBLIC--;
-		}
+        if (Input.at(i)->_Value_Return_)
+        {
+            Output += MOV + EAX->Name + FROM + to_string(Input.at(i)->Value) + NL;
+            Output += RET + NL;
+        }
+        else
+        {
+            Back b = *this;
+            b.Input = Input.at(i)->Childs;
+            if ((b.Input.size() - 1) < 0)
+            {
+                Output += RET + NL;
+            }
+            else
+            {
+                StackFrame stack(Output, true);
+                int care = Variable | Ptr | NotOriginal | Array;
+                if (Get_Amount(Input.at(i)->Childs, care) > 0)
+                {
+                    Output += COMMENT + "Making space for local variables " + NL;
+                    Output += SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
+                }
+                b.IS_PUBLIC++;
+                b.Factory();
+                b.IS_PUBLIC--;
+            }
+        }
     }
 }
 
