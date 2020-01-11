@@ -54,12 +54,19 @@ int Emulator::Next_Op_Picker(Token &T)
 			E.Input = T.Childs;
 			E.Layer = 0;
 			E.Clear_Log();
-			E.Sync_Parameters(T.Parameters);
-			int result = E.Factory();
-			this->Register_Turn = E.Register_Turn;
-			if (T.is(Returning))
+			if (T.Callations->size() > 0)
 			{
-				return result;
+				E.Sync_Parameters(T.Parameters);
+				int result = E.Factory();
+				this->Register_Turn = E.Register_Turn;
+				if (T.is(Returning))
+				{
+					return result;
+				}
+			}
+			else
+			{
+				return 0;
 			}
 		}
 		else
