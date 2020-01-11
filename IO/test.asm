@@ -9,7 +9,7 @@ mov eax, 4
 ret 
  ; Function main
 main: 
-mov eax, 0
+mov eax, 4
 ret 
 section .bss
 section .data

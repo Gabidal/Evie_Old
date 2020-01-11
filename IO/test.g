@@ -8,9 +8,8 @@ func apple(a)
 	return 4
 )
 
-func main()
+func main(a)
 (
-	var a = 1
 	var b = 2
 	var c = a + b
 	var d = banana(1)

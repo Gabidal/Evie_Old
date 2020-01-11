@@ -62,6 +62,10 @@ int Emulator::Next_Op_Picker(Token &T)
 				return result;
 			}
 		}
+		else
+		{
+			return T.Value;
+		}
 	}
 	else if (T.is(Call))
 	{
@@ -843,6 +847,7 @@ bool Emulator::Simulate_Function_Return_Value(Token* T)
 			Emulator e = *this;
 			e.Clear_Log();
 			e.Input = T->Childs;
+			e.Sync_Parameters(T->Parameters);
 			results.push_back(e.Factory());
 			for (int i = 0; i < T->Parameters.size(); i++)
 			{
