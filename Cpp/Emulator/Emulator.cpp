@@ -51,8 +51,8 @@ int Emulator::Next_Op_Picker(Token &T)
 		Emulator E = *this;
 		E.Input = T.Childs;
 		E.Layer = 0;
-		Sync_Parameters(T.Parameters);
-		E.Log.clear();
+		E.Clear_Log();
+		E.Sync_Parameters(T.Parameters);
 		int result = E.Factory();
 		this->Register_Turn = E.Register_Turn;
 		if (T.is(Returning))
@@ -62,32 +62,43 @@ int Emulator::Next_Op_Picker(Token &T)
 	}
 	else if (T.is(Call))
 	{
-		for (Token* t : T.Parameters)
+		if (Simulate_Importance(&T))
 		{
-			Stack.push_back(Find_From_Log(t)->Value);
-		}
-		if (T.daddy_Func->Childs.size() > 0)
-		{
-			reverse(Stack.begin(), Stack.end());
-			Emulator E = *this;
-			E.Input.clear();
-			E.Input.push_back(T.daddy_Func);
-			//Original_Size = Log.size();
-			int result = E.Factory();
-			this->Register_Turn = E.Register_Turn;
-			if (T.is(Returning))
+			for (Token* t : T.Parameters)
 			{
-				return result;
+				if (t->is(Number))
+				{
+					Stack.push_back(atoi(t->Name.c_str()));
+				}
+				else
+				{
+					Stack.push_back(Find_From_Log(t)->Value);
+				}
+			}
+			if (T.daddy_Func->Childs.size() > 0)
+			{
+				reverse(Stack.begin(), Stack.end());
+				Emulator E = *this;
+				E.Input.clear();
+				E.Input.push_back(T.daddy_Func);
+				//Original_Size = Log.size();
+				int result = E.Factory();
+				this->Register_Turn = E.Register_Turn;
+				if (T.is(Returning))
+				{
+					return result;
+				}
+				reverse(Stack.begin(), Stack.end());
+			}
+			for (Token* t : T.Parameters)
+			{
+				Stack.pop_back();
 			}
 		}
 	}
 	else if (T.is(OPERATOR))
 	{
-		if (T.Parameters.at(0)->is(Variable) || T.Parameters.at(0)->is(Ptr))
-		{
-			Dest = T.Parameters.at(0);
-		}
-		else if (T.Parameters.at(0)->is(Call))
+		if (T.Parameters.at(0)->is(Call))
 		{
 			Emulator e = *this;
 			e.Double_Callation = this->Double_Callation;
@@ -96,8 +107,15 @@ int Emulator::Next_Op_Picker(Token &T)
 			int result = e.Factory();
 			e.Layer--;
 			this->Deep_Math = e.Deep_Math;
-			Dest->Flags |= Number;
-			Dest->Name = to_string(result);
+			if (T.Parameters.at(0)->is(Call))
+			{
+				Dest->Flags |= Number;
+				Dest->Name = to_string(result);
+			}
+		}
+		if (T.Parameters.at(0)->is(Variable) || T.Parameters.at(0)->is(Ptr))
+		{
+			Dest = T.Parameters.at(0);
 		}
 		else
 		{
@@ -115,11 +133,7 @@ int Emulator::Next_Op_Picker(Token &T)
 		{
 			Double_Callation = true;
 		}
-		if (T.Childs.at(0)->is(Variable) || T.Childs.at(0)->is(Number) || T.Childs.at(0)->is(Ptr) || T.Childs.at(0)->is(String))
-		{
-			Source = T.Childs.at(0);
-		}
-		else if (T.Childs.at(0)->is(Call))
+		if (T.Childs.at(0)->is(Call))
 		{
 			Emulator e = *this;
 			e.Double_Callation = this->Double_Callation;
@@ -128,8 +142,16 @@ int Emulator::Next_Op_Picker(Token &T)
 			int result = e.Factory();
 			e.Layer--;
 			this->Deep_Math = e.Deep_Math;
-			Source->Flags |= Number;
-			Source->Name = to_string(result);
+			if (T.Childs.at(0)->is(Call))
+			{
+				//the callation hasnt been removed by optimization
+				Source->Flags |= Number;
+				Source->Name = to_string(result);
+			}
+		}
+		if (T.Childs.at(0)->is(Variable) || T.Childs.at(0)->is(Number) || T.Childs.at(0)->is(Ptr) || T.Childs.at(0)->is(String))
+		{
+			Source = T.Childs.at(0);
 		}
 		else
 		{
@@ -172,7 +194,7 @@ int Emulator::Next_Op_Picker(Token &T)
 		{
 			Simulate_Div(Dest, Source, Cheat);
 		}
-		if (Layer == 0)
+		if ((Layer == 0) && (Cheat != Dest))
 		{
 			if (Deep_Math == false)
 			{
@@ -287,7 +309,7 @@ int Emulator::Next_Op_Picker(Token &T)
 			Cheat = nullptr;
 		}
 	}
-	else if (T.is(If) || (T.is(Else) && T.is(If)) || T.is(While))
+	else if (T.is(If) || (T.is(Else) && T.is(If)))
 	{
 		if (Unlock_Requem(*T.Parameters.at(0)))
 		{
@@ -310,6 +332,20 @@ int Emulator::Next_Op_Picker(Token &T)
 		if (Return_Inside_If(T.Childs))
 		{
 			return result;
+		}
+	}
+	else if (T.is(While))
+	{
+		for (;Unlock_Requem(*T.Parameters.at(0)) == false;)
+		{
+			Emulator E = *this;
+			E.Input = T.Childs;
+			int result = E.Factory();
+			this->Register_Turn = E.Register_Turn;
+			if (Return_Inside_If(T.Childs))
+			{
+				return result;
+			}
 		}
 	}
 }
@@ -547,6 +583,17 @@ bool Emulator::Return_Inside_If(vector<Token*> T)
 	return false;
 }
 
+void Emulator::Clear_Log()
+{
+	for (int i = 0; i < Log.size(); i++)
+	{
+		if (Log.at(i)->is(Public) != true)
+		{
+			Log.erase(Log.begin() + i);
+		}
+	}
+}
+
 int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 {
 	if (Source->is(Number))
@@ -731,4 +778,50 @@ int Emulator::Simulate_Div(Token* Dest, Token* Source, Token* Cheat)
 		}
 	}
 	return 0;
+}
+
+bool Emulator::Simulate_Importance(Token* T)
+{
+	//this function gives function callations different parameter values and
+	//checks if it gives different return values.
+	if ((T->Parameters.size() > 0) && (T->is(Returning)))
+	{
+		vector<int> results;
+		for (int j = 0; j < 3; j++)
+		{
+			for (int i = 0; i < T->Parameters.size(); i++)
+			{
+				Stack.push_back(rand() * 2);
+			}
+			Emulator e = *this;
+			e.Clear_Log();
+			e.Input.clear();
+			e.Input.push_back(T->daddy_Func);
+			results.push_back(e.Factory());
+			for (int i = 0; i < T->Parameters.size(); i++)
+			{
+				Stack.pop_back();
+			}
+		}
+		if ((results.at(0) == results.at(1)) && (results.at(2) == results.at(1)))
+		{
+			//useless function.
+			Token* Num = T;
+			Num->Name = to_string(results.at(0));
+			Num->Flags = Number;
+			Num->Childs.clear();
+			Num->Parameters.clear();
+			T = Num;
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else
+	{
+		//check if this function touches public variables;
+	}
+	return true;
 }

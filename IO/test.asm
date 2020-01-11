@@ -5,8 +5,14 @@ banana:
 push ebp
 mov ebp, esp
 
- ; Return 4
-mov eax, 4
+ ; Direct addition
+add [ebp + 8], dword 4
+ ; Saving a into a
+ ; Giving a, eax
+ ; Initializing new register for private  variable a
+mov eax, [ebp + 8]
+mov [ebp + 8], dword eax
+ ; Return a
 mov esp, ebp
 pop ebp
 ret 
@@ -49,24 +55,22 @@ mov [ebp - 8], dword 2
  ; Giving a, eax
  ; Initializing new register for private  variable a
 mov eax, [ebp - 4]
-add eax, dword 4
+add eax, dword 5
  ; Saving a into c
  ; a has already a register to it
 mov [ebp - 12], dword eax
  ; Calling banana
+push dword 1
 call banana
 
+ ; Clearing the parameters
+add esp, 4
  ; Giving d the return value
  ; Giving banana, eax
 mov [ebp - 16], eax
 
- ; Calling apple
-call apple
-
- ; Giving e the return value
- ; Giving apple, eax
-mov [ebp - 20], eax
-
+ ; Giving e, 4
+mov [ebp - 20], dword 4
 if0: 
  ; Comparing d and e
  ; Just directly get address of e

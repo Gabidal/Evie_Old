@@ -1,9 +1,10 @@
-func banana()
+func banana(a)
 (
-	return 4
+	a = a + 4
+	return a
 )
 
-func apple()
+func apple(a)
 (
 	return 4
 )
@@ -13,8 +14,8 @@ func main()
 	var a = 1
 	var b = 2
 	var c = a + b
-	var d = banana()
-	var e = apple()
+	var d = banana(1)
+	var e = apple(2)
 	if (d == e)
 	(
 		return d

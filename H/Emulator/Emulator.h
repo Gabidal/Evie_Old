@@ -17,9 +17,9 @@ public:
 	vector<Token*> Input;
 	//Math
 	int Layer = 0;
-	Token* Cheat;
-	Token* Dest;
-	Token* Source;
+	Token* Cheat = nullptr;
+	Token* Dest = nullptr;
+	Token* Source = nullptr;
 	vector<Token*> Log;
 	bool Deep_Math_Done = false;
 	bool Deep_Math = false;
@@ -46,12 +46,16 @@ public:
 	Token* Find_From_Log(Token* T);
 	void Sync_Parameters(vector<Token*> &Parameters);
 	bool Return_Inside_If(vector<Token*> T);
+	void Clear_Log();
 
 	int Simulate_Equ(Token* Dest, Token* Source);
 	int Simulate_Add(Token* Dest, Token* Source, Token* Cheat);
 	int Simulate_Sub(Token* Dest, Token* Source, Token* Cheat);
 	int Simulate_Mul(Token* Dest, Token* Source, Token* Cheat);
 	int Simulate_Div(Token* Dest, Token* Source, Token* Cheat);
+	bool Simulate_Importance(Token *T);
+
+
 	Emulator& operator=(const Emulator& other)
 	{
 		//Stack
