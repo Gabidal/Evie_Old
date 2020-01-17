@@ -14,6 +14,10 @@ func main(a)
 	var c = a + b
 	var d = banana(1)
 	var e = apple(2)
+	if (d == e)
+	(
+		return d
+	)
 	if (a == b)
 	(
 		return a

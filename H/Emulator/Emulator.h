@@ -26,6 +26,9 @@ public:
 	bool Double_Callation = false;
 	//Registers
 	int Register_Turn = 0;
+	//debugging
+	bool Debug = false;
+	Token* Break_Point = nullptr;
 
 	
 	Emulator(vector<Token*>& In)
@@ -55,6 +58,8 @@ public:
 	int Simulate_Div(Token* Dest, Token* Source, Token* Cheat);
 	bool Simulate_Importance(Token *T); // for function callation
 	bool Simulate_Function_Return_Value(Token* T);
+	void Simulate_Parameters(Token* F, int Call_ID);
+	bool Function_Unpacker(Token* F);
 
 
 	Emulator& operator=(const Emulator& other)

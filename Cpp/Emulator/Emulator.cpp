@@ -803,9 +803,11 @@ bool Emulator::Simulate_Importance(Token* T)
 		vector<int> results;
 		for (int j = 0; j < 3; j++)
 		{
-			for (int i = 0; i < T->Parameters.size(); i++)
+			//for (int i = 0; i < T->Parameters.size(); i++)
+			for (int i = 0; i < T->Callations->size(); i++)
 			{
-				Stack.push_back(rand() * 2);
+				Simulate_Parameters(T, i);
+				//Stack.push_back(rand() * 2);
 			}
 			Emulator e = *this;
 			e.Clear_Log();
@@ -898,4 +900,24 @@ bool Emulator::Simulate_Function_Return_Value(Token* T)
 		}
 	}
 	return true;
+}
+
+void Emulator::Simulate_Parameters(Token* F, int Call_ID)
+{
+	Emulator E = *this;
+	E.Input.clear();
+	E.Input.push_back(F->Callations->at(0));
+
+}
+
+bool Emulator::Function_Unpacker(Token* F)
+{
+	//banana function only is called once
+	//a = banana()
+	//look if banana gives different output or is it constant.
+	if ()
+	{
+
+	}
+	return false;
 }
