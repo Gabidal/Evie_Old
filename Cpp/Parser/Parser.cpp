@@ -388,7 +388,7 @@ void Parser::Pattern_Parenthesis(int i)
     int a = Input.size() - 1;
     if (((a - 2) < 0) || (i - 2) < 0)
     {
-        return;
+       return;
     }
     
     /*func banana <deleted () > \n
@@ -444,7 +444,16 @@ void Parser::Pattern_Parenthesis(int i)
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->WORD == "if" && Input.at(i-1)->_condition)
+}
+
+void Parser::Pattern_Condition_Parenthesis(int i)
+{
+    int a = Input.size() - 1;
+    if (((a - 1) < 0) || (i - 1) < 0)
+    {
+        return;
+    }
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i - 1)->WORD == "if" && Input.at(i - 1)->_condition)
     {
         Layer++;
         Parser parser = *this;
@@ -454,29 +463,29 @@ void Parser::Pattern_Parenthesis(int i)
         parser.Factory();
         this->ID = parser.ID;
         ParentCondition->back()->Flags |= PARENT;
-        if (Input.at(i-1)->_else_if)
+        if (Input.at(i - 1)->_else_if)
         {
             ParentCondition->back()->Flags |= Successour;
             Substitute->SuccessorToken.push_back(ParentCondition->back());
             ParentCondition->back()->Former = Substitute;
             ParentCondition->back() = Substitute;
         }
-        
-        Layer--;
-		if ((Input.at(i+1)->WORD == "else") || (Input.at(i + 1)->_else_if))
-		{
 
-		}
-		else
-		{
-			ParentCondition->pop_back();
-		}
+        Layer--;
+        if ((Input.at(i + 1)->WORD == "else") || (Input.at(i + 1)->_else_if))
+        {
+
+        }
+        else
+        {
+            ParentCondition->pop_back();
+        }
     }
     /*else
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->WORD == "else" &&  Input.at(i-1)->_condition)
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i - 1)->WORD == "else" && Input.at(i - 1)->_condition)
     {
         Layer++;
         Parser parser = *this;
@@ -491,13 +500,13 @@ void Parser::Pattern_Parenthesis(int i)
         ParentCondition->back()->Former = Substitute;
         ParentCondition->back() = Substitute;
         Layer--;
-		ParentCondition->pop_back();
+        ParentCondition->pop_back();
     }
     /*while (a < b)
     (
         var 1
     )*/
-    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i-1)->WORD == "while" &&  Input.at(i-1)->_condition)
+    else if (Input.at(i)->is(_PAREHTHESIS) && Input.at(i - 1)->WORD == "while" && Input.at(i - 1)->_condition)
     {
         Layer++;
         Parser parser = *this;
@@ -508,9 +517,9 @@ void Parser::Pattern_Parenthesis(int i)
         this->ID = parser.ID;
         ParentFunc->Flags |= PARENT;
         Layer--;
-		ParentCondition->pop_back();
+        ParentCondition->pop_back();
     }
-    
+
 }
 
 void Parser::Pattern_Init_Condition(int i)
@@ -1080,6 +1089,7 @@ void Parser::Factory()
         Pattern_Variable(i);
         Pattern_Return(i);
         Pattern_Condition(i);
+        Pattern_Condition_Parenthesis(i);
     }
     vector<Token*> *T;
     Give_Output(T);

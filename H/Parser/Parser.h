@@ -35,6 +35,7 @@ public:
     void Pattern_Type(int i);
     void Pattern_Condition(int i);
     void Pattern_Parenthesis(int i);
+    void Pattern_Condition_Parenthesis(int i);
     void Pattern_Operators(int i);
     void Pattern_Call_Func(int i);
     void Pattern_New(int i);

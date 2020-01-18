@@ -568,6 +568,10 @@ Token* Emulator::Find_From_Log(Token* T)
 			return t;
 		}
 	}
+	if (T->is(Number))
+	{
+		return T;
+	}
 	return nullptr;
 }
 
@@ -803,16 +807,15 @@ bool Emulator::Simulate_Importance(Token* T)
 		vector<int> results;
 		for (int j = 0; j < 3; j++)
 		{
-			//for (int i = 0; i < T->Parameters.size(); i++)
-			for (int i = 0; i < T->Callations->size(); i++)
+			for (int i = 0; i < T->Parameters.size(); i++)
 			{
-				Simulate_Parameters(T, i);
-				//Stack.push_back(rand() * 2);
+				Stack.push_back(Get_Value_Of(Find_From_Log(T->Parameters.at(i))));
 			}
 			Emulator e = *this;
 			e.Clear_Log();
+			e.Sync_Parameters(T->daddy_Func->Parameters);
 			e.Input.clear();
-			e.Input.push_back(T->daddy_Func);
+			e.Input = T->daddy_Func->Childs;
 			results.push_back(e.Factory());
 			for (int i = 0; i < T->Parameters.size(); i++)
 			{
@@ -902,22 +905,23 @@ bool Emulator::Simulate_Function_Return_Value(Token* T)
 	return true;
 }
 
-void Emulator::Simulate_Parameters(Token* F, int Call_ID)
+bool Emulator::Smart_Parameters(Token* F)
 {
-	Emulator E = *this;
-	E.Input.clear();
-	E.Input.push_back(F->Callations->at(0));
-
+	for (Token* t : F->Childs)
+	{
+		if (t->is(If) || t->is(While))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 bool Emulator::Function_Unpacker(Token* F)
 {
 	//banana function only is called once
 	//a = banana()
-	//look if banana gives different output or is it constant.
-	if ()
-	{
-
-	}
+	//unpack the child tokens of banana into a = (x)
 	return false;
 }
+

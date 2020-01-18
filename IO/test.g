@@ -1,6 +1,13 @@
 func banana(a)
 (
-	return 4
+	if (a == 10)
+	(
+		return 4
+	)
+	else
+	(
+		return 3
+	)
 )
 
 func apple(a)
@@ -12,7 +19,7 @@ func main(a)
 (
 	var b = 2
 	var c = a + b
-	var d = banana(1)
+	var d = banana(10)
 	var e = apple(2)
 	if (d == e)
 	(

@@ -58,8 +58,9 @@ public:
 	int Simulate_Div(Token* Dest, Token* Source, Token* Cheat);
 	bool Simulate_Importance(Token *T); // for function callation
 	bool Simulate_Function_Return_Value(Token* T);
-	void Simulate_Parameters(Token* F, int Call_ID);
+	bool Smart_Parameters(Token* F);
 	bool Function_Unpacker(Token* F);
+
 
 
 	Emulator& operator=(const Emulator& other)
