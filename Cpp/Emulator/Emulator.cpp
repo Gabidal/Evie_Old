@@ -123,6 +123,7 @@ int Emulator::Next_Op_Picker(Token &T)
 			this->Deep_Math = e.Deep_Math;
 			if (T.Parameters.at(0)->is(Call))
 			{
+				Dest = new Token(TMP, &Input);
 				Dest->Flags |= Number;
 				Dest->Name = to_string(result);
 			}
@@ -159,6 +160,7 @@ int Emulator::Next_Op_Picker(Token &T)
 			if (T.Childs.at(0)->is(Call))
 			{
 				//the callation hasnt been removed by optimization
+				Source = new Token(TMP, &Input);
 				Source->Flags |= Number;
 				Source->Name = to_string(result);
 			}
@@ -804,6 +806,13 @@ bool Emulator::Simulate_Importance(Token* T)
 	//checks if it gives different return values.
 	if ((T->Parameters.size() > 0) && (T->is(Returning)))
 	{
+		for (Token* t : T->Parameters)
+		{
+			if (t->is(Parameter) && t->Outside_Of_Parameters)
+			{
+				return true;
+			}
+		}
 		vector<int> results;
 		for (int j = 0; j < 3; j++)
 		{
@@ -843,10 +852,20 @@ bool Emulator::Simulate_Importance(Token* T)
 		//check if this function touches public variables;
 	}
 	return true;
-}
+} //for calling
 
 bool Emulator::Simulate_Function_Return_Value(Token* T)
 {
+	for (Token *C : *T->Callations)
+	{
+		for (Token* t : C->Parameters)
+		{
+			if (t->is(Parameter) && t->Outside_Of_Parameters)
+			{
+				return true;
+			}
+		}
+	}
 	if (T->Parameters.size() > 0)
 	{
 		vector<int> results;

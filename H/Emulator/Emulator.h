@@ -29,6 +29,7 @@ public:
 	//debugging
 	bool Debug = false;
 	Token* Break_Point = nullptr;
+	string TMP = "";
 
 	
 	Emulator(vector<Token*>& In)

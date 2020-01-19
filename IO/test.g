@@ -19,8 +19,8 @@ func main(a)
 (
 	var b = 2
 	var c = a + b
-	var d = banana(10)
-	var e = apple(2)
+	var d = banana(a)
+	var e = apple(b)
 	if (d == e)
 	(
 		return d
