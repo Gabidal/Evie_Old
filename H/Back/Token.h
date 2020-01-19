@@ -42,6 +42,7 @@ using namespace std;
 #define __NEW (1<<29)
 #define Address_Operator (1<<30)
 #define Successour (1<<31)
+extern int SYNTAX;
 
 class Register;
 
@@ -58,6 +59,7 @@ class Token
     bool _INITTED = false;
     bool _Value_Return_ = false;
     int ID = 0;
+    int &Syntax = SYNTAX;
     Token *Offsetter = nullptr;
     Token *ParentType = nullptr;
     Token *ParentFunc = nullptr;
@@ -72,6 +74,7 @@ class Token
     Register* SReg = nullptr;// used for simualtion
     string &output;
 	vector<Token*> *Input;
+    string SX();
     Token(string &out, vector<Token*> *T) : output(out), Input(T){}
     Token &operator=(const Token& name);
 

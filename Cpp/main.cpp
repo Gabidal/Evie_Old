@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iostream>
 using namespace std;
+int SYNTAX = 0;
 
 int main(int argc, char* argv[])
 {

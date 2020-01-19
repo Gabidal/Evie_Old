@@ -7,7 +7,7 @@
 #include "StackFrame.h"
 #include <algorithm>
 #include "../Linux/Linux.h"
-
+extern int SYNTAX;
 
 class Back
 {
@@ -28,6 +28,7 @@ public:
     bool Deep_Math = false;
     bool Deep_Math_Done = false;
     bool Double_Callation = false;
+    int &Syntax = SYNTAX;
 
     void Handle_Operators(int i);
     void Handle_Variables(int i);
@@ -43,6 +44,7 @@ public:
 	void Handle_String_Initalization(vector<Token *> *&T);
 	void Set_All_References(string name, int flags, vector<Token*>& T);
     string END(int i);
+    string SX();
 
     void Factory();
 	void Factory_Variables();
