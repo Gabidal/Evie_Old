@@ -1,48 +1,30 @@
 global main
- ; Function banana
-banana: 
+ ; Function main
+main: 
  ; Making stack frame 
 push ebp
 mov ebp, esp
 
-    if0: 
-   ; Comparing a and 10
-   ; Just directly get name of the number
-   ; Giving 10, eax
-  mov eax, 10
-  cmp [ebp + 8], eax
-    jne  else1
-       ; Return 4
-      mov eax, 4
-      mov esp, ebp
-      pop ebp
-      ret 
-
-    jmp else1END
-    if0END: 
-    jmp else1END
-    else1: 
-       ; Return 3
-      mov eax, 3
-      mov esp, ebp
-      pop ebp
-      ret 
-
-    else1END: 
- ; Ending stack frame 
-mov esp, ebp
-pop ebp
- ; Returning 
-ret
-
- ; Function apple
-apple: 
- ; Making stack frame 
-push ebp
-mov ebp, esp
-
-     ; Return 4
-    mov eax, 4
+   ; Direct addition
+   ; Giving a, eax
+   ; Initializing new register for private  variable a
+  mov eax, [ebp + 8]
+  add eax, dword 1
+   ; Giving b, 1
+  mov [ebp - 4], dword 1
+   ; Direct addition
+   ; Giving 2, edx
+   ; Initializing new register for number 2
+  mov edx, 2
+  add edx, dword 5
+   ; Direct addition
+   ; Giving a, eax
+   ; Initializing new register for private  variable a
+  mov eax, [ebp + 8]
+  add eax, dword 2
+mov [ebp - 8], eax
+     ; Return c
+    mov eax, dword [ebp - 8]
     mov esp, ebp
     pop ebp
     ret 
@@ -53,9 +35,5 @@ pop ebp
  ; Returning 
 ret
 
- ; Function main
-main: 
-  mov eax, 4
-  ret 
 section .bss
 section .data

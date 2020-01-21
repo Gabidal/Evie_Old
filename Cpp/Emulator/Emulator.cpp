@@ -619,7 +619,15 @@ int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 	if (Source->is(Number))
 	{
 		//direct movation into address dont need to use reg
-		Dest->Value = atoi(Source->Name.c_str());
+		if (Source->SReg != nullptr)
+		{
+			Dest->Value = Source->SReg->Value;
+			Dest->SReg = Source->SReg;
+		}
+		else
+		{
+			Dest->Value = atoi(Source->Name.c_str());
+		}
 	}
 	else if (Source->is(Variable))
 	{
@@ -675,7 +683,7 @@ int Emulator::Simulate_Add(Token* Dest, Token* Source, Token* Cheat)
 			if (Find_From_Log(Dest)->SReg == nullptr)
 			{
 				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
 			}
 			Find_From_Log(Dest)->SReg->Value += Find_From_Log(Source)->Value;
 		}
@@ -714,7 +722,7 @@ int Emulator::Simulate_Sub(Token* Dest, Token* Source, Token* Cheat)
 			if (Find_From_Log(Dest)->SReg == nullptr)
 			{
 				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
 			}
 			Find_From_Log(Dest)->SReg->Value -= Find_From_Log(Source)->Value;
 		}
@@ -753,7 +761,7 @@ int Emulator::Simulate_Mul(Token* Dest, Token* Source, Token* Cheat)
 			if (Find_From_Log(Dest)->SReg == nullptr)
 			{
 				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
 			}
 			Find_From_Log(Dest)->SReg->Value *= Find_From_Log(Source)->Value;
 		}
@@ -792,7 +800,7 @@ int Emulator::Simulate_Div(Token* Dest, Token* Source, Token* Cheat)
 			if (Find_From_Log(Dest)->SReg == nullptr)
 			{
 				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Find_From_Log(Dest)->Value;
+				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
 			}
 			Find_From_Log(Dest)->SReg->Value /= Find_From_Log(Source)->Value;
 		}
