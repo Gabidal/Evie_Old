@@ -252,7 +252,7 @@ string Token::MOVE(Token *Source)
     if (Source->is(Number))
     {
 		output += SX() + COMMENT + "Giving " + this->Name + ", " + Source->Name + NL;
-        output += SX() + MOV + this->GetAddress() + FROM + string(DWORD) + Source->Name + NL;
+		output += SX() + MOV + this->GetAddress() + FROM + string(DWORD) + Source->Return_Value() + NL;
 		NUL->Link(this);
 		this->Reg = NUL;
 		return this->Reg->Name;
@@ -391,12 +391,12 @@ string Token::SUM(Token *Source, Token *Dest)
 		output += SX() + COMMENT + "Direct addition" + NL;
 		if (Dest->Name == this->Name)
 		{
-			output += SX() + ADD + this->GetAddress() + FROM + DWORD + Source->Name + NL;
+			output += SX() + ADD + this->GetAddress() + FROM + DWORD + Source->Return_Value() + NL;
 			this->Reg = NUL;
 		}
 		else
 		{
-			output += SX() + ADD + this->InitVariable() + FROM + DWORD + Source->Name + NL;
+			output += SX() + ADD + this->InitVariable() + FROM + DWORD + Source->Return_Value() + NL;
 		}
     }
 	else if (this->is(Number))
@@ -404,12 +404,12 @@ string Token::SUM(Token *Source, Token *Dest)
 		output += SX() + COMMENT + "Direct addition" + NL;
 		if (Dest->Name == Source->Name)
 		{
-			output += SX() + ADD + Dest->GetAddress() + FROM + DWORD + this->Name + NL;
+			output += SX() + ADD + Dest->GetAddress() + FROM + DWORD + this->Return_Value() + NL;
 			this->Reg = NUL;
 		}
 		else
 		{
-			output += SX() + ADD + Source->InitVariable() + FROM + DWORD + this->Name + NL;
+			output += SX() + ADD + Source->InitVariable() + FROM + DWORD + this->Return_Value() + NL;
 			this->Reg = Source->Reg;
 		}
 	}
@@ -1101,4 +1101,20 @@ void Token::PTRING(Token *&T)
 		output += SX() + COMMENT + "Pointer address value to variable" + NL;
         T->Flags |= Loader;
     }
+}
+
+string Token::Return_Value()
+{
+	if (this->Reg != nullptr)
+	{
+		return Reg->Name;
+	}
+	else if (this->is(Number))
+	{
+		return this->Name;
+	}
+	else
+	{
+		return getFullName();
+	}
 }

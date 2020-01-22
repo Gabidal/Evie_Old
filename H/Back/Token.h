@@ -119,6 +119,8 @@ class Token
 	Token* tmp = nullptr;
 	//callation
 	bool cleaned = false;
+    //ezz
+    string Return_Value();
 };
 
 class Register
