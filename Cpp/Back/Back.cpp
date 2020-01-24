@@ -131,7 +131,7 @@ void Back::Handle_Operators(int i)
             else
             {
                 Deep_Math_Done = true;
-                Output += MOV + Cheat->GetAddress() + FROM + Dest->Reg->Name + NL;
+                Output += SX() + MOV + Cheat->GetAddress() + FROM + Dest->Return_Value() + NL;
                 Dest->Reg->Link(Cheat);
             }
         }

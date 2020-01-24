@@ -51,12 +51,13 @@ public:
 	void Sync_Parameters(vector<Token*> &Parameters);
 	bool Return_Inside_If(vector<Token*> T);
 	void Clear_Log();
+	Token* Get_Right_Token(Token *t);
 
 	int Simulate_Equ(Token* Dest, Token* Source);
-	int Simulate_Add(Token* Dest, Token* Source, Token* Cheat);
-	int Simulate_Sub(Token* Dest, Token* Source, Token* Cheat);
-	int Simulate_Mul(Token* Dest, Token* Source, Token* Cheat);
-	int Simulate_Div(Token* Dest, Token* Source, Token* Cheat);
+	int Simulate_Add(Token* Dest, Token* Source);
+	int Simulate_Sub(Token* Dest, Token* Source);
+	int Simulate_Mul(Token* Dest, Token* Source);
+	int Simulate_Div(Token* Dest, Token* Source);
 	bool Simulate_Importance(Token *T); // for function callation
 	bool Simulate_Function_Return_Value(Token* T);
 	bool Smart_Parameters(Token* F);

@@ -204,7 +204,7 @@ string Token::InitVariable()
 		}
         else if (this->is(Member) && (this->Fetcher != nullptr))
         {
-			output +="member variable " + this->Name + NL;
+			output += "member variable " + this->Name + NL;
 			if (Fetcher->Reg == nullptr)
 			{
 				//allocate new Register for class address place holding.
@@ -240,7 +240,7 @@ string Token::InitVariable()
     }
     else
     {
-		output += COMMENT + this->Name + " has already a register to it" + NL;
+		output += SX() + COMMENT + this->Name + " has already a register to it" + NL;
         result = this->Reg->Name;
     }
     return result;
@@ -532,12 +532,12 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 		output += SX() + COMMENT + "Direct substraction" + NL;
 		if (Dest->Name == this->Name)
 		{
-			output += SX() + SUB + this->GetAddress() + FROM + DWORD + Source->Name + NL;
+			output += SX() + SUB + this->GetAddress() + FROM + DWORD + Source->Return_Value() + NL;
 			this->Reg = NUL;
 		}
 		else
 		{
-			output += SX() + SUB + this->InitVariable() + FROM + DWORD + Source->Name + NL;
+			output += SX() + SUB + this->InitVariable() + FROM + DWORD + Source->Return_Value() + NL;
 		}
     }
 	else if (Source->is(Array))
@@ -654,11 +654,11 @@ string Token::MULTIPLY(Token *Source)
     if (Source->is(Number))
     {
 		output += SX() + COMMENT + "Direct multiplying" + NL;
-        output += SX() + IMUL + this->InitVariable() + FROM + Source->Name + NL;
+        output += SX() + IMUL + this->InitVariable() + FROM + Source->Return_Value() + NL;
     }
     else if (Source->is(Member))
     {
-		output += SX() + COMMENT + "Feching " + this->Name + " from " + this->Fetcher->Name + NL;
+		output += SX() + COMMENT + "Feching " + this->Name + " from " + this->Fetcher->Return_Value() + NL;
         output += SX() + IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL;
     }
 	else if (Source->is(Array))
@@ -784,7 +784,7 @@ string Token::DIVIDE(Token *Source)
 		output += SX() + COMMENT + "Direct division" + NL;
         output += SX() + XCHG(this->InitVariable(), EAX->Name);
 		output += SX() + CDQ + NL;
-        output += SX() + IDIV + Source->Name + NL;
+        output += SX() + IDIV + Source->Return_Value() + NL;
         EAX->Link(this);
     }
     else if (Source->is(Array))
@@ -1032,33 +1032,9 @@ void Register::Link(Token* Requester)
 	Current = Requester;
 	if ((Base != nullptr) && (Base->Name != Current->Name))
 	{
-		Base->Reg = NUL;
+		Base->Reg = nullptr;
 	}
 	Base = Current;
-	Value = Requester->Value;/*
-	if (Requester->ParentCondition != nullptr)
-	{
-		Apply(Requester, Requester->ParentCondition->Childs);
-		Apply(Requester, Requester->ParentCondition->Parameters);
-		if ((Requester->ParentCondition->ParentCondition == nullptr) && (Requester->ParentCondition->ParentFunc != nullptr))
-		{
-			Apply(Requester, Requester->ParentCondition->ParentFunc->Parameters);
-			Apply(Requester, Requester->ParentCondition->ParentFunc->Childs);
-		}
-	}
-	else if (Requester->ParentFunc != nullptr)
-	{
-		Apply(Requester, Requester->ParentFunc->Parameters);
-		Apply(Requester, Requester->ParentFunc->Childs);
-	}
-	else if (Requester->ParentType != nullptr)
-	{
-		Apply(Requester, Requester->ParentType->Childs);
-	}
-	else
-	{
-		Apply(Requester, *Requester->Input);
-	}*/
 }
 
 void Register::Apply(Token* Requester, vector<Token*> &T)

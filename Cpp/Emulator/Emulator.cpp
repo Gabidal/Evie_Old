@@ -196,19 +196,19 @@ int Emulator::Next_Op_Picker(Token &T)
 		}
 		if (T.Name == "+")
 		{
-			Simulate_Add(Dest, Source, Cheat);
+			Simulate_Add(Dest, Source);
 		}
 		else if (T.Name == "-")
 		{
-			Simulate_Sub(Dest, Source, Cheat);
+			Simulate_Sub(Dest, Source);
 		}
 		else if (T.Name == "*")
 		{
-			Simulate_Mul(Dest, Source, Cheat);
+			Simulate_Mul(Dest, Source);
 		}
 		else if (T.Name == "/")
 		{
-			Simulate_Div(Dest, Source, Cheat);
+			Simulate_Div(Dest, Source);
 		}
 		if ((Layer == 0) && (Cheat != Dest))
 		{
@@ -251,7 +251,6 @@ int Emulator::Next_Op_Picker(Token &T)
 			{
 				Deep_Math_Done = true;
 				Simulate_Equ(Cheat, Dest);
-				Find_From_Log(Dest)->SReg->Link(Find_From_Log(Cheat));
 			}
 		}
 		else if (T.Name == "==" || T.Name == ">=" || T.Name == "<=" || T.Name == ">" || T.Name == "<" || T.Name == "!=" || T.Name == "!>" || T.Name == "!<")
@@ -299,24 +298,11 @@ int Emulator::Next_Op_Picker(Token &T)
 				{
 					return 0;
 				}
-			}/*
-			if (Dest->tmp != nullptr)
-			{
-				if (Cheat->tmp != nullptr)
-				{
-					//Cheat->tmp->MOVE(Dest->tmp);
-					//Simulate_Equ(Cheat, Dest);
-				}
-				else
-				{
-					//Cheat->MOVE(Dest->tmp);
-				}
-			}*/
+			}
 			if ((Cheat != nullptr) && (Deep_Math == false))
 			{
 				Simulate_Equ(Cheat, Dest);
 			}
-			Find_From_Log(Dest)->SReg->Link(Find_From_Log(Dest));
 		}
 		if (Deep_Math_Done)
 		{
@@ -434,6 +420,7 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 		//this is just a normal  math variable
 		EAX->Link(T);
 		T->SReg = EAX;
+		Register_Turn = 1;
 		return EAX;
 	}
 	else if ((EDX->Base != nullptr) && (EDX->Base->Name == T->Name))
@@ -441,6 +428,7 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 		//this is just a normal  math variable
 		EDX->Link(T);
 		T->SReg = EDX;
+		Register_Turn = 0;
 		return EDX;
 	}
 	else if ((EDI->Base != nullptr) && (EDI->Base->Name == T->Name))
@@ -521,7 +509,11 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 int Emulator::Get_Value_Of(Token* T)
 {
 	int Result = 0;
-	if (T->is(Number))
+	if (T->SReg != nullptr)
+	{
+		return T->SReg->Value;
+	}
+	else if (T->is(Number))
 	{
 		return atoi(T->Name.c_str());
 	}
@@ -570,10 +562,6 @@ Token* Emulator::Find_From_Log(Token* T)
 			return t;
 		}
 	}
-	if (T->is(Number))
-	{
-		return T;
-	}
 	return nullptr;
 }
 
@@ -614,198 +602,70 @@ void Emulator::Clear_Log()
 	}
 }
 
+Token* Emulator::Get_Right_Token(Token* t)
+{
+	if (Find_From_Log(t) != nullptr)
+	{
+		return Find_From_Log(t);
+	}
+	else
+	{
+		return t;
+	}
+}
+
 int Emulator::Simulate_Equ(Token* Dest, Token* Source)
 {
-	if (Source->is(Number))
-	{
-		//direct movation into address dont need to use reg
-		if (Source->SReg != nullptr)
-		{
-			Dest->Value = Source->SReg->Value;
-			Dest->SReg = Source->SReg;
-		}
-		else
-		{
-			Dest->Value = atoi(Source->Name.c_str());
-		}
-	}
-	else if (Source->is(Variable))
-	{
-		//need to get a reg
-		Register* SR = Find_From_Log(Source)->SReg;
-		if ((SR == nullptr) || (SR->Name == "null"))
-		{
-			Find_From_Log(Source)->SReg = Optimized_Register_Giver(Find_From_Log(Source));
-		}
-		if (Find_From_Log(Dest) == nullptr)
-		{
-			Dest->SReg = Find_From_Log(Source)->SReg;
-			Dest->Value = Dest->SReg->Value;
-		}
-		else
-		{
-			Find_From_Log(Dest)->SReg = Find_From_Log(Source)->SReg;
-			Find_From_Log(Dest)->Value = Find_From_Log(Dest)->SReg->Value;
-		}
-	}
-	Add_To_Log(Dest);
-	return Dest->Value;
+	Token* D = Get_Right_Token(Dest);
+	Token* S = Get_Right_Token(Source);
+
+	D->Value = Get_Value_Of(S);
+	Add_To_Log(D);
+	return D->Value;
 }
 
-int Emulator::Simulate_Add(Token* Dest, Token* Source, Token* Cheat)
+int Emulator::Simulate_Add(Token* Dest, Token* Source)
 {
-	if (Source->is(Number))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value += atoi(Source->Name.c_str());
-		}
-		else
-		{
-			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value += atoi(Source->Name.c_str());
-		}
-	}
-	else if (Source->is(Variable))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value += Find_From_Log(Source)->Value;
-		}
-		else
-		{
-			//save the value into a S_Register
-			if (Find_From_Log(Dest)->SReg == nullptr)
-			{
-				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
-			}
-			Find_From_Log(Dest)->SReg->Value += Find_From_Log(Source)->Value;
-		}
-	}
-	return 0;
+	Token* D = Get_Right_Token(Dest);
+	Token* S = Get_Right_Token(Source);
+
+	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
+	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
+	D->SReg->Value += S->SReg->Value;
+	return D->SReg->Value;
 }
 
-int Emulator::Simulate_Sub(Token* Dest, Token* Source, Token* Cheat)
+int Emulator::Simulate_Sub(Token* Dest, Token* Source)
 {
-	if (Source->is(Number))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value -= atoi(Source->Name.c_str());
-		}
-		else
-		{
-			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value -= atoi(Source->Name.c_str());
-		}
-	}
-	else if (Source->is(Variable))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value -= Find_From_Log(Source)->Value;
-		}
-		else
-		{
-			//save the value into a S_Register
-			if (Find_From_Log(Dest)->SReg == nullptr)
-			{
-				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
-			}
-			Find_From_Log(Dest)->SReg->Value -= Find_From_Log(Source)->Value;
-		}
-	}
-	return 0;
+	Token* D = Get_Right_Token(Dest);
+	Token* S = Get_Right_Token(Source);
+
+	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
+	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
+	D->SReg->Value -= S->SReg->Value;
+	return D->SReg->Value;
 }
 
-int Emulator::Simulate_Mul(Token* Dest, Token* Source, Token* Cheat)
+int Emulator::Simulate_Mul(Token* Dest, Token* Source)
 {
-	if (Source->is(Number))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value *= atoi(Source->Name.c_str());
-		}
-		else
-		{
-			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value *= atoi(Source->Name.c_str());
-		}
-	}
-	else if (Source->is(Variable))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value *= Find_From_Log(Source)->Value;
-		}
-		else
-		{
-			//save the value into a S_Register
-			if (Find_From_Log(Dest)->SReg == nullptr)
-			{
-				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
-			}
-			Find_From_Log(Dest)->SReg->Value *= Find_From_Log(Source)->Value;
-		}
-	}
-	return 0;
+	Token* D = Get_Right_Token(Dest);
+	Token* S = Get_Right_Token(Source);
+
+	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
+	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
+	D->SReg->Value *= S->SReg->Value;
+	return D->SReg->Value;
 }
 
-int Emulator::Simulate_Div(Token* Dest, Token* Source, Token* Cheat)
+int Emulator::Simulate_Div(Token* Dest, Token* Source)
 {
-	if (Source->is(Number))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value /= atoi(Source->Name.c_str());
-		}
-		else
-		{
-			//save the value into a S_Register
-			Optimized_Register_Giver(Dest);
-			Dest->SReg->Value /= atoi(Source->Name.c_str());
-		}
-	}
-	else if (Source->is(Variable))
-	{
-		//we need to get the logged value of dest
-		if (Dest == Cheat)
-		{
-			//direct save the value
-			Find_From_Log(Cheat)->Value /= Find_From_Log(Source)->Value;
-		}
-		else
-		{
-			//save the value into a S_Register
-			if (Find_From_Log(Dest)->SReg == nullptr)
-			{
-				Find_From_Log(Dest)->SReg = Optimized_Register_Giver(Find_From_Log(Dest));
-				Find_From_Log(Dest)->SReg->Value = Get_Value_Of(Find_From_Log(Dest));
-			}
-			Find_From_Log(Dest)->SReg->Value /= Find_From_Log(Source)->Value;
-		}
-	}
-	return 0;
+	Token* D = Get_Right_Token(Dest);
+	Token* S = Get_Right_Token(Source);
+
+	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
+	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
+	D->SReg->Value /= S->SReg->Value;
+	return D->SReg->Value;
 }
 
 bool Emulator::Simulate_Importance(Token* T)
