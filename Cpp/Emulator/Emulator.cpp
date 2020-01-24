@@ -694,6 +694,7 @@ bool Emulator::Simulate_Importance(Token* T)
 			e.Input.clear();
 			e.Input = T->daddy_Func->Childs;
 			results.push_back(e.Factory());
+			e.clean_REG();
 			for (int i = 0; i < T->Parameters.size(); i++)
 			{
 				Stack.pop_back();
@@ -748,6 +749,7 @@ bool Emulator::Simulate_Function_Return_Value(Token* T)
 			e.Input = T->Childs;
 			e.Sync_Parameters(T->Parameters);
 			results.push_back(e.Factory());
+			e.clean_REG();
 			for (int i = 0; i < T->Parameters.size(); i++)
 			{
 				Stack.pop_back();
@@ -810,5 +812,45 @@ bool Emulator::Function_Unpacker(Token* F)
 	//a = banana()
 	//unpack the child tokens of banana into a = (x)
 	return false;
+}
+
+void Emulator::clean_REG()
+{
+	for (int i = 0; i < EAX->History.size(); i++)
+	{
+		EAX->History.at(i)->SReg = nullptr;
+	}
+	for (int i = 0; i < EDX->History.size(); i++)
+	{
+		EDX->History.at(i)->SReg = nullptr;
+	}
+	for (int i = 0; i < ECX->History.size(); i++)
+	{
+		ECX->History.at(i)->SReg = nullptr;
+	}
+	for (int i = 0; i < EDI->History.size(); i++)
+	{
+		EDI->History.at(i)->SReg = nullptr;
+	}
+	for (int i = 0; i < ESI->History.size(); i++)
+	{
+		ESI->History.at(i)->SReg = nullptr;
+	}
+	for (int i = 0; i < ESP->History.size(); i++)
+	{
+		ESP->History.at(i)->SReg = nullptr;
+	}
+	for (int i = 0; i < EBP->History.size(); i++)
+	{
+		EBP->History.at(i)->SReg = nullptr;
+	}
+
+	EAX->Value = 0;
+	EDX->Value = 0;
+	ECX->Value = 0;
+	EDI->Value = 0;
+	ESI->Value = 0;
+	ESP->Value = 0;
+	EBP->Value = 0;
 }
 

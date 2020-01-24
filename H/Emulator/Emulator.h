@@ -62,6 +62,7 @@ public:
 	bool Simulate_Function_Return_Value(Token* T);
 	bool Smart_Parameters(Token* F);
 	bool Function_Unpacker(Token* F);
+	void clean_REG();
 
 
 

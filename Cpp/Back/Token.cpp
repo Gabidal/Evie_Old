@@ -1035,6 +1035,7 @@ void Register::Link(Token* Requester)
 		Base->Reg = nullptr;
 	}
 	Base = Current;
+	History.push_back(Current);
 }
 
 void Register::Apply(Token* Requester, vector<Token*> &T)

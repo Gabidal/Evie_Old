@@ -126,6 +126,7 @@ class Token
 class Register
 {
 public:
+    vector<Token*> History;
     bool TaskForReturning = false;
     bool TaskForTypeAddress = false;
     bool TaskForMovingParameter = false;

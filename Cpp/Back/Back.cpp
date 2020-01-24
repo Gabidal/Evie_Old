@@ -178,7 +178,10 @@ void Back::Handle_Operators(int i)
             {
                 Cheat->MOVE(Dest);
             }
-			Dest->Reg->Link(Dest);
+            if (Dest->Reg != nullptr)
+            {
+                Dest->Reg->Link(Dest);
+            }
         }
         if (Deep_Math_Done)
         {
