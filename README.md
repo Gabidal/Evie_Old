@@ -1,4 +1,4 @@
-# GAC
+# GAS
 GAS Compiler made in c++
 
 This is the documentation for GAS.
