@@ -63,6 +63,7 @@ public:
 	bool Smart_Parameters(Token* F);
 	bool Function_Unpacker(Token* F);
 	void clean_REG();
+	vector<Token*> Get_List(Token* t);
 
 
 

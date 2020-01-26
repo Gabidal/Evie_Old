@@ -86,6 +86,31 @@ void Back::Handle_Operators(int i)
         {
             reg = Dest->DIVIDE(Source);
         }
+        else if (Input.at(i)->Name == "<<")
+        {
+            //shl
+            reg = Dest->SHIFT_LEFT(Source);
+        }
+        else if (Input.at(i)->Name == ">>")
+        {
+            //shr
+            reg = Dest->SHIFT_RIGHT(Source);
+        }
+        else if (Input.at(i)->Name == "&")
+        {
+            //and
+            reg = Dest->_AND(Source);
+        }
+        else if (Input.at(i)->Name == "|")
+        {
+            //or
+            reg = Dest->_OR(Source);
+        }
+        else if (Input.at(i)->Name == "^")
+        {
+            //xor
+            reg = Dest->_XOR(Source);
+        }
 
         if ((Input.at(i)->Name == "==") || (Input.at(i)->Name == ">=") || (Input.at(i)->Name == "<=") || (Input.at(i)->Name == ">") || (Input.at(i)->Name == "<") || (Input.at(i)->Name == "!=") || (Input.at(i)->Name == "!>") || (Input.at(i)->Name == "!<"))
         {

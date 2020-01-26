@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     p.Factory();
 
     Optimizer first(*p.Output);
-    first.Factory();
+    //first.Factory();
 
     Back b(*p.Output, OUTPUT);
 	b.Factory_Variables();

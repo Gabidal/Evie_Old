@@ -612,7 +612,7 @@ Token* Emulator::Get_Right_Token(Token* t)
 	{
 		int Offset = Get_Value_Of(Get_Right_Token(t->Offsetter));
 		int Parent_Address = t->StackOffset / 4;
-		return Get_Right_Token(Input.at(Parent_Address + Offset - 1));
+		return Get_Right_Token(Get_List(t).at(Parent_Address + Offset - 1));
 	}
 	if (Find_From_Log(t) != nullptr)
 	{
@@ -863,5 +863,17 @@ void Emulator::clean_REG()
 	ESI->Value = 0;
 	ESP->Value = 0;
 	EBP->Value = 0;
+}
+
+vector<Token*> Emulator::Get_List(Token* t)
+{
+	if (t->ParentFunc != nullptr)
+	{
+		return t->ParentFunc->Childs;
+	}
+	else if (t->ParentType != nullptr)
+	{
+		return t->ParentType->Childs;
+	}
 }
 

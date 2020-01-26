@@ -836,6 +836,41 @@ string Token::DIVIDE(Token *Source)
     return this->Reg->Name;
 }
 
+string Token::SHIFT_RIGHT(Token* Source)
+{
+	//shr reg, num
+	output += SX() + SHR + this->InitVariable() + FROM + Source->Name + NL;
+	return this->Reg->Name;
+}
+
+string Token::SHIFT_LEFT(Token* Source)
+{
+	//shl reg, num
+	output += SX() + SHL + this->InitVariable() + FROM + Source->Name + NL;
+	return this->Reg->Name;
+}
+
+string Token::_AND(Token* Source)
+{
+	//shl reg, num
+	output += SX() + AND + this->InitVariable() + FROM + Source->Name + NL;
+	return this->Reg->Name;
+}
+
+string Token::_OR(Token* Source)
+{
+	//shl reg, num
+	output += SX() + OR + this->InitVariable() + FROM + Source->Name + NL;
+	return this->Reg->Name;
+}
+
+string Token::_XOR(Token* Source)
+{
+	//shl reg, num
+	output += SX() + XOR + this->InitVariable() + FROM + Source->Name + NL;
+	return this->Reg->Name;
+}
+
 string Token::COMPARE(Token *Source)
 {
 	output += SX() + COMMENT + "Comparing " + this->Name + " and " + Source->Name + NL;

@@ -91,6 +91,11 @@ class Token
     string SUBSTRACT(Token *Source, Token* Dest);
     string MULTIPLY(Token *Source);
     string DIVIDE(Token *Source);
+    string SHIFT_RIGHT(Token* Source);
+    string SHIFT_LEFT(Token* Source);
+    string _AND(Token* Source);
+    string _OR(Token* Source);
+    string _XOR(Token* Source);
     string COMPARE(Token *Source);
     string MOVEINSTACK();
     string GetAddress();
