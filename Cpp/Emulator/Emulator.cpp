@@ -555,6 +555,10 @@ void Emulator::Add_To_Log(Token* T)
 
 Token* Emulator::Find_From_Log(Token* T)
 {
+	if (T->Offsetter != nullptr)
+	{
+		return nullptr;
+	}
 	for (Token *t : Log)
 	{
 		if ((t->Name == T->Name))
@@ -784,6 +788,7 @@ bool Emulator::Simulate_Function_Return_Value(Token* T)
 			e.Clear_Log();
 			e.Input = T->Childs;
 			results.push_back(e.Factory());
+			e.clean_REG();
 		}
 		if ((results.at(0) == results.at(1)) && (results.at(2) == results.at(1)))
 		{

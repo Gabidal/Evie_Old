@@ -6,6 +6,6 @@ func main()
 	var b = 3
 	var bb = 4
 
-	a = a:2
+	a = a:2 + b:1
 	return a
 )

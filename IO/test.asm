@@ -1,7 +1,7 @@
 global main
  ; Function main
 main: 
-  mov eax, 3
+  mov eax, 7
   ret 
 section .bss
 section .data
