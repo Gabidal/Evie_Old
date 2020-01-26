@@ -604,6 +604,12 @@ void Emulator::Clear_Log()
 
 Token* Emulator::Get_Right_Token(Token* t)
 {
+	if (t->Offsetter != nullptr)
+	{
+		int Offset = Get_Value_Of(Get_Right_Token(t->Offsetter));
+		int Parent_Address = t->StackOffset / 4;
+		return Get_Right_Token(Input.at(Parent_Address + Offset - 1));
+	}
 	if (Find_From_Log(t) != nullptr)
 	{
 		return Find_From_Log(t);

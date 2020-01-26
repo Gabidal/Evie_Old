@@ -1,5 +1,11 @@
-func main(a)
+func main()
 (
-	var c = 2 + 5 + 3 + 3
-	return c
+	var a = 1
+	var aa = 2
+
+	var b = 3
+	var bb = 4
+
+	a = a:2
+	return a
 )
