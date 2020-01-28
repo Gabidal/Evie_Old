@@ -1,5 +1,6 @@
 #include "../../H/Emulator/Emulator.h"
 
+
 int Emulator::Factory()
 {
 	for (Token* t : Input)
