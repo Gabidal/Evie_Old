@@ -13,7 +13,7 @@ class Semantic
 public:
 	void Factory();
 	void Right_Sided_Derivation_Solver(Token *t);
-	void Operator_Breaker();
+	void Operator_Breaker(Token* t);
 	Semantic(Token *i, Token& o)
 	{
 		Input = i;
