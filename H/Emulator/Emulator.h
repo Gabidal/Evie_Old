@@ -3,6 +3,7 @@
 #include <vector>
 #include "../Back/Token.h"
 #include "../Back/Registers.h"
+#include "../Semantic/Semantic.h"
 using namespace std;
 
 class Emulator

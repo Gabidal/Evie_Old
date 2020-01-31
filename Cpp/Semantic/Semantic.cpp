@@ -3,6 +3,8 @@
 void Semantic::Factory()
 {
 	Operator_Breaker(Input);
+	Assembler();
+	Output = Raw_Order.at(0);
 }
 
 void Semantic::Right_Sided_Derivation_Solver(Token* t)
@@ -32,26 +34,27 @@ void Semantic::Assembler()
 	//this function assembles the insides 
 	//of the Raw_list of mathematical tokens
 	//a = b + [c * d] - e
+	Order_Finder("*", "/");
+	Order_Finder("<<", ">>");
+	Order_Finder("+", "-");
+	Order_Finder("=", "=");
 }
 
-void Semantic::Order_Finder()
+void Semantic::Order_Finder(string x, string y)
 {
 	//for loop until you can find most importance token
-	int Base = 0;
-	int Current = 0;
-	for (int i = 0; i < Raw_Order.size(); i++)
+
+	int i = 0;
+	for (Token* t : Raw_Order)
 	{
-		if (Raw_Order.at(i)->Name == "*" || Raw_Order.at(i)->Name == "/")
+		if (t->Name == x || t->Name == y)
 		{
-			Current = 1;
+			*t->Parameters.at(0) = *Raw_Order.at(i - 1);
+			*t->Parameters.at(0) = *Raw_Order.at(i + 1);
+			Raw_Order.erase(Raw_Order.begin() + i - 1);
+			Raw_Order.erase(Raw_Order.begin() + i + 1);
 		}
-		else if (Raw_Order.at(i)->Name == "+" || Raw_Order.at(i)->Name == "-")
-		{
-			Current = 0;
-		}
-		if (Current > Base)
-		{
-			Base = Current;
-		}
+		i++;
 	}
 }
+

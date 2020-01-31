@@ -113,6 +113,8 @@ int Emulator::Next_Op_Picker(Token &T)
 	}
 	else if (T.is(OPERATOR))
 	{
+		//Re-arrange the operation tokens.
+		//Semantic* S = new Semantic(T, &T);
 		if (T.Parameters.at(0)->is(Call))
 		{
 			Emulator e = *this;
