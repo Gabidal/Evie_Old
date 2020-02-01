@@ -6,10 +6,7 @@ func main(f)
 	var d = 4
 	var e = 5
 
-	while (a < f)
-	(
-		a = b + c * d - e
-	)
+	a = b + c * d - e + f
 
 	return a
 )

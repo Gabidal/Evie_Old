@@ -47,23 +47,21 @@ void Semantic::Order_Finder(string x, string y)
 {
 	//for loop until you can find most importance token
 
-	int i = 0;
-	for (Token* t : Raw_Order)
+	for (int i = 0; i < Raw_Order.size(); i++)
 	{
-		if (t->Semanticked)
+		if (Raw_Order.at(i)->Semanticked)
 		{
-			i++;
 			continue;
 		}
-		if (t->Name == x || t->Name == y)
+		if (Raw_Order.at(i)->Name == x || Raw_Order.at(i)->Name == y)
 		{
-			t->Parameters.at(0) = Raw_Order.at(i - 1);
-			t->Childs.at(0) = Raw_Order.at(i + 1);
-			t->Semanticked = true;
+			Raw_Order.at(i)->Parameters.at(0) = Raw_Order.at(i - 1);
+			Raw_Order.at(i)->Childs.at(0) = Raw_Order.at(i + 1);
+			Raw_Order.at(i)->Semanticked = true;
 			Raw_Order.erase(Raw_Order.begin() + i - 1);
 			Raw_Order.erase(Raw_Order.begin() + i);
+			i -= 2;
 		}
-		i++;
 	}
 }
 

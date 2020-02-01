@@ -197,7 +197,6 @@ int Emulator::Next_Op_Picker(Token &T)
 			Dest->SReg = EBX;
 			EBX->Link(Dest);
 		}
-		string reg = "...";
 		if (T.repz != nullptr)
 		{
 			T.Parameters.at(0)->repz = T.repz;
@@ -232,7 +231,6 @@ int Emulator::Next_Op_Picker(Token &T)
 				{
 					Simulate_Equ(Dest, Source);
 				}
-				reg = "";
 				if (Dest->Passing_String)
 				{
 					if (Dest->is(Private))
@@ -294,7 +292,7 @@ int Emulator::Next_Op_Picker(Token &T)
 			}
 		}
 
-		if ((reg.size() > 0) && (Layer == 0))
+		if ((Layer == 0))
 		{
 			string resulter = Dest->Name;
 			if (T.Name == "+" || T.Name == "-")
