@@ -5,11 +5,7 @@ void Semantic::Factory()
 	Operator_Breaker(Input);
 	Assembler();
 	Output = Raw_Order.at(0);
-}
-
-void Semantic::Right_Sided_Derivation_Solver(Token* t)
-{
-
+	Output->Semanticked = true;
 }
 
 void Semantic::Operator_Breaker(Token *t)
@@ -33,11 +29,18 @@ void Semantic::Assembler()
 {
 	//this function assembles the insides 
 	//of the Raw_list of mathematical tokens
-	//a = b + [c * d] - e
-	Order_Finder("*", "/");
-	Order_Finder("<<", ">>");
-	Order_Finder("+", "-");
-	Order_Finder("=", "=");
+	//[[[a = b] + [c * d]] - e]
+	/*Order_Pusher("=", "=");
+	Order_Pusher("*", "/");
+	Order_Pusher("<<", ">>");
+	Order_Pusher("+", "-");*/
+	while (Raw_Order.size() > 1)
+	{
+		Order_Finder("=", "=");
+		Order_Finder("*", "/");
+		Order_Finder("<<", ">>");
+		Order_Finder("+", "-");
+	}
 }
 
 void Semantic::Order_Finder(string x, string y)
@@ -47,12 +50,35 @@ void Semantic::Order_Finder(string x, string y)
 	int i = 0;
 	for (Token* t : Raw_Order)
 	{
+		if (t->Semanticked)
+		{
+			i++;
+			continue;
+		}
+		if (t->Name == x || t->Name == y)
+		{
+			t->Parameters.at(0) = Raw_Order.at(i - 1);
+			t->Childs.at(0) = Raw_Order.at(i + 1);
+			t->Semanticked = true;
+			Raw_Order.erase(Raw_Order.begin() + i - 1);
+			Raw_Order.erase(Raw_Order.begin() + i);
+		}
+		i++;
+	}
+}
+
+void Semantic::Order_Pusher(string x, string y)
+{
+	int i = 0;
+	for (Token* t : Raw_Order)
+	{
 		if (t->Name == x || t->Name == y)
 		{
 			*t->Parameters.at(0) = *Raw_Order.at(i - 1);
-			*t->Parameters.at(0) = *Raw_Order.at(i + 1);
+			*t->Childs.at(0) = *Raw_Order.at(i + 1);
+			Ordered_List.push_back(t);
 			Raw_Order.erase(Raw_Order.begin() + i - 1);
-			Raw_Order.erase(Raw_Order.begin() + i + 1);
+			Raw_Order.erase(Raw_Order.begin() + i);
 		}
 		i++;
 	}

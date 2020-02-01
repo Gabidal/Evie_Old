@@ -8,7 +8,7 @@ func main(f)
 
 	while (a < f)
 	(
-		a = c * d + b - e
+		a = b + c * d - e
 	)
 
 	return a

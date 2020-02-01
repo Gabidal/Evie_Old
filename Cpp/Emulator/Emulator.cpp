@@ -113,8 +113,14 @@ int Emulator::Next_Op_Picker(Token &T)
 	}
 	else if (T.is(OPERATOR))
 	{
-		//Re-arrange the operation tokens.
-		//Semantic* S = new Semantic(T, &T);
+		if ((Layer == 0) && (T.Parameters.at(0)->is(OPERATOR) || T.Childs.at(0)->is(OPERATOR)))
+		{
+			//Re-arrange the operation tokens.
+			if (T.Semanticked == false)
+			{
+				Semantic* S = new Semantic(T, &T);
+			}
+		}
 		if (T.Parameters.at(0)->is(Call))
 		{
 			Emulator e = *this;
@@ -182,7 +188,7 @@ int Emulator::Next_Op_Picker(Token &T)
 			b.Layer--;
 			this->Log = b.Log;
 			this->Deep_Math = b.Deep_Math;
-			this->Source = b.Source;
+			this->Source = b.Dest;
 			this->Cheat = b.Cheat;
 		}
 		if (Dest->is(Returning) && T.Childs.at(0)->is(Returning))
@@ -642,6 +648,8 @@ int Emulator::Simulate_Add(Token* Dest, Token* Source)
 	Token* D = Get_Right_Token(Dest);
 	Token* S = Get_Right_Token(Source);
 
+	Classify_Right_Registers(D, S);
+
 	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
 	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
 	D->SReg->Value += S->SReg->Value;
@@ -652,6 +660,8 @@ int Emulator::Simulate_Sub(Token* Dest, Token* Source)
 {
 	Token* D = Get_Right_Token(Dest);
 	Token* S = Get_Right_Token(Source);
+
+	Classify_Right_Registers(D, S);
 
 	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
 	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
@@ -664,6 +674,8 @@ int Emulator::Simulate_Mul(Token* Dest, Token* Source)
 	Token* D = Get_Right_Token(Dest);
 	Token* S = Get_Right_Token(Source);
 
+	Classify_Right_Registers(D, S);
+
 	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
 	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
 	D->SReg->Value *= S->SReg->Value;
@@ -674,6 +686,8 @@ int Emulator::Simulate_Div(Token* Dest, Token* Source)
 {
 	Token* D = Get_Right_Token(Dest);
 	Token* S = Get_Right_Token(Source);
+
+	Classify_Right_Registers(D, S);
 
 	Optimized_Register_Giver(D)->Value = Get_Value_Of(D);
 	Optimized_Register_Giver(S)->Value = Get_Value_Of(S);
@@ -877,6 +891,26 @@ vector<Token*> Emulator::Get_List(Token* t)
 	else if (t->ParentType != nullptr)
 	{
 		return t->ParentType->Childs;
+	}
+}
+
+void Emulator::Classify_Right_Registers(Token* d, Token* s)
+{
+	if ((d->SReg != nullptr) && d->SReg->Name == "eax")
+	{
+		Register_Turn = 1;
+	}
+	else if ((d->SReg != nullptr) && d->SReg->Name == "edx")
+	{
+		Register_Turn = 0;
+	}
+	if ((s->SReg != nullptr) && s->SReg->Name == "eax")
+	{
+		Register_Turn = 1;
+	}
+	else if ((s->SReg != nullptr) && s->SReg->Name == "edx")
+	{
+		Register_Turn = 0;
 	}
 }
 

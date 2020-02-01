@@ -65,6 +65,7 @@ public:
 	bool Function_Unpacker(Token* F);
 	void clean_REG();
 	vector<Token*> Get_List(Token* t);
+	void Classify_Right_Registers(Token* d, Token* s);
 
 
 

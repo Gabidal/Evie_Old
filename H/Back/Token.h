@@ -60,6 +60,7 @@ class Token
     bool _Value_Return_ = false;
     int ID = 0;
     int &Syntax = SYNTAX;
+    bool Semanticked = false;
     Token *Offsetter = nullptr;
     Token *ParentType = nullptr;
     Token *ParentFunc = nullptr;

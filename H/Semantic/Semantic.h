@@ -10,12 +10,13 @@ class Semantic
 	Token* Output = nullptr;
 	Token* Input = nullptr;
 	vector<Token*> Raw_Order;
+	vector<Token*> Ordered_List;
 public:
 	void Factory();
-	void Right_Sided_Derivation_Solver(Token *t);
 	void Operator_Breaker(Token* t);
 	void Assembler();
 	void Order_Finder(string x, string y);
+	void Order_Pusher(string x, string y);
 	Semantic(Token& Dest, Token *Source)
 	{
 		Input = Source;
