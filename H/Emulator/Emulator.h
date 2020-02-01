@@ -43,8 +43,8 @@ public:
 	int Factory();
 	int Start_Simulation(int start);
 	void Branch_Picker(int i);
-	int Next_Op_Picker(Token& T);
-	bool Unlock_Requem(Token &T);
+	int Next_Op_Picker(Token* T);
+	bool Unlock_Requem(Token *T);
 	Register* Optimized_Register_Giver(Token* T);
 	int Get_Value_Of(Token* T);
 	void Add_To_Log(Token* T);

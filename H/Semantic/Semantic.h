@@ -12,16 +12,14 @@ class Semantic
 	vector<Token*> Raw_Order;
 	vector<Token*> Ordered_List;
 public:
-	void Factory();
+	Token* Factory();
 	void Operator_Breaker(Token* t);
 	void Assembler();
 	void Order_Finder(string x, string y);
 	void Order_Pusher(string x, string y);
-	Semantic(Token& Dest, Token *Source)
+	Semantic(Token *Source)
 	{
 		Input = Source;
-		Factory();
-		Dest = *Output;
 	}
 
 	~Semantic()

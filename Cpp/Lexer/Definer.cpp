@@ -199,7 +199,6 @@ string ReplaceString(string subject, const string& search, const string& replace
 void Definer::OpenFile(const char* fileName)
 {
     ifstream file(fileName);
-    string BUFFER;
     if (file.is_open() != true)
     {
 		cout << "File not found: " << fileName << '\n';
@@ -214,11 +213,14 @@ void Definer::OpenFile(const char* fileName)
 			{
 				continue;
 			}
-            BUFFER += Line + "\n";
+            Lines += Line;
+            //Lines = Line; 
+            //Lines = ReplaceString(Lines, "\t", " "); 
+            //Lines = ReplaceString(Lines, "\n", "");
+            //Define();
+            //LineNumber++;
         }
     }
-	Lines = BUFFER;
-	Lines = ReplaceString(Lines, "\n", "");
 	Lines = ReplaceString(Lines, "\t", " ");
     Define();
 }

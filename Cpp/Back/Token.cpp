@@ -811,7 +811,7 @@ string Token::DIVIDE(Token *Source)
     else if (Source->is(Ptr) || Source->is(Variable))
     {
 		output += SX() + COMMENT + "Dividing " + Source->Name + " into " + this->Name + NL;
-		if (this->Reg->Name != "eax")
+		if ((this->Reg == nullptr) || this->Reg->Name != "eax")
 		{
 			output += SX() + XCHG(this->InitVariable(), EAX->Name);
 		}

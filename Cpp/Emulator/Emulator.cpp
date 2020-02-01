@@ -5,21 +5,21 @@ int Emulator::Factory()
 {
 	for (Token* t : Input)
 	{
-		if ((t->is(If) || (t->is(Else) && t->is(If)) || t->is(While)) && (Unlock_Requem(*t->Parameters.at(0))) && Return_Inside_If(t->Childs))
+		if ((t->is(If) || (t->is(Else) && t->is(If)) || t->is(While)) && (Unlock_Requem(t->Parameters.at(0))) && Return_Inside_If(t->Childs))
 		{
-			return Next_Op_Picker(*t);
+			return Next_Op_Picker(t);
 		}
-		else if (t->is(Else) && (t->Name == "else") && (Unlock_Requem(*t->Former->Parameters.at(0)) == false) && Return_Inside_If(t->Childs))
+		else if (t->is(Else) && (t->Name == "else") && (Unlock_Requem(t->Former->Parameters.at(0)) == false) && Return_Inside_If(t->Childs))
 		{
-			return Next_Op_Picker(*t);
+			return Next_Op_Picker(t);
 		}
 		else if ((Input.size() == 1) && ((t->is(Call)) || (t->is(Function))))
 		{
-			return Next_Op_Picker(*t);
+			return Next_Op_Picker(t);
 		}
 		else
 		{
-			Next_Op_Picker(*t);
+			Next_Op_Picker(t);
 		}
 		if (t->Name == "return")
 		{
@@ -37,7 +37,7 @@ int Emulator::Factory()
 
 int Emulator::Start_Simulation(int start)
 {
-	return Next_Op_Picker(*Input.at(start));
+	return Next_Op_Picker(Input.at(start));
 }
 
 void Emulator::Branch_Picker(int i)
@@ -45,22 +45,22 @@ void Emulator::Branch_Picker(int i)
 
 }
 
-int Emulator::Next_Op_Picker(Token &T)
+int Emulator::Next_Op_Picker(Token *T)
 {
-	if (T.is(Function))
+	if (T->is(Function))
 	{
-		if (Simulate_Function_Return_Value(&T))
+		if (Simulate_Function_Return_Value(T))
 		{
 			Emulator E = *this;
-			E.Input = T.Childs;
+			E.Input = T->Childs;
 			E.Layer = 0;
 			E.Clear_Log();
-			if (T.Callations->size() > 0)
+			if (T->Callations->size() > 0)
 			{
-				E.Sync_Parameters(T.Parameters);
+				E.Sync_Parameters(T->Parameters);
 				int result = E.Factory();
 				this->Register_Turn = E.Register_Turn;
-				if (T.is(Returning))
+				if (T->is(Returning))
 				{
 					return result;
 				}
@@ -72,14 +72,14 @@ int Emulator::Next_Op_Picker(Token &T)
 		}
 		else
 		{
-			return T.Value;
+			return T->Value;
 		}
 	}
-	else if (T.is(Call))
+	else if (T->is(Call))
 	{
-		if (Simulate_Importance(&T))
+		if (Simulate_Importance(T))
 		{
-			for (Token* t : T.Parameters)
+			for (Token* t : T->Parameters)
 			{
 				if (t->is(Number))
 				{
@@ -90,61 +90,62 @@ int Emulator::Next_Op_Picker(Token &T)
 					Stack.push_back(Find_From_Log(t)->Value);
 				}
 			}
-			if (T.daddy_Func->Childs.size() > 0)
+			if (T->daddy_Func->Childs.size() > 0)
 			{
 				reverse(Stack.begin(), Stack.end());
 				Emulator E = *this;
 				E.Input.clear();
-				E.Input.push_back(T.daddy_Func);
+				E.Input.push_back(T->daddy_Func);
 				//Original_Size = Log.size();
 				int result = E.Factory();
 				this->Register_Turn = E.Register_Turn;
-				if (T.is(Returning))
+				if (T->is(Returning))
 				{
 					return result;
 				}
 				reverse(Stack.begin(), Stack.end());
 			}
-			for (Token* t : T.Parameters)
+			for (Token* t : T->Parameters)
 			{
 				Stack.pop_back();
 			}
 		}
 	}
-	else if (T.is(OPERATOR))
+	else if (T->is(OPERATOR))
 	{
-		if ((Layer == 0) && (T.Parameters.at(0)->is(OPERATOR) || T.Childs.at(0)->is(OPERATOR)))
+		if ((Layer == 0) && (T->Parameters.at(0)->is(OPERATOR) || T->Childs.at(0)->is(OPERATOR)))
 		{
 			//Re-arrange the operation tokens.
-			if (T.Semanticked == false)
+			if (T->Semanticked == false)
 			{
-				Semantic* S = new Semantic(T, &T);
+				Semantic* S = new Semantic(T);
+				T = S->Factory();
 			}
 		}
-		if (T.Parameters.at(0)->is(Call))
+		if (T->Parameters.at(0)->is(Call))
 		{
 			Emulator e = *this;
 			e.Double_Callation = this->Double_Callation;
-			e.Input = T.Parameters;
+			e.Input = T->Parameters;
 			e.Layer++;
 			int result = e.Factory();
 			e.Layer--;
 			this->Deep_Math = e.Deep_Math;
-			if (T.Parameters.at(0)->is(Call))
+			if (T->Parameters.at(0)->is(Call))
 			{
 				Dest = new Token(TMP, &Input);
 				Dest->Flags |= Number;
 				Dest->Name = to_string(result);
 			}
 		}
-		if (T.Parameters.at(0)->is(Variable) || T.Parameters.at(0)->is(Ptr))
+		if (T->Parameters.at(0)->is(Variable) || T->Parameters.at(0)->is(Ptr))
 		{
-			Dest = T.Parameters.at(0);
+			Dest = T->Parameters.at(0);
 		}
 		else
 		{
 			Emulator b = *this;
-			b.Input = T.Parameters;
+			b.Input = T->Parameters;
 			b.Layer++;
 			b.Factory();
 			b.Layer--;
@@ -153,20 +154,20 @@ int Emulator::Next_Op_Picker(Token &T)
 			this->Dest = b.Dest;
 			this->Cheat = b.Cheat;
 		}
-		if (Dest->is(Returning) && T.Childs.at(0)->is(Returning))
+		if (Dest->is(Returning) && T->Childs.at(0)->is(Returning))
 		{
 			Double_Callation = true;
 		}
-		if (T.Childs.at(0)->is(Call))
+		if (T->Childs.at(0)->is(Call))
 		{
 			Emulator e = *this;
 			e.Double_Callation = this->Double_Callation;
-			e.Input = T.Childs;
+			e.Input = T->Childs;
 			e.Layer++;
 			int result = e.Factory();
 			e.Layer--;
 			this->Deep_Math = e.Deep_Math;
-			if (T.Childs.at(0)->is(Call))
+			if (T->Childs.at(0)->is(Call))
 			{
 				//the callation hasnt been removed by optimization
 				Source = new Token(TMP, &Input);
@@ -174,15 +175,15 @@ int Emulator::Next_Op_Picker(Token &T)
 				Source->Name = to_string(result);
 			}
 		}
-		if (T.Childs.at(0)->is(Variable) || T.Childs.at(0)->is(Number) || T.Childs.at(0)->is(Ptr) || T.Childs.at(0)->is(String))
+		if (T->Childs.at(0)->is(Variable) || T->Childs.at(0)->is(Number) || T->Childs.at(0)->is(Ptr) || T->Childs.at(0)->is(String))
 		{
-			Source = T.Childs.at(0);
+			Source = T->Childs.at(0);
 		}
 		else
 		{
 			Emulator b = *this;
 			b.Double_Callation = this->Double_Callation;
-			b.Input = T.Childs;
+			b.Input = T->Childs;
 			b.Layer++;
 			b.Factory();
 			b.Layer--;
@@ -191,30 +192,30 @@ int Emulator::Next_Op_Picker(Token &T)
 			this->Source = b.Dest;
 			this->Cheat = b.Cheat;
 		}
-		if (Dest->is(Returning) && T.Childs.at(0)->is(Returning))
+		if (Dest->is(Returning) && T->Childs.at(0)->is(Returning))
 		{
 			Double_Callation = false;
 			Dest->SReg = EBX;
 			EBX->Link(Dest);
 		}
-		if (T.repz != nullptr)
+		if (T->repz != nullptr)
 		{
-			T.Parameters.at(0)->repz = T.repz;
-			Dest->repz = T.repz;
+			T->Parameters.at(0)->repz = T->repz;
+			Dest->repz = T->repz;
 		}
-		if (T.Name == "+")
+		if (T->Name == "+")
 		{
 			Simulate_Add(Dest, Source);
 		}
-		else if (T.Name == "-")
+		else if (T->Name == "-")
 		{
 			Simulate_Sub(Dest, Source);
 		}
-		else if (T.Name == "*")
+		else if (T->Name == "*")
 		{
 			Simulate_Mul(Dest, Source);
 		}
-		else if (T.Name == "/")
+		else if (T->Name == "/")
 		{
 			Simulate_Div(Dest, Source);
 		}
@@ -260,7 +261,7 @@ int Emulator::Next_Op_Picker(Token &T)
 				Simulate_Equ(Cheat, Dest);
 			}
 		}
-		else if (T.Name == "==" || T.Name == ">=" || T.Name == "<=" || T.Name == ">" || T.Name == "<" || T.Name == "!=" || T.Name == "!>" || T.Name == "!<")
+		else if (T->Name == "==" || T->Name == ">=" || T->Name == "<=" || T->Name == ">" || T->Name == "<" || T->Name == "!=" || T->Name == "!>" || T->Name == "!<")
 		{
 			Unlock_Requem(T);
 		}
@@ -295,7 +296,7 @@ int Emulator::Next_Op_Picker(Token &T)
 		if ((Layer == 0))
 		{
 			string resulter = Dest->Name;
-			if (T.Name == "+" || T.Name == "-")
+			if (T->Name == "+" || T->Name == "-")
 			{
 				if (Source->is(Number) && (Cheat->Name == Dest->Name))
 				{
@@ -318,40 +319,40 @@ int Emulator::Next_Op_Picker(Token &T)
 			Cheat = nullptr;
 		}
 	}
-	else if (T.is(If) || (T.is(Else) && T.is(If)))
+	else if (T->is(If) || (T->is(Else) && T->is(If)))
 	{
-		if (Unlock_Requem(*T.Parameters.at(0)))
+		if (Unlock_Requem(T->Parameters.at(0)))
 		{
 			Emulator E = *this;
-			E.Input = T.Childs;
+			E.Input = T->Childs;
 			int result = E.Factory();
 			this->Register_Turn = E.Register_Turn;
-			if (Return_Inside_If(T.Childs))
+			if (Return_Inside_If(T->Childs))
 			{
 				return result;
 			}
 		}
 	}
-	else if (T.is(Else) && (Unlock_Requem(*T.Former->Parameters.at(0)) == false))
+	else if (T->is(Else) && (Unlock_Requem(T->Former->Parameters.at(0)) == false))
 	{
 		Emulator E = *this;
-		E.Input = T.Childs;
+		E.Input = T->Childs;
 		int result = E.Factory();
 		this->Register_Turn = E.Register_Turn;
-		if (Return_Inside_If(T.Childs))
+		if (Return_Inside_If(T->Childs))
 		{
 			return result;
 		}
 	}
-	else if (T.is(While))
+	else if (T->is(While))
 	{
-		for (;Unlock_Requem(*T.Parameters.at(0)) == false;)
+		for (;Unlock_Requem(T->Parameters.at(0)) == false;)
 		{
 			Emulator E = *this;
-			E.Input = T.Childs;
+			E.Input = T->Childs;
 			int result = E.Factory();
 			this->Register_Turn = E.Register_Turn;
-			if (Return_Inside_If(T.Childs))
+			if (Return_Inside_If(T->Childs))
 			{
 				return result;
 			}
@@ -359,46 +360,46 @@ int Emulator::Next_Op_Picker(Token &T)
 	}
 }
 
-bool Emulator::Unlock_Requem(Token &T)
+bool Emulator::Unlock_Requem(Token *T)
 {
-	int Left = Get_Value_Of(T.Parameters.at(0));
-	int Right = Get_Value_Of(T.Childs.at(0));
-	if (T.Name == "==")
+	int Left = Get_Value_Of(T->Parameters.at(0));
+	int Right = Get_Value_Of(T->Childs.at(0));
+	if (T->Name == "==")
 	{
 		if (Left == Right)
 		{
 			return true;
 		}
 	}
-	else if (T.Name == "!=")
+	else if (T->Name == "!=")
 	{
 		if (Left != Right)
 		{
 			return true;
 		}
 	}
-	else if (T.Name == ">")
+	else if (T->Name == ">")
 	{
 		if (Left > Right)
 		{
 			return true;
 		}
 	}
-	else if (T.Name == "<")
+	else if (T->Name == "<")
 	{
 		if (Left < Right)
 		{
 			return true;
 		}
 	}
-	else if (T.Name == "!>")
+	else if (T->Name == "!>")
 	{
 		if (Left <= Right)
 		{
 			return true;
 		}
 	}
-	else if (T.Name == "!<")
+	else if (T->Name == "!<")
 	{
 		if (Left >= Right)
 		{
@@ -526,7 +527,8 @@ int Emulator::Get_Value_Of(Token* T)
 	}
 	else if (T->is(Array))
 	{
-		//too complex atm
+		//too complex
+		//if this occurs something has gone wrong
 	}
 	else if (T->is(Variable))
 	{

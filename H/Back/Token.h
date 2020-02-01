@@ -61,6 +61,7 @@ class Token
     int ID = 0;
     int &Syntax = SYNTAX;
     bool Semanticked = false;
+    int Line_Number = 0;
     Token *Offsetter = nullptr;
     Token *ParentType = nullptr;
     Token *ParentFunc = nullptr;

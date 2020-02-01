@@ -1,11 +1,12 @@
 #include "..\..\H\Semantic\Semantic.h"
 
-void Semantic::Factory()
+Token* Semantic::Factory()
 {
 	Operator_Breaker(Input);
 	Assembler();
 	Output = Raw_Order.at(0);
 	Output->Semanticked = true;
+	return Output;
 }
 
 void Semantic::Operator_Breaker(Token *t)
@@ -60,7 +61,7 @@ void Semantic::Order_Finder(string x, string y)
 			Raw_Order.at(i)->Semanticked = true;
 			Raw_Order.erase(Raw_Order.begin() + i - 1);
 			Raw_Order.erase(Raw_Order.begin() + i);
-			i -= 2;
+			i--;
 		}
 	}
 }

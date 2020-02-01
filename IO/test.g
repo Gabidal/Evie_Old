@@ -6,7 +6,7 @@ func main(f)
 	var d = 4
 	var e = 5
 
-	a = b + c * d - e + f
+	a = b + c * d - e / f
 
 	return a
 )
