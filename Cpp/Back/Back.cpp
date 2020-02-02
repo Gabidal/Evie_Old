@@ -296,7 +296,7 @@ void Back::Handle_Function_Init(int i)
 		Input.at(i)->Flags |= Real;
         Input.at(i)->InitFunction();
         Syntax++;
-        if (Input.at(i)->_Value_Return_)
+        if (false)//(Input.at(i)->_Value_Return_)
         {
             Output += SX() + MOV + EAX->Name + FROM + to_string(Input.at(i)->Value) + NL;
             Output += SX() + RET + NL;

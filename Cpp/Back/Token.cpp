@@ -1059,6 +1059,7 @@ Token& Token::operator=(const Token& name)
 	Reg = name.Reg;
 	output = name.output;
 	Origin = name.Origin;
+	Semanticked = name.Semanticked;
 	return *this;
 }
 

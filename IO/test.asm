@@ -15,6 +15,20 @@ mov ebp, esp
   mov [ebp - 16], dword 4
    ; Giving e, 5
   mov [ebp - 20], dword 5
+   ; Giving f, 6
+  mov [ebp - 24], dword 6
+   ; Multiplying d into c
+   ; Just directly get address
+   ; Giving c, eax
+   ; Initializing new register for private  variable c
+  mov eax, [ebp - 12]
+  imul eax, [ebp - 16]
+   ; Adding d into b
+   ; Just directly get address
+   ; Giving b, edx
+   ; Initializing new register for private  variable b
+  mov edx, [ebp - 8]
+  add edx, [ebp - 16]
    ; Dividing f into e
    ; Giving e, eax
    ; Initializing new register for private  variable e
@@ -22,14 +36,14 @@ mov ebp, esp
   xchg eax, eax
    ; Just directly get address
   cdq 
-  idiv dword [ebp + 8]
-   ; Saving f into e
-   ; Giving f, edx
-   ; Initializing new register for private  variable f
-  mov edx, [ebp + 8]
-  mov [ebp - 20], dword edx
+  idiv dword [ebp - 24]
+   ; Substracting f into b
+   ; Just directly get address
+   ; b has already a register to it
+  sub edx, [ebp - 24]
+    mov [ebp - 4], edx
      ; Return a
-    mov eax, dword [ebp - 4]
+    mov eax, edx
     mov esp, ebp
     pop ebp
     ret 

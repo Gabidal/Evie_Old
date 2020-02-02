@@ -1,12 +1,12 @@
 #include "..\..\H\Semantic\Semantic.h"
 
-Token* Semantic::Factory()
+Token Semantic::Factory()
 {
 	Operator_Breaker(Input);
 	Assembler();
 	Output = Raw_Order.at(0);
 	Output->Semanticked = true;
-	return Output;
+	return *Output;
 }
 
 void Semantic::Operator_Breaker(Token *t)
@@ -14,7 +14,7 @@ void Semantic::Operator_Breaker(Token *t)
 	//this function breaks the ast in the operator-
 	//token and puts it as a raw token list in a vector
 	// a = b + c * d - e
-	if (t->Parameters.at(0)->is(OPERATOR))
+	if (t->Parameters.at(0)->is(OPERATOR) && (t->Parameters.at(0)->Semanticked != true))
 	{
 		Operator_Breaker(t->Parameters.at(0));
 	}
@@ -23,7 +23,14 @@ void Semantic::Operator_Breaker(Token *t)
 		Raw_Order.push_back(t->Parameters.at(0));
 	}
 	Raw_Order.push_back(t);
-	Raw_Order.push_back(t->Childs.at(0));
+	if (t->Childs.at(0)->is(OPERATOR) && (t->Childs.at(0)->Semanticked != true))
+	{
+		Operator_Breaker(t->Childs.at(0));
+	}
+	else
+	{
+		Raw_Order.push_back(t->Childs.at(0));
+	}
 }
 
 void Semantic::Assembler()

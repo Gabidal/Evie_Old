@@ -12,7 +12,7 @@ class Semantic
 	vector<Token*> Raw_Order;
 	vector<Token*> Ordered_List;
 public:
-	Token* Factory();
+	Token Factory();
 	void Operator_Breaker(Token* t);
 	void Assembler();
 	void Order_Finder(string x, string y);
