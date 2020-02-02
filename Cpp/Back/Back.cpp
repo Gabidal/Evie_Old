@@ -55,7 +55,7 @@ void Back::Handle_Operators(int i)
             b.Factory();
             b.Layer--;
             this->Deep_Math = b.Deep_Math;
-            this->Source = b.Source;
+            this->Source = b.Dest;
             this->Cheat = b.Cheat;
         }
         if (Dest->is(Returning) && Input.at(i)->Childs.at(0)->is(Returning))

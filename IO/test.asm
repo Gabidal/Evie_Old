@@ -23,24 +23,23 @@ mov ebp, esp
    ; Initializing new register for private  variable c
   mov eax, [ebp - 12]
   imul eax, [ebp - 16]
-   ; Adding d into b
-   ; Just directly get address
+   ; Adding c into b
+   ; There is already register for it, use it
    ; Giving b, edx
    ; Initializing new register for private  variable b
   mov edx, [ebp - 8]
-  add edx, [ebp - 16]
+  add edx, eax
    ; Dividing f into e
    ; Giving e, eax
    ; Initializing new register for private  variable e
   mov eax, [ebp - 20]
-  xchg eax, eax
    ; Just directly get address
   cdq 
   idiv dword [ebp - 24]
-   ; Substracting f into b
-   ; Just directly get address
+   ; Substracting e into b
+   ; There is already register for it, use it
    ; b has already a register to it
-  sub edx, [ebp - 24]
+  sub edx, eax
     mov [ebp - 4], edx
      ; Return a
     mov eax, edx

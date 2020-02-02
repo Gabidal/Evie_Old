@@ -813,7 +813,11 @@ string Token::DIVIDE(Token *Source)
 		output += SX() + COMMENT + "Dividing " + Source->Name + " into " + this->Name + NL;
 		if ((this->Reg == nullptr) || this->Reg->Name != "eax")
 		{
-			output += SX() + XCHG(this->InitVariable(), EAX->Name);
+			this->InitVariable();
+			if (this->Reg->Name != EAX->Name)
+			{
+				output += SX() + XCHG(this->InitVariable(), EAX->Name);
+			}
 		}
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
         {
