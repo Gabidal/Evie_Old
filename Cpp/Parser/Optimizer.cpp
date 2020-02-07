@@ -30,32 +30,32 @@ void Optimizer::Simulate_Runnable(int start)
 
 void Optimizer::Free_Registers()
 {
-	EAX->Base = nullptr;
-	EAX->Current = nullptr;
-	EAX->Value = 0;
+	R1->Base = nullptr;
+	R1->Current = nullptr;
+	R1->Value = 0;
 
-	EDX->Base = nullptr;
-	EDX->Current = nullptr;
-	EDX->Value = 0;
+	R4->Base = nullptr;
+	R4->Current = nullptr;
+	R4->Value = 0;
 
-	ECX->Base = nullptr;
-	ECX->Current = nullptr;
-	ECX->Value = 0;
+	R3->Base = nullptr;
+	R3->Current = nullptr;
+	R3->Value = 0;
 
-	EDI->Base = nullptr;
-	EDI->Current = nullptr;
-	EDI->Value = 0;
+	R5->Base = nullptr;
+	R5->Current = nullptr;
+	R5->Value = 0;
 
-	ESI->Base = nullptr;
-	ESI->Current = nullptr;
-	ESI->Value = 0;
+	R6->Base = nullptr;
+	R6->Current = nullptr;
+	R6->Value = 0;
 
-	ESP->Base = nullptr;
-	ESP->Current = nullptr;
-	ESP->Value = 0;
+	R7->Base = nullptr;
+	R7->Current = nullptr;
+	R7->Value = 0;
 
-	EBP->Base = nullptr;
-	EBP->Current = nullptr;
-	EBP->Value = 0;
+	R8->Base = nullptr;
+	R8->Current = nullptr;
+	R8->Value = 0;
 
 }

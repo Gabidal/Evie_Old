@@ -4,23 +4,23 @@ map<string, Register*> registers;
 
 void Init_Registers()
 {
-    registers.insert(make_pair(string(NUL->Name), NUL));
-    registers.insert(make_pair(string(EAX->Name), EAX));
-    registers.insert(make_pair(string(EBX->Name), EBX));
-    registers.insert(make_pair(string(ECX->Name), ECX));
-    registers.insert(make_pair(string(EDX->Name), EDX));
-    registers.insert(make_pair(string(ESI->Name), ESI));
-    registers.insert(make_pair(string(EDI->Name), EDI));
-    registers.insert(make_pair(string(EBP->Name), EBP));
-    registers.insert(make_pair(string(ESP->Name), ESP));
+    registers.insert(make_pair(string(R1->Name), R1));
+    registers.insert(make_pair(string(R2->Name), R2));
+    registers.insert(make_pair(string(R3->Name), R3));
+    registers.insert(make_pair(string(R4->Name), R4));
+    registers.insert(make_pair(string(R5->Name), R5));
+    registers.insert(make_pair(string(R6->Name), R6));
+    registers.insert(make_pair(string(R7->Name), R7));
+    registers.insert(make_pair(string(R8->Name), R8));
+    registers.insert(make_pair(string(R9->Name), R9));
 }
 
-Register *NUL = new Register("null");
-Register *EAX = new Register("eax");
-Register *EBX = new Register("ebx");
-Register *ECX = new Register("ecx");
-Register *EDX = new Register("edx");
-Register *ESI = new Register("esi");
-Register *EDI = new Register("edi");
-Register *EBP = new Register("ebp");
-Register *ESP = new Register("esp");
+Register *R1 = new Register("r1");
+Register *R2 = new Register("r2");
+Register *R3 = new Register("r3");
+Register *R4 = new Register("r4");
+Register *R5 = new Register("r5");
+Register *R6 = new Register("r6");
+Register *R7 = new Register("r7");
+Register *R8 = new Register("r8");
+Register *R9 = new Register("r9");

@@ -198,8 +198,8 @@ int Emulator::Next_Op_Picker(Token &T)
 		if (Dest->is(Returning) && T.Childs.at(0)->is(Returning))
 		{
 			Double_Callation = false;
-			Dest->SReg = EBX;
-			EBX->Link(Dest);
+			Dest->SReg = R2;
+			R2->Link(Dest);
 		}
 		if (T.repz != nullptr)
 		{
@@ -418,130 +418,130 @@ Register* Emulator::Optimized_Register_Giver(Token* T)
 	{
 		return T->SReg;
 	}
-	//optimized register to give to a normal math variable is EAX or EDX
-	//optimized rigister to give to offsetter is ECX
-	//optimized register to give to array is EDi or ESi
-	//optimized register to give to pointers is EBX
+	//optimized register to give to a normal math variable is R1 or R4
+	//optimized rigister to give to offsetter is R3
+	//optimized register to give to array is R5 or R6
+	//optimized register to give to pointers is R2
 	//this part checks is this named variable already has a register to it's name
-	if ((ECX->Base != nullptr) && (ECX->Base->Name == T->Name))
+	if ((R3->Base != nullptr) && (R3->Base->Name == T->Name))
 	{
 		//this has been a offsetter before
-		ECX->Link(T);
-		T->SReg = ECX;
-		return ECX;
+		R3->Link(T);
+		T->SReg = R3;
+		return R3;
 	}
-	else if ((EAX->Base != nullptr) && (EAX->Base->Name == T->Name))
+	else if ((R1->Base != nullptr) && (R1->Base->Name == T->Name))
 	{
 		//this is just a normal  math variable
-		EAX->Link(T);
-		T->SReg = EAX;
+		R1->Link(T);
+		T->SReg = R1;
 		Register_Turn = 1;
-		return EAX;
+		return R1;
 	}
-	else if ((EDX->Base != nullptr) && (EDX->Base->Name == T->Name))
+	else if ((R4->Base != nullptr) && (R4->Base->Name == T->Name))
 	{
 		//this is just a normal  math variable
-		EDX->Link(T);
-		T->SReg = EDX;
+		R4->Link(T);
+		T->SReg = R4;
 		Register_Turn = 2;
-		return EDX;
+		return R4;
 	}
-	else if ((EDI->Base != nullptr) && (EDI->Base->Name == T->Name))
+	else if ((R5->Base != nullptr) && (R5->Base->Name == T->Name))
 	{
-		if ((T->Offsetter != nullptr) && (EDI->Base->Offsetter->Name == T->Offsetter->Name))
+		if ((T->Offsetter != nullptr) && (R5->Base->Offsetter->Name == T->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
-			ECX->Link(T->Offsetter);
-			T->Offsetter->SReg = ECX;
-			EDI->Link(T);
-			T->SReg = EDI;
-			return EDI;
+			R3->Link(T->Offsetter);
+			T->Offsetter->SReg = R3;
+			R5->Link(T);
+			T->SReg = R5;
+			return R5;
 		}
 		else
 		{
-			EDI->Link(T);
-			T->SReg = EDI;
+			R5->Link(T);
+			T->SReg = R5;
 			Register_Turn = 3;
-			return EDI;
+			return R5;
 		}
-		//even if this variable has EDI and,
+		//even if this variable has R5 and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 	}
-	else if ((ESI->Base != nullptr) && (ESI->Base->Name == T->Name))
+	else if ((R6->Base != nullptr) && (R6->Base->Name == T->Name))
 	{
-		if ((T->Offsetter != nullptr) && (ESI->Base->Offsetter->Name == T->Offsetter->Name))
+		if ((T->Offsetter != nullptr) && (R6->Base->Offsetter->Name == T->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
-			ECX->Link(T->Offsetter);
-			T->Offsetter->SReg = ECX;
-			ESI->Link(T);
-			T->SReg = ESI;
-			return ESI;
+			R3->Link(T->Offsetter);
+			T->Offsetter->SReg = R3;
+			R6->Link(T);
+			T->SReg = R6;
+			return R6;
 		}
 		else
 		{
-			ESI->Link(T);
-			T->SReg = ESI;
+			R6->Link(T);
+			T->SReg = R6;
 			Register_Turn = 0;
-			return ESI;
+			return R6;
 		}
-		//even if this variable has ESI and,
+		//even if this variable has R6 and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 	}
 	else if (T->is(Variable) || T->is(Number) || T->is(Ptr))
 	{
 		if (Register_Turn == 0)
 		{
-			EAX->Link(T);
-			T->SReg = EAX;
+			R1->Link(T);
+			T->SReg = R1;
 			Register_Turn++;
-			return EAX;
+			return R1;
 		}
 		else if (Register_Turn == 1)
 		{
-			EDX->Link(T);
-			T->SReg = EDX;
+			R4->Link(T);
+			T->SReg = R4;
 			Register_Turn++;
-			return EDX;
+			return R4;
 		}
 		else if (Register_Turn == 2)
 		{
-			EDI->Link(T);
-			T->SReg = EDI;
+			R5->Link(T);
+			T->SReg = R5;
 			Register_Turn++;
-			return EDI;
+			return R5;
 		}
 		else if (Register_Turn > 2)
 		{
-			ESI->Link(T);
-			T->SReg = ESI;
+			R6->Link(T);
+			T->SReg = R6;
 			Register_Turn = 0;
-			return ESI;
+			return R6;
 		}
 	}
 	else if (T->is(Array) || T->is(Ptr))
 	{
 		if (Register_Turn == 0)
 		{
-			EDI->Link(T);
-			T->SReg = EDI;
+			R5->Link(T);
+			T->SReg = R5;
 			Register_Turn++;
-			return EDI;
+			return R5;
 		}
 		else if (Register_Turn > 0)
 		{
-			ESI->Link(T);
-			T->SReg = ESI;
+			R6->Link(T);
+			T->SReg = R6;
 			Register_Turn--;
-			return ESI;
+			return R6;
 		}
 	}
 	else if (T->is(Returning))
 	{
-		EAX->Link(T);
-		T->SReg = EAX;
+		R1->Link(T);
+		T->SReg = R1;
 		Register_Turn++;
-		return EAX;
+		return R1;
 	}
 	else
 	{
@@ -879,42 +879,42 @@ bool Emulator::Function_Unpacker(Token* F)
 
 void Emulator::clean_REG()
 {
-	for (int i = 0; i < EAX->History.size(); i++)
+	for (int i = 0; i < R1->History.size(); i++)
 	{
-		EAX->History.at(i)->SReg = nullptr;
+		R1->History.at(i)->SReg = nullptr;
 	}
-	for (int i = 0; i < EDX->History.size(); i++)
+	for (int i = 0; i < R4->History.size(); i++)
 	{
-		EDX->History.at(i)->SReg = nullptr;
+		R4->History.at(i)->SReg = nullptr;
 	}
-	for (int i = 0; i < ECX->History.size(); i++)
+	for (int i = 0; i < R3->History.size(); i++)
 	{
-		ECX->History.at(i)->SReg = nullptr;
+		R3->History.at(i)->SReg = nullptr;
 	}
-	for (int i = 0; i < EDI->History.size(); i++)
+	for (int i = 0; i < R5->History.size(); i++)
 	{
-		EDI->History.at(i)->SReg = nullptr;
+		R5->History.at(i)->SReg = nullptr;
 	}
-	for (int i = 0; i < ESI->History.size(); i++)
+	for (int i = 0; i < R6->History.size(); i++)
 	{
-		ESI->History.at(i)->SReg = nullptr;
+		R6->History.at(i)->SReg = nullptr;
 	}
-	for (int i = 0; i < ESP->History.size(); i++)
+	for (int i = 0; i < R7->History.size(); i++)
 	{
-		ESP->History.at(i)->SReg = nullptr;
+		R7->History.at(i)->SReg = nullptr;
 	}
-	for (int i = 0; i < EBP->History.size(); i++)
+	for (int i = 0; i < R8->History.size(); i++)
 	{
-		EBP->History.at(i)->SReg = nullptr;
+		R8->History.at(i)->SReg = nullptr;
 	}
 
-	EAX->Value = 0;
-	EDX->Value = 0;
-	ECX->Value = 0;
-	EDI->Value = 0;
-	ESI->Value = 0;
-	ESP->Value = 0;
-	EBP->Value = 0;
+	R1->Value = 0;
+	R4->Value = 0;
+	R3->Value = 0;
+	R5->Value = 0;
+	R6->Value = 0;
+	R7->Value = 0;
+	R8->Value = 0;
 }
 
 vector<Token*> Emulator::Get_List(Token* t)
@@ -931,19 +931,19 @@ vector<Token*> Emulator::Get_List(Token* t)
 
 void Emulator::Classify_Right_Registers(Token* d, Token* s)
 {
-	/*if ((d->SReg != nullptr) && d->SReg->Name == "eax")
+	/*if ((d->SReg != nullptr) && d->SReg->Name == "R1")
 	{
 		Register_Turn = 1;
 	}
-	else if ((d->SReg != nullptr) && d->SReg->Name == "edx")
+	else if ((d->SReg != nullptr) && d->SReg->Name == "R4")
 	{
 		Register_Turn = 0;
 	}
-	if ((s->SReg != nullptr) && s->SReg->Name == "eax")
+	if ((s->SReg != nullptr) && s->SReg->Name == "R1")
 	{
 		Register_Turn = 1;
 	}
-	else if ((s->SReg != nullptr) && s->SReg->Name == "edx")
+	else if ((s->SReg != nullptr) && s->SReg->Name == "R4")
 	{
 		Register_Turn = 0;
 	}*/

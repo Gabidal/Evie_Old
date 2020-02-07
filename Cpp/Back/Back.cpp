@@ -61,8 +61,8 @@ void Back::Handle_Operators(int i)
         if (Dest->is(Returning) && Input.at(i)->Childs.at(0)->is(Returning))
         {
             Double_Callation = false;
-            Dest->Reg = EBX;
-            EBX->Link(Dest);
+            Dest->Reg = R2;
+            R2->Link(Dest);
         }
         string reg = "";
 		if (Input.at(i)->repz != nullptr)
@@ -298,7 +298,7 @@ void Back::Handle_Function_Init(int i)
         Syntax++;
         if (false)//(Input.at(i)->_Value_Return_)
         {
-            Output += SX() + MOV + EAX->Name + FROM + to_string(Input.at(i)->Value) + NL;
+            Output += SX() + MOV + R1->Name + FROM + to_string(Input.at(i)->Value) + NL;
             Output += SX() + RET + NL;
         }
         else
@@ -316,7 +316,7 @@ void Back::Handle_Function_Init(int i)
                 if (Get_Amount(Input.at(i)->Childs, care) > 0)
                 {
                     Output += SX() + COMMENT + "Making space for local variables " + NL;
-                    Output += SX() + SUB + ESP->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
+                    Output += SX() + SUB + R7->Name + FROM + to_string(Get_Amount(Input.at(i)->Childs, care)) + NL + NL;
                 }
                 b.IS_PUBLIC++;
                 Syntax++;
@@ -391,8 +391,8 @@ void Back::Handle_New(int i)
 		Output += SX() + COMMENT + "Allocating new memory space for new type " + NL;
 		Output += SX() + PUSH + to_string(Input.at(i)->Size) + NL;
 		Output += SX() + CALL + "malloc" + NL;
-		Input.at(i)->Reg = EAX;
-		EAX->Link(Input.at(i));
+		Input.at(i)->Reg = R1;
+		R1->Link(Input.at(i));
 		Input.at(i)->MOVE(Input.at(i));
     }
 }
@@ -404,9 +404,9 @@ void Back::Handle_Call_Function(int i)
         if (Double_Callation)
         {
             //this means the both of Dest as Source is a function
-            //so we need to save the previus return value into EBX
-            Output += NL + SX() + COMMENT + "Saving previus return value into EBX" + NL;
-            Output += SX() + MOV + EBX->Name + FROM + EAX->Name + NL + NL;
+            //so we need to save the previus return value into R2
+            Output += NL + SX() + COMMENT + "Saving previus return value into R2" + NL;
+            Output += SX() + MOV + R2->Name + FROM + R1->Name + NL + NL;
         }
 		Output += SX() + COMMENT + "Calling " + Input.at(i)->Name + NL;
         if (Input.at(i)->Parameters.size() > 0)
@@ -582,18 +582,18 @@ void Back::Handle_Returning(int i)
             b.Dest->Optimize_Register_Usage();
             if (b.Dest->is(Number))
             {
-                Output += SX() + MOV + EAX->Name + FROM + b.Dest->Name + NL;
+                Output += SX() + MOV + R1->Name + FROM + b.Dest->Name + NL;
             }
 			else if ((b.Dest->Reg == nullptr) || (b.Dest->Reg->Name == "null"))
 			{
-				Output += SX() + MOV + EAX->Name + FROM + DWORD + FRAME(b.Dest->getFullName()) + NL;
+				Output += SX() + MOV + R1->Name + FROM + DWORD + FRAME(b.Dest->getFullName()) + NL;
 			}
-			else if ((b.Dest->Reg != nullptr) && (b.Dest->Reg != EAX))
+			else if ((b.Dest->Reg != nullptr) && (b.Dest->Reg != R1))
 			{
-				Output += SX() + MOV + EAX->Name + FROM + b.Dest->Reg->Name + NL;
+				Output += SX() + MOV + R1->Name + FROM + b.Dest->Reg->Name + NL;
 			}
-			Output += SX() + MOV + ESP->Name + FROM + EBP->Name + NL;
-			Output += SX() + POP + EBP->Name + NL;
+			Output += SX() + MOV + R7->Name + FROM + R8->Name + NL;
+			Output += SX() + POP + R8->Name + NL;
 			Output += SX() + RET + NL + NL;
         }
     }

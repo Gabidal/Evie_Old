@@ -57,12 +57,12 @@ string Token::getFullName()
         if (is(Parameter))
         {
 			//output +="variable " + NL;
-            name = EBP->Name + OFFSET + to_string(this->ParameterOffset + 4);
+            name = R7->Name + OFFSET + to_string(this->ParameterOffset + 4);
         }
         else
         {
 			//output += "variable " + NL;
-            name = EBP->Name + DEOFFSET + to_string(StackOffset);
+            name = R7->Name + DEOFFSET + to_string(StackOffset);
         }
     }
     return name;
@@ -70,59 +70,59 @@ string Token::getFullName()
 
 bool Token::Optimize_Register_Usage()
 {
-	//optimized register to give to a normal math variable is EAX or EDX
-	//optimized rigister to give to offsetter is ECX
-	//optimized register to give to array is EDi or ESi
-	//optimized register to give to pointers is EBX
+	//optimized register to give to a normal math variable is R1 or R4
+	//optimized rigister to give to offsetter is R3
+	//optimized register to give to array is R5 or R6
+	//optimized register to give to pointers is R2
 	//this part checks is this named variable already has a register to it's name
-	if ((ECX->Base != nullptr) && (ECX->Base->Name == this->Name))
+	if ((R3->Base != nullptr) && (R3->Base->Name == this->Name))
 	{
 		//this has been a offsetter before
-		ECX->Link(this);
-		this->Reg = ECX;
+		R3->Link(this);
+		this->Reg = R3;
 		return true;
 	}
-	else if ((EAX->Base != nullptr) && (EAX->Base->Name == this->Name))
+	else if ((R1->Base != nullptr) && (R1->Base->Name == this->Name))
 	{
 		//this is just a normal  math variable
-		EAX->Link(this);
-		this->Reg = EAX;
+		R1->Link(this);
+		this->Reg = R1;
 		return true;
 	}
-	else if ((EDX->Base != nullptr) && (EDX->Base->Name == this->Name))
+	else if ((R4->Base != nullptr) && (R4->Base->Name == this->Name))
 	{
 		//this is just a normal  math variable
-		EDX->Link(this);
-		this->Reg = EDX;
+		R4->Link(this);
+		this->Reg = R4;
 		return true;
 	}
-	else if ((EDI->Base != nullptr) && (EDI->Base->Name == this->Name))
+	else if ((R5->Base != nullptr) && (R5->Base->Name == this->Name))
 	{
-		if ((this->Offsetter != nullptr) && (EDI->Base->Offsetter->Name == this->Offsetter->Name))
+		if ((this->Offsetter != nullptr) && (R5->Base->Offsetter->Name == this->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
-			ECX->Link(this->Offsetter);
-			this->Offsetter->Reg = ECX;
-			EDI->Link(this);
-			this->Reg = EDI;
+			R3->Link(this->Offsetter);
+			this->Offsetter->Reg = R3;
+			R5->Link(this);
+			this->Reg = R5;
 			return true;
 		}
-		//even if this variable has EDI and,
+		//even if this variable has R5 and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 		return false;
 	}
-	else if ((ESI->Base != nullptr) && (ESI->Base->Name == this->Name))
+	else if ((R6->Base != nullptr) && (R6->Base->Name == this->Name))
 	{
-		if ((this->Offsetter != nullptr) && (ESI->Base->Offsetter->Name == this->Offsetter->Name))
+		if ((this->Offsetter != nullptr) && (R6->Base->Offsetter->Name == this->Offsetter->Name))
 		{
 			//same parent variable array, and same offsetters.
-			ECX->Link(this->Offsetter);
-			this->Offsetter->Reg = ECX;
-			ESI->Link(this);
-			this->Reg = ESI;
+			R3->Link(this->Offsetter);
+			this->Offsetter->Reg = R3;
+			R6->Link(this);
+			this->Reg = R6;
 			return true;
 		}
-		//even if this variable has ESI and,
+		//even if this variable has R6 and,
 		//now it doesnt have the same offsetter it wont point to same place enymore
 		return false;
 	}
@@ -142,14 +142,14 @@ Register *Token::getNewRegister()
 	{
 		if (RegisterTurn == 0)
 		{
-			EAX->Link(this);
-			Reg = EAX;
+			R1->Link(this);
+			Reg = R1;
 			RegisterTurn = 1;
 		}
 		else if (RegisterTurn > 0)
 		{
-			EDX->Link(this);
-			Reg = EDX;
+			R4->Link(this);
+			Reg = R4;
 			RegisterTurn = 0;
 		}
 	}
@@ -157,21 +157,21 @@ Register *Token::getNewRegister()
 	{
 		if (RegisterTurn == 0)
 		{
-			EDI->Link(this);
-			Reg = EDI;
+			R5->Link(this);
+			Reg = R5;
 			RegisterTurn = 1;
 		}
 		else if (RegisterTurn > 0)
 		{
-			ESI->Link(this);
-			Reg = ESI;
+			R6->Link(this);
+			Reg = R6;
 			RegisterTurn = 0;
 		}
 	}
 	else if (is(Returning))
 	{
-		EAX->Link(this);
-		Reg = EAX;
+		R1->Link(this);
+		Reg = R1;
 		RegisterTurn++;
 	}
 	else
@@ -253,9 +253,8 @@ string Token::MOVE(Token *Source)
     {
 		output += SX() + COMMENT + "Giving " + this->Name + ", " + Source->Name + NL;
 		output += SX() + MOV + this->GetAddress() + FROM + string(DWORD) + Source->Return_Value() + NL;
-		NUL->Link(this);
-		this->Reg = NUL;
-		return this->Reg->Name;
+		this->Reg = nullptr;
+		return "nul";
     }
 	else if (Source->is(String))
 	{
@@ -274,33 +273,33 @@ string Token::MOVE(Token *Source)
     }
     else if (Source->is(Array))
     {
-		//mov eax, [ebp + 8]
-		//lea esi, [eax + 0 * 4]
+		//mov R1, [R7 + 8]
+		//lea R6, [R1 + 0 * 4]
 		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
 		if (Source->is(Address_Operator))
 		{
-			output += SX() + MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
 		}
 		else
 		{
-			output += SX() + LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
 		}
-		ESI->Link(Source);
+		R6->Link(Source);
 		if (this->is(Array))
 		{
 			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + EDI->Name + FROM + this->GetAddress() + NL;
-			EDI->Link(this);
+			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
+			R5->Link(this);
 			output += SX() + COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
 			if (this->repz != nullptr)
 			{
 				if (repz->is(Number))
 				{
-					output += SX() + MOV + ECX->Name + FROM + repz->Name + NL;
+					output += SX() + MOV + R3->Name + FROM + repz->Name + NL;
 				}
 				else
 				{
-					output += SX() + MOV + ECX->Name + FROM + FRAME(repz->getFullName()) + NL;
+					output += SX() + MOV + R3->Name + FROM + FRAME(repz->getFullName()) + NL;
 				}
 				output += SX() + REPZ + MOVSD + NL;
 			}
@@ -311,14 +310,14 @@ string Token::MOVE(Token *Source)
 		}
 		else
 		{
-			//mov [(ebp - 4) + (ebp - 8) * 4], dword eax
+			//mov [(R7 - 4) + (R7 - 8) * 4], dword R1
 			output += SX() + COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
-			output += SX() + MOV + this->GetAddress() + FROM + DWORD + ESI->Name + NL + NL;
+			output += SX() + MOV + this->GetAddress() + FROM + DWORD + R6->Name + NL + NL;
 			this->Reg = Source->Reg;
 		}
 		if (this->Reg == nullptr)
 		{
-			this->Reg = EDI;
+			this->Reg = R5;
 		}
 		return this->Reg->Name;
     }
@@ -336,7 +335,7 @@ string Token::MOVE(Token *Source)
         if ((Source->Parameters.size() > 0) && Source->cleaned == false)
         {
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-            output += SX() + ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+            output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
 			Source->cleaned = true;
         }
 		output += SX() + COMMENT + "Giving " + this->Name + " the return value" + NL;
@@ -354,11 +353,11 @@ string Token::SUM(Token *Source, Token *Dest)
 		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
 			Source->cleaned = true;
 		}
-		EAX->Link(Source);
-		Source->Reg = EAX;
+		R1->Link(Source);
+		Source->Reg = R1;
 		if (RegisterTurn == 0)
 		{
 			RegisterTurn++;
@@ -369,7 +368,7 @@ string Token::SUM(Token *Source, Token *Dest)
 		if ((this->Parameters.size() > 0) && (this->cleaned == false))
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
 		//if the both of em are returning functions
@@ -378,8 +377,8 @@ string Token::SUM(Token *Source, Token *Dest)
 		}
 		else
 		{
-			EAX->Link(this);
-			this->Reg = EAX;
+			R1->Link(this);
+			this->Reg = R1;
 			if (RegisterTurn == 0)
 			{
 				RegisterTurn++;
@@ -392,7 +391,7 @@ string Token::SUM(Token *Source, Token *Dest)
 		if (Dest->Name == this->Name)
 		{
 			output += SX() + ADD + this->GetAddress() + FROM + DWORD + Source->Return_Value() + NL;
-			this->Reg = NUL;
+			this->Reg = nullptr;
 		}
 		else
 		{
@@ -405,7 +404,7 @@ string Token::SUM(Token *Source, Token *Dest)
 		if (Dest->Name == Source->Name)
 		{
 			output += SX() + ADD + Dest->GetAddress() + FROM + DWORD + this->Return_Value() + NL;
-			this->Reg = NUL;
+			this->Reg = nullptr;
 		}
 		else
 		{
@@ -415,25 +414,25 @@ string Token::SUM(Token *Source, Token *Dest)
 	}
 	else if (Source->is(Array))
 	{
-		//mov eax, [ebp + 8]
-		//lea esi, [eax + 0 * 4]
+		//mov R1, [R7 + 8]
+		//lea R6, [R1 + 0 * 4]
 		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
 		if (Source->is(Address_Operator))
 		{
-			output += SX() + MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
 		}
 		else
 		{
-			output += SX() + LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
 		}
-		ESI->Link(Source);
-		Source->Reg = ESI;
+		R6->Link(Source);
+		Source->Reg = R6;
 		if (this->is(Array))
 		{
 			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + EDI->Name + FROM + this->GetAddress() + NL;
-			EDI->Link(this);
-			this->Reg = EDI;
+			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
+			R5->Link(this);
+			this->Reg = R5;
 			//if (this->repz != nullptr)
 			//{
 				if (this->tmp == nullptr)
@@ -441,14 +440,14 @@ string Token::SUM(Token *Source, Token *Dest)
 					this->tmp = new Token(this->output, this->Input);
 					this->tmp->Flags |= Variable;
 				}
-				output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
-				output += SX() + ADD + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
+				output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(R5->Name) + NL;
+				output += SX() + ADD + this->tmp->Reg->Name + FROM + FRAME(R6->Name) + NL;
 			//}
 		}
 		else
 		{
-			//add eax, [(ebp - 4) + (ebp - 8) * 4]
-			output += SX() + ADD + this->getReg()->Name + FROM + FRAME(ESI->Name) + NL;
+			//add R1, [(R7 - 4) + (R7 - 8) * 4]
+			output += SX() + ADD + this->getReg()->Name + FROM + FRAME(R6->Name) + NL;
 		}
 	}
 	else if (Source->is(Ptr) || Source->is(Variable))
@@ -495,11 +494,11 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
 			Source->cleaned = true;
 		}
-		EAX->Link(Source);
-		Source->Reg = EAX;
+		R1->Link(Source);
+		Source->Reg = R1;
 		if (RegisterTurn == 0)
 		{
 			RegisterTurn++;
@@ -510,7 +509,7 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 		if ((this->Parameters.size() > 0) && this->cleaned == false)
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
 		//if the both of em are returning functions
@@ -519,8 +518,8 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 		}
 		else
 		{
-			EAX->Link(this);
-			this->Reg = EAX;
+			R1->Link(this);
+			this->Reg = R1;
 			if (RegisterTurn == 0)
 			{
 				RegisterTurn++;
@@ -533,7 +532,7 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 		if (Dest->Name == this->Name)
 		{
 			output += SX() + SUB + this->GetAddress() + FROM + DWORD + Source->Return_Value() + NL;
-			this->Reg = NUL;
+			this->Reg = nullptr;
 		}
 		else
 		{
@@ -542,25 +541,25 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
     }
 	else if (Source->is(Array))
 	{
-		//mov eax, [ebp + 8]
-		//lea esi, [eax + 0 * 4]
+		//mov R1, [R7 + 8]
+		//lea R6, [R1 + 0 * 4]
 		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
 		if (Source->is(Address_Operator))
 		{
-			output += SX() + MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
 		}
 		else
 		{
-			output += SX() + LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
 		}
-		ESI->Link(Source);
-		Source->Reg = ESI;
+		R6->Link(Source);
+		Source->Reg = R6;
 		if (this->is(Array))
 		{
 			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + EDI->Name + FROM + this->GetAddress() + NL;
-			EDI->Link(this);
-			this->Reg = EDI;/*if (this->repz != nullptr)
+			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
+			R5->Link(this);
+			this->Reg = R5;/*if (this->repz != nullptr)
 			{
 			}*/
 			//else
@@ -570,14 +569,14 @@ string Token::SUBSTRACT(Token *Source, Token *Dest)
 				this->tmp = new Token(this->output, this->Input);
 				this->tmp->Flags |= Variable;
 			}
-			output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
-			output += SX() + SUB + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
+			output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(R5->Name) + NL;
+			output += SX() + SUB + this->tmp->Reg->Name + FROM + FRAME(R6->Name) + NL;
 			//}
 		}
 		else
 		{
-			//add eax, [(ebp - 4) + (ebp - 8) * 4]
-			output += SX() + SUB + this->getReg()->Name + FROM + FRAME(ESI->Name) + NL;
+			//add R1, [(R7 - 4) + (R7 - 8) * 4]
+			output += SX() + SUB + this->getReg()->Name + FROM + FRAME(R6->Name) + NL;
 		}
 	}
     else if (Source->is(Ptr) || Source->is(Variable))
@@ -624,17 +623,17 @@ string Token::MULTIPLY(Token *Source)
 		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
 			Source->cleaned = true;
 		}
-		EAX->Link(Source);
+		R1->Link(Source);
 	}
 	if (this->is(Returning))
 	{
 		if ((this->Parameters.size() > 0) && this->cleaned == false)
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
 		//if the both of em are returning functions
@@ -643,8 +642,8 @@ string Token::MULTIPLY(Token *Source)
 		}
 		else
 		{
-			EAX->Link(this);
-			this->Reg = EAX;
+			R1->Link(this);
+			this->Reg = R1;
 			if (RegisterTurn == 0)
 			{
 				RegisterTurn++;
@@ -663,23 +662,23 @@ string Token::MULTIPLY(Token *Source)
     }
 	else if (Source->is(Array))
 	{
-		//mov eax, [ebp + 8]
-		//lea esi, [eax + 0 * 4]
+		//mov R1, [R7 + 8]
+		//lea R6, [R1 + 0 * 4]
 		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
 		if (Source->is(Address_Operator))
 		{
-			output += SX() + MOV + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
 		}
 		else
 		{
-			output += SX() + LEA + ESI->Name + FROM + Source->GetAddress() + NL;
+			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
 		}
-		ESI->Link(Source);
+		R6->Link(Source);
 		if (this->is(Array))
 		{
 			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + EDI->Name + FROM + this->GetAddress() + NL;
-			EDI->Link(this);/*if (this->repz != nullptr)
+			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
+			R5->Link(this);/*if (this->repz != nullptr)
 			{
 			}*/
 			//else
@@ -689,14 +688,14 @@ string Token::MULTIPLY(Token *Source)
 				this->tmp = new Token(this->output, this->Input);
 				this->tmp->Flags |= Variable;
 			}
-			output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(EDI->Name) + NL;
-			output += SX() + IMUL + this->tmp->Reg->Name + FROM + FRAME(ESI->Name) + NL;
+			output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(R5->Name) + NL;
+			output += SX() + IMUL + this->tmp->Reg->Name + FROM + FRAME(R6->Name) + NL;
 			//}
 		}
 		else
 		{
-			//add eax, [(ebp - 4) + (ebp - 8) * 4]
-			output += SX() + IMUL + this->getReg()->Name + FROM + FRAME(ESI->Name) + NL;
+			//add R1, [(R7 - 4) + (R7 - 8) * 4]
+			output += SX() + IMUL + this->getReg()->Name + FROM + FRAME(R6->Name) + NL;
 		}
 	}
     else if (Source->is(Ptr) || Source->is(Variable))
@@ -747,19 +746,19 @@ string Token::DIVIDE(Token *Source)
 		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
 			Source->cleaned = true;
 		}
 		output += SX() + CDQ + NL;
 		output += SX() + IDIV + this->GetAddress() + NL;
-		EAX->Link(this);
+		R1->Link(this);
 	}
 	if (this->is(Returning))
 	{
 		if ((this->Parameters.size() > 0) && this->cleaned == false)
 		{
 			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + ESP->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
+			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
 			this->cleaned = true;
 		}
 		output += SX() + CDQ + NL;
@@ -770,8 +769,8 @@ string Token::DIVIDE(Token *Source)
 		}
 		else
 		{
-			EAX->Link(this);
-			this->Reg = EAX;
+			R1->Link(this);
+			this->Reg = R1;
 			if (RegisterTurn == 0)
 			{
 				RegisterTurn++;
@@ -782,41 +781,41 @@ string Token::DIVIDE(Token *Source)
     {
         //cdq
 		output += SX() + COMMENT + "Direct division" + NL;
-        output += SX() + XCHG(this->InitVariable(), EAX->Name);
+        output += SX() + XCHG(this->InitVariable(), R1->Name);
 		output += SX() + CDQ + NL;
         output += SX() + IDIV + Source->Return_Value() + NL;
-        EAX->Link(this);
+        R1->Link(this);
     }
     else if (Source->is(Array))
     {
-		//mov eax, [ebp + 8]
-		//lea esi, [eax + 0 * 4]
+		//mov R1, [R7 + 8]
+		//lea R6, [R1 + 0 * 4]
 		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += SX() + LEA + ESI->Name + FROM + Source->GetAddress() + NL;
-		ESI->Link(Source);
+		output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
+		R6->Link(Source);
 		if (this->is(Array))
 		{
 			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + EDI->Name + FROM + this->GetAddress() + NL;
-			EDI->Link(this);
+			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
+			R5->Link(this);
 		}
         //cdq
 		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-        output += SX() + XCHG(this->Reg->Name, EAX->Name);
+        output += SX() + XCHG(this->Reg->Name, R1->Name);
 		output += SX() + COMMENT + "Dividing the value from " + Source->Name + " offsetted by " + this->Name + NL;
 		output += SX() + CDQ + NL;
-        output += SX() + IDIV + DWORD + FRAME(ESI->Name) + NL;
-        EAX->Link(this);
+        output += SX() + IDIV + DWORD + FRAME(R6->Name) + NL;
+        R1->Link(this);
     }
     else if (Source->is(Ptr) || Source->is(Variable))
     {
 		output += SX() + COMMENT + "Dividing " + Source->Name + " into " + this->Name + NL;
-		if ((this->Reg == nullptr) || this->Reg->Name != "eax")
+		if ((this->Reg == nullptr) || this->Reg->Name != "R1")
 		{
 			this->InitVariable();
-			if (this->Reg->Name != EAX->Name)
+			if (this->Reg->Name != R1->Name)
 			{
-				output += SX() + XCHG(this->InitVariable(), EAX->Name);
+				output += SX() + XCHG(this->InitVariable(), R1->Name);
 			}
 		}
         if (Source->Reg == nullptr || Source->Reg->Name == "null")
@@ -831,7 +830,7 @@ string Token::DIVIDE(Token *Source)
 			output += SX() + CDQ + NL;
             output += SX() + IDIV + Source->GetAddress() + NL;
         }
-        EAX->Link(this);
+        R1->Link(this);
     }
 	else if (Source->is(Returning) && this->is(Returning))
 	{
@@ -927,8 +926,8 @@ string Token::GetAddress()
 			if (this->Outside_Of_Parameters)
 			{
 				skip_ptr_check = true;
-				//lea edx, [ebp - 4]
-				//push edx
+				//lea R4, [R7 - 4]
+				//push R4
 				getReg();
 				if (this->Passing_String)
 				{
@@ -947,13 +946,13 @@ string Token::GetAddress()
 		}
         if (this->is(Array) && this->Offsetter->is(Number))
         {
-			//[(ebp - 8) + 1 * 4]
+			//[(R7 - 8) + 1 * 4]
 			output += SX() + COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
 			return FRAME(CONTENT(this->getFullName()) + OFFSET + this->Offsetter->Name + SCALE + "4");
         }
         else if (this->is(Array) && this->Offsetter->is(Variable))
         {
-			//[(ebp - 8) + (ebp - 4) * 4]
+			//[(R7 - 8) + (R7 - 4) * 4]
 			if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
 			{
 				this->InitVariable();
@@ -967,7 +966,7 @@ string Token::GetAddress()
 				return FRAME(CONTENT(this->getFullName()) + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
 			}
         }
-        //lea eax, [eax]
+        //lea R1, [R1]
         else if (this->is(Ptr) && this->is(Loader))
         {
 			this->getReg();
@@ -975,14 +974,14 @@ string Token::GetAddress()
             output += SX() + LEA + this->Reg->Name + FROM + FRAME(this->Reg->Name) + NL;
             return FRAME(this->Reg->Name);
         }
-        //mov ebx, eax
+        //mov R2, R1
         else if (this->is(Ptr) && this->is(Storer))
         {
 			this->getReg();
 			output += SX() + COMMENT + "Give the pointer address" + NL;
 			return FRAME(this->Reg->Name);
         }
-		//lea eax, [ebp - 8]
+		//lea R1, [R7 - 8]
 		else
 		{
 

@@ -2,54 +2,54 @@ global main
  ; Function main
 main: 
  ; Making stack frame 
-push ebp
-mov ebp, esp
+push r8
+mov r8, r7
 
    ; Giving a, 1
-  mov [ebp - 4], dword 1
+  mov [r7 - 4], dword 1
    ; Giving b, 2
-  mov [ebp - 8], dword 2
+  mov [r7 - 8], dword 2
    ; Giving c, 3
-  mov [ebp - 12], dword 3
+  mov [r7 - 12], dword 3
    ; Giving d, 4
-  mov [ebp - 16], dword 4
+  mov [r7 - 16], dword 4
    ; Giving e, 5
-  mov [ebp - 20], dword 5
+  mov [r7 - 20], dword 5
    ; Giving f, 6
-  mov [ebp - 24], dword 6
+  mov [r7 - 24], dword 6
    ; Multiplying d into c
    ; Just directly get address
-   ; Giving c, eax
+   ; Giving c, r1
    ; Initializing new register for private  variable c
-  mov eax, [ebp - 12]
-  imul eax, [ebp - 16]
+  mov r1, [r7 - 12]
+  imul r1, [r7 - 16]
    ; Adding c into b
    ; There is already register for it, use it
-   ; Giving b, edx
+   ; Giving b, r4
    ; Initializing new register for private  variable b
-  mov edx, [ebp - 8]
-  add edx, eax
+  mov r4, [r7 - 8]
+  add r4, r1
    ; Dividing f into e
-   ; Giving e, eax
+   ; Giving e, r1
    ; Initializing new register for private  variable e
-  mov eax, [ebp - 20]
+  mov r1, [r7 - 20]
    ; Just directly get address
   cdq 
-  idiv dword [ebp - 24]
+  idiv dword [r7 - 24]
    ; Substracting e into b
    ; There is already register for it, use it
    ; b has already a register to it
-  sub edx, eax
-    mov [ebp - 4], edx
+  sub r4, r1
+    mov [r7 - 4], r4
      ; Return a
-    mov eax, edx
-    mov esp, ebp
-    pop ebp
+    mov r1, r4
+    mov r7, r8
+    pop r8
     ret 
 
  ; Ending stack frame 
-mov esp, ebp
-pop ebp
+mov r7, r8
+pop r8
  ; Returning 
 ret
 

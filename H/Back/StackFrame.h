@@ -15,16 +15,16 @@ class StackFrame
   StackFrame(string &output, bool Endfunc) : output(output)
   {
 	  output += COMMENT + "Making stack frame " + NL;
-      this->output += PUSH + EBP->Name + NL;
-      this->output += MOV + EBP->Name + FROM + ESP->Name + NL + NL;
+      this->output += PUSH + R8->Name + NL;
+      this->output += MOV + R8->Name + FROM + R7->Name + NL + NL;
       EndFunc = Endfunc;
   }
   
   ~StackFrame()
   {
 	  output += COMMENT + "Ending stack frame " + NL;
-      this->output += MOV + ESP->Name + FROM + EBP->Name + NL;
-      this->output += POP + EBP->Name + NL;
+      this->output += MOV + R7->Name + FROM + R8->Name + NL;
+      this->output += POP + R8->Name + NL;
       if (EndFunc)
       {
 		output += COMMENT + "Returning " + NL;

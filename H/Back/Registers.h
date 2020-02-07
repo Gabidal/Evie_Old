@@ -6,15 +6,15 @@ extern map<string, Register*> registers;
 
 extern void Init_Registers();
 
-extern Register *NUL;
-extern Register *EAX;
-extern Register *EBX;
-extern Register *ECX;
-extern Register *EDX;
-extern Register *ESI;
-extern Register *EDI;
-extern Register *EBP;
-extern Register *ESP;
+extern Register *R1; //EAX
+extern Register *R2; //EBX
+extern Register *R3; //ECX
+extern Register *R4; //EDX
+extern Register *R5; //EDI
+extern Register *R6; //ESI
+extern Register *R7; //ESP
+extern Register *R8; //EBP
+extern Register *R9; //...
 
 
 #endif
