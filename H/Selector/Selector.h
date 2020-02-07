@@ -10,7 +10,7 @@ using namespace std;
 #include "../Architecture/x86/x86.h"
 #endif
 
-
+//Selector's mission is to get right and the best solutionary opecodes for every operation.
 class Selector
 {
 public:
