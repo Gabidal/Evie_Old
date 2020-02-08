@@ -12,12 +12,13 @@ class Stack
     int Secrets; //find the number
   public:
     vector<StackFrame> StackFrames;
-  Stack::Stack()
+    vector<int> stack;
+  Stack()
   {
       Secrets = int(&StackFrames);
   }
   
-  Stack::~Stack()
+  ~Stack()
   {
       if (StackFrames.size() != 0)
       {

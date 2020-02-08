@@ -2,14 +2,76 @@
 #define _X86_H_
 #include "../../OpC/OpC.h"
 #include "../../Back/Token.h" //for registers
+#include "../../Back/Stack.h"
 namespace x86
 {
 	vector<Register*> Registers;
 	vector<OpC*> OpCodes;
+	Stack* stack = new Stack();
 	void Factory();
 	int x86_ADD(vector<int> Parameters)
 	{
 		return Parameters.at(0) + Parameters.at(1);
+	}
+
+	int x86_OR(vector<int> Parameters)
+	{
+		return Parameters.at(0) | Parameters.at(1);
+	}
+
+	int x86_AND(vector<int> Parameters)
+	{
+		return Parameters.at(0) & Parameters.at(1);
+	}
+	int x86_XOR(vector<int> Parameters)
+	{
+		return Parameters.at(0) ^ Parameters.at(1);
+	}
+	int x86_CMP(vector<int> Parameters)
+	{
+		return Parameters.at(0) - Parameters.at(1);
+	}
+	int x86_POP(vector<int> Parameters)
+	{
+		return stack->stack.back();
+	}
+	int x86_PUSH(vector<int> Parameters)
+	{
+		stack->stack.push_back(Parameters.at(0));
+		return stack->stack.size();
+	}
+	int x86_XCHG(vector<int> Parameters)
+	{
+		return Parameters.at(0) = Parameters.at(1);
+	}
+	int x86_MOV(vector<int> Parameters)
+	{
+		return Parameters.at(0) = Parameters.at(1);
+	}
+	int x86_LEA(vector<int> Parameters)
+	{
+		return Parameters.at(0) = Parameters.at(1);
+	}
+	int x86_SHL(vector<int> Parameters)
+	{
+		return Parameters.at(0) << Parameters.at(1);
+	}
+	int x86_SHR(vector<int> Parameters)
+	{
+		return Parameters.at(0) >> Parameters.at(1);
+	}
+	int x86_NEG(vector<int> Parameters)
+	{
+		return -Parameters.at(0);
+	}
+	int x86_NOT(vector<int> Parameters)
+	{
+		return !Parameters.at(0);
+	}
+	int x86_CALL(vector<int> Parameters)
+	{
+		stack->stack.push_back(Parameters.at(0));
+		return 0;
 	}
 
 	int x86_SUB(vector<int>Parameters)
