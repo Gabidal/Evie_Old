@@ -6,7 +6,7 @@ namespace ARM
 {
 	vector<Register*> Registers;
 	vector<OpC*> OpCodes;
-	void Factory();
+	void ARC_Factory();
 	int ARM_ADD(vector<int> Parameters)
 	{
 		return Parameters.at(0) + Parameters.at(1);

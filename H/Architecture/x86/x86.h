@@ -8,7 +8,7 @@ namespace x86
 	vector<Register*> Registers;
 	vector<OpC*> OpCodes;
 	Stack* stack = new Stack();
-	void Factory();
+	void ARC_Factory();
 	int x86_ADD(vector<int> Parameters)
 	{
 		return Parameters.at(0) + Parameters.at(1);

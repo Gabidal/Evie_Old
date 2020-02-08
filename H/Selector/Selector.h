@@ -6,25 +6,29 @@ using namespace std;
 
 #if _ARM_
 #include "../Architecture/ARM/ARM.h"
+using namespace ARM;
 #else
 #include "../Architecture/x86/x86.h"
+using namespace x86;
 #endif
 
 //Selector's mission is to get right and the best solutionary opecodes for every operation.
 class Selector
 {
 public:
-	vector<OpC*> Output;
+	OpC* Output;
 	Token* Input;
-	void Factory();
+	vector<int> Values;
 	void OpCode_Selector();
-	Selector()
+	Selector(vector<int> V)
 	{
 		#if __ARM__
-			ARM::Factory();
+			ARC_Factory();
 		#else
-			x86::Factory();
+			ARC_Factory();
 		#endif
+			Values = V;
+			OpCode_Selector();
 	}
 
 	~Selector();

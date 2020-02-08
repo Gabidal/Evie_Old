@@ -1,6 +1,6 @@
 #include "..\..\..\H\Architecture\ARM\ARM.h"
 
-void ARM::Factory()
+void ARM::ARC_Factory()
 {
 	OpC* ARM_ADD_ = new OpC("add", 2, 4, 4, 6, ARM::ARM_ADD);
 	OpCodes.push_back(ARM_ADD_);

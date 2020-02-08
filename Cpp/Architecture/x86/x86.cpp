@@ -1,12 +1,12 @@
 #include "..\..\..\H\Architecture\x86\x86.h"
 
-void x86::Factory()
+void x86::ARC_Factory()
 {
 	OpC* x86_ADD_ = new OpC("add", 2, 4, 4, 6, x86::x86_ADD);
 	OpCodes.push_back(x86_ADD_);
 	OpC* x86_OR_ = new OpC("or", 2, 4, 4, 1, x86::x86_OR);
 	OpCodes.push_back(x86_OR_);
-	OpC* x86_AND_ = new OpC("AND", 2, 4, 4, 1, x86::x86_AND);
+	OpC* x86_AND_ = new OpC("and", 2, 4, 4, 1, x86::x86_AND);
 	OpCodes.push_back(x86_AND_);
 	OpC* x86_XOR_ = new OpC("xor", 2, 4, 4, 1, x86::x86_XOR);
 	OpCodes.push_back(x86_XOR_);

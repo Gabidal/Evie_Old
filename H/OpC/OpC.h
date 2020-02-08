@@ -13,7 +13,7 @@ public:
 	int Right_Bit_Size = 0;
 	int Cycle_Amount = 0;
 	int OpCode_Size = 4;
-	int (*Function)(vector<int>);
+	int (*_Function)(vector<int>);
 	OpC(string id, int PA, int LP, int RP, int C, int (*F)(vector<int>))
 	{
 		ID = id;
@@ -21,7 +21,7 @@ public:
 		Left_Bit_Size = LP;
 		Right_Bit_Size = RP;
 		Cycle_Amount = C;
-		Function = F;
+		_Function = F;
 	}
 	~OpC();
 private:
