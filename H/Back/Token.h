@@ -79,6 +79,7 @@ class Token
     string SX();
     Token(string &out, vector<Token*> *T) : output(out), Input(T){}
     Token &operator=(const Token& name);
+    string IR_Output = "";          //Emulator puth here the optimized code as string to back end to write it;
 
     bool is(int flag);
     bool Any(int flags);
@@ -141,9 +142,11 @@ public:
     int Value = 0;
     Token *Base;
     Token *Current;
-    Register(string name)
+    int Bit_Size = 0;
+    Register(string name, int BS)
     {
         Name = name;
+        Bit_Size = BS;
     }
     void Link(Token *Requester);
 	void Apply(Token* Requester, vector<Token*> &T);

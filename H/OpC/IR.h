@@ -7,22 +7,26 @@
 #include <vector>
 
 //IR's mission is to get the right parameters for the optimized opcode that Selector has selected.
+//And return it to Token.cpp to write the output
 class IR
 {
-public:
-	vector<OpC*> Input;
-	string Output = "";
+private:
 	void Factory();
-	IR(Token* in)
+	vector<Register*>* Used_Registers;
+	vector<OpC*> Input;
+public:
+	string Output = "";
+	IR(Token* in, vector<Register*> &UR)
 	{
+		Used_Registers = &UR;
 		Selector* S = new Selector();
 		S->Input = in;
+		S->Factory(); //Get right OpCode
 		Input = S->Output;
+		this->Factory(); //Get right registers for the OpCoded
 	}
 
 	~IR();
-private:
-
 };
 
 #endif

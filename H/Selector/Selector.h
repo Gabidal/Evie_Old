@@ -16,8 +16,15 @@ class Selector
 public:
 	vector<OpC*> Output;
 	Token* Input;
+	void Factory();
+	void OpCode_Selector();
 	Selector()
 	{
+		#if __ARM__
+			ARM::Factory();
+		#else
+			x86::Factory();
+		#endif
 	}
 
 	~Selector();

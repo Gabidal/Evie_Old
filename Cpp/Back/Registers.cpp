@@ -15,12 +15,12 @@ void Init_Registers()
     registers.insert(make_pair(string(R9->Name), R9));
 }
 
-Register *R1 = new Register("r1");
-Register *R2 = new Register("r2");
-Register *R3 = new Register("r3");
-Register *R4 = new Register("r4");
-Register *R5 = new Register("r5");
-Register *R6 = new Register("r6");
-Register *R7 = new Register("r7");
-Register *R8 = new Register("r8");
-Register *R9 = new Register("r9");
+Register *R1 = new Register("r1", 4);
+Register *R2 = new Register("r2", 4);
+Register *R3 = new Register("r3", 4);
+Register *R4 = new Register("r4", 4);
+Register *R5 = new Register("r5", 4);
+Register *R6 = new Register("r6", 4);
+Register *R7 = new Register("r7", 4);
+Register *R8 = new Register("r8", 4);
+Register *R9 = new Register("r9", 4);
