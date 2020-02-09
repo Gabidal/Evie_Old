@@ -5,6 +5,7 @@
 class Register;
 namespace x86
 {
+	int Reg_Turn = 0;
 	vector<Register*> Registers;
 	vector<OpC*> OpCodes;
 	void ARC_Factory();

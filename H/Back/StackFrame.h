@@ -4,6 +4,7 @@
 #include <string>
 #include "Token.h"
 #include "Registers.h"
+#include "../Selector/Selector.h"
 using namespace std;
 
 class StackFrame
@@ -14,21 +15,23 @@ class StackFrame
   public:
   StackFrame(string &output, bool Endfunc) : output(output)
   {
+      Selector s;
 	  output += COMMENT + "Making stack frame " + NL;
-      this->output += PUSH + R8->Name + NL;
-      this->output += MOV + R8->Name + FROM + R7->Name + NL + NL;
+      this->output += s.Get_ID("push") + s.Get_Right_Reg(Task_For_Type_Address_Basing) + NL;
+      this->output += s.Get_ID("=") + s.Get_Right_Reg(Task_For_Type_Address_Basing) + FROM + s.Get_Right_Reg(Task_For_Type_Address) + NL;
       EndFunc = Endfunc;
   }
   
   ~StackFrame()
   {
+      Selector S;
 	  output += COMMENT + "Ending stack frame " + NL;
-      this->output += MOV + R7->Name + FROM + R8->Name + NL;
-      this->output += POP + R8->Name + NL;
+      output += S.Get_ID("=") + S.Get_Right_Reg(Task_For_Type_Address) + FROM + S.Get_Right_Reg(Task_For_Type_Address_Basing) + NL;
+      output += S.Get_ID("pop") + S.Get_Right_Reg(Task_For_Type_Address_Basing) + NL;
       if (EndFunc)
       {
 		output += COMMENT + "Returning " + NL;
-        this->output += "ret" + string(NL) + NL;
+        output += S.Get_ID("ret") + NL + NL;
       }
       
   }

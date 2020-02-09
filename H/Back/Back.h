@@ -41,7 +41,6 @@ public:
     void Handle_Conditions(int i);
     void Handle_Jumps(Token *condition, Token owner);
     void Handle_Returning(int i);
-    void Handle_New(int i);
     void Handle_Variable_Initalization(int i);
 	void Handle_String_Initalization(vector<Token *> *&T);
 	void Set_All_References(string name, int flags, vector<Token*>& T);

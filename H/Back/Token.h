@@ -45,6 +45,11 @@ using namespace std;
 #define Successour (1<<31)
 extern int SYNTAX;
 
+#define Task_For_Returning (1<<0)
+#define Task_For_Type_Address_Basing (1<<1)
+#define Task_For_Type_Address (1<<2)
+#define Task_For_Moving_Parameter (1<<3)
+
 class Register;
 
 class Token
@@ -85,25 +90,13 @@ class Token
 
     bool is(int flag);
     bool Any(int flags);
-    string getFullName();
-    bool Optimize_Register_Usage();
-    Register *getNewRegister();
-    Register *getReg();
+    string Get_Agent(bool Giver);
+    //agent prepensitives
+    string Get_Reg();
+    string Get_Mem_Address();
+    string Get_Additive_Operator();
     //var
-    string InitVariable();
-    string MOVE(Token *Source);
-    string SUM(Token *Source, Token *Dest);
-    string SUBSTRACT(Token *Source, Token* Dest);
-    string MULTIPLY(Token *Source);
-    string DIVIDE(Token *Source);
-    string SHIFT_RIGHT(Token* Source);
-    string SHIFT_LEFT(Token* Source);
-    string _AND(Token* Source);
-    string _OR(Token* Source);
-    string _XOR(Token* Source);
-    string COMPARE(Token *Source);
-    string MOVEINSTACK();
-    string GetAddress();
+    string Make(Token *Source, string Do);
 	bool Passing_String = false;
     //func
     vector<Token*> *Callations = new vector<Token*>;
@@ -133,19 +126,18 @@ class Token
     string Return_Value();
 };
 
+
 class Register
 {
 public:
-    vector<Token*> History;
-    bool TaskForReturning = false;
-    bool TaskForTypeAddress = false;
-    bool TaskForMovingParameter = false;
+    int Flags = 0;
     string Name = "";
     int Value = 0;
     string ID = "";
     Token *Base;
-    Token *Current;
     int Bit_Size = 0;
+    bool is(int flag);
+    vector<Token*> History;
     Register(string name, int BS)
     {
         Name = name;
@@ -158,7 +150,6 @@ public:
         ID = id;
     }
     void Link(Token *Requester);
-	void Apply(Token* Requester, vector<Token*> &T);
 };
 #endif
 

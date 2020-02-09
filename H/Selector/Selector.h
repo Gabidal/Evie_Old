@@ -22,7 +22,9 @@ public:
 	OpC* OpCode_Selector();
 	string Get_ID(string id);
 	Register* Get_Reg(string id);
+	string Get_Right_Reg(int F);
 	Selector(Token* T);
+	Selector();
 	~Selector();
 private:
 

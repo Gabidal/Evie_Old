@@ -5,11 +5,15 @@
 #include "../../H/Back/Registers.h"
 using namespace std;
 int RegisterTurn = 0;
-Selector* S;
 
 bool Token::is(int flag)
 {
     return (Flags & flag) == flag;
+}
+
+bool Register::is(int flag)
+{
+	return (Flags & flag) == flag;
 }
 
 bool Token::Any(int flags)
@@ -17,94 +21,88 @@ bool Token::Any(int flags)
     return (Flags & flags) != 0;
 }
 
-string Token::getFullName()
+string Token::Get_Agent(bool Giver)
 {
-	return string();
+	//if it is number.
+	if (this->is(Number))
+	{
+		return this->Name;
+	}
+	//first find if this token has a register to it.
+	for (Register* r : Registers)
+	{
+		if (r->Base == nullptr)
+		{
+			continue;
+		}
+		else if (r->Base->Name == this->Name)
+		{
+			return r->Name;
+		}
+	}
+	//then get it from mem.
+	if (Giver)
+	{
+		return Get_Mem_Address();
+	}
+	else
+	{
+		return Get_Reg();
+	}
 }
 
-bool Token::Optimize_Register_Usage()
+string Token::Get_Mem_Address()
 {
-	return false;
+	if (this->is(Private))
+	{
+		for (Register* r : Registers)
+		{
+			if (r->is(Task_For_Type_Address_Basing))
+			{
+				return "[" + r->Name + Get_Additive_Operator() + to_string(this->StackOffset) + "]";
+			}
+		}
+	}
+	else
+	{
+		return "[" + this->Name + "]";
+	}
 }
 
-Register* Token::getNewRegister()
+string Token::Get_Additive_Operator()
 {
-	return nullptr;
+	if (this->is(Parameter))
+	{
+		return " + ";
+	}
+	else
+	{
+		return " - ";
+	}
 }
 
-Register* Token::getReg()
+string Token::Get_Reg()
 {
-	return nullptr;
+	Selector Select;
+	string Reg_Name = Registers.at(Reg_Turn)->Name;
+
+	output += Select.Get_ID("=") + Reg_Name + FROM + Get_Mem_Address() + NL;
+	if (Reg_Turn > Registers.size() - 1)
+	{
+		Reg_Turn = 0;
+	}
+	else
+	{
+		Reg_Turn++;
+	}
+	return Reg_Name;
 }
 
-string Token::InitVariable()
+string Token::Make(Token* Source, string Operator)
 {
-	return string();
-}
-
-string Token::MOVE(Token* Source)
-{
-	return string();
-}
-
-string Token::SUM(Token* Source, Token* Dest)
-{
-	return string();
-}
-
-string Token::SUBSTRACT(Token* Source, Token* Dest)
-{
-	return string();
-}
-
-string Token::MULTIPLY(Token* Source)
-{
-	return string();
-}
-
-string Token::DIVIDE(Token* Source)
-{
-	return string();
-}
-
-string Token::SHIFT_RIGHT(Token* Source)
-{
-	return string();
-}
-
-string Token::SHIFT_LEFT(Token* Source)
-{
-	return string();
-}
-
-string Token::_AND(Token* Source)
-{
-	return string();
-}
-
-string Token::_OR(Token* Source)
-{
-	return string();
-}
-
-string Token::_XOR(Token* Source)
-{
-	return string();
-}
-
-string Token::COMPARE(Token* Source)
-{
-	return string();
-}
-
-string Token::MOVEINSTACK()
-{
-	return string();
-}
-
-string Token::GetAddress()
-{
-	return string();
+	Selector Select;
+	output += Select.Get_ID(Operator) + this->Get_Agent(true) + FROM + Source->Get_Agent(false) + NL;
+	return "";
 }
 
 string Token::SX()
@@ -155,7 +153,6 @@ string Token::Return_Value()
 	return string();
 }
 
-
 Token& Token::operator=(const Token& name)
 {
 	Flags = name.Flags;
@@ -178,4 +175,10 @@ Token& Token::operator=(const Token& name)
 	Origin = name.Origin;
 	Semanticked = name.Semanticked;
 	return *this;
+}
+
+void Register::Link(Token* Requester)
+{
+	this->Base = Requester;
+	History.push_back(Requester);
 }

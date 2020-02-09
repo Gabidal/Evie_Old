@@ -12,9 +12,29 @@ Selector::Selector(Token* i)
 	I = Input->Name;
 }
 
+Selector::Selector()
+{
+#if __ARM__
+	ARC_Factory();
+#else
+	ARC_Factory();
+#endif
+}
+
 OpC* Selector::OpCode_Selector()
 {
+	return nullptr;
+}
 
+string Selector::Get_Right_Reg(int F)
+{
+	for (Register* r : Registers)
+	{
+		if (r->is(F))
+		{
+			return r->Name;
+		}
+	}
 }
 
 string Selector::Get_ID(string id)

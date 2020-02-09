@@ -70,93 +70,26 @@ void Back::Handle_Operators(int i)
 			Input.at(i)->Parameters.at(0)->repz = Input.at(i)->repz;
             Dest->repz = Input.at(i)->repz;
 		}
-        if (Input.at(i)->Name == "+")
-        {
-            reg = Dest->SUM(Source, Cheat);
-        }
-        else if (Input.at(i)->Name == "-")
-        {
-            reg = Dest->SUBSTRACT(Source, Cheat);
-        }
-        else if (Input.at(i)->Name == "*")
-        {
-            reg = Dest->MULTIPLY(Source);
-        }
-        else if (Input.at(i)->Name == "/")
-        {
-            reg = Dest->DIVIDE(Source);
-        }
-        else if (Input.at(i)->Name == "<<")
-        {
-            //shl
-            reg = Dest->SHIFT_LEFT(Source);
-        }
-        else if (Input.at(i)->Name == ">>")
-        {
-            //shr
-            reg = Dest->SHIFT_RIGHT(Source);
-        }
-        else if (Input.at(i)->Name == "&")
-        {
-            //and
-            reg = Dest->_AND(Source);
-        }
-        else if (Input.at(i)->Name == "|")
-        {
-            //or
-            reg = Dest->_OR(Source);
-        }
-        else if (Input.at(i)->Name == "^")
-        {
-            //xor
-            reg = Dest->_XOR(Source);
-        }
-
-        if ((Input.at(i)->Name == "==") || (Input.at(i)->Name == ">=") || (Input.at(i)->Name == "<=") || (Input.at(i)->Name == ">") || (Input.at(i)->Name == "<") || (Input.at(i)->Name == "!=") || (Input.at(i)->Name == "!>") || (Input.at(i)->Name == "!<"))
-        {
-            Dest->COMPARE(Source);
-        }
-        else if (Layer == 0)
+        reg = Dest->Make(Source, Input.at(i)->Name);
+        if (Layer == 0)
         {
             if (Deep_Math == false)
             {
                 if (Cheat != nullptr)
                 {
-                    Cheat->MOVE(Dest);
+                    Cheat->Make(Dest, "=");
                     Cheat = nullptr;
                 }
                 else
                 {
-                    Dest->MOVE(Source);
+                    Dest->Make(Source, "=");
                 }
                 reg = "";
-                if (Dest->Passing_String)
-                {
-                    if (Dest->is(Private))
-                    {
-                        Set_All_References(Dest->Name, Ptr, Dest->ParentFunc->Childs);
-                    }
-                    else
-                    {
-                        Set_All_References(Dest->Name, Ptr, *Dest->Input);
-                    }
-                }
-                else if (Source->is(Array))
-                {
-                    if (Dest->is(Private))
-                    {
-                        Set_All_References(Dest->Name, INT32_MAX, Dest->ParentFunc->Childs);
-                    }
-                    else
-                    {
-                        Set_All_References(Dest->Name, INT32_MAX, *Dest->Input);
-                    }
-                }
             }
             else
             {
                 Deep_Math_Done = true;
-                Output += SX() + MOV + Cheat->GetAddress() + FROM + Dest->Return_Value() + NL;
+                Cheat->Make(Dest, "=");
                 Dest->Reg->Link(Cheat);
             }
         }
@@ -192,16 +125,16 @@ void Back::Handle_Operators(int i)
 			{
                 if (Cheat->tmp != nullptr)
                 {
-                    Cheat->tmp->MOVE(Dest->tmp);
+                    Cheat->tmp->Make(Dest->tmp, "=");
                 }
                 else
                 {
-                    Cheat->MOVE(Dest->tmp);
+                    Cheat->Make(Dest->tmp, "=");
                 }
 			}
             else if ((Cheat != nullptr) && (Deep_Math == false))
             {
-                Cheat->MOVE(Dest);
+                Cheat->Make(Dest, "=");
             }
             if (Dest->Reg != nullptr)
             {
@@ -226,18 +159,18 @@ void Back::Handle_Variables(int i)
             if (Input.at(i)->is(Ptr))
             {
 				Output += SX() + COMMENT + "Pushing pointter " + NL;
-				Output += SX() + PUSH + string(DWORD) + Input.at(i)->GetAddress() + NL;
+				Output += SX() + PUSH + string(DWORD) + Input.at(i)->Get_Mem_Address() + NL;
             }
             else if (Input.at(i)->is(Variable))
             {
 				Output += SX() + COMMENT + "Pushing Variable " + NL;
 				if (Input.at(i)->Reg == nullptr)
 				{
-					Output += SX() + PUSH + string(DWORD) + Input.at(i)->GetAddress() + NL;
+					Output += SX() + PUSH + string(DWORD) + Input.at(i)->Get_Mem_Address() + NL;
 				}
 				else
 				{
-					Output += SX() + PUSH + Input.at(i)->InitVariable() + NL;
+					Output += SX() + PUSH + Input.at(i)->Get_Reg() + NL;
 				}
             }
             else
@@ -379,24 +312,6 @@ void Back::Handle_Type_Init(int i)
     }
 }
 
-void Back::Handle_New(int i)
-{
-    if ((i - 1) < 0)
-    {
-        return;
-    }
-    
-    if (Input.at(i - 1)->is(__NEW) && Input.at(i)->is(NotOriginal))
-    {
-		Output += SX() + COMMENT + "Allocating new memory space for new type " + NL;
-		Output += SX() + PUSH + to_string(Input.at(i)->Size) + NL;
-		Output += SX() + CALL + "malloc" + NL;
-		Input.at(i)->Reg = R1;
-		R1->Link(Input.at(i));
-		Input.at(i)->MOVE(Input.at(i));
-    }
-}
-
 void Back::Handle_Call_Function(int i)
 {
     if (Input.at(i)->is(Call))
@@ -425,7 +340,7 @@ void Back::Handle_Call_Function(int i)
                 b.Factory();
             }
         }
-        Output += SX() + CALL + Input.at(i)->getFullName() + NL + NL;
+        Output += SX() + CALL + Input.at(i)->Name + NL + NL;
         if (Input.at(i)->is(Returning))
         {
             Source = Input.at(i);
@@ -468,43 +383,12 @@ string Back::SX()
 
 void Back::Handle_Jumps(Token* Condition, Token owner)
 {
-    string Jump_Type = "";
-    if (Condition->Name == "==")
-    {
-        Jump_Type = JNE;
-    }
-    else if (Condition->Name == "!=")
-    {
-        Jump_Type = JE;
-    }
-    else if (Condition->Name == "<=")
-    {
-        Jump_Type = JNLE;
-    }
-    else if (Condition->Name == ">=")
-    {
-        Jump_Type = JNGE;
-    }
-    else if (Condition->Name == "!<")
-    {
-        Jump_Type = JLE;
-    }
-    else if (Condition->Name == "!>")
-    {
-        Jump_Type = JGE;
-    }
-    else if (Condition->Name == "<")
-    {
-        Jump_Type = JNL;
-    }
-    else if (Condition->Name == ">")
-    {
-        Jump_Type = JNG;
-    }
+    Selector Select;
+    string Jump_Type = Select.Get_ID(Condition->Name);
     if (owner.SuccessorToken.size() > 0)
     {
         //first condition
-        Output += SX() + Jump_Type + " " + owner.SuccessorToken.at(0)->getFullName() + NL;
+        Output += SX() + Jump_Type + " " + owner.SuccessorToken.at(0)->Name + to_string(owner.SuccessorToken.at(0) ->ID) + NL;
     }
     else if (owner.Former != nullptr)
     {
@@ -512,17 +396,17 @@ void Back::Handle_Jumps(Token* Condition, Token owner)
         owner.Former->SuccessorToken.erase(owner.Former->SuccessorToken.begin());
         if (owner.Former->SuccessorToken.size() > 0)
         {
-            Output += SX() + Jump_Type + " " + owner.Former->SuccessorToken.at(0)->getFullName() + NL;
+            Output += SX() + Jump_Type + " " + owner.Former->SuccessorToken.at(0)->Name + to_string(owner.Former->SuccessorToken.at(0)->ID) + NL;
         }
         else
         {
-            Output += SX() + Jump_Type + " " + owner.getFullName() + NL;
+            Output += SX() + Jump_Type + " " + owner.Name + to_string(owner.ID) + NL;
         }
     }
     else
     {
         //last condition
-        Output += SX() + Jump_Type + " " + owner.getFullName() + "END" + NL;
+        Output += SX() + Jump_Type + " " + owner.Name + to_string(owner.ID) + "END" + NL;
     }
 }
 
@@ -531,11 +415,12 @@ void Back::Handle_Conditions(int i)
     Token* Condition = Input.at(i);
     if (Condition->is(If) || Condition->is(While) || Condition->is(Else))
     {
+        Selector S;
         if (Condition->Name == "else")
         {
-            Output += SX() + JMP + Condition->getFullName() + "END" + NL;
+            Output += SX() + S.Get_ID("jmp") + Condition->Name + to_string(Condition->ID) + "END" + NL;
         }
-        Output += SX() + LABEL(Condition->getFullName());
+        Output += SX() + LABEL(Condition->Name + to_string(Condition->ID));
         for (Token* t : Condition->Parameters)
         {
             Back b = *this;
@@ -553,14 +438,14 @@ void Back::Handle_Conditions(int i)
             Syntax--;
             if (Condition->SuccessorToken.size() > 0)
             {
-                Output += SX() + JMP + Condition->SuccessorToken.at(Condition->SuccessorToken.size() - 1)->getFullName() + "END" + NL;
+                Output += SX() + S.Get_ID("jmp") + Condition->SuccessorToken.at(Condition->SuccessorToken.size() - 1)->Name + to_string(Condition->SuccessorToken.at(Condition->SuccessorToken.size() - 1)->ID) + "END" + NL;
             }
             else if (Condition->is(While))
             {
-                Output += SX() + JMP + Condition->getFullName() + NL;
+                Output += SX() + S.Get_ID("jmp") + Condition->Name + to_string(Condition->ID) + NL;
             }
         }
-        Output += SX() + LABEL(Condition->getFullName() + "END");
+        Output += SX() + LABEL(Condition->Name + to_string(Condition->ID) + "END");
     }
 }
 
@@ -579,25 +464,15 @@ void Back::Handle_Returning(int i)
             b.IS_PUBLIC--;
             b.Dest->Flags |= Storer;
 			Output += SX() + COMMENT + "Return " + b.Dest->Name + NL;
-            b.Dest->Optimize_Register_Usage();
-            if (b.Dest->is(Number))
-            {
-                Output += SX() + MOV + R1->Name + FROM + b.Dest->Name + NL;
-            }
-			else if ((b.Dest->Reg == nullptr) || (b.Dest->Reg->Name == "null"))
-			{
-				Output += SX() + MOV + R1->Name + FROM + DWORD + FRAME(b.Dest->getFullName()) + NL;
-			}
-			else if ((b.Dest->Reg != nullptr) && (b.Dest->Reg != R1))
-			{
-				Output += SX() + MOV + R1->Name + FROM + b.Dest->Reg->Name + NL;
-			}
-			Output += SX() + MOV + R7->Name + FROM + R8->Name + NL;
-			Output += SX() + POP + R8->Name + NL;
-			Output += SX() + RET + NL + NL;
+            Selector S;
+            Output += SX() + S.Get_ID("=") + S.Get_Right_Reg(Task_For_Returning) + FROM + b.Dest->Get_Agent(false) + NL;
+            Output += SX() + S.Get_ID("=") + S.Get_Right_Reg(Task_For_Type_Address) + FROM + S.Get_Right_Reg(Task_For_Type_Address_Basing) + NL;
+            Output += SX() + S.Get_ID("pop") + S.Get_Right_Reg(Task_For_Type_Address_Basing) + NL;
+            Output += SX() + S.Get_ID("ret") + NL + NL;
         }
     }
 }
+
 
 void Back::Handle_Variable_Initalization(int i)
 {
@@ -653,7 +528,6 @@ void Back::Factory()
         Handle_Variables(i);
         Handle_Conditions(i);
         Handle_Returning(i);
-        Handle_New(i);
 
 		//it is written
 		Input.at(i)->Flags |= Real;
