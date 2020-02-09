@@ -1,7 +1,7 @@
 #ifndef SELECTOR_H_
 #define SELECTOR_H_
 #include <vector>
-#include "../Back/Token.h"
+#include <iostream>
 using namespace std;
 
 #if _ARM_
@@ -11,26 +11,18 @@ using namespace ARM;
 #include "../Architecture/x86/x86.h"
 using namespace x86;
 #endif
+class Token;
 
 //Selector's mission is to get right and the best solutionary opecodes for every operation.
 class Selector
 {
 public:
-	OpC* Output;
 	Token* Input;
-	vector<int> Values;
-	void OpCode_Selector();
-	Selector(vector<int> V)
-	{
-		#if __ARM__
-			ARC_Factory();
-		#else
-			ARC_Factory();
-		#endif
-			Values = V;
-			OpCode_Selector();
-	}
-
+	string I = "";
+	OpC* OpCode_Selector();
+	string Get_ID(string id);
+	Register* Get_Reg(string id);
+	Selector(Token* T);
 	~Selector();
 private:
 

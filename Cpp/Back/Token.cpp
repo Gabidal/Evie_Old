@@ -5,6 +5,7 @@
 #include "../../H/Back/Registers.h"
 using namespace std;
 int RegisterTurn = 0;
+Selector* S;
 
 bool Token::is(int flag)
 {
@@ -16,6 +17,96 @@ bool Token::Any(int flags)
     return (Flags & flags) != 0;
 }
 
+string Token::getFullName()
+{
+	return string();
+}
+
+bool Token::Optimize_Register_Usage()
+{
+	return false;
+}
+
+Register* Token::getNewRegister()
+{
+	return nullptr;
+}
+
+Register* Token::getReg()
+{
+	return nullptr;
+}
+
+string Token::InitVariable()
+{
+	return string();
+}
+
+string Token::MOVE(Token* Source)
+{
+	return string();
+}
+
+string Token::SUM(Token* Source, Token* Dest)
+{
+	return string();
+}
+
+string Token::SUBSTRACT(Token* Source, Token* Dest)
+{
+	return string();
+}
+
+string Token::MULTIPLY(Token* Source)
+{
+	return string();
+}
+
+string Token::DIVIDE(Token* Source)
+{
+	return string();
+}
+
+string Token::SHIFT_RIGHT(Token* Source)
+{
+	return string();
+}
+
+string Token::SHIFT_LEFT(Token* Source)
+{
+	return string();
+}
+
+string Token::_AND(Token* Source)
+{
+	return string();
+}
+
+string Token::_OR(Token* Source)
+{
+	return string();
+}
+
+string Token::_XOR(Token* Source)
+{
+	return string();
+}
+
+string Token::COMPARE(Token* Source)
+{
+	return string();
+}
+
+string Token::MOVEINSTACK()
+{
+	return string();
+}
+
+string Token::GetAddress()
+{
+	return string();
+}
+
 string Token::SX()
 {
 	string result = "";
@@ -25,978 +116,6 @@ string Token::SX()
 		result += " ";
 	}
 	return result;
-}
-
-string Token::getFullName()
-{
-    string name = "";
-    if (is(Call) || is(If) || is(Else) || is(While))
-    {
-        if (is(Member))
-        {
-			output += SX() + COMMENT + "Adding type owner name to the function name" + NL;
-            return TYPE(this->Fetcher->Origin->Name, this->Name);
-        }
-        else if (is(If) || is(Else) || is(While))
-        {
-            return this->Name + to_string(this->ID);
-        }
-		else
-		{
-			return this->Name;
-		}
-    }
-    
-    if (is(Public))
-    {
-		name = Name;
-    }
-    else
-    {
-		//output += COMMENT + "Private ";
-        if (is(Parameter))
-        {
-			//output +="variable " + NL;
-            name = R7->Name + OFFSET + to_string(this->ParameterOffset + 4);
-        }
-        else
-        {
-			//output += "variable " + NL;
-            name = R7->Name + DEOFFSET + to_string(StackOffset);
-        }
-    }
-    return name;
-}
-
-bool Token::Optimize_Register_Usage()
-{
-	//optimized register to give to a normal math variable is R1 or R4
-	//optimized rigister to give to offsetter is R3
-	//optimized register to give to array is R5 or R6
-	//optimized register to give to pointers is R2
-	//this part checks is this named variable already has a register to it's name
-	if ((R3->Base != nullptr) && (R3->Base->Name == this->Name))
-	{
-		//this has been a offsetter before
-		R3->Link(this);
-		this->Reg = R3;
-		return true;
-	}
-	else if ((R1->Base != nullptr) && (R1->Base->Name == this->Name))
-	{
-		//this is just a normal  math variable
-		R1->Link(this);
-		this->Reg = R1;
-		return true;
-	}
-	else if ((R4->Base != nullptr) && (R4->Base->Name == this->Name))
-	{
-		//this is just a normal  math variable
-		R4->Link(this);
-		this->Reg = R4;
-		return true;
-	}
-	else if ((R5->Base != nullptr) && (R5->Base->Name == this->Name))
-	{
-		if ((this->Offsetter != nullptr) && (R5->Base->Offsetter->Name == this->Offsetter->Name))
-		{
-			//same parent variable array, and same offsetters.
-			R3->Link(this->Offsetter);
-			this->Offsetter->Reg = R3;
-			R5->Link(this);
-			this->Reg = R5;
-			return true;
-		}
-		//even if this variable has R5 and,
-		//now it doesnt have the same offsetter it wont point to same place enymore
-		return false;
-	}
-	else if ((R6->Base != nullptr) && (R6->Base->Name == this->Name))
-	{
-		if ((this->Offsetter != nullptr) && (R6->Base->Offsetter->Name == this->Offsetter->Name))
-		{
-			//same parent variable array, and same offsetters.
-			R3->Link(this->Offsetter);
-			this->Offsetter->Reg = R3;
-			R6->Link(this);
-			this->Reg = R6;
-			return true;
-		}
-		//even if this variable has R6 and,
-		//now it doesnt have the same offsetter it wont point to same place enymore
-		return false;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-Register *Token::getNewRegister()
-{
-	if (Optimize_Register_Usage())
-	{
-		//for safety
-	}
-	else if (is(Variable) || is(Number) || is(Ptr) || is(Parameter))
-	{
-		if (RegisterTurn == 0)
-		{
-			R1->Link(this);
-			Reg = R1;
-			RegisterTurn = 1;
-		}
-		else if (RegisterTurn > 0)
-		{
-			R4->Link(this);
-			Reg = R4;
-			RegisterTurn = 0;
-		}
-	}
-	else if (is(Array) || is(Ptr))
-	{
-		if (RegisterTurn == 0)
-		{
-			R5->Link(this);
-			Reg = R5;
-			RegisterTurn = 1;
-		}
-		else if (RegisterTurn > 0)
-		{
-			R6->Link(this);
-			Reg = R6;
-			RegisterTurn = 0;
-		}
-	}
-	else if (is(Returning))
-	{
-		R1->Link(this);
-		Reg = R1;
-		RegisterTurn++;
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-Register *Token::getReg()
-{
-    if (Reg == nullptr|| Reg->Name == "null")
-    {
-        getNewRegister();
-		output += SX() + COMMENT + "Giving " + this->Name + ", " + this->Reg->Name + NL;
-    }
-    return Reg;
-}
-
-string Token::InitVariable()
-{
-    string result = "";
-    if (this->Reg == nullptr || this->Reg->Name == "null")
-    {
-		getReg();
-		output += SX() + COMMENT + "Initializing new register for ";
-		if (this->is(Number))
-		{
-			output += "number " + this->Name + NL;
-			output += SX() + MOV + this->Reg->Name + FROM + this->Name + NL;
-		}
-        else if (this->is(Member) && (this->Fetcher != nullptr))
-        {
-			output += "member variable " + this->Name + NL;
-			if (Fetcher->Reg == nullptr)
-			{
-				//allocate new Register for class address place holding.
-				Fetcher->InitVariable();
-			}
-			output += SX() + MOV + this->getReg()->Name + FROM + FRAME(Fetcher->Reg->Name + OFFSET + to_string(this->StackOffset - 4)) + NL;
-        }
-		else if (this->is(Public))
-		{
-			output += "public variable " + this->Name + NL;
-			if (ARRAY)
-			{
-				output += SX() + LEA + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
-			}
-			else
-			{
-				output += SX() + MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
-			}
-		}
-        else if (this->is(Private))
-        {
-			output +="private  variable " + this->Name + NL;
-			if (ARRAY)
-			{
-				output += SX() + LEA + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
-			}
-			else
-			{
-				output += SX() + MOV + this->Reg->Name + FROM + FRAME(this->getFullName()) + NL;
-			}
-        }
-        result = this->Reg->Name;
-    }
-    else
-    {
-		output += SX() + COMMENT + this->Name + " has already a register to it" + NL;
-        result = this->Reg->Name;
-    }
-    return result;
-}
-
-string Token::MOVE(Token *Source)
-{
-    PTRING(Source);
-    if (Source->is(Number))
-    {
-		output += SX() + COMMENT + "Giving " + this->Name + ", " + Source->Name + NL;
-		output += SX() + MOV + this->GetAddress() + FROM + string(DWORD) + Source->Return_Value() + NL;
-		this->Reg = nullptr;
-		return "nul";
-    }
-	else if (Source->is(String))
-	{
-		output += SX() + COMMENT + "Giving " + this->Name + " the address of " + Source->StringName + NL;
-		output += SX() + LEA + this->getReg()->Name + FROM + FRAME(Source->StringName) + NL;
-		this->Passing_String = true;
-	}
-    else if (this->is(Member) && (this->Fetcher != nullptr))
-    {
-        // straight movation
-		output += SX() + COMMENT + "Feching " + this->Name + " from " + this->Fetcher->Name + NL;
-        output += SX() + MOV + FRAME(this->Fetcher->InitVariable() + OFFSET + to_string(this->StackOffset - 4)) + FROM + DWORD + Source->InitVariable() + NL;
-        this->Reg = Source->Reg;
-        Source->Reg->Link(this);
-		return this->Reg->Name;
-    }
-    else if (Source->is(Array))
-    {
-		//mov R1, [R7 + 8]
-		//lea R6, [R1 + 0 * 4]
-		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		if (Source->is(Address_Operator))
-		{
-			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		else
-		{
-			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		R6->Link(Source);
-		if (this->is(Array))
-		{
-			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
-			R5->Link(this);
-			output += SX() + COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
-			if (this->repz != nullptr)
-			{
-				if (repz->is(Number))
-				{
-					output += SX() + MOV + R3->Name + FROM + repz->Name + NL;
-				}
-				else
-				{
-					output += SX() + MOV + R3->Name + FROM + FRAME(repz->getFullName()) + NL;
-				}
-				output += SX() + REPZ + MOVSD + NL;
-			}
-			else
-			{
-				output += SX() + MOVSD + NL;
-			}
-		}
-		else
-		{
-			//mov [(R7 - 4) + (R7 - 8) * 4], dword R1
-			output += SX() + COMMENT + "Saving the value from " + Source->Name + " offsetted by " + Source->Offsetter->Name + NL;
-			output += SX() + MOV + this->GetAddress() + FROM + DWORD + R6->Name + NL + NL;
-			this->Reg = Source->Reg;
-		}
-		if (this->Reg == nullptr)
-		{
-			this->Reg = R5;
-		}
-		return this->Reg->Name;
-    }
-    else if (Source->is(Ptr) || Source->is(Variable))
-    {
-        // straight movation
-		output += SX() + COMMENT + "Saving " + Source->Name + " into " + this->Name + NL;
-        output += SX() + MOV + GetAddress() + FROM + DWORD + Source->InitVariable() + NL;
-        this->Reg = Source->Reg;
-        Source->Reg->Link(this);
-		return this->Reg->Name;
-    }
-    else if (Source->is(Returning))
-    {
-        if ((Source->Parameters.size() > 0) && Source->cleaned == false)
-        {
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-            output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-			Source->cleaned = true;
-        }
-		output += SX() + COMMENT + "Giving " + this->Name + " the return value" + NL;
-        output += SX() + MOV + this->GetAddress() + FROM + Source->getReg()->Name + NL + NL;
-    }
-    
-    return "";
-}
-
-string Token::SUM(Token *Source, Token *Dest)
-{
-    PTRING(Source);
-    if (Source->is(Returning))
-    {
-		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-			Source->cleaned = true;
-		}
-		R1->Link(Source);
-		Source->Reg = R1;
-		if (RegisterTurn == 0)
-		{
-			RegisterTurn++;
-		}
-    }
-	if (this->is(Returning))
-	{
-		if ((this->Parameters.size() > 0) && (this->cleaned == false))
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
-			this->cleaned = true;
-		}
-		//if the both of em are returning functions
-		if (Source->is(Returning))
-		{
-		}
-		else
-		{
-			R1->Link(this);
-			this->Reg = R1;
-			if (RegisterTurn == 0)
-			{
-				RegisterTurn++;
-			}
-		}
-	}
-    if (Source->is(Number))
-    {
-		output += SX() + COMMENT + "Direct addition" + NL;
-		if (Dest->Name == this->Name)
-		{
-			output += SX() + ADD + this->GetAddress() + FROM + DWORD + Source->Return_Value() + NL;
-			this->Reg = nullptr;
-		}
-		else
-		{
-			output += SX() + ADD + this->InitVariable() + FROM + DWORD + Source->Return_Value() + NL;
-		}
-    }
-	else if (this->is(Number))
-	{
-		output += SX() + COMMENT + "Direct addition" + NL;
-		if (Dest->Name == Source->Name)
-		{
-			output += SX() + ADD + Dest->GetAddress() + FROM + DWORD + this->Return_Value() + NL;
-			this->Reg = nullptr;
-		}
-		else
-		{
-			output += SX() + ADD + Source->InitVariable() + FROM + DWORD + this->Return_Value() + NL;
-			this->Reg = Source->Reg;
-		}
-	}
-	else if (Source->is(Array))
-	{
-		//mov R1, [R7 + 8]
-		//lea R6, [R1 + 0 * 4]
-		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		if (Source->is(Address_Operator))
-		{
-			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		else
-		{
-			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		R6->Link(Source);
-		Source->Reg = R6;
-		if (this->is(Array))
-		{
-			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
-			R5->Link(this);
-			this->Reg = R5;
-			//if (this->repz != nullptr)
-			//{
-				if (this->tmp == nullptr)
-				{
-					this->tmp = new Token(this->output, this->Input);
-					this->tmp->Flags |= Variable;
-				}
-				output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(R5->Name) + NL;
-				output += SX() + ADD + this->tmp->Reg->Name + FROM + FRAME(R6->Name) + NL;
-			//}
-		}
-		else
-		{
-			//add R1, [(R7 - 4) + (R7 - 8) * 4]
-			output += SX() + ADD + this->getReg()->Name + FROM + FRAME(R6->Name) + NL;
-		}
-	}
-	else if (Source->is(Ptr) || Source->is(Variable))
-	{
-		output += SX() + COMMENT + "Adding " + Source->Name + " into " + this->Name + NL;
-		if (Source->Reg == nullptr || Source->Reg->Name == "null")
-		{
-			output += SX() + COMMENT + "Just directly get address" + NL;
-			output += SX() + ADD + this->InitVariable() + FROM + Source->GetAddress() + NL;
-		}
-		else
-		{
-			output += SX() + COMMENT + "There is already register for it, use it" + NL;
-			output += SX() + ADD + this->InitVariable() + FROM + Source->Reg->Name + NL;
-		}
-	}
-	else if (this->is(Ptr) || this->is(Variable))
-	{
-		output += SX() + COMMENT + "Adding " + this->Name + " into " + this->Name + NL;
-		if (this->Reg == nullptr || this->Reg->Name == "null")
-		{
-			output += SX() + COMMENT + "Just directly get address" + NL;
-			output += SX() + ADD + Source->InitVariable() + FROM + this->GetAddress() + NL;
-			this->Reg = Source->Reg;
-		}
-		else
-		{
-			output += SX() + COMMENT + "There is already register for it, use it" + NL;
-			output += SX() + ADD + Source->InitVariable() + FROM + this->Reg->Name + NL;
-		}
-	}
-	else if (Source->is(Returning) && this->is(Returning))
-	{
-		output += SX() + ADD + this->Reg->Name + FROM + Source->Reg->Name + NL;
-	}
-    return this->Reg->Name;
-}
-
-string Token::SUBSTRACT(Token *Source, Token *Dest)
-{
-    PTRING(Source);
-	if (Source->is(Returning))
-	{
-		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-			Source->cleaned = true;
-		}
-		R1->Link(Source);
-		Source->Reg = R1;
-		if (RegisterTurn == 0)
-		{
-			RegisterTurn++;
-		}
-	}
-	if (this->is(Returning))
-	{
-		if ((this->Parameters.size() > 0) && this->cleaned == false)
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
-			this->cleaned = true;
-		}
-		//if the both of em are returning functions
-		if (Source->is(Returning))
-		{
-		}
-		else
-		{
-			R1->Link(this);
-			this->Reg = R1;
-			if (RegisterTurn == 0)
-			{
-				RegisterTurn++;
-			}
-		}
-	}
-    if (Source->is(Number))
-    {
-		output += SX() + COMMENT + "Direct substraction" + NL;
-		if (Dest->Name == this->Name)
-		{
-			output += SX() + SUB + this->GetAddress() + FROM + DWORD + Source->Return_Value() + NL;
-			this->Reg = nullptr;
-		}
-		else
-		{
-			output += SX() + SUB + this->InitVariable() + FROM + DWORD + Source->Return_Value() + NL;
-		}
-    }
-	else if (Source->is(Array))
-	{
-		//mov R1, [R7 + 8]
-		//lea R6, [R1 + 0 * 4]
-		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		if (Source->is(Address_Operator))
-		{
-			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		else
-		{
-			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		R6->Link(Source);
-		Source->Reg = R6;
-		if (this->is(Array))
-		{
-			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
-			R5->Link(this);
-			this->Reg = R5;/*if (this->repz != nullptr)
-			{
-			}*/
-			//else
-			//{
-			if (this->tmp == nullptr)
-			{
-				this->tmp = new Token(this->output, this->Input);
-				this->tmp->Flags |= Variable;
-			}
-			output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(R5->Name) + NL;
-			output += SX() + SUB + this->tmp->Reg->Name + FROM + FRAME(R6->Name) + NL;
-			//}
-		}
-		else
-		{
-			//add R1, [(R7 - 4) + (R7 - 8) * 4]
-			output += SX() + SUB + this->getReg()->Name + FROM + FRAME(R6->Name) + NL;
-		}
-	}
-    else if (Source->is(Ptr) || Source->is(Variable))
-    {
-		output += SX() + COMMENT + "Substracting " + Source->Name + " into " + this->Name + NL;
-        if (Source->Reg == nullptr || Source->Reg->Name == "null")
-        {
-			output += SX() + COMMENT + "Just directly get address" + NL;
-            output += SX() + SUB + this->InitVariable() + FROM + Source->GetAddress() + NL;
-        }
-        else
-        {
-			output += SX() + COMMENT + "There is already register for it, use it" + NL;
-            output += SX() + SUB + this->InitVariable() + FROM + Source->Reg->Name + NL;
-        }
-    }
-	else if (this->is(Ptr) || this->is(Variable))
-	{
-		output += SX() + COMMENT + "Adding " + this->Name + " into " + this->Name + NL;
-		if (this->Reg == nullptr || this->Reg->Name == "null")
-		{
-			output += SX() + COMMENT + "Just directly get address" + NL;
-			output += SX() + SUB + Source->InitVariable() + FROM + this->GetAddress() + NL;
-			this->Reg = Source->Reg;
-		}
-		else
-		{
-			output += SX() + COMMENT + "There is already register for it, use it" + NL;
-			output += SX() + SUB + Source->InitVariable() + FROM + this->Reg->Name + NL;
-		}
-	}
-	else if (Source->is(Returning) && this->is(Returning))
-	{
-		output += SX() + SUB + this->Reg->Name + FROM + Source->Reg->Name + NL;
-	}
-    return this->Reg->Name;
-}
-
-string Token::MULTIPLY(Token *Source)
-{
-    PTRING(Source);
-	if (Source->is(Returning))
-	{
-		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-			Source->cleaned = true;
-		}
-		R1->Link(Source);
-	}
-	if (this->is(Returning))
-	{
-		if ((this->Parameters.size() > 0) && this->cleaned == false)
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
-			this->cleaned = true;
-		}
-		//if the both of em are returning functions
-		if (Source->is(Returning))
-		{
-		}
-		else
-		{
-			R1->Link(this);
-			this->Reg = R1;
-			if (RegisterTurn == 0)
-			{
-				RegisterTurn++;
-			}
-		}
-	}
-    if (Source->is(Number))
-    {
-		output += SX() + COMMENT + "Direct multiplying" + NL;
-        output += SX() + IMUL + this->InitVariable() + FROM + Source->Return_Value() + NL;
-    }
-    else if (Source->is(Member))
-    {
-		output += SX() + COMMENT + "Feching " + this->Name + " from " + this->Fetcher->Return_Value() + NL;
-        output += SX() + IMUL + this->InitVariable() + FROM + Source->InitVariable() + NL;
-    }
-	else if (Source->is(Array))
-	{
-		//mov R1, [R7 + 8]
-		//lea R6, [R1 + 0 * 4]
-		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		if (Source->is(Address_Operator))
-		{
-			output += SX() + MOV + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		else
-		{
-			output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
-		}
-		R6->Link(Source);
-		if (this->is(Array))
-		{
-			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
-			R5->Link(this);/*if (this->repz != nullptr)
-			{
-			}*/
-			//else
-			//{
-			if (this->tmp == nullptr)
-			{
-				this->tmp = new Token(this->output, this->Input);
-				this->tmp->Flags |= Variable;
-			}
-			output += SX() + MOV + this->tmp->getReg()->Name + FROM + FRAME(R5->Name) + NL;
-			output += SX() + IMUL + this->tmp->Reg->Name + FROM + FRAME(R6->Name) + NL;
-			//}
-		}
-		else
-		{
-			//add R1, [(R7 - 4) + (R7 - 8) * 4]
-			output += SX() + IMUL + this->getReg()->Name + FROM + FRAME(R6->Name) + NL;
-		}
-	}
-    else if (Source->is(Ptr) || Source->is(Variable))
-    {
-		output += SX() + COMMENT + "Multiplying " + Source->Name + " into " + this->Name + NL;
-		if (Source->Name == this->Name)
-		{
-			output += SX() + IMUL + this->getReg()->Name + FROM + Source->InitVariable() + NL;
-		}
-        else if (Source->Reg == nullptr || Source->Reg->Name == "null")
-        {
-			output += SX() + COMMENT + "Just directly get address" + NL;
-            output += SX() + IMUL + this->InitVariable() + FROM + Source->GetAddress() + NL;
-        }
-        else
-        {
-			output += SX() + COMMENT + "There is already register for it, use it" + NL;
-            output += SX() + IMUL + this->InitVariable() + FROM + Source->Reg->Name + NL;
-        }
-    }
-	else if (this->is(Ptr) || this->is(Variable))
-	{
-		output += SX() + COMMENT + "Adding " + this->Name + " into " + this->Name + NL;
-		if (this->Reg == nullptr || this->Reg->Name == "null")
-		{
-			output += SX() + COMMENT + "Just directly get address" + NL;
-			output += SX() + IMUL + Source->InitVariable() + FROM + this->GetAddress() + NL;
-			this->Reg = Source->Reg;
-		}
-		else
-		{
-			output += SX() + COMMENT + "There is already register for it, use it" + NL;
-			output += SX() + IMUL + Source->InitVariable() + FROM + this->Reg->Name + NL;
-		}
-	}
-	else if (Source->is(Returning) && this->is(Returning))
-	{
-		output += SX() + IMUL + this->Reg->Name + FROM + Source->Reg->Name + NL;
-	}
-    return this->Reg->Name;
-}
-
-string Token::DIVIDE(Token *Source)
-{
-    PTRING(Source);
-	if (Source->is(Returning))
-	{
-		if ((Source->Parameters.size() > 0) && Source->cleaned == false)
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(Source->Parameters.size() * 4) + NL;
-			Source->cleaned = true;
-		}
-		output += SX() + CDQ + NL;
-		output += SX() + IDIV + this->GetAddress() + NL;
-		R1->Link(this);
-	}
-	if (this->is(Returning))
-	{
-		if ((this->Parameters.size() > 0) && this->cleaned == false)
-		{
-			output += SX() + COMMENT + "Clearing the parameters" + NL;
-			output += SX() + ADD + R8->Name + FROM + to_string(this->Parameters.size() * 4) + NL;
-			this->cleaned = true;
-		}
-		output += SX() + CDQ + NL;
-		//if the both of em are returning functions
-		if (Source->is(Returning))
-		{
-			output += SX() + IDIV + this->Reg->Name + NL;
-		}
-		else
-		{
-			R1->Link(this);
-			this->Reg = R1;
-			if (RegisterTurn == 0)
-			{
-				RegisterTurn++;
-			}
-		}
-	}
-    if (Source->is(Number))
-    {
-        //cdq
-		output += SX() + COMMENT + "Direct division" + NL;
-        output += SX() + XCHG(this->InitVariable(), R1->Name);
-		output += SX() + CDQ + NL;
-        output += SX() + IDIV + Source->Return_Value() + NL;
-        R1->Link(this);
-    }
-    else if (Source->is(Array))
-    {
-		//mov R1, [R7 + 8]
-		//lea R6, [R1 + 0 * 4]
-		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-		output += SX() + LEA + R6->Name + FROM + Source->GetAddress() + NL;
-		R6->Link(Source);
-		if (this->is(Array))
-		{
-			output += SX() + COMMENT + "From " + this->Name + " added address by value of " + this->Offsetter->Name + NL;
-			output += SX() + LEA + R5->Name + FROM + this->GetAddress() + NL;
-			R5->Link(this);
-		}
-        //cdq
-		output += SX() + COMMENT + "From " + Source->Name + " added address by value of " + Source->Offsetter->Name + NL;
-        output += SX() + XCHG(this->Reg->Name, R1->Name);
-		output += SX() + COMMENT + "Dividing the value from " + Source->Name + " offsetted by " + this->Name + NL;
-		output += SX() + CDQ + NL;
-        output += SX() + IDIV + DWORD + FRAME(R6->Name) + NL;
-        R1->Link(this);
-    }
-    else if (Source->is(Ptr) || Source->is(Variable))
-    {
-		output += SX() + COMMENT + "Dividing " + Source->Name + " into " + this->Name + NL;
-		if ((this->Reg == nullptr) || this->Reg->Name != "R1")
-		{
-			this->InitVariable();
-			if (this->Reg->Name != R1->Name)
-			{
-				output += SX() + XCHG(this->InitVariable(), R1->Name);
-			}
-		}
-        if (Source->Reg == nullptr || Source->Reg->Name == "null")
-        {
-			output += SX() + COMMENT + "Just directly get address" + NL;
-			output += SX() + CDQ + NL;
-            output += SX() + IDIV + string(DWORD) + Source->GetAddress() + NL;
-        }
-        else
-        {
-			output += SX() + COMMENT + "There is already register for it, use it" + NL;
-			output += SX() + CDQ + NL;
-            output += SX() + IDIV + Source->GetAddress() + NL;
-        }
-        R1->Link(this);
-    }
-	else if (Source->is(Returning) && this->is(Returning))
-	{
-		output += SX() + IDIV + this->Reg->Name + FROM + Source->Reg->Name + NL;
-	}
-    return this->Reg->Name;
-}
-
-string Token::SHIFT_RIGHT(Token* Source)
-{
-	//shr reg, num
-	output += SX() + SHR + this->InitVariable() + FROM + Source->Name + NL;
-	return this->Reg->Name;
-}
-
-string Token::SHIFT_LEFT(Token* Source)
-{
-	//shl reg, num
-	output += SX() + SHL + this->InitVariable() + FROM + Source->Name + NL;
-	return this->Reg->Name;
-}
-
-string Token::_AND(Token* Source)
-{
-	//shl reg, num
-	output += SX() + AND + this->InitVariable() + FROM + Source->Name + NL;
-	return this->Reg->Name;
-}
-
-string Token::_OR(Token* Source)
-{
-	//shl reg, num
-	output += SX() + OR + this->InitVariable() + FROM + Source->Name + NL;
-	return this->Reg->Name;
-}
-
-string Token::_XOR(Token* Source)
-{
-	//shl reg, num
-	output += SX() + XOR + this->InitVariable() + FROM + Source->Name + NL;
-	return this->Reg->Name;
-}
-
-string Token::COMPARE(Token *Source)
-{
-	output += SX() + COMMENT + "Comparing " + this->Name + " and " + Source->Name + NL;
-	if (Source->is(Number))
-	{
-		output += SX() + COMMENT + "Just directly get name of the number" + NL;
-		if (Source->Reg == nullptr)
-		{
-			output += SX() + MOV + Source->getReg()->Name + FROM + Source->Name + NL;
-		}
-		output += SX() + CMP + this->GetAddress() + FROM + Source->Reg->Name + NL;
-	}
-    else if (Source->Reg == nullptr || Source->Reg->Name == "null")
-    {
-		output += SX() + COMMENT + "Just directly get address of " + Source->Name + NL;
-		if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
-		{
-			output += SX() + MOV + getReg()->Name + FROM + this->GetAddress() + NL;
-		}
-        output += SX() + CMP + this->Reg->Name + FROM + Source->GetAddress() + NL;
-    }
-    else
-    {
-		output += SX() + COMMENT + "There is already register for " + Source->Name + " use it" + NL;
-		if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
-		{
-			output += SX() + CMP + this->GetAddress() + FROM + Source->Reg->Name + NL + NL;
-		}
-		else
-		{
-			output += SX() + CMP + this->Reg->Name + FROM + Source->Reg->Name + NL + NL;
-		}
-    }
-	return "";
-}
-
-string Token::MOVEINSTACK()
-{
-    output += PUSH + this->getFullName();
-    return this->getReg()->Name;
-}
-
-bool skip_ptr_check = false;
-string Token::GetAddress()
-{
-    if (this->is(Array) || this->is(Ptr))
-    {
-		if (this->is(Ptr) && (skip_ptr_check == false))
-		{
-			if (this->Outside_Of_Parameters)
-			{
-				skip_ptr_check = true;
-				//lea R4, [R7 - 4]
-				//push R4
-				getReg();
-				if (this->Passing_String)
-				{
-					if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
-					{
-						output += SX() + MOV + Reg->Name + FROM + this->GetAddress() + NL;
-					}
-				}
-				else
-				{
-					output += SX() + LEA + Reg->Name + FROM + this->GetAddress() + NL;
-				}
-				skip_ptr_check = false;
-				return Reg->Name;
-			}
-		}
-        if (this->is(Array) && this->Offsetter->is(Number))
-        {
-			//[(R7 - 8) + 1 * 4]
-			output += SX() + COMMENT + "Adding the offset of " + this->Name + " by " + this->Offsetter->Name + NL;
-			return FRAME(CONTENT(this->getFullName()) + OFFSET + this->Offsetter->Name + SCALE + "4");
-        }
-        else if (this->is(Array) && this->Offsetter->is(Variable))
-        {
-			//[(R7 - 8) + (R7 - 4) * 4]
-			if ((this->Reg == nullptr) || (this->Reg->Name == "null"))
-			{
-				this->InitVariable();
-			}
-			if (this->is(Ptr) && (Outside_Of_Parameters == false))
-			{
-				return FRAME(this->Reg->Name + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
-			}
-			else
-			{
-				return FRAME(CONTENT(this->getFullName()) + OFFSET + CONTENT(this->Offsetter->InitVariable()) + SCALE + "4");
-			}
-        }
-        //lea R1, [R1]
-        else if (this->is(Ptr) && this->is(Loader))
-        {
-			this->getReg();
-			output += SX() + COMMENT + "Load the value inside the pointer" + NL;
-            output += SX() + LEA + this->Reg->Name + FROM + FRAME(this->Reg->Name) + NL;
-            return FRAME(this->Reg->Name);
-        }
-        //mov R2, R1
-        else if (this->is(Ptr) && this->is(Storer))
-        {
-			this->getReg();
-			output += SX() + COMMENT + "Give the pointer address" + NL;
-			return FRAME(this->Reg->Name);
-        }
-		//lea R1, [R7 - 8]
-		else
-		{
-
-			return FRAME(getFullName());
-		}
-	}
-	if (this->is(Private))
-	{
-
-		return FRAME(getFullName());
-	}
-	else
-	{
-		return FRAME(getFullName());
-	}
 }
 
 void Token::addChild(Token* local, bool func)
@@ -1021,26 +140,21 @@ void Token::addParameter(Token* Param)
 
 void Token::InitFunction()
 {
-	if (is(Member))
-	{
-		output += LABEL(TYPE(ParentType->Name, FUNC(this->Name)));
-	}
-	else
-	{
-		output += LABEL(FUNC(this->Name));
-	}
 }
 
 void Token::CallFunc(Token* Fetcher)
 {
-	//check if its fetched;
-	if (this->is(This))
-	{
-		//fetcher is needed;
-
-	}
-
 }
+
+void Token::PTRING(Token*& T)
+{
+}
+
+string Token::Return_Value()
+{
+	return string();
+}
+
 
 Token& Token::operator=(const Token& name)
 {
@@ -1064,73 +178,4 @@ Token& Token::operator=(const Token& name)
 	Origin = name.Origin;
 	Semanticked = name.Semanticked;
 	return *this;
-}
-
-void Register::Link(Token* Requester)
-{
-	Current = Requester;
-	if ((Base != nullptr) && (Base->Name != Current->Name))
-	{
-		Base->Reg = nullptr;
-	}
-	Base = Current;
-	History.push_back(Current);
-}
-
-void Register::Apply(Token* Requester, vector<Token*> &T)
-{
-	for (auto* t : T)
-	{
-		if (t->Childs.size() > 0)
-		{
-			Apply(Requester, t->Childs);
-		}
-		if (t->Parameters.size() > 0)
-		{
-			Apply(Requester, t->Parameters);
-		}
-		if (t->Offsetter != nullptr)
-		{
-			if ((t->Offsetter->Name == Requester->Name))
-			{
-				t->Offsetter->Reg = this;
-			}
-		}
-		if (t->Name == Requester->Name)
-		{
-			t->Reg = this;
-		}
-	}
-}
-
-void Token::PTRING(Token *&T)
-{
-    if (T->is(Ptr) && this->is(Ptr))
-    {
-        //* to * operation
-		output += SX() + COMMENT + "Pointer to pointer directionation" + NL;
-        T->Flags |= Storer;
-    }
-    else if (T->is(Ptr) && (this->is(Ptr) != true))
-    {
-        //var to * operation
-		output += SX() + COMMENT + "Pointer address value to variable" + NL;
-        T->Flags |= Loader;
-    }
-}
-
-string Token::Return_Value()
-{
-	if (this->Reg != nullptr)
-	{
-		return Reg->Name;
-	}
-	else if (this->is(Number))
-	{
-		return this->Name;
-	}
-	else
-	{
-		return getFullName();
-	}
 }

@@ -1,30 +1,42 @@
 #include "..\..\H\Selector\Selector.h"
+#include "../../H/Back/Token.h"
 
-
-void Selector::OpCode_Selector()
+Selector::Selector(Token* i)
 {
-	int Outcome = Values.at(0); //emulators made outcome
-	OpC* Result;
-		vector<int> P;
-		P.push_back(Values.at(1));
-		if ((Values.size()-1) > 1 )
+#if __ARM__
+	ARC_Factory();
+#else
+	ARC_Factory();
+#endif
+	Input = i;
+	I = Input->Name;
+}
+
+OpC* Selector::OpCode_Selector()
+{
+
+}
+
+string Selector::Get_ID(string id)
+{
+	for (OpC* o : OpCodes)
+	{
+		if (o->ID == id)
 		{
-			P.push_back(Values.at(2));
+			return o->OpCode;
 		}
-		for (auto* opc : OpCodes)
+	}
+	cout << "unable to find OpCode " << id << endl;
+}
+
+Register* Selector::Get_Reg(string id)
+{
+	for (Register* o : Registers)
+	{
+		if (o->ID == id)
 		{
-			if (opc->_Function(P) == Values.at(0))
-			{
-				Output = opc;
-				return;
-			}
+			return o;
 		}
-		if ((Values.size() - 1) > 1)
-		{
-			cout << "No Opcode changes " << Values.at(1) << " and " << Values.at(2) << " into " << Values.at(0) << endl;
-		}
-		else
-		{
-			cout << "No Opcode changes " << Values.at(1) << " into " << Values.at(0) << endl;
-		}
+	}
+	cout << "unable to find Register " << id << endl;
 }

@@ -2,6 +2,7 @@
 #define _TOKEN_H_
 #include <string>
 #include <vector>
+#include "../Selector/Selector.h"
 
 using namespace std;
 
@@ -80,6 +81,7 @@ class Token
     Token(string &out, vector<Token*> *T) : output(out), Input(T){}
     Token &operator=(const Token& name);
     string IR_Output = "";          //Emulator puth here the optimized code as string to back end to write it;
+    OpC* OpCode = nullptr;
 
     bool is(int flag);
     bool Any(int flags);
@@ -140,6 +142,7 @@ public:
     bool TaskForMovingParameter = false;
     string Name = "";
     int Value = 0;
+    string ID = "";
     Token *Base;
     Token *Current;
     int Bit_Size = 0;
@@ -147,6 +150,12 @@ public:
     {
         Name = name;
         Bit_Size = BS;
+    }
+    Register(string name, int BS, string id)
+    {
+        Name = name;
+        Bit_Size = BS;
+        ID = id;
     }
     void Link(Token *Requester);
 	void Apply(Token* Requester, vector<Token*> &T);
