@@ -3,7 +3,7 @@
 
 Selector::Selector(Token* i)
 {
-#if __ARM__
+#if false
 	ARC_Factory();
 #else
 	ARC_Factory();
@@ -14,11 +14,15 @@ Selector::Selector(Token* i)
 
 Selector::Selector()
 {
-#if __ARM__
+#if false
 	ARC_Factory();
 #else
 	ARC_Factory();
 #endif
+}
+
+Selector::~Selector()
+{
 }
 
 OpC* Selector::OpCode_Selector()

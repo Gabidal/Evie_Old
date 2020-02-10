@@ -5,39 +5,39 @@
 class Register;
 namespace x86
 {
-	int Reg_Turn = 0;
-	vector<Register*> Registers;
-	vector<OpC*> OpCodes;
+	static int Reg_Turn = 0;
+	static vector<Register*> Registers;
+	static vector<OpC*> OpCodes;
 	void ARC_Factory();
 
 	//Reg's
 	//32Bit
-	Register* EAX;
-	Register* EBX;
-	Register* ECX;
-	Register* EDX;
-	Register* EDI;
-	Register* ESI;
-	Register* ESP;
-	Register* EBP;
+	static Register* EAX;
+	static Register* EBX;
+	static Register* ECX;
+	static Register* EDX;
+	static Register* EDI;
+	static Register* ESI;
+	static Register* ESP;
+	static Register* EBP;
 	//16Bit
-	Register* AX;
-	Register* BX;
-	Register* CX;
-	Register* DX;
-	Register* DI;
-	Register* SI;
-	Register* SP;
-	Register* BP;
+	static Register* AX;
+	static Register* BX;
+	static Register* CX;
+	static Register* DX;
+	static Register* DI;
+	static Register* SI;
+	static Register* SP;
+	static Register* BP;
 	//8Bit
-	Register* AL;
-	Register* AH;
-	Register* BL;
-	Register* BH;
-	Register* CL;
-	Register* CH;
-	Register* DL;
-	Register* DH;
+	static Register* AL;
+	static Register* AH;
+	static Register* BL;
+	static Register* BH;
+	static Register* CL;
+	static Register* CH;
+	static Register* DL;
+	static Register* DH;
 }
 
 

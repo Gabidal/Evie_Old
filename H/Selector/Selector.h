@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-#if _ARM_
+#if false
 #include "../Architecture/ARM/ARM.h"
 using namespace ARM;
 #else
