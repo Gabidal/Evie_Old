@@ -12,8 +12,6 @@ class Parser
 {
 public:
 	string Working_Dir = "";
-    int Layer = 0;
-    int ID = 0;
     vector<Word*> Input;
     vector<Token*> Output;
     vector<string*> Included_Files; //for loop holes to not exist
@@ -23,12 +21,13 @@ public:
     void Init_Parenthesis(int i);
     void Init_Conditions(int i);
     void Math_Order();
-    void Init_Function(int i);
+    void Type_Definition(int i);
+    bool Defined(string name);
+    int Count_Familiar_Tokens(int F, int i);
+    void Init_Variable(int i);
     void Factory();
     Parser &operator=(const Parser& other)
     {
-        Layer = other.Layer;
-        ID = other.ID;
         return *this;
     }
     ~Parser()

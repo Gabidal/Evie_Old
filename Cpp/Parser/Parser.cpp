@@ -1,5 +1,6 @@
 #include "../../H/Parser/Parser.h"
 
+int Layer = 0;
 int ID = 0;
 
 void Parser::Init_Definition(int i)
@@ -65,6 +66,8 @@ void Parser::Init_Conditions(int i)
 	{
 		Token* New_Defined_Condition = new Token();
 		New_Defined_Condition->Name = Input.at(i)->WORD;
+		New_Defined_Condition->ID = ID + Layer;
+		ID++;
 
 		Parser P = *this;
 		P.Input.clear();
@@ -89,6 +92,7 @@ void Parser::Math_Order()
 	int i = 0;
 	for (Word* W : Input)
 	{
+		Init_Operator(i, ":");
 		Init_Operator(i, "*");
 		Init_Operator(i, "/");
 		Init_Operator(i, "<<");
@@ -103,19 +107,98 @@ void Parser::Math_Order()
 		Init_Operator(i, ">=");
 		Init_Operator(i, "!<");
 		Init_Operator(i, "!>");
+		Init_Operator(i, "=");
 		i++;
 	}
 }
 
-void Parser::Init_Function(int i)
+void Parser::Type_Definition(int i)
 {
-	//func a() (...)
-	if (Input.at(i)->is(_KEYWORD) && Input.at(i + 1)->is(_TEXT) && Input.at(i + 1)->is(_PAREHTHESIS))
+	//func a() 
+	//a() (...)
+	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD))
 	{
+		//a() #like a function call
+		//lets give the new parser new input tokens the other is the parameters
+		//and the other is the child of the defined type
+		Token* New_Defined_Text = new Token();
+		if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 1)
+		{
+			Parser P = *this;
+			P.Input.clear();
+			P.Input.push_back(Input.at(i + 1));
+			P.Factory();
+			New_Defined_Text->Left_Side_Token = P.Output.at(0);
+		}
+		if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
+		{
+			Parser P = *this;
+			P.Input.clear();
+			P.Input.push_back(Input.at(i + 2));
+			P.Factory();
+			New_Defined_Text->Right_Side_Token = P.Output.at(0);
+		}
+		New_Defined_Text->Name = Input.at(i)->WORD;
+		Output.push_back(New_Defined_Text);
+	}
+}
 
+bool Parser::Defined(string name)
+{
+	for (string t : Defined_Keywords)
+	{
+		if (t == name)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int Parser::Count_Familiar_Tokens(int F, int i)
+{
+	int u = 0;
+	for (int j = i; j < Input.size(); j++)
+	{
+		if (Input.at(j)->is(F))
+		{
+			u++;
+		}
+		else
+		{
+			return u;
+		}
+	}
+}
+
+void Parser::Init_Variable(int i)
+{
+	//var a = 1
+	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD) && (ID > 1))
+	{
+		Token* New_Variable = new Token();
+		New_Variable->Name = Input.at(i)->WORD;
+		Output.push_back(New_Variable);
+	}
+	if (Input.at(i)->is(_NUMBER) && (ID > 1))
+	{
+		Token* New_Number = new Token();
+		New_Number->Name = Input.at(i)->WORD;
+		Output.push_back(New_Number);
 	}
 }
 
 void Parser::Factory()
 {
+	Layer++;
+	Math_Order();
+	for (int i = 0; i < Input.size(); i++)
+	{
+		Init_Definition(i);
+		Init_Variable(i);
+		Init_Parenthesis(i);
+		Init_Conditions(i);
+		Type_Definition(i);
+	}
+	Layer--;
 }
