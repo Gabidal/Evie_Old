@@ -17,6 +17,7 @@ using namespace std;
 #define _Returning_ (1<<7)
 #define _Call_ (1<<8)
 #define _Parameter_ (1<<9)
+#define _Parenthesis_ (1<<10)
 extern int SYNTAX;
 
 #define Task_For_Returning (1<<0)
@@ -40,9 +41,9 @@ class Token
     bool Semanticked = false;
     Token* Offsetter = nullptr;
     Token* Parent = nullptr;
-    vector<Token*> Chidls;
     Token* Left_Side_Token;
     Token* Right_Side_Token;
+    vector<Token*> Childs;
     string Name = "";
     string Type = "";
     Register *Reg = nullptr; //used for real

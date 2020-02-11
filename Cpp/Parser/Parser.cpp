@@ -36,6 +36,24 @@ void Parser::Init_Operator(int i)
 	}
 }
 
+void Parser::Init_Parenthesis(int i)
+{
+	if (Input.at(i)->is(_PAREHTHESIS))
+	{
+		Token* New_Defined_Parenthesis = new Token();
+		Parser P = *this;
+		P.Input = Input.at(i)->Tokens;
+		P.Factory();
+		New_Defined_Parenthesis->Childs = P.Output;
+		New_Defined_Parenthesis->Flags |= _Parenthesis_;
+	}
+}
+
+void Parser::Init_Conditions(int i)
+{
+
+}
+
 void Parser::Factory()
 {
 }

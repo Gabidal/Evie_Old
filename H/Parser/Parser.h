@@ -20,6 +20,8 @@ public:
     vector<string> Defined_Keywords;
     void Init_Definition(int i);
     void Init_Operator(int i);
+    void Init_Parenthesis(int i);
+    void Init_Conditions(int i);
     void Factory();
     Parser &operator=(const Parser& other)
     {
