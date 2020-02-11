@@ -18,7 +18,22 @@ void Parser::Init_Definition(int i)
 
 void Parser::Init_Operator(int i)
 {
+	//a = 1
+	//a < b
+	if (Input.at(i)->is(_OPERATOR))
+	{
+		Token* New_Defined_Left_Side_Token = new Token();
+		New_Defined_Left_Side_Token->Name = Input.at(i - 1)->WORD;
+		Token* New_Defined_Right_Side_Token = new Token();
+		New_Defined_Right_Side_Token->Name = Input.at(i + 1)->WORD;
 
+		Token* New_Defined_Operator = new Token();
+		New_Defined_Operator->Name = Input.at(i)->WORD;
+		New_Defined_Operator->Left_Side_Token = New_Defined_Left_Side_Token;
+		New_Defined_Operator->Right_Side_Token = New_Defined_Right_Side_Token;
+
+		Output.push_back(New_Defined_Operator);
+	}
 }
 
 void Parser::Factory()

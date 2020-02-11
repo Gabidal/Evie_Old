@@ -40,9 +40,9 @@ class Token
     bool Semanticked = false;
     Token* Offsetter = nullptr;
     Token* Parent = nullptr;
-    vector<Token*> Paralell_Tokens;
-    vector<Token*> Left_Side_Token;
-    vector<Token*> Right_Side_Token;
+    vector<Token*> Chidls;
+    Token* Left_Side_Token;
+    Token* Right_Side_Token;
     string Name = "";
     string Type = "";
     Register *Reg = nullptr; //used for real
