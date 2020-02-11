@@ -103,7 +103,7 @@ int getWord(string source, int continu)
     {
         if (t == TEXT)
         {
-            if (text == "while" || text == "type" || text == "func" || text == "var" || text == "new" || text == "using" || text == "static" || text == "return" || text == "if" || text == "else")
+            if (text == "while" || text == "type" || text == "func" ||text == "using"|| text == "return" || text == "if" || text == "else")
             {
                 return _KEYWORD;
             }

@@ -7,42 +7,16 @@
 using namespace std;
 
 //creators
-#define _NULL_ (1<<0)
-#define Public (1<<1)
-#define Member (1<<2)
-#define Used (1<<3)
-#define Real (1<<4) 
-#define Function (1<<6)
-#define Macro (1<<7)
-#define TypE (1<<8)
-#define Define (1<<9)
-//Variables
-#define Number (1<<10)
-#define Ptr (1<<11)
-#define Variable (1<<12)
-#define Array (1<<13)
-#define String (1<<14)
-//Logical
-#define If (1<<15)
-#define Else (1<<16)
-#define While (1<<17)
-#define Returning (1<<18)
-//Arithmetic
-#define OPERATOR (1<<19)
-
-//Personan
-#define Loader (1<<20)
-#define Storer (1<<21)
-#define Evaluation (1<<22)
-#define NotOriginal (1<<23)
-#define Parameter (1<<24)
-#define Private (1<<25)
-#define This (1<<26)
-#define PARENT (1<<27)
-#define Call (1<<28)
-#define __NEW (1<<29)
-#define Address_Operator (1<<30)
-#define Successour (1<<31)
+#define _Number_ (1<<0)
+#define _External_ (1<<1)
+#define _Type_ (1<<2)
+#define _Function_ (1<<3)
+#define _Array_ (1<<4)
+#define _Condition_ (1<<5)
+#define _Operator_ (1<<6)
+#define _Returning_ (1<<7)
+#define _Call_ (1<<8)
+#define _Parameter_ (1<<9)
 extern int SYNTAX;
 
 #define Task_For_Returning (1<<0)
@@ -60,33 +34,21 @@ class Token
     int Value = 0;
     int StackOffset = 4;
     int ParameterCount = 0;
-    int AddedOffset = 4;
     int ParameterOffset = 4;
-    bool _INITTED = false;
-    bool _Value_Return_ = false;
     int ID = 0;
     int &Syntax = SYNTAX;
     bool Semanticked = false;
-    int Line_Number = 0;
-    Token *Offsetter = nullptr;
-    Token *ParentType = nullptr;
-    Token *ParentFunc = nullptr;
-	Token* ParentCondition = nullptr;
-    vector<Token*> SuccessorToken;
-    Token *Former = nullptr;
-    vector<Token*> Parameters;
-    vector<Token*> Childs;
+    Token* Offsetter = nullptr;
+    Token* Parent = nullptr;
+    vector<Token*> Paralell_Tokens;
+    vector<Token*> Left_Side_Token;
+    vector<Token*> Right_Side_Token;
     string Name = "";
-	string StringName = "";
+    string Type = "";
     Register *Reg = nullptr; //used for real
-    Register* SReg = nullptr;// used for simualtion
-    string &output;
-	vector<Token*> *Input;
     string SX();
-    Token(string &out, vector<Token*> *T) : output(out), Input(T){}
+    Token();
     Token &operator=(const Token& name);
-    string IR_Output = "";          //Emulator puth here the optimized code as string to back end to write it;
-    OpC* OpCode = nullptr;
 
     bool is(int flag);
     bool Any(int flags);
@@ -99,31 +61,7 @@ class Token
     string Make(Token *Source, string Do);
 	bool Passing_String = false;
     //func
-    vector<Token*> *Callations = new vector<Token*>;
-    int CallationAmount = 0;
-	Token* daddy_Func = nullptr;
-    void addChild(Token *t, bool func);
-    void addParameter(Token *Param);
-    void InitFunction();
-    void CallFunc(Token *Fetcher);
-    //type
-    Token *Origin = nullptr;
-    //Fetcher
-    Token *Fetcher = nullptr;
-    //ptr
-    void PTRING(Token *&T);
-	bool Outside_Of_Parameters = false;
-	//optimization
-	bool fixed_Location = false;
-	//array
-	bool ARRAY = false;
-	Token* repz = nullptr;
-	//tmp
-	Token* tmp = nullptr;
-	//callation
-	bool cleaned = false;
-    //ezz
-    string Return_Value();
+    vector<Token*> Calling_Amount;
 };
 
 
