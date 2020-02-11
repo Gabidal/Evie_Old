@@ -19,9 +19,11 @@ public:
     vector<string*> Included_Files; //for loop holes to not exist
     vector<string> Defined_Keywords;
     void Init_Definition(int i);
-    void Init_Operator(int i);
+    void Init_Operator(int i, string Filter);
     void Init_Parenthesis(int i);
     void Init_Conditions(int i);
+    void Math_Order();
+    void Init_Function(int i);
     void Factory();
     Parser &operator=(const Parser& other)
     {
