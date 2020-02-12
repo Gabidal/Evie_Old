@@ -2,6 +2,7 @@
 
 int Layer = 0;
 int ID = 0;
+extern vector<string> Pre_Defined_Tokens;
 
 void Parser::Init_Definition(int i)
 {
@@ -188,6 +189,25 @@ void Parser::Init_Variable(int i)
 	}
 }
 
+void Parser::Check_For_Correlation(int i)
+{
+	for (string s: Pre_Defined_Tokens)
+		if (Input.at(i)->WORD == s)
+		{
+			Token* New_Pre_Defined_Token = new Token();
+			New_Pre_Defined_Token->Type = s;
+
+			Parser P = *this;
+			P.Input.clear();
+			P.Input.push_back(Input.at(i + 1));
+			P.Factory();
+
+			New_Pre_Defined_Token->Right_Side_Token = P.Output.at(0);
+			Output.push_back(New_Pre_Defined_Token);
+			return;
+		}
+}
+
 void Parser::Factory()
 {
 	Layer++;
@@ -199,6 +219,7 @@ void Parser::Factory()
 		Init_Parenthesis(i);
 		Init_Conditions(i);
 		Type_Definition(i);
+		Check_For_Correlation(i);
 	}
 	Layer--;
 }

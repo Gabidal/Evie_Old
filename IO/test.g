@@ -10,5 +10,8 @@ func main()
 
 
 main()(
-	a = 2
+	if (a < 2)
+	(
+		a = 2
+	)
 )

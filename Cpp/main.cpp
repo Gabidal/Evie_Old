@@ -7,6 +7,14 @@
 using namespace std;
 int SYNTAX = 0;
 
+vector<string> Pre_Defined_Tokens;
+void Init_Pre_Defined_Tokens()
+{
+    Pre_Defined_Tokens.push_back("return");
+    Pre_Defined_Tokens.push_back("pop");
+    Pre_Defined_Tokens.push_back("push");
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc == 1)
@@ -26,21 +34,22 @@ int main(int argc, char* argv[])
     Definer d;
 	d.OpenFile(argv[1]);
 
-    Parser p(d.output, OUTPUT);
+    Parser p;
+    p.Input = d.output;
 	p.Working_Dir = argv[1];
-    p.Pattern_Init_Sys_Functions();
+    Init_Pre_Defined_Tokens();
     p.Factory();
 
-    Optimizer first(*p.Output);
-    first.Factory();
+    //Optimizer o(*p.Output);
+    //o.Factory();
 
-    Back b(*p.Output, OUTPUT);
-	b.Factory_Variables();
-    b.Factory();
-	OUTPUT += b.Strings;
+    //Back b(*p.Output, OUTPUT);
+	//b.Factory_Variables();
+    //b.Factory();
+	//OUTPUT += b.Strings;
 
 	ofstream o(argv[2]);
-    o << b.Output;
+    o << "banana";//b.Output;
     o.close();
 
     #ifndef _Win32_

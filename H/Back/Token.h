@@ -2,7 +2,6 @@
 #define _TOKEN_H_
 #include <string>
 #include <vector>
-#include "../Selector/Selector.h"
 
 using namespace std;
 

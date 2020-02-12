@@ -5,7 +5,6 @@
 #include "../Lexer/Word.h"
 #include "../Lexer/Definer.h"
 #include "../Back/Token.h"
-#include "../Back/StackFrame.h"
 using namespace std;
 
 class Parser
@@ -25,6 +24,7 @@ public:
     bool Defined(string name);
     int Count_Familiar_Tokens(int F, int i);
     void Init_Variable(int i);
+    void Check_For_Correlation(int i);
     void Factory();
     Parser &operator=(const Parser& other)
     {

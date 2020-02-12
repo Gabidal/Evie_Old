@@ -6,7 +6,6 @@
 #include "Assembly_Definitions.h"
 #include "StackFrame.h"
 #include <algorithm>
-#include "../Linux/Linux.h"
 extern int SYNTAX;
 
             //_// This is going to be rewritten/ Save Commit
