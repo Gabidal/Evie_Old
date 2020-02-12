@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include "../Lexer/Word.h"
-#include "../Lexer/Definer.h"
 #include "../Back/Token.h"
 using namespace std;
 

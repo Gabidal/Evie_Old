@@ -17,7 +17,6 @@ using namespace std;
 #define _Call_ (1<<8)
 #define _Parameter_ (1<<9)
 #define _Parenthesis_ (1<<10)
-extern int SYNTAX;
 
 #define Task_For_Returning (1<<0)
 #define Task_For_Type_Address_Basing (1<<1)
@@ -36,7 +35,6 @@ class Token
     int ParameterCount = 0;
     int ParameterOffset = 4;
     int ID = 0;
-    int &Syntax = SYNTAX;
     bool Semanticked = false;
     Token* Offsetter = nullptr;
     Token* Parent = nullptr;
@@ -47,7 +45,7 @@ class Token
     string Type = "";
     Register *Reg = nullptr; //used for real
     string SX();
-    Token();
+    Token(){}
     Token &operator=(const Token& name);
 
     bool is(int flag);
@@ -59,7 +57,6 @@ class Token
     string Get_Additive_Operator();
     //var
     string Make(Token *Source, string Do);
-	bool Passing_String = false;
     //func
     vector<Token*> Calling_Amount;
 };

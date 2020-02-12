@@ -1,11 +1,11 @@
 #include "../H/Lexer/Definer.h"
 #include "../H/Parser/Parser.h"
-#include "../H/Parser/Optimizer.h"
 #include "../H/Back/Back.h"
 #include <sstream>
 #include <iostream>
 using namespace std;
 int SYNTAX = 0;
+extern void Init_Registers();
 
 vector<string> Pre_Defined_Tokens;
 void Init_Pre_Defined_Tokens()
@@ -13,6 +13,7 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("return");
     Pre_Defined_Tokens.push_back("pop");
     Pre_Defined_Tokens.push_back("push");
+    Pre_Defined_Tokens.push_back("Size");
 }
 
 int main(int argc, char* argv[])
