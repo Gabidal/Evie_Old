@@ -16,7 +16,8 @@ public:
     vector<Token*> Input_Of_Tokens;
     vector<string> Defined_Types;
     vector<Token*> Output;
-    int Get_Location_Of_Type_Constructor(int i);
+    int Get_Location_Of_Type_Constructor(string type);
+    int Get_Size_Definition(Token* t);
     void Factory();
     Back()
     {

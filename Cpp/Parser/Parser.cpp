@@ -138,6 +138,7 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at(i + 2));
 			P.Factory();
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
+			New_Defined_Text->Flags |= _Constructor_;
 		}
 		New_Defined_Text->Name = Input.at(i)->WORD;
 		Output.push_back(New_Defined_Text);

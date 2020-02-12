@@ -17,6 +17,7 @@ using namespace std;
 #define _Call_ (1<<8)
 #define _Parameter_ (1<<9)
 #define _Parenthesis_ (1<<10)
+#define _Constructor_ (1<<11)
 
 #define Task_For_Returning (1<<0)
 #define Task_For_Type_Address_Basing (1<<1)
