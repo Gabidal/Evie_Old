@@ -14,7 +14,7 @@ void Parser::Init_Definition(int i)
 		Token* New_Defined_Type = new Token();
 		New_Defined_Type->Type = Input.at(i)->WORD;
 		New_Defined_Type->Name = Input.at(i + 1)->WORD;
-		Defined_Keywords.push_back(New_Defined_Type->Name);
+		Defined_Keywords.push_back(New_Defined_Type);
 	}
 }
 
@@ -140,16 +140,27 @@ void Parser::Type_Definition(int i)
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Constructor_;
 		}
+		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 1)
+		{
+			New_Defined_Text->Flags |= _Call_;
+		}
 		New_Defined_Text->Name = Input.at(i)->WORD;
+		for (Token* s : Defined_Keywords)
+		{
+			if (New_Defined_Text->Name == s->Name)
+			{
+				New_Defined_Text->Type = s->Type;
+			}
+		}
 		Output.push_back(New_Defined_Text);
 	}
 }
 
 bool Parser::Defined(string name)
 {
-	for (string t : Defined_Keywords)
+	for (Token* t : Defined_Keywords)
 	{
-		if (t == name)
+		if (t->Name == name)
 		{
 			return true;
 		}

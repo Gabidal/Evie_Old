@@ -14,10 +14,11 @@ private:
     // Mörkönenä was here. 20:09 thu 7.11.19;
 public:
     vector<Token*> Input_Of_Tokens;
-    vector<string> Defined_Types;
+    vector<Token*> Defined_Types;
     vector<Token*> Output;
     int Get_Location_Of_Type_Constructor(string type);
-    int Get_Size_Definition(Token* t);
+    int Get_Definition_Setting(Token* t, string f);
+    bool Has(Token* t, string s);
     void Factory();
     Back()
     {

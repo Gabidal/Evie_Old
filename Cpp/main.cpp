@@ -1,6 +1,7 @@
 #include "../H/Lexer/Definer.h"
 #include "../H/Parser/Parser.h"
 #include "../H/Back/Back.h"
+#include "../H/Emulator/Emulator.h"
 #include <sstream>
 #include <iostream>
 using namespace std;
@@ -13,7 +14,9 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("return");
     Pre_Defined_Tokens.push_back("pop");
     Pre_Defined_Tokens.push_back("push");
+    Pre_Defined_Tokens.push_back("halt");
     Pre_Defined_Tokens.push_back("Size");
+    Pre_Defined_Tokens.push_back("Static");
 }
 
 int main(int argc, char* argv[])
@@ -41,13 +44,14 @@ int main(int argc, char* argv[])
     Init_Pre_Defined_Tokens();
     p.Factory();
 
-    //Optimizer o(*p.Output);
-    //o.Factory();
+    Back b;
+    b.Input_Of_Tokens = p.Output;
+    b.Defined_Types = p.Defined_Keywords;
+    b.Factory();
 
-    //Back b(*p.Output, OUTPUT);
-	//b.Factory_Variables();
-    //b.Factory();
-	//OUTPUT += b.Strings;
+    Emulator e(p.Output);
+    e.Symbol_Table = b.Output;
+
 
 	ofstream o(argv[2]);
     o << "banana";//b.Output;

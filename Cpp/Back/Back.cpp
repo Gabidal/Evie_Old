@@ -12,15 +12,16 @@ int Back::Get_Location_Of_Type_Constructor(string type)
 		}
 		i++;
 	}
+	return -1;
 }
 
-int Back::Get_Size_Definition(Token* t)
+int Back::Get_Definition_Setting(Token* t, string f)
 {
 	for (Token* i : t->Right_Side_Token->Childs)
 	{
 		//go a double loop and make a vector for type settings like: Size, etc...
 		//loop and find if that type constructor has correlating settings and set em.
-		if (i->Name == "Size")
+		if (i->Name == f)
 		{
 			return atoi(i->Right_Side_Token->Name.c_str());
 		}
@@ -28,19 +29,52 @@ int Back::Get_Size_Definition(Token* t)
 	return 0;
 }
 
+bool Back::Has(Token* t, string s)
+{
+	for (Token* T : t->Right_Side_Token->Childs)
+	{
+		if (T->Name == s)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Back::Factory()
 {
 	//type var()
 	//(
 	//  Size 4		#the size of var type is 4Bits.
+	//	Static 0	#the value can change.
 	//)
-	for (string s: Defined_Types)
+	//func main()
+	//(
+	//	return 0
+	//)
+	for (Token* s: Defined_Types)
 	{
 		Token* New_Defined_Class = new Token();
 		//first lets find the defined types
-		int i = Get_Location_Of_Type_Constructor(s);
-		New_Defined_Class->Size = Get_Size_Definition(Input_Of_Tokens.at(i));
-		New_Defined_Class->Name = s;
-		New_Defined_Class->Type = s;
+		int i = Get_Location_Of_Type_Constructor(s->Name);
+		if (i == -1)
+		{
+			continue;
+		}
+		if (s->Type == "type")
+		{
+			New_Defined_Class->Size = Get_Definition_Setting(Input_Of_Tokens.at(i), "Size");
+			New_Defined_Class->Static = Get_Definition_Setting(Input_Of_Tokens.at(i), "Static");
+			New_Defined_Class->Name = s->Name;
+			New_Defined_Class->Type = s->Type;
+		}
+		else if (s->Type == "func")
+		{
+			if (Has(s, "return"))
+			{
+				New_Defined_Class->Flags |= _Returning_;
+			}
+		}
+		Output.push_back(New_Defined_Class);
 	}
 }

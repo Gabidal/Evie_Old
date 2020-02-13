@@ -9,6 +9,7 @@ using namespace std;
 class Emulator
 {
 public:
+	vector<Token*> Symbol_Table;
 	//STACK
 	vector<int> Stack;
 	int Original_Size = 0;
@@ -79,6 +80,7 @@ public:
 		Deep_Math = other.Deep_Math;
 		//cpu
 		Register_Turn = other.Register_Turn;
+		Symbol_Table = other.Symbol_Table;
 	}
 private:
 

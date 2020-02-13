@@ -31,7 +31,9 @@ class Token
   public:
     int Flags = 0;
     int Size = 0;
-    int Value = 0;
+    int Const_Value = 0;
+    int Dynamic_Value = 0;
+    int Static = 0;
     int StackOffset = 4;
     int ParameterCount = 0;
     int ParameterOffset = 4;
@@ -59,7 +61,6 @@ class Token
     //var
     string Make(Token *Source, string Do);
     //func
-    vector<Token*> Calling_Amount;
 };
 
 
