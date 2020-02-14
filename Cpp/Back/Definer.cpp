@@ -31,6 +31,10 @@ int Definer::Get_Definition_Setting(Token* t, string f)
 
 bool Definer::Has(Token* t, string s)
 {
+	if (t->Right_Side_Token == nullptr)
+	{
+		return false;
+	}
 	for (Token* T : t->Right_Side_Token->Childs)
 	{
 		if (T->Name == s)

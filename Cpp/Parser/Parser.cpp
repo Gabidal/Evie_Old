@@ -6,10 +6,14 @@ extern vector<string> Pre_Defined_Tokens;
 
 void Parser::Init_Definition(int i)
 {
+	if ((Input.size() > 1) != true)
+	{
+		return;
+	}
 	//type var
 	//var a
 	//func a()
-	if (Input.at(i)->is(_KEYWORD) && Input.at(i+1)->is(_TEXT))
+	if ((Input.at(i)->is(_KEYWORD) || Defined(Input.at(i)->WORD)) && Input.at(i+1)->is(_TEXT))
 	{
 		Token* New_Defined_Type = new Token();
 		New_Defined_Type->Type = Input.at(i)->WORD;
@@ -18,13 +22,14 @@ void Parser::Init_Definition(int i)
 	}
 }
 
-void Parser::Init_Operator(int i, string Filter)
+void Parser::Init_Operator(int i)
 {
 	//a = 1
 	//a < b
-	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->WORD == Filter))
+	if (Input.at(i)->is(_OPERATOR))
 	{
 		Parser P = *this;
+		P.Output.clear();
 		P.Input.clear();
 		P.Input.push_back(Input.at(i - 1));
 		P.Factory();
@@ -33,7 +38,7 @@ void Parser::Init_Operator(int i, string Filter)
 
 		P.Output.clear();
 		P.Input.clear();
-		P.Input.push_back(Input.at(i - 1));
+		P.Input.push_back(Input.at(i + 1));
 		P.Factory();
 
 		Token* New_Defined_Right_Side_Token = P.Output.at(0);
@@ -57,6 +62,7 @@ void Parser::Init_Parenthesis(int i)
 		P.Factory();
 		New_Defined_Parenthesis->Childs = P.Output;
 		New_Defined_Parenthesis->Flags |= _Parenthesis_;
+		Output.push_back(New_Defined_Parenthesis);
 	}
 }
 
@@ -88,33 +94,12 @@ void Parser::Init_Conditions(int i)
 	}
 }
 
-void Parser::Math_Order()
-{
-	int i = 0;
-	for (Word* W : Input)
-	{
-		Init_Operator(i, ":");
-		Init_Operator(i, "*");
-		Init_Operator(i, "/");
-		Init_Operator(i, "<<");
-		Init_Operator(i, ">>");
-		Init_Operator(i, "+");
-		Init_Operator(i, "-");
-		Init_Operator(i, "<");
-		Init_Operator(i, ">");
-		Init_Operator(i, "==");
-		Init_Operator(i, "!=");
-		Init_Operator(i, "<=");
-		Init_Operator(i, ">=");
-		Init_Operator(i, "!<");
-		Init_Operator(i, "!>");
-		Init_Operator(i, "=");
-		i++;
-	}
-}
-
 void Parser::Type_Definition(int i)
 {
+	if ((Input.size() > 1) != true)
+	{
+		return;
+	}
 	//func a() 
 	//a() (...)
 	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD))
@@ -130,6 +115,7 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at(i + 1));
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
+			New_Defined_Text->Flags |= _Call_;
 		}
 		if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{
@@ -139,10 +125,13 @@ void Parser::Type_Definition(int i)
 			P.Factory();
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Constructor_;
-		}
-		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 1)
-		{
-			New_Defined_Text->Flags |= _Call_;
+
+
+			P.Input.clear();
+			P.Output.clear();
+			P.Input.push_back(Input.at(i + 1));
+			P.Factory();
+			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 		}
 		New_Defined_Text->Name = Input.at(i)->WORD;
 		for (Token* s : Defined_Keywords)
@@ -187,16 +176,17 @@ int Parser::Count_Familiar_Tokens(int F, int i)
 void Parser::Init_Variable(int i)
 {
 	//var a = 1
-	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD) && (ID > 1))
+	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD) && (Layer > 1))
 	{
 		Token* New_Variable = new Token();
 		New_Variable->Name = Input.at(i)->WORD;
 		Output.push_back(New_Variable);
 	}
-	if (Input.at(i)->is(_NUMBER) && (ID > 1))
+	if (Input.at(i)->is(_NUMBER) && (Layer > 1))
 	{
 		Token* New_Number = new Token();
 		New_Number->Name = Input.at(i)->WORD;
+		New_Number->Flags |= _Number_;
 		Output.push_back(New_Number);
 	}
 }
@@ -216,6 +206,7 @@ void Parser::Check_For_Correlation(int i)
 
 			New_Pre_Defined_Token->Right_Side_Token = P.Output.at(0);
 			Output.push_back(New_Pre_Defined_Token);
+			Input.erase(Input.begin() + i + 1);
 			return;
 		}
 }
@@ -223,9 +214,9 @@ void Parser::Check_For_Correlation(int i)
 void Parser::Factory()
 {
 	Layer++;
-	Math_Order();
 	for (int i = 0; i < Input.size(); i++)
 	{
+		Init_Operator(i);
 		Init_Definition(i);
 		Init_Variable(i);
 		Init_Parenthesis(i);
