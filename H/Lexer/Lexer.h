@@ -1,5 +1,5 @@
-#ifndef _DEFINER_H_
-#define _DEFINER_H_
+#ifndef _LEXER_H_
+#define _LEXER_H_
 #include <vector>
 #include <string>
 #include "Word.h"
@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-class Definer
+class Lexer
 {
 public:
     string Lines;
@@ -16,8 +16,8 @@ public:
     bool INSIDE_OF_TYPE = false;
     bool INSIDE_OF_FUNC = false;
 
-    Definer(){}
-    ~Definer(){}
+    Lexer(){}
+    ~Lexer(){}
 
     void Define();
 

@@ -1,5 +1,5 @@
 #include "..\..\H\Semantic\Semantic.h"
-
+/*
 Token Semantic::Factory()
 {
 	Operator_Breaker(Input);
@@ -38,10 +38,10 @@ void Semantic::Assembler()
 	//this function assembles the insides 
 	//of the Raw_list of mathematical tokens
 	//[[[a = b] + [c * d]] - e]
-	/*Order_Pusher("=", "=");
-	Order_Pusher("*", "/");
-	Order_Pusher("<<", ">>");
-	Order_Pusher("+", "-");*/
+	//Order_Pusher("=", "=");
+	//Order_Pusher("*", "/");
+	//Order_Pusher("<<", ">>");
+	//Order_Pusher("+", "-");
 	while (Raw_Order.size() > 1)
 	{
 		Order_Finder("=", "=");
@@ -88,5 +88,5 @@ void Semantic::Order_Pusher(string x, string y)
 		}
 		i++;
 	}
-}
+}*/
 

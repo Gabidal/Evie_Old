@@ -1,4 +1,4 @@
-#include "../../H/Lexer/Definer.h"
+#include "../../H/Lexer/Lexer.h"
 
 //a : b = c + find(a) * (a + b)
 
@@ -122,7 +122,7 @@ int getWord(string source, int continu)
         }
         else if (t == CONTENT)
         {
-            Definer d;
+            Lexer d;
             d.Direct(text.substr(1, text.size() - 2));
             w->Tokens = d.output;
             return _PAREHTHESIS;
@@ -142,7 +142,7 @@ int getWord(string source, int continu)
         return 0;
     }
 
-void Definer::Define()
+void Lexer::Define()
 {
     Type Base = UNSPECIFIED;
 	Type Current = UNSPECIFIED;
@@ -196,7 +196,7 @@ string ReplaceString(string subject, const string& search, const string& replace
 	return subject;
 }
 
-void Definer::OpenFile(const char* fileName)
+void Lexer::OpenFile(const char* fileName)
 {
     ifstream file(fileName);
     if (file.is_open() != true)
@@ -225,7 +225,7 @@ void Definer::OpenFile(const char* fileName)
     Define();
 }
 
-void Definer::Direct(string raw)
+void Lexer::Direct(string raw)
 {
     Lines = raw;
     Define();

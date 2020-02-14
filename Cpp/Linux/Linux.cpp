@@ -1,5 +1,5 @@
 #include "../../H/Linux/Linux.h"
-
+/*
 string Linux::Malloc()
 {
 	string self =
@@ -68,3 +68,4 @@ string Linux::SYS_CALL()
 		RET + NL + NL;
 	return self;
 }
+*/

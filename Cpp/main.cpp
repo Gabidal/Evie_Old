@@ -1,12 +1,14 @@
-#include "../H/Lexer/Definer.h"
+#include "../H/Lexer/Lexer.h"
 #include "../H/Parser/Parser.h"
-#include "../H/Back/Back.h"
+#include "../H/Back/Definer.h"
 #include "../H/Emulator/Emulator.h"
+#include "../H/Selector/Selector.h"
 #include <sstream>
 #include <iostream>
 using namespace std;
 int SYNTAX = 0;
 extern void Init_Registers();
+Selector *S;
 
 vector<string> Pre_Defined_Tokens;
 void Init_Pre_Defined_Tokens()
@@ -19,6 +21,7 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("Static");
 }
 
+//main ~/test.g ~/test.asm -win32 -x86
 int main(int argc, char* argv[])
 {
 	if (argc == 1)
@@ -26,49 +29,54 @@ int main(int argc, char* argv[])
 		return -1;
 	}
     Init_Registers();
-
+    S = new Selector(argv[4]);
 	string OUTPUT = "";
-#ifndef _win32_
-    OUTPUT = "global main\n";
-#else
-    OUTPUT = "global _start\n_start:\ncall main\nmov eax, 1\n mov ebx, 0\nint 80h\n\n";
-#endif // !1
+    if (argv[3] == "-win32")
+    {
+        OUTPUT = "global main\n";
+    }
+    else if (argv[3] == "-unix")
+    {
+        OUTPUT = "global _start\n_start:\ncall main\nmov eax, 1\n mov ebx, 0\nint 80h\n\n";
+    }
 
 
-    Definer d;
-	d.OpenFile(argv[1]);
+    Lexer l;
+	l.OpenFile(argv[1]);
 
     Parser p;
-    p.Input = d.output;
+    p.Input = l.output;
 	p.Working_Dir = argv[1];
     Init_Pre_Defined_Tokens();
     p.Factory();
 
-    Back b;
-    b.Input_Of_Tokens = p.Output;
-    b.Defined_Types = p.Defined_Keywords;
-    b.Factory();
+    Definer d;
+    d.Input_Of_Tokens = p.Output;
+    d.Defined_Types = p.Defined_Keywords;
+    d.Factory();
 
-    Emulator e(p.Output);
-    e.Symbol_Table = b.Output;
+
 
 
 	ofstream o(argv[2]);
     o << "banana";//b.Output;
     o.close();
 
-    #ifndef _Win32_
-    stringstream output;
-    output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << argv[1] << ".obj " << argv[2];
+    if (argv[3] == "-win32")
+    {
+        stringstream output;
+        output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << argv[1] << ".obj " << argv[2];
 
-    system(output.str().c_str());
-    output = stringstream();
+        std::system(output.str().c_str());
+        output = stringstream();
 
-    output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/debug coff " << "/entry main " << argv[1] << ".obj " << "kernel32.dll ";
+        output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/debug coff " << "/entry main " << argv[1] << ".obj " << "kernel32.dll ";
 
-    system(output.str().c_str());
-    #else
+        std::system(output.str().c_str());
+    }
+    else if (argv[3] == "-unix")
+    {
 
-    #endif
+    }
     return 0;
 }

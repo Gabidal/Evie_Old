@@ -43,7 +43,6 @@ public:
 	}
 	int Factory();
 	int Start_Simulation(int start);
-	void Branch_Picker(int i);
 	int Next_Op_Picker(Token& T);
 	bool Unlock_Requem(Token *T);
 	Register* Optimized_Register_Giver(Token* T);
@@ -67,7 +66,7 @@ public:
 	void clean_REG();
 	vector<Token*> Get_List(Token* t);
 	void Classify_Right_Registers(Token* d, Token* s);
-
+	bool Has(Token* t, string s);
 
 
 	Emulator& operator=(const Emulator& other)

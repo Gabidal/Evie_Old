@@ -1,80 +1,60 @@
 #include "../../H/Back/Back.h"
-extern vector<string> Pre_Defined_Tokens;
+#include "../../H/Selector/Selector.h"
+extern Selector* S;
 
-int Back::Get_Location_Of_Type_Constructor(string type)
+
+string Back::Get_Agent(bool Giver, Token* t)
 {
-	int i = 0;
-	for (Token* T : Input_Of_Tokens)
+	//if it is number.
+	if (t->is(_Number_))
 	{
-		if (T->is(_Constructor_) && T->Name == type)
-		{
-			return i;
-		}
-		i++;
+		return t->Name;
 	}
-	return -1;
+	//first find if this token has a register to it.
+	if (S->Get_Belonging_Reg(t->Name) != nullptr)
+	{
+		return S->Get_Belonging_Reg(t->Name)->Name;
+	}
+	//then get it from mem.
+	if (Giver)
+	{
+		return Get_Mem_Address(t);
+	}
+	else
+	{
+		return Get_Reg(t);
+	}
 }
 
-int Back::Get_Definition_Setting(Token* t, string f)
+string Back::Get_Reg(Token* t)
 {
-	for (Token* i : t->Right_Side_Token->Childs)
+	string Reg_Name = S->Registers.at(S->Reg_Turn)->Name;
+
+	Output += S->Get_ID("=") + Reg_Name + FROM + Get_Mem_Address(t) + NL;
+	if (S->Reg_Turn > (S->Registers.size() - 1))
 	{
-		//go a double loop and make a vector for type settings like: Size, etc...
-		//loop and find if that type constructor has correlating settings and set em.
-		if (i->Name == f)
-		{
-			return atoi(i->Right_Side_Token->Name.c_str());
-		}
+		S->Reg_Turn = 0;
 	}
-	return 0;
+	else
+	{
+		S->Reg_Turn++;
+	}
+	return Reg_Name;
 }
 
-bool Back::Has(Token* t, string s)
+void Back::Make(Token*Dest, Token* Source, string Operator)
 {
-	for (Token* T : t->Right_Side_Token->Childs)
-	{
-		if (T->Name == s)
-		{
-			return true;
-		}
-	}
-	return false;
+	Output += S->Get_ID(Operator) + Get_Agent(true, Dest) + FROM + Get_Agent(false, Source) + NL;
 }
 
-void Back::Factory()
+string Back::Get_Mem_Address(Token* t)
 {
-	//type var()
-	//(
-	//  Size 4		#the size of var type is 4Bits.
-	//	Static 0	#the value can change.
-	//)
-	//func main()
-	//(
-	//	return 0
-	//)
-	for (Token* s: Defined_Types)
+	if (t->is(_External_))
 	{
-		Token* New_Defined_Class = new Token();
-		//first lets find the defined types
-		int i = Get_Location_Of_Type_Constructor(s->Name);
-		if (i == -1)
-		{
-			continue;
-		}
-		if (s->Type == "type")
-		{
-			New_Defined_Class->Size = Get_Definition_Setting(Input_Of_Tokens.at(i), "Size");
-			New_Defined_Class->Static = Get_Definition_Setting(Input_Of_Tokens.at(i), "Static");
-			New_Defined_Class->Name = s->Name;
-			New_Defined_Class->Type = s->Type;
-		}
-		else if (s->Type == "func")
-		{
-			if (Has(s, "return"))
-			{
-				New_Defined_Class->Flags |= _Returning_;
-			}
-		}
-		Output.push_back(New_Defined_Class);
+		return "[" + t->Name + "]";
+	}
+	else
+	{
+		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing) + t->Get_Additive_Operator() + to_string(t->StackOffset) + "]";
 	}
 }

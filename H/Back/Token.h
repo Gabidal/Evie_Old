@@ -53,13 +53,8 @@ class Token
 
     bool is(int flag);
     bool Any(int flags);
-    string Get_Agent(bool Giver);
-    //agent prepensitives
-    string Get_Reg();
-    string Get_Mem_Address();
     string Get_Additive_Operator();
     //var
-    string Make(Token *Source, string Do);
     //func
 };
 

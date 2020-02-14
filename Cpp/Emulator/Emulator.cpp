@@ -1,36 +1,17 @@
 #include "../../H/Emulator/Emulator.h"
 
-
+/*
 int Emulator::Factory()
 {
 	for (Token* t : Input)
 	{
-		if ((t->is(If) || (t->is(Else) && t->is(If)) || t->is(While)) && (Unlock_Requem(t->Parameters.at(0))) && Return_Inside_If(t->Childs))
-		{
-			return Next_Op_Picker(*t);
-		}
-		else if (t->is(Else) && (t->Name == "else") && (Unlock_Requem(t->Former->Parameters.at(0)) == false) && Return_Inside_If(t->Childs))
-		{
-			return Next_Op_Picker(*t);
-		}
-		else if ((Input.size() == 1) && ((t->is(Call)) || (t->is(Function))))
+		if (Has(t, "return"))
 		{
 			return Next_Op_Picker(*t);
 		}
 		else
 		{
 			Next_Op_Picker(*t);
-		}
-		if (t->Name == "return")
-		{
-			if (t->Childs.at(0)->is(Number))
-			{
-				return Get_Value_Of(t->Childs.at(0));
-			}
-			else
-			{
-				return Find_From_Log(t->Childs.at(0))->Value;
-			}
 		}
 	}
 }
@@ -40,13 +21,10 @@ int Emulator::Start_Simulation(int start)
 	return Next_Op_Picker(*Input.at(start));
 }
 
-void Emulator::Branch_Picker(int i)
-{
-
-}
-
 int Emulator::Next_Op_Picker(Token &T)
 {
+
+
 	if (T.is(Function))
 	{
 		if (Simulate_Function_Return_Value(&T))
@@ -931,7 +909,7 @@ vector<Token*> Emulator::Get_List(Token* t)
 
 void Emulator::Classify_Right_Registers(Token* d, Token* s)
 {
-	/*if ((d->SReg != nullptr) && d->SReg->Name == "R1")
+	if ((d->SReg != nullptr) && d->SReg->Name == "R1")
 	{
 		Register_Turn = 1;
 	}
@@ -946,6 +924,26 @@ void Emulator::Classify_Right_Registers(Token* d, Token* s)
 	else if ((s->SReg != nullptr) && s->SReg->Name == "R4")
 	{
 		Register_Turn = 0;
-	}*/
+	}
 }
+
+bool Emulator::Has(Token* t, string s)
+{
+	if (t->Type == s)
+	{
+		return true;
+	}
+	else if (t->Right_Side_Token->Type == s)
+	{
+		return true;
+	}
+	for (Token* T : t->Right_Side_Token->Childs)
+	{
+		if (T->Type == s)
+		{
+			return true;
+		}
+	}
+	return false;
+}*/
 

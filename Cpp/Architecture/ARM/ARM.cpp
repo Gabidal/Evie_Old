@@ -1,4 +1,4 @@
-//
+
 #include "..\..\..\H\Architecture\ARM\ARM.h"
 
 void ARM::ARC_Factory()

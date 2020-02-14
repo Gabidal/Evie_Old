@@ -1,5 +1,5 @@
 #include "../../H/Windows/Windows.h"
-
+/*
 string Windows::Raw_Print()
 {
 	string self = "extern _GetStdHandle@4" + NL +
@@ -57,4 +57,4 @@ string Windows::SYS_CALL()
 	string self = "" +
 		string("a");
 	return self;
-}
+}*/

@@ -1,24 +1,20 @@
 #include "..\..\H\Selector\Selector.h"
 #include "../../H/Back/Token.h"
 
-Selector::Selector(Token* i)
+Selector::Selector(string s)
 {
-#if false
-	ARC_Factory();
-#else
-	ARC_Factory();
-#endif
-	Input = i;
-	I = Input->Name;
-}
-
-Selector::Selector()
-{
-#if false
-	ARC_Factory();
-#else
-	ARC_Factory();
-#endif
+	if (s == "-x86")
+	{
+		x86 x;
+		Registers = x.Registers;
+		OpCodes = x.OpCodes;
+	}
+	else if (s == "-arm")
+	{
+		ARM x;
+		Registers = x.Registers;
+		OpCodes = x.OpCodes;
+	}
 }
 
 Selector::~Selector()
@@ -39,6 +35,18 @@ string Selector::Get_Right_Reg(int F)
 			return r->Name;
 		}
 	}
+}
+
+Register* Selector::Get_Belonging_Reg(string name)
+{
+	for (Register* r: Registers)
+	{
+		if (r->Base->Name == name)
+		{
+			return r;
+		}
+	}
+	return nullptr;
 }
 
 string Selector::Get_ID(string id)
