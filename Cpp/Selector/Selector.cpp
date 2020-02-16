@@ -3,16 +3,21 @@
 
 Selector::Selector(string s)
 {
+	Board_type = s;
 	if (s == "-x86")
 	{
 		x86 x;
-		Registers = x.Registers;
+		Registers32 = x.Registers32;
+		Registers16 = x.Registers16;
+		Registers8 = x.Registers8;
 		OpCodes = x.OpCodes;
 	}
 	else if (s == "-arm")
 	{
 		ARM x;
-		Registers = x.Registers;
+		Registers32 = x.Registers32;
+		Registers16 = x.Registers16;
+		Registers8 = x.Registers8;
 		OpCodes = x.OpCodes;
 	}
 }
@@ -26,20 +31,57 @@ OpC* Selector::OpCode_Selector()
 	return nullptr;
 }
 
-string Selector::Get_Right_Reg(int F)
+string Selector::Get_Right_Reg(int F, int Size)
 {
-	for (Register* r : Registers)
+	if (Size == 4)
 	{
-		if (r->is(F))
+		for (Register* r : Registers32)
 		{
-			return r->Name;
+			if (r->is(F))
+			{
+				return r->Name;
+			}
+		}
+	}
+	else if (Size == 2)
+	{
+		for (Register* r : Registers16)
+		{
+			if (r->is(F))
+			{
+				return r->Name;
+			}
+		}
+	}
+	else
+	{
+		for (Register* r : Registers8)
+		{
+			if (r->is(F))
+			{
+				return r->Name;
+			}
 		}
 	}
 }
 
 Register* Selector::Get_Belonging_Reg(string name)
 {
-	for (Register* r: Registers)
+	for (Register* r : Registers32)
+	{
+		if (r->Base->Name == name)
+		{
+			return r;
+		}
+	}
+	for (Register* r : Registers16)
+	{
+		if (r->Base->Name == name)
+		{
+			return r;
+		}
+	}
+	for (Register* r : Registers8)
 	{
 		if (r->Base->Name == name)
 		{
@@ -61,14 +103,42 @@ string Selector::Get_ID(string id)
 	cout << "unable to find OpCode " << id << endl;
 }
 
-Register* Selector::Get_Reg(string id)
+Register* Selector::Get_Reg(int Size)
 {
-	for (Register* o : Registers)
+	if (Size == 4)
 	{
-		if (o->ID == id)
+		if (Reg_Turn32 >= Registers32.size() - 1)
 		{
-			return o;
+			Reg_Turn32 = 1;
 		}
+		else
+		{
+			Reg_Turn32++;
+		}
+		return Registers32.at(Reg_Turn32 - 1);
 	}
-	cout << "unable to find Register " << id << endl;
+	else if (Size == 2)
+	{
+		if (Reg_Turn16 >= Registers16.size() - 1)
+		{
+			Reg_Turn16 = 1;
+		}
+		else
+		{
+			Reg_Turn16++;
+		}
+		return Registers16.at(Reg_Turn16 - 1);
+	}
+	else
+	{
+		if (Reg_Turn8 >= Registers8.size() - 1)
+		{
+			Reg_Turn8 = 1;
+		}
+		else
+		{
+			Reg_Turn8++;
+		}
+		return Registers8.at(Reg_Turn8 - 1);
+	}
 }

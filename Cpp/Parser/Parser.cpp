@@ -256,6 +256,7 @@ void Parser::Init_Variable(int i)
 		Token* New_Number = new Token();
 		New_Number->Name = Input.at(i)->WORD;
 		New_Number->Flags |= _Number_;
+		New_Number->Size = 4;
 		Output.push_back(New_Number);
 	}
 }

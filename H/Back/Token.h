@@ -23,6 +23,8 @@ using namespace std;
 #define Task_For_Type_Address_Basing (1<<1)
 #define Task_For_Type_Address (1<<2)
 #define Task_For_Moving_Parameter (1<<3)
+#define Task_For_Offsetting (1<<4)
+#define Task_For_Remainder (1<<5)
 
 class Register;
 

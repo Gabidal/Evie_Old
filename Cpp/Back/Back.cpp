@@ -1,9 +1,10 @@
 #include "../../H/Back/Back.h"
 #include "../../H/Selector/Selector.h"
 extern Selector* S;
+#define _SYSTEM_BIT_TYPE 4
 
 
-string Back::Get_Agent(bool Giver, Token* t)
+string Back::Get_Agent(bool Storing, Token* t)
 {
 	//if it is number.
 	if (t->is(_Number_))
@@ -16,35 +17,26 @@ string Back::Get_Agent(bool Giver, Token* t)
 		return S->Get_Belonging_Reg(t->Name)->Name;
 	}
 	//then get it from mem.
-	if (Giver)
+	if (Storing)
 	{
 		return Get_Mem_Address(t);
 	}
 	else
 	{
-		return Get_Reg(t);
+		return S->Get_Reg(t->Size)->Name;
 	}
 }
 
-string Back::Get_Reg(Token* t)
+void Back::Make(Token*Dest, Token* Source, string Operator, bool Storing)
 {
-	string Reg_Name = S->Registers.at(S->Reg_Turn)->Name;
-
-	Output += S->Get_ID("=") + Reg_Name + FROM + Get_Mem_Address(t) + NL;
-	if (S->Reg_Turn > (S->Registers.size() - 1))
+	if (Source == nullptr)
 	{
-		S->Reg_Turn = 0;
+		Output += S->Get_ID(Operator) + Get_Agent(Storing, Dest) + NL;
 	}
 	else
 	{
-		S->Reg_Turn++;
+		Output += S->Get_ID(Operator) + Get_Agent(Storing, Dest) + FROM + Get_Size_Translator(Source->Size) + Get_Agent(false, Source) + NL;
 	}
-	return Reg_Name;
-}
-
-void Back::Make(Token*Dest, Token* Source, string Operator)
-{
-	Output += S->Get_ID(Operator) + Get_Agent(true, Dest) + FROM + Get_Agent(false, Source) + NL;
 }
 
 string Back::Get_Mem_Address(Token* t)
@@ -55,6 +47,11 @@ string Back::Get_Mem_Address(Token* t)
 	}
 	else
 	{
-		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing) + t->Get_Additive_Operator() + to_string(t->StackOffset) + "]";
+		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE) + t->Get_Additive_Operator() + to_string(t->StackOffset) + "]";
 	}
+}
+
+string Back::Get_Size_Translator(int Size)
+{
+	return S->Get_ID(to_string(Size));
 }

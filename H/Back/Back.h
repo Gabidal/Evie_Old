@@ -12,11 +12,12 @@ public:
 	{
 	}
 	string& Output;
-	string Get_Agent(bool Giver, Token* t);
+	string Get_Agent(bool Storing, Token* t);
 	//agent prepensitives
 	string Get_Reg(Token* t);
 	string Get_Mem_Address(Token *t);
-	void Make(Token* Dest, Token* Source, string Do);
+	string Get_Size_Translator(int Size);
+	void Make(Token* Dest, Token* Source, string Operator, bool Storing_To_Mem);
 
 
 	~Back();

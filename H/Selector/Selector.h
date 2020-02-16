@@ -11,15 +11,20 @@ class Token;
 class Selector
 {
 public:
-	int Reg_Turn = 0;
-	vector<Register*> Registers;
+	string Board_type = "";
+	int Reg_Turn32 = 0;
+	int Reg_Turn16 = 0;
+	int Reg_Turn8 = 0;
+	vector<Register*> Registers32;
+	vector<Register*> Registers16;
+	vector<Register*> Registers8;
 	vector<OpC*> OpCodes;
 	Token* Input;
 	string I = "";
 	OpC* OpCode_Selector();
 	string Get_ID(string id);
-	Register* Get_Reg(string id);
-	string Get_Right_Reg(int F);
+	Register* Get_Reg(int Size);
+	string Get_Right_Reg(int F, int Size);
 	Register* Get_Belonging_Reg(string name);
 	Selector(string s);
 	~Selector();
