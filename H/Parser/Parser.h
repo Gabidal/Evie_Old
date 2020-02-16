@@ -16,6 +16,8 @@ public:
     vector<Token*> Defined_Keywords;
     void Init_Definition(int i);
     void Init_Operator(int i);
+    void Patternize_Operations(int& i, string f);
+    void Do_In_Order();
     void Init_Parenthesis(int i);
     void Init_Conditions(int i);
     void Type_Definition(int i);

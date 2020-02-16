@@ -6,7 +6,7 @@ extern vector<string> Pre_Defined_Tokens;
 
 void Parser::Init_Definition(int i)
 {
-	if ((Input.size() > 1) != true)
+	if (i >= (Input.size() - 1))
 	{
 		return;
 	}
@@ -31,14 +31,14 @@ void Parser::Init_Operator(int i)
 		Parser P = *this;
 		P.Output.clear();
 		P.Input.clear();
-		P.Input.push_back(Input.at(i - 1));
+		P.Input.push_back(Input.at(i)->Tokens.at(0));
 		P.Factory();
 
 		Token* New_Defined_Left_Side_Token = P.Output.at(0);
 
 		P.Output.clear();
 		P.Input.clear();
-		P.Input.push_back(Input.at(i + 1));
+		P.Input.push_back(Input.at(i)->Tokens.at(1));
 		P.Factory();
 
 		Token* New_Defined_Right_Side_Token = P.Output.at(0);
@@ -50,6 +50,61 @@ void Parser::Init_Operator(int i)
 
 		Output.push_back(New_Defined_Operator);
 	}
+}
+
+void Parser::Patternize_Operations(int& i, string f)
+{
+	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->WORD == f) && (Input.at(i)->_initted != true))
+	{
+		Input.at(i)->Tokens.push_back(Input.at(i - 1));
+		Input.at(i)->Tokens.push_back(Input.at(i + 1));
+		Input.at(i)->_initted = true;
+
+		Input.erase(Input.begin() + i + 1);
+		Input.erase(Input.begin() + i - 1);
+		i--;
+	}
+}
+
+void Parser::Do_In_Order()
+{
+	//the combination and multilayering of operations.
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, ":");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "*");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "/");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "<<");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, ">>");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "&");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "|");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "+");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "-");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "<");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, ">");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "==");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "!=");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "<=");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, ">=");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "!<");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "!>");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "=");
 }
 
 void Parser::Init_Parenthesis(int i)
@@ -68,6 +123,10 @@ void Parser::Init_Parenthesis(int i)
 
 void Parser::Init_Conditions(int i)
 {
+	if (i >= (Input.size() - 1))
+	{
+		return;
+	}
 	//if (a < b) (...)
 	if (Input.at(i)->is(_KEYWORD) && Input.at(i+1)->is(_PAREHTHESIS))
 	{
@@ -96,7 +155,7 @@ void Parser::Init_Conditions(int i)
 
 void Parser::Type_Definition(int i)
 {
-	if ((Input.size() > 1) != true)
+	if (i >= (Input.size() - 1))
 	{
 		return;
 	}
@@ -116,8 +175,9 @@ void Parser::Type_Definition(int i)
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Call_;
+			Input.erase(Input.begin() + i + 1);
 		}
-		if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
+		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{
 			Parser P = *this;
 			P.Input.clear();
@@ -132,6 +192,14 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at(i + 1));
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
+
+
+			Input.erase(Input.begin() + i + 2);
+			Input.erase(Input.begin() + i + 1);
+		}
+		else
+		{
+			return;
 		}
 		New_Defined_Text->Name = Input.at(i)->WORD;
 		for (Token* s : Defined_Keywords)
@@ -139,6 +207,7 @@ void Parser::Type_Definition(int i)
 			if (New_Defined_Text->Name == s->Name)
 			{
 				New_Defined_Text->Type = s->Type;
+				break;
 			}
 		}
 		Output.push_back(New_Defined_Text);
@@ -215,9 +284,11 @@ void Parser::Factory()
 {
 	Layer++;
 	for (int i = 0; i < Input.size(); i++)
+		Init_Definition(i);
+	Do_In_Order();
+	for (int i = 0; i < Input.size(); i++)
 	{
 		Init_Operator(i);
-		Init_Definition(i);
 		Init_Variable(i);
 		Init_Parenthesis(i);
 		Init_Conditions(i);

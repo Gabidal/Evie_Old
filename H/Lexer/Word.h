@@ -23,15 +23,7 @@ public:
     bool UsedToken = false;
     Word *Offsetter = 0;
     string Fetcher = "";
-    bool _func = false;
-    bool _type = false;
-    bool _condition = false;
-    bool _else_if = false;
-    bool _evaluate = false;
-    bool _ptr = false;
-    bool _array = false;
-	bool _string = false;
-	bool _address_operator = false;
+    bool _initted = false;
     vector<Word*> Tokens;
     int LineNumber = 0;
     string WORD = "";
