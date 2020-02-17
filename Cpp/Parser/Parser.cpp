@@ -180,6 +180,7 @@ void Parser::Type_Definition(int i)
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{
 			Parser P = *this;
+			P.Output.clear();
 			P.Input.clear();
 			P.Input.push_back(Input.at(i + 2));
 			P.Factory();

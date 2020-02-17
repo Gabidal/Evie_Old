@@ -23,34 +23,17 @@ int Emulator::Start_Simulation(int start)
 
 int Emulator::Next_Op_Picker(Token &T)
 {
-
-
-	if (T.is(Function))
+	if (T.Type == "func")
 	{
-		if (Simulate_Function_Return_Value(&T))
+		if (T.is(_Call_))
 		{
-			Emulator E = *this;
-			E.Input = T.Childs;
-			E.Layer = 0;
-			E.Clear_Log();
-			if (T.Callations->size() > 0)
-			{
-				E.Sync_Parameters(T.Parameters);
-				int result = E.Factory();
-				this->Register_Turn = E.Register_Turn;
-				if (T.is(Returning))
-				{
-					return result;
-				}
-			}
-			else
-			{
-				return 0;
-			}
+			for (int i = 0; i < Input.size();)
+			E.Input.clear();
+			int Result = 
 		}
 		else
 		{
-			return T.Value;
+			//constructor
 		}
 	}
 	else if (T.is(Call))
@@ -945,5 +928,5 @@ bool Emulator::Has(Token* t, string s)
 		}
 	}
 	return false;
-}*/
-
+}
+*/
