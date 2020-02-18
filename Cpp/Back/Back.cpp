@@ -27,15 +27,17 @@ string Back::Get_Agent(bool Storing, Token* t)
 	}
 }
 
-void Back::Make(Token*Dest, Token* Source, string Operator, bool Storing)
+void Back::Make(IR* ir, bool Storing)
 {
-	if (Source == nullptr)
+	Output += S->Get_ID(ir->PreFix) + S->Get_ID(ir->ID);
+	for (int i = 0; i < ir->Parameters.size(); i++)
 	{
-		Output += S->Get_ID(Operator) + Get_Agent(Storing, Dest) + NL;
-	}
-	else
-	{
-		Output += S->Get_ID(Operator) + Get_Agent(Storing, Dest) + FROM + Get_Size_Translator(Source->Size) + Get_Agent(false, Source) + NL;
+		if (i > 0)
+		{
+			Output += FROM;
+			Output += S->Get_ID(to_string(ir->Parameters.at(i)->Size));
+		}
+		Output += Get_Agent(Storing, ir->Parameters.at(i));
 	}
 }
 

@@ -56,8 +56,6 @@ class Token
     bool is(int flag);
     bool Any(int flags);
     string Get_Additive_Operator();
-    //var
-    //func
 };
 
 

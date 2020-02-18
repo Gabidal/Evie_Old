@@ -3,6 +3,7 @@
 #include "../H/Back/Definer.h"
 #include "../H/Emulator/Emulator.h"
 #include "../H/Selector/Selector.h"
+#include "../H/Back/Generator.h"
 #include <sstream>
 #include <iostream>
 using namespace std;
@@ -55,7 +56,10 @@ int main(int argc, char* argv[])
     d.Defined_Types = p.Defined_Keywords;
     d.Factory();
 
-
+    Generator g;
+    g.Input = p.Output;
+    g.Types = d.Defined_Types;
+    g.Factory();
 
 
 	ofstream o(argv[2]);

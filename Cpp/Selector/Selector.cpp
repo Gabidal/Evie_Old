@@ -101,6 +101,7 @@ string Selector::Get_ID(string id)
 		}
 	}
 	cout << "unable to find OpCode " << id << endl;
+	return id;
 }
 
 Register* Selector::Get_Reg(int Size)

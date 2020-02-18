@@ -60,7 +60,7 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_JNG_);
 	OpC* x86_JMP_ = new OpC(0, "jmp", "jmp");
 	OpCodes.push_back(x86_JMP_);
-	OpC* x86_RET_ = new OpC(0, "ret", "ret");
+	OpC* x86_RET_ = new OpC(0, "return", "ret");
 	OpCodes.push_back(x86_RET_);
 	OpC* x86_DWORD_ = new OpC(0, "4", "dword");
 	OpCodes.push_back(x86_DWORD_);
@@ -70,6 +70,8 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_WORD_);
 	OpC* x86_BYTE_ = new OpC(0, "1", "byte");
 	OpCodes.push_back(x86_BYTE_);
+	OpC* x86_LABEL_ = new OpC(0, "label", ":");
+	OpCodes.push_back(x86_LABEL_);
 
 
 

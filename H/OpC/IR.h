@@ -7,7 +7,12 @@ class IR
 {
 public:
 	string Comment = "";
-	vector<OpC*> Instructions;
+	//for single line:
+		string PreFix = "";
+		string ID = "";
+		vector<Token*> Parameters;
+	//for multi levelled opcodes:
+		vector<IR*> Childs;
 	IR()
 	{
 	}
