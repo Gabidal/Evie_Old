@@ -21,7 +21,7 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("Static");
 }
 
-//main ~/test.g ~/test.asm -win32 -x86
+//main ~/test.g ~/test.asm -win32 -x86 -O
 int main(int argc, char* argv[])
 {
 	if (argc == 1)

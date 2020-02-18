@@ -3,15 +3,14 @@
 #include <string>
 #include <vector>
 using namespace std;
-#define __Loader (1<<0)
-#define __Storer (1<<1)
+class Token;
 
 class OpC
 {
 public:
 	string ID = "";
 	string OpCode = "";
-
+	vector<Token*> Parameters;
 	int Cycles = 0;
 
 	OpC(int c, string id, string opcode)

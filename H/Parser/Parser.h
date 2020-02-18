@@ -29,8 +29,8 @@ public:
     Parser &operator=(const Parser& other)
     {
         Working_Dir = other.Working_Dir;
-        Input = other.Input;
-        Output = other.Output;
+        //Input = other.Input;
+        //Output = other.Output;
         Included_Files = other.Included_Files;
         Defined_Keywords = other.Defined_Keywords;
         return *this;

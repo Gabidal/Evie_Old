@@ -1,6 +1,6 @@
 type var()(
 	Size 4
-	Static 0
+	Static (var)
 )
 
 func main()(
