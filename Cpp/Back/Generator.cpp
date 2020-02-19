@@ -22,11 +22,12 @@ void Generator::Detect_Function(Token* t)
 		ir->PreFix = t->Name;
 		//make the insights of this constructor
 		Generator g;
-		g.Input = t->Right_Side_Token->Childs;
+		g.Input.push_back(t->Right_Side_Token);
 		g.Types = this->Types;
 		g.Factory();
 		//get the output as the new IR's childs.
 		ir->Childs = g.Output;
+		Output.push_back(ir);
 	}
 	else if (t->is(_Call_))
 	{
@@ -34,6 +35,14 @@ void Generator::Detect_Function(Token* t)
 		IR* ir = new IR;
 		ir->ID = t->Name;
 		ir->PreFix = "call";
+		//generate the parameters as IR tokens
+		Generator g;
+		g.Input.push_back(t->Left_Side_Token);
+		g.Types = this->Types;
+		g.Factory();
+		//get the output from the generator and store then into the parent IR operator.
+		ir->Childs = g.Output;
+		Output.push_back(ir);
 	}
 }
 
@@ -42,6 +51,10 @@ void Generator::Detect_Condition(Token* t)
 }
 
 void Generator::Detect_Operator(Token* t)
+{
+}
+
+void Generator::Detect_Parenthesis(Token* t)
 {
 }
 

@@ -18,6 +18,7 @@ public:
 	void Detect_Function(Token* t);
 	void Detect_Condition(Token* t);
 	void Detect_Operator(Token* t);
+	void Detect_Parenthesis(Token* t);
 	void Detect_Pre_Defined_Tokens(Token* t);
 	Generator()
 	{
