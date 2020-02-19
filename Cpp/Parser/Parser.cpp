@@ -56,12 +56,16 @@ void Parser::Patternize_Operations(int& i, string f)
 {
 	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->WORD == f) && (Input.at(i)->_initted != true))
 	{
-		Input.at(i)->Tokens.push_back(Input.at(i - 1));
-		Input.at(i)->Tokens.push_back(Input.at(i + 1));
+		Input.at(i)->Tokens.push_back(new Word (*Input.at(i - 1)));
+		Input.at(i)->Tokens.at(0)->_operatorized = false;
+		Input.at(i)->Tokens.push_back(new Word (*Input.at(i + 1)));
+		Input.at(i)->Tokens.at(1)->_operatorized = false;
 		Input.at(i)->_initted = true;
 
-		Input.erase(Input.begin() + i + 1);
-		Input.erase(Input.begin() + i - 1);
+		Input.at(i + 1)->_operatorized = true;
+		Input.at(i - 1)->_operatorized = true;
+		//Input.erase(Input.begin() + i + 1);
+		//Input.erase(Input.begin() + i - 1);
 		i--;
 	}
 }
@@ -250,6 +254,10 @@ int Parser::Count_Familiar_Tokens(int F, int i)
 void Parser::Init_Variable(int i)
 {
 	//var a = 1
+	if (Input.at(i)->_operatorized)
+	{
+		return;
+	}
 	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD) && (Layer > 1))
 	{
 		Token* New_Variable = new Token();

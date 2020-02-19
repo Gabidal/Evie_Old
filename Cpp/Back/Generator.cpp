@@ -68,13 +68,17 @@ void Generator::Detect_Condition(Token* t)
 
 void Generator::Detect_Operator(Token* t)
 {
-	// (a = ((b * c) / d))
+	// a = b * c + d / e
 	if (t->is(_Operator_))
 	{
 		IR* Result = new IR;
 		if (t->Left_Side_Token->is(_Operator_))
 		{
-
+			Generator g;
+			g.Input.push_back(t->Left_Side_Token);
+			g.Types = this->Types;
+			g.Factory();
+			Append(g.Output);
 		}
 
 	}
@@ -106,5 +110,13 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 			ir->Parameters.push_back(t->Right_Side_Token);
 			Output.push_back(ir);
 		}
+	}
+}
+
+void Generator::Append(vector<IR*> output)
+{
+	for (IR* i : output)
+	{
+		Output.push_back(i);
 	}
 }

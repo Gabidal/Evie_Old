@@ -24,6 +24,7 @@ public:
     Word *Offsetter = 0;
     string Fetcher = "";
     bool _initted = false;
+    bool _operatorized = false;
     vector<Word*> Tokens;
     int LineNumber = 0;
     string WORD = "";

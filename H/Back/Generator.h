@@ -20,11 +20,12 @@ public:
 	void Detect_Operator(Token* t);
 	void Detect_Parenthesis(Token* t);
 	void Detect_Pre_Defined_Tokens(Token* t);
+	void Append(vector<IR*> output);
 	Generator()
 	{
 	}
 
-	~Generator();
+	~Generator(){}
 
 private:
 

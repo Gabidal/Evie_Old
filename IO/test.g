@@ -1,8 +1,8 @@
 type var()(
 	Size 4
-	Static (var)
+	Static 0
 )
 
 func main()(
-	var a = 1
+	var a = 1 + 2
 )

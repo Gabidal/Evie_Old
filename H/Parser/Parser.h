@@ -4,6 +4,7 @@
 #include <string>
 #include "../Lexer/Word.h"
 #include "../Back/Token.h"
+#include <algorithm>
 using namespace std;
 
 class Parser
