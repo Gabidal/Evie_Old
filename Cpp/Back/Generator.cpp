@@ -59,51 +59,40 @@ void Generator::Detect_Condition(Token* t)
 	if (t->is(_Condition_))
 	{
 		//make the starting label token as a label pointter.
-		IR* Start_Of_Condition = new IR;
-		Start_Of_Condition->ID = "Label";
-		Start_Of_Condition->PreFix = t->Name + to_string(t->ID);
-			//
-			IR* Comparison = new IR;
-			Comparison->ID = "cmp";
-			Comparison->Parameters = t->Left_Side_Token->Childs;  //get only the rignt and left of the operator  //fix!!
-			//make the returning token as a label pointter.
-				Token* End_Of_Condition = new Token;
-				End_Of_Condition->ID = t->ID;
-				End_Of_Condition->Name = t->Name + "End";
-				End_Of_Condition->Flags |= _External_;
-			//make the conditiond ir token
-			IR* Condition = new IR;
-			Condition->ID = t->Left_Side_Token->Childs.at(0)->Name; //get only the operator. //fix!!
-			Condition->Parameters.push_back(End_Of_Condition);
-			//put the condition into comparison
-			Comparison->Childs.push_back(Condition);
-		//make the ir tokens for the childs inside the condition.
-		Generator g;
-		g.Input.push_back(t->Left_Side_Token);
-		g.Types = this->Types;
-		g.Factory();
-		for (IR* i : g.Output)
-		{
-			Comparison->Childs.push_back(i);
-		}
-		if (t->Name == "while")
-		{
-			IR* looper = new IR;
-			looper->PreFix = "jmp";
-			looper->
-		}
-		Start_Of_Condition->Childs.push_back(Comparison);
-		Start_Of_Condition->Childs.push_back(End_Of_Condition);
-
+		IR* Condition = new IR;
+		Condition->ID = "label";
+		Condition->PreFix = t->Name + to_string(t->ID);
+		//make the cmp IR token
 	}
 }
 
 void Generator::Detect_Operator(Token* t)
 {
+	// (a = ((b * c) / d))
+	if (t->is(_Operator_))
+	{
+		IR* Result = new IR;
+		if (t->Left_Side_Token->is(_Operator_))
+		{
+
+		}
+
+	}
 }
 
 void Generator::Detect_Parenthesis(Token* t)
 {
+	if (t->is(_Parenthesis_) && t->Childs.size() > 0)
+	{
+		Generator g;
+		g.Input = t->Childs;
+		g.Types = this->Types;
+		g.Factory();
+		for (IR* i : g.Output)
+		{
+			Output.push_back(i);
+		}
+	}
 }
 
 void Generator::Detect_Pre_Defined_Tokens(Token* t)
