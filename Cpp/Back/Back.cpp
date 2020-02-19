@@ -41,11 +41,23 @@ void Back::Make(IR* ir, bool Storing)
 	}
 }
 
+string Back::Get_Name(Token* t)
+{
+	if (t->ID > 0)
+	{
+		return t->Name + to_string(t->ID);
+	}
+	else
+	{
+		return t->Name;
+	}
+}
+
 string Back::Get_Mem_Address(Token* t)
 {
 	if (t->is(_External_))
 	{
-		return "[" + t->Name + "]";
+		return "[" + Get_Name(t) + "]";
 	}
 	else
 	{

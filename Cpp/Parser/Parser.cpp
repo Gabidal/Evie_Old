@@ -1,7 +1,7 @@
 #include "../../H/Parser/Parser.h"
 
 int Layer = 0;
-int ID = 0;
+int ID = 1;
 extern vector<string> Pre_Defined_Tokens;
 
 void Parser::Init_Definition(int i)
@@ -133,6 +133,8 @@ void Parser::Init_Conditions(int i)
 		Token* New_Defined_Condition = new Token();
 		New_Defined_Condition->Name = Input.at(i)->WORD;
 		New_Defined_Condition->ID = ID + Layer;
+		New_Defined_Condition->Flags |= _Condition_;
+		New_Defined_Condition->Flags |= _External_;
 		ID++;
 
 		Parser P = *this;

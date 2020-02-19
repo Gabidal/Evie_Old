@@ -18,7 +18,7 @@ public:
 	string Get_Mem_Address(Token *t);
 	string Get_Size_Translator(int Size);
 	void Make(IR* ir, bool Storing_To_Mem);
-	string Get_PreFix(IR* ir);
+	string Get_Name(Token* t);
 
 	~Back();
 
