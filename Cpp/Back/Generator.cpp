@@ -33,8 +33,10 @@ void Generator::Detect_Function(Token* t)
 	{
 		//make a callation OpC*
 		IR* ir = new IR;
-		ir->ID = t->Name;
-		ir->PreFix = "call";
+		ir->ID = "call";
+		//when we give the token call, (name) to it and in parser defined as
+		//_External_ it can do something like this: call [banana] ; as a global variable.
+		ir->Parameters.push_back(t);
 		//generate the parameters as IR tokens
 		Generator g;
 		g.Input.push_back(t->Left_Side_Token);

@@ -175,6 +175,7 @@ void Parser::Type_Definition(int i)
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Call_;
+			New_Defined_Text->Flags |= _External_;
 			Input.erase(Input.begin() + i + 1);
 		}
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
@@ -186,6 +187,7 @@ void Parser::Type_Definition(int i)
 			P.Factory();
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Constructor_;
+			New_Defined_Text->Flags |= _External_;
 
 
 			P.Input.clear();
