@@ -43,8 +43,10 @@ class Token
     bool Semanticked = false;
     Token* Offsetter = nullptr;
     Token* Parent = nullptr;
-    Token* Left_Side_Token;
-    Token* Right_Side_Token;
+    Token* Left_Side_Token = nullptr;
+    Token* Right_Side_Token = nullptr;
+    Token* Left_Non_Operative_Token = nullptr;
+    Token* Right_Non_Operative_Token = nullptr;
     vector<Token*> Childs;
     string Name = "";
     string Type = "";

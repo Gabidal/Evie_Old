@@ -26,6 +26,8 @@ public:
     bool _initted = false;
     bool _operatorized = false;
     vector<Word*> Tokens;
+    Word* L = nullptr;
+    Word* R = nullptr;
     int LineNumber = 0;
     string WORD = "";
     int Flags = 0;

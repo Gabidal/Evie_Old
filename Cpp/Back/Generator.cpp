@@ -62,26 +62,54 @@ void Generator::Detect_Condition(Token* t)
 		IR* Condition = new IR;
 		Condition->ID = "label";
 		Condition->PreFix = t->Name + to_string(t->ID);
-		//make the cmp IR token
+		//make IR tokens for condition.
+		Generator g;
+		g.Types = this->Types;
+		g.Detect_Operator(t->Left_Side_Token);
+		//the back end for architecture specific allocates-
+		//more IR tokens for example "CMP" and for the JMP condition.
+		//So this is just a straight line of intermadiate-
+		//assembly tokens that we can optimize and affect and etc...
+		Condition->Childs = g.Output;
+		//Now we need the Insides of the condition to be placed into here:
+		g.Input.push_back(t->Right_Side_Token);
+		g.Factory();
+		Append(&Condition->Childs, g.Output);
+		//Check if this condition need for repeating itself.
+		if (t->Name == "while")
+		{
+			//this jumps straigt to start of the condition loop
+			IR* Loop = new IR;
+			Loop->PreFix = "jmp";
+			Loop->ID = t->Name + to_string(t->ID);
+			Condition->Childs.push_back(Loop);
+		}
+		//Now we need to make the exit label for the condition.
+		IR* Exit_Label = new IR;
+		Exit_Label->PreFix = t->Name + to_string(t->ID) + "END";
+		Exit_Label->ID = "label";
+		Condition->Childs.push_back(Exit_Label);
 	}
 }
 
 void Generator::Detect_Operator(Token* t)
 {
-	// a = b * c + d / e
-	if (t->is(_Operator_))
+	if (t->is(_Operator_) != false)
+		return;
+	// (a = {[<b * c> * x] + [d / e]})
+	IR* Operator = new IR;
+	Operator->ID = t->Name;
+	if (t->Left_Side_Token->is(_Operator_))
 	{
-		IR* Result = new IR;
-		if (t->Left_Side_Token->is(_Operator_))
-		{
-			Generator g;
-			g.Input.push_back(t->Left_Side_Token);
-			g.Types = this->Types;
-			g.Factory();
-			Append(g.Output);
-		}
-
+		Detect_Operator(t->Left_Side_Token);
 	}
+	Operator->Parameters.push_back(t->Left_Non_Operative_Token);
+	if (t->Right_Side_Token->is(_Operator_))
+	{
+		Detect_Operator(t->Right_Side_Token);
+	}
+	Operator->Parameters.push_back(t->Right_Non_Operative_Token);
+	Output.push_back(Operator);
 }
 
 void Generator::Detect_Parenthesis(Token* t)
@@ -113,10 +141,10 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 	}
 }
 
-void Generator::Append(vector<IR*> output)
+void Generator::Append(vector<IR*> *Dest, vector<IR*> Source)
 {
-	for (IR* i : output)
+	for (IR* i : Source)
 	{
-		Output.push_back(i);
+		Dest->push_back(i);
 	}
 }

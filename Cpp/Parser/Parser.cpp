@@ -33,22 +33,46 @@ void Parser::Init_Operator(int i)
 		P.Input.clear();
 		P.Input.push_back(Input.at(i)->Tokens.at(0));
 		P.Factory();
-
 		Token* New_Defined_Left_Side_Token = P.Output.at(0);
+
 
 		P.Output.clear();
 		P.Input.clear();
 		P.Input.push_back(Input.at(i)->Tokens.at(1));
 		P.Factory();
-
 		Token* New_Defined_Right_Side_Token = P.Output.at(0);
+
+		//for non operative tokens
+		P.Output.clear();
+		P.Input.clear();
+		P.Input.push_back(Input.at(i)->L);
+		P.Factory();
+		Token* New_Left_Non_Operative_Token = P.Output.at(0);
+
+		P.Output.clear();
+		P.Input.clear();
+		P.Input.push_back(Input.at(i)->R);
+		P.Factory();
+		Token* New_Right_Non_Operative_Token = P.Output.at(0);
 
 		Token* New_Defined_Operator = new Token();
 		New_Defined_Operator->Name = Input.at(i)->WORD;
 		New_Defined_Operator->Left_Side_Token = New_Defined_Left_Side_Token;
 		New_Defined_Operator->Right_Side_Token = New_Defined_Right_Side_Token;
+		New_Defined_Operator->Left_Non_Operative_Token = New_Left_Non_Operative_Token;
+		New_Defined_Operator->Right_Non_Operative_Token = New_Right_Non_Operative_Token;
 
+		New_Defined_Operator->Flags |= _Operator_;
 		Output.push_back(New_Defined_Operator);
+	}
+}
+
+void Parser::Reserve_Operator_Tokens(int i)
+{
+	if (Input.at(i)->is(_OPERATOR))
+	{
+		Input.at(i)->L = Input.at(i - 1);
+		Input.at(i)->R = Input.at(i + 1);
 	}
 }
 
@@ -62,10 +86,10 @@ void Parser::Patternize_Operations(int& i, string f)
 		Input.at(i)->Tokens.at(1)->_operatorized = false;
 		Input.at(i)->_initted = true;
 
-		Input.at(i + 1)->_operatorized = true;
-		Input.at(i - 1)->_operatorized = true;
-		//Input.erase(Input.begin() + i + 1);
-		//Input.erase(Input.begin() + i - 1);
+		//Input.at(i + 1)->_operatorized = true;
+		//Input.at(i - 1)->_operatorized = true;
+		Input.erase(Input.begin() + i + 1);
+		Input.erase(Input.begin() + i - 1);
 		i--;
 	}
 }
@@ -297,6 +321,8 @@ void Parser::Check_For_Correlation(int i)
 void Parser::Factory()
 {
 	Layer++;
+	for (int i = 0; i < Input.size(); i++)
+		Reserve_Operator_Tokens(i);
 	for (int i = 0; i < Input.size(); i++)
 		Init_Definition(i);
 	Do_In_Order();
