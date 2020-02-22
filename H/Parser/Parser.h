@@ -23,7 +23,7 @@ public:
     void Init_Parenthesis(int i);
     void Init_Conditions(int i);
     void Type_Definition(int i);
-    bool Defined(string name);
+    string Defined(string name);
     int Count_Familiar_Tokens(int F, int i);
     void Init_Variable(int i);
     void Check_For_Correlation(int i);

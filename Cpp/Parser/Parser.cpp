@@ -13,7 +13,7 @@ void Parser::Init_Definition(int i)
 	//type var
 	//var a
 	//func a()
-	if ((Input.at(i)->is(_KEYWORD) || Defined(Input.at(i)->WORD)) && Input.at(i+1)->is(_TEXT))
+	if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && Input.at(i+1)->is(_TEXT))
 	{
 		Token* New_Defined_Type = new Token();
 		New_Defined_Type->Type = Input.at(i)->WORD;
@@ -69,7 +69,7 @@ void Parser::Init_Operator(int i)
 
 void Parser::Reserve_Operator_Tokens(int i)
 {
-	if (Input.at(i)->is(_OPERATOR))
+	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->_initted == false))
 	{
 		Input.at(i)->L = Input.at(i - 1);
 		Input.at(i)->R = Input.at(i + 1);
@@ -141,6 +141,7 @@ void Parser::Init_Parenthesis(int i)
 	{
 		Token* New_Defined_Parenthesis = new Token();
 		Parser P = *this;
+		P.Output.clear();
 		P.Input = Input.at(i)->Tokens;
 		P.Factory();
 		New_Defined_Parenthesis->Childs = P.Output;
@@ -166,6 +167,7 @@ void Parser::Init_Conditions(int i)
 		ID++;
 
 		Parser P = *this;
+		P.Output.clear();
 		P.Input.clear();
 		P.Input.push_back(Input.at(i + 1));				//The parameters for the condition.
 		P.Factory();
@@ -191,7 +193,7 @@ void Parser::Type_Definition(int i)
 	}
 	//func a() 
 	//a() (...)
-	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD))
+	if (Input.at(i)->is(_TEXT) && (Defined(Input.at(i)->WORD) != ""))
 	{
 		//a() #like a function call
 		//lets give the new parser new input tokens the other is the parameters
@@ -247,16 +249,16 @@ void Parser::Type_Definition(int i)
 	}
 }
 
-bool Parser::Defined(string name)
+string Parser::Defined(string name)
 {
 	for (Token* t : Defined_Keywords)
 	{
 		if (t->Name == name)
 		{
-			return true;
+			return t->Type;
 		}
 	}
-	return false;
+	return "";
 }
 
 int Parser::Count_Familiar_Tokens(int F, int i)
@@ -282,16 +284,18 @@ void Parser::Init_Variable(int i)
 	{
 		return;
 	}
-	if (Input.at(i)->is(_TEXT) && Defined(Input.at(i)->WORD) && (Layer > 1))
+	if (Input.at(i)->is(_TEXT) && (Defined(Input.at(i)->WORD) != "") && (Layer > 1))
 	{
 		Token* New_Variable = new Token();
 		New_Variable->Name = Input.at(i)->WORD;
+		New_Variable->Type = Defined(New_Variable->Name);
 		Output.push_back(New_Variable);
 	}
 	if (Input.at(i)->is(_NUMBER) && (Layer > 1))
 	{
 		Token* New_Number = new Token();
 		New_Number->Name = Input.at(i)->WORD;
+		New_Number->Type = "number";
 		New_Number->Flags |= _Number_;
 		New_Number->Size = 4;
 		Output.push_back(New_Number);
@@ -307,6 +311,7 @@ void Parser::Check_For_Correlation(int i)
 			New_Pre_Defined_Token->Type = s;
 
 			Parser P = *this;
+			P.Output.clear();
 			P.Input.clear();
 			P.Input.push_back(Input.at(i + 1));
 			P.Factory();

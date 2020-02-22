@@ -8,6 +8,7 @@ void Generator::Factory()
 		Detect_Condition(t);
 		Detect_Function(t);
 		Detect_Operator(t);
+		Detect_Parenthesis(t);
 		Detect_Pre_Defined_Tokens(t);
 	}
 }
@@ -65,13 +66,17 @@ void Generator::Detect_Condition(Token* t)
 		//make IR tokens for condition.
 		Generator g;
 		g.Types = this->Types;
-		g.Detect_Operator(t->Left_Side_Token);
+		g.Input.clear();
+		g.Input.push_back(t->Left_Side_Token);
+		g.Factory();
 		//the back end for architecture specific allocates-
 		//more IR tokens for example "CMP" and for the JMP condition.
 		//So this is just a straight line of intermadiate-
 		//assembly tokens that we can optimize and affect and etc...
 		Condition->Childs = g.Output;
 		//Now we need the Insides of the condition to be placed into here:
+		g.Input.clear();
+		g.Output.clear();
 		g.Input.push_back(t->Right_Side_Token);
 		g.Factory();
 		Append(&Condition->Childs, g.Output);
@@ -94,7 +99,7 @@ void Generator::Detect_Condition(Token* t)
 
 void Generator::Detect_Operator(Token* t)
 {
-	if (t->is(_Operator_) != false)
+	if (t->is(_Operator_) != true)
 		return;
 	// (a = {[<b * c> * x] + [d / e]})
 	IR* Operator = new IR;
@@ -131,7 +136,7 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 {
 	for (string T : Pre_Defined_Tokens)
 	{
-		if (t->Name == T)
+		if (t->Type == T)
 		{
 			IR *ir = new IR;
 			ir->ID = T;

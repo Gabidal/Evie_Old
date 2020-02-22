@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 
     Generator g;
     g.Input = p.Output;
-    g.Types = d.Defined_Types;
+    g.Types = d.Output;
     g.Factory();
 
 

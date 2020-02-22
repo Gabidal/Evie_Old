@@ -21,7 +21,7 @@ int Definer::Get_Definition_Setting(Token* t, string f)
 	{
 		//go a double loop and make a vector for type settings like: Size, etc...
 		//loop and find if that type constructor has correlating settings and set em.
-		if (i->Name == f)
+		if (i->Type == f)
 		{
 			return atoi(i->Right_Side_Token->Name.c_str());
 		}
@@ -56,7 +56,7 @@ void Definer::Factory()
 	//(
 	//	return 0
 	//)
-	for (Token* s: Defined_Types)
+	for (Token*s : Defined_Types)
 	{
 		Token* New_Defined_Class = new Token();
 		//first lets find the defined types
