@@ -2,12 +2,15 @@
 #define IR_H_
 #include "OpC.h"
 #include "../Back/Token.h"
+#define _Start_Of_Label (1<<0)
+#define _End_Of_Label (1<<1)
 
 class IR
 {
 public:
 	string Comment = "";
 	//for single line:
+		int Flags = 0;
 		string PreFix = "";
 		string ID = "";
 		vector<Token*> Parameters;
@@ -15,6 +18,10 @@ public:
 		vector<IR*> Childs;
 	IR()
 	{
+	}
+	bool is(int flag)
+	{
+		return (Flags & flag) == flag;
 	}
 
 	~IR();

@@ -21,6 +21,7 @@ void Generator::Detect_Function(Token* t)
 		IR* ir = new IR;
 		ir->ID = "label";
 		ir->PreFix = t->Name;
+		ir->Flags |= _Start_Of_Label;
 		//make the insights of this constructor
 		Generator g;
 		g.Input.push_back(t->Right_Side_Token);
@@ -63,6 +64,7 @@ void Generator::Detect_Condition(Token* t)
 		IR* Condition = new IR;
 		Condition->ID = "label";
 		Condition->PreFix = t->Name + to_string(t->ID);
+		Condition->Flags |= _Start_Of_Label;
 		//make IR tokens for condition.
 		Generator g;
 		g.Types = this->Types;
@@ -93,6 +95,7 @@ void Generator::Detect_Condition(Token* t)
 		IR* Exit_Label = new IR;
 		Exit_Label->PreFix = t->Name + to_string(t->ID) + "END";
 		Exit_Label->ID = "label";
+		Exit_Label->Flags |= _End_Of_Label;
 		Condition->Childs.push_back(Exit_Label);
 	}
 }
@@ -125,10 +128,7 @@ void Generator::Detect_Parenthesis(Token* t)
 		g.Input = t->Childs;
 		g.Types = this->Types;
 		g.Factory();
-		for (IR* i : g.Output)
-		{
-			Output.push_back(i);
-		}
+		Append(&Output, g.Output);
 	}
 }
 
