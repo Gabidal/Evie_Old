@@ -1,8 +1,16 @@
-var:
-add 1, dword 2
-mov [EBP - 4], dword 1
-jne AL, dword 3
-ret 1
-je AH, dword 3
-ret 0
-main:
+var : 
+ mov [EBP - 4],  dword 1
+ mov [EBP - 4],  dword 2
+ add AL,   AH
+ mov [EBP - 4],   [EBP - 4]
+byte : 
+ mov [EBP - 4],  dword 1
+ mov [EBP - 4],  dword 2
+ add BL,   BH
+ mov [EBP - 4],   [EBP - 4]
+ jnl CL,   CH
+ jng DL,   AL
+ sub AH,   BL
+ jne BH,   CL
+ sub CH,   DL
+ ret 1

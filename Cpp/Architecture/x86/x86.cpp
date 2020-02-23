@@ -69,7 +69,9 @@ void x86::ARC_Factory()
 	OpC* x86_WORD_ = new OpC(0, "2", "word");
 	OpCodes.push_back(x86_WORD_);
 	OpC* x86_BYTE_ = new OpC(0, "1", "byte");
-	OpCodes.push_back(x86_BYTE_);
+	OpCodes.push_back(x86_WORD_);
+	OpC* x86_NULL_ = new OpC(0, "0", "");
+	OpCodes.push_back(x86_NULL_);
 	OpC* x86_LABEL_ = new OpC(0, "label", ":");
 	OpCodes.push_back(x86_LABEL_);
 

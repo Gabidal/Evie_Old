@@ -29,13 +29,13 @@ string Back::Get_Agent(bool Storing, Token* t)
 
 void Back::Make(IR* ir, bool Storing)
 {
-	Output += S->Get_ID(ir->PreFix) + S->Get_ID(ir->ID);
+	Output += S->Get_ID(ir->PreFix) + " " + S->Get_ID(ir->ID) + " ";
 	for (int i = 0; i < ir->Parameters.size(); i++)
 	{
 		if (i > 0)
 		{
-			Output += FROM;
-			Output += S->Get_ID(to_string(ir->Parameters.at(i)->Size));
+			Output += FROM + string(" ");
+			Output += S->Get_ID(to_string(ir->Parameters.at(i)->Size)) + " ";
 		}
 		Output += Get_Agent(Storing, ir->Parameters.at(i));
 	}

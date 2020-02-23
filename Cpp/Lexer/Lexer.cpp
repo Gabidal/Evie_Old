@@ -213,7 +213,7 @@ void Lexer::OpenFile(const char* fileName)
 			{
 				continue;
 			}
-            Lines += Line;
+            Lines += Line + " ";
             //Lines = Line; 
             //Lines = ReplaceString(Lines, "\t", " "); 
             //Lines = ReplaceString(Lines, "\n", "");
