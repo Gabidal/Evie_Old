@@ -7,6 +7,7 @@ Selector::Selector(string s)
 	if (s == "-x86")
 	{
 		x86 x;
+		x.ARC_Factory();
 		Registers32 = x.Registers32;
 		Registers16 = x.Registers16;
 		Registers8 = x.Registers8;
@@ -15,6 +16,7 @@ Selector::Selector(string s)
 	else if (s == "-arm")
 	{
 		ARM x;
+		x.ARC_Factory();
 		Registers32 = x.Registers32;
 		Registers16 = x.Registers16;
 		Registers8 = x.Registers8;
@@ -69,6 +71,10 @@ Register* Selector::Get_Belonging_Reg(string name)
 {
 	for (Register* r : Registers32)
 	{
+		if (r->Base == nullptr)
+		{
+			continue;
+		}
 		if (r->Base->Name == name)
 		{
 			return r;
@@ -76,6 +82,10 @@ Register* Selector::Get_Belonging_Reg(string name)
 	}
 	for (Register* r : Registers16)
 	{
+		if (r->Base == nullptr)
+		{
+			continue;
+		}
 		if (r->Base->Name == name)
 		{
 			return r;
@@ -83,6 +93,10 @@ Register* Selector::Get_Belonging_Reg(string name)
 	}
 	for (Register* r : Registers8)
 	{
+		if (r->Base == nullptr)
+		{
+			continue;
+		}
 		if (r->Base->Name == name)
 		{
 			return r;

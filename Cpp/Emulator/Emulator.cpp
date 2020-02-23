@@ -37,12 +37,44 @@ void Emulator::Label_Recorder(int i)
 
 void Emulator::Frame_Handler(int i)
 {
+
 }
 
 void Emulator::FPU_Choser(int i)
 {
 }
 
-void Emulator::Math(int i)
+void Emulator::Child(int i)
 {
+	if (Input.at(i)->Childs.size() > 0)
+	{
+		Emulator e = *this;
+		e.Input = Input.at(i)->Childs;
+		e.Factory();
+	}
+}
+
+void Emulator::Use_Assembly(int i)
+{
+	Back b(Output);
+	bool Storing = Input.at(i)->ID == "=";
+	b.Make(Input.at(i), Storing);
+	Output += NL;
+}
+
+void Emulator::Factory()
+{
+	for (int i = 0; i < Input.size(); i++)
+	{
+		if (Input.at(i)->ID == "Size" || Input.at(i)->ID == "Static")
+		{
+			continue;
+		}
+		Long_Operation_Allocator(i);
+		Label_Recorder(i);
+		Frame_Handler(i);
+		FPU_Choser(i);
+		Child(i);
+		Use_Assembly(i);
+	}
 }

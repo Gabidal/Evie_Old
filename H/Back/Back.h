@@ -1,5 +1,5 @@
-#ifndef _BACK_H_
-#define _BACK_H_
+#ifndef BACK_H_
+#define BACK_H_
 #include <string>
 #include "Token.h"
 #include "Assembly_Definitions.h"
@@ -20,7 +20,7 @@ public:
 	void Make(IR* ir, bool Storing_To_Mem);
 	string Get_Name(Token* t);
 
-	~Back();
+	~Back() {}
 
 private:
 

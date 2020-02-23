@@ -61,9 +61,12 @@ int main(int argc, char* argv[])
     g.Types = d.Output;
     g.Factory();
 
+    Emulator e(OUTPUT);
+    e.Input = g.Output;
+    e.Factory();
 
 	ofstream o(argv[2]);
-    o << "banana";//b.Output;
+    o << OUTPUT;//b.Output;
     o.close();
 
     if (argv[3] == "-win32")
