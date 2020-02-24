@@ -107,6 +107,8 @@ Register* Selector::Get_Belonging_Reg(string name)
 
 string Selector::Get_ID(string id)
 {
+	if (id == "")
+		return "";
 	for (OpC* o : OpCodes)
 	{
 		if (o->ID == id)

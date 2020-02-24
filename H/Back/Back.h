@@ -13,7 +13,9 @@ public:
 	{
 	}
 	string& Output;
-	string Get_Agent(bool Storing, Token* t);
+	string Get_Static_Agent(Token* t);
+	string Get_Agent(bool Storing, Token* Dest, Token* Source);
+	Token* Give_Context(int i, vector<Token*> in);
 	//agent prepensitives
 	string Get_Mem_Address(Token *t);
 	string Get_Size_Translator(int Size);

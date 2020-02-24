@@ -1,10 +1,13 @@
-var : 
- mov [EBP - 4],  dword 1
- mov [EBP - 4],  dword 2
- add AL,   AH
- mov [EBP - 4],   [EBP - 4]
-if2 : 
- cmp BL,   BH
-jnl if2END 
- ret 1
-if2END : 
+var: 
+mov EAX , dword 1
+mov [EBP  - 4],  dword EAX 
+mov EBX , dword 2
+mov [EBP  - 4],  dword EBX 
+add AL ,  AH 
+mov BL , 
+mov [EBP  - 4],  BL 
+if2: 
+cmpBL ,  BH 
+jnl if2END
+ret EAX 
+if2END: 
