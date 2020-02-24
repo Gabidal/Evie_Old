@@ -181,6 +181,9 @@ void Parser::Init_Conditions(int i)
 
 		New_Defined_Condition->Right_Side_Token = P.Output.at(0);
 
+		Input.erase(Input.begin() + i + 2);
+		Input.erase(Input.begin() + i + 1);
+
 		Output.push_back(New_Defined_Condition);
 	}
 }

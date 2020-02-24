@@ -97,6 +97,7 @@ void Generator::Detect_Condition(Token* t)
 		Exit_Label->ID = "label";
 		Exit_Label->Flags |= _End_Of_Label;
 		Condition->Childs.push_back(Exit_Label);
+		Output.push_back(Condition);
 	}
 }
 

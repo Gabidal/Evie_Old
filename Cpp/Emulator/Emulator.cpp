@@ -1,18 +1,17 @@
 #include "../../H/Emulator/Emulator.h"
 
-void Emulator::Long_Operation_Allocator(int &i)
+void Emulator::Long_Operation_Allocator(int i)
 {
-	if (Input.at(i)->ID == "==" || Input.at(i)->ID == "!=" || Input.at(i)->ID == "<" || Input.at(i)->ID == ">" || Input.at(i)->ID == "!<" || Input.at(i)->ID == "!>" || Input.at(i)->ID == "<=" || Input.at(i)->ID == ">=")
+	if ((Input.at(i)->ID == "==") || (Input.at(i)->ID == "!=") || (Input.at(i)->ID == "<") || (Input.at(i)->ID == ">") || (Input.at(i)->ID == "!<") || (Input.at(i)->ID == "!>") || (Input.at(i)->ID == "<=") || (Input.at(i)->ID == ">="))
 	{
 		//conditional operators need the cmp, and the condition jump operation.
 		IR* cmp = new IR;
 		*cmp = *Input.at(i);
 		cmp->ID = "cmp";
 		Input.insert(Input.begin() + i, cmp);
-		Input.at(i)->Parameters.clear();
-		Input.at(i)->PreFix = Input.at(i)->ID;
-		Input.at(i)->ID = Branching_Label.back() + "END";
-		i++;
+		Input.at(i+1)->Parameters.clear();
+		Input.at(i+1)->PreFix = Input.at(i+1)->ID;
+		Input.at(i+1)->ID = Branching_Label.back() + "END";
 	}
 }
 
@@ -74,7 +73,7 @@ void Emulator::Factory()
 		Label_Recorder(i);
 		Frame_Handler(i);
 		FPU_Choser(i);
-		Child(i);
 		Use_Assembly(i);
+		Child(i);
 	}
 }

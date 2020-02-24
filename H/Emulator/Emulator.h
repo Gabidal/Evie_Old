@@ -17,7 +17,7 @@ public:
 	Register* Handle = nullptr;
 
 
-	void Long_Operation_Allocator(int &i);
+	void Long_Operation_Allocator(int i);
 	void Label_Recorder(int i);
 	void Frame_Handler(int i);
 	void FPU_Choser(int i);
