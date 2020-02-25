@@ -3,158 +3,76 @@
 extern Selector* S;
 #define _SYSTEM_BIT_TYPE 4
 
-
-string Back::Get_Initial_Operator()
+string Back::Get_Direction(Token* t)
 {
-	return S->Get_ID(Input->ID);
+	if (t->is(_Parameter_))
+	{
+		return " + ";
+	}
+	else
+	{
+		return " - ";
+	}
 }
 
-string Back::Initialize(Token* t)
+string Back::Get_Info_Of(Token* t, bool Storing)
 {
-	if (S->Get_Belonging_Reg(t->Name) != nullptr)
-		//this can happen also if the pointter has been already provided by a register.
+	if (Storing)
+		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+		Get_Direction(t) + to_string(t->StackOffset) + "]";
+	else if (S->Get_Belonging_Reg(t->Name) != nullptr)
 		return S->Get_Belonging_Reg(t->Name)->Name;
-	if (Storing_Into_Mem)
-	{
-		//get the memory location of *t
-		return Get_Mem_Address(t);
-	}
-	if (t->is(_Number_))
-	{
-		return (S->Get_ID(to_string(t->Size)) + t->Name);
-	}
-	//load the token from memory into a reg.
-	if (t->is(_Array_))
-	{
-		cout << "Error:: Too complex pointter has intruded the BackEnd" << endl;
-		return " Error::" + t->Name + " Offsetted by " + t->Offsetter->Name + NL;
-	}
-	if (t->is(_Function_))
-	{
-		cout << "Error:: Function callation is not supported in BackEnd" << endl;
-		return " Error::" + t->Name + NL;
-	}
-	Register* New_Reg = S->Get_Reg(t->Size);
-	New_Reg->Base = t;
-	//mov reg, [t]
-	Output += S->Get_ID("=") + New_Reg->Name + FROM + Get_Mem_Address(t) + NL;
-	return New_Reg->Name;
+	else if (t->is(_Number_))
+		return t->Name;
+	else if (t->is(_External_))
+		return "[" + t->Name + "]";
+	else
+		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+		Get_Direction(t) + to_string(t->StackOffset) + "]";
 }
 
-string Back::Get_Size_Specification()
+void Back::Load_To_Reg()
 {
-	return string();
+	Output += S->Get_ID("ldr") + S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size)->Name +
+		FROM + S->Get_ID(to_string(Input->Parameters.at(0)->Size)) + Get_Info_Of(Input->Parameters.at(0), false) + NL;
+	Handle = S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size);
+}
+
+void Back::Store_To_Reg()
+{
+	Output += S->Get_ID("str") + Get_Info_Of(Input->Parameters.at(0), true) + FROM +
+		S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size)->Name + NL;
+}
+
+void Back::Make()
+{
+	bool Storing = Input->ID == "=" || Input->ID == "str";
+	Output += S->Get_ID(Input->PreFix) + S->Get_ID(Input->ID) ;
+	for (int i = 0; i < Input->Parameters.size(); i++)
+	{
+		if (i > 0)
+		{
+			Output += FROM;
+			Output += S->Get_ID(to_string(Input->Parameters.at(i)->Size));
+		}
+		Output += Get_Info_Of(Input->Parameters.at(i), Storing);
+		//only the first can be giving the Storing parameter.
+		Storing = false;
+	}
 }
 
 void Back::Factory()
 {
-	
-}
-
-string Back::Get_Static_Agent(Token* t)
-{
-	if (t->is(_Number_))
+	if (Input->is(_Load_To_Reg))
 	{
-		return t->Name;
+		Load_To_Reg();
 	}
-	else if (t->is(_Array_))
+	else if (Input->is(_Store_To_Reg))
 	{
-		return "return has not been implemented!";
+		Store_To_Reg();
 	}
 	else
 	{
-		Get_Mem_Address(t);
+		Make();
 	}
-	return string();
-}
-
-string Back::Get_Agent(bool Storing, Token* Dest, Token* Source)
-{
-	//first find if this token has a register to it.
-	if (S->Get_Belonging_Reg(Dest->Name) != nullptr)
-	{
-		return S->Get_Belonging_Reg(Dest->Name)->Name;
-	}
-	//if it is number.
-	if (Dest->is(_Number_))
-	{
-		return Dest->Name;
-	}
-	//if the Source doesnt have a reg and this is a storing opcode
-	//then move the source into a reg and then move the reg into the address.
-	if ((Source != nullptr) && (S->Get_Belonging_Reg(Source->Name) == nullptr) && (Storing))
-	{
-		S->Get_Reg(Source->Size)->Base = Source;
-		string returning_Reg = S->Get_Belonging_Reg(Source->Name)->Name;
-		Output += S->Get_ID("=") + returning_Reg + FROM  + S->Get_ID(to_string(Source->Size)) + Get_Static_Agent(Source) + NL;
-		//return returning_Reg;
-	}
-	//then get it from mem.
-	if (Storing)
-	{
-		return Get_Mem_Address(Dest);
-	}
-	else
-	{
-		return S->Get_Reg(Dest->Size)->Name;
-	}
-}
-
-Token* Back::Give_Context(int i, vector<Token*> in)
-{
-	if ((i+1) > (in.size() - 1))
-	{
-		return nullptr;
-	}
-	else
-	{
-		return in.at(i + 1);
-	}
-}
-
-void Back::Make(IR* ir, bool Storing)
-{
-	//this needs a secondary output because if need for more complex instructions they have 
-	//then the reserved as Output and then it will putted into the secindary output the hendle register it gives us.
-	string Secondary_Output = "";
-	Secondary_Output += S->Get_ID(ir->PreFix) + S->Get_ID(ir->ID);
-	for (int i = 0; i < ir->Parameters.size(); i++)
-	{
-		if (i > 0)
-		{
-			Secondary_Output += FROM + string(" ");
-			Secondary_Output += S->Get_ID(to_string(ir->Parameters.at(i)->Size));
-		}
-		Secondary_Output += Get_Agent(Storing, ir->Parameters.at(i), Give_Context(i, ir->Parameters));
-	}
-	Output += Secondary_Output;
-}
-
-string Back::Get_Name(Token* t)
-{
-	if (t->ID > 0)
-	{
-		return t->Name + to_string(t->ID);
-	}
-	else
-	{
-		return t->Name;
-	}
-}
-
-string Back::Get_Mem_Address(Token* t)
-{
-	if (t->is(_External_))
-	{
-		return "[" + Get_Name(t) + "]";
-	}
-	else
-	{
-		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE) + t->Get_Additive_Operator() + to_string(t->StackOffset) + "]";
-	}
-}
-
-string Back::Get_Size_Translator(int Size)
-{
-	return S->Get_ID(to_string(Size));
 }

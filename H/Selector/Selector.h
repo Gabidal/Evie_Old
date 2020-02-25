@@ -24,7 +24,7 @@ public:
 	OpC* OpCode_Selector();
 	string Get_ID(string id);
 	Register* Get_Reg(int Size);
-	string Get_Right_Reg(int F, int Size);
+	Register* Get_Right_Reg(int F, int Size);
 	Register* Get_Belonging_Reg(string name);
 	Selector(string s);
 	~Selector();

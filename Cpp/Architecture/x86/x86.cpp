@@ -22,11 +22,13 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_PUSH_);
 	OpC* x86_XCHG_ = new OpC(0, "xchg", "xchg ");
 	OpCodes.push_back(x86_XCHG_);
-	OpC* x86_LOAD_ = new OpC(0, "=", "mov ");
+	OpC* x86_LOAD_ = new OpC(0, "ldr", "mov ");
 	OpCodes.push_back(x86_LOAD_);
-	OpC* x86_STORE_ = new OpC(0, "=", "mov ");
+	OpC* x86_STORE_ = new OpC(0, "str", "mov ");
 	OpCodes.push_back(x86_STORE_);
-	OpC* x86_LEA_ = new OpC(0, "lea", "lea ");
+	OpC* x86_SET_TO_ = new OpC(0, "=", "mov ");
+	OpCodes.push_back(x86_SET_TO_);
+	OpC* x86_LEA_ = new OpC(0, ":", "lea ");
 	OpCodes.push_back(x86_LEA_);
 	OpC* x86_SHL_ = new OpC(0, "<<", "shl ");
 	OpCodes.push_back(x86_SHL_);

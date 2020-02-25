@@ -33,7 +33,7 @@ OpC* Selector::OpCode_Selector()
 	return nullptr;
 }
 
-string Selector::Get_Right_Reg(int F, int Size)
+Register* Selector::Get_Right_Reg(int F, int Size)
 {
 	if (Size == 4)
 	{
@@ -41,7 +41,7 @@ string Selector::Get_Right_Reg(int F, int Size)
 		{
 			if (r->is(F))
 			{
-				return r->Name;
+				return r;
 			}
 		}
 	}
@@ -51,7 +51,7 @@ string Selector::Get_Right_Reg(int F, int Size)
 		{
 			if (r->is(F))
 			{
-				return r->Name;
+				return r;
 			}
 		}
 	}
@@ -61,7 +61,7 @@ string Selector::Get_Right_Reg(int F, int Size)
 		{
 			if (r->is(F))
 			{
-				return r->Name;
+				return r;
 			}
 		}
 	}

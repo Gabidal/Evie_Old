@@ -60,8 +60,11 @@ void Emulator::Child(int i)
 void Emulator::Use_Assembly(int i)
 {
 	Back b(Output);
-	bool Storing = Input.at(i)->ID == "=";
-	b.Make(Input.at(i), Storing);
+	b.Handle = Handle;
+	b.Input = Input.at(i);
+	b.Factory();
+	if (b.Handle != nullptr)
+		Handle = b.Handle;
 	Output += NL;
 }
 

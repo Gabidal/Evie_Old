@@ -4,6 +4,8 @@
 #include "../Back/Token.h"
 #define _Start_Of_Label (1<<0)
 #define _End_Of_Label (1<<1)
+#define _Load_To_Reg (1<<2)
+#define _Store_To_Reg (1<<2)
 
 class IR
 {
@@ -11,6 +13,7 @@ public:
 	string Comment = "";
 	//for single line:
 		int Flags = 0;
+		int Reg_Flag = 0;
 		string PreFix = "";
 		string ID = "";
 		vector<Token*> Parameters;
