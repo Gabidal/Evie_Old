@@ -4,6 +4,53 @@ extern Selector* S;
 #define _SYSTEM_BIT_TYPE 4
 
 
+string Back::Get_Initial_Operator()
+{
+	return S->Get_ID(Input->ID);
+}
+
+string Back::Initialize(Token* t)
+{
+	if (S->Get_Belonging_Reg(t->Name) != nullptr)
+		//this can happen also if the pointter has been already provided by a register.
+		return S->Get_Belonging_Reg(t->Name)->Name;
+	if (Storing_Into_Mem)
+	{
+		//get the memory location of *t
+		return Get_Mem_Address(t);
+	}
+	if (t->is(_Number_))
+	{
+		return (S->Get_ID(to_string(t->Size)) + t->Name);
+	}
+	//load the token from memory into a reg.
+	if (t->is(_Array_))
+	{
+		cout << "Error:: Too complex pointter has intruded the BackEnd" << endl;
+		return " Error::" + t->Name + " Offsetted by " + t->Offsetter->Name + NL;
+	}
+	if (t->is(_Function_))
+	{
+		cout << "Error:: Function callation is not supported in BackEnd" << endl;
+		return " Error::" + t->Name + NL;
+	}
+	Register* New_Reg = S->Get_Reg(t->Size);
+	New_Reg->Base = t;
+	//mov reg, [t]
+	Output += S->Get_ID("=") + New_Reg->Name + FROM + Get_Mem_Address(t) + NL;
+	return New_Reg->Name;
+}
+
+string Back::Get_Size_Specification()
+{
+	return string();
+}
+
+void Back::Factory()
+{
+	
+}
+
 string Back::Get_Static_Agent(Token* t)
 {
 	if (t->is(_Number_))

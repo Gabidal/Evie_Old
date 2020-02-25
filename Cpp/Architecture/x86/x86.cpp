@@ -12,8 +12,10 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_AND_);
 	OpC* x86_XOR_ = new OpC(0, "^", "xor ");
 	OpCodes.push_back(x86_XOR_);
-	OpC* x86_CMP_ = new OpC(0, "?", "cmp ");
+	OpC* x86_CMP_ = new OpC(0, "cmp", "cmp ");
 	OpCodes.push_back(x86_CMP_);
+	OpC* x86_Question_ = new OpC(0, "?", "cmp ");
+	OpCodes.push_back(x86_Question_);
 	OpC* x86_POP_ = new OpC(0, "pop", "pop ");
 	OpCodes.push_back(x86_POP_);
 	OpC* x86_PUSH_ = new OpC(0, "push", "push ");

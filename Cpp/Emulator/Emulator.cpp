@@ -13,6 +13,10 @@ void Emulator::Long_Operation_Allocator(int i)
 		Input.at(i+1)->PreFix = Input.at(i+1)->ID;
 		Input.at(i+1)->ID = Branching_Label.back() + "END";
 	}
+	else if (Input.at(i)->ID == "return")
+	{
+
+	}
 }
 
 void Emulator::Label_Recorder(int i)
