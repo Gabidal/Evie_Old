@@ -4,6 +4,6 @@ type var()(
 )
 
 func main()(
-	var a = 1
+	var a = 1 + 2
 	return a
 )

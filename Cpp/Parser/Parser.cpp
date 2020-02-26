@@ -3,6 +3,7 @@
 int Layer = 0;
 int ID = 1;
 extern vector<string> Pre_Defined_Tokens;
+extern vector<Token*> Generated_Undefined_Tokens;
 
 void Parser::Init_Definition(int i)
 {
@@ -293,6 +294,7 @@ void Parser::Init_Variable(int i)
 		New_Variable->Name = Input.at(i)->WORD;
 		New_Variable->Type = Defined(New_Variable->Name);
 		Output.push_back(New_Variable);
+		Generated_Undefined_Tokens.push_back(Output.back());
 	}
 	if (Input.at(i)->is(_NUMBER) && (Layer > 1))
 	{

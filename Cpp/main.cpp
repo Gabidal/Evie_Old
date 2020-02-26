@@ -9,6 +9,7 @@
 using namespace std;
 int SYNTAX = 0;
 extern void Init_Registers();
+vector<Token*> Generated_Undefined_Tokens;
 Selector *S;
 
 vector<string> Pre_Defined_Tokens;

@@ -33,15 +33,21 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 
 void Back::Load_To_Reg()
 {
-	Output += S->Get_ID("ldr") + S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size)->Name +
+	Input->Parameters.at(0)->Reg = S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size);
+
+	Output += S->Get_ID("ldr") + Input->Parameters.at(0)->Reg->Name +
 		FROM + S->Get_ID(to_string(Input->Parameters.at(0)->Size)) + Get_Info_Of(Input->Parameters.at(0), false) + NL;
 	Handle = S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size);
+	Input->Parameters.at(0)->Reg->Base = Input->Parameters.at(0);
 }
 
 void Back::Store_To_Reg()
 {
+	Input->Parameters.at(0)->Reg = S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size);
+
 	Output += S->Get_ID("str") + Get_Info_Of(Input->Parameters.at(0), true) + FROM +
-		S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size)->Name + NL;
+		Input->Parameters.at(0)->Reg->Name + NL;
+	Input->Parameters.at(0)->Reg->Base = Input->Parameters.at(0);
 }
 
 void Back::Make()

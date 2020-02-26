@@ -134,6 +134,17 @@ void Generator::Detect_Operator(Token* t)
 		Append(&Output, g.Output);
 	}
 	Operator->Parameters.push_back(t->Right_Non_Operative_Token);
+	// a = 1 + 2
+	if (t->Name != "=" && t->Name != "str")
+	{
+		IR* Left_Side_Initializer = new IR;
+		Left_Side_Initializer->ID = "ldr";
+		Left_Side_Initializer->Flags |= _Load_To_Reg;
+		Left_Side_Initializer->Reg_Flag |= Task_For_General_Purpose;
+		Left_Side_Initializer->Parameters.push_back(t->Left_Side_Token);
+		Output.push_back(Left_Side_Initializer);
+	}
+
 	Output.push_back(Operator);
 }
 

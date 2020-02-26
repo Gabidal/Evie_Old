@@ -35,6 +35,10 @@ OpC* Selector::OpCode_Selector()
 
 Register* Selector::Get_Right_Reg(int F, int Size)
 {
+	if (F == Task_For_General_Purpose)
+	{
+		return Get_Reg(Size);
+	}
 	if (Size == 4)
 	{
 		for (Register* r : Registers32)

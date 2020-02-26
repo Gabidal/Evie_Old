@@ -25,6 +25,7 @@ using namespace std;
 #define Task_For_Moving_Parameter (1<<3)
 #define Task_For_Offsetting (1<<4)
 #define Task_For_Remainder (1<<5)
+#define Task_For_General_Purpose (1<<6)
 
 class Register;
 
