@@ -112,10 +112,26 @@ void Generator::Detect_Operator(Token* t)
 	{
 		Detect_Operator(t->Left_Side_Token);
 	}
+	else if (t->Left_Side_Token->is(_Parenthesis_))
+	{
+		Generator g;
+		g.Input = t->Left_Side_Token->Childs;
+		g.Types = Types;
+		g.Factory();
+		Append(&Output, g.Output);
+	}
 	Operator->Parameters.push_back(t->Left_Non_Operative_Token);
 	if (t->Right_Side_Token->is(_Operator_))
 	{
 		Detect_Operator(t->Right_Side_Token);
+	}
+	else if (t->Right_Side_Token->is(_Parenthesis_))
+	{
+		Generator g;
+		g.Input = t->Right_Side_Token->Childs;
+		g.Types = Types;
+		g.Factory();
+		Append(&Output, g.Output);
 	}
 	Operator->Parameters.push_back(t->Right_Non_Operative_Token);
 	Output.push_back(Operator);

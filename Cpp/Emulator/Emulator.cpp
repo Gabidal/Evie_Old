@@ -13,9 +13,16 @@ void Emulator::Long_Operation_Allocator(int i)
 		Input.at(i+1)->PreFix = Input.at(i+1)->ID;
 		Input.at(i+1)->ID = Branching_Label.back() + "END";
 	}
-	else if (Input.at(i)->ID == "return")
+	else if (Input.at(i)->ID == "return" && (Input.at(i)->is(_Allocated_) != true))
 	{
-
+		Input.at(i)->Flags |= _Allocated_;
+		IR* mov_to_return_Reg = new IR;
+		*mov_to_return_Reg = *Input.at(i);
+		mov_to_return_Reg->ID = "ldr";
+		mov_to_return_Reg->Flags |= _Load_To_Reg;
+		mov_to_return_Reg->Reg_Flag |= Task_For_Returning;
+		Input.at(i)->Parameters.clear();
+		Input.insert(Input.begin() + i, mov_to_return_Reg);
 	}
 }
 
