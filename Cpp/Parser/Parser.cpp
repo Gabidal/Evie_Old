@@ -302,7 +302,19 @@ void Parser::Init_Variable(int i)
 		New_Number->Name = Input.at(i)->WORD;
 		New_Number->Type = "number";
 		New_Number->Flags |= _Number_;
-		New_Number->Size = 4;
+		int Size = atoi(New_Number->Name.c_str());
+		if ((Size <= 255) && (Size >= -128))
+		{
+			New_Number->Size = 1;
+		}
+		else if ((Size <= 65536) && (Size >= -32768))
+		{
+			New_Number->Size = 2;
+		}
+		else
+		{
+			New_Number->Size = 4;
+		}
 		Output.push_back(New_Number);
 	}
 }
