@@ -11,6 +11,7 @@ int SYNTAX = 0;
 extern void Init_Registers();
 vector<Token*> Generated_Undefined_Tokens;
 Selector *S;
+int _SYSTEM_BIT_TYPE = 4;
 
 vector<string> Pre_Defined_Tokens;
 void Init_Pre_Defined_Tokens()

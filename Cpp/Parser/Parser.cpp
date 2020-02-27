@@ -2,8 +2,13 @@
 
 int Layer = 0;
 int ID = 1;
+int Global_Stack_Offset = 0;
+int Local_Stack_Offest = 0;
+bool Inside_Of_Constructor_As_Parameter = false;
+bool Inside_Of_Constructor = false;
 extern vector<string> Pre_Defined_Tokens;
 extern vector<Token*> Generated_Undefined_Tokens;
+extern int _SYSTEM_BIT_TYPE;
 
 void Parser::Init_Definition(int i)
 {
@@ -19,6 +24,8 @@ void Parser::Init_Definition(int i)
 		Token* New_Defined_Type = new Token();
 		New_Defined_Type->Type = Input.at(i)->WORD;
 		New_Defined_Type->Name = Input.at(i + 1)->WORD;
+		Set_Right_Stack_Offset(New_Defined_Type);
+		Set_Right_Flag_Info(New_Defined_Type);
 		Defined_Keywords.push_back(New_Defined_Type);
 	}
 }
@@ -148,6 +155,10 @@ void Parser::Init_Parenthesis(int i)
 		New_Defined_Parenthesis->Childs = P.Output;
 		New_Defined_Parenthesis->Flags |= _Parenthesis_;
 		Output.push_back(New_Defined_Parenthesis);
+		if (Inside_Of_Constructor_As_Parameter)
+		{
+			this->Defined_Keywords = P.Defined_Keywords;
+		}
 	}
 }
 
@@ -216,21 +227,31 @@ void Parser::Type_Definition(int i)
 		}
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{
+
 			Parser P = *this;
+
+			P.Input.clear();
+			P.Output.clear();
+			//parameters.
+			Inside_Of_Constructor_As_Parameter = true;
+			P.Input.push_back(Input.at(i + 1));
+			P.Factory();
+			Inside_Of_Constructor_As_Parameter = false;
+			Local_Stack_Offest = 0;
+			New_Defined_Text->Left_Side_Token = P.Output.at(0);
+
+
 			P.Output.clear();
 			P.Input.clear();
+			//childs
+			Inside_Of_Constructor = true;
 			P.Input.push_back(Input.at(i + 2));
 			P.Factory();
+			Inside_Of_Constructor = false;
+			Local_Stack_Offest = 0;
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Constructor_;
 			New_Defined_Text->Flags |= _External_;
-
-
-			P.Input.clear();
-			P.Output.clear();
-			P.Input.push_back(Input.at(i + 1));
-			P.Factory();
-			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 
 
 			Input.erase(Input.begin() + i + 2);
@@ -250,6 +271,37 @@ void Parser::Type_Definition(int i)
 			}
 		}
 		Output.push_back(New_Defined_Text);
+	}
+}
+
+void Parser::Set_Right_Stack_Offset(Token* t)
+{
+	//the stack place giver
+	if (Inside_Of_Constructor)
+		t->StackOffset = Local_Stack_Offest;
+	else if (Inside_Of_Constructor_As_Parameter)
+		t->StackOffset = (_SYSTEM_BIT_TYPE * 2) + Local_Stack_Offest;
+	else
+		t->StackOffset = Global_Stack_Offset;
+	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter)
+		Local_Stack_Offest += 1 * _SYSTEM_BIT_TYPE;
+	else
+		Global_Stack_Offset += 1 * _SYSTEM_BIT_TYPE;
+}
+
+void Parser::Set_Right_Flag_Info(Token* t)
+{
+	if (Inside_Of_Constructor)
+	{
+		//idk
+	}
+	else if (Inside_Of_Constructor_As_Parameter)
+	{
+		t->Flags |= _Parameter_;
+	}
+	else
+	{
+		t->Flags |= _External_;
 	}
 }
 
@@ -293,6 +345,13 @@ void Parser::Init_Variable(int i)
 		Token* New_Variable = new Token();
 		New_Variable->Name = Input.at(i)->WORD;
 		New_Variable->Type = Defined(New_Variable->Name);
+		for (Token* t : Defined_Keywords)
+			if (t->Name == New_Variable->Name)
+			{
+				New_Variable->StackOffset = t->StackOffset;
+				New_Variable->Flags = t->Flags;
+				break;
+			}
 		Output.push_back(New_Variable);
 		Generated_Undefined_Tokens.push_back(Output.back());
 	}
@@ -358,4 +417,12 @@ void Parser::Factory()
 		Check_For_Correlation(i);
 	}
 	Layer--;
+}
+
+void Parser::Append(vector<Token*>* Dest, vector<Token*> Source)
+{
+	for (Token* i : Source)
+	{
+		Dest->push_back(i);
+	}
 }

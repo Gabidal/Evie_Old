@@ -37,9 +37,8 @@ class Token
     int Static = 0;
     int Const_Value = 0;
     int Dynamic_Value = 0;
-    int StackOffset = 4;
+    int StackOffset = 0;
     int ParameterCount = 0;
-    int ParameterOffset = 4;
     int ID = 0;
     bool Semanticked = false;
     Token* Offsetter = nullptr;

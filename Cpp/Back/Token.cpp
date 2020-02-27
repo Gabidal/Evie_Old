@@ -41,7 +41,6 @@ Token& Token::operator=(const Token& name)
 	Dynamic_Value = name.Dynamic_Value;
 	StackOffset = name.StackOffset;
 	ParameterCount = name.ParameterCount;
-	ParameterOffset = name.ParameterOffset;
 	ID = name.ID;
 	Offsetter = name.Offsetter;
 	Childs = name.Childs;

@@ -1,7 +1,7 @@
 #include "../../H/Back/Back.h"
 #include "../../H/Selector/Selector.h"
 extern Selector* S;
-#define _SYSTEM_BIT_TYPE 4
+extern int _SYSTEM_BIT_TYPE;
 
 string Back::Get_Direction(Token* t)
 {
