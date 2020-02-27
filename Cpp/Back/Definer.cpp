@@ -81,7 +81,46 @@ void Definer::Factory()
 			{
 				t->Size = New_Defined_Class->Size;
 				t->Static = New_Defined_Class->Static;
+				//offset - Size -> all
 			}
 		}
+	}
+	int Previus_Offset = 0;
+	int Current_Offset = 0;
+	int Crop_Size = 0;
+	//if the current is somehow smaller than the previus it means that the current one is in new stackframe.
+	for (Token* t : Defined_Types)
+	{
+		//C = 8
+		//C.Size = 2
+		Current_Offset = t->StackOffset;
+		if (Current_Offset <= Previus_Offset)
+		{
+			//now the current is in different stack frame
+			Previus_Offset = 0;
+			Crop_Size = 0;
+		}
+		//this is still in the same stackframe.
+		if (Current_Offset == (Previus_Offset + t->Size))
+		{
+			Previus_Offset = Current_Offset;
+			continue;
+		}
+		//too big offset is given
+		Crop_Size += Current_Offset - (Previus_Offset + t->Size);
+		for (Token* i: Generated_Undefined_Tokens)
+			if (i->Name == t->Name)
+			{
+				if (i->StackOffset == (t->StackOffset - Crop_Size))
+				{
+					//IT IS ALREADY TAKEN THE NEW STACK OFFSET
+					continue;
+				}
+				else
+				{
+					i->StackOffset -= Crop_Size;
+				}
+			}
+		t->StackOffset -= Crop_Size;
 	}
 }

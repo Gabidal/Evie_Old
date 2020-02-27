@@ -3,7 +3,7 @@ type char()(
 	Static 0
 )
 
-func main(char b)(
-	char a = 1 + b
+func main(char b, char c)(
+	char a = c + b
 	return a
 )

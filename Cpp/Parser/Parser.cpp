@@ -24,6 +24,7 @@ void Parser::Init_Definition(int i)
 		Token* New_Defined_Type = new Token();
 		New_Defined_Type->Type = Input.at(i)->WORD;
 		New_Defined_Type->Name = Input.at(i + 1)->WORD;
+		
 		Set_Right_Stack_Offset(New_Defined_Type);
 		Set_Right_Flag_Info(New_Defined_Type);
 		Defined_Keywords.push_back(New_Defined_Type);
@@ -32,6 +33,8 @@ void Parser::Init_Definition(int i)
 
 void Parser::Init_Operator(int i)
 {
+	if (Input.at(i)->WORD == ",")
+		return;
 	//a = 1
 	//a < b
 	if (Input.at(i)->is(_OPERATOR))
@@ -253,7 +256,6 @@ void Parser::Type_Definition(int i)
 			New_Defined_Text->Flags |= _Constructor_;
 			New_Defined_Text->Flags |= _External_;
 
-
 			Input.erase(Input.begin() + i + 2);
 			Input.erase(Input.begin() + i + 1);
 		}
@@ -412,8 +414,8 @@ void Parser::Factory()
 		Init_Operator(i);
 		Init_Variable(i);
 		Init_Parenthesis(i);
-		Init_Conditions(i);
 		Type_Definition(i);
+		Init_Conditions(i);
 		Check_For_Correlation(i);
 	}
 	Layer--;
