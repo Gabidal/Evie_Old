@@ -115,6 +115,8 @@ void Parser::Do_In_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "/");
 	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "%");
+	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "<<");
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, ">>");
@@ -339,6 +341,13 @@ void Parser::Init_Variable(int i)
 {
 	//var a = 1
 	if (Input.at(i)->_operatorized)
+	{
+		return;
+	}
+	if ((i + 1) > (Input.size() - 1))
+	{
+	}
+	else if (Input.at(i+1)->is(_TEXT))
 	{
 		return;
 	}

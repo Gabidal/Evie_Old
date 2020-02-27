@@ -22,7 +22,7 @@ public:
 	Token* Input;
 	string I = "";
 	OpC* OpCode_Selector();
-	string Get_ID(string id);
+	string Get_ID(string id, string trust = "");
 	Register* Get_Reg(int Size);
 	Register* Get_Right_Reg(int F, int Size);
 	Register* Get_Belonging_Reg(string name);

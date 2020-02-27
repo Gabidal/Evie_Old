@@ -53,7 +53,7 @@ void Back::Store_To_Reg()
 void Back::Make()
 {
 	bool Storing = Input->ID == "=" || Input->ID == "str";
-	Output += S->Get_ID(Input->PreFix) + S->Get_ID(Input->ID) ;
+	Output += S->Get_ID(Input->PreFix, Input->ID) + S->Get_ID(Input->ID);
 	for (int i = 0; i < Input->Parameters.size(); i++)
 	{
 		if (i > 0)

@@ -24,7 +24,7 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("Static");
 }
 
-//main ~/test.g ~/test.asm -win32 -x86 -O
+//main ~/test.g ~/test.asm -win32 -x86 -F -32
 int main(int argc, char* argv[])
 {
 	if (argc == 1)
@@ -34,15 +34,18 @@ int main(int argc, char* argv[])
     Init_Registers();
     S = new Selector(argv[4]);
 	string OUTPUT = "";
-    if (argv[3] == "-win32")
+    if (strcmp(argv[3],"-win32") == 0)
     {
         OUTPUT = "global main\n";
     }
-    else if (argv[3] == "-unix")
+    else if (strcmp(argv[3],"-unix") == 0)
     {
         OUTPUT = "global _start\n_start:\ncall main\nmov eax, 1\n mov ebx, 0\nint 80h\n\n";
     }
-
+    if (strcmp(argv[5], "-F") == 0)
+    {
+        _SYSTEM_BIT_TYPE = -atoi(argv[6]) / 8;
+    }
 
     Lexer l;
 	l.OpenFile(argv[1]);
@@ -71,7 +74,7 @@ int main(int argc, char* argv[])
     o << OUTPUT;//b.Output;
     o.close();
 
-    if (argv[3] == "-win32")
+    if (strcmp(argv[3], "-win32") == 0)
     {
         stringstream output;
         output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << argv[1] << ".obj " << argv[2];
@@ -83,7 +86,7 @@ int main(int argc, char* argv[])
 
         std::system(output.str().c_str());
     }
-    else if (argv[3] == "-unix")
+    else if (strcmp(argv[3], "-unix") == 0)
     {
 
     }

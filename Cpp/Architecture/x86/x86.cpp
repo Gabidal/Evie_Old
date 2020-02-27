@@ -121,8 +121,10 @@ void x86::ARC_Factory()
 	SI->Flags |= Task_For_Offsetting;
 	Registers16.push_back(SI);
 	SP = new Register("SP ", 2, "r15");
+	SP->Flags |= Task_For_Type_Address;
 	Registers16.push_back(SP);
 	BP = new Register("BP ", 2, "r16");
+	BP->Flags |= Task_For_Type_Address_Basing;
 	Registers16.push_back(BP);
 	//8Bit
 	AL = new Register("AL ", 1, "r17");

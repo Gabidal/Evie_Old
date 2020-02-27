@@ -1,6 +1,7 @@
 #include "../../H/Back/Definer.h"
 extern vector<string> Pre_Defined_Tokens;
 extern vector<Token*> Generated_Undefined_Tokens;
+extern int _SYSTEM_BIT_TYPE;
 
 int Definer::Get_Location_Of_Type_Constructor(string type)
 {
@@ -85,12 +86,20 @@ void Definer::Factory()
 			}
 		}
 	}
+	vector<Token*> Enhanced;
 	int Previus_Offset = 0;
 	int Current_Offset = 0;
-	int Crop_Size = 0;
+	int Crop_Size = 0; 
+	int Parameter = 0;
 	//if the current is somehow smaller than the previus it means that the current one is in new stackframe.
-	for (Token* t : Defined_Types)
+	for (Token* t : Generated_Undefined_Tokens)
 	{
+		for (Token* i : Enhanced)
+			if (t->Name == i->Name)
+			{
+				t->StackOffset = i->StackOffset;
+				goto Skip;
+			}
 		//C = 8
 		//C.Size = 2
 		Current_Offset = t->StackOffset;
@@ -106,21 +115,25 @@ void Definer::Factory()
 			Previus_Offset = Current_Offset;
 			continue;
 		}
+		Parameter = 0;
+		if (t->is(_Parameter_))
+		{
+			Parameter = 2 * _SYSTEM_BIT_TYPE;
+		}
 		//too big offset is given
-		Crop_Size += Current_Offset - (Previus_Offset + t->Size);
-		for (Token* i: Generated_Undefined_Tokens)
-			if (i->Name == t->Name)
-			{
-				if (i->StackOffset == (t->StackOffset - Crop_Size))
-				{
-					//IT IS ALREADY TAKEN THE NEW STACK OFFSET
-					continue;
-				}
-				else
-				{
-					i->StackOffset -= Crop_Size;
-				}
-			}
-		t->StackOffset -= Crop_Size;
+		Crop_Size = Current_Offset - (Previus_Offset + t->Size);
+		if (t->StackOffset == (Previus_Offset + t->Size))
+		{
+			//IT IS ALREADY TAKEN THE NEW STACK OFFSET
+			continue;
+		}
+		else
+		{
+			t->StackOffset -= Crop_Size;
+			t->StackOffset += Parameter;
+		}
+		Enhanced.push_back(t);
+		Previus_Offset += t->Size;
+	Skip:;
 	}
 }

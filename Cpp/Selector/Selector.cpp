@@ -1,5 +1,6 @@
 #include "..\..\H\Selector\Selector.h"
 #include "../../H/Back/Token.h"
+extern int _SYSTEM_BIT_TYPE;
 
 Selector::Selector(string s)
 {
@@ -69,6 +70,8 @@ Register* Selector::Get_Right_Reg(int F, int Size)
 			}
 		}
 	}
+	cout << "Error:: Couldn't find suitable architehture register(" + Board_type + ": " + to_string(_SYSTEM_BIT_TYPE * 8) + " )." << endl;
+	return nullptr;
 }
 
 Register* Selector::Get_Belonging_Reg(string name)
@@ -109,18 +112,17 @@ Register* Selector::Get_Belonging_Reg(string name)
 	return nullptr;
 }
 
-string Selector::Get_ID(string id)
+string Selector::Get_ID(string id, string trust)
 {
 	if (id == "")
 		return "";
 	for (OpC* o : OpCodes)
 	{
 		if (o->ID == id)
-		{
 			return o->OpCode;
-		}
 	}
-	cout << "unable to find OpCode " << id << endl;
+	if (trust != "label")
+		cout << "Error:: Unable to find OpCode " << id << endl;
 	return id;
 }
 
