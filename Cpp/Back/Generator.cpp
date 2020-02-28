@@ -1,4 +1,6 @@
 #include "..\..\H\Back\Generator.h"
+#include "../../H/Selector/Selector.h"
+extern Selector* S;
 extern vector<string> Pre_Defined_Tokens;
 
 void Generator::Factory()
@@ -137,12 +139,19 @@ void Generator::Detect_Operator(Token* t)
 	// a = 1 + 2
 	if (t->Name != "=" && t->Name != "str")
 	{
-		IR* Left_Side_Initializer = new IR;
-		Left_Side_Initializer->ID = "ldr";
-		Left_Side_Initializer->Flags |= _Load_To_Reg;
-		Left_Side_Initializer->Reg_Flag |= Task_For_General_Purpose;
-		Left_Side_Initializer->Parameters.push_back(t->Left_Side_Token);
-		Output.push_back(Left_Side_Initializer);
+		if (t->Left_Side_Token->is(_Operator_))
+		{
+			Operator->Comment += "The Left Side in " + t->Name + " has already initialized." + NL;
+		}
+		else
+		{
+			IR* Left_Side_Initializer = new IR;
+			Left_Side_Initializer->ID = "ldr";
+			Left_Side_Initializer->Flags |= _Load_To_Reg;
+			Left_Side_Initializer->Reg_Flag |= Task_For_General_Purpose;
+			Left_Side_Initializer->Parameters.push_back(t->Left_Side_Token);
+			Output.push_back(Left_Side_Initializer);
+		}
 	}
 
 	Output.push_back(Operator);

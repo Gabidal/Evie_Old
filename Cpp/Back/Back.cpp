@@ -69,6 +69,10 @@ void Back::Make()
 
 void Back::Factory()
 {
+	if (Input->Comment != "")
+	{
+		Output += S->Get_ID("comment") + Input->Comment;
+	}
 	if (Input->is(_Load_To_Reg))
 	{
 		Load_To_Reg();
