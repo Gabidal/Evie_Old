@@ -4,6 +4,7 @@
 #include <string>
 #include "../Lexer/Word.h"
 #include "../Back/Token.h"
+#include "../Lexer/Lexer.h"
 #include <algorithm>
 using namespace std;
 
@@ -13,8 +14,8 @@ public:
 	string Working_Dir = "";
     vector<Word*> Input;
     vector<Token*> Output;
-    vector<string*> Included_Files; //for loop holes to not exist
     vector<Token*> Defined_Keywords;
+    void Include_Files(int i);
     void Init_Definition(int i);
     void Init_Operator(int i);
     void Reserve_Operator_Tokens(int i);
@@ -36,7 +37,6 @@ public:
         Working_Dir = other.Working_Dir;
         //Input = other.Input;
         //Output = other.Output;
-        Included_Files = other.Included_Files;
         Defined_Keywords = other.Defined_Keywords;
         return *this;
     }

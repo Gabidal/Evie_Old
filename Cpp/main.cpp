@@ -10,6 +10,7 @@ using namespace std;
 int SYNTAX = 0;
 extern void Init_Registers();
 vector<Token*> Generated_Undefined_Tokens;
+vector<string> Included_Files; //for loop holes to not exist
 Selector *S;
 int _SYSTEM_BIT_TYPE = 4;
 
@@ -49,6 +50,8 @@ int main(int argc, char* argv[])
 
     Lexer l;
 	l.OpenFile(argv[1]);
+    string start_file = argv[1];
+    Included_Files.push_back(start_file);
 
     Parser p;
     p.Input = l.output;

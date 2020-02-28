@@ -1,6 +1,8 @@
 #include "../../H/Lexer/Lexer.h"
 
 //a : b = c + find(a) * (a + b)
+#define __COMMENT '#'
+#define __STRING '\"'
 
 	enum Type
 	{
@@ -15,17 +17,17 @@
 	};
 
 
-int getWord(string source, int continu)
+int getWord(string source, int continu, char StartType, char EndType)
 {
     int LayerCount = 0;
     int i = continu;
     do 
     {
-        if (source[i] == '(')
+        if (source[i] == StartType)
         {
             LayerCount++;
         }
-        if (source[i] == ')')
+        if (source[i] == EndType)
         {
             LayerCount--;
         }
@@ -35,9 +37,22 @@ int getWord(string source, int continu)
     return i;
 }
 
+int getString(string source, int continu)
+{
+    int i = source.find(__STRING, continu + 1);
+
+    if (i == -1)
+    {
+        cout << "Error:: Can't find end of string" << endl;
+    }
+
+    int length = i - continu;
+    return i + 1;
+}
+
 	bool IsOperator(char c)
 	{
-		return (c >= 33 && c <= 47 && c != COMMENT && c != STRING) || (c >= 58 && c <= 63) || c == 94 || c == 124 || c == 126;
+		return (c >= 33 && c <= 47 && c != __COMMENT && c != __STRING) || (c >= 58 && c <= 63) || c == 94 || c == 124 || c == 126;
 	}
 
 	bool IsDigit(char c)
@@ -127,13 +142,16 @@ int getWord(string source, int continu)
             w->Tokens = d.output; 
             return _PAREHTHESIS;
         }
+        else if (t == STRING)
+        {
+            Lexer d;
+            d.Direct(text.substr(1, text.size() - 2));
+            w->Tokens = d.output;
+            return _STRING;
+        }
         else if (t == OPERATOR)
         {
             return _OPERATOR;
-        }
-        else if (t == STRING)
-        {
-            return _STRING;
         }
         else if (t == END)
         {
@@ -159,9 +177,19 @@ void Lexer::Define()
 
         if (Base == CONTENT && Current == CONTENT)
         {
-            i = getWord(Lines, i);
-            Word *w = new Word("");
-            w->WORD = Lines.substr(start, i-start);
+            i = getWord(Lines, i, '(', ')');
+            Word* w = new Word("");
+            w->WORD = Lines.substr(start, i - start);
+            w->Flags = translateIdentity(Base, w->WORD, w);
+            output.push_back(w);
+            Base = UNSPECIFIED;
+            i--;
+        }
+        else if (Base == STRING && Current == STRING)
+        {
+            i = getString(Lines, i);
+            Word* w = new Word("");
+            w->WORD = Lines.substr(start, i - start);
             w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
             Base = UNSPECIFIED;

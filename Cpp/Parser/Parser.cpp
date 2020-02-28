@@ -9,6 +9,28 @@ bool Inside_Of_Constructor = false;
 extern vector<string> Pre_Defined_Tokens;
 extern vector<Token*> Generated_Undefined_Tokens;
 extern int _SYSTEM_BIT_TYPE;
+extern vector<string> Included_Files; //for loop holes to not exist
+
+void Parser::Include_Files(int i)
+{
+	if (Input.at(i)->WORD == "using")
+	{
+		string filename = Input.at(i + 1)->WORD.substr(1, Input.at(i + 1)->WORD.size() - 2);
+		for (string s : Included_Files)
+			if (Input.at(i+1)->is(_STRING) && (filename == s))
+			{
+				cout << "Warning:: " + Input.at(i + 1)->WORD + " has already been included." << endl;
+				Input.erase(Input.begin() + i + 1);
+				return;
+			}
+		//now include the file
+		Lexer l;
+		l.OpenFile(filename.c_str());
+		Input.erase(Input.begin() + i + 1);
+		Input.erase(Input.begin() + i);
+		Input.insert(Input.begin() + i, l.output.begin(), l.output.end());
+	}
+}
 
 void Parser::Init_Definition(int i)
 {
@@ -413,6 +435,8 @@ void Parser::Check_For_Correlation(int i)
 void Parser::Factory()
 {
 	Layer++;
+	for (int i = 0; i < Input.size(); i++)
+		Include_Files(i);
 	for (int i = 0; i < Input.size(); i++)
 		Reserve_Operator_Tokens(i);
 	for (int i = 0; i < Input.size(); i++)
