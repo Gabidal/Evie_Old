@@ -9,16 +9,11 @@ _static:
 _const: 
 _constexpr: 
 _main: 
-mov AL , [EBP  + 8]
+mov AL , byte [EBP  + 9]
 
-shl AL , byte 2
-mov [EBP  + 8], AL 
-mov BL , AL 
-
-imul AL , AL 
-; The Left Side in - has already initialized.
-sub AL , [EBP  + 8]
-mov [EBP  - 0], AL 
-mov AL , byte [EBP  - 0]
+add AL , byte [EBP  + 10]
+; The Right Side in = has already initialized.
+mov [EBP  - 4], AL 
+mov EAX , dword [EBP  - 4]
 
 ret 

@@ -149,9 +149,22 @@ void Generator::Detect_Operator(Token* t)
 			Left_Side_Initializer->ID = "ldr";
 			Left_Side_Initializer->Flags |= _Load_To_Reg;
 			Left_Side_Initializer->Reg_Flag |= Task_For_General_Purpose;
-			Left_Side_Initializer->Parameters.push_back(t->Left_Side_Token);
+			Left_Side_Initializer->Parameters.push_back(t->Left_Non_Operative_Token);
 			Output.push_back(Left_Side_Initializer);
 		}
+	}
+	else if (t->Right_Side_Token->is(_Operator_))
+	{
+		Operator->Comment += "The Right Side in " + t->Name + " has already initialized." + NL;
+	}
+	else
+	{
+		IR* Right_Side_Initializer = new IR;
+		Right_Side_Initializer->ID = "ldr";
+		Right_Side_Initializer->Flags |= _Load_To_Reg;
+		Right_Side_Initializer->Reg_Flag |= Task_For_General_Purpose;
+		Right_Side_Initializer->Parameters.push_back(t->Right_Non_Operative_Token);
+		Output.push_back(Right_Side_Initializer);
 	}
 
 	Output.push_back(Operator);

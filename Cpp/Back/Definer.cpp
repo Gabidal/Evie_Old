@@ -99,17 +99,20 @@ void Definer::Factory()
 			New_Defined_Class->Flags |= _Returning_;
 		}
 		Output.push_back(New_Defined_Class);
-		/*for (Token* t : Generated_Undefined_Tokens)
+		for (Token* t : Generated_Undefined_Tokens)
 		{
 			if (t->Type == New_Defined_Class->Name)
 			{
-				//t->Size = New_Defined_Class->Size;
-				//t->Static = New_Defined_Class->Static;
-				//ADVANCED
-				Type_Collect(t);
+				t->Size = New_Defined_Class->Size;
+				t->Static = New_Defined_Class->Static;
 				//offset - Size -> all
 			}
-		}*/
+		}
+	}
+	for (Token* i : Generated_Undefined_Tokens)
+	{
+		//ADVANCED
+		Type_Collect(i);
 	}
 	vector<Token*> Enhanced;
 	int Previus_Offset = 0;
@@ -160,10 +163,5 @@ void Definer::Factory()
 		Enhanced.push_back(t);
 		Previus_Offset += t->Size;
 	Skip:;
-	}
-	for (Token* i : Generated_Undefined_Tokens)
-	{
-		//ADVANCED
-		Type_Collect(i);
 	}
 }
