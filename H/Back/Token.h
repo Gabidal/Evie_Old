@@ -19,6 +19,9 @@ using namespace std;
 #define _Parenthesis_ (1<<10)
 #define _Constructor_ (1<<11)
 
+//ADVANCED
+#define _Inheritting_ (1<<12)
+
 #define Task_For_Returning (1<<0)
 #define Task_For_Type_Address_Basing (1<<1)
 #define Task_For_Type_Address (1<<2)
@@ -50,6 +53,7 @@ class Token
     vector<Token*> Childs;
     string Name = "";
     string Type = "";
+    string PreFix_Type = "";
     Register *Reg = nullptr; //used for real
     string SX();
     Token(){}

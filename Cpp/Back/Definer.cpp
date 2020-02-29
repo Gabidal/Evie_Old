@@ -1,4 +1,6 @@
 #include "../../H/Back/Definer.h"
+#include <iostream>
+using namespace std;
 extern vector<string> Pre_Defined_Tokens;
 extern vector<Token*> Generated_Undefined_Tokens;
 extern int _SYSTEM_BIT_TYPE;
@@ -29,6 +31,27 @@ int Definer::Get_Definition_Setting(Token* t, string f)
 		}
 	}
 	return 0;
+}
+
+void Definer::Type_Collect(Token* t)
+{
+	if (t->is(_Inheritting_) != true)
+		return;
+	t->Size = Output.at(FIND(t->Type))->Size + Output.at(FIND(t->PreFix_Type))->Size;
+	t->Static = Output.at(FIND(t->Type))->Static + Output.at(FIND(t->PreFix_Type))->Static;
+}
+
+int Definer::FIND(string name)
+{
+	for (int i = 0; i < Output.size(); i++)
+	{
+		if (Output.at(i)->Name == name)
+		{
+			return i;
+		}
+	}
+	cout << "Error:: Invalid PreType: " + name + "." << endl;
+	return -1;
 }
 
 bool Definer::Has(Token* t, string s)
@@ -76,15 +99,17 @@ void Definer::Factory()
 			New_Defined_Class->Flags |= _Returning_;
 		}
 		Output.push_back(New_Defined_Class);
-		for (Token* t : Generated_Undefined_Tokens)
+		/*for (Token* t : Generated_Undefined_Tokens)
 		{
 			if (t->Type == New_Defined_Class->Name)
 			{
-				t->Size = New_Defined_Class->Size;
-				t->Static = New_Defined_Class->Static;
+				//t->Size = New_Defined_Class->Size;
+				//t->Static = New_Defined_Class->Static;
+				//ADVANCED
+				Type_Collect(t);
 				//offset - Size -> all
 			}
-		}
+		}*/
 	}
 	vector<Token*> Enhanced;
 	int Previus_Offset = 0;
@@ -135,5 +160,10 @@ void Definer::Factory()
 		Enhanced.push_back(t);
 		Previus_Offset += t->Size;
 	Skip:;
+	}
+	for (Token* i : Generated_Undefined_Tokens)
+	{
+		//ADVANCED
+		Type_Collect(i);
 	}
 }

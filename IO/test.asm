@@ -1,20 +1,17 @@
 global main
 char: 
-banana: 
-mov [EBP  - 2], byte 1
+const: 
 main: 
-push word [EBP  - 2]
-pop word [EBP  - 2]
-mov AX , word [EBP  + 12]
+mov AL , [EBP  + 8]
 
-shl AX , byte 2
-mov [EBP  + 12], AX 
-mov CX , AX 
+shl AL , byte 2
+mov [EBP  + 8], AL 
+mov BL , AL 
 
-imul AX , AX 
+imul AL , AL 
 ; The Left Side in - has already initialized.
-sub AX , word [EBP  + 14]
-mov [EBP  - 2], AX 
-mov AX , word [EBP  - 2]
+sub AL , [EBP  + 8]
+mov [EBP  - 0], AL 
+mov AL , byte [EBP  - 0]
 
 ret 

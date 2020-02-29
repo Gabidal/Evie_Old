@@ -29,6 +29,7 @@ void Parser::Include_Files(int i)
 		Input.erase(Input.begin() + i + 1);
 		Input.erase(Input.begin() + i);
 		Input.insert(Input.begin() + i, l.output.begin(), l.output.end());
+		Included_Files.push_back(filename);
 	}
 }
 
@@ -40,12 +41,22 @@ void Parser::Init_Definition(int i)
 	}
 	//type var
 	//var a
+	//const var b
 	//func a()
-	if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && Input.at(i+1)->is(_TEXT))
+	if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && (Input.at(i+1)->is(_TEXT)) && (Defined(Input.at(i + 1)->WORD) == ""))
 	{
 		Token* New_Defined_Type = new Token();
 		New_Defined_Type->Type = Input.at(i)->WORD;
 		New_Defined_Type->Name = Input.at(i + 1)->WORD;
+
+		if (i - 1 >= 0)
+		{
+			if (Defined(Input.at(i - 1)->WORD) != "")
+			{
+				New_Defined_Type->PreFix_Type = Input.at(i - 1)->WORD;
+				New_Defined_Type->Flags |= _Inheritting_;
+			}
+		}
 		
 		Set_Right_Stack_Offset(New_Defined_Type);
 		Set_Right_Flag_Info(New_Defined_Type);
@@ -383,6 +394,7 @@ void Parser::Init_Variable(int i)
 			{
 				New_Variable->StackOffset = t->StackOffset;
 				New_Variable->Flags = t->Flags;
+				New_Variable->PreFix_Type = t->PreFix_Type;
 				break;
 			}
 		Output.push_back(New_Variable);
