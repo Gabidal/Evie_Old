@@ -1,10 +1,4 @@
-type char()(
-	Size 1
-)
-
-type const()(
-	Static 2
-)
+using "cstd.e"
 
 func main(char b, char c)(
 	const char a

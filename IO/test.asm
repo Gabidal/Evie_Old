@@ -1,7 +1,14 @@
-global main
-char: 
-const: 
-main: 
+global _main
+_int: 
+_short: 
+_char: 
+_long: 
+_float: 
+_double: 
+_static: 
+_const: 
+_constexpr: 
+_main: 
 mov AL , [EBP  + 8]
 
 shl AL , byte 2

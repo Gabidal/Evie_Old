@@ -123,7 +123,7 @@ string Selector::Get_ID(string id, string trust)
 	}
 	if (trust != "label")
 		cout << "Error:: Unable to find OpCode " << id << endl;
-	return id;
+	return "_" + id;
 }
 
 Register* Selector::Get_Reg(int Size)

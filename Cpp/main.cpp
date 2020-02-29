@@ -37,11 +37,11 @@ int main(int argc, char* argv[])
 	string OUTPUT = "";
     if (strcmp(argv[3],"-win32") == 0)
     {
-        OUTPUT = "global main\n";
+        OUTPUT = "global _main\n";
     }
     else if (strcmp(argv[3],"-unix") == 0)
     {
-        OUTPUT = "global _start\n_start:\ncall main\nmov eax, 1\n mov ebx, 0\nint 80h\n\n";
+        OUTPUT = "global _start\n_start:\ncall _main\nmov eax, 1\n mov ebx, 0\nint 80h\n\n";
     }
     if (strcmp(argv[5], "-F") == 0)
     {
