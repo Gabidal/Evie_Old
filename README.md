@@ -21,7 +21,9 @@ Beta 2.0.0 brings new Lexer, Parser, Back-end.
 More flexible than ever.
 
 Beta 2.0.8 fixed:
+
 -multiline math register handle fix.
+
 -removed reduntant register abuse.
 
 
