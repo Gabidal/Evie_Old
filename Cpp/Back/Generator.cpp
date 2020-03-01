@@ -17,6 +17,8 @@ void Generator::Factory()
 
 void Generator::Detect_Function(Token* t)
 {
+	if (t->Type == "type")
+		return;
 	if (t->is(_Constructor_))
 	{
 		//make a label OpC*

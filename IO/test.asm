@@ -1,13 +1,4 @@
 global _main
-_int: 
-_short: 
-_char: 
-_long: 
-_float: 
-_double: 
-_static: 
-_const: 
-_constexpr: 
 _main: 
 ; The Right Side in = has already initialized.
 mov [EBP  - 4], byte 2
