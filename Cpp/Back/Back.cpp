@@ -24,6 +24,8 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return S->Get_Belonging_Reg(t->Name)->Name;
 	else if (t->is(_Number_))
 		return S->Get_ID(to_string(t->Size)) + t->Name;
+	else if (t->is(_Call_))
+		return "_" + t->Name;
 	else if (t->is(_External_))
 		return S->Get_ID(to_string(t->Size)) + "[" + t->Name + "]";
 	else
@@ -53,7 +55,8 @@ void Back::Store_To_Reg()
 void Back::Make()
 {
 	bool Storing = Input->ID == "=" || Input->ID == "str";
-	Output += S->Get_ID(Input->PreFix, Input->ID) + S->Get_ID(Input->ID);
+	bool Restricted = Input->is(_Restricted_);
+	Output += S->Get_ID(Input->PreFix, Input->ID, Restricted) + S->Get_ID(Input->ID, "", Restricted);
 	for (int i = 0; i < Input->Parameters.size(); i++)
 	{
 		if (i > 0)

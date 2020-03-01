@@ -24,6 +24,17 @@ void Emulator::Long_Operation_Allocator(int i)
 		Input.at(i)->Parameters.clear();
 		Input.insert(Input.begin() + i, mov_to_return_Reg);
 	}
+	else if (Input.at(i)->PreFix == "export")
+	{
+		IR* label = new IR;
+		label->PreFix = Input.at(i)->ID;
+		label->ID = "label";
+		label->Flags |= _Start_Of_Label;
+		label->Flags |= _Restricted_;
+		label->Childs = Input.at(i)->Childs;
+		Input.at(i)->Childs.clear();
+		Input.insert(Input.begin() + i + 1 , label);
+	}
 }
 
 void Emulator::Label_Recorder(int i)

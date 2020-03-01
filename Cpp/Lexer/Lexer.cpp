@@ -118,7 +118,7 @@ int getString(string source, int continu)
     {
         if (t == TEXT)
         {
-            if (text == "while" || text == "type" || text == "func" ||text == "using"|| text == "return" || text == "if" || text == "else")
+            if (text == "while" || text == "type" || text == "func" ||text == "using"|| text == "return" || text == "if" || text == "export")
             {
                 return _KEYWORD;
             }

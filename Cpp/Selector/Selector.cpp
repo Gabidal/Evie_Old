@@ -112,7 +112,7 @@ Register* Selector::Get_Belonging_Reg(string name)
 	return nullptr;
 }
 
-string Selector::Get_ID(string id, string trust)
+string Selector::Get_ID(string id, string trust, bool Restricted)
 {
 	if (id == "")
 		return "";
@@ -123,6 +123,8 @@ string Selector::Get_ID(string id, string trust)
 	}
 	if (trust != "label")
 		cout << "Error:: Unable to find OpCode " << id << endl;
+	if (Restricted)
+		return id;
 	return "_" + id;
 }
 

@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	string OUTPUT = "";
     if (strcmp(argv[3],"-win32") == 0)
     {
-        OUTPUT = "global _main\n";
+        OUTPUT = "";// "global main\n";
     }
     else if (strcmp(argv[3],"-unix") == 0)
     {

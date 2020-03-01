@@ -26,6 +26,12 @@ void Generator::Detect_Function(Token* t)
 		ir->ID = "label";
 		ir->PreFix = t->Name;
 		ir->Flags |= _Start_Of_Label;
+		if (t->Type == "export")
+		{
+			ir->Flags |= _Restricted_;
+			ir->PreFix = "export";
+			ir->ID = t->Name;
+		}
 		//make the insights of this constructor
 		Generator g;
 		g.Input.push_back(t->Right_Side_Token);
