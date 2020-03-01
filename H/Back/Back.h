@@ -21,6 +21,7 @@ public:
 	void Store_To_Reg();
 	void Make();
 	void Factory();
+	void Inherit();
 
 	~Back() {}
 

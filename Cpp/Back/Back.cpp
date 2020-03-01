@@ -37,7 +37,7 @@ void Back::Load_To_Reg()
 
 	Output += S->Get_ID("ldr") + Input->Parameters.at(0)->Reg->Name +
 		FROM + Get_Info_Of(Input->Parameters.at(0), false) + NL;
-	Handle = S->Get_Right_Reg(Input->Reg_Flag, Input->Parameters.at(0)->Size);
+	Handle = Input->Parameters.at(0)->Reg;
 	Input->Parameters.at(0)->Reg->Base = Input->Parameters.at(0);
 }
 
@@ -69,6 +69,14 @@ void Back::Make()
 
 void Back::Factory()
 {
+	if (Input->is(_Maybe_Reg_))
+	{
+		if (S->Get_Belonging_Reg(Input->Parameters.at(0)->Name) != nullptr)
+		{
+			//skip;
+			return;
+		}
+	}
 	if (Input->Comment != "")
 	{
 		Output += S->Get_ID("comment") + Input->Comment;
@@ -84,5 +92,18 @@ void Back::Factory()
 	else
 	{
 		Make();
+	}
+	Inherit();
+}
+
+void Back::Inherit()
+{
+	//if there are more than one paraneter in this instruction
+	if (Input->Parameters.size() > 1)
+	{
+		if (S->Get_Belonging_Reg(Input->Parameters.at(0)->Name) != nullptr)
+		{
+			S->Get_Belonging_Reg(Input->Parameters.at(0)->Name)->Base = Input->Parameters.at(1);
+		}
 	}
 }

@@ -7,6 +7,7 @@
 #define _Load_To_Reg (1<<2)
 #define _Store_To_Reg (1<<3)
 #define _Allocated_ (1<<4)
+#define _Maybe_Reg_ (1<<5)
 
 class IR
 {

@@ -53,11 +53,18 @@ void Parser::Init_Definition(int i)
 		{
 			if (Defined(Input.at(i - 1)->WORD) != "")
 			{
+				if (i - 2 >= 0)
+				{
+					if (Input.at(i - 2)->is(_TEXT) != true)
+					{
+						goto skip;
+					}
+				}
 				New_Defined_Type->PreFix_Type = Input.at(i - 1)->WORD;
 				New_Defined_Type->Flags |= _Inheritting_;
 			}
 		}
-		
+		skip:;
 		Set_Right_Stack_Offset(New_Defined_Type);
 		Set_Right_Flag_Info(New_Defined_Type);
 		Defined_Keywords.push_back(New_Defined_Type);

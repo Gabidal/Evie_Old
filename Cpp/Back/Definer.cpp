@@ -37,21 +37,28 @@ void Definer::Type_Collect(Token* t)
 {
 	if (t->is(_Inheritting_) != true)
 		return;
-	t->Size = Output.at(FIND(t->Type))->Size + Output.at(FIND(t->PreFix_Type))->Size;
-	t->Static = Output.at(FIND(t->Type))->Static + Output.at(FIND(t->PreFix_Type))->Static;
+	t->Size = FIND(t->Type)->Size + FIND(t->PreFix_Type)->Size;
+	t->Static = FIND(t->Type)->Static + FIND(t->PreFix_Type)->Static;
 }
 
-int Definer::FIND(string name)
+Token* Definer::FIND(string name)
 {
 	for (int i = 0; i < Output.size(); i++)
 	{
 		if (Output.at(i)->Name == name)
 		{
-			return i;
+			return Output.at(i);
+		}
+	}
+	for (int i = 0; i < Generated_Undefined_Tokens.size(); i++)
+	{
+		if (Generated_Undefined_Tokens.at(i)->Name == name)
+		{
+			return Generated_Undefined_Tokens.at(i);
 		}
 	}
 	cout << "Error:: Invalid PreType: " + name + "." << endl;
-	return -1;
+	return nullptr;
 }
 
 bool Definer::Has(Token* t, string s)

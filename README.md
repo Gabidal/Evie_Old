@@ -17,8 +17,12 @@
 
 
 ## New's
-Beta 2.0.0 bringes new Lexer, Parser, Back-end.
+Beta 2.0.0 brings new Lexer, Parser, Back-end.
 More flexible than ever.
+Beta 2.0.8 fixed:
+-multiline math register handle fix.
+-removed reduntant register abuse.
+
 
 ## Manual
 
@@ -87,3 +91,8 @@ Array's are actually just normal operator's.
 ```
 [./]Evie[.exe] [input filename] [output filename] -[OS] -[architecture] -[Flag] -[Force maximum bit size]
 ```
+
+### Future of Evie
+
+Atm, just fixes.
+Then the FPU support and new type feature: ```[precision] [number of decimal's]```.
