@@ -121,6 +121,7 @@ void Generator::Detect_Operator(Token* t)
 	if (t->Left_Side_Token->is(_Operator_))
 	{
 		Detect_Operator(t->Left_Side_Token);
+		Operator->Flags |= _Left_Side_Handle_Request;
 	}
 	else if (t->Left_Side_Token->is(_Parenthesis_))
 	{
@@ -134,6 +135,7 @@ void Generator::Detect_Operator(Token* t)
 	if (t->Right_Side_Token->is(_Operator_))
 	{
 		Detect_Operator(t->Right_Side_Token);
+		Operator->Flags |= _Right_Side_Handle_Request;
 	}
 	else if (t->Right_Side_Token->is(_Parenthesis_))
 	{

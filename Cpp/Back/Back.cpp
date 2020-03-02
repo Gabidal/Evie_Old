@@ -20,6 +20,8 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 	if (Storing)
 		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
+	else if (Handle != nullptr)
+		return Handle->Name;
 	else if (S->Get_Belonging_Reg(t->Name) != nullptr)
 		return S->Get_Belonging_Reg(t->Name)->Name;
 	else if (t->is(_Number_))
@@ -95,6 +97,16 @@ void Back::Factory()
 	else
 	{
 		Make();
+		if (Input->is(_Left_Side_Handle_Request))
+		{
+			Handle = S->Get_Belonging_Reg(Input->Parameters.at(0)->Name);
+		}
+		else if (Input->is(_Right_Side_Handle_Request))
+		{
+			Handle = S->Get_Belonging_Reg(Input->Parameters.at(1)->Name);
+		}
+		else
+			Handle = nullptr;
 	}
 	Inherit();
 }

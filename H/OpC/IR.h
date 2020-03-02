@@ -9,6 +9,8 @@
 #define _Allocated_ (1<<4)
 #define _Maybe_Reg_ (1<<5)
 #define _Restricted_ (1<<6)
+#define _Left_Side_Handle_Request (1<<7)
+#define _Right_Side_Handle_Request (1<<7)
 
 class IR
 {

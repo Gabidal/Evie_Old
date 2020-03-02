@@ -121,10 +121,10 @@ string Selector::Get_ID(string id, string trust, bool Restricted)
 		if (o->ID == id)
 			return o->OpCode;
 	}
-	if (trust != "label")
-		cout << "Error:: Unable to find OpCode " << id << endl;
 	if (Restricted)
 		return id;
+	if (trust != "label")
+		cout << "Error:: Unable to find OpCode " << id << endl;
 	return "_" + id;
 }
 

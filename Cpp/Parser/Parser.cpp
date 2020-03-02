@@ -480,3 +480,16 @@ void Parser::Append(vector<Token*>* Dest, vector<Token*> Source)
 		Dest->push_back(i);
 	}
 }
+
+bool is_isogram(std::string str) {
+	vector<char> listed;
+	for (char i : str)
+	{
+		for (char j : listed)
+			if (j == i)
+			{
+				return false;
+			}
+	}
+	return true;
+}
