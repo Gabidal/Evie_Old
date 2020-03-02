@@ -8,7 +8,6 @@
 #include <iostream>
 using namespace std;
 int SYNTAX = 0;
-extern void Init_Registers();
 vector<Token*> Generated_Undefined_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
 Selector *S;
@@ -32,7 +31,6 @@ int main(int argc, char* argv[])
 	{
 		return -1;
 	}
-    Init_Registers();
     S = new Selector(argv[4]);
 	string OUTPUT = "";
     if (strcmp(argv[3],"-win32") == 0)

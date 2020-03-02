@@ -14,14 +14,11 @@ public:
 	}
 	string& Output;
 	IR* Input = nullptr;
-	Register* Handle = nullptr;
+	Token* Handle = nullptr;
 	string Get_Direction(Token* t);
 	string Get_Info_Of(Token* t, bool Storing);
-	void Load_To_Reg();
-	void Store_To_Reg();
 	void Make();
 	void Factory();
-	void Inherit();
 
 	~Back() {}
 

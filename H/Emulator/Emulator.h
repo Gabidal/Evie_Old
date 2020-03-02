@@ -14,7 +14,7 @@ public:
 	vector<string> Branching_Label;
 	bool _NEED_FOR_FPU = false;
 	bool _IN_PROGRESS = false;
-	Register* Handle = nullptr;
+	Token* Handle = nullptr;
 
 
 	void Long_Operation_Allocator(int i);

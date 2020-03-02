@@ -1,4 +1,6 @@
 #include "../../H/Emulator/Emulator.h"
+#include "../../H/Semantic/Semantic.h"
+extern Semantic* S;
 
 void Emulator::Long_Operation_Allocator(int i)
 {
@@ -19,7 +21,6 @@ void Emulator::Long_Operation_Allocator(int i)
 		IR* mov_to_return_Reg = new IR;
 		*mov_to_return_Reg = *Input.at(i);
 		mov_to_return_Reg->ID = "ldr";
-		mov_to_return_Reg->Flags |= _Load_To_Reg;
 		mov_to_return_Reg->Reg_Flag |= Task_For_Returning;
 		Input.at(i)->Parameters.clear();
 		Input.insert(Input.begin() + i, mov_to_return_Reg);
@@ -78,11 +79,8 @@ void Emulator::Child(int i)
 void Emulator::Use_Assembly(int i)
 {
 	Back b(Output);
-	b.Handle = Handle;
 	b.Input = Input.at(i);
 	b.Factory();
-	if (b.Handle != nullptr)
-		Handle = b.Handle;
 	Output += NL;
 }
 

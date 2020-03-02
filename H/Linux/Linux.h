@@ -2,7 +2,6 @@
 #define _LINUX_H_
 #include <string>
 #include "../Back/Assembly_Definitions.h"
-#include "../Back/Registers.h"
 #include "../Back/Token.h"
 using namespace std;
 

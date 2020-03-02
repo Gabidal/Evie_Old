@@ -12,20 +12,22 @@ class Selector
 {
 public:
 	string Board_type = "";
+	int Reg_Turn128 = 0;
+	int Reg_Turn64 = 0;
 	int Reg_Turn32 = 0;
 	int Reg_Turn16 = 0;
 	int Reg_Turn8 = 0;
-	vector<Register*> Registers32;
-	vector<Register*> Registers16;
-	vector<Register*> Registers8;
+	vector<Token*> Registers128;
+	vector<Token*> Registers64;
+	vector<Token*> Registers32;
+	vector<Token*> Registers16;
+	vector<Token*> Registers8;
 	vector<OpC*> OpCodes;
 	Token* Input;
 	string I = "";
 	OpC* OpCode_Selector();
-	string Get_ID(string id, string trust = "", bool Restricted = false);
-	Register* Get_Reg(int Size);
-	Register* Get_Right_Reg(int F, int Size);
-	Register* Get_Belonging_Reg(string name);
+	string Get_ID(string id, string trust, vector<int> minmax);
+	Token* Get_Right_Reg(int F, int Size);
 	Selector(string s);
 	~Selector();
 private:

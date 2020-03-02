@@ -1,9 +1,8 @@
-
 #include "..\..\..\H\Architecture\ARM\ARM.h"
 
 void ARM::ARC_Factory()
 {
-	OpC* ARM_ADD_ = new OpC(0, "add", "add");
+	/*OpC* ARM_ADD_ = new OpC(0, "add", "add");
 	OpCodes.push_back(ARM_ADD_);
 	OpC* ARM_OR_ = new OpC(0, "or", "or");
 	OpCodes.push_back(ARM_OR_);
@@ -44,6 +43,5 @@ void ARM::ARC_Factory()
 	OpC* ARM_MUL_ = new OpC(0, "mul", "mul");
 	OpCodes.push_back(ARM_MUL_);
 	OpC* ARM_DIV_ = new OpC(0, "div", "div");
-	OpCodes.push_back(ARM_DIV_);
+	OpCodes.push_back(ARM_DIV_);*/
 }
-//#endif

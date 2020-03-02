@@ -6,45 +6,67 @@
 class x86
 {
 public:
+	int Reg_Turn128 = 0;
+	int Reg_Turn64 = 0;
 	int Reg_Turn32 = 0;
 	int Reg_Turn16 = 0;
 	int Reg_Turn8 = 0;
-	vector<Register*> Registers32;
-	vector<Register*> Registers16;
-	vector<Register*> Registers8;
+	vector<Token*> Registers128;
+	vector<Token*> Registers64;
+	vector<Token*> Registers32;
+	vector<Token*> Registers16;
+	vector<Token*> Registers8;
 	vector<OpC*> OpCodes;
 	void ARC_Factory();
 	x86(){}
 	~x86(){}
 
 	//Reg's
+	//64Bit float
+	Token* MMX0;
+	Token* MMX1;
+	Token* MMX2;
+	Token* MMX3;
+	Token* MMX4;
+	Token* MMX5;
+	Token* MMX6;
+	Token* MMX7;
+	//64Bit
+	Token* RAX;
+	Token* RBX;
+	Token* RCX;
+	Token* RDX;
+	Token* RDI;
+	Token* RSI;
+	Token* RSP;
+	Token* RBP;
 	//32Bit
-	Register* EAX;
-	Register* EBX;
-	Register* ECX;
-	Register* EDX;
-	Register* EDI;
-	Register* ESI;
-	Register* ESP;
-	Register* EBP;
+	Token* EAX;
+	Token* EBX;
+	Token* ECX;
+	Token* EDX;
+	Token* EDI;
+	Token* ESI;
+	Token* ESP;
+	Token* EBP;
 	//16Bit
-	Register* AX;
-	Register* BX;
-	Register* CX;
-	Register* DX;
-	Register* DI;
-	Register* SI;
-	Register* SP;
-	Register* BP;
+	Token* AX;
+	Token* BX;
+	Token* CX;
+	Token* DX;
+	Token* DI;
+	Token* SI;
+	Token* SP;
+	Token* BP;
 	//8Bit
-	Register* AL;
-	Register* AH;
-	Register* BL;
-	Register* BH;
-	Register* CL;
-	Register* CH;
-	Register* DL;
-	Register* DH;
+	Token* AL;
+	Token* AH;
+	Token* BL;
+	Token* BH;
+	Token* CL;
+	Token* CH;
+	Token* DL;
+	Token* DH;
 };
 
 

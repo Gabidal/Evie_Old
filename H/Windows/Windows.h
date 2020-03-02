@@ -2,7 +2,6 @@
 #define _WINDOWS_H_
 #include <string>
 #include "../Back/Assembly_Definitions.h"
-#include "../Back/Registers.h"
 using namespace std;
 
 class Windows

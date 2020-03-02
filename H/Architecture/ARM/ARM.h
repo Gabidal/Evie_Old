@@ -5,9 +5,11 @@
 class ARM
 {
 public:
-	vector<Register*> Registers32;
-	vector<Register*> Registers16;
-	vector<Register*> Registers8;
+	vector<Token*> Registers128;
+	vector<Token*> Registers64;
+	vector<Token*> Registers32;
+	vector<Token*> Registers16;
+	vector<Token*> Registers8;
 	vector<OpC*> OpCodes;
 	void ARC_Factory();
 	ARM() {}

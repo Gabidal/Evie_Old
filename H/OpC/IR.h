@@ -4,13 +4,8 @@
 #include "../Back/Token.h"
 #define _Start_Of_Label (1<<0)
 #define _End_Of_Label (1<<1)
-#define _Load_To_Reg (1<<2)
-#define _Store_To_Reg (1<<3)
-#define _Allocated_ (1<<4)
-#define _Maybe_Reg_ (1<<5)
-#define _Restricted_ (1<<6)
-#define _Left_Side_Handle_Request (1<<7)
-#define _Right_Side_Handle_Request (1<<7)
+#define _Allocated_ (1<<2)
+#define _Restricted_ (1<<4)
 
 class IR
 {

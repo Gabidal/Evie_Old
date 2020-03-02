@@ -5,7 +5,7 @@
 
 using namespace std;
 
-//creators
+//Identifiers
 #define _Number_ (1<<0)
 #define _External_ (1<<1)
 #define _Type_ (1<<2)
@@ -18,19 +18,19 @@ using namespace std;
 #define _Parameter_ (1<<9)
 #define _Parenthesis_ (1<<10)
 #define _Constructor_ (1<<11)
+#define _Register_ (1<<12)
 
 //ADVANCED
-#define _Inheritting_ (1<<12)
+#define _Inheritting_ (1<<13)
 
-#define Task_For_Returning (1<<0)
-#define Task_For_Type_Address_Basing (1<<1)
-#define Task_For_Type_Address (1<<2)
-#define Task_For_Moving_Parameter (1<<3)
-#define Task_For_Offsetting (1<<4)
-#define Task_For_Remainder (1<<5)
-#define Task_For_General_Purpose (1<<6)
-
-class Register;
+#define Task_For_Returning (1<<14)
+#define Task_For_Type_Address_Basing (1<<15)
+#define Task_For_Type_Address (1<<16)
+#define Task_For_Moving_Parameter (1<<17)
+#define Task_For_Offsetting (1<<18)
+#define Task_For_Remainder (1<<19)
+#define Task_For_General_Purpose (1<<20)
+#define Task_For_Floating_Math (1<<20)
 
 class Token
 {
@@ -38,14 +38,13 @@ class Token
     int Flags = 0;
     int Size = 0;
     int Static = 0;
-    int Const_Value = 0;
-    int Dynamic_Value = 0;
+    int Initial_Value = 0;
+    int Changable_Value = 0;
     int StackOffset = 0;
     int ParameterCount = 0;
     int ID = 0;
     bool Semanticked = false;
-    Token* Offsetter = nullptr;
-    Token* Parent = nullptr;
+    //Token* Parent = nullptr;
     Token* Left_Side_Token = nullptr;
     Token* Right_Side_Token = nullptr;
     Token* Left_Non_Operative_Token = nullptr;
@@ -54,40 +53,31 @@ class Token
     string Name = "";
     string Type = "";
     string PreFix_Type = "";
-    Register *Reg = nullptr; //used for real
     string SX();
     Token(){}
     Token &operator=(const Token& name);
+    Token(string name, int size, Token* child) {
+        Name = name;
+        Size = size;
+        Childs.push_back(child);
+        Flags |= _Register_;
+    }
+    Token(string name, int size, Token* child1, Token* child2) {
+        Name = name;
+        Size = size;
+        Childs.push_back(child1);
+        Childs.push_back(child2);
+        Flags |= _Register_;
+    }
+    Token(string name, int size) {
+        Name = name;
+        Size = size;
+        Flags |= _Register_;
+    }
 
     bool is(int flag);
     bool Any(int flags);
     string Get_Additive_Operator();
-};
-
-
-class Register
-{
-public:
-    int Flags = 0;
-    string Name = "";
-    int Value = 0;
-    string ID = "";
-    Token *Base;
-    int Bit_Size = 0;
-    bool is(int flag);
-    vector<Token*> History;
-    Register(string name, int BS)
-    {
-        Name = name;
-        Bit_Size = BS;
-    }
-    Register(string name, int BS, string id)
-    {
-        Name = name;
-        Bit_Size = BS;
-        ID = id;
-    }
-    void Link(Token *Requester);
 };
 #endif
 

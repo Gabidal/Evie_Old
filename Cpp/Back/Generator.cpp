@@ -28,7 +28,6 @@ void Generator::Detect_Function(Token* t)
 		ir->Flags |= _Start_Of_Label;
 		if (t->Type == "export")
 		{
-			ir->Flags |= _Restricted_;
 			ir->PreFix = "export";
 			ir->ID = t->Name;
 		}
@@ -115,13 +114,15 @@ void Generator::Detect_Operator(Token* t)
 {
 	if (t->is(_Operator_) != true)
 		return;
-	// (a = {[<b * c> * x] + [d / e]})
+	// a = b + c
+	// mov eax, [b]
+	// add eax, [c]
+	// mov [a], eax
 	IR* Operator = new IR;
 	Operator->ID = t->Name;
 	if (t->Left_Side_Token->is(_Operator_))
 	{
 		Detect_Operator(t->Left_Side_Token);
-		Operator->Flags |= _Left_Side_Handle_Request;
 	}
 	else if (t->Left_Side_Token->is(_Parenthesis_))
 	{
@@ -131,11 +132,13 @@ void Generator::Detect_Operator(Token* t)
 		g.Factory();
 		Append(&Output, g.Output);
 	}
-	Operator->Parameters.push_back(t->Left_Non_Operative_Token);
+	else
+	{
+		Operator->Parameters.push_back(t->Left_Non_Operative_Token);
+	}
 	if (t->Right_Side_Token->is(_Operator_))
 	{
 		Detect_Operator(t->Right_Side_Token);
-		Operator->Flags |= _Right_Side_Handle_Request;
 	}
 	else if (t->Right_Side_Token->is(_Parenthesis_))
 	{
@@ -145,7 +148,10 @@ void Generator::Detect_Operator(Token* t)
 		g.Factory();
 		Append(&Output, g.Output);
 	}
-	Operator->Parameters.push_back(t->Right_Non_Operative_Token);
+	else
+	{
+		Operator->Parameters.push_back(t->Right_Non_Operative_Token);
+	}
 	// a = 1 + 2
 	if (t->Name != "=" && t->Name != "str")
 	{
@@ -155,11 +161,15 @@ void Generator::Detect_Operator(Token* t)
 		}
 		else
 		{
+			Token* Reg = new Token;
+			Reg->Flags |= Task_For_General_Purpose;
+			Reg->Flags |= _Register_;
+			Reg->Name = t->Left_Non_Operative_Token->Name;
+			Reg->Size = t->Left_Non_Operative_Token->Size;
+
 			IR* Left_Side_Initializer = new IR;
 			Left_Side_Initializer->ID = "ldr";
-			Left_Side_Initializer->Flags |= _Load_To_Reg;
-			Left_Side_Initializer->Flags |= _Maybe_Reg_;
-			Left_Side_Initializer->Reg_Flag |= Task_For_General_Purpose;
+			Left_Side_Initializer->Parameters.push_back(Reg);
 			Left_Side_Initializer->Parameters.push_back(t->Left_Non_Operative_Token);
 			Output.push_back(Left_Side_Initializer);
 		}
@@ -170,11 +180,15 @@ void Generator::Detect_Operator(Token* t)
 	}
 	else
 	{
+		Token* Reg = new Token;
+		Reg->Flags |= Task_For_General_Purpose;
+		Reg->Flags |= _Register_;
+		Reg->Name = t->Right_Non_Operative_Token->Name;
+		Reg->Size = t->Right_Non_Operative_Token->Size;
+
 		IR* Right_Side_Initializer = new IR;
 		Right_Side_Initializer->ID = "ldr";
-		Right_Side_Initializer->Flags |= _Load_To_Reg;
-		Right_Side_Initializer->Flags |= _Maybe_Reg_;
-		Right_Side_Initializer->Reg_Flag |= Task_For_General_Purpose;
+		Right_Side_Initializer->Parameters.push_back(Reg);
 		Right_Side_Initializer->Parameters.push_back(t->Right_Non_Operative_Token);
 		Output.push_back(Right_Side_Initializer);
 	}

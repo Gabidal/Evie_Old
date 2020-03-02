@@ -1,21 +1,18 @@
-global main
-main: 
-; The Right Side in = has already initialized.
-mov [EBP  - 4], byte 2
-_while4: 
-mov EAX , dword [EBP  - 4]
+export_main
+_main_label
+_commentThe Right Side in = has already initialized.
 
-cmp EAX , EAX 
-jnl _while4END
-mov EBX , EAX 
+_while4_label
+mov a, _4[EBP  - 4]
+cmp _4[EBP  - 4], _13
+_<_while4END
+mov a, _4[EBP  - 4]
+add _4[EBP  - 4], _11
+_commentThe Left Side in + has already initialized.
 
-add EBX , EBX 
-; The Left Side in + has already initialized.
-add EBX , EBX 
-; The Right Side in = has already initialized.
-mov [EBP  - 4], EBX 
-jmp _while4
-_while4END: 
-mov EAX , EBX 
+_commentThe Right Side in = has already initialized.
 
-ret 
+_jmp_while4
+_while4END_label
+mov _4[EBP  - 4]
+_return

@@ -9,6 +9,8 @@ Selector::Selector(string s)
 	{
 		x86 x;
 		x.ARC_Factory();
+		Registers128 = x.Registers128;
+		Registers64 = x.Registers64;
 		Registers32 = x.Registers32;
 		Registers16 = x.Registers16;
 		Registers8 = x.Registers8;
@@ -18,6 +20,8 @@ Selector::Selector(string s)
 	{
 		ARM x;
 		x.ARC_Factory();
+		Registers128 = x.Registers128;
+		Registers64 = x.Registers64;
 		Registers32 = x.Registers32;
 		Registers16 = x.Registers16;
 		Registers8 = x.Registers8;
@@ -34,15 +38,31 @@ OpC* Selector::OpCode_Selector()
 	return nullptr;
 }
 
-Register* Selector::Get_Right_Reg(int F, int Size)
+Token* Selector::Get_Right_Reg(int F, int Size)
 {
-	if (F == Task_For_General_Purpose)
+	if (Size == 12)
 	{
-		return Get_Reg(Size);
+		for (Token* r : Registers128)
+		{
+			if (r->is(F))
+			{
+				return r;
+			}
+		}
 	}
-	if (Size == 4)
+	else if (Size == 8)
 	{
-		for (Register* r : Registers32)
+		for (Token* r : Registers64)
+		{
+			if (r->is(F))
+			{
+				return r;
+			}
+		}
+	}
+	else if (Size == 4)
+	{
+		for (Token* r : Registers32)
 		{
 			if (r->is(F))
 			{
@@ -52,7 +72,7 @@ Register* Selector::Get_Right_Reg(int F, int Size)
 	}
 	else if (Size == 2)
 	{
-		for (Register* r : Registers16)
+		for (Token* r : Registers16)
 		{
 			if (r->is(F))
 			{
@@ -62,7 +82,7 @@ Register* Selector::Get_Right_Reg(int F, int Size)
 	}
 	else
 	{
-		for (Register* r : Registers8)
+		for (Token* r : Registers8)
 		{
 			if (r->is(F))
 			{
@@ -70,100 +90,31 @@ Register* Selector::Get_Right_Reg(int F, int Size)
 			}
 		}
 	}
-	cout << "Error:: Couldn't find suitable architehture register(" + Board_type + ": " + to_string(_SYSTEM_BIT_TYPE * 8) + " )." << endl;
+	cout << "Error:: Couldn't find suitable architehture register(" + Board_type + ": " + to_string(Size * 8) + " )." << endl;
 	return nullptr;
 }
 
-Register* Selector::Get_Belonging_Reg(string name)
-{
-	for (Register* r : Registers32)
-	{
-		if (r->Base == nullptr)
-		{
-			continue;
-		}
-		if (r->Base->Name == name)
-		{
-			return r;
-		}
-	}
-	for (Register* r : Registers16)
-	{
-		if (r->Base == nullptr)
-		{
-			continue;
-		}
-		if (r->Base->Name == name)
-		{
-			return r;
-		}
-	}
-	for (Register* r : Registers8)
-	{
-		if (r->Base == nullptr)
-		{
-			continue;
-		}
-		if (r->Base->Name == name)
-		{
-			return r;
-		}
-	}
-	return nullptr;
-}
-
-string Selector::Get_ID(string id, string trust, bool Restricted)
+string Selector::Get_ID(string id, string trust, vector<int> minmax)
 {
 	if (id == "")
 		return "";
+	int i_R = minmax.at(0);
+	int i_L = minmax.at(1);
 	for (OpC* o : OpCodes)
 	{
-		if (o->ID == id)
-			return o->OpCode;
+		int o_R_Min = o->MinMax.at(0);
+		int o_R_Max = o->MinMax.at(1);
+		int o_L_Min = o->MinMax.at(2);
+		int o_L_Max = o->MinMax.at(3);
+		if ((o_R_Min <= i_R <= o_R_Max) && (o_L_Min <= i_L <= o_L_Max))
+		{
+			if (o->ID == id)
+				return o->OpCode;
+		}
 	}
-	if (Restricted)
+	if (trust == "export")
 		return id;
 	if (trust != "label")
-		cout << "Error:: Unable to find OpCode " << id << endl;
+		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << endl;
 	return "_" + id;
-}
-
-Register* Selector::Get_Reg(int Size)
-{
-	if (Size == 4)
-	{
-		if (Reg_Turn32 >= Registers32.size() - 1)
-		{
-			Reg_Turn32 = 1;
-		}
-		else
-		{
-			Reg_Turn32++;
-		}
-		return Registers32.at(Reg_Turn32 - 1);
-	}
-	else if (Size == 2)
-	{
-		if (Reg_Turn16 >= Registers16.size() - 1)
-		{
-			Reg_Turn16 = 1;
-		}
-		else
-		{
-			Reg_Turn16++;
-		}
-		return Registers16.at(Reg_Turn16 - 1);
-	}
-	else
-	{
-		if (Reg_Turn8 >= Registers8.size() - 1)
-		{
-			Reg_Turn8 = 1;
-		}
-		else
-		{
-			Reg_Turn8++;
-		}
-		return Registers8.at(Reg_Turn8 - 1);
-	}
 }
