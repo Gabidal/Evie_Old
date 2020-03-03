@@ -114,84 +114,90 @@ void Generator::Detect_Operator(Token* t)
 {
 	if (t->is(_Operator_) != true)
 		return;
-	// a = b + c
-	// mov eax, [b]
-	// add eax, [c]
+	// a = a + 1 + a
+	// mov eax, [a]
+	// add eax, 1
+	// add eax, [a]
 	// mov [a], eax
-	IR* Operator = new IR;
-	Operator->ID = t->Name;
-
+	//basic tools:
+	Token* Left_Token;
+	Token* Right_Token;
+	bool Normal_Left = false;
+	bool Normal_Right = false;
+	//create a new IR token.
+	IR* opCode = new IR;
+	opCode->ID = t->Name;
+	//give the new ir generator the left side of operation.
 	Generator g;
 	g.Input.push_back(t->Left_Side_Token);
-	g.Types = Types;
 	g.Factory();
-	if (g.Output.size() == 0)
-	{
-		Operator->Parameters.push_back(t->Left_Side_Token);
-	}
+	//save the information that the new generator gived.
+	Append(&Output, g.Output);
+	//check if left side holds a more complex instruction for loading into a register.
+	if (g.Handle != nullptr)
+		opCode->Parameters.push_back(g.Handle);
+	//if not then probably just a normal number/variable
 	else
-	{
-		Append(&Output, g.Output);
-		Operator->Parameters.push_back(g.Handles.back());
-	}
-
+		Normal_Left = true;
+	//now do the same but for right side.
 	g.Input.clear();
-	g.Output.clear();
+	g.Handle = nullptr;
 	g.Input.push_back(t->Right_Side_Token);
 	g.Factory();
-	if (g.Output.size() == 0)
-	{
-		Operator->Parameters.push_back(t->Right_Side_Token);
-	}
+	//save the information gived by the generator yet again.
+	Append(&Output, g.Output);
+	//check if right side has more complex instruction.
+	if (g.Handle != nullptr)
+		opCode->Parameters.push_back(g.Handle);
+	//if normal right side.
 	else
+		Normal_Right = true;
+	//check if this is a storing opcode:
+	bool Storing = (t->Name == "=" || t->Name == "str");
+	if (Normal_Left)
 	{
-		Append(&Output, g.Output);
-		Operator->Parameters.push_back(g.Handles.back());
-	}
-	// a = 1 + 2
-	if (t->Name != "=" && t->Name != "str")
-	{
-		if (t->Left_Side_Token->is(_Operator_))
+		if (Storing)
 		{
-			Operator->Comment += "The Left Side in " + t->Name + " has already initialized." + NL;
+			Left_Token = t->Left_Side_Token;
 		}
-		else
-		{
-			Token* Reg = new Token;
-			Reg->Flags |= Task_For_General_Purpose;
-			Reg->Flags |= _Register_;
-			Reg->Name = t->Left_Non_Operative_Token->Name;
-			Reg->Size = t->Left_Non_Operative_Token->Size;
-			Handles.push_back(Reg);
-
-			IR* Left_Side_Initializer = new IR;
-			Left_Side_Initializer->ID = "ldr";
-			Left_Side_Initializer->Parameters.push_back(Reg);
-			Left_Side_Initializer->Parameters.push_back(t->Left_Non_Operative_Token);
-			Output.push_back(Left_Side_Initializer);
-		}
-	}
-	else if (t->Right_Side_Token->is(_Operator_) || t->Right_Side_Token->is(_Number_))
-	{
-		Operator->Comment += "The Right Side in " + t->Name + " has already initialized." + NL;
-	}
-	else
-	{
+		//make a handle register
 		Token* Reg = new Token;
 		Reg->Flags |= Task_For_General_Purpose;
 		Reg->Flags |= _Register_;
-		Reg->Name = t->Right_Non_Operative_Token->Name;
-		Reg->Size = t->Right_Non_Operative_Token->Size;
-		Handles.push_back(Reg);
-
-		IR* Right_Side_Initializer = new IR;
-		Right_Side_Initializer->ID = "ldr";
-		Right_Side_Initializer->Parameters.push_back(Reg);
-		Right_Side_Initializer->Parameters.push_back(t->Right_Non_Operative_Token);
-		Output.push_back(Right_Side_Initializer);
+		Reg->Name = t->Left_Side_Token->Name;
+		Reg->Size = t->Left_Side_Token->Size;
+		Left_Token = Reg;
+		//make the loading IR token
+		IR* load = new IR;
+		load->ID = "ldr";
+		load->Parameters.push_back(Reg);
+		load->Parameters.push_back(t->Left_Side_Token);
+		Output.push_back(load);
 	}
-
-	Output.push_back(Operator);
+	if (Normal_Right)
+	{
+		//make a handle register
+		Token* Reg = new Token;
+		Reg->Flags |= Task_For_General_Purpose;
+		Reg->Flags |= _Register_;
+		Reg->Name = t->Right_Side_Token->Name;
+		Reg->Size = t->Right_Side_Token->Size;
+		Right_Token = Reg;
+		//make the loading IR token
+		IR* load = new IR;
+		load->ID = "ldr";
+		load->Parameters.push_back(Reg);
+		load->Parameters.push_back(t->Right_Side_Token);
+		Output.push_back(load);
+	}
+	else
+	{
+		//somehting complex here:
+	}
+	opCode->Parameters.push_back(Left_Token);
+	opCode->Parameters.push_back(Right_Token);
+	Handle = Left_Token;
+	Output.push_back(opCode);
 }
 
 void Generator::Detect_Parenthesis(Token* t)

@@ -52,7 +52,7 @@ void Emulator::Long_Operation_Allocator(int i)
 
 void Emulator::Label_Recorder(int i)
 {
-	if (Input.at(i)->ID == "label")
+	if (Input.at(i)->ID == "label" || (Input.at(i)->ID == "raw_label"))
 	{
 		if (Input.at(i)->is(_Start_Of_Label))
 		{
