@@ -94,9 +94,11 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_NULL_);
 	OpC* x86_LABEL_ = new OpC(0, "label", ": ", { 0, 0, 0, 0 });
 	OpCodes.push_back(x86_LABEL_);
+	OpC* x86_RAW_LABEL_ = new OpC(0, "raw_label", ": ", { 0, 0, 0, 0 });
+	OpCodes.push_back(x86_RAW_LABEL_);
 	OpC* x86_COMMENT_ = new OpC(0, "comment", "; ", { 0, 0, 0, 0 });
 	OpCodes.push_back(x86_COMMENT_);
-	OpC* x86_EXPORT_ = new OpC(0, "export", "global ", { 0, 8, 0, 0 });
+	OpC* x86_EXPORT_ = new OpC(0, "export", "global ", { 0, 0, 0, 0 });
 	OpCodes.push_back(x86_EXPORT_);
 
 

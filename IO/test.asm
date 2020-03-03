@@ -1,18 +1,18 @@
-export_main
-_main_label
-_commentThe Right Side in = has already initialized.
+global main
+main: 
+; The Right Side in = has already initialized.
 
-_while4_label
-mov a, _4[EBP  - 4]
-cmp _4[EBP  - 4], _13
-_<_while4END
-mov a, _4[EBP  - 4]
-add _4[EBP  - 4], _11
-_commentThe Left Side in + has already initialized.
+_while4: 
+mov a, dword [EBP  - 4]
+cmp a, byte 3
+jnl _while4END
+mov a, dword [EBP  - 4]
+add dword [EBP  - 4], byte 1
+; The Left Side in + has already initialized.
 
-_commentThe Right Side in = has already initialized.
+; The Right Side in = has already initialized.
 
-_jmp_while4
-_while4END_label
-mov _4[EBP  - 4]
-_return
+jmp _while4
+_while4END: 
+mov a, dword [EBP  - 4]
+ret 

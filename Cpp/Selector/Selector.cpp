@@ -106,13 +106,13 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 		int o_R_Max = o->MinMax.at(1);
 		int o_L_Min = o->MinMax.at(2);
 		int o_L_Max = o->MinMax.at(3);
-		if ((o_R_Min <= i_R <= o_R_Max) && (o_L_Min <= i_L <= o_L_Max))
+		if (((o_R_Min <= i_R) && (i_R <= o_R_Max)) && ((o_L_Min <= i_L) &&( i_L <= o_L_Max)))
 		{
 			if (o->ID == id)
 				return o->OpCode;
 		}
 	}
-	if (trust == "export")
+	if ((trust == "export") || (trust == "raw_label"))
 		return id;
 	if (trust != "label")
 		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << endl;

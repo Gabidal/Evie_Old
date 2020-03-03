@@ -23,13 +23,13 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 	else if (t->is(_Register_))
 		return t->Name;
 	else if (t->is(_Number_))
-		return S->Get_ID(to_string(t->Size), "", { t->Size, t->Size, 0, 0 }) + t->Name;
+		return S->Get_ID(to_string(t->Size), "", { t->Size, 0}) + t->Name;
 	else if (t->is(_Call_))
 		return "_" + t->Name;
 	else if (t->is(_External_))
-		return S->Get_ID(to_string(t->Size), "", { t->Size, t->Size, 0, 0 }) + "[" + t->Name + "]";
+		return S->Get_ID(to_string(t->Size), "", { t->Size, 0}) + "[" + t->Name + "]";
 	else
-		return S->Get_ID(to_string(t->Size), "", {t->Size, t->Size, 0, 0}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+		return S->Get_ID(to_string(t->Size), "", {t->Size, 0}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 }
 
@@ -37,22 +37,19 @@ void Back::Make()
 {
 	vector<int> MinMax;
 	for (Token* t : Input->Parameters)
-	{
 		MinMax.push_back(t->Size);
-	}
-	while (MinMax.size() < 4)
-	{
+	while (MinMax.size() < 2)
 		MinMax.push_back(0);
-	}
+
 	bool Storing = Input->ID == "=" || Input->ID == "str";
 
 	string trustFactor;
-	if (Input->ID == "label")
+	if (Input->ID == "label" || Input->ID == "raw_label")
 		trustFactor = Input->ID;
 	else
 		trustFactor = Input->PreFix;
 
-	Output += S->Get_ID(Input->PreFix, trustFactor, MinMax) + S->Get_ID(Input->ID, "", MinMax);
+	Output += S->Get_ID(Input->PreFix, trustFactor, MinMax) + S->Get_ID(Input->ID, trustFactor, MinMax);
 	for (int i = 0; i < Input->Parameters.size(); i++)
 	{
 		if (i > 0)

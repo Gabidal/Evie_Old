@@ -15,6 +15,7 @@ public:
 	vector<Token*> Input;
 	vector<IR*> Output;
 	vector<string> Initted_Variables;
+	vector<Token*> Handles;
 	void Factory();
 	void Detect_Function(Token* t);
 	void Detect_Condition(Token* t);

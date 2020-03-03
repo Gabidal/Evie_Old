@@ -120,37 +120,33 @@ void Generator::Detect_Operator(Token* t)
 	// mov [a], eax
 	IR* Operator = new IR;
 	Operator->ID = t->Name;
-	if (t->Left_Side_Token->is(_Operator_))
+
+	Generator g;
+	g.Input.push_back(t->Left_Side_Token);
+	g.Types = Types;
+	g.Factory();
+	if (g.Output.size() == 0)
 	{
-		Detect_Operator(t->Left_Side_Token);
-	}
-	else if (t->Left_Side_Token->is(_Parenthesis_))
-	{
-		Generator g;
-		g.Input = t->Left_Side_Token->Childs;
-		g.Types = Types;
-		g.Factory();
-		Append(&Output, g.Output);
+		Operator->Parameters.push_back(t->Left_Side_Token);
 	}
 	else
 	{
-		Operator->Parameters.push_back(t->Left_Non_Operative_Token);
-	}
-	if (t->Right_Side_Token->is(_Operator_))
-	{
-		Detect_Operator(t->Right_Side_Token);
-	}
-	else if (t->Right_Side_Token->is(_Parenthesis_))
-	{
-		Generator g;
-		g.Input = t->Right_Side_Token->Childs;
-		g.Types = Types;
-		g.Factory();
 		Append(&Output, g.Output);
+		Operator->Parameters.push_back(g.Handles.back());
+	}
+
+	g.Input.clear();
+	g.Output.clear();
+	g.Input.push_back(t->Right_Side_Token);
+	g.Factory();
+	if (g.Output.size() == 0)
+	{
+		Operator->Parameters.push_back(t->Right_Side_Token);
 	}
 	else
 	{
-		Operator->Parameters.push_back(t->Right_Non_Operative_Token);
+		Append(&Output, g.Output);
+		Operator->Parameters.push_back(g.Handles.back());
 	}
 	// a = 1 + 2
 	if (t->Name != "=" && t->Name != "str")
@@ -166,6 +162,7 @@ void Generator::Detect_Operator(Token* t)
 			Reg->Flags |= _Register_;
 			Reg->Name = t->Left_Non_Operative_Token->Name;
 			Reg->Size = t->Left_Non_Operative_Token->Size;
+			Handles.push_back(Reg);
 
 			IR* Left_Side_Initializer = new IR;
 			Left_Side_Initializer->ID = "ldr";
@@ -185,6 +182,7 @@ void Generator::Detect_Operator(Token* t)
 		Reg->Flags |= _Register_;
 		Reg->Name = t->Right_Non_Operative_Token->Name;
 		Reg->Size = t->Right_Non_Operative_Token->Size;
+		Handles.push_back(Reg);
 
 		IR* Right_Side_Initializer = new IR;
 		Right_Side_Initializer->ID = "ldr";
@@ -218,6 +216,7 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 			ir->ID = T;
 			ir->Parameters.push_back(t->Right_Side_Token);
 			Output.push_back(ir);
+			return;
 		}
 	}
 }
