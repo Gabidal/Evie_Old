@@ -1,12 +1,15 @@
 global main
 main: 
-; The Right Side in = has already initialized.
-
-; The Right Side in = has already initialized.
-
 mov a, dword [EBP  - 4]
-add dword [EBP  - 4], dword [EBP  - 4]
-; The Right Side in = has already initialized.
-
+mov 2, byte 2
+mov [EBP  - 0], 2
+mov b, dword [EBP  - 4]
+mov 3, byte 3
+mov [EBP  - 0], 3
+mov a, dword [EBP  - 4]
+mov b, dword [EBP  - 4]
+add a, b
+mov c, dword [EBP  - 4]
+mov [EBP  - 0], a
 mov a, dword [EBP  - 4]
 ret 

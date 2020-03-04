@@ -120,8 +120,8 @@ void Generator::Detect_Operator(Token* t)
 	// add eax, [a]
 	// mov [a], eax
 	//basic tools:
-	Token* Left_Token;
-	Token* Right_Token;
+	Token* Left_Token = nullptr;
+	Token* Right_Token = nullptr;
 	bool Normal_Left = false;
 	bool Normal_Right = false;
 	//create a new IR token.
@@ -135,7 +135,7 @@ void Generator::Detect_Operator(Token* t)
 	Append(&Output, g.Output);
 	//check if left side holds a more complex instruction for loading into a register.
 	if (g.Handle != nullptr)
-		opCode->Parameters.push_back(g.Handle);
+		Left_Token = g.Handle;
 	//if not then probably just a normal number/variable
 	else
 		Normal_Left = true;
@@ -148,7 +148,7 @@ void Generator::Detect_Operator(Token* t)
 	Append(&Output, g.Output);
 	//check if right side has more complex instruction.
 	if (g.Handle != nullptr)
-		opCode->Parameters.push_back(g.Handle);
+		Right_Token = g.Handle;
 	//if normal right side.
 	else
 		Normal_Right = true;

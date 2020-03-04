@@ -10,6 +10,7 @@ using namespace std;
 int SYNTAX = 0;
 vector<Token*> Generated_Undefined_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
+map<string, Token*> Register_Lock;
 Selector *S;
 int _SYSTEM_BIT_TYPE = 4;
 

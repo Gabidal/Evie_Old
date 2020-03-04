@@ -21,7 +21,7 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 	else if (t->is(_Register_))
-		return t->Name;
+		return t->UID;
 	else if (t->is(_Number_))
 		return S->Get_ID(to_string(t->Size), "", { t->Size, 0}) + t->Name;
 	else if (t->is(_Call_))

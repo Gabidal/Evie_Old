@@ -53,7 +53,7 @@ class Token
     string Name = "";
     string Type = "";
     string PreFix_Type = "";
-    string SX();
+    string UID = "";
     Token(){}
     Token &operator=(const Token& name);
     Token(string name, int size, Token* child) {
