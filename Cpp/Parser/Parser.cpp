@@ -127,6 +127,19 @@ void Parser::Reserve_Operator_Tokens(int i)
 	}
 }
 
+void Parser::Reserve_Function_Parameters(int i)
+{
+	if (Input.at(i)->is(_TEXT) && (Defined(Input.at(i)->WORD) != ""))
+	{
+		if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 1)
+		{
+			Input.at(i)->Tokens.push_back(Input.at(i + 1));
+			Input.at(i)->_Call = true;
+			Input.erase(Input.begin() + i + 1);
+		}
+	}
+}
+
 void Parser::Patternize_Operations(int& i, string f)
 {
 	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->WORD == f) && (Input.at(i)->_initted != true))
@@ -247,7 +260,7 @@ void Parser::Init_Conditions(int i)
 
 void Parser::Type_Definition(int i)
 {
-	if (i >= (Input.size() - 1))
+	if (i > (Input.size() - 1))
 	{
 		return;
 	}
@@ -259,16 +272,15 @@ void Parser::Type_Definition(int i)
 		//lets give the new parser new input tokens the other is the parameters
 		//and the other is the child of the defined type
 		Token* New_Defined_Text = new Token();
-		if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 1)
+		if (Input.at(i)->_Call)
 		{
 			Parser P = *this;
 			P.Input.clear();
-			P.Input.push_back(Input.at(i + 1));
+			P.Output.clear();
+			P.Input = Input.at(i)->Tokens;
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Call_;
-			New_Defined_Text->Flags |= _External_;
-			Input.erase(Input.begin() + i + 1);
 		}
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{
@@ -375,6 +387,7 @@ int Parser::Count_Familiar_Tokens(int F, int i)
 			return u;
 		}
 	}
+	return -1;
 }
 
 void Parser::Init_Variable(int i)
@@ -457,9 +470,11 @@ void Parser::Factory()
 	for (int i = 0; i < Input.size(); i++)
 		Include_Files(i);
 	for (int i = 0; i < Input.size(); i++)
-		Reserve_Operator_Tokens(i);
-	for (int i = 0; i < Input.size(); i++)
 		Init_Definition(i);
+	for (int i = 0; i < Input.size(); i++)
+		Reserve_Function_Parameters(i);
+	for (int i = 0; i < Input.size(); i++)
+		Reserve_Operator_Tokens(i);
 	Do_In_Order();
 	for (int i = 0; i < Input.size(); i++)
 	{
@@ -479,17 +494,4 @@ void Parser::Append(vector<Token*>* Dest, vector<Token*> Source)
 	{
 		Dest->push_back(i);
 	}
-}
-
-bool is_isogram(std::string str) {
-	vector<char> listed;
-	for (char i : str)
-	{
-		for (char j : listed)
-			if (j == i)
-			{
-				return false;
-			}
-	}
-	return true;
 }

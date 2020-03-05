@@ -25,6 +25,7 @@ public:
     string Fetcher = "";
     bool _initted = false;
     bool _operatorized = false;
+    bool _Call = false;
     vector<Word*> Tokens;
     Word* L = nullptr;
     Word* R = nullptr;
