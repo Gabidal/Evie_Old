@@ -1,8 +1,9 @@
-using "cstd.e"
+type int()(
+    Size 4
+    Static 0
+)
 
-export main()(
-    int a = 2
-    int b = 3
-    int c = a + b
-    return a
+export main(int a, int b)(
+    int c = a * b
+    return c
 )

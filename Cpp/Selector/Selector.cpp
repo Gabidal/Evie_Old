@@ -40,6 +40,58 @@ OpC* Selector::OpCode_Selector()
 
 Token* Selector::Get_Right_Reg(int F, int Size)
 {
+	if ((F & Task_For_General_Purpose) == Task_For_General_Purpose)
+	{
+		if (Size == 8)
+		{
+			Token* r = Registers64.at(Reg_Turn64);
+			Reg_Turn64++;
+			if (Reg_Turn64 >= Registers64.size())
+			{
+				Reg_Turn64 = 0;
+			}
+			return r;
+		}
+		else if (Size == 4)
+		{
+			Token* r = Registers32.at(Reg_Turn32);
+			Reg_Turn32++;
+			if (Reg_Turn32 >= Registers32.size())
+			{
+				Reg_Turn32 = 0;
+			}
+			return r;
+		}
+		else if (Size == 2)
+		{
+			Token* r = Registers16.at(Reg_Turn16);
+			Reg_Turn16++;
+			if (Reg_Turn16 >= Registers16.size())
+			{
+				Reg_Turn16 = 0;
+			}
+			return r;
+		}
+		else if (Size == 1)
+		{
+			Token* r = Registers8.at(Reg_Turn8);
+			Reg_Turn8++;
+			if (Reg_Turn8 >= Registers8.size())
+			{
+				Reg_Turn8 = 0;
+			}
+			return r;
+		}
+	}
+	else if ((F & Task_For_Floating_Math) == Task_For_Floating_Math)
+	{
+		if (Size == 12)
+		{
+			Token* r = Registers128.at(Reg_Turn128);
+			Reg_Turn128++;
+			return r;
+		}
+	}
 	if (Size == 12)
 	{
 		for (Token* r : Registers128)

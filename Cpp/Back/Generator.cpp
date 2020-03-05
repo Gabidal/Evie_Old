@@ -160,19 +160,22 @@ void Generator::Detect_Operator(Token* t)
 		{
 			Left_Token = t->Left_Side_Token;
 		}
-		//make a handle register
-		Token* Reg = new Token;
-		Reg->Flags |= Task_For_General_Purpose;
-		Reg->Flags |= _Register_;
-		Reg->Name = t->Left_Side_Token->Name;
-		Reg->Size = t->Left_Side_Token->Size;
-		Left_Token = Reg;
-		//make the loading IR token
-		IR* load = new IR;
-		load->ID = "ldr";
-		load->Parameters.push_back(Reg);
-		load->Parameters.push_back(t->Left_Side_Token);
-		Output.push_back(load);
+		else
+		{
+			//make a handle register
+			Token* Reg = new Token;
+			Reg->Flags |= Task_For_General_Purpose;
+			Reg->Flags |= _Register_;
+			Reg->Name = t->Left_Side_Token->Name;
+			Reg->Size = t->Left_Side_Token->Size;
+			Left_Token = Reg;
+			//make the loading IR token
+			IR* load = new IR;
+			load->ID = "ldr";
+			load->Parameters.push_back(Reg);
+			load->Parameters.push_back(t->Left_Side_Token);
+			Output.push_back(load);
+		}
 	}
 	if (Normal_Right)
 	{

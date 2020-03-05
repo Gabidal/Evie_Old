@@ -19,13 +19,13 @@ public:
 
 
 
-	void Long_Operation_Allocator(IR* t, int i);
-	void Label_Recorder(IR* t);
+	void Long_Operation_Allocator(int &i);
+	void Label_Recorder(int i);
 	void Register_Chooser(Token* t);
-	void Frame_Handler(IR* t);
-	void FPU_Choser(IR *t);
-	void Child(IR* t);
-	void Use_Assembly(IR* t);
+	void Frame_Handler(int i);
+	void FPU_Choser(int i);
+	void Child(int i);
+	void Use_Assembly(int i);
 	void Factory();
 	Emulator(string &in) : Output(in)
 	{
