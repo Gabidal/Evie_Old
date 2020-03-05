@@ -56,6 +56,13 @@ void Generator::Detect_Function(Token* t)
 		//get the output from the generator and store then into the parent IR operator.
 		ir->Childs = g.Output;
 		Output.push_back(ir);
+		//handle
+		Token* T = new Token;
+		T->Flags |= _Register_;
+		T->Flags |= Task_For_Returning;
+		T->Name = t->Name;
+		T->Size = t->Size;
+		Handle = T;
 	}
 }
 

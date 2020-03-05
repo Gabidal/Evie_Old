@@ -1,7 +1,7 @@
 global main
 main: 
-_ldrAL , [square]
-_=[EBP  - 4], AL 
+call _square
+mov [EBP  - 4], EAX 
 mov EAX , dword [EBP  - 4]
 ret 
 _square: 

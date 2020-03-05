@@ -36,9 +36,7 @@ void Parser::Include_Files(int i)
 void Parser::Init_Definition(int i)
 {
 	if (i >= (Input.size() - 1))
-	{
 		return;
-	}
 	//type var
 	//var a
 	//const var b
@@ -281,6 +279,7 @@ void Parser::Type_Definition(int i)
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Call_;
+			New_Defined_Text->Size = _SYSTEM_BIT_TYPE;
 		}
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{
@@ -323,7 +322,16 @@ void Parser::Type_Definition(int i)
 			if (New_Defined_Text->Name == s->Name)
 			{
 				New_Defined_Text->Type = s->Type;
+				
 				break;
+			}
+		}
+		for (int j = 0; j < Output.size(); j++)
+		{
+			if (Output.at(j)->Name == New_Defined_Text->Name)
+			{
+				Output.at(j) = New_Defined_Text;
+				return;
 			}
 		}
 		Output.push_back(New_Defined_Text);
