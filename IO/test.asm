@@ -1,5 +1,7 @@
 global main
 main: 
+push dword [EBP  + 12]
+push dword [EBP  + 16]
 call _square
 mov [EBP  - 4], EAX 
 mov EAX , dword [EBP  - 4]

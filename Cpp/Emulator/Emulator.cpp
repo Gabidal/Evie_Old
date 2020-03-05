@@ -49,6 +49,26 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Input.at(i)->Childs.clear();
 		Input.insert(Input.begin() + i + 1 , label);
 	}
+	else if (Input.at(i)->ID == "call")
+	{
+		//go though the parameters (in left side childs) and make them a push IR tokens;
+		for (Token* j : Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs)
+		{
+			IR* p = new IR;
+			p->ID = "push";
+			p->Parameters.push_back(j);
+			for (Token* T : p->Parameters)
+			{
+				Register_Chooser(T);
+			}
+
+			Back b(Output);
+			b.Input = p;
+			b.Factory();
+			Output += NL;
+
+		}
+	}
 }
 
 void Emulator::Label_Recorder(int i)

@@ -20,9 +20,9 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_CMPF_);
 	OpC* x86_Question_ = new OpC(0, "?", "cmp ", { 1, 8, 1, 8 });
 	OpCodes.push_back(x86_Question_);
-	OpC* x86_POP_ = new OpC(0, "pop", "pop ", { 2, 8, 2, 8 });
+	OpC* x86_POP_ = new OpC(0, "pop", "pop ", { 2, 8, 0, 0 });
 	OpCodes.push_back(x86_POP_);
-	OpC* x86_PUSH_ = new OpC(0, "push", "push ", { 2, 8, 2, 8 });
+	OpC* x86_PUSH_ = new OpC(0, "push", "push ", { 2, 8, 0, 0 });
 	OpCodes.push_back(x86_PUSH_);
 	OpC* x86_XCHG_ = new OpC(0, "xchg", "xchg ", { 1, 8, 1, 8 });
 	OpCodes.push_back(x86_XCHG_);

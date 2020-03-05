@@ -15,6 +15,7 @@ public:
 	vector<string> Branching_Label;
 	bool _NEED_FOR_FPU = false;
 	bool _IN_PROGRESS = false;
+	bool _NEED_FOR_PARAMETERING = false;
 	Token* Handle = nullptr;
 
 
