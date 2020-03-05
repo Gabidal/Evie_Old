@@ -69,6 +69,29 @@ void Emulator::Long_Operation_Allocator(int &i)
 
 		}
 	}
+	else if (Input.at(i)->is(_Operator_) && (Input.at(i)->is(_Allocated_) != true))
+	{
+		Input.at(i)->Flags |= _Allocated_;
+		if (Input.at(i)->Parameters.size() > 1)
+		{
+			Token* L = Input.at(i)->Parameters.at(0);
+			Token* R = Input.at(i)->Parameters.at(1);
+			IR* D = Input.at(i);
+				//make a handle register
+				Register_Chooser(L);
+				Register_Chooser(R);
+
+			if (L->Size != R->Size)
+			{
+				IR* converter = new IR;
+				converter->ID = "convert";
+				converter->Parameters.push_back(R);
+				converter->Parameters.push_back(L);
+				Input.insert(Input.begin() + i, converter);
+				D->Parameters.at(0) = L;
+			}
+		}
+	}
 }
 
 void Emulator::Label_Recorder(int i)

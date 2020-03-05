@@ -15,11 +15,11 @@ type long()(
 )
 
 type float()(
-	Size 4
+	Size 12
 )
 
 type double()(
-	Size 8
+	Size 12
 )
 
 type static()(

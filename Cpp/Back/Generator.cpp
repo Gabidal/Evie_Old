@@ -123,9 +123,8 @@ void Generator::Detect_Operator(Token* t)
 		return;
 	// a = a + 1 + a
 	// mov eax, [a]
-	// add eax, 1
-	// add eax, [a]
-	// mov [a], eax
+	// cvsi2sd xmm0, eax
+	// mov [a], xmm0
 	//basic tools:
 	Token* Left_Token = nullptr;
 	Token* Right_Token = nullptr;
@@ -134,6 +133,7 @@ void Generator::Detect_Operator(Token* t)
 	//create a new IR token.
 	IR* opCode = new IR;
 	opCode->ID = t->Name;
+	opCode->Flags |= _Operator_;
 	//give the new ir generator the left side of operation.
 	Generator g;
 	g.Input.push_back(t->Left_Side_Token);
@@ -182,6 +182,7 @@ void Generator::Detect_Operator(Token* t)
 			load->Parameters.push_back(Reg);
 			load->Parameters.push_back(t->Left_Side_Token);
 			Output.push_back(load);
+			//more check if the destination is too big for the loaded register, in Emulator
 		}
 	}
 	if (Normal_Right)

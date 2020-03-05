@@ -167,6 +167,6 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 	if ((trust == "export") || (trust == "raw_label"))
 		return id;
 	if (trust != "label")
-		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << endl;
+		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << i_L << " "<< i_R << endl;
 	return "_" + id;
 }
