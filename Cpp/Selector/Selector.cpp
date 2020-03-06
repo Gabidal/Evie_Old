@@ -155,28 +155,33 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 	for (OpC* o : OpCodes)
 	{
 		vector<int> o_Sizes = o->MinMax;
-		if (o_Sizes.size() != i_Sizes.size() * 2)
+		if (o_Sizes.size() != (i_Sizes.size() * 2))
 			continue;
 		for (int i = 0; i < i_Sizes.size(); i++)
 		{
-			if ()
-			{
-
-			}
+			int in = i_Sizes.at(i);
+			int in_min = o_Sizes.at(i * 2);
+			int in_max = o_Sizes.at(i * 2 + 1);
+			if ((in_min <= in) && (in_max >= in))
+				continue;
+			else
+				goto CONTINUE;
 		}
-		int o_R_Min = o->MinMax.at(0);
-		int o_R_Max = o->MinMax.at(1);
-		int o_L_Min = o->MinMax.at(2);
-		int o_L_Max = o->MinMax.at(3);
-		if (((o_R_Min <= i_R) && (i_R <= o_R_Max)) && ((o_L_Min <= i_L) &&( i_L <= o_L_Max)))
-		{
-			if (o->ID == id)
-				return o->OpCode;
-		}
+		if (o->ID == id)
+			return o->OpCode;
+		CONTINUE:;
 	}
 	if ((trust == "export") || (trust == "raw_label"))
 		return id;
 	if (trust != "label")
-		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << i_L << " "<< i_R << endl;
+	{
+		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << " ";
+		for (int i : minmax)
+		{
+			cout << i << ", ";
+		}
+		cout << endl;
+	}
+
 	return "_" + id;
 }
