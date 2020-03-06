@@ -150,10 +150,20 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 {
 	if (id == "")
 		return "";
-	int i_R = minmax.at(0);
-	int i_L = minmax.at(1);
+
+	vector<int> i_Sizes = minmax;
 	for (OpC* o : OpCodes)
 	{
+		vector<int> o_Sizes = o->MinMax;
+		if (o_Sizes.size() != i_Sizes.size() * 2)
+			continue;
+		for (int i = 0; i < i_Sizes.size(); i++)
+		{
+			if ()
+			{
+
+			}
+		}
 		int o_R_Min = o->MinMax.at(0);
 		int o_R_Max = o->MinMax.at(1);
 		int o_L_Min = o->MinMax.at(2);

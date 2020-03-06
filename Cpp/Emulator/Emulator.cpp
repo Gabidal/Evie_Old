@@ -74,23 +74,26 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Input.at(i)->Flags |= _Allocated_;
 		if (Input.at(i)->Parameters.size() > 1)
 		{
-			Token* L = Input.at(i)->Parameters.at(0);
-			Token* R = Input.at(i)->Parameters.at(1);
-			IR* D = Input.at(i);
-				//make a handle register
-				Register_Loader(*L, i);
-				Register_Chooser(L);
-				Register_Loader(*R, i);
-				Register_Chooser(R);
-
+			Token* L = new Token;
+			*L	= *Input.at(i)->Parameters.at(0);
+			Token* R = new Token;
+			*R	= *Input.at(i)->Parameters.at(1);
 			if (L->Size != R->Size)
 			{
+				IR* D = Input.at(i);
+				//make a handle register
+				Register_Loader(*R, i);
+				Register_Chooser(R);
+				Register_Loader(*L, i);
+				Register_Chooser(L);
+
+
 				IR* converter = new IR;
 				converter->ID = "convert";
-				converter->Parameters.push_back(R);
 				converter->Parameters.push_back(L);
+				converter->Parameters.push_back(R);
 				Input.insert(Input.begin() + i, converter);
-				D->Parameters.at(0) = L;
+				D->Parameters.at(1) = L;
 			}
 		}
 	}
