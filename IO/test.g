@@ -1,12 +1,15 @@
-using "cstd.e"
-using "gstd.e"
+type int()(
+	Size 4
+)
 
 export main()(
-	int c = square(1, 2)
+	int a = 1
+	int b = 2
+	int c = square(a, b)
 	return c
 )
 
 func square(int a, int b)(
-	var c = a * b
+	int c = a * b
 	return c
 )

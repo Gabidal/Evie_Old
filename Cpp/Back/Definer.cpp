@@ -148,6 +148,7 @@ void Definer::Factory()
 		if (Current_Offset == (Previus_Offset + t->Size))
 		{
 			Previus_Offset = Current_Offset;
+			Enhanced.push_back(t);
 			continue;
 		}
 		Parameter = 0;

@@ -36,6 +36,8 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_MOVF_);
 	OpC* x86_MOVFldr_ = new OpC(0, "ldr", "movss ", { 12, 12, 12, 12 });
 	OpCodes.push_back(x86_MOVFldr_);
+	OpC* x86_SCALE_ = new OpC(0, "convert", "movsx ", { 2, 8, 1, 4 });
+	OpCodes.push_back(x86_SCALE_);
 	OpC* x86_ConvertLargeToEnourmess_ = new OpC(0, "convert", "cvtsi2sd ", { 12, 12, 4, 4 });
 	OpCodes.push_back(x86_ConvertLargeToEnourmess_);
 	OpC* x86_ConvertEnourmessToLarge_ = new OpC(0, "convert", "cvttss2si ", { 4, 4, 12, 12 });

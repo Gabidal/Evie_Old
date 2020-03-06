@@ -2,22 +2,30 @@ global main
 main: 
 push ebp 
 mov ebp , esp 
-push byte 1
-push byte 2
-call _square
+mov al , byte 1
+movsx eax , al 
+mov eax , eax 
 mov [ebp  - 4], eax 
-mov eax , dword [ebp  - 4]
+mov al , byte 2
+movsx ebx , al 
+mov ebx , ebx 
+mov [ebp  - 8], ebx 
+push dword [ebp  - 4]
+push dword [ebp  - 8]
+call _square
+mov [ebp  - 12], eax 
+mov eax , dword [ebp  - 12]
 leave 
 ret
  
 _square: 
 push ebp 
 mov ebp , esp 
-mov eax , dword [ebp  + 12]
-mov ebx , dword [ebp  + 16]
+mov eax , dword [ebp  + 4]
+mov ebx , dword [ebp  + 8]
 imul eax , ebx 
-mov [ebp  - 4], eax 
-mov eax , dword [ebp  - 4]
+mov [ebp  - 12], eax 
+mov eax , dword [ebp  - 12]
 leave 
 ret
  

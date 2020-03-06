@@ -3,7 +3,7 @@
 int Layer = 0;
 int ID = 1;
 int Global_Stack_Offset = 0;
-int Local_Stack_Offest = 0;
+int Local_Stack_Offest = 4;
 bool Inside_Of_Constructor_As_Parameter = false;
 bool Inside_Of_Constructor = false;
 extern vector<string> Pre_Defined_Tokens;
@@ -304,9 +304,8 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at(i + 1));
 			P.Factory();
 			Inside_Of_Constructor_As_Parameter = false;
-			Local_Stack_Offest = 0;
+			Local_Stack_Offest = 4;
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
-
 
 			P.Output.clear();
 			P.Input.clear();
@@ -315,7 +314,7 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at(i + 2));
 			P.Factory();
 			Inside_Of_Constructor = false;
-			Local_Stack_Offest = 0;
+			Local_Stack_Offest = 4;
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Constructor_;
 			New_Defined_Text->Flags |= _External_;
@@ -424,6 +423,7 @@ void Parser::Init_Variable(int i)
 	}
 	if ((i + 1) > (Input.size() - 1))
 	{
+		
 	}
 	else if (Input.at(i+1)->is(_TEXT))
 	{
@@ -433,7 +433,10 @@ void Parser::Init_Variable(int i)
 	{
 		Token* New_Variable = new Token();
 		New_Variable->Name = Input.at(i)->WORD;
+		//idk
 		New_Variable->Type = Defined(New_Variable->Name);
+		if (New_Variable->Type == "type")
+			return;
 		for (Token* t : Defined_Keywords)
 			if (t->Name == New_Variable->Name)
 			{
