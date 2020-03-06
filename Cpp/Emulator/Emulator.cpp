@@ -79,7 +79,9 @@ void Emulator::Long_Operation_Allocator(int &i)
 			IR* D = Input.at(i);
 				//make a handle register
 				Register_Chooser(L);
+				Register_Loader(L, i);
 				Register_Chooser(R);
+				Register_Loader(R, i);
 
 			if (L->Size != R->Size)
 			{
@@ -131,6 +133,26 @@ void Emulator::Register_Chooser(Token* t)
 		Register_Lock.insert({ t->Name, Reg });
 		t->UID = Reg->Name;
 		return;
+	}
+}
+
+void Emulator::Register_Loader(Token* t, int i)
+{
+	if (t->is(_Register_) != true)
+	{
+
+		//make a handle register
+		Token* Reg = new Token;
+		Reg->Flags |= Task_For_General_Purpose;
+		Reg->Flags |= _Register_;
+		Reg->Name = t->Left_Side_Token->Name;
+		Reg->Size = t->Left_Side_Token->Size;
+		//make the loading IR token
+		IR* load = new IR;
+		load->ID = "ldr";
+		load->Parameters.push_back(Reg);
+		load->Parameters.push_back(t->Left_Side_Token);
+		Input.insert(Input.begin() + i, load);
 	}
 }
 
