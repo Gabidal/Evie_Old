@@ -25,6 +25,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 	}
 	else if (Input.at(i)->ID == "return" && (Input.at(i)->is(_Allocated_) != true))
 	{
+		//make the returning
 		Token* Reg = new Token;
 		Reg->Flags |= _Register_;
 		Reg->Flags |= Task_For_Returning;
@@ -38,6 +39,11 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Input.at(i)->Parameters.clear();
 		Input.at(i)->Flags |= _Allocated_;
 		Input.insert(Input.begin() + i, mov_to_return_Reg);
+
+		//make the leave
+		IR* Leave = new IR;
+		Leave->ID = "leave";
+		Input.insert(Input.begin() + i + 1, Leave);
 	}
 	else if (Input.at(i)->PreFix == "export")
 	{

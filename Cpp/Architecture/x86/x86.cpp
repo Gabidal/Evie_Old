@@ -104,6 +104,8 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_COMMENT_);
 	OpC* x86_EXPORT_ = new OpC(0, "export", "global ", {});
 	OpCodes.push_back(x86_EXPORT_);
+	OpC* x86_LEAVE_ = new OpC(0, "leave", "leave ", {});
+	OpCodes.push_back(x86_LEAVE_);
 
 
 	//8Bit

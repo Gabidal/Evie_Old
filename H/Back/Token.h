@@ -32,11 +32,15 @@ using namespace std;
 #define Task_For_General_Purpose (1<<20)
 #define Task_For_Floating_Math (1<<20)
 
+//for stack reservartion
+#define _Need_For_Space_ (1<<21)
+
 class Token
 {
   public:
     int Flags = 0;
     int Size = 0;
+    int Reservable_Size = 0;
     int Static = 0;
     int Initial_Value = 0;
     int Changable_Value = 0;

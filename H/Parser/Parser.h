@@ -11,6 +11,8 @@ using namespace std;
 class Parser
 {
 public:
+
+    int Space_Reservation = 0;
 	string Working_Dir = "";
     vector<Word*> Input;
     vector<Token*> Output;

@@ -66,6 +66,7 @@ void Parser::Init_Definition(int i)
 		Set_Right_Stack_Offset(New_Defined_Type);
 		Set_Right_Flag_Info(New_Defined_Type);
 		Defined_Keywords.push_back(New_Defined_Type);
+		Space_Reservation++;
 	}
 }
 
@@ -205,12 +206,15 @@ void Parser::Init_Parenthesis(int i)
 	{
 		Token* New_Defined_Parenthesis = new Token();
 		Parser P = *this;
+		P.Space_Reservation = 0;
 		P.Output.clear();
 		P.Input = Input.at(i)->Tokens;
 		P.Factory();
 		New_Defined_Parenthesis->Childs = P.Output;
 		New_Defined_Parenthesis->Flags |= _Parenthesis_;
+		New_Defined_Parenthesis->Reservable_Size = P.Space_Reservation;
 		Output.push_back(New_Defined_Parenthesis);
+		this->Space_Reservation = P.Space_Reservation;
 		if (Inside_Of_Constructor_As_Parameter)
 		{
 			this->Defined_Keywords = P.Defined_Keywords;
@@ -251,6 +255,13 @@ void Parser::Init_Conditions(int i)
 
 		Input.erase(Input.begin() + i + 2);
 		Input.erase(Input.begin() + i + 1);
+
+		//for space reservation
+		if (P.Space_Reservation > 0)
+		{
+			this->Space_Reservation = P.Space_Reservation;
+			New_Defined_Condition->Reservable_Size = New_Defined_Condition->Right_Side_Token->Reservable_Size;
+		}
 
 		Output.push_back(New_Defined_Condition);
 	}
@@ -308,6 +319,12 @@ void Parser::Type_Definition(int i)
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Constructor_;
 			New_Defined_Text->Flags |= _External_;
+
+			if (New_Defined_Text->Right_Side_Token->Reservable_Size > 0)
+			{
+				New_Defined_Text->Flags |= _Need_For_Space_;
+				New_Defined_Text->Reservable_Size = New_Defined_Text->Right_Side_Token->Reservable_Size;
+			}
 
 			Input.erase(Input.begin() + i + 2);
 			Input.erase(Input.begin() + i + 1);

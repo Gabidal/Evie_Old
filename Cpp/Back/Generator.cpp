@@ -2,6 +2,7 @@
 #include "../../H/Selector/Selector.h"
 extern Selector* S;
 extern vector<string> Pre_Defined_Tokens;
+extern int _SYSTEM_BIT_TYPE;
 
 void Generator::Factory()
 {
@@ -31,13 +32,42 @@ void Generator::Detect_Function(Token* t)
 			ir->PreFix = "export";
 			ir->ID = t->Name;
 		}
+		//make the stackfrmae
+		if (t->is(_Need_For_Space_))
+		{
+			//save ebp
+			//stack base
+			Token* ebp = new Token;
+			ebp->Name = "ebp";
+			ebp->Size = _SYSTEM_BIT_TYPE;
+			ebp->Flags |= _Register_;
+			ebp->Flags |= Task_For_Type_Address_Basing;
+			//mov ebp, esp
+			IR* push = new IR;
+			push->ID = "push";
+			push->Parameters.push_back(ebp);
+			ir->Childs.push_back(push);
+			//load the atm stack head
+			//stack head
+			Token* esp = new Token;
+			esp->Name = "esp";
+			esp->Size = _SYSTEM_BIT_TYPE;
+			esp->Flags |= _Register_;
+			esp->Flags |= Task_For_Type_Address;
+			//mov ebp, esp
+			IR* movebpesp = new IR;
+			movebpesp->ID = "ldr";
+			movebpesp->Parameters.push_back(ebp);
+			movebpesp->Parameters.push_back(esp);
+			ir->Childs.push_back(movebpesp);
+		}
 		//make the insights of this constructor
 		Generator g;
 		g.Input.push_back(t->Right_Side_Token);
 		g.Types = this->Types;
 		g.Factory();
 		//get the output as the new IR's childs.
-		ir->Childs = g.Output;
+		Append(&ir->Childs, g.Output);
 		Output.push_back(ir);
 	}
 	else if (t->is(_Call_))
@@ -63,6 +93,27 @@ void Generator::Detect_Function(Token* t)
 		T->Name = t->Name;
 		T->Size = t->Size;
 		Handle = T;
+		//check if this has init some objects so that we can reserve stack for it.
+		if (t->Reservable_Size > 0)
+		{
+			//make the register
+			Token* esp = new Token;
+			esp->Flags |= _Register_;
+			esp->Flags |= Task_For_Type_Address;
+			esp->Name = "reserve memory please!";
+			esp->Size = _SYSTEM_BIT_TYPE;
+			//make the number to subtract from esp
+			Token* num = new Token;
+			num->Name = to_string(t->Reservable_Size);
+			num->Size = _SYSTEM_BIT_TYPE;
+			num->Flags |= _Number_;
+			//make the IR token
+			IR* space = new IR;
+			space->ID = "-";
+			space->Parameters.push_back(esp);
+			space->Parameters.push_back(num);
+			Output.push_back(space);
+		}
 	}
 }
 
