@@ -23,7 +23,7 @@ public:
 	void Long_Operation_Allocator(int &i);
 	void Label_Recorder(int i);
 	void Register_Chooser(Token* t);
-	void Register_Loader(Token* t, int i);
+	void Register_Loader(Token& t, int i);
 	void Frame_Handler(int i);
 	void FPU_Choser(int i);
 	void Child(int i);
