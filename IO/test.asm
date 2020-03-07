@@ -21,11 +21,11 @@ ret
 _square: 
 push ebp 
 mov ebp , esp 
-mov eax , dword [ebp  + 4]
-mov ebx , dword [ebp  + 8]
+mov eax , dword [ebp  + 16]
+mov ebx , dword [ebp  + 20]
 imul eax , ebx 
-mov [ebp  - 12], eax 
-mov eax , dword [ebp  - 12]
+mov [ebp  - 4], eax 
+mov eax , dword [ebp  - 4]
 leave 
 ret
  

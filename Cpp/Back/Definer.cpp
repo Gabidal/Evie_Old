@@ -126,11 +126,12 @@ void Definer::Factory()
 	int Current_Offset = 0;
 	int Crop_Size = 0; 
 	int Parameter = 0;
+
 	//if the current is somehow smaller than the previus it means that the current one is in new stackframe.
 	for (Token* t : Generated_Undefined_Tokens)
 	{
 		for (Token* i : Enhanced)
-			if (t->Name == i->Name)
+			if ((t->Name == i->Name) && (t->Flags == i->Flags))
 			{
 				t->StackOffset = i->StackOffset;
 				goto Skip;
@@ -143,9 +144,10 @@ void Definer::Factory()
 			//now the current is in different stack frame
 			Previus_Offset = 0;
 			Crop_Size = 0;
+			Enhanced.clear();
 		}
 		//this is still in the same stackframe.
-		if (Current_Offset == (Previus_Offset + t->Size))
+		if (Current_Offset == (Previus_Offset + t->Size) && (t->is(_Parameter_) != true))
 		{
 			Previus_Offset = Current_Offset;
 			Enhanced.push_back(t);
