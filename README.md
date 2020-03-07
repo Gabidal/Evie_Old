@@ -22,9 +22,17 @@ More flexible than ever.
 
 Beta 2.0.8 fixed:
 
--multiline math register handle fix.
+- #### multiline math register handle fix.
 
--removed reduntant register abuse.
+- #### removed reduntant register abuse.
+
+Beta 2.1.2 fixed:
+
+- #### Stackfrmae added.
+
+- #### Parameter order reversed.
+
+- #### Stupid || Ridiclius stackOffset's removed.
 
 
 ## Manual

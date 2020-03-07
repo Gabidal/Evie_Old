@@ -94,7 +94,7 @@ void Generator::Detect_Function(Token* t)
 		T->Size = t->Size;
 		Handle = T;
 		//check if this has init some objects so that we can reserve stack for it.
-		if (t->Reservable_Size > 0)
+		/*if (t->Reservable_Size > 0)
 		{
 			//make the register
 			Token* esp = new Token;
@@ -113,7 +113,7 @@ void Generator::Detect_Function(Token* t)
 			space->Parameters.push_back(esp);
 			space->Parameters.push_back(num);
 			Output.push_back(space);
-		}
+		}*/
 	}
 }
 

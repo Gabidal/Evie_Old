@@ -10,8 +10,8 @@ mov al , byte 2
 movsx ebx , al 
 mov ebx , ebx 
 mov [ebp  - 8], ebx 
-push dword [ebp  - 4]
 push dword [ebp  - 8]
+push dword [ebp  - 4]
 call _square
 mov [ebp  - 12], eax 
 mov eax , dword [ebp  - 12]

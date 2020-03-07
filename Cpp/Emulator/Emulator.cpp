@@ -58,6 +58,8 @@ void Emulator::Long_Operation_Allocator(int &i)
 	else if (Input.at(i)->ID == "call")
 	{
 		//go though the parameters (in left side childs) and make them a push IR tokens;
+		reverse(Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs.begin(),
+			Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs.end());
 		for (Token* j : Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs)
 		{
 			IR* p = new IR;
