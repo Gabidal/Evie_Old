@@ -1,6 +1,4 @@
-type int()(
-	Size 4
-)
+using "cstd.e"
 
 export main()(
 	int a = 1
@@ -9,7 +7,7 @@ export main()(
 	return c
 )
 
-func square(int a, int b)(
+func square(int a, float b)(
 	int c = a * b
 	return c
 )

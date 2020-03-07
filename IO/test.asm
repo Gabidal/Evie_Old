@@ -21,10 +21,11 @@ ret
 _square: 
 push ebp 
 mov ebp , esp 
-mov eax , dword [ebp  + 8]
-mov ebx , dword [ebp  + 12]
-imul eax , ebx 
-mov [ebp  - 4], eax 
+mov ecx , dword [ebp  + 8]
+movss xmm0 ,  [ebp  + 28]
+cvttss2si ecx , xmm0 
+imul ecx , ecx 
+mov [ebp  - 4], ecx 
 mov eax , dword [ebp  - 4]
 leave 
 ret

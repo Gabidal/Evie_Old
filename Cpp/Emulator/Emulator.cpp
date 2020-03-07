@@ -123,6 +123,7 @@ void Emulator::Label_Recorder(int i)
 	else if (Input.at(i)->ID == "return")
 	{
 		Branching_Label.pop_back();
+		Register_Lock.clear();
 	}
 }
 

@@ -34,6 +34,8 @@ Beta 2.1.2 fixed:
 
 - #### Stupid || Ridiclius stackOffset's removed.
 
+- #### Tooken Registers from tokens away.
+
 
 ## Manual
 
