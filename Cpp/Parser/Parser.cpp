@@ -3,7 +3,7 @@
 int Layer = 0;
 int ID = 1;
 int Global_Stack_Offset = 0;
-int Local_Stack_Offest = 4;
+int Local_Stack_Offest = 0;
 bool Inside_Of_Constructor_As_Parameter = false;
 bool Inside_Of_Constructor = false;
 extern vector<string> Pre_Defined_Tokens;
@@ -304,7 +304,7 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at(i + 1));
 			P.Factory();
 			Inside_Of_Constructor_As_Parameter = false;
-			Local_Stack_Offest = 4;
+			Local_Stack_Offest = 0;
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 
 			P.Output.clear();
@@ -314,7 +314,7 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at(i + 2));
 			P.Factory();
 			Inside_Of_Constructor = false;
-			Local_Stack_Offest = 4;
+			Local_Stack_Offest = 0;
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->Flags |= _Constructor_;
 			New_Defined_Text->Flags |= _External_;
@@ -358,7 +358,7 @@ void Parser::Set_Right_Stack_Offset(Token* t)
 {
 	//the stack place giver
 	if (Inside_Of_Constructor)
-		t->StackOffset = Local_Stack_Offest;
+		t->StackOffset = Local_Stack_Offest + 4;
 	else if (Inside_Of_Constructor_As_Parameter)
 		t->StackOffset = (_SYSTEM_BIT_TYPE * 2) + Local_Stack_Offest;
 	else

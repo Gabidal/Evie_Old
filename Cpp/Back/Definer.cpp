@@ -145,9 +145,12 @@ void Definer::Factory()
 			Previus_Offset = 0;
 			Crop_Size = 0;
 			Enhanced.clear();
+			Enhanced.push_back(t);
+			Previus_Offset += Current_Offset;
+			goto Skip;
 		}
-		//this is still in the same stackframe.
-		if (Current_Offset == (Previus_Offset + t->Size) && (t->is(_Parameter_) != true))
+		//this is still in the same stackframe.  && (t->is(_Parameter_) != true)
+		if (Current_Offset == (Previus_Offset + t->Size))
 		{
 			Previus_Offset = Current_Offset;
 			Enhanced.push_back(t);

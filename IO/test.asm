@@ -21,8 +21,8 @@ ret
 _square: 
 push ebp 
 mov ebp , esp 
-mov eax , dword [ebp  + 16]
-mov ebx , dword [ebp  + 20]
+mov eax , dword [ebp  + 8]
+mov ebx , dword [ebp  + 12]
 imul eax , ebx 
 mov [ebp  - 4], eax 
 mov eax , dword [ebp  - 4]
