@@ -62,12 +62,46 @@ void Parser::Init_Definition(int i)
 				New_Defined_Type->Flags |= _Inheritting_;
 			}
 		}
-		skip:;
+	skip:;
+		if (Input.at(i)->is(_KEYWORD))
+		{
+			New_Defined_Type->Size = Get_Size(i);
+		}
+		else
+		{
+			for (Token* t : Defined_Keywords)
+			{
+				if (New_Defined_Type->Type == t->Name)
+				{
+					New_Defined_Type->Size = t->Size;
+					break;
+				}
+			}
+		}
 		Set_Right_Stack_Offset(New_Defined_Type);
 		Set_Right_Flag_Info(New_Defined_Type);
 		Defined_Keywords.push_back(New_Defined_Type);
 		Space_Reservation++;
 	}
+}
+
+int Parser::Get_Size(int i)
+{
+	//type a()(..)
+	Parser p;
+	p.Input = Input;
+	if (p.Count_Familiar_Tokens(_PAREHTHESIS, i + 2) == 2);
+	{
+		p.Input = Input.at(i + 3)->Tokens;
+		for (int j = 0; j < p.Input.size(); j++)
+		{
+			if (p.Input.at(j)->WORD == "Size")
+			{
+				return atoi(p.Input.at(j + 1)->WORD.c_str());
+			}
+		}
+	}
+	return 0;
 }
 
 void Parser::Init_Operator(int i)
@@ -364,9 +398,9 @@ void Parser::Set_Right_Stack_Offset(Token* t)
 	else
 		t->StackOffset = Global_Stack_Offset;
 	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter)
-		Local_Stack_Offest += 1 * _SYSTEM_BIT_TYPE;
+		Local_Stack_Offest += t->Size;
 	else
-		Global_Stack_Offset += 1 * _SYSTEM_BIT_TYPE;
+		Global_Stack_Offset += t->Size;
 }
 
 void Parser::Set_Right_Flag_Info(Token* t)
@@ -443,6 +477,7 @@ void Parser::Init_Variable(int i)
 				New_Variable->StackOffset = t->StackOffset;
 				New_Variable->Flags = t->Flags;
 				New_Variable->PreFix_Type = t->PreFix_Type;
+				New_Variable->Size = t->Size;
 				break;
 			}
 		Output.push_back(New_Variable);
@@ -454,18 +489,25 @@ void Parser::Init_Variable(int i)
 		New_Number->Name = Input.at(i)->WORD;
 		New_Number->Type = "number";
 		New_Number->Flags |= _Number_;
-		int Size = atoi(New_Number->Name.c_str());
-		if ((Size <= 255) && (Size >= -128))
+		if (New_Number->Name.find('.') != -1)
 		{
-			New_Number->Size = 1;
-		}
-		else if ((Size <= 65536) && (Size >= -32768))
-		{
-			New_Number->Size = 2;
+			New_Number->Size = 4;
 		}
 		else
 		{
-			New_Number->Size = 4;
+			int Size = atoi(New_Number->Name.c_str());
+		    if ((Size <= 255) && (Size >= -128))
+			{
+				New_Number->Size = 1;
+			}
+			else if ((Size <= 65536) && (Size >= -32768))
+			{
+				New_Number->Size = 2;
+			}
+			else
+			{
+				New_Number->Size = 4;
+			}
 		}
 		Output.push_back(New_Number);
 	}

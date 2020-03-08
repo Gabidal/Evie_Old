@@ -114,51 +114,74 @@ int getString(string source, int continu)
 		return UNSPECIFIED;
 	}
 
-    int translateIdentity(Type t, string text, Word *&w)
+int translateIdentity(Type t, string text, Word *&w)
+{
+    if (t == TEXT)
     {
-        if (t == TEXT)
+        if (text == "while" || text == "type" || text == "func" ||text == "using"|| text == "if" || text == "export")
         {
-            if (text == "while" || text == "type" || text == "func" ||text == "using"|| text == "if" || text == "export")
-            {
-                return _KEYWORD;
-            }
-            else
-            {
-                return _TEXT;
-            }
+            return _KEYWORD;
         }
-        else if (t == COMMENT)
+        else
         {
-            return _COMMENT;
+            return _TEXT;
         }
-        else if (t == NUMBER)
-        {
-            return _NUMBER;
-        }
-        else if (t == CONTENT)
-        {
-            Lexer d;
-            d.Direct(text.substr(1, text.size() - 2));
-            w->Tokens = d.output; 
-            return _PAREHTHESIS;
-        }
-        else if (t == STRING)
-        {
-            Lexer d;
-            d.Direct(text.substr(1, text.size() - 2));
-            w->Tokens = d.output;
-            return _STRING;
-        }
-        else if (t == OPERATOR)
-        {
-            return _OPERATOR;
-        }
-        else if (t == END)
-        {
-            return _END;
-        }
-        return 0;
     }
+    else if (t == COMMENT)
+    {
+        return _COMMENT;
+    }
+    else if (t == NUMBER)
+    {
+        return _NUMBER;
+    }
+    else if (t == CONTENT)
+    {
+        Lexer d;
+        d.Direct(text.substr(1, text.size() - 2));
+        w->Tokens = d.output; 
+        return _PAREHTHESIS;
+    }
+    else if (t == STRING)
+    {
+        Lexer d;
+        d.Direct(text.substr(1, text.size() - 2));
+        w->Tokens = d.output;
+        return _STRING;
+    }
+    else if (t == OPERATOR)
+    {
+        return _OPERATOR;
+    }
+    else if (t == END)
+    {
+        return _END;
+    }
+    return 0;
+}
+
+bool IsPartOf(Type previous, Type current, char c)
+{
+    if (current == previous || previous == UNSPECIFIED)
+    {
+        return true;
+    }
+
+    switch (previous)
+    {
+        case TEXT:
+        {
+            return current == NUMBER;
+        }
+
+        case NUMBER:
+        {
+            return c == '.';
+        }
+
+        default: return false;
+    }
+}
 
 void Lexer::Define()
 {
@@ -196,7 +219,7 @@ void Lexer::Define()
             i--;
         }
         
-        if (Base != Current && Base != UNSPECIFIED)
+        if (!IsPartOf(Base, Current, Lines.at(i)) && Base != UNSPECIFIED)
         {
             Word *w = new Word("");
             w->WORD = Lines.substr(start, i-start);

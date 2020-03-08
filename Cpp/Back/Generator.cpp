@@ -6,13 +6,13 @@ extern int _SYSTEM_BIT_TYPE;
 
 void Generator::Factory()
 {
-	for (Token*t : Input)
+	for (int i = 0; i < Input.size(); i++)
 	{
-		Detect_Condition(t);
-		Detect_Function(t);
-		Detect_Operator(t);
-		Detect_Parenthesis(t);
-		Detect_Pre_Defined_Tokens(t);
+		Detect_Condition(Input.at(i));
+		Detect_Function(Input.at(i));
+		Detect_Operator(Input.at(i));
+		Detect_Parenthesis(Input.at(i));
+		Detect_Pre_Defined_Tokens(Input.at(i));
 	}
 }
 
@@ -172,6 +172,9 @@ void Generator::Detect_Operator(Token* t)
 {
 	if (t->is(_Operator_) != true)
 		return;
+	if (t->is(_Generated_) == true)
+		return;
+	t->Flags |= _Generated_;
 	// a = a + 1 + a
 	// mov eax, [a]
 	// cvsi2sd xmm0, eax

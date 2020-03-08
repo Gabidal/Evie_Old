@@ -106,7 +106,7 @@ void Definer::Factory()
 			New_Defined_Class->Flags |= _Returning_;
 		}
 		Output.push_back(New_Defined_Class);
-		for (Token* t : Generated_Undefined_Tokens)
+		/*for (Token* t : Generated_Undefined_Tokens)
 		{
 			if (t->Type == New_Defined_Class->Name)
 			{
@@ -114,67 +114,11 @@ void Definer::Factory()
 				t->Static = New_Defined_Class->Static;
 				//offset - Size -> all
 			}
-		}
+		}*/
 	}
 	for (Token* i : Generated_Undefined_Tokens)
 	{
 		//ADVANCED
 		Type_Collect(i);
-	}
-	vector<Token*> Enhanced;
-	int Previus_Offset = 0;
-	int Current_Offset = 0;
-	int Crop_Size = 0; 
-	int Parameter = 0;
-
-	//if the current is somehow smaller than the previus it means that the current one is in new stackframe.
-	for (Token* t : Generated_Undefined_Tokens)
-	{
-		for (Token* i : Enhanced)
-			if ((t->Name == i->Name) && (t->Flags == i->Flags))
-			{
-				t->StackOffset = i->StackOffset;
-				goto Skip;
-			}
-		//C = 8
-		//C.Size = 2
-		Current_Offset = t->StackOffset;
-		if (Current_Offset <= Previus_Offset)
-		{
-			//now the current is in different stack frame
-			Previus_Offset = 0;
-			Crop_Size = 0;
-			Enhanced.clear();
-			Enhanced.push_back(t);
-			Previus_Offset += Current_Offset;
-			goto Skip;
-		}
-		//this is still in the same stackframe.  && (t->is(_Parameter_) != true)
-		if (Current_Offset == (Previus_Offset + t->Size))
-		{
-			Previus_Offset = Current_Offset;
-			Enhanced.push_back(t);
-			continue;
-		}
-		Parameter = 0;
-		if (t->is(_Parameter_))
-		{
-			Parameter = 2 * _SYSTEM_BIT_TYPE;
-		}
-		//too big offset is given
-		Crop_Size = Current_Offset - (Previus_Offset + t->Size);
-		if (t->StackOffset == (Previus_Offset + t->Size))
-		{
-			//IT IS ALREADY TAKEN THE NEW STACK OFFSET
-			continue;
-		}
-		else
-		{
-			t->StackOffset -= Crop_Size;
-			t->StackOffset += Parameter;
-		}
-		Enhanced.push_back(t);
-		Previus_Offset += t->Size;
-	Skip:;
 	}
 }

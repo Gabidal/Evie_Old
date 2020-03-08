@@ -233,6 +233,7 @@ void x86::ARC_Factory()
 	//64 bit float
 	MMX0 = new Token("xmm0 ", 12);
 	MMX0->Flags |= Task_For_Floating_Math;
+	MMX0->Flags |= Task_For_Returning;
 	Registers128.push_back(MMX0);
 	MMX1 = new Token("xmm1 ", 12);
 	MMX1->Flags |= Task_For_Floating_Math;

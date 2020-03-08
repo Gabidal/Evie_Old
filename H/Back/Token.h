@@ -30,10 +30,11 @@ using namespace std;
 #define Task_For_Offsetting (1<<18)
 #define Task_For_Remainder (1<<19)
 #define Task_For_General_Purpose (1<<20)
-#define Task_For_Floating_Math (1<<20)
+#define Task_For_Floating_Math (1<<21)
 
 //for stack reservartion
-#define _Need_For_Space_ (1<<21)
+#define _Need_For_Space_ (1<<22)
+#define _Generated_ (1<<23)
 
 class Token
 {
