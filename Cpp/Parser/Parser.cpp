@@ -153,7 +153,15 @@ void Parser::Init_Operator(int i)
 
 void Parser::Reserve_Operator_Tokens(int i)
 {
-	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->_initted == false))
+	if (Input.at(i)->is(_OPERATOR) != true && (Input.at(i)->_initted == false))
+		return;
+	if (i-1 < 0)
+	{
+		//negatable operator
+		Input.at(i + 1)->_Pre_Modded = Input.at(i)->WORD;
+		Input.erase(Input.begin() + i);
+	}
+	else if (Input.at(i)->_initted == false)
 	{
 		Input.at(i)->L = Input.at(i - 1);
 		Input.at(i)->R = Input.at(i + 1);
@@ -486,7 +494,8 @@ void Parser::Init_Variable(int i)
 	if (Input.at(i)->is(_NUMBER) && (Layer > 1))
 	{
 		Token* New_Number = new Token();
-		New_Number->Name = Input.at(i)->WORD;
+		New_Number->Name = Input.at(i)->_Pre_Modded;
+		New_Number->Name += Input.at(i)->WORD;
 		New_Number->Type = "number";
 		New_Number->Flags |= _Number_;
 		if (New_Number->Name.find('.') != -1)

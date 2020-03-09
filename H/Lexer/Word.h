@@ -26,6 +26,7 @@ public:
     bool _initted = false;
     bool _operatorized = false;
     bool _Call = false;
+    string _Pre_Modded = "";
     vector<Word*> Tokens;
     Word* L = nullptr;
     Word* R = nullptr;

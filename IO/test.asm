@@ -30,7 +30,7 @@ mov bl , byte 1
 movsx ecx , bl 
 cmp ecx , ecx 
 je _if5END
-mov al , byte 2
+_ldral , [ebp  - 0]
 ret
  
 _if5END: 

@@ -11,6 +11,6 @@ export main(int a)(
 		return 1
 	)
 	if (a != 1)(
-		return 2
+		return (-1.0)
 	)
 )
