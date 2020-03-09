@@ -36,6 +36,9 @@ Beta 2.1.2 fixed:
 
 - #### Tooken Registers from tokens away.
 
+Beta 2.1.4 fix:
+
+- #### Makefile updated.
 
 ## Manual
 

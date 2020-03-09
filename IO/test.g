@@ -1,7 +1,7 @@
 using "cstd.e"
 
 export main()(
-	int a = 1
+	float a = 1.0
 	int b = a
 	a = a * b
 	return a
