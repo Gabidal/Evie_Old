@@ -3,6 +3,7 @@
 extern Selector* S;
 extern vector<string> Pre_Defined_Tokens;
 extern int _SYSTEM_BIT_TYPE;
+bool Double_Tasking = false;
 
 void Generator::Factory()
 {
@@ -32,9 +33,11 @@ void Generator::Detect_Function(Token* t)
 			ir->PreFix = "export";
 			ir->ID = t->Name;
 		}
+		Double_Tasking = false;
 		//make the stackfrmae
 		if (t->is(_Need_For_Space_))
 		{
+			Double_Tasking = true;
 			//save ebp
 			//stack base
 			Token* ebp = new Token;
@@ -286,6 +289,8 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 			IR *ir = new IR;
 			ir->ID = T;
 			ir->Parameters.push_back(t->Right_Side_Token);
+			if (Double_Tasking)
+				ir->Flags |= _Double_Task_;
 			Output.push_back(ir);
 			return;
 		}

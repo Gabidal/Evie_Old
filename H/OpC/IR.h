@@ -6,6 +6,7 @@
 #define _End_Of_Label (1<<1)
 #define _Allocated_ (1<<2)
 #define _Restricted_ (1<<4)
+#define _Double_Task_ (1<<5)
 
 class IR
 {

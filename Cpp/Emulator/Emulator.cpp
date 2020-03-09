@@ -41,9 +41,12 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Input.insert(Input.begin() + i, mov_to_return_Reg);
 
 		//make the leave
-		IR* Leave = new IR;
-		Leave->ID = "leave";
-		Input.insert(Input.begin() + i + 1, Leave);
+		if (Input.at(i + 1)->is(_Double_Task_))
+		{
+			IR* Leave = new IR;
+			Leave->ID = "leave";
+			Input.insert(Input.begin() + i + 1, Leave);
+		}
 	}
 	else if (Input.at(i)->PreFix == "export")
 	{
