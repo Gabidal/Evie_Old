@@ -40,6 +40,14 @@ Beta 2.1.4 fixed:
 
 - #### Makefile updated.
 
+Beta 2.1.6 fixed:
+
+- #### If's.
+
+- #### AL & AH had same ID.
+
+- #### Now calling a exported function works :D.
+
 ## Manual
 
 ### Type

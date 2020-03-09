@@ -80,7 +80,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 
 		}
 	}
-	else if (Input.at(i)->is(_Operator_) && (Input.at(i)->is(_Allocated_) != true))
+	if (Input.at(i)->is(_Operator_) && (Input.at(i)->is(_Allocated_) != true))
 	{
 		Input.at(i)->Flags |= _Allocated_;
 		if (Input.at(i)->Parameters.size() > 1)
