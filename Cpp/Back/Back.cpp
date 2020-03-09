@@ -17,7 +17,9 @@ string Back::Get_Direction(Token* t)
 
 string Back::Get_Info_Of(Token* t, bool Storing)
 {
-	if (Storing)
+	if (t->Type == "export")
+		return t->Name;
+	else if (Storing)
 		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 	else if (t->is(_Register_))

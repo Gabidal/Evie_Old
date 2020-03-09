@@ -94,7 +94,7 @@ void Generator::Detect_Function(Token* t)
 		T->Flags |= _Register_;
 		T->Flags |= Task_For_Returning;
 		T->Name = t->Name;
-		T->Size = t->Size;
+		T->Size = _SYSTEM_BIT_TYPE;
 		Handle = T;
 		//check if this has init some objects so that we can reserve stack for it.
 		/*if (t->Reservable_Size > 0)
