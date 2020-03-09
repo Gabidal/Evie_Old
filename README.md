@@ -28,15 +28,15 @@ Beta 2.0.8 fixed:
 
 Beta 2.1.2 fixed:
 
-- #### Stackfrmae added.
+- #### Stackframe added.
 
 - #### Parameter order reversed.
 
-- #### Stupid || Ridiclius stackOffset's removed.
+- #### Stupid/Ridiclius stackOffset's removed.
 
 - #### Tooken Registers from tokens away.
 
-Beta 2.1.4 fix:
+Beta 2.1.4 fixed:
 
 - #### Makefile updated.
 
