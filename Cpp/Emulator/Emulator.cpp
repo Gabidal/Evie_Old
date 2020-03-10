@@ -3,6 +3,17 @@
 extern Selector* S;
 		// Register, Regiser using token
 extern map<string, Token*> Register_Lock;
+Token* Emulator::Get_Info(Token* t)
+{
+	if (t->is(_Parenthesis_))
+	{
+		return t->Childs.at(0);
+	}
+	else
+	{
+		return t;
+	}
+}
 void Emulator::Long_Operation_Allocator(int &i)
 {
 	if ((Input.at(i)->ID == "==") || (Input.at(i)->ID == "!=") || (Input.at(i)->ID == "<") || (Input.at(i)->ID == ">") || (Input.at(i)->ID == "!<") || (Input.at(i)->ID == "!>") || (Input.at(i)->ID == "<=") || (Input.at(i)->ID == ">="))
@@ -29,13 +40,13 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Token* Reg = new Token;
 		Reg->Flags |= _Register_;
 		Reg->Flags |= Task_For_Returning;
-		Reg->Name = Input.at(i)->Parameters.at(0)->Name;
-		Reg->Size = Input.at(i)->Parameters.at(0)->Size;
+		Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name;
+		Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
 
 		IR* mov_to_return_Reg = new IR;
 		mov_to_return_Reg->ID = "ldr";
 		mov_to_return_Reg->Parameters.push_back(Reg);
-		mov_to_return_Reg->Parameters.push_back(Input.at(i)->Parameters.at(0));
+		mov_to_return_Reg->Parameters.push_back(Get_Info(Input.at(i)->Parameters.at(0)));
 		Input.at(i)->Parameters.clear();
 		Input.at(i)->Flags |= _Allocated_;
 		Input.insert(Input.begin() + i, mov_to_return_Reg);

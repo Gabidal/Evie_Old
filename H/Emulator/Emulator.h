@@ -19,7 +19,7 @@ public:
 	Token* Handle = nullptr;
 
 
-
+	Token* Get_Info(Token* t);
 	void Long_Operation_Allocator(int &i);
 	void Label_Recorder(int i);
 	void Register_Chooser(Token* t);
