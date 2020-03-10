@@ -100,6 +100,22 @@ void Emulator::Long_Operation_Allocator(int &i)
 			*L	= *Input.at(i)->Parameters.at(0);
 			Token* R = new Token;
 			*R	= *Input.at(i)->Parameters.at(1);
+			/*if (atoi(L->Name.c_str()))
+			{
+				if (L->Size < R->Size)
+				{
+					L->Size = R->Size;
+					Input.at(i)->Parameters.at(0)->Size = L->Size;
+				}
+			}
+			else if (atoi(R->Name.c_str()))
+			{
+				if (L->Size > R->Size)
+				{
+					R->Size = L->Size;
+					Input.at(i)->Parameters.at(1)->Size = R->Size;
+				}
+			}*/
 			if (L->Size != R->Size)
 			{
 				IR* D = Input.at(i);
