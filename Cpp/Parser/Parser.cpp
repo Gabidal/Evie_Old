@@ -153,7 +153,10 @@ void Parser::Init_Operator(int i)
 
 void Parser::Reserve_Operator_Tokens(int i)
 {
-	if (Input.at(i)->is(_OPERATOR) != true && (Input.at(i)->_initted == false))
+	if ((Input.at(i)->is(_OPERATOR) == true) && (Input.at(i)->_initted == false))
+	{
+	}
+	else
 		return;
 	if (i-1 < 0)
 	{
@@ -161,7 +164,7 @@ void Parser::Reserve_Operator_Tokens(int i)
 		Input.at(i + 1)->_Pre_Modded = Input.at(i)->WORD;
 		Input.erase(Input.begin() + i);
 	}
-	else if (Input.at(i)->_initted == false)
+	else
 	{
 		Input.at(i)->L = Input.at(i - 1);
 		Input.at(i)->R = Input.at(i + 1);
