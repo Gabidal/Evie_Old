@@ -353,6 +353,12 @@ void Parser::Type_Definition(int i)
 			Local_Stack_Offest = 0;
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 
+			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0)
+			{
+				New_Defined_Text->Flags |= _Need_For_Space_;
+				New_Defined_Text->Reservable_Size = New_Defined_Text->Left_Side_Token->Reservable_Size;
+			}
+
 			P.Output.clear();
 			P.Input.clear();
 			//childs

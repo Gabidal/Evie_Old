@@ -14,6 +14,8 @@ ret
 global main
 main: 
 _main: 
+push ebp 
+mov ebp , esp 
 _if4: 
 mov ebx , dword [ebp  + 8]
 mov al , byte 1
@@ -21,6 +23,7 @@ movsx ecx , al
 cmp ebx , ecx 
 jne _if4END
 mov al , byte 1
+leave 
 ret
  
 _if4END: 
@@ -31,6 +34,7 @@ movsx edi , ah
 cmp edx , edi 
 je _if5END
 mov eax , dword -1.0
+leave 
 ret
  
 _if5END: 

@@ -26,6 +26,7 @@ Beta 2.0.8 fixed:
 
 - #### removed reduntant register abuse.
 
+
 Beta 2.1.2 fixed:
 
 - #### Stackframe added.
@@ -36,9 +37,11 @@ Beta 2.1.2 fixed:
 
 - #### Tooken Registers from tokens away.
 
+
 Beta 2.1.4 fixed:
 
 - #### Makefile updated.
+
 
 Beta 2.1.6 fixed:
 
@@ -47,6 +50,7 @@ Beta 2.1.6 fixed:
 - #### AL & AH had same ID.
 
 - #### Now calling a exported function works :D.
+
 
 Beta 2.1.9 fixed:
 
@@ -63,6 +67,11 @@ To:
 ```
 
 - #### Also Exporting has it's own type class in CSTD.e .
+
+
+Beta 2.1.10 fixed:
+
+- #### Parameters didnt have stackframe.
 
 
 ## Manual
