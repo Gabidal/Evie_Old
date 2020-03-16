@@ -7,10 +7,6 @@ export func _start()(
 )
 
 export func main(int a)(
-	if (a == 1.0)(
-		return 1.0
-	)
-	if (a != 1.0)(
-		return (-1.0)
-	)
+	int b = a:0.0
+	return b
 )

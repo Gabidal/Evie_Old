@@ -21,8 +21,8 @@ void Emulator::Long_Operation_Allocator(int &i)
 	{
 		//conditional operators need the cmp, and the condition jump operation.
 		Token* Reg = new Token;
-		Reg->Flags |= _Register_;
-		Reg->Flags |= Task_For_General_Purpose;
+		Reg->add(_Register_);
+		Reg->add(Task_For_General_Purpose);
 		Reg->Name = Input.at(i)->Parameters.at(0)->Name;
 		Reg->Size = Input.at(i)->Parameters.at(0)->Size;
 
@@ -39,8 +39,8 @@ void Emulator::Long_Operation_Allocator(int &i)
 	{
 		//make the returning
 		Token* Reg = new Token;
-		Reg->Flags |= _Register_;
-		Reg->Flags |= Task_For_Returning;
+		Reg->add(_Register_);
+		Reg->add(Task_For_Returning);
 		Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name;
 		Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
 
@@ -49,7 +49,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 		mov_to_return_Reg->Parameters.push_back(Reg);
 		mov_to_return_Reg->Parameters.push_back(Get_Info(Input.at(i)->Parameters.at(0)));
 		Input.at(i)->Parameters.clear();
-		Input.at(i)->Flags |= _Allocated_;
+		Input.at(i)->add(_Allocated_);
 		Input.insert(Input.begin() + i, mov_to_return_Reg);
 
 		//make the leave
@@ -65,7 +65,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 		IR* label = new IR;
 		label->PreFix = Input.at(i)->ID;
 		label->ID = "raw_label";
-		label->Flags |= _Start_Of_Label;
+		label->add(_Start_Of_Label);
 		label->Childs = Input.at(i)->Childs;
 		Input.at(i)->Childs.clear();
 		Input.insert(Input.begin() + i + 1 , label);
@@ -94,7 +94,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 	}
 	if (Input.at(i)->is(_Operator_) && (Input.at(i)->is(_Allocated_) != true))
 	{
-		Input.at(i)->Flags |= _Allocated_;
+		Input.at(i)->add(_Allocated_);
 		if (Input.at(i)->Parameters.size() > 1)
 		{
 			Token* L = new Token;
@@ -118,6 +118,14 @@ void Emulator::Long_Operation_Allocator(int &i)
 				converter->Parameters.push_back(R);
 				Input.insert(Input.begin() + i, converter);
 				D->Parameters.at(1) = L;
+			}
+			if (L->Offsetter != nullptr)
+			{
+				Register_Chooser(Input.at(i)->Parameters.at(0));
+			}
+			if (R->Offsetter != nullptr)
+			{
+				Register_Chooser(Input.at(i)->Parameters.at(1));
 			}
 		}
 	}
@@ -159,7 +167,7 @@ void Emulator::Register_Chooser(Token* t)
 			}
 		}
 		//if not
-		Token* Reg = S->Get_Right_Reg(t->Flags, t->Size);
+		Token* Reg = S->Get_Right_Reg(t->get(), t->Size);
 		Register_Lock.insert({ t->Name, Reg });
 		t->UID = Reg->Name;
 		return;
@@ -173,8 +181,8 @@ void Emulator::Register_Loader(Token& t, int i)
 
 		//make a handle register
 		Token* Reg = new Token;
-		Reg->Flags |= Task_For_General_Purpose;
-		Reg->Flags |= _Register_;
+		Reg->add(Task_For_General_Purpose);
+		Reg->add(_Register_);
 		Reg->Name = t.Name;
 		Reg->Size = t.Size;
 		//make the loading IR token

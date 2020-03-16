@@ -18,6 +18,7 @@ public:
     vector<Token*> Output;
     vector<Token*> Defined_Keywords;
     void Include_Files(int i);
+    void Connect_Array(int i);
     void Init_Definition(int i);
     int Get_Size(int i);
     void Init_Operator(int i);

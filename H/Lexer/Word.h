@@ -21,7 +21,7 @@ private:
 
 public:
     bool UsedToken = false;
-    Word *Offsetter = 0;
+    Word *Offsetter = nullptr;
     string Fetcher = "";
     bool _initted = false;
     bool _operatorized = false;

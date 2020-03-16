@@ -10,6 +10,7 @@ void Generator::Factory()
 	for (int i = 0; i < Input.size(); i++)
 	{
 		//Detect_Prefixes(Input.at(i));
+		Detect_Pointters(Input.at(i));
 		Detect_Condition(Input.at(i));
 		Detect_Function(Input.at(i));
 		Detect_Operator(Input.at(i));
@@ -29,7 +30,7 @@ void Generator::Detect_Function(Token* t)
 		IR* ir = new IR;
 		ir->ID = "label";
 		ir->PreFix = t->Name;
-		ir->Flags |= _Start_Of_Label;
+		ir->add(_Start_Of_Label);
 		Double_Tasking = false;
 		//make the stackfrmae
 		if (t->is(_Need_For_Space_))
@@ -40,8 +41,8 @@ void Generator::Detect_Function(Token* t)
 			Token* ebp = new Token;
 			ebp->Name = "ebp";
 			ebp->Size = _SYSTEM_BIT_TYPE;
-			ebp->Flags |= _Register_;
-			ebp->Flags |= Task_For_Type_Address_Basing;
+			ebp->add(_Register_);
+			ebp->add(Task_For_Type_Address_Basing);
 			//mov ebp, esp
 			IR* push = new IR;
 			push->ID = "push";
@@ -52,8 +53,8 @@ void Generator::Detect_Function(Token* t)
 			Token* esp = new Token;
 			esp->Name = "esp";
 			esp->Size = _SYSTEM_BIT_TYPE;
-			esp->Flags |= _Register_;
-			esp->Flags |= Task_For_Type_Address;
+			esp->add(_Register_);
+			esp->add(Task_For_Type_Address);
 			//mov ebp, esp
 			IR* movebpesp = new IR;
 			movebpesp->ID = "ldr";
@@ -88,8 +89,8 @@ void Generator::Detect_Function(Token* t)
 		Output.push_back(ir);
 		//handle
 		Token* T = new Token;
-		T->Flags |= _Register_;
-		T->Flags |= Task_For_Returning;
+		T->add(_Register_);
+		T->add(Task_For_Returning);
 		T->Name = t->Name;
 		T->Size = _SYSTEM_BIT_TYPE;
 		Handle = T;
@@ -98,15 +99,15 @@ void Generator::Detect_Function(Token* t)
 		{
 			//make the register
 			Token* esp = new Token;
-			esp->Flags |= _Register_;
-			esp->Flags |= Task_For_Type_Address;
+			esp->add(_Register_;
+			esp->add(Task_For_Type_Address;
 			esp->Name = "reserve memory please!";
 			esp->Size = _SYSTEM_BIT_TYPE;
 			//make the number to subtract from esp
 			Token* num = new Token;
 			num->Name = to_string(t->Reservable_Size);
 			num->Size = _SYSTEM_BIT_TYPE;
-			num->Flags |= _Number_;
+			num->add(_Number_;
 			//make the IR token
 			IR* space = new IR;
 			space->ID = "-";
@@ -131,7 +132,7 @@ void Generator::Detect_Condition(Token* t)
 		IR* Condition = new IR;
 		Condition->ID = "label";
 		Condition->PreFix = t->Name + to_string(t->ID);
-		Condition->Flags |= _Start_Of_Label;
+		Condition->add(_Start_Of_Label);
 		//make IR tokens for condition.
 		Generator g;
 		g.Types = this->Types;
@@ -162,7 +163,7 @@ void Generator::Detect_Condition(Token* t)
 		IR* Exit_Label = new IR;
 		Exit_Label->PreFix = t->Name + to_string(t->ID) + "END";
 		Exit_Label->ID = "label";
-		Exit_Label->Flags |= _End_Of_Label;
+		Exit_Label->add(_End_Of_Label);
 		Condition->Childs.push_back(Exit_Label);
 		Output.push_back(Condition);
 	}
@@ -174,7 +175,7 @@ void Generator::Detect_Operator(Token* t)
 		return;
 	if (t->is(_Generated_) == true)
 		return;
-	t->Flags |= _Generated_;
+	t->add(_Generated_);
 	// a = a + 1 + a
 	// mov eax, [a]
 	// cvsi2sd xmm0, eax
@@ -187,7 +188,7 @@ void Generator::Detect_Operator(Token* t)
 	//create a new IR token.
 	IR* opCode = new IR;
 	opCode->ID = t->Name;
-	opCode->Flags |= _Operator_;
+	opCode->add(_Operator_);
 	//give the new ir generator the left side of operation.
 	Generator g;
 	g.Input.push_back(t->Left_Side_Token);
@@ -216,6 +217,8 @@ void Generator::Detect_Operator(Token* t)
 		Normal_Right = true;
 	//check if this is a storing opcode:
 	bool Storing = (t->Name == "=" || t->Name == "str");
+	//b:0 = a:0
+	//lea edi, [(ebp-offset)+ecx*size]
 	if (Normal_Left)
 	{
 		if (Storing)
@@ -226,8 +229,8 @@ void Generator::Detect_Operator(Token* t)
 		{
 			//make a handle register
 			Token* Reg = new Token;
-			Reg->Flags |= Task_For_General_Purpose;
-			Reg->Flags |= _Register_;
+			Reg->add(Task_For_General_Purpose);
+			Reg->add(_Register_);
 			Reg->Name = t->Left_Side_Token->Name;
 			Reg->Size = t->Left_Side_Token->Size;
 			Left_Token = Reg;
@@ -244,8 +247,8 @@ void Generator::Detect_Operator(Token* t)
 	{
 		//make a handle register
 		Token* Reg = new Token;
-		Reg->Flags |= Task_For_General_Purpose;
-		Reg->Flags |= _Register_;
+		Reg->add(Task_For_General_Purpose);
+		Reg->add(_Register_);
 		Reg->Name = t->Right_Side_Token->Name;
 		Reg->Size = t->Right_Side_Token->Size;
 		Right_Token = Reg;
@@ -256,14 +259,40 @@ void Generator::Detect_Operator(Token* t)
 		load->Parameters.push_back(t->Right_Side_Token);
 		Output.push_back(load);
 	}
-	else
-	{
-		//somehting complex here:
-	}
 	opCode->Parameters.push_back(Left_Token);
 	opCode->Parameters.push_back(Right_Token);
 	Handle = Left_Token;
 	Output.push_back(opCode);
+}
+
+void Generator::Detect_Pointters(Token* t)
+{
+	if (t->Offsetter == nullptr)
+		return;
+	Generator g;
+	g.Input.push_back(t->Offsetter);
+	g.Factory();
+	g.Append(&Output, g.Output);
+	IR* Load_Offsetter = new IR;
+	if (g.Handle == nullptr)
+	{
+		//make a handle register
+		Token* Reg = new Token;
+		Reg->add(Task_For_General_Purpose);
+		Reg->add(_Register_);
+		Reg->Name = t->Offsetter->Name;
+		Reg->Size = t->Offsetter->Size;
+
+		Load_Offsetter->ID = "ldr";
+		Load_Offsetter->Parameters.push_back(Reg);
+		Load_Offsetter->Parameters.push_back(t->Offsetter);
+		t->Offsetter = Reg;
+	}
+	else
+	{
+		t->Offsetter = g.Handle;
+	}
+	Output.push_back(Load_Offsetter);
 }
 
 void Generator::Detect_Parenthesis(Token* t)
@@ -292,7 +321,7 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 			ir->ID = T;
 			ir->Parameters.push_back(t->Right_Side_Token);
 			if (Double_Tasking)
-				ir->Flags |= _Double_Task_;
+				ir->add(_Double_Task_);
 			Output.push_back(ir);
 			return;
 		}

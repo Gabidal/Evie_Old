@@ -10,16 +10,19 @@
 
 class IR
 {
+private:
+	int Flags = 0;
 public:
 	string Comment = "";
 	//for single line:
-		int Flags = 0;
 		int Reg_Flag = 0;
 		string PreFix = "";
 		string ID = "";
 		vector<Token*> Parameters;
 	//for multi levelled opcodes:
 		vector<IR*> Childs;
+		void add(int Flag);
+		int get();
 	IR()
 	{
 	}

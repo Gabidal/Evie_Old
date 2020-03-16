@@ -15,6 +15,16 @@ bool Token::Any(int flags)
     return (Flags & flags) != 0;
 }
 
+void Token::add(int flag)
+{
+	this->Flags |= flag;
+}
+
+int Token::get()
+{
+	return Flags;
+}
+
 string Token::Get_Additive_Operator()
 {
 	if (this->is(_Parameter_))

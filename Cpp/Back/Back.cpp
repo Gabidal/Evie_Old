@@ -17,9 +17,16 @@ string Back::Get_Direction(Token* t)
 
 string Back::Get_Info_Of(Token* t, bool Storing)
 {
-	if (t->PreFix_Type == "export")
+	if ((t->PreFix_Type == "export") && (t->Size == 0))
 		return t->Name;
-	else if (Storing)
+	else if (t->Offsetter != nullptr)
+	{
+		//[(ebp-4)+offsetter*Size]
+		return "[(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+			Get_Direction(t) + to_string(t->StackOffset) + ")" +
+			OFFSET + t->Offsetter->UID + SCALE + to_string(t->Size) + "]";
+	}
+	else if (Storing && (t->is(_External_) != true))
 		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 	else if (t->is(_Register_))

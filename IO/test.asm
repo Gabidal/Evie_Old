@@ -6,7 +6,7 @@ mov ebp , esp
 mov eax , dword 1.0
 mov [ebp  - 4], eax 
 push dword [ebp  - 4]
-call main
+call _main
 mov eax , dword [ebp  - 4]
 leave 
 ret
@@ -16,23 +16,10 @@ main:
 _main: 
 push ebp 
 mov ebp , esp 
-_if4: 
-mov ebx , dword [ebp  + 8]
-mov ecx , dword 1.0
-cmp ebx , ecx 
-jne _if4END
-mov eax , dword 1.0
+mov ebx , dword 0.0
+mov ecx , [(ebp  + 8) + ebx  * 4]
+mov [ebp  - 4], ecx 
+mov eax , dword [ebp  - 4]
 leave 
 ret
  
-_if4END: 
-_if5: 
-mov edx , dword [ebp  + 8]
-mov edi , dword 1.0
-cmp edx , edi 
-je _if5END
-mov eax , dword -1.0
-leave 
-ret
- 
-_if5END: 

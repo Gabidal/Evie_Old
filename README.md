@@ -78,7 +78,9 @@ Beta 2.1.11 fixed:
 
 - ##### Fixed returning register.
 
+Beta 2.1.12 added:
 
+- #### Added pointters (experimental)
 
 
 ## Manual

@@ -36,10 +36,14 @@ using namespace std;
 #define _Need_For_Space_ (1<<22)
 #define _Generated_ (1<<23)
 
+//for pointting pointters
+#define _Pointting_ (1<<24)
+
 class Token
 {
-  public:
+    private:
     int Flags = 0;
+  public:
     int Size = 0;
     int Reservable_Size = 0;
     int Static = 0;
@@ -51,9 +55,10 @@ class Token
     bool Semanticked = false;
     //Token* Parent = nullptr;
     Token* Left_Side_Token = nullptr;
-    Token* Right_Side_Token = nullptr;
+    Token* Right_Side_Token = nullptr; // also as the offsetter in array
     Token* Left_Non_Operative_Token = nullptr;
     Token* Right_Non_Operative_Token = nullptr;
+    Token* Offsetter = nullptr;
     vector<Token*> Childs;
     string Name = "";
     string Type = "";
@@ -65,23 +70,25 @@ class Token
         Name = name;
         Size = size;
         Childs.push_back(child);
-        Flags |= _Register_;
+        add(_Register_);
     }
     Token(string name, int size, Token* child1, Token* child2) {
         Name = name;
         Size = size;
         Childs.push_back(child1);
         Childs.push_back(child2);
-        Flags |= _Register_;
+        add(_Register_);
     }
     Token(string name, int size) {
         Name = name;
         Size = size;
-        Flags |= _Register_;
+        add(_Register_);
     }
 
     bool is(int flag);
     bool Any(int flags);
+    void add(int flag);
+    int get();
     string Get_Additive_Operator();
 };
 #endif

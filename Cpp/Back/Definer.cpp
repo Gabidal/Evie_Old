@@ -103,7 +103,7 @@ void Definer::Factory()
 		New_Defined_Class->Type = s->Type;
 		if (Has(s, "return"))
 		{
-			New_Defined_Class->Flags |= _Returning_;
+			New_Defined_Class->add(_Returning_);
 		}
 		Output.push_back(New_Defined_Class);
 		/*for (Token* t : Generated_Undefined_Tokens)

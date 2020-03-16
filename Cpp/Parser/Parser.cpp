@@ -33,6 +33,18 @@ void Parser::Include_Files(int i)
 	}
 }
 
+void Parser::Connect_Array(int i)
+{
+	if (Input.at(i)->is(_OPERATOR) != true)
+		return;
+	if (Input.at(i)->WORD != ":")
+		return;
+	//b = a:0
+	Input.at(i - 1)->Offsetter = Input.at(i + 1);
+	Input.erase(Input.begin() + i + 1);
+	Input.erase(Input.begin() + i);
+}
+
 void Parser::Init_Definition(int i)
 {
 	if (i >= (Input.size() - 1))
@@ -60,7 +72,7 @@ void Parser::Init_Definition(int i)
 					}
 				}
 				New_Defined_Type->PreFix_Type = Input.at(i - 1)->WORD;
-				New_Defined_Type->Flags |= _Inheritting_;
+				New_Defined_Type->add(_Inheritting_);
 			}
 		}
 	skip:;
@@ -147,7 +159,7 @@ void Parser::Init_Operator(int i)
 		New_Defined_Operator->Left_Non_Operative_Token = New_Left_Non_Operative_Token;
 		New_Defined_Operator->Right_Non_Operative_Token = New_Right_Non_Operative_Token;
 
-		New_Defined_Operator->Flags |= _Operator_;
+		New_Defined_Operator->add(_Operator_);
 		Output.push_back(New_Defined_Operator);
 	}
 }
@@ -257,7 +269,7 @@ void Parser::Init_Parenthesis(int i)
 		P.Input = Input.at(i)->Tokens;
 		P.Factory();
 		New_Defined_Parenthesis->Childs = P.Output;
-		New_Defined_Parenthesis->Flags |= _Parenthesis_;
+		New_Defined_Parenthesis->add(_Parenthesis_);
 		New_Defined_Parenthesis->Reservable_Size = P.Space_Reservation;
 		Output.push_back(New_Defined_Parenthesis);
 		this->Space_Reservation = P.Space_Reservation;
@@ -280,8 +292,8 @@ void Parser::Init_Conditions(int i)
 		Token* New_Defined_Condition = new Token();
 		New_Defined_Condition->Name = Input.at(i)->WORD;
 		New_Defined_Condition->ID = ID + Layer;
-		New_Defined_Condition->Flags |= _Condition_;
-		New_Defined_Condition->Flags |= _External_;
+		New_Defined_Condition->add(_Condition_);
+		New_Defined_Condition->add(_External_);
 		ID++;
 
 		Parser P = *this;
@@ -335,7 +347,7 @@ void Parser::Type_Definition(int i)
 			P.Input = Input.at(i)->Tokens;
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
-			New_Defined_Text->Flags |= _Call_;
+			New_Defined_Text->add(_Call_);
 			New_Defined_Text->Size = _SYSTEM_BIT_TYPE;
 		}
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
@@ -355,7 +367,7 @@ void Parser::Type_Definition(int i)
 
 			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0)
 			{
-				New_Defined_Text->Flags |= _Need_For_Space_;
+				New_Defined_Text->add(_Need_For_Space_);
 				New_Defined_Text->Reservable_Size = New_Defined_Text->Left_Side_Token->Reservable_Size;
 			}
 
@@ -368,12 +380,12 @@ void Parser::Type_Definition(int i)
 			Inside_Of_Constructor = false;
 			Local_Stack_Offest = 0;
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
-			New_Defined_Text->Flags |= _Constructor_;
-			New_Defined_Text->Flags |= _External_;
+			New_Defined_Text->add(_Constructor_);
+			New_Defined_Text->add(_External_);
 
 			if (New_Defined_Text->Right_Side_Token->Reservable_Size > 0)
 			{
-				New_Defined_Text->Flags |= _Need_For_Space_;
+				New_Defined_Text->add(_Need_For_Space_);
 				New_Defined_Text->Reservable_Size = New_Defined_Text->Right_Side_Token->Reservable_Size;
 			}
 
@@ -429,11 +441,11 @@ void Parser::Set_Right_Flag_Info(Token* t)
 	}
 	else if (Inside_Of_Constructor_As_Parameter)
 	{
-		t->Flags |= _Parameter_;
+		t->add(_Parameter_);
 	}
 	else
 	{
-		t->Flags |= _External_;
+		t->add(_External_);
 	}
 }
 
@@ -493,11 +505,20 @@ void Parser::Init_Variable(int i)
 			if (t->Name == New_Variable->Name)
 			{
 				New_Variable->StackOffset = t->StackOffset;
-				New_Variable->Flags = t->Flags;
+				New_Variable->add(t->get());
 				New_Variable->PreFix_Type = t->PreFix_Type;
 				New_Variable->Size = t->Size;
 				break;
 			}
+		if (Input.at(i)->Offsetter != nullptr)
+		{
+			Parser p;
+			p.Input.push_back(Input.at(i)->Offsetter);
+			p.Defined_Keywords = this->Defined_Keywords;
+			p.Factory();
+			New_Variable->Offsetter = p.Output.at(0);
+			New_Variable->add(_Pointting_);
+		}
 		Output.push_back(New_Variable);
 		Generated_Undefined_Tokens.push_back(Output.back());
 	}
@@ -507,7 +528,7 @@ void Parser::Init_Variable(int i)
 		New_Number->Name = Input.at(i)->_Pre_Modded;
 		New_Number->Name += Input.at(i)->WORD;
 		New_Number->Type = "number";
-		New_Number->Flags |= _Number_;
+		New_Number->add(_Number_);
 		if (New_Number->Name.find('.') != -1)
 		{
 			New_Number->Size = 4;
@@ -573,6 +594,8 @@ void Parser::Factory()
 	Layer++;
 	for (int i = 0; i < Input.size(); i++)
 		Include_Files(i);
+	for (int i = 0; i < Input.size(); i++)
+		Connect_Array(i);
 	for (int i = 0; i < Input.size(); i++)
 		Init_Definition(i);
 	for (int i = 0; i < Input.size(); i++)
