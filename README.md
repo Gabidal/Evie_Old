@@ -48,6 +48,23 @@ Beta 2.1.6 fixed:
 
 - #### Now calling a exported function works :D.
 
+Beta 2.1.9 fixed:
+
+- #### Exporting is now
+
+From:
+```
+    export main()(..)
+```
+
+To:
+```
+    export func main()(..)
+```
+
+- #### Also Exporting has it's own type class in CSTD.e .
+
+
 ## Manual
 
 ### Type
