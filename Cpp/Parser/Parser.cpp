@@ -37,10 +37,14 @@ void Parser::Connect_Array(int i)
 {
 	if (Input.at(i)->is(_OPERATOR) != true)
 		return;
-	if (Input.at(i)->WORD != ":")
+	if (Input.at(i)->WORD != ":" && Input.at(i)->WORD != "::")
 		return;
 	//b = a:0
 	Input.at(i - 1)->Offsetter = Input.at(i + 1);
+	if (Input.at(i)->WORD == "::")
+	{
+		Input.at(i-1)->Self_Mirroring = true;
+	}
 	Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i);
 }
@@ -517,7 +521,10 @@ void Parser::Init_Variable(int i)
 			p.Defined_Keywords = this->Defined_Keywords;
 			p.Factory();
 			New_Variable->Offsetter = p.Output.at(0);
-			New_Variable->add(_Pointting_);
+			if (Input.at(i)->Self_Mirroring)
+				New_Variable->add(_Pointting_);
+			else
+				New_Variable->add(_Array_);
 		}
 		Output.push_back(New_Variable);
 		Generated_Undefined_Tokens.push_back(Output.back());

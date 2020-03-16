@@ -22,6 +22,7 @@ private:
 public:
     bool UsedToken = false;
     Word *Offsetter = nullptr;
+    bool Self_Mirroring = false;
     string Fetcher = "";
     bool _initted = false;
     bool _operatorized = false;

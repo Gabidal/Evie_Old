@@ -38,6 +38,7 @@ using namespace std;
 
 //for pointting pointters
 #define _Pointting_ (1<<24)
+#define _Array_ (1<<25)
 
 class Token
 {

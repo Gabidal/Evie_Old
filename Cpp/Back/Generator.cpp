@@ -269,8 +269,30 @@ void Generator::Detect_Pointters(Token* t)
 {
 	if (t->Offsetter == nullptr)
 		return;
+	Token* Offsetter = new Token;
+	*Offsetter = *t->Offsetter;
+	Token* Address = new Token;
+	*Address = *t;
+	Address->Offsetter = nullptr;
+	IR* Load_Token = new IR;
+	if (t->is(_Pointting_))
+	{
+		//make a handle register
+		Token* Reg = new Token;
+		Reg->add(Task_For_General_Purpose);
+		Reg->add(_Register_);
+		Reg->Name = "a" + t->Name;
+		Reg->Size = t->Size;
+
+		Load_Token->ID = "ldr";
+		Load_Token->Parameters.push_back(Reg);
+		Load_Token->Parameters.push_back(Address);
+		*t = *Reg;
+		t->add(_Pointting_);
+		Output.push_back(Load_Token);
+	}
 	Generator g;
-	g.Input.push_back(t->Offsetter);
+	g.Input.push_back(Offsetter);
 	g.Factory();
 	g.Append(&Output, g.Output);
 	IR* Load_Offsetter = new IR;
@@ -280,17 +302,17 @@ void Generator::Detect_Pointters(Token* t)
 		Token* Reg = new Token;
 		Reg->add(Task_For_General_Purpose);
 		Reg->add(_Register_);
-		Reg->Name = t->Offsetter->Name;
-		Reg->Size = t->Offsetter->Size;
+		Reg->Name = "b" + Offsetter->Name;
+		Reg->Size = Offsetter->Size;
 
 		Load_Offsetter->ID = "ldr";
 		Load_Offsetter->Parameters.push_back(Reg);
-		Load_Offsetter->Parameters.push_back(t->Offsetter);
-		t->Offsetter = Reg;
+		Load_Offsetter->Parameters.push_back(Offsetter);
+		*t->Offsetter = *Reg;
 	}
 	else
 	{
-		t->Offsetter = g.Handle;
+		*t->Offsetter = *g.Handle;
 	}
 	Output.push_back(Load_Offsetter);
 }

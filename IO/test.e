@@ -7,6 +7,6 @@ export func _start()(
 )
 
 export func main(int a)(
-	int b = a:0.0
+	int b = a::0.0
 	return b
 )

@@ -119,15 +119,13 @@ void Emulator::Long_Operation_Allocator(int &i)
 				Input.insert(Input.begin() + i, converter);
 				D->Parameters.at(1) = L;
 			}
-			if (L->Offsetter != nullptr)
-			{
-				Register_Chooser(Input.at(i)->Parameters.at(0));
-			}
-			if (R->Offsetter != nullptr)
-			{
-				Register_Chooser(Input.at(i)->Parameters.at(1));
-			}
 		}
+	}
+
+	for (int j = 0; j < Input.at(i)->Parameters.size(); j++)
+	if ((Input.at(i)->Parameters.at(j)->Offsetter != nullptr) && (Input.at(i)->Parameters.at(0)->is(_Register_)))
+	{
+		Register_Chooser(Input.at(i)->Parameters.at(j)->Offsetter);
 	}
 }
 
