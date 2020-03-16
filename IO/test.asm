@@ -18,19 +18,17 @@ push ebp
 mov ebp , esp 
 _if4: 
 mov ebx , dword [ebp  + 8]
-mov al , byte 1
-movsx ecx , al 
+mov ecx , dword 1.0
 cmp ebx , ecx 
 jne _if4END
-mov al , byte 1
+mov eax , dword 1.0
 leave 
 ret
  
 _if4END: 
 _if5: 
 mov edx , dword [ebp  + 8]
-mov ah , byte 1
-movsx edi , ah 
+mov edi , dword 1.0
 cmp edx , edi 
 je _if5END
 mov eax , dword -1.0

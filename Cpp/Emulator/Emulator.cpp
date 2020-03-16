@@ -151,6 +151,8 @@ void Emulator::Register_Chooser(Token* t)
 		{
 			if (i.first == t->Name)
 			{
+				if (t->is(Task_For_Returning))
+					break;
 				//if this is finded
 				t->UID = i.second->Name;
 				return;
