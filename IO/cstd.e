@@ -33,3 +33,5 @@ type const()(
 type constexpr()(
 	Static 2
 )
+
+type export()()

@@ -34,6 +34,7 @@ public:
     int Count_Familiar_Tokens(int F, int i);
     void Init_Variable(int i);
     void Check_For_Correlation(int i);
+    void Set_Special_Feature(int i);
     void Factory();
     void Append(vector<Token*>* Dest, vector<Token*> Source);
     Parser &operator=(const Parser& other)

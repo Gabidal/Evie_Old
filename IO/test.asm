@@ -1,10 +1,9 @@
 global _start
 _start: 
+__start: 
 push ebp 
 mov ebp , esp 
-mov al , byte 1
-movsx eax , al 
-mov eax , eax 
+mov eax , dword 1.0
 mov [ebp  - 4], eax 
 push dword [ebp  - 4]
 call main
@@ -14,20 +13,21 @@ ret
  
 global main
 main: 
+_main: 
 _if4: 
 mov ebx , dword [ebp  + 8]
-mov ah , byte 1
-movsx ecx , ah 
+mov al , byte 1
+movsx ecx , al 
 cmp ebx , ecx 
 jne _if4END
-mov ah , byte 1
+mov al , byte 1
 ret
  
 _if4END: 
 _if5: 
 mov edx , dword [ebp  + 8]
-mov bl , byte 1
-movsx edi , bl 
+mov ah , byte 1
+movsx edi , ah 
 cmp edx , edi 
 je _if5END
 mov eax , dword -1.0

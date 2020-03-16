@@ -39,6 +39,7 @@ void Parser::Init_Definition(int i)
 		return;
 	//type var
 	//var a
+	//a = b
 	//const var b
 	//func a()
 	if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && (Input.at(i+1)->is(_TEXT)) && (Defined(Input.at(i + 1)->WORD) == ""))
@@ -53,7 +54,7 @@ void Parser::Init_Definition(int i)
 			{
 				if (i - 2 >= 0)
 				{
-					if (Input.at(i - 2)->is(_TEXT) != true)
+					if (Input.at(i - 2)->is(_OPERATOR))
 					{
 						goto skip;
 					}
@@ -383,7 +384,7 @@ void Parser::Type_Definition(int i)
 			if (New_Defined_Text->Name == s->Name)
 			{
 				New_Defined_Text->Type = s->Type;
-				
+				New_Defined_Text->PreFix_Type = s->PreFix_Type;
 				break;
 			}
 		}
@@ -544,6 +545,21 @@ void Parser::Check_For_Correlation(int i)
 			Input.erase(Input.begin() + i + 1);
 			return;
 		}
+}
+
+void Parser::Set_Special_Feature(int i)
+{
+	if ((i + 2) >= Input.size())
+		return;
+	Word* Access_Modifier = Input.at(i);
+	Word* Keyword = Input.at(i + 1);
+	Word* Name = Input.at(i + 2);
+	if (Access_Modifier->is(_KEYWORD) && Keyword->is(_KEYWORD) && Name->is(_TEXT))
+	{
+		//export type main
+		//export int a
+		//const char b
+	}
 }
 
 void Parser::Factory()

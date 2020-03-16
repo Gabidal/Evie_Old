@@ -14,6 +14,7 @@ Token* Emulator::Get_Info(Token* t)
 		return t;
 	}
 }
+
 void Emulator::Long_Operation_Allocator(int &i)
 {
 	if ((Input.at(i)->ID == "==") || (Input.at(i)->ID == "!=") || (Input.at(i)->ID == "<") || (Input.at(i)->ID == ">") || (Input.at(i)->ID == "!<") || (Input.at(i)->ID == "!>") || (Input.at(i)->ID == "<=") || (Input.at(i)->ID == ">="))

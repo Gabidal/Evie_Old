@@ -9,6 +9,7 @@ void Generator::Factory()
 {
 	for (int i = 0; i < Input.size(); i++)
 	{
+		//Detect_Prefixes(Input.at(i));
 		Detect_Condition(Input.at(i));
 		Detect_Function(Input.at(i));
 		Detect_Operator(Input.at(i));
@@ -24,15 +25,11 @@ void Generator::Detect_Function(Token* t)
 	if (t->is(_Constructor_))
 	{
 		//make a label OpC*
+		Detect_Prefixes(t);
 		IR* ir = new IR;
 		ir->ID = "label";
 		ir->PreFix = t->Name;
 		ir->Flags |= _Start_Of_Label;
-		if (t->Type == "export")
-		{
-			ir->PreFix = "export";
-			ir->ID = t->Name;
-		}
 		Double_Tasking = false;
 		//make the stackfrmae
 		if (t->is(_Need_For_Space_))
@@ -204,6 +201,7 @@ void Generator::Detect_Operator(Token* t)
 	else
 		Normal_Left = true;
 	//now do the same but for right side.
+	g.Output.clear();
 	g.Input.clear();
 	g.Handle = nullptr;
 	g.Input.push_back(t->Right_Side_Token);
@@ -298,6 +296,17 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 			Output.push_back(ir);
 			return;
 		}
+	}
+}
+
+void Generator::Detect_Prefixes(Token* t)
+{
+	if (t->PreFix_Type != "")
+	{
+		IR* ir = new IR;
+		ir->PreFix = t->PreFix_Type;
+		ir->ID = t->Name;
+		Output.push_back(ir);
 	}
 }
 

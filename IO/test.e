@@ -1,12 +1,12 @@
 using "cstd.e"
 
-export _start()(
-	int a = 1
+export func _start()(
+	int a = 1.0
 	main(a)
 	return a
 )
 
-export main(int a)(
+export func main(int a)(
 	if (a == 1)(
 		return 1
 	)
