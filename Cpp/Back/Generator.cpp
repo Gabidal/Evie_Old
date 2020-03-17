@@ -62,6 +62,26 @@ void Generator::Detect_Function(Token* t)
 			movebpesp->Parameters.push_back(ebp);
 			movebpesp->Parameters.push_back(esp);
 			ir->Childs.push_back(movebpesp);
+			if (t->Reservable_Size > 0)
+			{
+				//make the register
+				Token* esp = new Token;
+				esp->add(_Register_);
+				esp->add(Task_For_Type_Address);
+				esp->Name = "reserve memory please!";
+				esp->Size = _SYSTEM_BIT_TYPE;
+				//make the number to subtract from esp
+				Token* num = new Token;
+				num->Name = to_string(t->Reservable_Size);
+				num->Size = _SYSTEM_BIT_TYPE;
+				num->add(_Number_);
+				//make the IR token
+				IR* space = new IR;
+				space->ID = "-";
+				space->Parameters.push_back(esp);
+				space->Parameters.push_back(num);
+				ir->Childs.push_back(space);
+			}
 		}
 		//make the insights of this constructor
 		Generator g;
@@ -114,7 +134,7 @@ void Generator::Detect_Function(Token* t)
 			num->add(_Number_);
 			//make the IR token
 			IR* space = new IR;
-			space->ID = "-";
+			space->ID = "+";
 			space->Parameters.push_back(esp);
 			space->Parameters.push_back(num);
 			Output.push_back(space);

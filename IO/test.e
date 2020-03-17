@@ -1,10 +1,14 @@
 using "cstd.e"
 
 export func _start()(
-	int a = 1
-	return main(@a::0)
+	return main()
 )
 
-export func main(int a)(
-	return a
+export func main()(
+	int a = 1
+	return get(@a)
+)
+
+func get(int i)(
+	return i::0
 )

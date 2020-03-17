@@ -358,6 +358,7 @@ void Parser::Type_Definition(int i)
 			P.Input = Input.at(i)->Tokens;
 			P.Factory();
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
+			reverse(New_Defined_Text->Left_Side_Token->Childs.begin(), New_Defined_Text->Left_Side_Token->Childs.end());
 			New_Defined_Text->add(_Call_);
 			New_Defined_Text->Size = _SYSTEM_BIT_TYPE;
 			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0 || (New_Defined_Text->Left_Side_Token->Childs.size() > 0))
@@ -386,7 +387,6 @@ void Parser::Type_Definition(int i)
 			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0)
 			{
 				New_Defined_Text->add(_Need_For_Space_);
-				New_Defined_Text->Reservable_Size = New_Defined_Text->Left_Side_Token->Reservable_Size;
 			}
 
 			P.Output.clear();
