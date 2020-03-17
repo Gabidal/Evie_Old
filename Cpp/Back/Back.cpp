@@ -24,18 +24,18 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		if (t->is(_Pointting_))
 		{
 			//[address+offsetter*Size]
-			return "[" + t->UID + OFFSET + t->Offsetter->UID + SCALE + to_string(t->Size) + "]";
+			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + t->UID + OFFSET + t->Offsetter->UID + SCALE + to_string(t->Size) + "]";
 		}
 		else if (t->is(_Array_))
 		{
 			//[(ebp-4)+offsetter*Size]
-			return "[(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 				Get_Direction(t) + to_string(t->StackOffset) + ")" +
 				OFFSET + t->Offsetter->UID + SCALE + to_string(t->Size) + "]";
 		}
 	}
 	else if (Storing && (t->is(_External_) != true))
-		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+		return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 	else if (t->is(_Register_))
 		return t->UID;
@@ -48,6 +48,7 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 	else
 		return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
+	cout << "Error: Cannot find info for >> " + t->Name + ", " + t->UID << endl;
 }
 
 void Back::Make()

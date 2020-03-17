@@ -85,7 +85,9 @@ void Generator::Detect_Function(Token* t)
 		g.Types = this->Types;
 		g.Factory();
 		//get the output from the generator and store then into the parent IR operator.
-		ir->Childs = g.Output;
+		//ir->Childs = g.Output;
+		reverse(g.Output.begin(), g.Output.end());
+		Append(&Output, g.Output);
 		Output.push_back(ir);
 		//handle
 		Token* T = new Token;
@@ -169,6 +171,23 @@ void Generator::Detect_Condition(Token* t)
 	}
 }
 
+void Generator::Scaler(Token* l, Token* r)
+{
+	if (l->is(_Number_))
+	{
+		if (l->Size < r->Size)
+		{
+			l->Size = r->Size;
+		}
+	}
+	if (r->is(_Number_))
+	{
+		if (r->Size < l->Size)
+		{
+			r->Size = l->Size;
+		}
+	}
+}
 void Generator::Detect_Operator(Token* t)
 {
 	if (t->is(_Operator_) != true)
@@ -181,6 +200,10 @@ void Generator::Detect_Operator(Token* t)
 	// cvsi2sd xmm0, eax
 	// mov [a], xmm0
 	//basic tools:
+	if (t->Right_Side_Token->is(_Number_) || t->Left_Side_Token->is(_Number_))
+	{
+		Scaler(t->Right_Side_Token, t->Left_Side_Token);
+	}
 	Token* Left_Token = nullptr;
 	Token* Right_Token = nullptr;
 	bool Normal_Left = false;
@@ -269,6 +292,10 @@ void Generator::Detect_Pointters(Token* t)
 {
 	if (t->Offsetter == nullptr)
 		return;
+	if (t->is(_Number_) || t->Offsetter->is(_Number_))
+	{
+		Scaler(t, t->Offsetter);
+	}
 	Token* Offsetter = new Token;
 	*Offsetter = *t->Offsetter;
 	Token* Address = new Token;

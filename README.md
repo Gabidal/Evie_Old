@@ -83,6 +83,10 @@ Beta 2.1.12 added:
 - #### Added pointters (experimental)
 
 
+Beta 2.1.16 added:
+
+- #### Added Scaler function to fix some scaling problems.
+
 ## Manual
 
 ### Type

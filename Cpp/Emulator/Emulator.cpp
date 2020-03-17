@@ -73,17 +73,13 @@ void Emulator::Long_Operation_Allocator(int &i)
 	else if (Input.at(i)->ID == "call")
 	{
 		//go though the parameters (in left side childs) and make them a push IR tokens;
-		reverse(Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs.begin(),
-			Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs.end());
 		for (Token* j : Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs)
 		{
 			IR* p = new IR;
 			p->ID = "push";
+			Register_Chooser(j);
+			Register_Chooser(j->Offsetter);
 			p->Parameters.push_back(j);
-			for (Token* T : p->Parameters)
-			{
-				Register_Chooser(T);
-			}
 
 			Back b(Output);
 			b.Input = p;
@@ -150,6 +146,8 @@ void Emulator::Label_Recorder(int i)
 
 void Emulator::Register_Chooser(Token* t)
 {
+	if (t == nullptr)
+		return;
 	if (t->is(_Register_))
 	{
 		for (auto i : Register_Lock)
@@ -196,6 +194,7 @@ void Emulator::Frame_Handler(int i)
 {
 
 }
+
 
 void Emulator::FPU_Choser(int i)
 {

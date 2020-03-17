@@ -24,6 +24,7 @@ public:
 	void Detect_Parenthesis(Token* t);
 	void Detect_Pre_Defined_Tokens(Token* t);
 	void Detect_Prefixes(Token* t);
+	void Scaler(Token* l, Token* r);
 	void Append(vector<IR*> *Dest, vector<IR*> Source);
 	Generator()
 	{

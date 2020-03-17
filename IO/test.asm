@@ -3,11 +3,10 @@ _start:
 __start: 
 push ebp 
 mov ebp , esp 
-mov al , byte 1
-movsx eax , al 
-mov eax , eax 
-mov [ebp  - 4], eax 
-push dword [ebp  - 4]
+mov eax , dword 1
+mov dword [ebp  - 4], eax 
+mov ebx , dword 0
+push dword [(ebp  - 4) + ebx  * 4]
 call main
 sub esp , dword 4
 mov eax , eax 
