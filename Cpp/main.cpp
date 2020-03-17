@@ -23,6 +23,7 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("halt");
     Pre_Defined_Tokens.push_back("Size");
     Pre_Defined_Tokens.push_back("Static");
+    Pre_Defined_Tokens.push_back("new");
 }
 
 //main ~/test.g ~/test.asm -win32 -x86 -F -32

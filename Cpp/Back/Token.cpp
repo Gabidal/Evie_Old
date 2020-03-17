@@ -36,21 +36,3 @@ string Token::Get_Additive_Operator()
 		return " - ";
 	}
 }
-
-Token& Token::operator=(const Token& name)
-{
-	Flags = name.Flags;
-	Size = name.Size;
-	Initial_Value = name.Initial_Value;
-	Changable_Value = name.Changable_Value;
-	StackOffset = name.StackOffset;
-	ParameterCount = name.ParameterCount;
-	ID = name.ID;
-	Childs = name.Childs;
-	Left_Side_Token = name.Left_Side_Token;
-	Right_Side_Token = name.Right_Side_Token;
-	Name = name.Name;
-	Type = name.Type;
-	Semanticked = name.Semanticked;
-	return *this;
-}

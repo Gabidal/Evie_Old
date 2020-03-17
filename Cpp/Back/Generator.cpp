@@ -11,6 +11,7 @@ void Generator::Factory()
 	{
 		//Detect_Prefixes(Input.at(i));
 		Detect_Pointters(Input.at(i));
+		Detect_Address_Pointing(Input.at(i));
 		Detect_Condition(Input.at(i));
 		Detect_Function(Input.at(i));
 		Detect_Operator(Input.at(i));
@@ -86,7 +87,8 @@ void Generator::Detect_Function(Token* t)
 		g.Factory();
 		//get the output from the generator and store then into the parent IR operator.
 		//ir->Childs = g.Output;
-		reverse(g.Output.begin(), g.Output.end());
+		//make better reverser so that ur pointter loading wont be also reversed XD!!
+		//reverse(g.Output.begin(), g.Output.end());
 		Append(&Output, g.Output);
 		Output.push_back(ir);
 		//handle
@@ -315,11 +317,12 @@ void Generator::Detect_Pointters(Token* t)
 		Load_Token->ID = "ldr";
 		Load_Token->Parameters.push_back(Reg);
 		Load_Token->Parameters.push_back(Address);
-		*t = *Reg;
+		t->Name = Reg->Name;
+		t->add(Reg->get());
 		t->add(_Pointting_);
 		Output.push_back(Load_Token);
 	}
-	if (t->Offsetter->is(_Number_) != true)
+	if (Offsetter->is(_Number_) != true)
 	{
 		Generator g;
 		g.Input.push_back(Offsetter);
@@ -346,6 +349,26 @@ void Generator::Detect_Pointters(Token* t)
 		}
 		Output.push_back(Load_Offsetter);
 	}
+}
+
+void Generator::Detect_Address_Pointing(Token* t)
+{
+	if (t->is(_Giving_Address_) != true) return;
+	//lea eax, [ebp -4 + ecx]
+	//eax
+	//make a token reg for to handle future of the pointers usage.
+	Token* Reg = new Token;
+	Reg->Name = t->Name;
+	Reg->Size = t->Size;
+	Reg->add(Task_For_General_Purpose);
+	Reg->add(_Register_);
+
+	IR* lea = new IR;
+	lea->ID = ":";
+	lea->Parameters.push_back(Reg);
+	lea->Parameters.push_back((new Token(*t)));
+	*t = *Reg;
+	Output.push_back(lea);
 }
 
 void Generator::Detect_Parenthesis(Token* t)

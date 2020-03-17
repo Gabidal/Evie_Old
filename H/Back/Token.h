@@ -39,6 +39,7 @@ using namespace std;
 //for pointting pointters
 #define _Pointting_ (1<<24)
 #define _Array_ (1<<25)
+#define _Giving_Address_ (1<<26)
 
 class Token
 {
@@ -66,7 +67,6 @@ class Token
     string PreFix_Type = "";
     string UID = "";
     Token(){}
-    Token &operator=(const Token& name);
     Token(string name, int size, Token* child) {
         Name = name;
         Size = size;

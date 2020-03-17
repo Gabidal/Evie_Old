@@ -49,6 +49,13 @@ void Parser::Connect_Array(int i)
 	Input.erase(Input.begin() + i);
 }
 
+void Parser::Connect_Address(int i)
+{
+	if (Input.at(i)->WORD != "@") return;
+	Input.at(i + 1)->_Giving_Address = true;
+	Input.erase(Input.begin() + i);
+}
+
 void Parser::Init_Definition(int i)
 {
 	if (i >= (Input.size() - 1))
@@ -533,6 +540,10 @@ void Parser::Init_Variable(int i)
 			else
 				New_Variable->add(_Array_);
 		}
+		if (Input.at(i)->_Giving_Address)
+		{
+			New_Variable->add(_Giving_Address_);
+		}
 		Output.push_back(New_Variable);
 		Generated_Undefined_Tokens.push_back(Output.back());
 	}
@@ -610,6 +621,8 @@ void Parser::Factory()
 		Include_Files(i);
 	for (int i = 0; i < Input.size(); i++)
 		Connect_Array(i);
+	for (int i = 0; i < Input.size(); i++)
+		Connect_Address(i);
 	for (int i = 0; i < Input.size(); i++)
 		Init_Definition(i);
 	for (int i = 0; i < Input.size(); i++)
