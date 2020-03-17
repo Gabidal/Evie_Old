@@ -10,7 +10,7 @@ mov [ebp  - 4], eax
 push dword [ebp  - 4]
 call main
 sub esp , dword 4
-mov eax , dword [ebp  - 4]
+mov eax , eax 
 leave 
 ret
  

@@ -58,7 +58,8 @@ Token* Definer::FIND(string name)
 		}
 	}
 	cout << "Error:: Invalid PreType: " + name + "." << endl;
-	return nullptr;
+	Token* t = new Token;
+	return t;
 }
 
 bool Definer::Has(Token* t, string s)
