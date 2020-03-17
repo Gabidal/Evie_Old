@@ -5,8 +5,7 @@ push ebp
 mov ebp , esp 
 mov eax , dword 1
 mov dword [ebp  - 4], eax 
-mov ebx , dword 0
-push dword [(ebp  - 4) + ebx  * 4]
+push dword [(ebp  - 4) + 0 * 4]
 call main
 sub esp , dword 4
 mov eax , eax 

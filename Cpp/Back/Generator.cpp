@@ -188,6 +188,7 @@ void Generator::Scaler(Token* l, Token* r)
 		}
 	}
 }
+
 void Generator::Detect_Operator(Token* t)
 {
 	if (t->is(_Operator_) != true)
@@ -318,30 +319,33 @@ void Generator::Detect_Pointters(Token* t)
 		t->add(_Pointting_);
 		Output.push_back(Load_Token);
 	}
-	Generator g;
-	g.Input.push_back(Offsetter);
-	g.Factory();
-	g.Append(&Output, g.Output);
-	IR* Load_Offsetter = new IR;
-	if (g.Handle == nullptr)
+	if (t->Offsetter->is(_Number_) != true)
 	{
-		//make a handle register
-		Token* Reg = new Token;
-		Reg->add(Task_For_General_Purpose);
-		Reg->add(_Register_);
-		Reg->Name = "b" + Offsetter->Name;
-		Reg->Size = Offsetter->Size;
+		Generator g;
+		g.Input.push_back(Offsetter);
+		g.Factory();
+		g.Append(&Output, g.Output);
+		IR* Load_Offsetter = new IR;
+		if (g.Handle == nullptr)
+		{
+			//make a handle register
+			Token* Reg = new Token;
+			Reg->add(Task_For_General_Purpose);
+			Reg->add(_Register_);
+			Reg->Name = "b" + Offsetter->Name;
+			Reg->Size = Offsetter->Size;
 
-		Load_Offsetter->ID = "ldr";
-		Load_Offsetter->Parameters.push_back(Reg);
-		Load_Offsetter->Parameters.push_back(Offsetter);
-		*t->Offsetter = *Reg;
+			Load_Offsetter->ID = "ldr";
+			Load_Offsetter->Parameters.push_back(Reg);
+			Load_Offsetter->Parameters.push_back(Offsetter);
+			*t->Offsetter = *Reg;
+		}
+		else
+		{
+			*t->Offsetter = *g.Handle;
+		}
+		Output.push_back(Load_Offsetter);
 	}
-	else
-	{
-		*t->Offsetter = *g.Handle;
-	}
-	Output.push_back(Load_Offsetter);
 }
 
 void Generator::Detect_Parenthesis(Token* t)

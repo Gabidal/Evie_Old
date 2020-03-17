@@ -16,6 +16,7 @@ public:
 	IR* Input = nullptr;
 	Token* Handle = nullptr;
 	string Get_Direction(Token* t);
+	string Get_Handler(Token* t);
 	string Get_Info_Of(Token* t, bool Storing);
 	void Make();
 	void Factory();
