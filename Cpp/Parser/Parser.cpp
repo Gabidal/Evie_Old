@@ -98,7 +98,7 @@ void Parser::Init_Definition(int i)
 		Set_Right_Stack_Offset(New_Defined_Type);
 		Set_Right_Flag_Info(New_Defined_Type);
 		Defined_Keywords.push_back(New_Defined_Type);
-		Space_Reservation++;
+		Space_Reservation += New_Defined_Type->Size;
 	}
 }
 
@@ -353,6 +353,13 @@ void Parser::Type_Definition(int i)
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			New_Defined_Text->add(_Call_);
 			New_Defined_Text->Size = _SYSTEM_BIT_TYPE;
+			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0 || (New_Defined_Text->Left_Side_Token->Childs.size() > 0))
+			{
+				New_Defined_Text->add(_Need_For_Space_);
+				for (Token* t: New_Defined_Text->Left_Side_Token->Childs)
+				New_Defined_Text->Reservable_Size += t->Size;
+				New_Defined_Text->Reservable_Size += New_Defined_Text->Left_Side_Token->Reservable_Size;
+			}
 		}
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{

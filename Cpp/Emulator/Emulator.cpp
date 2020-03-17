@@ -121,7 +121,6 @@ void Emulator::Long_Operation_Allocator(int &i)
 			}
 		}
 	}
-
 	for (int j = 0; j < Input.at(i)->Parameters.size(); j++)
 	if ((Input.at(i)->Parameters.at(j)->Offsetter != nullptr) && (Input.at(i)->Parameters.at(0)->is(_Register_)))
 	{
