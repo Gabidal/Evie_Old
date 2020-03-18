@@ -1,6 +1,7 @@
 #include "..\..\H\Selector\Selector.h"
 #include "../../H/Back/Token.h"
 extern int _SYSTEM_BIT_TYPE;
+extern map<string, Token*> Register_Lock;
 
 Selector::Selector(string s)
 {
@@ -40,57 +41,38 @@ OpC* Selector::OpCode_Selector()
 
 Token* Selector::Get_Right_Reg(int F, int Size)
 {
+	Token* r;
 	if (((F & Task_For_General_Purpose) == Task_For_General_Purpose) || ((F & Task_For_Floating_Math) == Task_For_Floating_Math))
 	{
 		if (Size == 12)
 		{
-			Token* r = Registers128.at(Reg_Turn128);
-			Reg_Turn128++;
-			if (Reg_Turn128 >= Registers128.size())
-			{
-				Reg_Turn128 = 0;
-			}
-			return r;
+			r = Get_Reg(Registers128, F, Reg_Turn128);
+			if (r != nullptr)
+				return r;
 		}
 		if (Size == 8)
 		{
-			Token* r = Registers64.at(Reg_Turn64);
-			Reg_Turn64++;
-			if (Reg_Turn64 >= Registers64.size())
-			{
-				Reg_Turn64 = 0;
-			}
-			return r;
+			r = Get_Reg(Registers64, F, Reg_Turn64);
+			if (r != nullptr)
+				return r;
 		}
 		else if (Size == 4)
 		{
-			Token* r = Registers32.at(Reg_Turn32);
-			Reg_Turn32++;
-			if (Reg_Turn32 >= Registers32.size())
-			{
-				Reg_Turn32 = 0;
-			}
-			return r;
+			r = Get_Reg(Registers32, F, Reg_Turn32);
+			if (r != nullptr)
+				return r;
 		}
 		else if (Size == 2)
 		{
-			Token* r = Registers16.at(Reg_Turn16);
-			Reg_Turn16++;
-			if (Reg_Turn16 >= Registers16.size())
-			{
-				Reg_Turn16 = 0;
-			}
-			return r;
+			r = Get_Reg(Registers16, F, Reg_Turn16);
+			if (r != nullptr)
+				return r;
 		}
 		else if (Size == 1)
 		{
-			Token* r = Registers8.at(Reg_Turn8);
-			Reg_Turn8++;
-			if (Reg_Turn8 >= Registers8.size())
-			{
-				Reg_Turn8 = 0;
-			}
-			return r;
+			r = Get_Reg(Registers8, F, Reg_Turn8);
+			if (r != nullptr)
+				return r;
 		}
 	}
 	if (Size == 12)
@@ -144,6 +126,27 @@ Token* Selector::Get_Right_Reg(int F, int Size)
 		}
 	}
 	cout << "Error:: Couldn't find suitable architehture register(" + Board_type + ": " + to_string(Size * 8) + " )." << endl;
+	return nullptr;
+}
+
+Token* Selector::Get_Reg(vector<Token*> regs, int F, int &Previus)
+{
+	Token* r = new Token;
+	if (Previus >= regs.size()) Previus = 0;
+	int i = Previus;
+	do// int i = Reg_Turn16; i < Registers16.size(); i++)
+	{
+		if (regs.at(i)->is(F))
+		{
+			r = regs.at(i);
+			Previus = i + 1;
+			return r;
+		}
+		if (++i >= regs.size())
+		{
+			i = 0;
+		}
+	} while (i != Previus);
 	return nullptr;
 }
 

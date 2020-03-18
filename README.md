@@ -87,6 +87,10 @@ Beta 2.1.16 added:
 
 - #### Added Scaler function to fix some scaling problems.
 
+Beta 2.1.20 Fixed:
+
+- #### Fixed fixed stack register abuse.
+
 ## Manual
 
 ### Type

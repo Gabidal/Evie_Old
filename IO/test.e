@@ -5,10 +5,11 @@ export func _start()(
 )
 
 export func main()(
-	int a = 1
-	return get(@a)
-)
-
-func get(int i)(
-	return i::0
+	int a = 0
+	int b = 0
+	int c = 0
+	int d = 0
+	while (a < 10)(
+		a:b = b:c + c:d - d:a
+	)
 )

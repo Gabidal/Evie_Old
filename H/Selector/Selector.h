@@ -4,6 +4,7 @@
 #include <iostream>
 #include "../Architecture/ARM/ARM.h"
 #include "../Architecture/x86/x86.h"
+#include <map>
 using namespace std;
 class Token;
 
@@ -28,6 +29,7 @@ public:
 	OpC* OpCode_Selector();
 	string Get_ID(string id, string trust, vector<int> minmax);
 	Token* Get_Right_Reg(int F, int Size);
+	Token* Get_Reg(vector<Token*> regs, int F, int &previus);
 	Selector(string s);
 	~Selector();
 private:

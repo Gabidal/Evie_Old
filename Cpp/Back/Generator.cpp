@@ -231,26 +231,8 @@ void Generator::Detect_Operator(Token* t)
 	Token* Right_Token = nullptr;
 	bool Normal_Left = false;
 	bool Normal_Right = false;
-	//create a new IR token.
-	IR* opCode = new IR;
-	opCode->ID = t->Name;
-	opCode->add(_Operator_);
-	//give the new ir generator the left side of operation.
-	Generator g;
-	g.Input.push_back(t->Left_Side_Token);
-	g.Factory();
-	//save the information that the new generator gived.
-	Append(&Output, g.Output);
-	//check if left side holds a more complex instruction for loading into a register.
-	if (g.Handle != nullptr)
-		Left_Token = g.Handle;
-	//if not then probably just a normal number/variable
-	else
-		Normal_Left = true;
 	//now do the same but for right side.
-	g.Output.clear();
-	g.Input.clear();
-	g.Handle = nullptr;
+	Generator g;
 	g.Input.push_back(t->Right_Side_Token);
 	g.Factory();
 	//save the information gived by the generator yet again.
@@ -261,6 +243,24 @@ void Generator::Detect_Operator(Token* t)
 	//if normal right side.
 	else
 		Normal_Right = true;
+	//create a new IR token.
+	IR* opCode = new IR;
+	opCode->ID = t->Name;
+	opCode->add(_Operator_);
+	//give the new ir generator the left side of operation.
+	g.Output.clear();
+	g.Input.clear();
+	g.Handle = nullptr;
+	g.Input.push_back(t->Left_Side_Token);
+	g.Factory();
+	//save the information that the new generator gived.
+	Append(&Output, g.Output);
+	//check if left side holds a more complex instruction for loading into a register.
+	if (g.Handle != nullptr)
+		Left_Token = g.Handle;
+	//if not then probably just a normal number/variable
+	else
+		Normal_Left = true;
 	//check if this is a storing opcode:
 	bool Storing = (t->Name == "=" || t->Name == "str");
 	//b:0 = a:0
@@ -277,7 +277,7 @@ void Generator::Detect_Operator(Token* t)
 			Token* Reg = new Token;
 			Reg->add(Task_For_General_Purpose);
 			Reg->add(_Register_);
-			Reg->Name = t->Left_Side_Token->Name;
+			Reg->Name = "Reg1_" + t->Left_Side_Token->Name;
 			Reg->Size = t->Left_Side_Token->Size;
 			Left_Token = Reg;
 			//make the loading IR token
@@ -295,7 +295,7 @@ void Generator::Detect_Operator(Token* t)
 		Token* Reg = new Token;
 		Reg->add(Task_For_General_Purpose);
 		Reg->add(_Register_);
-		Reg->Name = t->Right_Side_Token->Name;
+		Reg->Name = "Reg2_" + t->Right_Side_Token->Name;
 		Reg->Size = t->Right_Side_Token->Size;
 		Right_Token = Reg;
 		//make the loading IR token
@@ -331,7 +331,7 @@ void Generator::Detect_Pointters(Token* t)
 		Token* Reg = new Token;
 		Reg->add(Task_For_General_Purpose);
 		Reg->add(_Register_);
-		Reg->Name = "a" + t->Name;
+		Reg->Name = "tmp_" + t->Name;
 		Reg->Size = t->Size;
 
 		Load_Token->ID = "ldr";
@@ -355,7 +355,7 @@ void Generator::Detect_Pointters(Token* t)
 			Token* Reg = new Token;
 			Reg->add(Task_For_General_Purpose);
 			Reg->add(_Register_);
-			Reg->Name = "b" + Offsetter->Name;
+			Reg->Name = "tmp_" + Offsetter->Name;
 			Reg->Size = Offsetter->Size;
 
 			Load_Offsetter->ID = "ldr";

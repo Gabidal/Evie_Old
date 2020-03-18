@@ -95,7 +95,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 		{
 			Token* L = new Token;
 			*L	= *Input.at(i)->Parameters.at(0);
-			L->Name = L->Name + "_tmp";
+			L->Name = "tmp_" + L->Name;
 			Token* R = new Token;
 			*R	= *Input.at(i)->Parameters.at(1);
 			if (L->Size != R->Size)
@@ -117,11 +117,17 @@ void Emulator::Long_Operation_Allocator(int &i)
 			}
 		}
 	}
-	for (int j = 0; j < Input.at(i)->Parameters.size(); j++)
-	if ((Input.at(i)->Parameters.at(j)->Offsetter != nullptr) && (Input.at(i)->Parameters.at(0)->is(_Register_)))
+	/*for (int j = 0; j < Input.at(i)->Parameters.size(); j++)
 	{
-		Register_Chooser(Input.at(i)->Parameters.at(j)->Offsetter);
-	}
+		if ((Input.at(i)->Parameters.at(j)->Offsetter != nullptr) && (Input.at(i)->Parameters.at(0)->is(_Register_)))
+		{
+			Register_Chooser(Input.at(i)->Parameters.at(j)->Offsetter);
+		}
+		else if ((Input.at(i)->Parameters.at(j)->Offsetter != nullptr) && (Input.at(i)->Parameters.at(j)->Offsetter->is(_Register_)))
+		{
+			Register_Chooser(Input.at(i)->Parameters.at(j)->Offsetter);
+		}
+	}*/
 }
 
 void Emulator::Label_Recorder(int i)
@@ -215,6 +221,8 @@ void Emulator::Use_Assembly(int i)
 	for (Token* T : Input.at(i)->Parameters)
 	{
 		Register_Chooser(T);
+		if (T->Offsetter != nullptr) 
+			Register_Chooser(T->Offsetter);
 	}
 
 	Back b(Output);
