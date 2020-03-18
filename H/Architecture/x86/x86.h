@@ -40,6 +40,15 @@ public:
 	Token* RSI;
 	Token* RSP;
 	Token* RBP;
+
+	Token* R8;
+	Token* R9;
+	Token* R10;
+	Token* R11;
+	Token* R12;
+	Token* R13;
+	Token* R14;
+	Token* R15;
 	//32Bit
 	Token* EAX;
 	Token* EBX;

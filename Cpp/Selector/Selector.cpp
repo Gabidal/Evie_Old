@@ -177,7 +177,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 	}
 	if ((trust == "export") || (trust == "raw_label"))
 		return id;
-	if (trust != "label")
+	if ((trust != "label") && (trust != "<") && (trust != ">") && (trust != "!<") && (trust != "!>") && (trust != "==") && (trust != "!=") && (trust != "<=") && (trust != ">=") && (trust != "jmp"))
 	{
 		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << " ";
 		for (int i : minmax)

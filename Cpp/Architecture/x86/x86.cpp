@@ -229,6 +229,31 @@ void x86::ARC_Factory()
 	RBP = new Token("rbp ", 8, EBP);
 	RBP->add(Task_For_Type_Address_Basing);
 	Registers64.push_back(RBP);
+	//Rrrrr...
+	R8 = new Token("r8 ", 8, R8);
+	R8->add(Task_For_General_Purpose);
+	Registers64.push_back(R8);
+	R9 = new Token("r9 ", 8, R9);
+	R8->add(Task_For_General_Purpose);
+	Registers64.push_back(R9);
+	R10 = new Token("r10 ", 8, R10);
+	R10->add(Task_For_General_Purpose);
+	Registers64.push_back(R10);
+	R11 = new Token("r11 ", 8, R11);
+	R11->add(Task_For_General_Purpose);
+	Registers64.push_back(R11);
+	R12 = new Token("r11 ", 8, R12);
+	R12->add(Task_For_General_Purpose);
+	Registers64.push_back(R12);
+	R13 = new Token("r13 ", 8, R13);
+	R12->add(Task_For_General_Purpose);
+	Registers64.push_back(R13);
+	R14 = new Token("r14 ", 8, R14);
+	R12->add(Task_For_General_Purpose);
+	Registers64.push_back(R14);
+	R15 = new Token("r15 ", 8, R15);
+	R12->add(Task_For_General_Purpose);
+	Registers64.push_back(R15);
 
 	//64 bit float
 	MMX0 = new Token("xmm0 ", 12);

@@ -5,11 +5,12 @@ export func _start()(
 )
 
 export func main()(
-	int a = 0
-	int b = 0
-	int c = 0
-	int d = 0
+	int a,
+	int b,
+	int c,
+	int d,
+	int e,
 	while (a < 10)(
-		a:b = b:c + c:d - d:a
+		a:b = b:c + c:d - d:e * e:a
 	)
 )
