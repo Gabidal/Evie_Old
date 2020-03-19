@@ -105,8 +105,9 @@ int main(int argc, char* argv[])
         }
     }*/
 
-    Usr usr(*argv, argc);
+    Usr usr(argv, argc);
     _SYSTEM_BIT_TYPE = usr.Output.Bits_Mode;
+    S = new Selector(usr.Output.Architecture);
 
 
     Lexer l;

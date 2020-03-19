@@ -6,7 +6,7 @@ extern map<string, Token*> Register_Lock;
 Selector::Selector(string s)
 {
 	Board_type = s;
-	if (s == "-x86")
+	if (s == "x86")
 	{
 		x86 x;
 		x.ARC_Factory();
@@ -17,7 +17,7 @@ Selector::Selector(string s)
 		Registers8 = x.Registers8;
 		OpCodes = x.OpCodes;
 	}
-	else if (s == "-arm")
+	else if (s == "arm")
 	{
 		ARM x;
 		x.ARC_Factory();
