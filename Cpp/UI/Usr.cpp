@@ -16,7 +16,7 @@ void Usr::Find_Source_File(int i)
 {
 	if (strcmp(Input[i], "-in") == 0)
 	{
-		Output.Source_File = Input[i + 1];
+		Info.Source_File = Input[i + 1];
 	}
 }
 
@@ -24,7 +24,7 @@ void Usr::Find_Destination_File(int i)
 {
 	if (strcmp(Input[i], "-out") == 0)
 	{
-		Output.Destination_File = Input[i + 1];
+		Info.Destination_File = Input[i + 1];
 	}
 }
 
@@ -32,7 +32,7 @@ void Usr::Find_OS(int i)
 {
 	if (strcmp(Input[i], "-os") == 0)
 	{
-		Output.OS = Input[i + 1];
+		Info.OS = Input[i + 1];
 	}
 }
 
@@ -40,7 +40,7 @@ void Usr::Find_Architecture(int i)
 {
 	if (strcmp(Input[i], "-arch") == 0)
 	{
-		Output.Architecture = Input[i + 1];
+		Info.Architecture = Input[i + 1];
 	}
 }
 
@@ -49,7 +49,7 @@ void Usr::Find_Bits_Mode(int i)
 	if (strcmp(Input[i], "-mode") == 0)
 	{
 		string tmp = string(Input[i + 1]);
-		Output.Bits_Mode = atoi(tmp.c_str());
+		Info.Bits_Mode = atoi(tmp.c_str());
 	}
 }
 
@@ -58,6 +58,6 @@ void Usr::Find_Obj_Type(int i)
 	if (strcmp(Input[i], "-lib") == 0)
 	{
 		string tmp = string(Input[i + 1]);
-		Output.Obj_Type = atoi(tmp.c_str());
+		Info.Obj_Type = atoi(tmp.c_str());
 	}
 }

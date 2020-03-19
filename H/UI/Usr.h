@@ -17,7 +17,7 @@ struct output {
 class Usr
 {
 public:
-	output Output;
+	output Info;
 	Usr(char** in, int count)
 	{
 		Input = in;

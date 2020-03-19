@@ -7,6 +7,7 @@
 #include "../H/UI/Usr.h"
 #include <sstream>
 #include <iostream>
+#include <windows.h>
 using namespace std;
 int SYNTAX = 0;
 vector<Token*> Generated_Undefined_Tokens;
@@ -18,13 +19,26 @@ int _SYSTEM_BIT_TYPE = 4;
 vector<string> Pre_Defined_Tokens;
 void Init_Pre_Defined_Tokens()
 {
+    //return value
     Pre_Defined_Tokens.push_back("return");
+    //pop value from stack into variable
     Pre_Defined_Tokens.push_back("pop");
+    //push value into stack
     Pre_Defined_Tokens.push_back("push");
+
+    //for system interrupts
     Pre_Defined_Tokens.push_back("halt");
+
+    //malloc
+    Pre_Defined_Tokens.push_back("new");
+
+    //type indicators(
     Pre_Defined_Tokens.push_back("Size");
     Pre_Defined_Tokens.push_back("Static");
-    Pre_Defined_Tokens.push_back("new");
+    //)
+
+    //attach a string into output file
+    Pre_Defined_Tokens.push_back("asm");
 }
 
 /*
@@ -35,6 +49,26 @@ int targetUnix;
 
 char OFBUF[128];
 char WDBUF[128];*/
+
+/*t
+ypedef int(__cdecl* bananafunction)(int);
+
+void banana(const char* lib) {
+    HINSTANCE handle = LoadLibrary(lib);
+    if (handle == NULL)
+    {
+        cout << "ya fool!" << endl;
+        return;
+    }
+    bananafunction banana = (bananafunction)GetProcAddress(handle, "banana");
+    if (banana == NULL)
+    {
+        cout << "stupid!" << endl;
+        return;
+    }
+    cout << banana(1) << " working?" << endl;
+    FreeLibrary(handle);
+}*/
 
 //main -in ~/test.g -out ~/test.asm -lib exe -os win32 -arch x86 -mode 32
 int main(int argc, char* argv[])
@@ -105,13 +139,13 @@ int main(int argc, char* argv[])
         }
     }*/
 
-    Usr usr(argv, argc);
-    _SYSTEM_BIT_TYPE = usr.Output.Bits_Mode;
-    S = new Selector(usr.Output.Architecture);
+    Usr sys(argv, argc);
+    _SYSTEM_BIT_TYPE = sys.Info.Bits_Mode;
+    S = new Selector(sys.Info.Architecture);
 
     Lexer l;
-    l.OpenFile(usr.Output.Source_File.c_str());
-    string start_file = usr.Output.Source_File.c_str();
+    l.OpenFile(sys.Info.Source_File.c_str());
+    string start_file = sys.Info.Source_File.c_str();
     Included_Files.push_back(start_file);
 
     Parser p;
@@ -134,24 +168,27 @@ int main(int argc, char* argv[])
     e.Input = g.Output;
     e.Factory();
 
-    ofstream o(usr.Output.Destination_File.c_str());
-    o << OUTPUT;//b.Output;
-    o.close();
+    //ofstream o(usr.Output.Destination_File.c_str());
+    //o << OUTPUT;//b.Output;
+    //o.close();
 
-    if (usr.Output.OS == "win32")
+    if (sys.Info.OS == "win32")
     {
         //target windows
         stringstream output;
-        output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << usr.Output.Destination_File << ".obj " << usr.Output.Destination_File;
+        output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << start_file << ".obj " << sys.Info.Destination_File;
 
         system(output.str().c_str());
         output = stringstream();
 
-        output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/debug coff " << "/entry main " << usr.Output.Destination_File << ".obj " << "kernel32.dll ";
+        output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/debug coff " << "/entry main " << start_file << ".obj " << "kernel32.dll ";
+        
+        //output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/dll " << "/debug coff " << start_file << ".obj " << "kernel32.dll ";
 
         system(output.str().c_str());
+        //banana(("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\" + start_file + ".dll").c_str());
     }
-    else if (usr.Output.OS == "unix")
+    else if (sys.Info.OS == "unix")
     {
         //target unix
     }
