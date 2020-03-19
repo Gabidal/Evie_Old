@@ -52,3 +52,12 @@ void Usr::Find_Bits_Mode(int i)
 		Output.Bits_Mode = atoi(tmp.c_str());
 	}
 }
+
+void Usr::Find_Obj_Type(int i)
+{
+	if (strcmp(Input[i], "-lib") == 0)
+	{
+		string tmp = string(Input[i + 1]);
+		Output.Obj_Type = atoi(tmp.c_str());
+	}
+}

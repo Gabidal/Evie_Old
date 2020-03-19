@@ -36,7 +36,7 @@ int targetUnix;
 char OFBUF[128];
 char WDBUF[128];*/
 
-//main -in ~/test.g -out ~/test.asm -os win32 -arch x86 -mode 32
+//main -in ~/test.g -out ~/test.asm -lib exe -os win32 -arch x86 -mode 32
 int main(int argc, char* argv[])
 {
     if (argc == 1)
@@ -109,7 +109,6 @@ int main(int argc, char* argv[])
     _SYSTEM_BIT_TYPE = usr.Output.Bits_Mode;
     S = new Selector(usr.Output.Architecture);
 
-
     Lexer l;
     l.OpenFile(usr.Output.Source_File.c_str());
     string start_file = usr.Output.Source_File.c_str();
@@ -145,12 +144,12 @@ int main(int argc, char* argv[])
         stringstream output;
         output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << usr.Output.Destination_File << ".obj " << usr.Output.Destination_File;
 
-        std::system(output.str().c_str());
+        system(output.str().c_str());
         output = stringstream();
 
         output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/debug coff " << "/entry main " << usr.Output.Destination_File << ".obj " << "kernel32.dll ";
 
-        std::system(output.str().c_str());
+        system(output.str().c_str());
     }
     else if (usr.Output.OS == "unix")
     {

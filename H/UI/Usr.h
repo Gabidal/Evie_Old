@@ -10,6 +10,7 @@ struct output {
 	string Destination_File;
 	string OS;
 	string Architecture;
+	string Obj_Type;
 	int Bits_Mode = 4;
 };
 
@@ -35,6 +36,7 @@ private:
 	void Find_OS(int i);
 	void Find_Architecture(int i);
 	void Find_Bits_Mode(int i);
+	void Find_Obj_Type(int i);
 };
 
 
