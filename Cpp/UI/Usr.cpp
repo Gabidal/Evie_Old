@@ -61,3 +61,11 @@ void Usr::Find_Obj_Type(int i)
 		Info.Obj_Type = atoi(tmp.c_str());
 	}
 }
+
+map<string, Symbol_Table*> output::Get_Member_Pointter() {
+
+}
+
+map<string, void*> output::Get_Member_Data(){
+
+}

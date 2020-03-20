@@ -131,6 +131,8 @@ int Parser::Get_Size(int i)
 
 void Parser::Init_Operator(int i)
 {
+	if (Input.at(i)->WORD == "$")
+		return;
 	if (Input.at(i)->WORD == ",")
 		return;
 	//a = 1
@@ -178,6 +180,10 @@ void Parser::Init_Operator(int i)
 
 void Parser::Reserve_Operator_Tokens(int i)
 {
+	if (Input.at(i)->WORD == "$")
+		return;
+	if (Input.at(i)->WORD == ",")
+		return;
 	if ((Input.at(i)->is(_OPERATOR) == true) && (Input.at(i)->_initted == false))
 	{
 	}
@@ -211,6 +217,10 @@ void Parser::Reserve_Function_Parameters(int i)
 
 void Parser::Patternize_Operations(int& i, string f)
 {
+	if (Input.at(i)->WORD == "$")
+		return;
+	if (Input.at(i)->WORD == ",")
+		return;
 	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->WORD == f) && (Input.at(i)->_initted != true))
 	{
 		Input.at(i)->Tokens.push_back(new Word (*Input.at(i - 1)));
@@ -576,6 +586,15 @@ void Parser::Init_Variable(int i)
 			}
 		}
 		Output.push_back(New_Number);
+	}
+	if (Input.at(i)->is(_STRING) && (Layer > 1))
+	{
+		Token* Str = new Token;
+		Str->add(_String_);
+		Str->Name = Input.at(i)->WORD;
+		Str->Size = _SYSTEM_BIT_TYPE;
+		Str->Type = "string";
+		Output.push_back(Str);
 	}
 }
 

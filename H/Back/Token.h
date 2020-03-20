@@ -40,6 +40,7 @@ using namespace std;
 #define _Pointting_ (1<<24)
 #define _Array_ (1<<25)
 #define _Giving_Address_ (1<<26)
+#define _String_ (1<<27)
 
 class Token
 {

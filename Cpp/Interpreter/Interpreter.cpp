@@ -33,4 +33,6 @@ void Interpreter::Construct(int i)
 	//get the made tokens to define what is for example sys.info stuff to compare
 	//our job here is to detect the system typed tokens and handle them.
 	Token* Condition = p.Output.at(0);
+	//sys:(Info:OS) == "win32"
+
 }

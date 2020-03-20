@@ -11,7 +11,7 @@ extern Usr* sys;
 class Interpreter
 {
 public:
-	Interpreter(vector<Word*> in, int I, vector<Token*> D) {
+	Interpreter(vector<Word*> &in, int I, vector<Token*> D) {
 		Input = in;
 		i = I;
 		Defined = D;
@@ -21,7 +21,7 @@ public:
 	}
 
 private:
-	int i = 0;
+	int i;
 	vector<Word*> Input;
 	vector<Word*> TMP;
 	vector<Token*> Defined;

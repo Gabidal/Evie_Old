@@ -52,7 +52,7 @@ int getString(string source, int continu)
 
 	bool IsOperator(char c)
 	{
-		return (c >= 33 && c <= 47 && (c != '$') && c != __COMMENT && c != __STRING) || (c >= 58 && c <= 64) || c == 94 || c == 124 || c == 126;
+		return (c >= 33 && c <= 47 && c != __COMMENT && c != __STRING) || (c >= 58 && c <= 64) || c == 94 || c == 124 || c == 126;
 	}
 
 	bool IsDigit(char c)
@@ -229,11 +229,13 @@ void Lexer::Define()
             i--;
         }
     }
-
-	Word *w = new Word("");
-    w->WORD = Lines.substr(start, i-start);
-    w->Flags = translateIdentity(Base, w->WORD, w);
-    output.push_back(w);
+    if (Base != UNSPECIFIED)
+    {
+        Word* w = new Word("");
+        w->WORD = Lines.substr(start, i - start);
+        w->Flags = translateIdentity(Base, w->WORD, w);
+        output.push_back(w);
+    }
 }
 
 string ReplaceString(string subject, const string& search, const string& replace)

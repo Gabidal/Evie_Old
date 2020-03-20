@@ -1,17 +1,15 @@
-using "cstd.e"
+type system,
 
-type system
-
-system sys
-system Info
-system OS
+system sys,
+system Info,
+system OS,
 
 $if (sys:(Info:OS) == "win32")(
-	using "win32_std.e"
+	using "cstd.e"
 )
 
 $if (sys:(Info:OS) == "unix")(
-	using "unix_std.e"
+	using "gstd.e"
 )
 
 export func main()(

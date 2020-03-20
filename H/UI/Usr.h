@@ -2,10 +2,20 @@
 #define _USR_H_
 #include <vector>
 #include <string>
+#include <map>
 using namespace std;
 
 
-struct output {
+class Symbol_Table {
+public:
+	virtual map<string, Symbol_Table*> Get_Member_Pointter() = 0;
+	virtual map<string, void*> Get_Member_Data() = 0;
+};
+
+class output : public Symbol_Table {
+public:
+	map<string, Symbol_Table*> Get_Member_Pointter();
+	map<string, void*> Get_Member_Data();
 	string Source_File;
 	string Destination_File;
 	string OS;

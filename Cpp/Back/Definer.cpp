@@ -39,6 +39,7 @@ void Definer::Type_Collect(Token* t)
 		return;
 	t->Size = FIND(t->Type)->Size + FIND(t->PreFix_Type)->Size;
 	t->Static = FIND(t->Type)->Static + FIND(t->PreFix_Type)->Static;
+	cout << "Warning: You are using an inheritance type on --> " << t->Name + ", " + t->Type + ", " + t->PreFix_Type << endl;
 }
 
 Token* Definer::FIND(string name)
