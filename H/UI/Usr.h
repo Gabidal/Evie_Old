@@ -5,9 +5,9 @@
 #include <map>
 using namespace std;
 
-
 class Symbol_Table {
 public:
+	void Load();
 	Symbol_Table();
 	virtual map<string, Symbol_Table*> Get_Member_Pointters() = 0;
 	virtual map<string, string*> Get_Member_Data() = 0;

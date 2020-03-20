@@ -1,6 +1,5 @@
 #include "../../H/Interpreter/Interpreter.h"
 #include "../../H/Parser/Parser.h"
-#include <optional>
 
 void Interpreter::Factory()
 {
@@ -22,7 +21,16 @@ void Interpreter::Detect_Ifs()
 	//construct the condition,
 	//then check if it is true or not.
 	if (Constructable(i + 2)) {
-
+		Input.erase(Input.begin() + i, Input.begin() + i + 3);
+		if (Input.at(i)->Tokens.size() > 0){
+			int s = Input.at(i)->Tokens.size();
+			Append(&Input, Input.at(i)->Tokens, i);
+			Input.erase(Input.begin() + i + s, Input.begin() + i + s + 1);
+		}
+	}
+	else
+	{
+		Input.erase(Input.begin() + i, Input.begin() + i + 4);
 	}
 }
 
@@ -38,12 +46,17 @@ bool Interpreter::Constructable(int i)
 	Token* Condition = p.Output.at(0);
 	//sys:(Info:OS) == "win32"
 	//if (*(string*)sys->Get_Member_Pointter("Info")->Get_Member_Data("OS") == Token->Type->Name)
-	if (Get_Const_Data(Condition->Left_Side_Token) == Get_Const_Data(Condition->Right_Side_Token)) {
-
+	if (auto left = Get_Const_Data(Condition->Left_Side_Token))
+	{
+		if (auto right = Get_Const_Data(Condition->Right_Side_Token))
+		{
+			bool result = left.value() == right.value();
+			return Condition->Name == "!=" ? !result : result;
+		}
 	}
 }
 
-string Interpreter::Get_Const_Data(Token* t)
+optional <string> Interpreter::Get_Const_Data(Token* t)
 {
 	//sys:Info
 	if (t->Type == "system")
@@ -52,7 +65,7 @@ string Interpreter::Get_Const_Data(Token* t)
 		if (members.size() < 2)
 		{
 			cout << "Error: " << "Cannot find data member --> " << t->Name + ", " + t->Type << endl;
-			return "";
+			return nullopt;
 		}
 		Symbol_Table* Source = sys; //rember to make this dynamic!!
 		for (int i = 1; i < members.size()-1; i++) {
@@ -60,17 +73,26 @@ string Interpreter::Get_Const_Data(Token* t)
 			if (Source == nullptr)
 			{
 				cout << "Error: " << "Illegal pointter fethcing! --> " << t->Name + ", " + t->Type << endl;
-				return "";
+				return nullopt;
 			}
 		}
 		string* tmp = Source->Get_Member_Data(members.at(members.size() - 1));
 		if (tmp == nullptr)
 		{
 			cout << "Error: " << "Illegal constant data fethcing! --> " << t->Name + ", " + t->Type << endl;
-			return "";
+			return nullopt;
 		}
-
+		return optional<string> {*tmp};
 	}
+	else if (t->is(_Number_))
+	{
+		return optional<string> {t->Name};
+	}
+	else if (t->is(_String_))
+	{
+		return optional<string> {t->Name.substr(1, t->Name.size() - 2)};
+	}
+	return nullopt;
 }
 
 void Interpreter::Append(vector<string>* Dest, vector<string> Source)
@@ -83,11 +105,25 @@ void Interpreter::Append(vector<string>* Dest, vector<string> Source)
 
 vector<string> Interpreter::Get_Members(Token* t)
 {
+	//sys:(Info:OS)
 	vector<string> Phases;
-	Phases.push_back(t->Name);
+	if (t->Name != "")
+		Phases.push_back(t->Name);
 	if (t->Offsetter != nullptr)
 	{
 		Append(&Phases, Get_Members(t->Offsetter));
 	}
+	else if (t->Childs.size() > 0)
+	{
+		Append(&Phases, Get_Members(t->Childs.at(0)));
+	}
 	return Phases;
+}
+
+void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source, int i)
+{
+	for (Word* j : Source)
+	{
+		Dest->insert(Dest->begin() + i++, j);
+	}
 }

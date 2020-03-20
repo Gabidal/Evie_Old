@@ -141,6 +141,7 @@ int main(int argc, char* argv[])
     }*/
 
     sys = new Usr(argv, argc);
+    sys->Load();
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);
 
@@ -169,9 +170,9 @@ int main(int argc, char* argv[])
     e.Input = g.Output;
     e.Factory();
 
-    //ofstream o(usr.Output.Destination_File.c_str());
-    //o << OUTPUT;//b.Output;
-    //o.close();
+    ofstream o(sys->Info.Destination_File.c_str());
+    o << OUTPUT;//b.Output;
+    o.close();
 
     if (sys->Info.OS == "win32")
     {

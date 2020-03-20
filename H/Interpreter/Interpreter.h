@@ -5,14 +5,14 @@
 #include "../UI/Usr.h"
 #include <vector>
 #include <string>
+#include <optional>
 
 extern Usr* sys;
 
 class Interpreter
 {
 public:
-	Interpreter(vector<Word*> &in, int I, vector<Token*> D) {
-		Input = in;
+	Interpreter(vector<Word*> &in, int I, vector<Token*> D) : Input(in) {
 		i = I;
 		Defined = D;
 		Factory();
@@ -22,15 +22,16 @@ public:
 
 private:
 	int i;
-	vector<Word*> Input;
+	vector<Word*> &Input;
 	vector<Word*> TMP;
 	vector<Token*> Defined;
 	void Factory();
 	void Detect_Ifs();
 	bool Constructable(int i);
-	string Get_Const_Data(Token* t);
+	optional <string> Get_Const_Data(Token* t);
 	vector<string> Get_Members(Token* t);
 	void Append(vector<string>* Dest, vector<string> Source);
+	void Append(vector<Word*>* Dest, vector<Word*> Source, int i);
 };
 
 

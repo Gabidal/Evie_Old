@@ -1,8 +1,15 @@
 #include "..\..\H\UI\Usr.h"
 
-Symbol_Table::Symbol_Table() {
+void Symbol_Table::Load()
+{
 	Member_Pointters = Get_Member_Pointters();
 	Member_Data = Get_Member_Data();
+	for (auto p : Member_Pointters) {
+		p.second->Load();
+	}
+}
+
+Symbol_Table::Symbol_Table() {
 }
 
 Symbol_Table* Symbol_Table::Get_Member_Pointter(string key) {

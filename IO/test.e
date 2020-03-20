@@ -13,5 +13,5 @@ $if (sys:(Info:OS) == "unix")(
 )
 
 export func main()(
-	print("Hello World!")
+	int a = 1
 )

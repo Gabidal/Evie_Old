@@ -504,7 +504,7 @@ int Parser::Count_Familiar_Tokens(int F, int i)
 			return u;
 		}
 	}
-	return -1;
+	return u;
 }
 
 void Parser::Init_Variable(int i)
