@@ -12,7 +12,7 @@ Symbol_Table* Symbol_Table::Get_Member_Pointter(string key) {
 	return i->second;
 }
 
-void* Symbol_Table::Get_Member_Data(string key) {
+string* Symbol_Table::Get_Member_Data(string key) {
 	auto i = Member_Data.find(key);
 	if (i == Member_Data.end())
 		return nullptr;
@@ -29,9 +29,9 @@ map<string, Symbol_Table*> Usr::Get_Member_Pointters()
 	};
 }
 
-map<string, void*> Usr::Get_Member_Data()
+map<string, string*> Usr::Get_Member_Data()
 {
-	return map<string, void*>();
+	return map<string, string*>();
 }
 
 //main -in ~/test.g -out ~/test.asm -os win32 -arch x86 -mode 32
@@ -82,8 +82,7 @@ void Usr::Find_Bits_Mode(int i)
 {
 	if (strcmp(Input[i], "-mode") == 0)
 	{
-		string tmp = string(Input[i + 1]);
-		Info.Bits_Mode = atoi(tmp.c_str());
+		Info.Bits_Mode = Input[i + 1];
 	}
 }
 
@@ -100,7 +99,7 @@ map<string, Symbol_Table*> output::Get_Member_Pointters() {
 	return std::map<string, Symbol_Table*>();
 }
 
-map<string, void*> output::Get_Member_Data(){
+map<string, string*> output::Get_Member_Data(){
 	/*string Source_File;
 	string Destination_File;
 	string OS;
@@ -115,14 +114,4 @@ map<string, void*> output::Get_Member_Data(){
 		std::make_pair(string("Obj_Type"), &Obj_Type),
 		std::make_pair(string("Bits_Mode"), &Bits_Mode)
 	};
-}
-
-Symbol_Table* Symbol_Table::Get_Member_Pointter(string key)
-{
-	return nullptr;
-}
-
-Symbol_Table* Symbol_Table::Get_Member_Data(string key)
-{
-	return nullptr;
 }

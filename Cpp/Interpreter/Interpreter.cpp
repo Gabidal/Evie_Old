@@ -1,5 +1,6 @@
 #include "../../H/Interpreter/Interpreter.h"
 #include "../../H/Parser/Parser.h"
+#include <optional>
 
 void Interpreter::Factory()
 {
@@ -20,10 +21,12 @@ void Interpreter::Detect_Ifs()
 		return;
 	//construct the condition,
 	//then check if it is true or not.
-	Construct(i + 2);
+	if (Constructable(i + 2)) {
+
+	}
 }
 
-void Interpreter::Construct(int i)
+bool Interpreter::Constructable(int i)
 {
 	//make a tmp parser and give it the condition method
 	Parser p;
@@ -35,4 +38,56 @@ void Interpreter::Construct(int i)
 	Token* Condition = p.Output.at(0);
 	//sys:(Info:OS) == "win32"
 	//if (*(string*)sys->Get_Member_Pointter("Info")->Get_Member_Data("OS") == Token->Type->Name)
+	if (Get_Const_Data(Condition->Left_Side_Token) == Get_Const_Data(Condition->Right_Side_Token)) {
+
+	}
+}
+
+string Interpreter::Get_Const_Data(Token* t)
+{
+	//sys:Info
+	if (t->Type == "system")
+	{
+		vector<string> members = Get_Members(t);
+		if (members.size() < 2)
+		{
+			cout << "Error: " << "Cannot find data member --> " << t->Name + ", " + t->Type << endl;
+			return "";
+		}
+		Symbol_Table* Source = sys; //rember to make this dynamic!!
+		for (int i = 1; i < members.size()-1; i++) {
+			Source = Source->Get_Member_Pointter(members.at(i));
+			if (Source == nullptr)
+			{
+				cout << "Error: " << "Illegal pointter fethcing! --> " << t->Name + ", " + t->Type << endl;
+				return "";
+			}
+		}
+		string* tmp = Source->Get_Member_Data(members.at(members.size() - 1));
+		if (tmp == nullptr)
+		{
+			cout << "Error: " << "Illegal constant data fethcing! --> " << t->Name + ", " + t->Type << endl;
+			return "";
+		}
+
+	}
+}
+
+void Interpreter::Append(vector<string>* Dest, vector<string> Source)
+{
+	for (string i : Source)
+	{
+		Dest->push_back(i);
+	}
+}
+
+vector<string> Interpreter::Get_Members(Token* t)
+{
+	vector<string> Phases;
+	Phases.push_back(t->Name);
+	if (t->Offsetter != nullptr)
+	{
+		Append(&Phases, Get_Members(t->Offsetter));
+	}
+	return Phases;
 }

@@ -10,32 +10,32 @@ class Symbol_Table {
 public:
 	Symbol_Table();
 	virtual map<string, Symbol_Table*> Get_Member_Pointters() = 0;
-	virtual map<string, void*> Get_Member_Data() = 0;
+	virtual map<string, string*> Get_Member_Data() = 0;
 	Symbol_Table* Get_Member_Pointter(string key);
-	void* Get_Member_Data(string key);
+	string* Get_Member_Data(string key);
 private:
 	map<string, Symbol_Table*> Member_Pointters;
-	map<string, void*> Member_Data;
+	map<string, string*> Member_Data;
 };
 
 class output : public Symbol_Table {
 public:
 	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, void*> Get_Member_Data();
+	map<string, string*> Get_Member_Data();
 
 	string Source_File;
 	string Destination_File;
 	string OS;
 	string Architecture;
 	string Obj_Type;
-	int Bits_Mode = 4;
+	string Bits_Mode = "4";
 };
 
 class Usr : public Symbol_Table
 {
 public:
 	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, void*> Get_Member_Data();
+	map<string, string*> Get_Member_Data();
 	output Info;
 	Usr(char** in, int count)
 	{

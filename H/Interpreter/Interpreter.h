@@ -27,7 +27,10 @@ private:
 	vector<Token*> Defined;
 	void Factory();
 	void Detect_Ifs();
-	void Construct(int i);
+	bool Constructable(int i);
+	string Get_Const_Data(Token* t);
+	vector<string> Get_Members(Token* t);
+	void Append(vector<string>* Dest, vector<string> Source);
 };
 
 

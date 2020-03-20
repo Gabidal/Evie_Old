@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
     }*/
 
     sys = new Usr(argv, argc);
-    _SYSTEM_BIT_TYPE = sys->Info.Bits_Mode;
+    _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);
 
     Lexer l;
