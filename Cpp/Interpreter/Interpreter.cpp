@@ -34,5 +34,5 @@ void Interpreter::Construct(int i)
 	//our job here is to detect the system typed tokens and handle them.
 	Token* Condition = p.Output.at(0);
 	//sys:(Info:OS) == "win32"
-
+	//if (*(string*)sys->Get_Member_Pointter("Info")->Get_Member_Data("OS") == Token->Type->Name)
 }

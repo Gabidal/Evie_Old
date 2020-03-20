@@ -8,14 +8,21 @@ using namespace std;
 
 class Symbol_Table {
 public:
-	virtual map<string, Symbol_Table*> Get_Member_Pointter() = 0;
+	Symbol_Table();
+	virtual map<string, Symbol_Table*> Get_Member_Pointters() = 0;
 	virtual map<string, void*> Get_Member_Data() = 0;
+	Symbol_Table* Get_Member_Pointter(string key);
+	void* Get_Member_Data(string key);
+private:
+	map<string, Symbol_Table*> Member_Pointters;
+	map<string, void*> Member_Data;
 };
 
 class output : public Symbol_Table {
 public:
-	map<string, Symbol_Table*> Get_Member_Pointter();
+	map<string, Symbol_Table*> Get_Member_Pointters();
 	map<string, void*> Get_Member_Data();
+
 	string Source_File;
 	string Destination_File;
 	string OS;
@@ -24,9 +31,11 @@ public:
 	int Bits_Mode = 4;
 };
 
-class Usr
+class Usr : public Symbol_Table
 {
 public:
+	map<string, Symbol_Table*> Get_Member_Pointters();
+	map<string, void*> Get_Member_Data();
 	output Info;
 	Usr(char** in, int count)
 	{
