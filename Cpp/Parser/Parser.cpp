@@ -1,4 +1,5 @@
 #include "../../H/Parser/Parser.h"
+#include "../../H/Interpreter/Interpreter.h"
 
 int Layer = 0;
 int ID = 1;
@@ -614,6 +615,14 @@ void Parser::Set_Special_Feature(int i)
 	}
 }
 
+void Parser::Check_For_Inter(int i)
+{
+	if (Input.at(i)->WORD == "$")
+	{
+		Interpreter I(Input, i, Defined_Keywords);
+	}
+}
+
 void Parser::Factory()
 {
 	Layer++;
@@ -632,6 +641,7 @@ void Parser::Factory()
 	Do_In_Order();
 	for (int i = 0; i < Input.size(); i++)
 	{
+		Check_For_Inter(i);
 		Init_Operator(i);
 		Init_Variable(i);
 		Init_Parenthesis(i);

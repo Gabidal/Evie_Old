@@ -14,6 +14,7 @@ vector<Token*> Generated_Undefined_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
 map<string, Token*> Register_Lock;
 Selector* S;
+Usr* sys;
 int _SYSTEM_BIT_TYPE = 4;
 
 vector<string> Pre_Defined_Tokens;
@@ -139,13 +140,13 @@ int main(int argc, char* argv[])
         }
     }*/
 
-    Usr sys(argv, argc);
-    _SYSTEM_BIT_TYPE = sys.Info.Bits_Mode;
-    S = new Selector(sys.Info.Architecture);
+    sys = new Usr(argv, argc);
+    _SYSTEM_BIT_TYPE = sys->Info.Bits_Mode;
+    S = new Selector(sys->Info.Architecture);
 
     Lexer l;
-    l.OpenFile(sys.Info.Source_File.c_str());
-    string start_file = sys.Info.Source_File.c_str();
+    l.OpenFile(sys->Info.Source_File.c_str());
+    string start_file = sys->Info.Source_File.c_str();
     Included_Files.push_back(start_file);
 
     Parser p;
@@ -172,11 +173,11 @@ int main(int argc, char* argv[])
     //o << OUTPUT;//b.Output;
     //o.close();
 
-    if (sys.Info.OS == "win32")
+    if (sys->Info.OS == "win32")
     {
         //target windows
         stringstream output;
-        output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << start_file << ".obj " << sys.Info.Destination_File;
+        output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << start_file << ".obj " << sys->Info.Destination_File;
 
         system(output.str().c_str());
         output = stringstream();
@@ -188,7 +189,7 @@ int main(int argc, char* argv[])
         system(output.str().c_str());
         //banana(("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\" + start_file + ".dll").c_str());
     }
-    else if (sys.Info.OS == "unix")
+    else if (sys->Info.OS == "unix")
     {
         //target unix
     }

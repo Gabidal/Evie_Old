@@ -1,17 +1,17 @@
 using "cstd.e"
 
-Inter check_system_OS(
-	ptr $sys.Info.OS
-	if (sys.Info.OS == "win32")(
-		using "win32_std.e"
-	)
-	if (sys.Info.OS == "unix")(
-		using "unix_std.e"
-	)
+type system
+
+system sys
+system Info
+system OS
+
+$if (sys:(Info:OS) == "win32")(
+	using "win32_std.e"
 )
 
-Inter main(
-	check_system_OS
+$if (sys:(Info:OS) == "unix")(
+	using "unix_std.e"
 )
 
 export func main()(
