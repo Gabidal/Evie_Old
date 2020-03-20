@@ -1,5 +1,3 @@
-export main
-main: 
 _main: 
 push ebp 
 mov ebp , esp 

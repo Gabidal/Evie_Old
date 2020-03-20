@@ -23,9 +23,10 @@ void Interpreter::Detect_Ifs()
 	if (Constructable(i + 2)) {
 		Input.erase(Input.begin() + i, Input.begin() + i + 3);
 		if (Input.at(i)->Tokens.size() > 0){
-			int s = Input.at(i)->Tokens.size();
-			Append(&Input, Input.at(i)->Tokens, i);
-			Input.erase(Input.begin() + i + s, Input.begin() + i + s + 1);
+			//int s = Input.at(i)->Tokens.size();
+			//Append(&Input, Input.at(i)->Tokens, i);
+			Append(&Output, Input.at(i)->Tokens);
+			Input.erase(Input.begin() + i, Input.begin() + i + 1);
 		}
 	}
 	else
@@ -120,10 +121,18 @@ vector<string> Interpreter::Get_Members(Token* t)
 	return Phases;
 }
 
+/*
 void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source, int i)
 {
 	for (Word* j : Source)
 	{
 		Dest->insert(Dest->begin() + i++, j);
+	}
+}*/
+void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source)
+{
+	for (auto i : Source)
+	{
+		Dest->push_back(i);
 	}
 }

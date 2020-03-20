@@ -12,6 +12,7 @@ extern Usr* sys;
 class Interpreter
 {
 public:
+	vector<Word*> Output;
 	Interpreter(vector<Word*> &in, int I, vector<Token*> D) : Input(in) {
 		i = I;
 		Defined = D;
@@ -31,7 +32,8 @@ private:
 	optional <string> Get_Const_Data(Token* t);
 	vector<string> Get_Members(Token* t);
 	void Append(vector<string>* Dest, vector<string> Source);
-	void Append(vector<Word*>* Dest, vector<Word*> Source, int i);
+	//void Append(vector<Word*>* Dest, vector<Word*> Source, int i);
+	void Append(vector<Word*>* Dest, vector<Word*> Source);
 };
 
 

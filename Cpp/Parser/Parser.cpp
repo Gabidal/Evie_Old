@@ -639,6 +639,17 @@ void Parser::Check_For_Inter(int i)
 	if (Input.at(i)->WORD == "$")
 	{
 		Interpreter I(Input, i, Defined_Keywords);
+		Parser p;
+		p.Input = I.Output;
+		p.Defined_Keywords = this->Defined_Keywords;
+		p.Factory();
+		Append(&Output, p.Output);
+		Defined_Keywords = p.Defined_Keywords;
+	}
+	if (Input.at(i)->WORD == "$")
+	{
+		//loop
+		Check_For_Inter(i);
 	}
 }
 
