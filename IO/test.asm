@@ -1,4 +1,5 @@
 export main
+global main
 main: 
 _main: 
 push ebp 

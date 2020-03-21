@@ -62,13 +62,18 @@ void Emulator::Long_Operation_Allocator(int &i)
 	}
 	else if (Input.at(i)->PreFix == "export")
 	{
+		IR* global = new IR;
+		global->PreFix = "global";
+		global->ID = Input.at(i)->ID;
+		Input.insert(Input.begin() + i + 1, global);
+
 		IR* label = new IR;
 		label->PreFix = Input.at(i)->ID;
 		label->ID = "raw_label";
 		label->add(_Start_Of_Label);
 		label->Childs = Input.at(i)->Childs;
 		Input.at(i)->Childs.clear();
-		Input.insert(Input.begin() + i + 1 , label);
+		Input.insert(Input.begin() + i + 2 , label);
 	}
 	else if (Input.at(i)->ID == "call")
 	{

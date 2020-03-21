@@ -50,12 +50,12 @@ private:
 	char** Input;
 	int Argument_Amount;
 	void Create_Argument_Stats();
-	void Find_Source_File(int i);
-	void Find_Destination_File(int i);
-	void Find_OS(int i);
-	void Find_Architecture(int i);
-	void Find_Bits_Mode(int i);
-	void Find_Obj_Type(int i);
+	void Find_Source_File(int &i);
+	void Find_Destination_File(int &i);
+	void Find_OS(int &i);
+	void Find_Architecture(int &i);
+	void Find_Bits_Mode(int &i);
+	void Find_Obj_Type(int &i);
 };
 
 

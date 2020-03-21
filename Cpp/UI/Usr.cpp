@@ -53,52 +53,58 @@ void Usr::Create_Argument_Stats()
 	}
 }
 
-void Usr::Find_Source_File(int i)
+void Usr::Find_Source_File(int &i)
 {
-	if (strcmp(Input[i], "-in") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-in") == 0)
 	{
 		Info.Source_File = Input[i + 1];
+		i++;
 	}
 }
 
-void Usr::Find_Destination_File(int i)
+void Usr::Find_Destination_File(int &i)
 {
-	if (strcmp(Input[i], "-out") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-out") == 0)
 	{
 		Info.Destination_File = Input[i + 1];
+		i++;
 	}
 }
 
-void Usr::Find_OS(int i)
+void Usr::Find_OS(int &i)
 {
-	if (strcmp(Input[i], "-os") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-os") == 0)
 	{
 		Info.OS = Input[i + 1];
+		i++;
 	}
 }
 
-void Usr::Find_Architecture(int i)
+void Usr::Find_Architecture(int &i)
 {
-	if (strcmp(Input[i], "-arch") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-arch") == 0)
 	{
 		Info.Architecture = Input[i + 1];
+		i++;
 	}
 }
 
-void Usr::Find_Bits_Mode(int i)
+void Usr::Find_Bits_Mode(int &i)
 {
-	if (strcmp(Input[i], "-mode") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-mode") == 0)
 	{
 		Info.Bits_Mode = Input[i + 1];
+		i++;
 	}
 }
 
-void Usr::Find_Obj_Type(int i)
+void Usr::Find_Obj_Type(int &i)
 {
-	if (strcmp(Input[i], "-lib") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-lib") == 0)
 	{
 		string tmp = string(Input[i + 1]);
 		Info.Obj_Type = atoi(tmp.c_str());
+		i++;
 	}
 }
 
