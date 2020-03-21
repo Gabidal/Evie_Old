@@ -648,7 +648,7 @@ void Parser::Check_For_Inter(int i)
 	}
 	if (Input.at(i)->WORD == "$")
 	{
-		//loop
+		//loops if these is right behind it another "$"
 		Check_For_Inter(i);
 	}
 }

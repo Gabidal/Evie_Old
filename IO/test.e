@@ -1,17 +1,6 @@
-type system,
-
-system sys,
-system Info,
-system OS,
-
-$if (sys:(Info:OS) == "win32")(
-	using "cstd.e"
-)
-
-$if (sys:(Info:OS) == "unix")(
-	using "gstd.e"
-)
+using "cstd.e"
 
 export func main()(
 	int a = 1
+	return a
 )

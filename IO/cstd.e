@@ -1,3 +1,5 @@
+using "sys.e"
+
 type int()(
 	Size 4
 )
@@ -20,10 +22,6 @@ type float()(
 
 type double()(
 	Size 12
-)
-
-type static()(
-	Static 2
 )
 
 type const()(

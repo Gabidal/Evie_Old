@@ -28,6 +28,10 @@ void Interpreter::Detect_Ifs()
 			Append(&Output, Input.at(i)->Tokens);
 			Input.erase(Input.begin() + i, Input.begin() + i + 1);
 		}
+		else
+		{
+			Output.push_back(Input.at(i));
+		}
 	}
 	else
 	{
