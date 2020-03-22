@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
     o << OUTPUT;//b.Output;
     o.close();
 
-    if (sys->Info.OS == "win32" && (sys->Info.Architecture == "x86"))
+    if (sys->Info.OS == "win32" && (sys->Info.Architecture == "x86") && (sys->Info.Obj_Type == "exe"))
     {
         //target windows
         stringstream output;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
         system(output.str().c_str());
         //banana(("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\" + start_file + ".dll").c_str());
     }
-    else if (sys->Info.OS == "unix" && (sys->Info.Architecture == "x86"))
+    else if (sys->Info.OS == "unix" && (sys->Info.Architecture == "x86") && (sys->Info.Obj_Type == "exe"))
     {
         stringstream output;
         output << "sudo apt install yasm";

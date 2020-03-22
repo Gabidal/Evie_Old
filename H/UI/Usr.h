@@ -25,9 +25,9 @@ public:
 
 	string Source_File;
 	string Destination_File;
-	string OS;
-	string Architecture;
-	string Obj_Type;
+	string OS = "win32";
+	string Architecture = "x86";
+	string Obj_Type = "exe";
 	string Bits_Mode = "4";
 };
 

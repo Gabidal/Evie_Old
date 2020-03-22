@@ -160,7 +160,7 @@ Array's are actually just normal operator's.
 
 #### Synatx:
 ```
-[./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] -mode [bits mode]
+[./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] (-mode [bits mode] == not a must)
 ```
 
 ### Future of Evie
