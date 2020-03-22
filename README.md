@@ -11,7 +11,8 @@
     - ##### Math.
     - ##### Array.
     - ##### Arguments.
-- #### Future of Evie
+    - ##### Preprosessor.
+    - ##### Future of Evie
 
 
 
@@ -98,7 +99,7 @@ Beta 2.1.30 added:
 ## Manual
 
 ### Type
-Types are the biggest differences between GAS and Evie.
+###### Types are the biggest differences between GAS and Evie.
 #### Syntax:
 ```
     type [name]()(
@@ -109,7 +110,7 @@ Types are the biggest differences between GAS and Evie.
 ```
 
 ### Function
-The functions are nontype.
+###### The functions are nontype.
 #### Syntax:
 ```
 func [name] ([parameter,s])(
@@ -118,7 +119,7 @@ func [name] ([parameter,s])(
 ```
 
 ### Condition
-Notice how the condition does not have else if's nor else's.
+###### Notice how the condition does not have else if's nor else's.
 #### Syntax:
 ```
 if ([condition])(
@@ -127,7 +128,7 @@ if ([condition])(
 ```
 
 ### Loop
-It loop's until the condition it is given proves wrong.
+###### It loop's until the condition it is given proves wrong.
 #### Synatx:
 ```
 while ([condition])(
@@ -143,14 +144,14 @@ using "[folder/filename]"
 ```
 
 ### Math
-Like other languages.
+###### Like other languages.
 #### Syntax:
 ```
 [name] [operator] [name]
 ```
 
 ### Array
-Array's are actually just normal operator's.
+###### Array's are actually just normal operator's.
 #### Syntax:
 ```
 [name]:[offsetting name]
@@ -163,7 +164,34 @@ Array's are actually just normal operator's.
 [./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] (-mode [bits mode] == not a must)
 ```
 
+### Preprosessor
+
+###### Atm there is only preprosessor conditional if's
+
+###### Also the preprosessor gives us some goods: 
+```
+system sys,
+system Info,
+
+system Source_File,
+system Destination_File,
+system OS,
+system Architecture,
+system Obj_Type,
+system Bits_Mode,
+```
+
+###### These are some information gathered from the argument's given to Evie.
+
+#### Syntax:
+```
+$if ([Condition (Use only constant values!!)])(
+    [The code to be injected if the condition is true]
+)
+```
+
 ### Future of Evie
 
-Atm, just fixes.
-Then the FPU support and new type feature: ```[precision] [number of decimal's]```.
+###### Atm, just fixes.
+
+###### Then the FPU support and new type feature: ```[precision] [number of decimal's]```.
