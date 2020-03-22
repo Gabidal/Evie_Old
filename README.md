@@ -22,39 +22,39 @@ More flexible than ever.
 
 Beta 2.0.8 fixed:
 
-- ##### multiline math register handle fix.
+- ###### multiline math register handle fix.
 
-- ##### removed reduntant register abuse.
+- ###### removed reduntant register abuse.
 
 
 Beta 2.1.2 fixed:
 
-- ##### Stackframe added.
+- ###### Stackframe added.
 
-- ##### Parameter order reversed.
+- ###### Parameter order reversed.
 
-- ##### Stupid/Ridiclius stackOffset's removed.
+- ###### Stupid/Ridiclius stackOffset's removed.
 
-- ##### Tooken Registers from tokens away.
+- ###### Tooken Registers from tokens away.
 
 
 Beta 2.1.4 fixed:
 
-- ##### Makefile updated.
+- ###### Makefile updated.
 
 
 Beta 2.1.6 fixed:
 
-- ##### If's.
+- ###### If's.
 
-- ##### AL & AH had same ID.
+- ###### AL & AH had same ID.
 
-- ##### Now calling a exported function works :D.
+- ###### Now calling a exported function works :D.
 
 
 Beta 2.1.9 fixed:
 
-- ##### Exporting is now
+- ###### Exporting is now
 
 From:
 ```
@@ -66,30 +66,34 @@ To:
     export func main()(..)
 ```
 
-- ##### Also Exporting has it's own type class in CSTD.e .
+- ###### Also Exporting has it's own type class in CSTD.e .
 
 
 Beta 2.1.10 fixed:
 
-- ##### Parameters didnt have stackframe.
+- ###### Parameters didnt have stackframe.
 
 
 Beta 2.1.11 fixed:
 
-- ##### Fixed returning register.
+- ###### Fixed returning register.
 
 Beta 2.1.12 added:
 
-- #### Added pointters (experimental)
+- ###### Added pointters (experimental)
 
 
 Beta 2.1.16 added:
 
-- #### Added Scaler function to fix some scaling problems.
+- ###### Added Scaler function to fix some scaling problems.
 
-Beta 2.1.20 Fixed:
+Beta 2.1.20 fixed:
 
-- #### Fixed fixed stack register abuse.
+- ###### Fixed stack register abuse.
+
+Beta 2.1.30 added:
+
+- ###### Added Linux file linking.
 
 ## Manual
 

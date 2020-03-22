@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
     o << OUTPUT;//b.Output;
     o.close();
 
-    if (sys->Info.OS == "win32")
+    if (sys->Info.OS == "win32" && (sys->Info.Architecture == "x86"))
     {
         //target windows
         stringstream output;
@@ -190,8 +190,28 @@ int main(int argc, char* argv[])
         system(output.str().c_str());
         //banana(("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\" + start_file + ".dll").c_str());
     }
-    else if (sys->Info.OS == "unix")
+    else if (sys->Info.OS == "unix" && (sys->Info.Architecture == "x86"))
     {
+        stringstream output;
+        output << "sudo apt install yasm";
+
+        system(output.str().c_str());
+        output = stringstream();
+
+        output << "yasm -g dwarf2 -f elf32 -o " << sys->Info.Destination_File + ".o " << sys->Info.Destination_File;
+        
+
+        system(output.str().c_str());
+        output = stringstream();
+
+        output << "ld -m elf_i386 -o " << sys->Info.Destination_File + ".this_is_the_runnable " << sys->Info.Destination_File + ".o ";
+
+        system(output.str().c_str());
+        output = stringstream();
+
+        output << "sudo chmod +x " << sys->Info.Destination_File + ".this_is_the_runnable ";
+
+        system(output.str().c_str());
         //target unix
     }
     return 0;
