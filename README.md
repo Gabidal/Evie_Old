@@ -105,7 +105,7 @@ Types are the biggest differences between GAS and Evie.
         [feature] [number]
     )
     
-    [type_name] [new_defining_class_name] 
+    [type_name] [new_defined_object_Name] 
 ```
 
 ### Function
@@ -160,7 +160,7 @@ Array's are actually just normal operator's.
 
 #### Synatx:
 ```
-[./]Evie[.exe] [input filename] [output filename] -[OS] -[architecture] -[Flag] -[Force maximum bit size]
+[./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] -mode [bits mode]
 ```
 
 ### Future of Evie
