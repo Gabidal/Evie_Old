@@ -71,7 +71,7 @@ void banana(const char* lib) {
     FreeLibrary(handle);
 }*/
 
-//main -in ~/test.g -out ~/test.asm -lib exe -os win32 -arch x86 -mode 32
+//main -in ~/test.g -out ~/test.asm -lib exe -os win32 -arch x86 -mode 32 -dasable Interpreter
 int main(int argc, char* argv[])
 {
     if (argc == 1)

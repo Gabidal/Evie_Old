@@ -29,6 +29,7 @@ public:
 	string Architecture = "x86";
 	string Obj_Type = "exe";
 	string Bits_Mode = "4";
+	string Diable = "";
 };
 
 class Usr : public Symbol_Table
