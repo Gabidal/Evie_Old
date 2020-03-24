@@ -1,4 +1,5 @@
 #include "../../H/UI/Usr.h"
+#include <cstring>
 
 void Symbol_Table::Load()
 {
