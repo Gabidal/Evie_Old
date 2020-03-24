@@ -1,4 +1,4 @@
-#include "..\..\H\UI\Usr.h"
+#include "../../H/UI/Usr.h"
 
 void Symbol_Table::Load()
 {

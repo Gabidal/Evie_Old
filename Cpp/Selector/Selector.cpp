@@ -1,4 +1,4 @@
-#include "..\..\H\Selector\Selector.h"
+#include "../../H/Selector/Selector.h"
 #include "../../H/Back/Token.h"
 extern int _SYSTEM_BIT_TYPE;
 extern map<string, Token*> Register_Lock;

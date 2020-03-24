@@ -1,4 +1,4 @@
-#include "..\..\..\H\Architecture\x86\x86.h"
+#include "../../../H/Architecture/x86/x86.h"
 #include "../../../H/Back/Token.h"
 
 

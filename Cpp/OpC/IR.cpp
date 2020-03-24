@@ -1,4 +1,4 @@
-#include "..\..\H\OpC\IR.h"
+#include "../../H/OpC/IR.h"
 
 void IR::add(int Flag)
 {

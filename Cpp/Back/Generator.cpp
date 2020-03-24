@@ -1,4 +1,4 @@
-#include "..\..\H\Back\Generator.h"
+#include "../../H/Back/Generator.h"
 #include "../../H/Selector/Selector.h"
 extern Selector* S;
 extern vector<string> Pre_Defined_Tokens;
