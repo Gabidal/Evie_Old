@@ -20,6 +20,11 @@ void Token::add(int flag)
 	this->Flags |= flag;
 }
 
+void Token::remove(int flag)
+{
+	this->Flags ^= (Flags & flag);
+}
+
 int Token::get()
 {
 	return Flags;

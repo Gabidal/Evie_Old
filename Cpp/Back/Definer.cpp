@@ -38,7 +38,7 @@ void Definer::Type_Collect(Token* t)
 	if (t->is(_Inheritting_) != true)
 		return;
 	t->Size = FIND(t->Type)->Size + FIND(t->PreFix_Type)->Size;
-	t->Static = FIND(t->Type)->Static + FIND(t->PreFix_Type)->Static;
+	t->State = FIND(t->Type)->State + FIND(t->PreFix_Type)->State;
 	cout << "Warning: You are using an inheritance type on --> " << t->Name + ", " + t->Type + ", " + t->PreFix_Type << endl;
 }
 
@@ -99,8 +99,7 @@ void Definer::Factory()
 		{
 			continue;
 		}
-		New_Defined_Class->Size = Get_Definition_Setting(Input_Of_Tokens.at(i), "Size");
-		New_Defined_Class->Static = Get_Definition_Setting(Input_Of_Tokens.at(i), "Static");
+		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "State");
 		New_Defined_Class->Name = s->Name;
 		New_Defined_Class->Type = s->Type;
 		if (Has(s, "return"))
@@ -108,15 +107,6 @@ void Definer::Factory()
 			New_Defined_Class->add(_Returning_);
 		}
 		Output.push_back(New_Defined_Class);
-		/*for (Token* t : Generated_Undefined_Tokens)
-		{
-			if (t->Type == New_Defined_Class->Name)
-			{
-				t->Size = New_Defined_Class->Size;
-				t->Static = New_Defined_Class->Static;
-				//offset - Size -> all
-			}
-		}*/
 	}
 	for (Token* i : Generated_Undefined_Tokens)
 	{

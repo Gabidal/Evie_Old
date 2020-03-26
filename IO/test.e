@@ -1,11 +1,6 @@
-type int()(
-	Size 4
-)
+use "cstd.e"
 
-type banana()(
-	Size (
-		int a,
-		int b
-	)
+export func main()(
+	int a,
+	return a
 )
-

@@ -49,13 +49,13 @@ class Token
   public:
     int Size = 0;
     int Reservable_Size = 0;
-    int Static = 0;
     int Initial_Value = 0;
     int Changable_Value = 0;
     int StackOffset = 0;
     int ParameterCount = 0;
     int ID = 0;
     bool Semanticked = false;
+    bool _Dynamic_Size_ = false;
     //Token* Parent = nullptr;
     Token* Left_Side_Token = nullptr;
     Token* Right_Side_Token = nullptr; // also as the offsetter in array
@@ -67,6 +67,7 @@ class Token
     string Type = "";
     string PreFix_Type = "";
     string UID = "";
+    string State;
     Token(){}
     Token(string name, int size, Token* child) {
         Name = name;
@@ -90,6 +91,7 @@ class Token
     bool is(int flag);
     bool Any(int flags);
     void add(int flag);
+    void remove(int flag);
     int get();
     string Get_Additive_Operator();
 };

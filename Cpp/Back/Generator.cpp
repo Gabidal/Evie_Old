@@ -209,6 +209,14 @@ void Generator::Scaler(Token* l, Token* r)
 			r->Size = l->Size;
 		}
 	}
+	if (r->_Dynamic_Size_)
+	{
+		r->Size = l->Size;
+	}
+	if (l->_Dynamic_Size_)
+	{
+		l->Size = r->Size;
+	}
 }
 
 void Generator::Detect_Operator(Token* t)

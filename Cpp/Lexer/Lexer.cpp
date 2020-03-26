@@ -118,7 +118,7 @@ int translateIdentity(Type t, string text, Word *&w)
 {
     if (t == TEXT)
     {
-        if (text == "while" || text == "type" || text == "func" ||text == "using"|| text == "if" )//|| text == "export")
+        if (text == "while" || text == "type" || text == "func" ||text == "use"|| text == "if" )//|| text == "export")
         {
             return _KEYWORD;
         }

@@ -21,7 +21,7 @@ public:
     void Connect_Array(int i);
     void Connect_Address(int i);
     void Init_Definition(int i);
-    int Get_Size(int i);
+    string Get_Size(int i);
     void Init_Operator(int i);
     void Reserve_Operator_Tokens(int i);
     void Reserve_Function_Parameters(int i);

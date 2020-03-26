@@ -14,7 +14,7 @@ extern vector<string> Included_Files; //for loop holes to not exist
 
 void Parser::Include_Files(int i)
 {
-	if (Input.at(i)->WORD == "using")
+	if (Input.at(i)->WORD == "use")
 	{
 		string filename = Input.at(i + 1)->WORD.substr(1, Input.at(i + 1)->WORD.size() - 2);
 		for (string s : Included_Files)
@@ -32,6 +32,8 @@ void Parser::Include_Files(int i)
 		Input.insert(Input.begin() + i, l.output.begin(), l.output.end());
 		Included_Files.push_back(filename);
 	}
+	if (Input.at(i)->WORD == "use")
+	Include_Files(i);
 }
 
 void Parser::Connect_Array(int i)
@@ -90,7 +92,14 @@ void Parser::Init_Definition(int i)
 	skip:;
 		if (Input.at(i)->is(_KEYWORD))
 		{
-			New_Defined_Type->Size = Get_Size(i);
+			if (Get_Size(i) == "$")
+			{
+				New_Defined_Type->_Dynamic_Size_ = true;
+			}
+			else
+			{
+				New_Defined_Type->Size = atoi(Get_Size(i).c_str());
+			}
 		}
 		else
 		{
@@ -99,6 +108,7 @@ void Parser::Init_Definition(int i)
 				if (New_Defined_Type->Type == t->Name)
 				{
 					New_Defined_Type->Size = t->Size;
+					New_Defined_Type->_Dynamic_Size_ = t->_Dynamic_Size_;
 					break;
 				}
 			}
@@ -110,13 +120,12 @@ void Parser::Init_Definition(int i)
 	}
 }
 
-int Parser::Get_Size(int i)
+string Parser::Get_Size(int i)
 {
 	//type a()(..)
+	if (Count_Familiar_Tokens(_PAREHTHESIS, i + 2) < 2)
+		return "0";
 	Parser p;
-	p.Input = Input;
-	if (p.Count_Familiar_Tokens(_PAREHTHESIS, i + 2) < 2)
-		return 0;
 	p.Input = Input.at(i + 3)->Tokens;
 	p.Defined_Keywords = Defined_Keywords;
 	p.Factory();
@@ -129,31 +138,23 @@ int Parser::Get_Size(int i)
 	}
 	if (t == nullptr)
 	{
-		return 0;
+		return "0";
 	}
 	if (t->Right_Side_Token->is(_Number_))
 	{
 		//if the size is defined by a number.
-		return atoi(t->Right_Side_Token->Name.c_str());
+		return t->Right_Side_Token->Name;
+	}
+	else if (t->Right_Side_Token->Name == "$")
+	{
+		return "$";
 	}
 	else
 	{
 		//if the number is defined by a variable.
-		return t->Right_Side_Token->Size;
+		return to_string(t->Right_Side_Token->Size);
 	}
-
-	/*if (p.Count_Familiar_Tokens(_PAREHTHESIS, i + 2) == 2);
-	{
-		p.Input = Input.at(i + 3)->Tokens;
-		for (int j = 0; j < p.Input.size(); j++)
-		{
-			if (p.Input.at(j)->WORD == "Size")
-			{
-				return atoi(p.Input.at(j + 1)->WORD.c_str());
-			}
-		}
-	}*/
-	return 0;
+	return "0";
 }
 
 void Parser::Init_Operator(int i)
@@ -624,6 +625,13 @@ void Parser::Init_Variable(int i)
 		Str->Type = "string";
 		Output.push_back(Str);
 	}
+	if (Input.at(i)->WORD == "$")
+	{
+		Token* Let = new Token;
+		Let->Name = "$";
+		Let->Type = "Preprosessor";
+		Output.push_back(Let);
+	}
 }
 
 void Parser::Check_For_Correlation(int i)
@@ -635,6 +643,7 @@ void Parser::Check_For_Correlation(int i)
 			New_Pre_Defined_Token->Type = s;
 
 			Parser P = *this;
+			P.Defined_Keywords = Defined_Keywords;
 			P.Output.clear();
 			P.Input.clear();
 			P.Input.push_back(Input.at(i + 1));
@@ -664,6 +673,8 @@ void Parser::Set_Special_Feature(int i)
 
 void Parser::Check_For_Inter(int i)
 {
+	if (Input.size() - 1 < i + 1)
+		return;
 	if (Input.at(i)->WORD == "$")
 	{
 		Interpreter I(Input, i, Defined_Keywords);

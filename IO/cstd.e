@@ -1,4 +1,4 @@
-using "sys.e"
+use "sys.e"
 
 type int()(
 	Size 4
@@ -25,11 +25,11 @@ type double()(
 )
 
 type const()(
-	Static 1
+	State Static
 )
 
 type constexpr()(
-	Static 2
+	State Static
 )
 
 type export()()

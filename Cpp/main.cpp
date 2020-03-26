@@ -34,11 +34,14 @@ void Init_Pre_Defined_Tokens()
 
     //type indicators(
     Pre_Defined_Tokens.push_back("Size");
-    Pre_Defined_Tokens.push_back("Static");
+    Pre_Defined_Tokens.push_back("State");
     //)
 
     //attach a string into output file
     Pre_Defined_Tokens.push_back("asm");
+
+    //preprosessor
+    Pre_Defined_Tokens.push_back("pattern");
 }
 
 /*
