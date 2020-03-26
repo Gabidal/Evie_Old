@@ -115,7 +115,34 @@ int Parser::Get_Size(int i)
 	//type a()(..)
 	Parser p;
 	p.Input = Input;
-	if (p.Count_Familiar_Tokens(_PAREHTHESIS, i + 2) == 2);
+	if (p.Count_Familiar_Tokens(_PAREHTHESIS, i + 2) < 2)
+		return 0;
+	p.Input = Input.at(i + 3)->Tokens;
+	p.Defined_Keywords = Defined_Keywords;
+	p.Factory();
+	Token* t = nullptr;
+	for (int j = 0; j < p.Output.size(); j++) {
+		if (p.Output.at(j)->Type == "Size")
+		{
+			t = p.Output.at(j);
+		}
+	}
+	if (t == nullptr)
+	{
+		return 0;
+	}
+	if (t->Right_Side_Token->is(_Number_))
+	{
+		//if the size is defined by a number.
+		return atoi(t->Right_Side_Token->Name.c_str());
+	}
+	else
+	{
+		//if the number is defined by a variable.
+		return t->Right_Side_Token->Size;
+	}
+
+	/*if (p.Count_Familiar_Tokens(_PAREHTHESIS, i + 2) == 2);
 	{
 		p.Input = Input.at(i + 3)->Tokens;
 		for (int j = 0; j < p.Input.size(); j++)
@@ -125,7 +152,7 @@ int Parser::Get_Size(int i)
 				return atoi(p.Input.at(j + 1)->WORD.c_str());
 			}
 		}
-	}
+	}*/
 	return 0;
 }
 
@@ -293,6 +320,7 @@ void Parser::Init_Parenthesis(int i)
 		New_Defined_Parenthesis->Childs = P.Output;
 		New_Defined_Parenthesis->add(_Parenthesis_);
 		New_Defined_Parenthesis->Reservable_Size = P.Space_Reservation;
+		New_Defined_Parenthesis->Size = P.Space_Reservation;
 		Output.push_back(New_Defined_Parenthesis);
 		this->Space_Reservation = P.Space_Reservation;
 		if (Inside_Of_Constructor_As_Parameter)

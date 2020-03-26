@@ -200,7 +200,6 @@ int main(int argc, char* argv[])
 
         output << "yasm -g dwarf2 -f elf32 -o " << sys->Info.Destination_File + ".o " << sys->Info.Destination_File;
         
-
         system(output.str().c_str());
         output = stringstream();
 
