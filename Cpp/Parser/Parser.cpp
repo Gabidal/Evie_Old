@@ -92,13 +92,15 @@ void Parser::Init_Definition(int i)
 	skip:;
 		if (Input.at(i)->is(_KEYWORD))
 		{
-			if (Get_Size(i) == "$")
+			string Size = Get_Size(i);
+			if (Size == "$")
 			{
 				New_Defined_Type->_Dynamic_Size_ = true;
+				New_Defined_Type->Size = 0;
 			}
 			else
 			{
-				New_Defined_Type->Size = atoi(Get_Size(i).c_str());
+				New_Defined_Type->Size = atoi(Size.c_str());
 			}
 		}
 		else
@@ -154,7 +156,6 @@ string Parser::Get_Size(int i)
 		//if the number is defined by a variable.
 		return to_string(t->Right_Side_Token->Size);
 	}
-	return "0";
 }
 
 void Parser::Init_Operator(int i)

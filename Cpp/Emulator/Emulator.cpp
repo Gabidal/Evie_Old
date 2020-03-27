@@ -199,7 +199,6 @@ void Emulator::Frame_Handler(int i)
 
 }
 
-
 void Emulator::FPU_Choser(int i)
 {
 }

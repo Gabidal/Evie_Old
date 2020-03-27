@@ -55,7 +55,7 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return S->Get_ID(to_string(t->Size), "", { t->Size}) + t->Name;
 	else if (t->is(_Call_))
 		return "_" + t->Name;
-	else if (t->is(_External_) != true)
+	else if (t->is(_External_))
 		return S->Get_ID(to_string(t->Size), "", { t->Size}) + "[" + t->Name + "]";
 	else
 		return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
