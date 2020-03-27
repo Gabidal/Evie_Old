@@ -231,10 +231,7 @@ void Generator::Detect_Operator(Token* t)
 	// cvsi2sd xmm0, eax
 	// mov [a], xmm0
 	//basic tools:
-	if (t->Right_Side_Token->is(_Number_) || t->Left_Side_Token->is(_Number_))
-	{
-		Scaler(t->Right_Side_Token, t->Left_Side_Token);
-	}
+	Scaler(t->Right_Side_Token, t->Left_Side_Token);
 	Token* Left_Token = nullptr;
 	Token* Right_Token = nullptr;
 	bool Normal_Left = false;

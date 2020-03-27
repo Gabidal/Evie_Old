@@ -90,7 +90,7 @@ void Definer::Factory()
 	//(
 	//	return 0
 	//)
-	for (Token*s : Defined_Types)
+	for (Token* s : Defined_Types)
 	{
 		Token* New_Defined_Class = new Token();
 		//first lets find the defined types
@@ -102,6 +102,7 @@ void Definer::Factory()
 		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "State");
 		New_Defined_Class->Name = s->Name;
 		New_Defined_Class->Type = s->Type;
+		New_Defined_Class->_Dynamic_Size_ = s->_Dynamic_Size_;
 		if (Has(s, "return"))
 		{
 			New_Defined_Class->add(_Returning_);

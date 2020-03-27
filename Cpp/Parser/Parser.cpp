@@ -567,6 +567,7 @@ void Parser::Init_Variable(int i)
 				New_Variable->add(t->get());
 				New_Variable->PreFix_Type = t->PreFix_Type;
 				New_Variable->Size = t->Size;
+				New_Variable->_Dynamic_Size_ = t->_Dynamic_Size_;
 				break;
 			}
 		if (Input.at(i)->Offsetter != nullptr)
