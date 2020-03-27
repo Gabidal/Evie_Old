@@ -1,9 +1,12 @@
 #include "../../H/Interpreter/Interpreter.h"
 #include "../../H/Parser/Parser.h"
 
+extern vector<Token*> Preprosessor_Tokens;
+
 void Interpreter::Factory()
 {
 	Detect_Ifs();
+	Detect_Patterns();
 }
 
 void Interpreter::Detect_Ifs()
@@ -37,6 +40,34 @@ void Interpreter::Detect_Ifs()
 	{
 		Input.erase(Input.begin() + i, Input.begin() + i + 4);
 	}
+}
+
+void Interpreter::Detect_Patterns()
+{
+	/*$pattern (
+		$if (IN:(i:ID) == "lda")(
+			$if (IN:(i:(Parameters:(0:Flags))) == "_Register_")(
+				$if (IN:(i:(Parameters:(1:Name))) == "0")(
+					IN:(i:(Parameters:(1))) = IN:(i:(Parameters:(0))),
+					IN:(i:ID) = "^"
+				)
+			)
+		)
+	)*/
+	if (Input.at(i)->WORD != "$")
+		return;
+	if (Input.at(i + 1)->WORD != "pattern")
+		return;
+	Token* pattern = new Token;
+	pattern->Name = "pattern";
+	pattern->add(_Preprosessor_);
+	Parser p;
+	p.Input = Input.at(i + 2)->Tokens;
+	p.Defined_Keywords = Defined;
+	p.Factory();
+	pattern->Childs = p.Output;
+	Preprosessor_Tokens.push_back(pattern);
+	Input.erase(Input.begin() + i, Input.begin() + i + 3);
 }
 
 bool Interpreter::Constructable(int i)

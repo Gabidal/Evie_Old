@@ -10,6 +10,7 @@
 using namespace std;
 int SYNTAX = 0;
 vector<Token*> Generated_Undefined_Tokens;
+vector<Token*> Preprosessor_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
 map<string, Token*> Register_Lock;
 Selector* S;
@@ -39,9 +40,6 @@ void Init_Pre_Defined_Tokens()
 
     //attach a string into output file
     Pre_Defined_Tokens.push_back("asm");
-
-    //preprosessor
-    Pre_Defined_Tokens.push_back("pattern");
 }
 
 /*

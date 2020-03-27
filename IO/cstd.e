@@ -33,3 +33,5 @@ type constexpr()(
 )
 
 type export()()
+
+export func main,

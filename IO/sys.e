@@ -13,6 +13,14 @@ system Architecture,
 system Obj_Type,
 system Bits_Mode,
 
+system IN,
+system i,
+
+system ID,
+system Parameters,
+system Flags,
+system Name,
+
 $if (sys:(Info:OS) == "win32")(
 	using "win32.e"
 )
