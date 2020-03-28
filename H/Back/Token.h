@@ -2,6 +2,7 @@
 #define _TOKEN_H_
 #include <string>
 #include <vector>
+#include "../UI/Usr.h"
 
 using namespace std;
 
@@ -43,11 +44,13 @@ using namespace std;
 #define _String_ (1<<27)
 #define _Preprosessor_ (1<<28)
 
-class Token
+class Token : public Symbol_Table
 {
     private:
     int Flags = 0;
   public:
+    map<string, Symbol_Table*> Get_Member_Pointters();
+    map<string, Waiter*> Get_Member_Data();
     int Size = 0;
     int Reservable_Size = 0;
     int Initial_Value = 0;

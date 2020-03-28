@@ -5,16 +5,25 @@
 #include <map>
 using namespace std;
 
-template<typename T>
 class Waiter
 {
-private:
+protected:
 	void* Data;
 
 public:
-	Waiter(T* in) {
+	Waiter(void* in) {
 		Data = in;
 	}
+	bool operator==(Waiter& other) {
+		return this->Get_Value() == other.Get_Value();
+	}
+	virtual string Get_Value() = 0;
+};
+
+class StringWaiter : public Waiter
+{
+public:
+	StringWaiter(string* in) : Waiter(in) {}
 
 	string Get_Value()
 	{
@@ -22,18 +31,20 @@ public:
 	}
 };
 
-template<int>
-class Waiter
+class IntWaiter : public Waiter
 {
 public:
+	IntWaiter(int* in) : Waiter(in) {}
+	
 	string Get_Value()
 	{
-		return to_string((int*)Data);
+		return to_string(*(int*)Data);
 	}
 };
 
 class Symbol_Table {
 public:
+	bool Initted = false;
 	void Load();
 	Symbol_Table();
 	virtual map<string, Symbol_Table*> Get_Member_Pointters() = 0;
@@ -63,9 +74,9 @@ class SymbolTableList : public Symbol_Table
 {
 public:
 	template<class T>
-	SymbolTableList(vector<T> tables) {
-		for (auto& i : tables) {
-			Items.push_back(&i);
+	SymbolTableList(vector<T> &tables) {
+		for (T& i : tables) {
+			Items.push_back(&(Symbol_Table*&)i);
 		}
 	}
 
@@ -75,7 +86,7 @@ public:
 	Symbol_Table* Get_Member_Pointter(string key);
 	Waiter* Get_Member_Data(string key);
 private:
-	vector<Symbol_Table*> Items;
+	vector<Symbol_Table**> Items;
 };
 
 

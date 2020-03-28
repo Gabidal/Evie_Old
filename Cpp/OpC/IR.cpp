@@ -29,11 +29,11 @@ map<string, Symbol_Table*> IR::Get_Member_Pointters()
 		int get();
 		*/
 
-map<string, string*> IR::Get_Member_Data()
+map<string, Waiter*> IR::Get_Member_Data()
 {
 	return {
-	//std::make_pair("Reg_Flag", &Reg_Flag),
-	std::make_pair("PreFix", &PreFix),
-	std::make_pair("ID", &ID),
+		std::make_pair("Reg_Flag", new IntWaiter(&Reg_Flag)),
+		std::make_pair("PreFix", new StringWaiter(&PreFix)),
+		std::make_pair("ID", new StringWaiter(&ID)),
 	};
 }

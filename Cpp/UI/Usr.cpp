@@ -5,6 +5,9 @@
 
 void Symbol_Table::Load()
 {
+	if (Initted)
+		return;
+	Initted = true;
 	Member_Pointters = Get_Member_Pointters();
 	Member_Data = Get_Member_Data();
 	for (auto p : Member_Pointters) {
@@ -16,6 +19,7 @@ Symbol_Table::Symbol_Table() {
 }
 
 Symbol_Table* Symbol_Table::Get_Member_Pointter(string key) {
+	Load();
 	auto i = Member_Pointters.find(key);
 	if (i == Member_Pointters.end())
 		return nullptr;
@@ -23,6 +27,7 @@ Symbol_Table* Symbol_Table::Get_Member_Pointter(string key) {
 }
 
 Waiter* Symbol_Table::Get_Member_Data(string key) {
+	Load();
 	auto i = Member_Data.find(key);
 	if (i == Member_Data.end())
 		return nullptr;
@@ -123,12 +128,12 @@ map<string, Waiter*> output::Get_Member_Data(){
 	string Obj_Type;
 	int Bits_Mode = 4;*/
 	return {
-		std::make_pair(string("Source_File"), new Waiter(&Source_File)),
-		std::make_pair(string("Destination_File"), new Waiter(&Destination_File)),
-		std::make_pair(string("OS"),new Waiter(&OS)),
-		std::make_pair(string("Architecture"),new Waiter(&Architecture)),
-		std::make_pair(string("Obj_Type"), new Waiter(&Obj_Type)),
-		std::make_pair(string("Bits_Mode"), new Waiter(&Bits_Mode))
+		std::make_pair(string("Source_File"), new StringWaiter(&Source_File)),
+		std::make_pair(string("Destination_File"), new StringWaiter(&Destination_File)),
+		std::make_pair(string("OS"),new StringWaiter(&OS)),
+		std::make_pair(string("Architecture"),new StringWaiter(&Architecture)),
+		std::make_pair(string("Obj_Type"), new StringWaiter(&Obj_Type)),
+		std::make_pair(string("Bits_Mode"), new StringWaiter(&Bits_Mode))
 	};
 }
 
@@ -159,10 +164,11 @@ optional<int> If_Int(string s) {
 }
 
 Symbol_Table* SymbolTableList::Get_Member_Pointter(string index)
-{
+{	
+	Load();
 	if (auto i = If_Int(index))
 	{
-		return Items.at(i.value);
+		return *Items.at(i.value());
 	}
 	else
 	{
@@ -174,6 +180,7 @@ Symbol_Table* SymbolTableList::Get_Member_Pointter(string index)
 
 Waiter* SymbolTableList::Get_Member_Data(string key)
 {
+	Load();
 	cout << "Ya mama suck!" << endl;
 	return nullptr;
 }

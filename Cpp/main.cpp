@@ -142,7 +142,6 @@ int main(int argc, char* argv[])
     string OUTPUT = "";
 
     sys = new Usr(argv, argc);
-    sys->Load();
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);
 
