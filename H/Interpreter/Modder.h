@@ -8,7 +8,7 @@
 class Modder
 {
 public:
-	Modder(int &i, vector<IR*> out, vector<Token*> in) : I(i), Output(out)
+	Modder(IR &i, vector<IR*> out, vector<Token*> in) : I(i), Output(out)
 	{
 		Input = in;
 		Factory();
@@ -18,13 +18,11 @@ public:
 
 private:
 	void Factory();
-	void Detect_If(int i);
-	void Detect_Operator(int i);
-	void Detect_Parenthesis(int i);
 
+	map<string, vector<IR*>> Items;
 	vector<IR*> &Output;
 	vector<Token*> Input;
-	int& I;
+	IR& I;
 };
 
 

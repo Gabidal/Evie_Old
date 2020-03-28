@@ -251,5 +251,6 @@ void Emulator::Factory()
 
 void Emulator::Pattern_User(int i, Token* Pattern)
 {
-	Modder m(i, Input, Pattern->Childs);
+	IR* t = Input.at(i);
+	Modder m(*t, Input, Pattern->Childs);
 }

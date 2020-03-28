@@ -13,13 +13,21 @@ system Architecture,
 system Obj_Type,
 system Bits_Mode,
 
-system IN,
-system i,
+type IR,
+type Token,
+type List,
+type Integer,
 
-system ID,
-system Parameters,
-system Flags,
-system Name,
+IR List IN,
+Integer i,
+
+
+IR ID,
+Token List Parameters,
+
+Token Flags,
+Token Name,
+Token Type,
 
 $if (sys:(Info:OS) == "win32")(
 	using "win32.e"

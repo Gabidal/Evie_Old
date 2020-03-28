@@ -30,7 +30,7 @@ private:
 	void Detect_Ifs();
 	void Detect_Patterns();
 	bool Constructable(int i);
-	optional <string> Get_Const_Data(Token* t);
+	optional <Waiter> Get_Const_Data(Token* t);
 	vector<string> Get_Members(Token* t);
 	void Append(vector<string>* Dest, vector<string> Source);
 	//void Append(vector<Word*>* Dest, vector<Word*> Source, int i);

@@ -92,7 +92,7 @@ bool Interpreter::Constructable(int i)
 	}
 }
 
-optional <string> Interpreter::Get_Const_Data(Token* t)
+optional <Waiter> Interpreter::Get_Const_Data(Token* t)
 {
 	//sys:Info
 	if (t->Type == "system")
@@ -112,21 +112,21 @@ optional <string> Interpreter::Get_Const_Data(Token* t)
 				return nullopt;
 			}
 		}
-		string* tmp = Source->Get_Member_Data(members.at(members.size() - 1));
+		Waiter* tmp = Source->Get_Member_Data(members.at(members.size() - 1));
 		if (tmp == nullptr)
 		{
 			cout << "Error: " << "Illegal constant data fethcing! --> " << t->Name + ", " + t->Type << endl;
 			return nullopt;
 		}
-		return optional<string> {*tmp};
+		return optional<Waiter> { *tmp };
 	}
 	else if (t->is(_Number_))
 	{
-		return optional<string> {t->Name};
+		return optional<Waiter> { Waiter(new int(atoi(t->Name.c_str()))) };
 	}
 	else if (t->is(_String_))
 	{
-		return optional<string> {t->Name.substr(1, t->Name.size() - 2)};
+		return optional<Waiter> { Waiter(&t->Name.substr(1, t->Name.size() - 2)) };
 	}
 	return nullopt;
 }

@@ -2,13 +2,14 @@
 #define IR_H_
 #include "OpC.h"
 #include "../Back/Token.h"
+#include "../UI/Usr.h"
 #define _Start_Of_Label (1<<0)
 #define _End_Of_Label (1<<1)
 #define _Allocated_ (1<<2)
 #define _Restricted_ (1<<4)
 #define _Double_Task_ (1<<5)
 
-class IR
+class IR : Symbol_Table
 {
 private:
 	int Flags = 0;
@@ -23,6 +24,8 @@ public:
 		vector<IR*> Childs;
 		void add(int Flag);
 		int get();
+		map<string, Symbol_Table*> Get_Member_Pointters();
+		map<string, Waiter*> Get_Member_Data();
 	IR()
 	{
 	}

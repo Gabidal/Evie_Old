@@ -1,11 +1,11 @@
 use "cstd.e"
 
 $pattern (
-	if (IN:(i:ID) == "lda")(
-		if (IN:(i:(Parameters:(0:Flags))) == "_Register_")(
-			if (IN:(i:(Parameters:(1:Name))) == "0")(
-				IN:(i:(Parameters:(1))) = IN:(i:(Parameters:(0))),
-				IN:(i:ID) = "^"
+	if (i:ID == "lda")(
+		if (i:(Parameters:(0:Flags)) == "_Register_")(
+			if (i:(Parameters:(1:Name)) == "0")(
+				i:(Parameters:(1)) = i:(Parameters:(0)),
+				i:ID = "^"
 			)
 		)
 	)

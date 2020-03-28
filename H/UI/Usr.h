@@ -5,23 +5,50 @@
 #include <map>
 using namespace std;
 
+template<typename T>
+class Waiter
+{
+private:
+	void* Data;
+
+public:
+	Waiter(T* in) {
+		Data = in;
+	}
+
+	string Get_Value()
+	{
+		return *(string*)Data;
+	}
+};
+
+template<int>
+class Waiter
+{
+public:
+	string Get_Value()
+	{
+		return to_string((int*)Data);
+	}
+};
+
 class Symbol_Table {
 public:
 	void Load();
 	Symbol_Table();
 	virtual map<string, Symbol_Table*> Get_Member_Pointters() = 0;
-	virtual map<string, string*> Get_Member_Data() = 0;
-	Symbol_Table* Get_Member_Pointter(string key);
-	string* Get_Member_Data(string key);
+	virtual map<string, Waiter*> Get_Member_Data() = 0;
+	virtual Symbol_Table* Get_Member_Pointter(string key);
+	virtual Waiter* Get_Member_Data(string key);
 private:
 	map<string, Symbol_Table*> Member_Pointters;
-	map<string, string*> Member_Data;
+	map<string, Waiter*> Member_Data;
 };
 
 class output : public Symbol_Table {
 public:
 	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, string*> Get_Member_Data();
+	map<string, Waiter*> Get_Member_Data();
 
 	string Source_File;
 	string Destination_File;
@@ -32,11 +59,32 @@ public:
 	string Diable = "";
 };
 
+class SymbolTableList : public Symbol_Table
+{
+public:
+	template<class T>
+	SymbolTableList(vector<T> tables) {
+		for (auto& i : tables) {
+			Items.push_back(&i);
+		}
+	}
+
+	map<string, Symbol_Table*> Get_Member_Pointters();
+	map<string, Waiter*> Get_Member_Data(); 
+
+	Symbol_Table* Get_Member_Pointter(string key);
+	Waiter* Get_Member_Data(string key);
+private:
+	vector<Symbol_Table*> Items;
+};
+
+
+
 class Usr : public Symbol_Table
 {
 public:
 	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, string*> Get_Member_Data();
+	map<string, Waiter*> Get_Member_Data();
 	output Info;
 	Usr(char** in, int count)
 	{
