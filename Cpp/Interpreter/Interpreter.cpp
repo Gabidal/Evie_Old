@@ -156,14 +156,6 @@ vector<string> Interpreter::Get_Members(Token* t)
 	return Phases;
 }
 
-/*
-void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source, int i)
-{
-	for (Word* j : Source)
-	{
-		Dest->insert(Dest->begin() + i++, j);
-	}
-}*/
 void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source)
 {
 	for (auto i : Source)

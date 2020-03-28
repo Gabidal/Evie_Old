@@ -3,6 +3,8 @@
 extern Selector* S;
 		// Register, Regiser using token
 extern map<string, Token*> Register_Lock;
+extern vector<Token*> Preprosessor_Tokens;
+
 Token* Emulator::Get_Info(Token* t)
 {
 	if (t->is(_Parenthesis_))
@@ -236,6 +238,8 @@ void Emulator::Factory()
 		{
 			continue;
 		}
+		for (Token* t : Preprosessor_Tokens)
+			Pattern_User(i, t);
 		Long_Operation_Allocator(i);
 		Label_Recorder(i);
 		Frame_Handler(i);
@@ -243,4 +247,9 @@ void Emulator::Factory()
 		Use_Assembly(i);
 		Child(i);
 	}
+}
+
+void Emulator::Pattern_User(int i, Token* Pattern)
+{
+	Modder m(i, Input, Pattern->Childs);
 }

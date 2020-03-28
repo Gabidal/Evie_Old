@@ -4,6 +4,7 @@
 #include "../OpC/IR.h"
 #include "../Back/Back.h"
 #include "../Back/Token.h"
+#include "../Interpreter/Modder.h"
 #include <map>
 using namespace std;
 
@@ -29,6 +30,7 @@ public:
 	void Child(int i);
 	void Use_Assembly(int i);
 	void Factory();
+	void Pattern_User(int i, Token* Pattern);
 	Emulator(string &in) : Output(in)
 	{
 	}
