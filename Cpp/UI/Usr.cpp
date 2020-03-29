@@ -1,4 +1,5 @@
 #include "../../H/UI/Usr.h"
+#include "../../H/Back/Token.h"
 #include <cstring>
 #include <iostream>
 #include <optional>
@@ -32,6 +33,11 @@ Waiter* Symbol_Table::Get_Member_Data(string key) {
 	if (i == Member_Data.end())
 		return nullptr;
 	return i->second;
+}
+
+void Symbol_Table::Set(string key, Symbol_Table* t)
+{
+	Member_Pointters[key] = t;
 }
 
 map<string, Symbol_Table*> Usr::Get_Member_Pointters()
@@ -183,4 +189,69 @@ Waiter* SymbolTableList::Get_Member_Data(string key)
 	Load();
 	cout << "Ya mama suck!" << endl;
 	return nullptr;
+}
+
+optional<Waiter*> Symbol_Table::Get_Const_Data(Token* t)
+{
+	//sys:Info
+	if (!t->is(_Number_) && (!t->is(_String_)))
+	{
+		vector<string> members = Get_Members(t);
+		if (members.size() < 2)
+		{
+			cout << "Error: " << "Cannot find data member --> " << t->Name + ", " + t->Type << endl;
+			return nullopt;
+		}
+		Symbol_Table* Source = this;
+		for (int i = 0; i < members.size() - 1; i++) {
+			Source = Source->Get_Member_Pointter(members.at(i));
+			if (Source == nullptr)
+			{
+				cout << "Error: " << "Illegal pointter fethcing! --> " << t->Name + ", " + t->Type << endl;
+				return nullopt;
+			}
+		}
+		Waiter* tmp = Source->Get_Member_Data(members.at(members.size() - 1));
+		if (tmp == nullptr)
+		{
+			cout << "Error: " << "Illegal constant data fethcing! --> " << t->Name + ", " + t->Type << endl;
+			return nullopt;
+		}
+		return optional<Waiter*> { tmp };
+	}
+	else if (t->is(_Number_))
+	{
+		return optional<Waiter*> { new IntWaiter(new int(atoi(t->Name.c_str()))) };
+	}
+	else if (t->is(_String_))
+	{
+		return optional<Waiter*> { new StringWaiter(new string(t->Name.substr(1, t->Name.size() - 2))) };
+	}
+	return nullopt;
+}
+
+
+void Symbol_Table::Append(vector<string>* Dest, vector<string> Source)
+{
+	for (string i : Source)
+	{
+		Dest->push_back(i);
+	}
+}
+
+vector<string> Symbol_Table::Get_Members(Token* t)
+{
+	//sys:(Info:OS)
+	vector<string> Phases;
+	if (t->Name != "")
+		Phases.push_back(t->Name);
+	if (t->Offsetter != nullptr)
+	{
+		Append(&Phases, Get_Members(t->Offsetter));
+	}
+	else if (t->Childs.size() > 0)
+	{
+		Append(&Phases, Get_Members(t->Childs.at(0)));
+	}
+	return Phases;
 }

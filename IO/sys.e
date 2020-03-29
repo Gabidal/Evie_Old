@@ -36,3 +36,5 @@ $if (sys:(Info:OS) == "win32")(
 $if (sys:(Info:OS) == "unix")(
 	using "unix.e"
 )
+
+Flag _Register_,

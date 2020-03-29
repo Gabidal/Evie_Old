@@ -3,7 +3,10 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <optional>
 using namespace std;
+
+class Token;
 
 class Waiter
 {
@@ -51,9 +54,13 @@ public:
 	virtual map<string, Waiter*> Get_Member_Data() = 0;
 	virtual Symbol_Table* Get_Member_Pointter(string key);
 	virtual Waiter* Get_Member_Data(string key);
+	void Set(string key, Symbol_Table* t);
+	optional<Waiter*> Get_Const_Data(Token* t);
 private:
 	map<string, Symbol_Table*> Member_Pointters;
 	map<string, Waiter*> Member_Data;
+	void Append(vector<string>* Dest, vector<string> Source);
+	vector<string> Get_Members(Token* t);
 };
 
 class output : public Symbol_Table {

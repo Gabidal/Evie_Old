@@ -7,8 +7,20 @@
 #include "../H/UI/Usr.h"
 #include <sstream>
 #include <iostream>
+#include <map>
 using namespace std;
 int SYNTAX = 0;
+
+Symbol_Table* Root;
+class RootSymbolTable : public Symbol_Table {
+    map<string, Symbol_Table*> Get_Member_Pointters() {
+        return map<string, Symbol_Table*>();
+    }
+    map<string, Waiter*> Get_Member_Data() {
+        return map<string, Waiter*>();
+    }
+};
+
 vector<Token*> Generated_Undefined_Tokens;
 vector<Token*> Preprosessor_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
@@ -139,11 +151,13 @@ int main(int argc, char* argv[])
     {
         return -1;
     }
-    string OUTPUT = "";
-
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);
+
+    string OUTPUT = "";
+    Root = new RootSymbolTable();
+    Root->Set("sys", sys);
 
     Lexer l;
     l.OpenFile(sys->Info.Source_File.c_str());

@@ -1,5 +1,6 @@
 #include "../../H/Interpreter/Interpreter.h"
 #include "../../H/Parser/Parser.h"
+extern Symbol_Table* Root;
 
 extern vector<Token*> Preprosessor_Tokens;
 
@@ -82,9 +83,9 @@ bool Interpreter::Constructable(int i)
 	Token* Condition = p.Output.at(0);
 	//sys:(Info:OS) == "win32"
 	//if (*(string*)sys->Get_Member_Pointter("Info")->Get_Member_Data("OS") == Token->Type->Name)
-	if (auto left = Get_Const_Data(Condition->Left_Side_Token))
+	if (auto left = Root->Get_Const_Data(Condition->Left_Side_Token))
 	{
-		if (auto right = Get_Const_Data(Condition->Right_Side_Token))
+		if (auto right = Root->Get_Const_Data(Condition->Right_Side_Token))
 		{
 			bool result = *left.value() == *right.value();
 			return Condition->Name == "!=" ? !result : result;
@@ -92,69 +93,7 @@ bool Interpreter::Constructable(int i)
 	}
 }
 
-optional<Waiter*> Interpreter::Get_Const_Data(Token* t)
-{
-	//sys:Info
-	if (t->Type == "system")
-	{
-		vector<string> members = Get_Members(t);
-		if (members.size() < 2)
-		{
-			cout << "Error: " << "Cannot find data member --> " << t->Name + ", " + t->Type << endl;
-			return nullopt;
-		}
-		Symbol_Table* Source = sys; //rember to make this dynamic!!
-		for (int i = 1; i < members.size()-1; i++) {
-			Source = Source->Get_Member_Pointter(members.at(i));
-			if (Source == nullptr)
-			{
-				cout << "Error: " << "Illegal pointter fethcing! --> " << t->Name + ", " + t->Type << endl;
-				return nullopt;
-			}
-		}
-		Waiter* tmp = Source->Get_Member_Data(members.at(members.size() - 1));
-		if (tmp == nullptr)
-		{
-			cout << "Error: " << "Illegal constant data fethcing! --> " << t->Name + ", " + t->Type << endl;
-			return nullopt;
-		}
-		return optional<Waiter*> { tmp };
-	}
-	else if (t->is(_Number_))
-	{
-		return optional<Waiter*> { new IntWaiter(new int(atoi(t->Name.c_str()))) };
-	}
-	else if (t->is(_String_))
-	{
-		return optional<Waiter*> { new StringWaiter(new string(t->Name.substr(1, t->Name.size() - 2))) };
-	}
-	return nullopt;
-}
 
-void Interpreter::Append(vector<string>* Dest, vector<string> Source)
-{
-	for (string i : Source)
-	{
-		Dest->push_back(i);
-	}
-}
-
-vector<string> Interpreter::Get_Members(Token* t)
-{
-	//sys:(Info:OS)
-	vector<string> Phases;
-	if (t->Name != "")
-		Phases.push_back(t->Name);
-	if (t->Offsetter != nullptr)
-	{
-		Append(&Phases, Get_Members(t->Offsetter));
-	}
-	else if (t->Childs.size() > 0)
-	{
-		Append(&Phases, Get_Members(t->Childs.at(0)));
-	}
-	return Phases;
-}
 
 void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source)
 {
