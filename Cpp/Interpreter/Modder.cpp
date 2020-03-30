@@ -1,6 +1,7 @@
 #include "../../H/Interpreter/Modder.h"
 #include <iostream>
 extern Symbol_Table* Root;
+extern Symbol_Table* FT;
 
 /*
 	vector<IR*> &Output;
@@ -12,6 +13,7 @@ map<string, Symbol_Table*> Modder::Get_Member_Pointters()
 {
 	Root->Set("i", &I);
 	return {
+		std::make_pair("Flag", FT),
 		std::make_pair("i", (Symbol_Table*)&I),
 		std::make_pair("IN", new SymbolTableList(Output)),
 		std::make_pair("Pattern", new SymbolTableList(Input))
@@ -56,8 +58,21 @@ bool Modder::Passing(Token* condition)
 		if (auto right = Get_Const_Data(condition->Right_Side_Token))
 		{
 			std::cout << left.value()->Get_Value() << right.value()->Get_Value() << std::endl;
-			bool result = *left.value() == *right.value();
-			return condition->Name == "!=" ? !result : result;
+			bool result = false;
+			if (condition->Name == "&")
+			{
+				result = atoi(left.value()->Get_Value().c_str()) & atoi(right.value()->Get_Value().c_str());
+			}
+			else if (condition->Name == "|")
+			{
+				result = atoi(left.value()->Get_Value().c_str()) | atoi(right.value()->Get_Value().c_str());
+			}
+			else
+			{
+				result = *left.value() == *right.value();
+				return condition->Name == "!=" ? !result : result;
+			}
+			return result;
 		}
 	}
 }
@@ -78,7 +93,7 @@ void Modder::Detect_Operator(Token* t)
 	{
 		if (t->Name == "=")
 		{
-			Root->Get_Const_Data(t->Left_Side_Token) = *Root->Get_Const_Data(t->Right_Side_Token);
+			Root->Get_Const_Data(t->Left_Side_Token).value() = *Root->Get_Const_Data(t->Right_Side_Token);
 		}
 	}
 }

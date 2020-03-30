@@ -61,6 +61,7 @@ private:
 	map<string, Waiter*> Member_Data;
 	void Append(vector<string>* Dest, vector<string> Source);
 	vector<string> Get_Members(Token* t);
+	void Safe_Merge(map<string, Symbol_Table*> &Dest, map<string, Symbol_Table*> Source);
 };
 
 class output : public Symbol_Table {

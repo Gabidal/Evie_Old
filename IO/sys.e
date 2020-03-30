@@ -17,7 +17,7 @@ type IR,
 type Token,
 type List,
 type Integer,
-type Flag,
+Integer Flag,
 
 IR List IN,
 Integer i,

@@ -12,7 +12,7 @@ using namespace std;
 int SYNTAX = 0;
 
 Symbol_Table* Root;
-class RootSymbolTable : public Symbol_Table {
+class RootTable : public Symbol_Table {
     map<string, Symbol_Table*> Get_Member_Pointters() {
         return map<string, Symbol_Table*>();
     }
@@ -20,6 +20,51 @@ class RootSymbolTable : public Symbol_Table {
         return map<string, Waiter*>();
     }
 };
+
+class FlagTable : public Symbol_Table {
+    map<string, Symbol_Table*> Get_Member_Pointters() {
+        return map<string, Symbol_Table*>();
+    }
+    
+    map<string, Waiter*> Get_Member_Data() {
+        return {
+            make_pair("_Number_", new IntWaiter(new int(_Number_))),
+            make_pair("_External_", new IntWaiter(new int(_External_))),
+            make_pair("_Type_", new IntWaiter(new int(_Type_))),
+            make_pair("_Function_", new IntWaiter(new int(_Function_))),
+            make_pair("_Array_", new IntWaiter(new int(_Array_))),
+            make_pair("_Condition_", new IntWaiter(new int(_Condition_))),
+            make_pair("_Operator_", new IntWaiter(new int(_Operator_))),
+            make_pair("_Returning_", new IntWaiter(new int(_Returning_))),
+            make_pair("_Call_", new IntWaiter(new int(_Call_))),
+            make_pair("_Parameter_", new IntWaiter(new int(_Parameter_))),
+            make_pair("_Constructor_", new IntWaiter(new int(_Constructor_))),
+            make_pair("_Parameter_", new IntWaiter(new int(_Parameter_))),
+            make_pair("_Register_", new IntWaiter(new int(_Register_))),
+
+            make_pair("_Inheritting_", new IntWaiter(new int(_Inheritting_))),
+
+            make_pair("Task_For_Returning", new IntWaiter(new int(Task_For_Returning))),
+            make_pair("Task_For_Type_Address_Basing", new IntWaiter(new int(Task_For_Type_Address_Basing))),
+            make_pair("Task_For_Type_Address", new IntWaiter(new int(Task_For_Type_Address))),
+            make_pair("Task_For_Moving_Parameter", new IntWaiter(new int(Task_For_Moving_Parameter))),
+            make_pair("Task_For_Offsetting", new IntWaiter(new int(Task_For_Offsetting))),
+            make_pair("Task_For_Remainder", new IntWaiter(new int(Task_For_Remainder))),
+            make_pair("Task_For_General_Purpose", new IntWaiter(new int(Task_For_General_Purpose))),
+            make_pair("Task_For_Floating_Math", new IntWaiter(new int(Task_For_Floating_Math))),
+
+            make_pair("_Need_For_Space_", new IntWaiter(new int(_Need_For_Space_))),
+            make_pair("_Generated_", new IntWaiter(new int(_Generated_))),
+
+            make_pair("_Pointting_", new IntWaiter(new int(_Pointting_))),
+            make_pair("_Array_", new IntWaiter(new int(_Array_))),
+            make_pair("_Giving_Address_", new IntWaiter(new int(_Giving_Address_))),
+            make_pair("_String_", new IntWaiter(new int(_String_))),
+            make_pair("_Preprosessor_", new IntWaiter(new int(_Preprosessor_))),
+        };
+    }
+};
+Symbol_Table* FT;
 
 vector<Token*> Generated_Undefined_Tokens;
 vector<Token*> Preprosessor_Tokens;
@@ -156,8 +201,9 @@ int main(int argc, char* argv[])
     S = new Selector(sys->Info.Architecture);
 
     string OUTPUT = "";
-    Root = new RootSymbolTable();
+    Root = new RootTable();
     Root->Set("sys", sys);
+    FT = new FlagTable();
 
     Lexer l;
     l.OpenFile(sys->Info.Source_File.c_str());

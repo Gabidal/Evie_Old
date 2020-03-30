@@ -9,7 +9,7 @@ void Symbol_Table::Load()
 	if (Initted)
 		return;
 	Initted = true;
-	Member_Pointters.merge(Get_Member_Pointters());
+	Safe_Merge(Member_Pointters, Get_Member_Pointters());
 	Member_Data.merge(Get_Member_Data());
 	for (auto p : Member_Pointters) {
 		p.second->Load();
@@ -254,4 +254,13 @@ vector<string> Symbol_Table::Get_Members(Token* t)
 		Append(&Phases, Get_Members(t->Childs.at(0)));
 	}
 	return Phases;
+}
+
+void Symbol_Table::Safe_Merge(map<string, Symbol_Table*>& Dest, map<string, Symbol_Table*> Source)
+{
+	for (auto i : Source) {
+		if (i.second == nullptr)
+			continue;
+		Dest.insert(make_pair(i.first, i.second));
+	}
 }
