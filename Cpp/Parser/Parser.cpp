@@ -596,6 +596,18 @@ void Parser::Init_Variable(int i)
 		New_Number->Name += Input.at(i)->WORD;
 		New_Number->Type = "number";
 		New_Number->add(_Number_);
+		if (Input.at(i)->Offsetter != nullptr)
+		{
+			Parser p;
+			p.Input.push_back(Input.at(i)->Offsetter);
+			p.Defined_Keywords = this->Defined_Keywords;
+			p.Factory();
+			New_Number->Offsetter = p.Output.at(0);
+			if (Input.at(i)->Self_Mirroring)
+				New_Number->add(_Pointting_);
+			else
+				New_Number->add(_Array_);
+		}
 		if (New_Number->Name.find('.') != -1)
 		{
 			New_Number->Size = 4;

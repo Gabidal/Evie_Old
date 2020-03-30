@@ -9,8 +9,8 @@ void Symbol_Table::Load()
 	if (Initted)
 		return;
 	Initted = true;
-	Member_Pointters = Get_Member_Pointters();
-	Member_Data = Get_Member_Data();
+	Member_Pointters.merge(Get_Member_Pointters());
+	Member_Data.merge(Get_Member_Data());
 	for (auto p : Member_Pointters) {
 		p.second->Load();
 	}

@@ -9,7 +9,7 @@
 #define _Restricted_ (1<<4)
 #define _Double_Task_ (1<<5)
 
-class IR : Symbol_Table
+class IR : public Symbol_Table
 {
 private:
 	int Flags = 0;

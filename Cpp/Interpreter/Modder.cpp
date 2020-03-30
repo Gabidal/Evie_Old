@@ -1,4 +1,6 @@
 #include "../../H/Interpreter/Modder.h"
+#include <iostream>
+extern Symbol_Table* Root;
 
 /*
 	vector<IR*> &Output;
@@ -8,6 +10,7 @@
 
 map<string, Symbol_Table*> Modder::Get_Member_Pointters()
 {
+	Root->Set("i", &I);
 	return {
 		std::make_pair("i", (Symbol_Table*)&I),
 		std::make_pair("IN", new SymbolTableList(Output)),
@@ -22,12 +25,60 @@ map<string, Waiter*> Modder::Get_Member_Data()
 
 void Modder::Factory()
 {
+	for (Token* t: Input)
+	{
+		Detect_If(t);
+		Detect_Operator(t);
+		Detect_Parenthesis(t);
+	}
 }
 
-void Modder::Detect_If(int i)
+//make a IS() for the flags to be on == !!!
+
+void Modder::Detect_If(Token* t)
 {
+	if (t->is(_Condition_))
+	{
+		if (Passing(t->Left_Side_Token->Childs.at(0)))
+		{
+			Modder m = *this;
+			m.Input.clear();
+			m.Input.push_back(t->Right_Side_Token);
+			m.Factory();
+		}
+	}
 }
 
-void Modder::Passing(int i)
+bool Modder::Passing(Token* condition)
 {
+	if (auto left = Get_Const_Data(condition->Left_Side_Token))
+	{
+		if (auto right = Get_Const_Data(condition->Right_Side_Token))
+		{
+			std::cout << left.value()->Get_Value() << right.value()->Get_Value() << std::endl;
+			bool result = *left.value() == *right.value();
+			return condition->Name == "!=" ? !result : result;
+		}
+	}
+}
+
+void Modder::Detect_Parenthesis(Token* t)
+{
+	if (t->is(_Parenthesis_))
+	{
+		Modder m = *this;
+		m.Input = t->Childs;
+		m.Factory();
+	}
+}
+
+void Modder::Detect_Operator(Token* t)
+{
+	if (t->is(_Operator_))
+	{
+		if (t->Name == "=")
+		{
+			Root->Get_Const_Data(t->Left_Side_Token) = *Root->Get_Const_Data(t->Right_Side_Token);
+		}
+	}
 }

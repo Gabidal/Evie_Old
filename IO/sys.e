@@ -17,6 +17,7 @@ type IR,
 type Token,
 type List,
 type Integer,
+type Flag,
 
 IR List IN,
 Integer i,
@@ -28,6 +29,7 @@ Token List Parameters,
 Token Flags,
 Token Name,
 Token Type,
+Flag _Register_,
 
 $if (sys:(Info:OS) == "win32")(
 	using "win32.e"
@@ -36,5 +38,3 @@ $if (sys:(Info:OS) == "win32")(
 $if (sys:(Info:OS) == "unix")(
 	using "unix.e"
 )
-
-Flag _Register_,

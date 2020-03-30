@@ -1,9 +1,11 @@
 #include "../../H/Emulator/Emulator.h"
 #include "../../H/Selector/Selector.h"
+#include "../../H/UI/Usr.h"
 extern Selector* S;
 		// Register, Regiser using token
 extern map<string, Token*> Register_Lock;
 extern vector<Token*> Preprosessor_Tokens;
+extern Symbol_Table* Root;
 
 Token* Emulator::Get_Info(Token* t)
 {
@@ -238,14 +240,14 @@ void Emulator::Factory()
 		{
 			continue;
 		}
-		for (Token* t : Preprosessor_Tokens)
-			Pattern_User(i, t);
 		Long_Operation_Allocator(i);
 		Label_Recorder(i);
 		Frame_Handler(i);
 		FPU_Choser(i);
 		Use_Assembly(i);
 		Child(i);
+		for (Token* t : Preprosessor_Tokens)
+			Pattern_User(i, t);
 	}
 }
 
@@ -253,4 +255,5 @@ void Emulator::Pattern_User(int i, Token* Pattern)
 {
 	IR* t = Input.at(i);
 	Modder m(*t, Input, Pattern->Childs);
+	m.Factory();
 }
