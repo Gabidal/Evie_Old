@@ -1,6 +1,6 @@
 #include "../../H/Interpreter/Interpreter.h"
 #include "../../H/Parser/Parser.h"
-extern Symbol_Table* Root;
+extern Object* Root;
 
 extern vector<Token*> Preprosessor_Tokens;
 

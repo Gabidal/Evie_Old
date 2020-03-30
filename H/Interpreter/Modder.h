@@ -6,7 +6,7 @@
 #include <vector>
 #include <map>
 
-class Modder : public Symbol_Table
+class Modder : public Object
 {
 public:
 	Modder(IR &i, vector<IR*> &out, vector<Token*> in) : I(i), Output(out)
@@ -14,8 +14,7 @@ public:
 		Input = in;
 	}
 
-	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, Waiter*> Get_Member_Data();
+	map<string, Object*> Get_Members();
 	~Modder(){}
 	void Factory();
 

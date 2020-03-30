@@ -44,13 +44,12 @@ using namespace std;
 #define _String_ (1<<27)
 #define _Preprosessor_ (1<<28)
 
-class Token : public Symbol_Table
+class Token : public Object
 {
     private:
     int Flags = 0;
   public:
-    map<string, Symbol_Table*> Get_Member_Pointters();
-    map<string, Waiter*> Get_Member_Data();
+    map<string, Object*> Get_Members();
     int Size = 0;
     int Reservable_Size = 0;
     int Initial_Value = 0;

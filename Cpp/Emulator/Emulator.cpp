@@ -5,7 +5,7 @@ extern Selector* S;
 		// Register, Regiser using token
 extern map<string, Token*> Register_Lock;
 extern vector<Token*> Preprosessor_Tokens;
-extern Symbol_Table* Root;
+extern Object* Root;
 
 Token* Emulator::Get_Info(Token* t)
 {
@@ -244,10 +244,10 @@ void Emulator::Factory()
 		Label_Recorder(i);
 		Frame_Handler(i);
 		FPU_Choser(i);
-		Use_Assembly(i);
-		Child(i);
 		for (Token* t : Preprosessor_Tokens)
 			Pattern_User(i, t);
+		Use_Assembly(i);
+		Child(i);
 	}
 }
 

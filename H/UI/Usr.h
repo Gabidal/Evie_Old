@@ -8,25 +8,46 @@ using namespace std;
 
 class Token;
 
-class Waiter
-{
-protected:
-	void* Data;
 
+class Object {
 public:
-	Waiter(void* in) {
+	Object() {}
+	Object(void* in) {
 		Data = in;
 	}
-	bool operator==(Waiter& other) {
+
+	bool Initted = false;
+	void Load();
+	virtual map<string, Object*> Get_Members() = 0;
+	virtual Object* Get_Member(string key);
+	void Set(string key, Object* t);
+	optional<Object*> Get_Const_Data(Token* t);
+	virtual void Put(Object& other);
+
+	bool operator==(Object& other) {
 		return this->Get_Value() == other.Get_Value();
 	}
-	virtual string Get_Value() = 0;
+	virtual string Get_Value()
+	{
+		return "";
+	}
+	void* Data = nullptr;
+
+protected:
+	map<string, Object*> Members;
+	void Append(vector<string>* Dest, vector<string> Source);
+	vector<string> Get_Members(Token* t);
+	void Safe_Merge(map<string, Object*>& Dest, map<string, Object*> Source);
 };
 
-class StringWaiter : public Waiter
+class StringObject : public Object
 {
 public:
-	StringWaiter(string* in) : Waiter(in) {}
+	StringObject(string* in) : Object(in) {}
+	map<string, Object*> Get_Members() { return map<string, Object*>(); }
+	void Put(Object& other) {
+		*(string*)Data = *(string*)other.Data;
+	}
 
 	string Get_Value()
 	{
@@ -34,41 +55,24 @@ public:
 	}
 };
 
-class IntWaiter : public Waiter
+class IntObject : public Object
 {
 public:
-	IntWaiter(int* in) : Waiter(in) {}
-	
+	IntObject(int* in) : Object(in) {}
+	map<string, Object*> Get_Members() { return map<string, Object*>(); }
+	void Put(Object& other) {
+		*(int*)Data = *(int*)other.Data;
+	}
 	string Get_Value()
 	{
 		return to_string(*(int*)Data);
 	}
 };
 
-class Symbol_Table {
-public:
-	bool Initted = false;
-	void Load();
-	Symbol_Table();
-	virtual map<string, Symbol_Table*> Get_Member_Pointters() = 0;
-	virtual map<string, Waiter*> Get_Member_Data() = 0;
-	virtual Symbol_Table* Get_Member_Pointter(string key);
-	virtual Waiter* Get_Member_Data(string key);
-	void Set(string key, Symbol_Table* t);
-	optional<Waiter*> Get_Const_Data(Token* t);
-private:
-	map<string, Symbol_Table*> Member_Pointters;
-	map<string, Waiter*> Member_Data;
-	void Append(vector<string>* Dest, vector<string> Source);
-	vector<string> Get_Members(Token* t);
-	void Safe_Merge(map<string, Symbol_Table*> &Dest, map<string, Symbol_Table*> Source);
-};
 
-class output : public Symbol_Table {
+class output : public Object {
 public:
-	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, Waiter*> Get_Member_Data();
-
+	map<string, Object*> Get_Members();
 	string Source_File;
 	string Destination_File;
 	string OS = "win32";
@@ -76,34 +80,42 @@ public:
 	string Obj_Type = "exe";
 	string Bits_Mode = "4";
 	string Diable = "";
+	Object& operator=(output& other) {
+		 Source_File = other.Source_File;
+		 Destination_File = other.Destination_File;
+		 OS = other.OS;
+		 Architecture = other.Architecture;
+		 Obj_Type = other.Obj_Type;
+		 Bits_Mode = other.Bits_Mode;
+		 Diable = other.Diable;
+		return *this;
+	}
+
 };
 
-class SymbolTableList : public Symbol_Table
+class SymbolTableList : public Object
 {
 public:
 	template<class T>
 	SymbolTableList(vector<T> &tables) {
 		for (T& i : tables) {
-			Items.push_back(&(Symbol_Table*&)i);
+			Items.push_back(&(Object*&)i);
 		}
 	}
 
-	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, Waiter*> Get_Member_Data(); 
+	map<string, Object*> Get_Members();
 
-	Symbol_Table* Get_Member_Pointter(string key);
-	Waiter* Get_Member_Data(string key);
+	Object* Get_Member(string key);
 private:
-	vector<Symbol_Table**> Items;
+	vector<Object**> Items;
 };
 
 
 
-class Usr : public Symbol_Table
+class Usr : public Object
 {
 public:
-	map<string, Symbol_Table*> Get_Member_Pointters();
-	map<string, Waiter*> Get_Member_Data();
+	map<string, Object*> Get_Members();
 	output Info;
 	Usr(char** in, int count)
 	{

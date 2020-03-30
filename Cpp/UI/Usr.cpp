@@ -4,43 +4,31 @@
 #include <iostream>
 #include <optional>
 
-void Symbol_Table::Load()
+void Object::Load()
 {
 	if (Initted)
 		return;
 	Initted = true;
-	Safe_Merge(Member_Pointters, Get_Member_Pointters());
-	Member_Data.merge(Get_Member_Data());
-	for (auto p : Member_Pointters) {
+	Safe_Merge(Members, Get_Members());
+	for (auto p : Members) {
 		p.second->Load();
 	}
 }
 
-Symbol_Table::Symbol_Table() {
-}
-
-Symbol_Table* Symbol_Table::Get_Member_Pointter(string key) {
+Object* Object::Get_Member(string key) {
 	Load();
-	auto i = Member_Pointters.find(key);
-	if (i == Member_Pointters.end())
+	auto i = Members.find(key);
+	if (i == Members.end())
 		return nullptr;
 	return i->second;
 }
 
-Waiter* Symbol_Table::Get_Member_Data(string key) {
-	Load();
-	auto i = Member_Data.find(key);
-	if (i == Member_Data.end())
-		return nullptr;
-	return i->second;
-}
-
-void Symbol_Table::Set(string key, Symbol_Table* t)
+void Object::Set(string key, Object* t)
 {
-	Member_Pointters[key] = t;
+	Members[key] = t;
 }
 
-map<string, Symbol_Table*> Usr::Get_Member_Pointters()
+map<string, Object*> Usr::Get_Members()
 {
 	/*
 	output Info;
@@ -50,10 +38,6 @@ map<string, Symbol_Table*> Usr::Get_Member_Pointters()
 	};
 }
 
-map<string, Waiter*> Usr::Get_Member_Data()
-{
-	return map<string, Waiter*>();
-}
 
 //main -in ~/test.g -out ~/test.asm -os win32 -arch x86 -mode 32
 void Usr::Create_Argument_Stats()
@@ -122,11 +106,7 @@ void Usr::Find_Obj_Type(int &i)
 	}
 }
 
-map<string, Symbol_Table*> output::Get_Member_Pointters() {
-	return std::map<string, Symbol_Table*>();
-}
-
-map<string, Waiter*> output::Get_Member_Data(){
+map<string, Object*> output::Get_Members(){
 	/*string Source_File;
 	string Destination_File;
 	string OS;
@@ -134,23 +114,18 @@ map<string, Waiter*> output::Get_Member_Data(){
 	string Obj_Type;
 	int Bits_Mode = 4;*/
 	return {
-		std::make_pair(string("Source_File"), new StringWaiter(&Source_File)),
-		std::make_pair(string("Destination_File"), new StringWaiter(&Destination_File)),
-		std::make_pair(string("OS"),new StringWaiter(&OS)),
-		std::make_pair(string("Architecture"),new StringWaiter(&Architecture)),
-		std::make_pair(string("Obj_Type"), new StringWaiter(&Obj_Type)),
-		std::make_pair(string("Bits_Mode"), new StringWaiter(&Bits_Mode))
+		std::make_pair(string("Source_File"), new StringObject(&Source_File)),
+		std::make_pair(string("Destination_File"), new StringObject(&Destination_File)),
+		std::make_pair(string("OS"),new StringObject(&OS)),
+		std::make_pair(string("Architecture"),new StringObject(&Architecture)),
+		std::make_pair(string("Obj_Type"), new StringObject(&Obj_Type)),
+		std::make_pair(string("Bits_Mode"), new StringObject(&Bits_Mode))
 	};
 }
 
-map<string, Symbol_Table*> SymbolTableList::Get_Member_Pointters()
+map<string, Object*> SymbolTableList::Get_Members()
 {
-	return map<string, Symbol_Table*>();
-}
-
-map<string, Waiter*> SymbolTableList::Get_Member_Data()
-{
-	return map<string, Waiter*>();
+	return map<string, Object*>();
 }
 
 bool is_number(const string& s)
@@ -169,7 +144,7 @@ optional<int> If_Int(string s) {
 	return nullopt;
 }
 
-Symbol_Table* SymbolTableList::Get_Member_Pointter(string index)
+Object* SymbolTableList::Get_Member(string index)
 {	
 	Load();
 	if (auto i = If_Int(index))
@@ -184,54 +159,50 @@ Symbol_Table* SymbolTableList::Get_Member_Pointter(string index)
 	throw runtime_error("k Boomer!");
 }
 
-Waiter* SymbolTableList::Get_Member_Data(string key)
-{
-	Load();
-	cout << "Ya mama suck!" << endl;
-	return nullptr;
-}
-
-optional<Waiter*> Symbol_Table::Get_Const_Data(Token* t)
+optional<Object*> Object::Get_Const_Data(Token* t)
 {
 	//sys:Info
 	if (!t->is(_Number_) && (!t->is(_String_)))
 	{
 		vector<string> members = Get_Members(t);
-		if (members.size() < 2)
-		{
-			cout << "Error: " << "Cannot find data member --> " << t->Name + ", " + t->Type << endl;
-			return nullopt;
-		}
-		Symbol_Table* Source = this;
-		for (int i = 0; i < members.size() - 1; i++) {
-			Source = Source->Get_Member_Pointter(members.at(i));
+		Object* Source = this;
+		for (int i = 0; i < members.size(); i++) {
+			Source = Source->Get_Member(members.at(i));
 			if (Source == nullptr)
 			{
 				cout << "Error: " << "Illegal pointter fethcing! --> " << t->Name + ", " + t->Type << endl;
 				return nullopt;
 			}
 		}
-		Waiter* tmp = Source->Get_Member_Data(members.at(members.size() - 1));
-		if (tmp == nullptr)
-		{
-			cout << "Error: " << "Illegal constant data fethcing! --> " << t->Name + ", " + t->Type << endl;
-			return nullopt;
-		}
-		return optional<Waiter*> { tmp };
+		return optional<Object*> { Source };
 	}
 	else if (t->is(_Number_))
 	{
-		return optional<Waiter*> { new IntWaiter(new int(atoi(t->Name.c_str()))) };
+		return optional<Object*> { new IntObject(new int(atoi(t->Name.c_str()))) };
 	}
 	else if (t->is(_String_))
 	{
-		return optional<Waiter*> { new StringWaiter(new string(t->Name.substr(1, t->Name.size() - 2))) };
+		return optional<Object*> { new StringObject(new string(t->Name.substr(1, t->Name.size() - 2))) };
 	}
 	return nullopt;
 }
 
+void Object::Put(Object& other)
+{
+	if (Members.size() != other.Members.size())
+	{
+		cout << "Error: Ur using two totally different classes ya moron!" << endl;
+		throw runtime_error("u retard!");
+		return;
+	}
+	for (auto& m : other.Members)
+	{
+		Members.at(m.first)->Put(*m.second);
+	}
+}
 
-void Symbol_Table::Append(vector<string>* Dest, vector<string> Source)
+
+void Object::Append(vector<string>* Dest, vector<string> Source)
 {
 	for (string i : Source)
 	{
@@ -239,7 +210,7 @@ void Symbol_Table::Append(vector<string>* Dest, vector<string> Source)
 	}
 }
 
-vector<string> Symbol_Table::Get_Members(Token* t)
+vector<string> Object::Get_Members(Token* t)
 {
 	//sys:(Info:OS)
 	vector<string> Phases;
@@ -256,7 +227,7 @@ vector<string> Symbol_Table::Get_Members(Token* t)
 	return Phases;
 }
 
-void Symbol_Table::Safe_Merge(map<string, Symbol_Table*>& Dest, map<string, Symbol_Table*> Source)
+void Object::Safe_Merge(map<string, Object*>& Dest, map<string, Object*> Source)
 {
 	for (auto i : Source) {
 		if (i.second == nullptr)

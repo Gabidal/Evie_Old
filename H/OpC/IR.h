@@ -9,7 +9,7 @@
 #define _Restricted_ (1<<4)
 #define _Double_Task_ (1<<5)
 
-class IR : public Symbol_Table
+class IR : public Object
 {
 private:
 	int Flags = 0;
@@ -24,8 +24,7 @@ public:
 		vector<IR*> Childs;
 		void add(int Flag);
 		int get();
-		map<string, Symbol_Table*> Get_Member_Pointters();
-		map<string, Waiter*> Get_Member_Data();
+		map<string, Object*> Get_Members();
 	IR()
 	{
 	}

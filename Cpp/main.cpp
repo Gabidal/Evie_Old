@@ -11,60 +11,54 @@
 using namespace std;
 int SYNTAX = 0;
 
-Symbol_Table* Root;
-class RootTable : public Symbol_Table {
-    map<string, Symbol_Table*> Get_Member_Pointters() {
-        return map<string, Symbol_Table*>();
-    }
-    map<string, Waiter*> Get_Member_Data() {
-        return map<string, Waiter*>();
+Object* Root;
+class RootTable : public Object {
+    map<string, Object*> Get_Members() {
+        return map<string, Object*>();
     }
 };
 
-class FlagTable : public Symbol_Table {
-    map<string, Symbol_Table*> Get_Member_Pointters() {
-        return map<string, Symbol_Table*>();
-    }
+class FlagTable : public Object {
     
-    map<string, Waiter*> Get_Member_Data() {
+    map<string, Object*> Get_Members() {
         return {
-            make_pair("_Number_", new IntWaiter(new int(_Number_))),
-            make_pair("_External_", new IntWaiter(new int(_External_))),
-            make_pair("_Type_", new IntWaiter(new int(_Type_))),
-            make_pair("_Function_", new IntWaiter(new int(_Function_))),
-            make_pair("_Array_", new IntWaiter(new int(_Array_))),
-            make_pair("_Condition_", new IntWaiter(new int(_Condition_))),
-            make_pair("_Operator_", new IntWaiter(new int(_Operator_))),
-            make_pair("_Returning_", new IntWaiter(new int(_Returning_))),
-            make_pair("_Call_", new IntWaiter(new int(_Call_))),
-            make_pair("_Parameter_", new IntWaiter(new int(_Parameter_))),
-            make_pair("_Constructor_", new IntWaiter(new int(_Constructor_))),
-            make_pair("_Parameter_", new IntWaiter(new int(_Parameter_))),
-            make_pair("_Register_", new IntWaiter(new int(_Register_))),
+            make_pair("_Number_", new IntObject(new int(_Number_))),
+            make_pair("_External_", new IntObject(new int(_External_))),
+            make_pair("_Type_", new IntObject(new int(_Type_))),
+            make_pair("_Function_", new IntObject(new int(_Function_))),
+            make_pair("_Array_", new IntObject(new int(_Array_))),
+            make_pair("_Condition_", new IntObject(new int(_Condition_))),
+            make_pair("_Operator_", new IntObject(new int(_Operator_))),
+            make_pair("_Returning_", new IntObject(new int(_Returning_))),
+            make_pair("_Call_", new IntObject(new int(_Call_))),
+            make_pair("_Parameter_", new IntObject(new int(_Parameter_))),
+            make_pair("_Constructor_", new IntObject(new int(_Constructor_))),
+            make_pair("_Parameter_", new IntObject(new int(_Parameter_))),
+            make_pair("_Register_", new IntObject(new int(_Register_))),
 
-            make_pair("_Inheritting_", new IntWaiter(new int(_Inheritting_))),
+            make_pair("_Inheritting_", new IntObject(new int(_Inheritting_))),
 
-            make_pair("Task_For_Returning", new IntWaiter(new int(Task_For_Returning))),
-            make_pair("Task_For_Type_Address_Basing", new IntWaiter(new int(Task_For_Type_Address_Basing))),
-            make_pair("Task_For_Type_Address", new IntWaiter(new int(Task_For_Type_Address))),
-            make_pair("Task_For_Moving_Parameter", new IntWaiter(new int(Task_For_Moving_Parameter))),
-            make_pair("Task_For_Offsetting", new IntWaiter(new int(Task_For_Offsetting))),
-            make_pair("Task_For_Remainder", new IntWaiter(new int(Task_For_Remainder))),
-            make_pair("Task_For_General_Purpose", new IntWaiter(new int(Task_For_General_Purpose))),
-            make_pair("Task_For_Floating_Math", new IntWaiter(new int(Task_For_Floating_Math))),
+            make_pair("Task_For_Returning", new IntObject(new int(Task_For_Returning))),
+            make_pair("Task_For_Type_Address_Basing", new IntObject(new int(Task_For_Type_Address_Basing))),
+            make_pair("Task_For_Type_Address", new IntObject(new int(Task_For_Type_Address))),
+            make_pair("Task_For_Moving_Parameter", new IntObject(new int(Task_For_Moving_Parameter))),
+            make_pair("Task_For_Offsetting", new IntObject(new int(Task_For_Offsetting))),
+            make_pair("Task_For_Remainder", new IntObject(new int(Task_For_Remainder))),
+            make_pair("Task_For_General_Purpose", new IntObject(new int(Task_For_General_Purpose))),
+            make_pair("Task_For_Floating_Math", new IntObject(new int(Task_For_Floating_Math))),
 
-            make_pair("_Need_For_Space_", new IntWaiter(new int(_Need_For_Space_))),
-            make_pair("_Generated_", new IntWaiter(new int(_Generated_))),
+            make_pair("_Need_For_Space_", new IntObject(new int(_Need_For_Space_))),
+            make_pair("_Generated_", new IntObject(new int(_Generated_))),
 
-            make_pair("_Pointting_", new IntWaiter(new int(_Pointting_))),
-            make_pair("_Array_", new IntWaiter(new int(_Array_))),
-            make_pair("_Giving_Address_", new IntWaiter(new int(_Giving_Address_))),
-            make_pair("_String_", new IntWaiter(new int(_String_))),
-            make_pair("_Preprosessor_", new IntWaiter(new int(_Preprosessor_))),
+            make_pair("_Pointting_", new IntObject(new int(_Pointting_))),
+            make_pair("_Array_", new IntObject(new int(_Array_))),
+            make_pair("_Giving_Address_", new IntObject(new int(_Giving_Address_))),
+            make_pair("_String_", new IntObject(new int(_String_))),
+            make_pair("_Preprosessor_", new IntObject(new int(_Preprosessor_))),
         };
     }
 };
-Symbol_Table* FT;
+Object* FT;
 
 vector<Token*> Generated_Undefined_Tokens;
 vector<Token*> Preprosessor_Tokens;
