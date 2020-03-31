@@ -68,7 +68,7 @@ Token* Definer::FIND(string name)
 			return Generated_Undefined_Tokens.at(i);
 		}
 	}
-	cout << "Error:: Invalid PreType: " + name + "." << endl;
+	cout << "Waring: uninitialized pre type: " + name + "." << endl;
 	Token* t = new Token;
 	return t;
 }

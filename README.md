@@ -96,6 +96,10 @@ Beta 2.1.30 added:
 
 - ###### Added Linux file linking.
 
+Beta 2.1.40 added:
+
+- ###### Added post prosessor. See <sys.e> for a example.
+
 ## Manual
 
 ### Type

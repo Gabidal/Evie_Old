@@ -19,12 +19,12 @@ type List,
 type Integer,
 Integer Flag,
 
-IR List IN,
+List IN,
 Integer i,
 
 
 IR ID,
-Token List Parameters,
+List Parameters,
 
 Token Flags,
 Token Name,
@@ -69,4 +69,17 @@ $if (sys:(Info:OS) == "win32")(
 
 $if (sys:(Info:OS) == "unix")(
 	using "unix.e"
+)
+
+$mod optimized(
+	$pattern (
+		if (i:ID == "ldr")(
+			if (i:(Parameters:(0:Flags)) & Flag:_Register_)(
+				if (i:(Parameters:(1:Name)) == "0")(
+					i:(Parameters:1) = i:(Parameters:0),
+					i:ID = "^"
+				)
+			)
+		)
+	)
 )
