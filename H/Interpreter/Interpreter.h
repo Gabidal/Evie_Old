@@ -30,7 +30,7 @@ private:
 	void Detect_Ifs();
 	void Detect_Patterns();
 	bool Constructable(int i);
-	vector<string> Get_Members(Token* t);
+	void Detect_Mod();
 	void Append(vector<string>* Dest, vector<string> Source);
 	//void Append(vector<Word*>* Dest, vector<Word*> Source, int i);
 	void Append(vector<Word*>* Dest, vector<Word*> Source);

@@ -61,7 +61,7 @@ class FlagTable : public Object {
 Object* FT;
 
 vector<Token*> Generated_Undefined_Tokens;
-vector<Token*> Preprosessor_Tokens;
+map<string, Token*> Preprosessor_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
 map<string, Token*> Register_Lock;
 Selector* S;

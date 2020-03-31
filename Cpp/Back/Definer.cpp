@@ -2,7 +2,8 @@
 #include <iostream>
 using namespace std;
 extern vector<string> Pre_Defined_Tokens;
-extern vector<Token*> Generated_Undefined_Tokens;
+extern vector<Token*> Generated_Undefined_Tokens; 
+extern map<string, Token*> Preprosessor_Tokens;
 extern int _SYSTEM_BIT_TYPE;
 
 int Definer::Get_Location_Of_Type_Constructor(string type)
@@ -31,6 +32,15 @@ int Definer::Get_Definition_Setting(Token* t, string f)
 		}
 	}
 	return 0;
+}
+
+void Definer::Get_Modded_Content(string dest, string source)
+{
+	if (Preprosessor_Tokens.find(dest) != Preprosessor_Tokens.end())
+		return;
+	if (Preprosessor_Tokens.find(source) == Preprosessor_Tokens.end())
+		return;
+	Preprosessor_Tokens[dest] = Preprosessor_Tokens[source];
 }
 
 void Definer::Type_Collect(Token* t)
@@ -100,6 +110,8 @@ void Definer::Factory()
 			continue;
 		}
 		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "State");
+		Get_Modded_Content(s->Name, s->PreFix_Type);
+		Get_Modded_Content(s->Name, s->Type);
 		New_Defined_Class->Name = s->Name;
 		New_Defined_Class->Type = s->Type;
 		New_Defined_Class->_Dynamic_Size_ = s->_Dynamic_Size_;

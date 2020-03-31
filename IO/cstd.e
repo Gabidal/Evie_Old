@@ -34,8 +34,6 @@ type constexpr()(
 
 type export()()
 
-export optimized func main,
-
 $mod optimized(
 	$pattern (
 		if (i:ID == "ldr")(
@@ -48,3 +46,8 @@ $mod optimized(
 		)
 	)
 )
+
+type optimized,
+
+export optimized main,
+

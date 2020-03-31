@@ -30,7 +30,7 @@ public:
 	void Child(int i);
 	void Use_Assembly(int i);
 	void Factory();
-	void Pattern_User(int i, Token* Pattern);
+	void Pattern_User(int i);
 	Emulator(string &in) : Output(in)
 	{
 	}

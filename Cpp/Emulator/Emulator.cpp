@@ -4,7 +4,7 @@
 extern Selector* S;
 		// Register, Regiser using token
 extern map<string, Token*> Register_Lock;
-extern vector<Token*> Preprosessor_Tokens;
+extern map<string, Token*> Preprosessor_Tokens;
 extern Object* Root;
 
 Token* Emulator::Get_Info(Token* t)
@@ -244,15 +244,28 @@ void Emulator::Factory()
 		Label_Recorder(i);
 		Frame_Handler(i);
 		FPU_Choser(i);
-		for (Token* t : Preprosessor_Tokens)
-			Pattern_User(i, t);
+		Pattern_User(i);
 		Use_Assembly(i);
 		Child(i);
 	}
 }
 
-void Emulator::Pattern_User(int i, Token* Pattern)
+void Emulator::Pattern_User(int i)
 {
+	Token* Pattern = new Token();
+	if (Branching_Label.size() < 1)
+	{
+		if (Preprosessor_Tokens.find("") == Preprosessor_Tokens.end())
+			return;
+		Pattern = Preprosessor_Tokens[""];
+	}
+	else
+	{
+		if (Preprosessor_Tokens.find(Branching_Label.back()) == Preprosessor_Tokens.end())
+			return;
+		Pattern = Preprosessor_Tokens[Branching_Label.back()];
+	}
+
 	IR* t = Input.at(i);
 	Modder m(*t, Input, Pattern->Childs);
 	m.Factory();

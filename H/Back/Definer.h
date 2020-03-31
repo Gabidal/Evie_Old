@@ -18,6 +18,7 @@ public:
     vector<Token*> Output;
     int Get_Location_Of_Type_Constructor(string type);
     int Get_Definition_Setting(Token* t, string f);
+    void Get_Modded_Content(string dest, string source);
     void Type_Collect(Token* t);
     Token* FIND(string name);
     bool Has(Token* t, string s);

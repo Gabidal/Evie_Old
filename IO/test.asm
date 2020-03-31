@@ -11,3 +11,7 @@ mov eax , dword [ebp  - 4]
 leave 
 ret
  
+_banana: 
+mov al , byte 0
+ret
+ 

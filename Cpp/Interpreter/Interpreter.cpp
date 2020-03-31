@@ -2,16 +2,20 @@
 #include "../../H/Parser/Parser.h"
 extern Object* Root;
 
-extern vector<Token*> Preprosessor_Tokens;
+extern map<string, Token*> Preprosessor_Tokens;
+string Layer_Name = "";
 
 void Interpreter::Factory()
 {
 	Detect_Ifs();
 	Detect_Patterns();
+	Detect_Mod();
 }
 
 void Interpreter::Detect_Ifs()
 {
+	if (Input.size() < 1)
+		return;
 	//$if (sys:Info:OS == "win32")(
 	//	using "win32_std.e"
 	//)
@@ -45,6 +49,8 @@ void Interpreter::Detect_Ifs()
 
 void Interpreter::Detect_Patterns()
 {
+	if (Input.size() < 1)
+		return;
 	/*$pattern (
 		$if (IN:(i:ID) == "lda")(
 			$if (IN:(i:(Parameters:(0:Flags))) == "_Register_")(
@@ -62,12 +68,23 @@ void Interpreter::Detect_Patterns()
 	Token* pattern = new Token;
 	pattern->Name = "pattern";
 	pattern->add(_Preprosessor_);
+	pattern->add(_Parenthesis_);
 	Parser p;
 	p.Input = Input.at(i + 2)->Tokens;
 	p.Defined_Keywords = Defined;
 	p.Factory();
 	pattern->Childs = p.Output;
-	Preprosessor_Tokens.push_back(pattern);
+	if (Preprosessor_Tokens.find(Layer_Name) == Preprosessor_Tokens.end())
+	{
+		Token* pack = new Token;
+		pack->add(_Parenthesis_);
+		pack->Childs.push_back(pattern);
+		Preprosessor_Tokens.insert(make_pair(Layer_Name, pack));
+	}
+	else
+	{
+		Preprosessor_Tokens[Layer_Name]->Childs.push_back(pattern);
+	}
 	Input.erase(Input.begin() + i, Input.begin() + i + 3);
 }
 
@@ -93,7 +110,21 @@ bool Interpreter::Constructable(int i)
 	}
 }
 
-
+void Interpreter::Detect_Mod()
+{
+	if (Input.size() < 1)
+		return;
+	if (Input.at(i)->WORD != "$")
+		return;
+	if (Input.at(i + 1)->WORD != "mod")
+		return;
+	Layer_Name = Input.at(i + 2)->WORD;
+	Parser p;
+	p.Input = Input.at(i + 2)->Tokens;
+	p.Defined_Keywords = Defined;
+	p.Factory();
+	Input.erase(Input.begin() + i, Input.begin() + i + 3);
+}
 
 void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source)
 {

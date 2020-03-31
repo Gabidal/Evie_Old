@@ -80,7 +80,7 @@ void Parser::Init_Definition(int i)
 			{
 				if (i - 2 >= 0)
 				{
-					if (Input.at(i - 2)->is(_OPERATOR))
+					if (Input.at(i - 2)->is(_OPERATOR) && (Input.at(i - 2)->WORD != ","))
 					{
 						goto skip;
 					}
@@ -160,6 +160,8 @@ string Parser::Get_Size(int i)
 
 void Parser::Init_Operator(int i)
 {
+	if (Input.size() < 1)
+		return;
 	if (Input.at(i)->WORD == "$")
 		return;
 	if (Input.at(i)->WORD == ",")
@@ -311,6 +313,8 @@ void Parser::Do_In_Order()
 
 void Parser::Init_Parenthesis(int i)
 {
+	if (Input.size() < 1)
+		return;
 	if (Input.at(i)->is(_PAREHTHESIS))
 	{
 		Token* New_Defined_Parenthesis = new Token();
@@ -334,6 +338,8 @@ void Parser::Init_Parenthesis(int i)
 
 void Parser::Init_Conditions(int i)
 {
+	if (Input.size() < 1)
+		return;
 	if (i >= (Input.size() - 1))
 	{
 		return;
@@ -379,6 +385,8 @@ void Parser::Init_Conditions(int i)
 
 void Parser::Type_Definition(int i)
 {
+	if (Input.size() < 1)
+		return;
 	if (i > (Input.size() - 1))
 	{
 		return;
@@ -539,6 +547,8 @@ int Parser::Count_Familiar_Tokens(int F, int i)
 
 void Parser::Init_Variable(int i)
 {
+	if (Input.size() < 1)
+		return;
 	//var a = 1
 	if (Input.at(i)->_operatorized)
 	{
@@ -650,6 +660,8 @@ void Parser::Init_Variable(int i)
 
 void Parser::Check_For_Correlation(int i)
 {
+	if (Input.size() < 1)
+		return;
 	for (string s: Pre_Defined_Tokens)
 		if (Input.at(i)->WORD == s)
 		{
@@ -699,6 +711,8 @@ void Parser::Check_For_Inter(int i)
 		Append(&Output, p.Output);
 		Defined_Keywords = p.Defined_Keywords;
 	}
+	if (Input.size() < 1)
+		return;
 	if (Input.at(i)->WORD == "$")
 	{
 		//loops if these is right behind it another "$"
