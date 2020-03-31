@@ -1,8 +1,7 @@
 use "cstd.e"
 
 main()(
-	int a = 0
-	return a
+	return 0
 )
 
 func banana()(

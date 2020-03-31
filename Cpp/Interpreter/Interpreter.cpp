@@ -124,6 +124,7 @@ void Interpreter::Detect_Mod()
 	p.Defined_Keywords = Defined;
 	p.Factory();
 	Input.erase(Input.begin() + i, Input.begin() + i + 3);
+	Layer_Name = "";
 }
 
 void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source)

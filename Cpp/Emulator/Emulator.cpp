@@ -253,17 +253,19 @@ void Emulator::Factory()
 void Emulator::Pattern_User(int i)
 {
 	Token* Pattern = new Token();
-	if (Branching_Label.size() < 1)
+	if (Preprosessor_Tokens.find("") != Preprosessor_Tokens.end())
 	{
-		if (Preprosessor_Tokens.find("") == Preprosessor_Tokens.end())
-			return;
 		Pattern = Preprosessor_Tokens[""];
 	}
-	else
+	else if (Branching_Label.size() > 0)
 	{
 		if (Preprosessor_Tokens.find(Branching_Label.back()) == Preprosessor_Tokens.end())
 			return;
 		Pattern = Preprosessor_Tokens[Branching_Label.back()];
+	}
+	else
+	{
+		return;
 	}
 
 	IR* t = Input.at(i);
