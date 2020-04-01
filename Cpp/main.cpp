@@ -55,6 +55,7 @@ class FlagTable : public Object {
             make_pair("_Giving_Address_", new IntObject(new int(_Giving_Address_))),
             make_pair("_String_", new IntObject(new int(_String_))),
             make_pair("_Preprosessor_", new IntObject(new int(_Preprosessor_))),
+            make_pair("_Skip_", new IntObject(new int(_Skip_))),
         };
     }
 };

@@ -286,7 +286,11 @@ void Parser::Do_In_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "&");
 	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "!&");
+	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "|");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "!|");
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "+");
 	for (int i = 0; i < Input.size(); i++)
@@ -309,6 +313,10 @@ void Parser::Do_In_Order()
 		Patternize_Operations(i, "!>");
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "=");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "|=");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "&=");
 }
 
 void Parser::Init_Parenthesis(int i)

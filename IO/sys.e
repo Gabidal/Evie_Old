@@ -13,14 +13,19 @@ system Architecture,
 system Obj_Type,
 system Bits_Mode,
 
+type String,
 type IR,
 type Token,
 type List,
 type Integer,
 Integer Flag,
+Integer Stack_Offset,
+String UID,
 
 List IN,
-Integer i,
+Integer p,
+Integer c,
+Integer n,
 
 
 IR ID,
@@ -62,6 +67,7 @@ Flag _Array_,
 Flag _Giving_Address_,
 Flag _String_,
 Flag _Preprosessor_,
+Flag _Skip_,
 
 $if (sys:(Info:OS) == "win32")(
 	using "win32.e"
@@ -73,11 +79,23 @@ $if (sys:(Info:OS) == "unix")(
 
 $mod optimized(
 	$pattern (
-		if (i:ID == "ldr")(
-			if (i:(Parameters:(0:Flags)) & Flag:_Register_)(
-				if (i:(Parameters:(1:Name)) == "0")(
-					i:(Parameters:1) = i:(Parameters:0),
-					i:ID = "^"
+		if (c:ID == "ldr")(
+			if (c:(Parameters:(0:Flags)) & Flag:_Register_)(
+				if (c:(Parameters:(1:Name)) == "0")(
+					c:(Parameters:1) = c:(Parameters:0),
+					c:ID = "^"
+				)
+			)
+		)
+	)
+	$pattern(
+		if (c:ID == "=")(
+			if (n:ID == "ldr")(
+				if (c:(Parameters:(0:Name)) == n:(Parameters:(1:Name)))(
+					if (c:(Parameters:(1:UID)) == n:(Parameters:(0:UID)))(
+						c:Flags |= Flag:_Skip_,
+						n:Flags |= Flag:_Skip_,
+					)
 				)
 			)
 		)

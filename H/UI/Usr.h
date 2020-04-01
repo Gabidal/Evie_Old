@@ -63,6 +63,9 @@ public:
 	void Put(Object& other) {
 		*(int*)Data = *(int*)other.Data;
 	}
+	int& Get_Int_Value() {
+		return *(int*)Data;
+	}
 	string Get_Value()
 	{
 		return to_string(*(int*)Data);

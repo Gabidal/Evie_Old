@@ -9,7 +9,7 @@
 class Modder : public Object
 {
 public:
-	Modder(IR &i, vector<IR*> &out, vector<Token*> in) : I(i), Output(out)
+	Modder(IR &p, IR& c, IR& n, vector<IR*> &out, vector<Token*> in) : P(p), C(c), N(n), Output(out)
 	{
 		Input = in;
 	}
@@ -25,7 +25,9 @@ private:
 	void Detect_Operator(Token* t);
 	vector<IR*> &Output;
 	vector<Token*> Input;
-	IR& I;
+	IR& P; //previus
+	IR& C; //current
+	IR& N; //next
 };
 
 

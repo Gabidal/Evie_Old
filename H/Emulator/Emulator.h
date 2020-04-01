@@ -31,6 +31,7 @@ public:
 	void Use_Assembly(int i);
 	void Factory();
 	void Pattern_User(int i);
+	void Load_UID(int i);
 	Emulator(string &in) : Output(in)
 	{
 	}

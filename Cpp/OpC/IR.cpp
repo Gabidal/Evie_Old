@@ -14,6 +14,7 @@ map<string, Object*> IR::Get_Members()
 {
 
 	return {
+		make_pair("Flags", new IntObject(&Flags)),
 		make_pair("Parameters", new SymbolTableList(Parameters)),
 		make_pair("Childs", new SymbolTableList(Childs)),
 		std::make_pair("Reg_Flag", new IntObject(&Reg_Flag)),

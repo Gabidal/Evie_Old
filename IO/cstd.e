@@ -34,6 +34,6 @@ type constexpr()(
 
 type export()()
 
-type optimized,
+func optimized,
 
 export optimized main,

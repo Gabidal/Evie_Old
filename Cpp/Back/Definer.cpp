@@ -36,6 +36,8 @@ int Definer::Get_Definition_Setting(Token* t, string f)
 
 void Definer::Get_Modded_Content(string dest, string source)
 {
+	if (source == "")
+		return;
 	if (Preprosessor_Tokens.find(dest) != Preprosessor_Tokens.end())
 		return;
 	if (Preprosessor_Tokens.find(source) == Preprosessor_Tokens.end())

@@ -11,10 +11,12 @@ extern Object* FT;
 
 map<string, Object*> Modder::Get_Members()
 {
-	Root->Set("i", &I);
+	Root->Set("c", &C);
 	return {
 		std::make_pair("Flag", FT),
-		std::make_pair("i", (Object*)&I),
+		std::make_pair("p", (Object*)&P),
+		std::make_pair("c", (Object*)&C),
+		std::make_pair("n", (Object*)&N),
 		std::make_pair("IN", new SymbolTableList(Output)),
 		std::make_pair("Pattern", new SymbolTableList(Input))
 	};
@@ -52,15 +54,23 @@ bool Modder::Passing(Token* condition)
 	{
 		if (auto right = Get_Const_Data(condition->Right_Side_Token))
 		{
-			//std::cout << left.value()->Get_Value() << right.value()->Get_Value() << std::endl;
+			std::cout << left.value()->Get_Value() << " , " << right.value()->Get_Value() << std::endl;
 			bool result = false;
 			if (condition->Name == "&")
 			{
 				result = atoi(left.value()->Get_Value().c_str()) & atoi(right.value()->Get_Value().c_str());
 			}
+			else if (condition->Name == "!&")
+			{
+				result = !(atoi(left.value()->Get_Value().c_str()) & atoi(right.value()->Get_Value().c_str()));
+			}
 			else if (condition->Name == "|")
 			{
 				result = atoi(left.value()->Get_Value().c_str()) | atoi(right.value()->Get_Value().c_str());
+			}
+			else if (condition->Name == "!|")
+			{
+				result = !(atoi(left.value()->Get_Value().c_str()) | atoi(right.value()->Get_Value().c_str()));
 			}
 			else
 			{
@@ -89,6 +99,12 @@ void Modder::Detect_Operator(Token* t)
 		if (t->Name == "=")
 		{
 			Get_Const_Data(t->Left_Side_Token).value()->Put(*Get_Const_Data(t->Right_Side_Token).value());
+		}
+		else if (t->Name == "|=")
+		{
+			IntObject* L = (IntObject*)Get_Const_Data(t->Left_Side_Token).value();
+			IntObject* R = (IntObject*)Get_Const_Data(t->Right_Side_Token).value();
+			L->Get_Int_Value() |= R->Get_Int_Value();
 		}
 	}
 }

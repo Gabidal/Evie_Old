@@ -219,12 +219,8 @@ void Emulator::Child(int i)
 
 void Emulator::Use_Assembly(int i)
 {
-	for (Token* T : Input.at(i)->Parameters)
-	{
-		Register_Chooser(T);
-		if (T->Offsetter != nullptr) 
-			Register_Chooser(T->Offsetter);
-	}
+	if (Input.at(i)->is(_Skip_))
+		return;
 
 	Back b(Output);
 	b.Input = Input.at(i);
@@ -235,12 +231,15 @@ void Emulator::Use_Assembly(int i)
 void Emulator::Factory()
 {
 	for (int i = 0; i < Input.size(); i++)
+		Long_Operation_Allocator(i);
+	for (int i = 0; i < Input.size(); i++)
+		Load_UID(i);
+	for (int i = 0; i < Input.size(); i++)
 	{
 		if (Input.at(i)->ID == "Size" || Input.at(i)->ID == "Static")
 		{
 			continue;
 		}
-		Long_Operation_Allocator(i);
 		Label_Recorder(i);
 		Frame_Handler(i);
 		FPU_Choser(i);
@@ -252,23 +251,36 @@ void Emulator::Factory()
 
 void Emulator::Pattern_User(int i)
 {
+	IR* p = new IR;
+	IR* n = new IR;
+	if (i - 1 >= 0)
+		p = Input.at(i - 1);
+	if (i + 1 <= Input.size() - 1)
+		n = Input.at(i + 1);
+	IR* c = Input.at(i);
 	Token* Pattern = new Token();
 	if (Preprosessor_Tokens.find("") != Preprosessor_Tokens.end())
 	{
 		Pattern = Preprosessor_Tokens[""];
+		Modder m(*p, *c, *n, Input, Pattern->Childs);
+		m.Factory();
 	}
-	else if (Branching_Label.size() > 0)
+	if (Branching_Label.size() > 0)
 	{
 		if (Preprosessor_Tokens.find(Branching_Label.back()) == Preprosessor_Tokens.end())
 			return;
 		Pattern = Preprosessor_Tokens[Branching_Label.back()];
+		Modder m(*p, *c, *n, Input, Pattern->Childs);
+		m.Factory();
 	}
-	else
-	{
-		return;
-	}
+}
 
-	IR* t = Input.at(i);
-	Modder m(*t, Input, Pattern->Childs);
-	m.Factory();
+void Emulator::Load_UID(int i)
+{
+	for (Token* T : Input.at(i)->Parameters)
+	{
+		Register_Chooser(T);
+		if (T->Offsetter != nullptr)
+			Register_Chooser(T->Offsetter);
+	}
 }

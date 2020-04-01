@@ -149,6 +149,8 @@ Object* SymbolTableList::Get_Member(string index)
 	Load();
 	if (auto i = If_Int(index))
 	{
+		if (i.value() > Items.size() - 1)
+			cout << "Error: Index: " << index << ", max-size: " <<  Items.size() << endl;
 		return *Items.at(i.value());
 	}
 	else
