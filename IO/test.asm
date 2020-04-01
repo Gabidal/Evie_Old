@@ -1,15 +1,9 @@
-export main
-global main
-main: 
-_main: 
+_banana: 
 push ebp 
 mov ebp , esp 
-sub esp , dword 4
-xor eax , eax 
+mov eax , dword [ebp  + 8]
+mov ebx , dword [ebp  + 8]
+imul eax , ebx 
 leave 
-ret
- 
-_banana: 
-xor al , al 
 ret
  

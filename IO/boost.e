@@ -69,7 +69,7 @@ $pattern (
 	)
 )
 
-#this pattern deletes saving and then loading for nothing issues.
+#this pattern deletes reduntant savind/loading issues.
 $pattern(
 	if (c:ID == "=")(
 		if (n:ID == "ldr")(
@@ -83,7 +83,7 @@ $pattern(
 	)
 )
 
-#this pattern checks for moving same reg into same reg.
+#this pattern deletes moving same reg into same reg.
 $pattern(
 	if (c:ID == "ldr")(
 		if (c:(Parameters:(0:UID)) != "")(

@@ -405,7 +405,8 @@ void Generator::Detect_Parenthesis(Token* t)
 		g.Types = this->Types;
 		g.Factory();
 		Append(&Output, g.Output);
-		if ((t->Childs.size() == 1) && (t->Childs.at(0)->is(_Operator_) == false))
+		Handle = g.Handle;
+		if ((t->Childs.size() == 1) && (t->Childs.at(0)->is(_Operator_) == false) && (Handle == nullptr))
 		{
 			Handle = t->Childs.at(0);
 		}

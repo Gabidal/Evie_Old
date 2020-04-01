@@ -127,6 +127,8 @@ string Parser::Get_Size(int i)
 	//type a()(..)
 	if (Count_Familiar_Tokens(_PAREHTHESIS, i + 2) < 2)
 		return "0";
+	if (Input.at(i)->WORD == "func")
+		return "0";
 	Parser p;
 	p.Input = Input.at(i + 3)->Tokens;
 	p.Defined_Keywords = Defined_Keywords;
