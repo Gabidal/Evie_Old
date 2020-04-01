@@ -78,6 +78,7 @@ $if (sys:(Info:OS) == "unix")(
 )
 
 $mod optimized(
+	#This pattern checks if we can make "reg <- 0" into just "xor reg, reg".
 	$pattern (
 		if (c:ID == "ldr")(
 			if (c:(Parameters:(0:Flags)) & Flag:_Register_)(
@@ -88,6 +89,7 @@ $mod optimized(
 			)
 		)
 	)
+	#this pattern deletes saving and then loading for nothing issues.
 	$pattern(
 		if (c:ID == "=")(
 			if (n:ID == "ldr")(
@@ -96,6 +98,23 @@ $mod optimized(
 						c:Flags |= Flag:_Skip_,
 						n:Flags |= Flag:_Skip_,
 					)
+				)
+			)
+		)
+	)
+	#this pattern checks for moving same reg into same reg.
+	$pattern(
+		if (c:ID == "ldr")(
+			if (c:(Parameters:(0:UID)) != "")(
+				if (c:(Parameters:(0:UID)) == c:(Parameters:(1:UID)))(
+					c:Flags |= Flag:_Skip_
+				)
+			)
+		)
+		if (c:ID == "=")(
+			if (c:(Parameters:(0:UID)) != "")(
+				if (c:(Parameters:(0:UID)) == c:(Parameters:(1:UID)))(
+					c:Flags |= Flag:_Skip_
 				)
 			)
 		)

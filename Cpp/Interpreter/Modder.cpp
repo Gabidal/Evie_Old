@@ -54,7 +54,7 @@ bool Modder::Passing(Token* condition)
 	{
 		if (auto right = Get_Const_Data(condition->Right_Side_Token))
 		{
-			std::cout << left.value()->Get_Value() << " , " << right.value()->Get_Value() << std::endl;
+			//std::cout << left.value()->Get_Value() << " , " << right.value()->Get_Value() << std::endl;
 			bool result = false;
 			if (condition->Name == "&")
 			{

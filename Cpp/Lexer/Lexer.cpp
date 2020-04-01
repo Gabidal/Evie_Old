@@ -266,6 +266,7 @@ void Lexer::OpenFile(const char* fileName)
 			{
 				continue;
 			}
+            Remove_Comment(Line);
             Lines += Line + " ";
             //Lines = Line; 
             //Lines = ReplaceString(Lines, "\t", " "); 
@@ -282,4 +283,19 @@ void Lexer::Direct(string raw)
 {
     Lines = raw;
     Define();
+}
+
+void Lexer::Remove_Comment(string& line)
+{
+    int start = line.find("#");
+
+    if (start == -1)
+    {
+        return;
+        //throw std::runtime_error("Error: Couldn't find the start of a comment");
+    }
+
+    int length = line.size() - start;
+
+    line = line.erase(start, length);
 }
