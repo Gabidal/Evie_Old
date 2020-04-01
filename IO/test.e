@@ -1,4 +1,5 @@
 use "cstd.e"
+use "boost.e"
 
 main()(
 	int a = 0

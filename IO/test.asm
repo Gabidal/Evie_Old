@@ -10,6 +10,6 @@ leave
 ret
  
 _banana: 
-mov al , byte 0
+xor al , al 
 ret
  
