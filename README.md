@@ -171,7 +171,7 @@ using "[folder/filename]"
 
 #### Synatx:
 ```
-[./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] (-mode [bits mode] == not a must)
+[./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] (-mode [bits mode] == not a must)  (-debug [type(for example dwarf2)] = not a must)
 ```
 
 ### Preprosessor
