@@ -5,6 +5,7 @@
 #include "../H/Selector/Selector.h"
 #include "../H/Back/Generator.h"
 #include "../H/UI/Usr.h"
+#include "../H/UI/Producer.h"
 #include <sstream>
 #include <iostream>
 #include <map>
@@ -184,7 +185,7 @@ const char* Source = "";
     }
 }*/
 
-//main -in ~/test.g -out ~/test.asm -lib exe -os win32 -arch x86 -mode 32 -dasable Interpreter
+//main -in ~/test.g -out ~/test.asm -lib exe -os win32 -arch x86 -mode 4 -debug dwarf2
 int main(int argc, char* argv[])
 {
     if (argc == 1)
@@ -229,44 +230,7 @@ int main(int argc, char* argv[])
     o << OUTPUT;//b.Output;
     o.close();
 
-    if (sys->Info.OS == "win32" && (sys->Info.Architecture == "x86") && (sys->Info.Obj_Type == "exe"))
-    {
-        //target windows
-        stringstream output;
-        output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << start_file << ".obj " << sys->Info.Destination_File;
-
-        system(output.str().c_str());
-        output = stringstream();
-
-        output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/debug coff " << "/entry main " << start_file << ".obj " << "kernel32.dll ";
-        
-        //output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/dll " << "/debug coff " << start_file << ".obj " << "kernel32.dll ";
-
-        system(output.str().c_str());
-        //banana(("C:\\Users\\Quanf\\source\\repos\\GAS\\GAS\\IO\\" + start_file + ".dll").c_str());
-    }
-    else if (sys->Info.OS == "unix" && (sys->Info.Architecture == "x86") && (sys->Info.Obj_Type == "exe"))
-    {
-        stringstream output;
-        output << "sudo apt install yasm";
-
-        system(output.str().c_str());
-        output = stringstream();
-
-        output << "yasm -g dwarf2 -f elf32 -o " << sys->Info.Destination_File + ".o " << sys->Info.Destination_File;
-        
-        system(output.str().c_str());
-        output = stringstream();
-
-        output << "ld -m elf_i386 -o " << sys->Info.Destination_File + ".this_is_the_runnable " << sys->Info.Destination_File + ".o ";
-
-        system(output.str().c_str());
-        output = stringstream();
-
-        output << "sudo chmod +x " << sys->Info.Destination_File + ".this_is_the_runnable ";
-
-        system(output.str().c_str());
-        //target unix
-    }
+    Producer pr;
+    pr.Assemble_Command();
     return 0;
 }

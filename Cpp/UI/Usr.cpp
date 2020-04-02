@@ -48,6 +48,7 @@ void Usr::Create_Argument_Stats()
 		Find_OS(i);
 		Find_Architecture(i);
 		Find_Bits_Mode(i);
+		Find_Debug_Type(i);
 	}
 }
 
@@ -106,6 +107,16 @@ void Usr::Find_Obj_Type(int &i)
 	}
 }
 
+void Usr::Find_Debug_Type(int& i)
+{
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-debug") == 0)
+	{
+		string tmp = string(Input[i + 1]);
+		Info.Debug = tmp;
+		i++;
+	}
+}
+
 map<string, Object*> output::Get_Members(){
 	/*string Source_File;
 	string Destination_File;
@@ -119,7 +130,8 @@ map<string, Object*> output::Get_Members(){
 		std::make_pair(string("OS"),new StringObject(&OS)),
 		std::make_pair(string("Architecture"),new StringObject(&Architecture)),
 		std::make_pair(string("Obj_Type"), new StringObject(&Obj_Type)),
-		std::make_pair(string("Bits_Mode"), new StringObject(&Bits_Mode))
+		std::make_pair(string("Bits_Mode"), new StringObject(&Bits_Mode)),
+		std::make_pair(string("Debug"), new StringObject(&Debug))
 	};
 }
 

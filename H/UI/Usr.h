@@ -83,6 +83,7 @@ public:
 	string Obj_Type = "exe";
 	string Bits_Mode = "4";
 	string Diable = "";
+	string Debug = "";
 	Object& operator=(output& other) {
 		 Source_File = other.Source_File;
 		 Destination_File = other.Destination_File;
@@ -139,6 +140,7 @@ private:
 	void Find_Architecture(int &i);
 	void Find_Bits_Mode(int &i);
 	void Find_Obj_Type(int &i);
+	void Find_Debug_Type(int& i);
 };
 
 
