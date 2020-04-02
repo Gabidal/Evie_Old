@@ -17,10 +17,6 @@
     else if (sys->Info.OS == "unix" && (sys->Info.Architecture == "x86"))
     {
         stringstream output;
-        output << "apt install yasm";
-
-        system(output.str().c_str());
-        output = stringstream();
 
         output << "yasm -g dwarf2 -f elf32 -o " << sys->Info.Destination_File + ".o " << sys->Info.Destination_File;
 
@@ -28,14 +24,6 @@
         output = stringstream();
 
         output << "ld -m elf_i386 -o " << sys->Info.Destination_File + ".this_is_the_runnable " << sys->Info.Destination_File + ".o ";
-
-        system(output.str().c_str());
-        output = stringstream();
-
-        output << "chmod +x " << sys->Info.Destination_File + ".this_is_the_runnable ";
-
-        system(output.str().c_str());
-        //target unix
     }
 */
 
@@ -80,7 +68,14 @@ string Producer::Get_Type()
     }
     else if (OS == "unix")
     {
-        return " -f " + (string)"elf32 ";
+        if (Type == "exe")
+        {
+            return " -f " + (string)"elf32 ";
+        }
+        else
+        {
+            return " -f " + Type;
+        }
     }
     return "";
 }
