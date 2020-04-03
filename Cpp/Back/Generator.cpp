@@ -104,8 +104,11 @@ void Generator::Detect_Function(Token* t)
 		for (Token* t : t->Left_Side_Token->Childs)
 		{
 			Generator g;
+			g.Types = Types;
 			g.Input.push_back(t);
 			g.Factory();
+
+			Append(&Output, g.Output);
 
 			IR* push = new IR;
 			push->ID = "push";

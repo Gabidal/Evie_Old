@@ -1,7 +1,13 @@
 _banana: 
 push ebp 
 mov ebp , esp 
-mov eax , dword 3
-mov ebx , dword [ebp  + 12]
-cmp eax , ebx 
-mov dword [ebp  + 8], eax 
+push dword [ebp  + 12]
+call _banana
+add esp , dword 4
+push eax 
+push dword [ebp  + 8]
+call _banana
+add esp , dword 8
+leave 
+ret
+ 
