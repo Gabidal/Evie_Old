@@ -100,3 +100,20 @@ $pattern(
 		)
 	)
 )
+
+$pattern (
+	if (c:ID == "ldr")(
+		if (n:ID == "=")(
+			if (c:(Parameters:(0:Flags)) & Flag:_Register_)(
+				if (c:(Parameters:(1:Flags)) & Flag:_Number_)(
+					if (n:(Parameters:(0:Flags)) !& Flag:_Register_)(
+						if (n:(Parameters:(1:Flags)) & Flag:_Register_)(
+							c:Flags |= Flag:_Skip_,
+							n:(Parameters:1) = c:(Parameters:1)
+						)
+					)
+				)
+			)
+		)
+	)
+)
