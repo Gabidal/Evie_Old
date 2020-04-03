@@ -1,13 +1,14 @@
 _banana: 
-push ebp 
-mov ebp , esp 
-push dword [ebp  + 12]
-call _banana
-add esp , dword 4
 push eax 
-push dword [ebp  + 8]
 call _banana
-add esp , dword 8
+mov ebx , dword [ebp  + 12]
+add ebx , eax 
+push ebx 
+call _banana
+mov ecx , dword [ebp  + 8]
+add ecx , eax 
+push ecx 
+call _banana
 leave 
 ret
  

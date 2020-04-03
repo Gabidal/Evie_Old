@@ -30,6 +30,8 @@ public:
 	string Get_ID(string id, string trust, vector<int> minmax);
 	Token* Get_Right_Reg(int F, int Size);
 	Token* Get_Reg(vector<Token*> regs, int F, int &previus);
+	Token* Check_For_Reg(int F, int Size);
+	void Increase(int Size);
 	Selector(string s);
 	~Selector();
 private:

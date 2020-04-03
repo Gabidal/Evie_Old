@@ -79,23 +79,6 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Input.at(i)->Childs.clear();
 		Input.insert(Input.begin() + i + 2 , label);
 	}
-	/*else if (Input.at(i)->ID == "call")
-	{
-		//go though the parameters (in left side childs) and make them a push IR tokens;
-		for (Token* j : Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs)
-		{
-			IR* p = new IR;
-			p->ID = "push";
-			Register_Chooser(j);
-			Register_Chooser(j->Offsetter);
-
-			
-			p->Parameters.push_back(j);
-
-			Input.insert(Input.begin() + i, p);
-			i++;
-		}
-	}*/
 	else if (Input.at(i)->ID == "asm")
 	{
 
@@ -157,15 +140,15 @@ void Emulator::Register_Chooser(Token* t)
 		return;
 	if (t->is(_Register_))
 	{
-		for (auto i : Register_Lock)
-		{
-			if (i.first == t->Name)
+		if (!(t->is(Task_For_Returning))) {
+			for (auto i : Register_Lock)
 			{
-				if (t->is(Task_For_Returning))
-					break;
-				//if this is finded
-				t->UID = i.second->Name;
-				return;
+				if (i.first == t->Name)
+				{
+					//if this is finded
+					t->UID = i.second->Name;
+					return;
+				}
 			}
 		}
 		//if not
@@ -173,6 +156,13 @@ void Emulator::Register_Chooser(Token* t)
 		Register_Lock.insert({ t->Name, Reg });
 		t->UID = Reg->Name;
 		return;
+	}
+	else if (t->is(_Call_))
+	{
+		if (S->Check_For_Reg(Task_For_General_Purpose, t->Size)->is(Task_For_Returning))
+		{
+			S->Increase(t->Size);
+		}
 	}
 }
 

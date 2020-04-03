@@ -150,6 +150,54 @@ Token* Selector::Get_Reg(vector<Token*> regs, int F, int &Previus)
 	return nullptr;
 }
 
+Token* Selector::Check_For_Reg(int F, int Size)
+{
+	if (Size == 12)
+	{
+		return Registers128.at(Reg_Turn128);
+	}
+	else if (Size == 8)
+	{
+		return Registers64.at(Reg_Turn64);
+	}
+	else if (Size == 4)
+	{
+		return Registers32.at(Reg_Turn32);
+	}
+	else if (Size == 2)
+	{
+		return Registers16.at(Reg_Turn16);
+	}
+	else if (Size == 1)
+	{
+		return Registers8.at(Reg_Turn8);
+	}
+}
+
+void Selector::Increase(int Size)
+{
+	if (Size == 12)
+	{
+		Reg_Turn128++;
+	}
+	else if (Size == 8)
+	{
+		Reg_Turn64++;
+	}
+	else if (Size ==4)
+	{
+		Reg_Turn32++;
+	}
+	else if (Size == 2)
+	{
+		Reg_Turn16++;
+	}
+	else if (Size == 1)
+	{
+		Reg_Turn8++;
+	}
+}
+
 string Selector::Get_ID(string id, string trust, vector<int> minmax)
 {
 	if (id == "")
