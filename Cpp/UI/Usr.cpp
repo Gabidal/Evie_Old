@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include <optional>
+#include <algorithm>
 
 void Object::Load()
 {
