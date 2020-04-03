@@ -91,8 +91,8 @@ void Emulator::Long_Operation_Allocator(int &i)
 			p->Parameters.push_back(j);
 
 			Input.insert(Input.begin() + i, p);
+			i++;
 		}
-		i++;
 	}
 	else if (Input.at(i)->ID == "asm")
 	{

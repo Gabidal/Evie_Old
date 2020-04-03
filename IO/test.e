@@ -1,12 +1,15 @@
 use "cstd.e"
 use "boost.e"
 
-func square(int num)(
-	return (num * num)
-)
+func banana(int a, int b)(
+    int o = 0
 
-main()(
-	int a = 1
-	int b = 2
-	return (a + square(b))
+    if a > b (
+        int x = a + a
+        int z = x * x + banana(x, a)
+        o = 3 * z + x
+    )
+
+    int c = a + b - o
+    return c
 )
