@@ -14,9 +14,9 @@ map<string, Object*> Modder::Get_Members()
 	Root->Set("c", &C);
 	return {
 		std::make_pair("Flag", FT),
-		std::make_pair("p", (Object*)&P),
-		std::make_pair("c", (Object*)&C),
-		std::make_pair("n", (Object*)&N),
+		std::make_pair("_p", (Object*)&P),
+		std::make_pair("_c", (Object*)&C),
+		std::make_pair("_n", (Object*)&N),
 		std::make_pair("IN", new SymbolTableList(Output)),
 		std::make_pair("Pattern", new SymbolTableList(Input))
 	};

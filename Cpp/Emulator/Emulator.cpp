@@ -79,7 +79,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Input.at(i)->Childs.clear();
 		Input.insert(Input.begin() + i + 2 , label);
 	}
-	else if (Input.at(i)->ID == "call")
+	/*else if (Input.at(i)->ID == "call")
 	{
 		//go though the parameters (in left side childs) and make them a push IR tokens;
 		for (Token* j : Input.at(i)->Parameters.at(0)->Left_Side_Token->Childs)
@@ -88,12 +88,14 @@ void Emulator::Long_Operation_Allocator(int &i)
 			p->ID = "push";
 			Register_Chooser(j);
 			Register_Chooser(j->Offsetter);
+
+			
 			p->Parameters.push_back(j);
 
 			Input.insert(Input.begin() + i, p);
 			i++;
 		}
-	}
+	}*/
 	else if (Input.at(i)->ID == "asm")
 	{
 

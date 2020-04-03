@@ -288,6 +288,8 @@ void Parser::Do_In_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "&");
 	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, "?");
+	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "!&");
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "|");

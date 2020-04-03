@@ -100,16 +100,36 @@ void Generator::Detect_Function(Token* t)
 		//when we give the token call, (name) to it and in parser defined as
 		//_External_ it can do something like this: call [banana] ; as a global variable.
 		ir->Parameters.push_back(t);
+
+		for (Token* t : t->Left_Side_Token->Childs)
+		{
+			Generator g;
+			g.Input.push_back(t);
+			g.Factory();
+
+			IR* push = new IR;
+			push->ID = "push";
+
+			if (g.Handle != nullptr) {
+				push->Parameters.push_back(g.Handle);
+			}
+			else {
+				push->Parameters.push_back(t);
+			}
+			Output.push_back(push);
+		}
 		//generate the parameters as IR tokens
-		Generator g;
-		g.Input.push_back(t->Left_Side_Token);
-		g.Types = this->Types;
-		g.Factory();
+		//Generator g;
+		//g.Input.push_back(t->Left_Side_Token);
+		//g.Types = this->Types;
+		//g.Factory();
 		//get the output from the generator and store then into the parent IR operator.
 		//ir->Childs = g.Output;
 		//make better reverser so that ur pointter loading wont be also reversed XD!!
 		//reverse(g.Output.begin(), g.Output.end());
-		Append(&Output, g.Output);
+		//Append(&Output, g.Output);
+
+
 		Output.push_back(ir);
 		//handle
 		Token* T = new Token;

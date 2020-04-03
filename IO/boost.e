@@ -10,9 +10,9 @@ Integer Stack_Offset,
 String UID,
 
 List IN,
-Integer p,
-Integer c,
-Integer n,
+Integer _p,
+Integer _c,
+Integer _n,
 
 
 IR ID,
@@ -59,11 +59,11 @@ Flag _Skip_,
 
 #This pattern checks if we can make "reg <- 0" into just "xor reg, reg".
 $pattern (
-	if (c:ID == "ldr")(
-		if (c:(Parameters:(0:Flags)) & Flag:_Register_)(
-			if (c:(Parameters:(1:Name)) == "0")(
-				c:(Parameters:1) = c:(Parameters:0),
-				c:ID = "^"
+	if (_c:ID == "ldr")(
+		if (_c:(Parameters:(0:Flags)) & Flag:_Register_)(
+			if (_c:(Parameters:(1:Name)) == "0")(
+				_c:(Parameters:1) = _c:(Parameters:0),
+				_c:ID = "^"
 			)
 		)
 	)
@@ -71,12 +71,12 @@ $pattern (
 
 #this pattern deletes reduntant savind/loading issues.
 $pattern(
-	if (c:ID == "=")(
-		if (n:ID == "ldr")(
-			if (c:(Parameters:(0:Name)) == n:(Parameters:(1:Name)))(
-				if (c:(Parameters:(1:UID)) == n:(Parameters:(0:UID)))(
-					c:Flags |= Flag:_Skip_,
-					n:Flags |= Flag:_Skip_,
+	if (_c:ID == "=")(
+		if (_n:ID == "ldr")(
+			if (_c:(Parameters:(0:Name)) == _n:(Parameters:(1:Name)))(
+				if (_c:(Parameters:(1:UID)) == _n:(Parameters:(0:UID)))(
+					_c:Flags |= Flag:_Skip_,
+					_n:Flags |= Flag:_Skip_,
 				)
 			)
 		)
@@ -85,31 +85,31 @@ $pattern(
 
 #this pattern deletes moving same reg into same reg.
 $pattern(
-	if (c:ID == "ldr")(
-		if (c:(Parameters:(0:UID)) != "")(
-			if (c:(Parameters:(0:UID)) == c:(Parameters:(1:UID)))(
-				c:Flags |= Flag:_Skip_
+	if (_c:ID == "ldr")(
+		if (_c:(Parameters:(0:UID)) != "")(
+			if (_c:(Parameters:(0:UID)) == _c:(Parameters:(1:UID)))(
+				_c:Flags |= Flag:_Skip_
 			)
 		)
 	)
-	if (c:ID == "=")(
-		if (c:(Parameters:(0:UID)) != "")(
-			if (c:(Parameters:(0:UID)) == c:(Parameters:(1:UID)))(
-				c:Flags |= Flag:_Skip_
+	if (_c:ID == "=")(
+		if (_c:(Parameters:(0:UID)) != "")(
+			if (_c:(Parameters:(0:UID)) == _c:(Parameters:(1:UID)))(
+				_c:Flags |= Flag:_Skip_
 			)
 		)
 	)
 )
 
 $pattern (
-	if (c:ID == "ldr")(
-		if (n:ID == "=")(
-			if (c:(Parameters:(0:Flags)) & Flag:_Register_)(
-				if (c:(Parameters:(1:Flags)) & Flag:_Number_)(
-					if (n:(Parameters:(0:Flags)) !& Flag:_Register_)(
-						if (n:(Parameters:(1:Flags)) & Flag:_Register_)(
-							c:Flags |= Flag:_Skip_,
-							n:(Parameters:1) = c:(Parameters:1)
+	if (_c:ID == "ldr")(
+		if (_n:ID == "=")(
+			if (_c:(Parameters:(0:Flags)) & Flag:_Register_)(
+				if (_c:(Parameters:(1:Flags)) & Flag:_Number_)(
+					if (_n:(Parameters:(0:Flags)) !& Flag:_Register_)(
+						if (_n:(Parameters:(1:Flags)) & Flag:_Register_)(
+							_c:Flags |= Flag:_Skip_,
+							_n:(Parameters:1) = _c:(Parameters:1)
 						)
 					)
 				)
