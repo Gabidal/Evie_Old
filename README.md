@@ -104,6 +104,11 @@ Beta 2.1.46 added:
 
 - ###### Boost lib to imrpove your code output.
 
+Beta 2.1.51 fixed:
+
+- ###### Fixed stupid parameter pusher.
+
+- ###### Added a new pattern into boost.e .
 
 
 ## Manual

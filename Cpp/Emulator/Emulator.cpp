@@ -90,12 +90,9 @@ void Emulator::Long_Operation_Allocator(int &i)
 			Register_Chooser(j->Offsetter);
 			p->Parameters.push_back(j);
 
-			Back b(Output);
-			b.Input = p;
-			b.Factory();
-			Output += NL;
-
+			Input.insert(Input.begin() + i, p);
 		}
+		i++;
 	}
 	else if (Input.at(i)->ID == "asm")
 	{

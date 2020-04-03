@@ -8,5 +8,5 @@ func banana(int num)(
 main()(
 	int a = 1
 	int b = 2
-	return (a + b)
+	return (a + banana(b))
 )

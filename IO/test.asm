@@ -16,9 +16,11 @@ mov ebp , esp
 sub esp , dword 8
 mov dword [ebp  - 4], dword 1
 mov dword [ebp  - 8], dword 2
+push dword [ebp  - 8]
+call _banana
+add esp , dword 4
 mov edi , dword [ebp  - 4]
-mov esi , dword [ebp  - 8]
-add edi , esi 
+add edi , eax 
 mov eax , edi 
 leave 
 ret
