@@ -25,6 +25,7 @@ public:
     void OpenFile(const char* fileName);
     void Direct(string raw);
     void Remove_Comment(string& in);
+    string Update_Dir(string File_Name);
     
 };
 

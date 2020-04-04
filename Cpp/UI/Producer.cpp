@@ -31,7 +31,7 @@ string Producer::Get_Linker_Type()
 {
     if (OS == "win32")
     {
-        return "..\\Cpp\\Linkers\\GoLink.exe /console ";
+        return "Cpp\\Linkers\\GoLink.exe /console ";
     }
     else if (OS == "unix")
     {
@@ -44,7 +44,7 @@ string Producer::Get_Assembler()
 {
     if (OS == "win32")
     {
-        return "..\\Cpp\\Assemblers\\yasm_win.exe ";
+        return "Cpp\\Assemblers\\yasm_win.exe ";
     }
     else if (OS == "unix")
     {

@@ -249,12 +249,15 @@ string ReplaceString(string subject, const string& search, const string& replace
 	return subject;
 }
 
-void Lexer::OpenFile(const char* fileName)
+string Working_Dir = "";
+
+void Lexer::OpenFile(const char* FileName)
 {
-    ifstream file(fileName);
+    string Name = Update_Dir(FileName);
+    ifstream file(Working_Dir + Name);
     if (file.is_open() != true)
     {
-		cout << "File not found: " << fileName << '\n';
+		cout << "File not found: " << Working_Dir + Name << '\n';
         exit(1);
     }
     else
@@ -298,4 +301,15 @@ void Lexer::Remove_Comment(string& line)
     int length = line.size() - start;
 
     line = line.erase(start, length);
+}
+
+string Lexer::Update_Dir(string File_Name)
+{
+    int i = File_Name.find_last_of('/');
+    if (i != -1)
+    {
+        Working_Dir += File_Name.substr(0, i + 1);
+        return File_Name.substr(i + 1);
+    }
+    return File_Name;
 }
