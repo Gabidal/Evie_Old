@@ -43,6 +43,7 @@ public:
 		Branching_Label = other.Branching_Label;
 		_NEED_FOR_FPU = other._NEED_FOR_FPU;
 		Output = other.Output;
+		return *this;
 	}
 private:
 

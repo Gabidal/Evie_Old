@@ -39,11 +39,10 @@ using namespace std;
 
 //for pointting pointters
 #define _Pointting_ (1<<24)
-#define _Array_ (1<<25)
-#define _Giving_Address_ (1<<26)
-#define _String_ (1<<27)
-#define _Preprosessor_ (1<<28)
-#define _Skip_ (1<<29)
+#define _Giving_Address_ (1<<25)
+#define _String_ (1<<26)
+#define _Preprosessor_ (1<<27)
+#define _Skip_ (1<<28)
 
 class Token : public Object
 {
