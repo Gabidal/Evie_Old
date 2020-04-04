@@ -32,7 +32,7 @@ map<string, Object*> Token::Get_Members()
 
 bool Token::is(int flag)
 {
-    return Flags & flag;
+    return (Flags & flag) == flag;
 }
 
 bool Token::Any(int flags)

@@ -3,7 +3,6 @@
 #include "../../H/UI/Usr.h"
 extern Selector* S;
 		// Register, Regiser using token
-extern map<string, Token*> Register_Lock;
 extern map<string, Token*> Preprosessor_Tokens;
 extern Object* Root;
 
@@ -143,7 +142,7 @@ void Emulator::Register_Chooser(Token* t)
 		if (!(t->is(Task_For_Returning))) {
 			for (auto i : Register_Lock)
 			{
-				if (i.first == t->Name)
+				if (i.first->Name == t->Name)
 				{
 					//if this is finded
 					t->UID = i.second->Name;
@@ -153,7 +152,7 @@ void Emulator::Register_Chooser(Token* t)
 		}
 		//if not
 		Token* Reg = S->Get_Right_Reg(t->get(), t->Size);
-		Register_Lock.insert({ t->Name, Reg });
+		Register_Lock.insert({ t, Reg });
 		t->UID = Reg->Name;
 		return;
 	}

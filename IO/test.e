@@ -1,6 +1,14 @@
 use "cstd.e"
 use "boost.e"
 
-func banana(int a, int b)(
-	 return banana(a + banana(b + banana(a + b + banana())))
+func apple()(
+	return 2
+)
+
+func banana()(
+	 return 1
+)
+
+main()(
+	return (apple(3) + banana(4))
 )

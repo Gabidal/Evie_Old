@@ -417,7 +417,9 @@ void Parser::Type_Definition(int i)
 			P.Input.clear();
 			P.Output.clear();
 			P.Input = Input.at(i)->Tokens;
+			Inside_Of_Constructor_As_Parameter = true;
 			P.Factory();
+			Inside_Of_Constructor_As_Parameter = false;
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			reverse(New_Defined_Text->Left_Side_Token->Childs.begin(), New_Defined_Text->Left_Side_Token->Childs.end());
 			New_Defined_Text->add(_Call_);
@@ -633,6 +635,10 @@ void Parser::Init_Variable(int i)
 		if (New_Number->Name.find('.') != -1)
 		{
 			New_Number->Size = 4;
+		}
+		else if (Inside_Of_Constructor_As_Parameter)
+		{
+			New_Number->Size = _SYSTEM_BIT_TYPE;
 		}
 		else
 		{

@@ -18,7 +18,7 @@ public:
 	bool _IN_PROGRESS = false;
 	bool _NEED_FOR_PARAMETERING = false;
 	Token* Handle = nullptr;
-
+	map<Token*, Token*> Register_Lock;
 
 	Token* Get_Info(Token* t);
 	void Long_Operation_Allocator(int &i);
@@ -36,15 +36,6 @@ public:
 	{
 	}
 	~Emulator(){}
-
-
-	Emulator& operator=(const Emulator& other)
-	{
-		Branching_Label = other.Branching_Label;
-		_NEED_FOR_FPU = other._NEED_FOR_FPU;
-		Output = other.Output;
-		return *this;
-	}
 private:
 
 };

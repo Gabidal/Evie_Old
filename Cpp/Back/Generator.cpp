@@ -4,6 +4,7 @@ extern Selector* S;
 extern vector<string> Pre_Defined_Tokens;
 extern int _SYSTEM_BIT_TYPE;
 bool Double_Tasking = false;
+int Personalize = 0;
 
 void Generator::Factory()
 {
@@ -99,6 +100,7 @@ void Generator::Detect_Function(Token* t)
 		ir->ID = "call";
 		//when we give the token call, (name) to it and in parser defined as
 		//_External_ it can do something like this: call [banana] ; as a global variable.
+		t->ID = Personalize++;
 		ir->Parameters.push_back(t);
 
 		for (Token* t : t->Left_Side_Token->Childs)
@@ -139,6 +141,7 @@ void Generator::Detect_Function(Token* t)
 		T->add(_Register_);
 		T->add(Task_For_Returning);
 		T->Name = t->Name;
+		T->ID = t->ID;
 		T->Size = _SYSTEM_BIT_TYPE;
 		Handle = T;
 		//check if this has init some objects so that we can reserve stack for it.
@@ -242,6 +245,38 @@ void Generator::Scaler(Token* l, Token* r)
 	}
 }
 
+void Generator::Dodge(Token* l, Token* r)
+{
+	if (l->is(_Call_) && r->is(_Call_))
+	{
+		//create the Right side now and give the eax into ebx for dodging the left side calling
+		Generator g;
+		g.Input.push_back(new Token(*r));
+		g.Types = Types;
+		g.Factory();
+
+		//save the calling
+		Append(&Output, g.Output);
+
+		//make the saving register
+		Token* reg = new Token;
+		reg->Name = r->Name + "_Saving_" + to_string(r->ID);
+		reg->add(Task_For_General_Purpose);
+		reg->add(_Register_);
+		reg->Size = _SYSTEM_BIT_TYPE;
+
+		//now g.Handle has the EAX
+		//now save it into someother register
+		IR* save = new IR;
+		save->ID = "ldr";
+		save->Parameters.push_back(reg);
+		save->Parameters.push_back(g.Handle);
+		Output.push_back(save);
+		//now overwrite the existing calling convension by the newwly made register
+		*r = *reg;
+	}
+}
+
 void Generator::Detect_Operator(Token* t)
 {
 	if (t->is(_Operator_) != true)
@@ -254,7 +289,11 @@ void Generator::Detect_Operator(Token* t)
 	// cvsi2sd xmm0, eax
 	// mov [a], xmm0
 	//basic tools:
+
 	Scaler(t->Right_Side_Token, t->Left_Side_Token);
+
+	Dodge(t->Left_Side_Token, t->Right_Side_Token);
+
 	Token* Left_Token = nullptr;
 	Token* Right_Token = nullptr;
 	bool Normal_Left = false;
@@ -269,8 +308,12 @@ void Generator::Detect_Operator(Token* t)
 	if (g.Handle != nullptr)
 		Right_Token = g.Handle;
 	//if normal right side.
-	else
+	else if(!(t->Right_Side_Token->is(_Register_)))
 		Normal_Right = true;
+	else
+	{
+		Right_Token = t->Right_Side_Token;
+	}
 	//create a new IR token.
 	IR* opCode = new IR;
 	opCode->ID = t->Name;
@@ -287,8 +330,12 @@ void Generator::Detect_Operator(Token* t)
 	if (g.Handle != nullptr)
 		Left_Token = g.Handle;
 	//if not then probably just a normal number/variable
-	else
+	else if (!(t->Left_Side_Token->is(_Register_)))
 		Normal_Left = true;
+	else
+	{
+		Left_Token = t->Left_Side_Token;
+	}
 	//check if this is a storing opcode:
 	bool Storing = (t->Name == "=" || t->Name == "str");
 	//b:0 = a:0

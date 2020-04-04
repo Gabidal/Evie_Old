@@ -1,20 +1,22 @@
+_apple: 
+mov al , byte 2
+ret
+ 
 _banana: 
-push eax 
+mov al , byte 1
+ret
+ 
+export main
+global main
+main: 
+_main: 
+push dword 4
 call _banana
-mov ebx , dword [ebp  + 8]
-mov ecx , dword [ebp  + 12]
-add ebx , ecx 
-add ebx , eax 
-push ebx 
-call _banana
-mov edx , dword [ebp  + 12]
-add edx , eax 
-push edx 
-call _banana
-mov ebx , dword [ebp  + 8]
-add ebx , eax 
-push ebx 
-call _banana
-leave 
+add esp , dword 4
+mov ebx , eax 
+push dword 3
+call _apple
+add esp , dword 4
+add eax , ebx 
 ret
  

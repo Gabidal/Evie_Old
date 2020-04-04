@@ -65,7 +65,6 @@ Object* FT;
 vector<Token*> Generated_Undefined_Tokens;
 map<string, Token*> Preprosessor_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
-map<string, Token*> Register_Lock;
 Selector* S;
 Usr* sys;
 int _SYSTEM_BIT_TYPE = 4;
