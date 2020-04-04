@@ -7,7 +7,7 @@ bool Double_Tasking = false;
 
 void Generator::Factory()
 {
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < (int)Input.size(); i++)
 	{
 		//Detect_Prefixes(Input.at(i));
 		Detect_Pointters(Input.at(i));

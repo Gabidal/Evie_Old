@@ -1,10 +1,10 @@
 #include "../../H/Lexer/Lexer.h"
 
 //a : b = c + find(a) * (a + b)
-#define __COMMENT '#'
-#define __STRING '\"'
+#define ___COMMENT__ '#'
+#define ___STRING__ '\"'
 
-	enum Type
+	enum class Type
 	{
 		UNSPECIFIED,
 		TEXT,
@@ -39,7 +39,7 @@ int getWord(string source, int continu, char StartType, char EndType)
 
 int getString(string source, int continu)
 {
-    int i = source.find(__STRING, continu + 1);
+    int i = source.find(___STRING__, continu + 1);
 
     if (i == -1)
     {
@@ -52,7 +52,7 @@ int getString(string source, int continu)
 
 	bool IsOperator(char c)
 	{
-		return (c >= 33 && c <= 47 && c != __COMMENT && c != __STRING) || (c >= 58 && c <= 64) || c == 94 || c == 124 || c == 126;
+		return (c >= 33 && c <= 47 && c != ___COMMENT__ && c != ___STRING__) || (c >= 58 && c <= 64) || c == 94 || c == 124 || c == 126;
 	}
 
 	bool IsDigit(char c)
@@ -84,39 +84,39 @@ int getString(string source, int continu)
 	{
 		if (IsText(c))
 		{
-			return TEXT;
+			return Type::TEXT;
 		}
 		else if (IsDigit(c))
 		{
-			return NUMBER;
+			return Type::NUMBER;
 		}
 		else if (IsContent(c))
 		{
-			return CONTENT;
+			return Type::CONTENT;
 		}
 		else if (IsOperator(c))
 		{
-			return OPERATOR;
+			return Type::OPERATOR;
 		}
 		else if (IsComment(c))
 		{
-			return COMMENT;
+			return Type::COMMENT;
 		}
 		else if (IsString(c))
 		{
-			return STRING;
+			return Type::STRING;
 		}
 		else if (c == '\n')
 		{
-			return END;
+			return Type::END;
 		}
 
-		return UNSPECIFIED;
+		return Type::UNSPECIFIED;
 	}
 
 int translateIdentity(Type t, string text, Word *&w)
 {
-    if (t == TEXT)
+    if (t == Type::TEXT)
     {
         if (text == "while" || text == "type" || text == "func" ||text == "use"|| text == "if" )//|| text == "export")
         {
@@ -127,33 +127,33 @@ int translateIdentity(Type t, string text, Word *&w)
             return _TEXT;
         }
     }
-    else if (t == COMMENT)
+    else if (t == Type::COMMENT)
     {
         return _COMMENT;
     }
-    else if (t == NUMBER)
+    else if (t == Type::NUMBER)
     {
         return _NUMBER;
     }
-    else if (t == CONTENT)
+    else if (t == Type::CONTENT)
     {
         Lexer d;
         d.Direct(text.substr(1, text.size() - 2));
         w->Tokens = d.output; 
         return _PAREHTHESIS;
     }
-    else if (t == STRING)
+    else if (t == Type::STRING)
     {
         Lexer d;
         d.Direct(text.substr(1, text.size() - 2));
         w->Tokens = d.output;
         return _STRING;
     }
-    else if (t == OPERATOR)
+    else if (t == Type::OPERATOR)
     {
         return _OPERATOR;
     }
-    else if (t == END)
+    else if (t == Type::END)
     {
         return _END;
     }
@@ -162,19 +162,19 @@ int translateIdentity(Type t, string text, Word *&w)
 
 bool IsPartOf(Type previous, Type current, char c)
 {
-    if (current == previous || previous == UNSPECIFIED)
+    if (current == previous || previous == Type::UNSPECIFIED)
     {
         return true;
     }
 
     switch (previous)
     {
-        case TEXT:
+        case Type::TEXT:
         {
-            return current == NUMBER;
+            return current == Type::NUMBER;
         }
 
-        case NUMBER:
+        case Type::NUMBER:
         {
             return c == '.';
         }
@@ -185,51 +185,51 @@ bool IsPartOf(Type previous, Type current, char c)
 
 void Lexer::Define()
 {
-    Type Base = UNSPECIFIED;
-	Type Current = UNSPECIFIED;
+    Type Base = Type::UNSPECIFIED;
+	Type Current = Type::UNSPECIFIED;
     int start = 0;
 	int i = 0;
     for (; i < int(Lines.size()); i++)
     {
         Current = GetType(Lines.at(i));
-        if (Base == UNSPECIFIED)
+        if (Base == Type::UNSPECIFIED)
         {
             Base = Current;
 			start = i;
         }
 
-        if (Base == CONTENT && Current == CONTENT)
+        if (Base == Type::CONTENT && Current == Type::CONTENT)
         {
             i = getWord(Lines, i, '(', ')');
             Word* w = new Word("");
             w->WORD = Lines.substr(start, i - start);
             w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
-            Base = UNSPECIFIED;
+            Base = Type::UNSPECIFIED;
             i--;
         }
-        else if (Base == STRING && Current == STRING)
+        else if (Base == Type::STRING && Current == Type::STRING)
         {
             i = getString(Lines, i);
             Word* w = new Word("");
             w->WORD = Lines.substr(start, i - start);
             w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
-            Base = UNSPECIFIED;
+            Base = Type::UNSPECIFIED;
             i--;
         }
         
-        if (!IsPartOf(Base, Current, Lines.at(i)) && Base != UNSPECIFIED)
+        if (!IsPartOf(Base, Current, Lines.at(i)) && Base != Type::UNSPECIFIED)
         {
             Word *w = new Word("");
             w->WORD = Lines.substr(start, i-start);
             w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
-            Base = UNSPECIFIED;
+            Base = Type::UNSPECIFIED;
             i--;
         }
     }
-    if (Base != UNSPECIFIED)
+    if (Base != Type::UNSPECIFIED)
     {
         Word* w = new Word("");
         w->WORD = Lines.substr(start, i - start);

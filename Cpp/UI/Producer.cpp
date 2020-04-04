@@ -37,6 +37,7 @@ string Producer::Get_Linker_Type()
     {
         return "ld ";
     }
+    return "";
 }
 
 string Producer::Get_Assembler()
@@ -49,6 +50,7 @@ string Producer::Get_Assembler()
     {
         return "yasm ";
     }
+    return "";
 }
 
 string Producer::Get_Debug()
@@ -111,6 +113,7 @@ string Producer::Get_Linker_Debug_Type()
     {
         return "";
     }
+    return "";
 }
 
 string Producer::Get_Linker_aarch()
@@ -119,6 +122,7 @@ string Producer::Get_Linker_aarch()
     {
         return " -m elf_i386 ";
     }
+    return "";
 }
 
 string Producer::Get_Assembler_Output()
@@ -136,6 +140,7 @@ string Producer::Get_Linker_Input()
     {
         return " -o " + Output_File + Get_Assembly_Dest_Marker();
     }
+    return "";
 }
 
 string Producer::Get_Added_Libs()
@@ -148,6 +153,7 @@ string Producer::Get_Added_Libs()
     {
         return "";
     }
+    return "";
 }
 
 string Producer::Get_Entry()
@@ -163,6 +169,7 @@ string Producer::Get_Entry()
     {
         return "";
     }
+    return "";
 }
 
 void Producer::Assemble_Command()

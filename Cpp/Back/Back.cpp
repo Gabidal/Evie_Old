@@ -61,6 +61,7 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 	cout << "Error: Cannot find info for >> " + t->Name + ", " + t->UID << endl;
+	return "";
 }
 
 void Back::Make()
@@ -78,7 +79,7 @@ void Back::Make()
 		trustFactor = Input->PreFix;
 
 	Output += S->Get_ID(Input->PreFix, trustFactor, MinMax) + S->Get_ID(Input->ID, trustFactor, MinMax);
-	for (int i = 0; i < Input->Parameters.size(); i++)
+	for (int i = 0; i < (int)Input->Parameters.size(); i++)
 	{
 		if (i > 0)
 		{

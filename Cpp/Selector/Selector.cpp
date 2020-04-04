@@ -132,7 +132,7 @@ Token* Selector::Get_Right_Reg(int F, int Size)
 Token* Selector::Get_Reg(vector<Token*> regs, int F, int &Previus)
 {
 	Token* r = new Token;
-	if (Previus >= regs.size()) Previus = 0;
+	if (Previus >= (int)regs.size()) Previus = 0;
 	int i = Previus;
 	do// int i = Reg_Turn16; i < Registers16.size(); i++)
 	{
@@ -142,7 +142,7 @@ Token* Selector::Get_Reg(vector<Token*> regs, int F, int &Previus)
 			Previus = i + 1;
 			return r;
 		}
-		if (++i >= regs.size())
+		if (++i >= (int)regs.size())
 		{
 			i = 0;
 		}
@@ -172,6 +172,8 @@ Token* Selector::Check_For_Reg(int F, int Size)
 	{
 		return Registers8.at(Reg_Turn8);
 	}
+	cout << "Error: cannot check the size of --> " + Size << endl;
+	return nullptr;
 }
 
 void Selector::Increase(int Size)
@@ -209,7 +211,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 		vector<int> o_Sizes = o->MinMax;
 		if (o_Sizes.size() != (i_Sizes.size() * 2))
 			continue;
-		for (int i = 0; i < i_Sizes.size(); i++)
+		for (int i = 0; i < (int)i_Sizes.size(); i++)
 		{
 			int in = i_Sizes.at(i);
 			int in_min = o_Sizes.at(i * 2);

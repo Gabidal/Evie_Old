@@ -80,6 +80,7 @@ bool Modder::Passing(Token* condition)
 			return result;
 		}
 	}
+	return false;
 }
 
 void Modder::Detect_Parenthesis(Token* t)

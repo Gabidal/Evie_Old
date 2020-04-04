@@ -108,6 +108,7 @@ bool Interpreter::Constructable(int i)
 			return Condition->Name == "!=" ? !result : result;
 		}
 	}
+	return false;
 }
 
 void Interpreter::Detect_Mod()

@@ -23,59 +23,59 @@ public:
 
 	//Reg's
 	//64Bit float
-	Token* MMX0;
-	Token* MMX1;
-	Token* MMX2;
-	Token* MMX3;
-	Token* MMX4;
-	Token* MMX5;
-	Token* MMX6;
-	Token* MMX7;
+	Token* MMX0 = nullptr;
+	Token* MMX1 = nullptr;
+	Token* MMX2 = nullptr;
+	Token* MMX3 = nullptr;
+	Token* MMX4 = nullptr;
+	Token* MMX5 = nullptr;
+	Token* MMX6 = nullptr;
+	Token* MMX7 = nullptr;
 	//64Bit
-	Token* RAX;
-	Token* RBX;
-	Token* RCX;
-	Token* RDX;
-	Token* RDI;
-	Token* RSI;
-	Token* RSP;
-	Token* RBP;
+	Token* RAX = nullptr;
+	Token* RBX = nullptr;
+	Token* RCX = nullptr;
+	Token* RDX = nullptr;
+	Token* RDI = nullptr;
+	Token* RSI = nullptr;
+	Token* RSP = nullptr;
+	Token* RBP = nullptr;
 
-	Token* R8;
-	Token* R9;
-	Token* R10;
-	Token* R11;
-	Token* R12;
-	Token* R13;
-	Token* R14;
-	Token* R15;
+	Token* R8 = nullptr;
+	Token* R9 = nullptr;
+	Token* R10 = nullptr;
+	Token* R11 = nullptr;
+	Token* R12 = nullptr;
+	Token* R13 = nullptr;
+	Token* R14 = nullptr;
+	Token* R15 = nullptr;
 	//32Bit
-	Token* EAX;
-	Token* EBX;
-	Token* ECX;
-	Token* EDX;
-	Token* EDI;
-	Token* ESI;
-	Token* ESP;
-	Token* EBP;
+	Token* EAX = nullptr;
+	Token* EBX = nullptr;
+	Token* ECX = nullptr;
+	Token* EDX = nullptr;
+	Token* EDI = nullptr;
+	Token* ESI = nullptr;
+	Token* ESP = nullptr;
+	Token* EBP = nullptr;
 	//16Bit
-	Token* AX;
-	Token* BX;
-	Token* CX;
-	Token* DX;
-	Token* DI;
-	Token* SI;
-	Token* SP;
-	Token* BP;
+	Token* AX = nullptr;
+	Token* BX = nullptr;
+	Token* CX = nullptr;
+	Token* DX = nullptr;
+	Token* DI = nullptr;
+	Token* SI = nullptr;
+	Token* SP = nullptr;
+	Token* BP = nullptr;
 	//8Bit
-	Token* AL;
-	Token* AH;
-	Token* BL;
-	Token* BH;
-	Token* CL;
-	Token* CH;
-	Token* DL;
-	Token* DH;
+	Token* AL = nullptr;
+	Token* AH = nullptr;
+	Token* BL = nullptr;
+	Token* BH = nullptr;
+	Token* CL = nullptr;
+	Token* CH = nullptr;
+	Token* DL = nullptr;
+	Token* DH = nullptr;
 };
 
 

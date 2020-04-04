@@ -219,11 +219,11 @@ void Emulator::Use_Assembly(int i)
 
 void Emulator::Factory()
 {
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < (int)Input.size(); i++)
 		Long_Operation_Allocator(i);
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < (int)Input.size(); i++)
 		Load_UID(i);
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < (int)Input.size(); i++)
 	{
 		if (Input.at(i)->ID == "Size" || Input.at(i)->ID == "Static")
 		{
@@ -244,7 +244,7 @@ void Emulator::Pattern_User(int i)
 	IR* n = new IR;
 	if (i - 1 >= 0)
 		p = Input.at(i - 1);
-	if (i + 1 <= Input.size() - 1)
+	if (i + 1 <= (int)Input.size() - 1)
 		n = Input.at(i + 1);
 	IR* c = Input.at(i);
 	Token* Pattern = new Token();
