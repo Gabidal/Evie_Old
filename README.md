@@ -110,6 +110,10 @@ Beta 2.1.51 fixed:
 
 - ###### Added a new pattern into boost.e .
 
+Beta 2.1.62 added:
+
+- ###### Added a new pattern to improve math.
+
 
 ## Manual
 

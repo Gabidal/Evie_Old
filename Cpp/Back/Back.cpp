@@ -97,9 +97,7 @@ void Back::Factory()
 	if (Input->Comment != "")
 	{
 		Output += S->Get_ID("comment", "", {0, 0}) + Input->Comment;
+		Output += "\n";
 	}
-	else
-	{
-		Make();
-	}
+	Make();
 }

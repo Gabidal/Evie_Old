@@ -1,6 +1,9 @@
 _banana: 
-mov al , byte 1
-mov ah , byte 2
-add al , ah 
+push ebp 
+mov ebp , esp 
+mov eax , dword [ebp  + 8]
+; Boosted
+add eax , eax 
+leave 
 ret
  

@@ -8,6 +8,7 @@ type Integer,
 Integer Flag,
 Integer Stack_Offset,
 String UID,
+String Comment,
 
 List IN,
 Integer _p,
@@ -100,7 +101,8 @@ $pattern(
 		)
 	)
 )
-
+ 
+#this pattern moves the number straight into the memory address
 $pattern (
 	if (_c:ID == "ldr")(
 		if (_n:ID == "=")(
@@ -110,6 +112,25 @@ $pattern (
 						if (_n:(Parameters:(1:Flags)) & Flag:_Register_)(
 							_c:Flags |= Flag:_Skip_,
 							_n:(Parameters:1) = _c:(Parameters:1)
+						)
+					)
+				)
+			)
+		)
+	)
+)
+
+#this pattern deletes reduntant loading of mem into two different regs
+$pattern (
+	if (_p:ID == "ldr")(
+		if (_c:ID == "ldr")(
+			if (_p:(Parameters:(1:Name)) == _c:(Parameters:(1:Name)))(
+				if (_n:Flags & Flag:_Operator_)(
+					if (_n:(Parameters:(0:UID)) == _p:(Parameters:(0:UID)))(
+						if (_n:(Parameters:(1:UID)) == _c:(Parameters:(0:UID)))(
+							_c:Flags |= Flag:_Skip_,
+							_n:(Parameters:1) = _p:(Parameters:0),
+							_n:Comment = "Boosted"
 						)
 					)
 				)
