@@ -3,6 +3,7 @@
 #include "Usr.h"
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 extern Usr* sys;
 
@@ -13,10 +14,11 @@ public:
 	{
 		Size = to_string(atoi(sys->Info.Bits_Mode.c_str()) * 8);
 		Output_File = sys->Info.Destination_File;
-		Type = sys->Info.Obj_Type;
+		Type = sys->Info.Format;
 		aarch = sys->Info.Architecture;
 		OS = sys->Info.OS;
 		Debug = sys->Info.Debug;
+		Libs = sys->Info.Libs;
 	}
 
 	~Producer(){}
@@ -35,12 +37,14 @@ private:
 	string Get_Linker_Input();
 	string Get_Added_Libs();
 	string Get_Entry();
+	string Link();
 	string Size;
 	string Output_File;
 	string Type;
 	string aarch;
 	string OS;
 	string Debug;
+	vector<string> Libs;
 };
 
 

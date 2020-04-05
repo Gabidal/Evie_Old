@@ -50,6 +50,8 @@ void Usr::Create_Argument_Stats()
 		Find_Architecture(i);
 		Find_Bits_Mode(i);
 		Find_Debug_Type(i);
+		Find_Format(i);
+		Find_Lib(i);
 	}
 }
 
@@ -98,12 +100,22 @@ void Usr::Find_Bits_Mode(int &i)
 	}
 }
 
-void Usr::Find_Obj_Type(int &i)
+void Usr::Find_Format(int &i)
+{
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-f") == 0)
+	{
+		string tmp = string(Input[i + 1]);
+		Info.Format = tmp.c_str();
+		i++;
+	}
+}
+
+void Usr::Find_Lib(int& i)
 {
 	if ((i <= Argument_Amount) && strcmp(Input[i], "-lib") == 0)
 	{
 		string tmp = string(Input[i + 1]);
-		Info.Obj_Type = atoi(tmp.c_str());
+		Info.Libs.push_back(tmp.c_str());
 		i++;
 	}
 }
@@ -130,7 +142,8 @@ map<string, Object*> output::Get_Members(){
 		std::make_pair(string("Destination_File"), new StringObject(&Destination_File)),
 		std::make_pair(string("OS"),new StringObject(&OS)),
 		std::make_pair(string("Architecture"),new StringObject(&Architecture)),
-		std::make_pair(string("Obj_Type"), new StringObject(&Obj_Type)),
+		std::make_pair(string("Format"), new StringObject(&Format)),
+		std::make_pair(string("Libs"), new SymbolTableList(Libs)),
 		std::make_pair(string("Bits_Mode"), new StringObject(&Bits_Mode)),
 		std::make_pair(string("Debug"), new StringObject(&Debug))
 	};

@@ -108,6 +108,8 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_EXPORT_);
 	OpC* x86_GLOBAL_ = new OpC(0, "global", "global ", {});
 	OpCodes.push_back(x86_GLOBAL_);
+	OpC* x86_IMPORT_ = new OpC(0, "import", "extern ", {});
+	OpCodes.push_back(x86_IMPORT_);
 	OpC* x86_LEAVE_ = new OpC(0, "leave", "leave ", {});
 	OpCodes.push_back(x86_LEAVE_);
 

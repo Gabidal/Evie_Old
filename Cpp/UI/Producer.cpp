@@ -147,11 +147,21 @@ string Producer::Get_Added_Libs()
 {
     if (OS == "win32")
     {
-        return "kernel32.dll";
+        string r = "";
+        for (auto i : Libs)
+        {
+            r += i + " ";
+        }
+        return r + " kernel32.dll";
     }
     else if (OS == "unix")
     {
-        return "";
+        string r = "";
+        for (auto i : Libs)
+        {
+            r += "-l " + i + " ";
+        }
+        return r;
     }
     return "";
 }
@@ -172,13 +182,17 @@ string Producer::Get_Entry()
     return "";
 }
 
+string Producer::Link()
+{
+    return string();
+}
+
 void Producer::Assemble_Command()
 {
     stringstream output;
     output << Get_Assembler() << Get_Debug() << Get_Type() << Get_Assembler_Output() << Output_File;
     system(output.str().c_str());
     output = stringstream();
-    //output << sys->Info.Destination_File << ".obj " << "kernel32.dll ";
-    output << Get_Linker_Type() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Added_Libs();
+    output << Get_Linker_Type() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Added_Libs() << " /mix";
     system(output.str().c_str());
 }

@@ -225,7 +225,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 			return o->OpCode;
 		CONTINUE:;
 	}
-	if ((trust == "export") || (trust == "raw_label") || (trust == "global"))
+	if ((trust == "export") || (trust == "import") || (trust == "raw_label") || (trust == "global"))
 		return id;
 	if ((trust != "label") && (trust != "<") && (trust != ">") && (trust != "!<") && (trust != "!>") && (trust != "==") && (trust != "!=") && (trust != "<=") && (trust != ">=") && (trust != "jmp"))
 	{

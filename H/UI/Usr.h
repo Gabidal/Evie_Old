@@ -80,18 +80,21 @@ public:
 	string Destination_File;
 	string OS = "win32";
 	string Architecture = "x86";
-	string Obj_Type = "exe";
+	vector<string> Libs;
+	string Format = "exe";
 	string Bits_Mode = "4";
-	string Diable = "";
+	string Disable = "";
 	string Debug = "";
 	Object& operator=(output& other) {
 		 Source_File = other.Source_File;
 		 Destination_File = other.Destination_File;
 		 OS = other.OS;
 		 Architecture = other.Architecture;
-		 Obj_Type = other.Obj_Type;
+		 Libs = other.Libs;
+		 Format = other.Format;
 		 Bits_Mode = other.Bits_Mode;
-		 Diable = other.Diable;
+		 Disable = other.Disable;
+		 Debug = other.Debug;
 		return *this;
 	}
 
@@ -139,7 +142,8 @@ private:
 	void Find_OS(int &i);
 	void Find_Architecture(int &i);
 	void Find_Bits_Mode(int &i);
-	void Find_Obj_Type(int &i);
+	void Find_Format(int &i);
+	void Find_Lib(int& i);
 	void Find_Debug_Type(int& i);
 };
 

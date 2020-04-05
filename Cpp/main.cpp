@@ -184,7 +184,7 @@ const char* Source = "";
     }
 }*/
 
-//Evie.exe -in ~/test.g -out ~/test.asm -lib exe -os win32 -arch x86 -mode 4 -debug dwarf2
+//Evie.exe -in ~/test.g -out ~/test.asm -f exe -os win32 -arch x86 -mode 4 -debug dwarf2
 int main(int argc, char* argv[])
 {
     if (argc == 1)

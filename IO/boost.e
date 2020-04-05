@@ -58,6 +58,24 @@ Flag _Preprosessor_,
 Flag _Skip_,
 
 
+#this pattern moves the number straight into the memory address
+$pattern (
+	if (_c:ID == "ldr")(
+		if (_n:ID == "=")(
+			if (_c:(Parameters:(0:Flags)) & Flag:_Register_)(
+				if (_c:(Parameters:(1:Flags)) & Flag:_Number_)(
+					if (_n:(Parameters:(0:Flags)) !& Flag:_Register_)(
+						if (_n:(Parameters:(1:Flags)) & Flag:_Register_)(
+							_c:Flags |= Flag:_Skip_,
+							_n:(Parameters:1) = _c:(Parameters:1)
+						)
+					)
+				)
+			)
+		)
+	)
+)
+
 #This pattern checks if we can make "reg <- 0" into just "xor reg, reg".
 $pattern (
 	if (_c:ID == "ldr")(
@@ -102,23 +120,6 @@ $pattern(
 	)
 )
  
-#this pattern moves the number straight into the memory address
-$pattern (
-	if (_c:ID == "ldr")(
-		if (_n:ID == "=")(
-			if (_c:(Parameters:(0:Flags)) & Flag:_Register_)(
-				if (_c:(Parameters:(1:Flags)) & Flag:_Number_)(
-					if (_n:(Parameters:(0:Flags)) !& Flag:_Register_)(
-						if (_n:(Parameters:(1:Flags)) & Flag:_Register_)(
-							_c:Flags |= Flag:_Skip_,
-							_n:(Parameters:1) = _c:(Parameters:1)
-						)
-					)
-				)
-			)
-		)
-	)
-)
 
 #this pattern deletes reduntant loading of mem into two different regs
 $pattern (

@@ -52,7 +52,7 @@ int getString(string source, int continu)
 
 	bool IsOperator(char c)
 	{
-		return (c >= 33 && c <= 47 && c != ___COMMENT__ && c != ___STRING__) || (c >= 58 && c <= 64) || c == 94 || c == 124 || c == 126;
+		return (c >= 33 && c <= 47 && c != ___COMMENT__ && c != ___STRING__) || (c >= 58 && c <= 64) || c == 94 || c == 124 || c == 126 ;
 	}
 
 	bool IsDigit(char c)
@@ -171,7 +171,7 @@ bool IsPartOf(Type previous, Type current, char c)
     {
         case Type::TEXT:
         {
-            return current == Type::NUMBER;
+            return current == Type::NUMBER || (c == '@');
         }
 
         case Type::NUMBER:

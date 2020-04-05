@@ -53,6 +53,8 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return t->UID;
 	else if (t->is(_Number_))
 		return S->Get_ID(to_string(t->Size), "", { t->Size}) + t->Name;
+	else if (t->is(_Call_) && ((t->PreFix_Type == "import") || (t->PreFix_Type == "export")))
+		return t->Name;
 	else if (t->is(_Call_))
 		return "_" + t->Name;
 	else if (t->is(_External_))

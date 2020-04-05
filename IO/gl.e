@@ -1,0 +1,11 @@
+type import()()
+
+import func __imp__glClear@4()()
+import func __imp__glClearColor@16()()
+import func _glfwInit()()
+import func _glfwTerminate()()
+import func _glfwCreateWindow()()
+import func _glfwWindowShouldClose()()
+import func _glfwPollEvents()()
+import func _glfwMakeContextCurrent()()
+import func _glfwSwapBuffers()()
