@@ -36,6 +36,7 @@ public:
     int Count_Familiar_Tokens(int F, int i);
     void Init_Variable(int i);
     void Check_For_Correlation(int i);
+    void Check_For_Correlation_Link(int i);
     void Set_Special_Feature(int i);
     void Check_For_Inter(int i);
     void Factory();

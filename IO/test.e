@@ -3,6 +3,11 @@ use "boost.e"
 use "gl.e"
 
 main()(
+
+
+    int GL_Color_Buffer_Bit = 16384
+    int GL_QUADS = 7
+
     int window = 0
     int Title = 0
     short tail = 0
@@ -20,36 +25,20 @@ main()(
     _glfwMakeContextCurrent(window)
 
     int a = 0
-    int GL_Color_Buffer_Bit = 16384
-    int GL_QUADS = 7
 
     while (a == 0)
     (
-        push GL_Color_Buffer_Bit
-        _glClear@4()
-        push GL_QUADS
-        _glBegin@4()           
-            push 1.0
-            push 0.0
-            push 0.0
-            _glColor3f@12()
+        #glClearColor(1.0, 0.0, 1.0, 1.0)
+        (glClear(GL_Color_Buffer_Bit))
+        (glBegin(GL_QUADS))
+            (glColor3f(1.0, 0.0, 0.0))
+            (glVertex2f((-0.5), (-0.5)))
+            (glVertex2f(0.5, (-0.5)))
+            (glVertex2f(0.5, 0.5))
+            (glVertex2f((-0.5), 0.5))
+        (glEnd())
 
-            push (-0.5)
-            push (-0.5)
-            (_glVertex2f@8())
-
-            push 0.5
-            push (-0.5)
-            (_glVertex2f@8())
-
-            push 0.5
-            push 0.5
-           (_glVertex2f@8())
-
-            push (-0.5)
-            push 0.5
-            (_glVertex2f@8())
-        _glEnd@0()
+        (glFlush())
 
         _glfwSwapBuffers(window)
 

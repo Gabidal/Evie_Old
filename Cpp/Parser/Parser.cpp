@@ -452,11 +452,14 @@ void Parser::Type_Definition(int i)
 				New_Defined_Text->add(_Need_For_Space_);
 			}
 
+			New_Defined_Text->Left_Side_Token->Reservable_Size = 0;
+
 			P.Output.clear();
 			P.Input.clear();
 			//childs
 			Inside_Of_Constructor = true;
 			P.Input.push_back(Input.at(i + 2));
+			P.Space_Reservation = 0;			//!!!!!!!!!!!!!!
 			P.Factory();
 			Inside_Of_Constructor = false;
 			Local_Stack_Offest = 0;
@@ -690,11 +693,23 @@ void Parser::Check_For_Correlation(int i)
 			P.Defined_Keywords = Defined_Keywords;
 			P.Output.clear();
 			P.Input.clear();
-			P.Input.push_back(Input.at(i + 1));
+			P.Input = Input.at(i)->Tokens;
 			P.Factory();
 
 			New_Pre_Defined_Token->Right_Side_Token = P.Output.at(0);
 			Output.push_back(New_Pre_Defined_Token);
+			return;
+		}
+}
+
+void Parser::Check_For_Correlation_Link(int i)
+{
+	if (Input.size() < 1)
+		return;
+	for (string s : Pre_Defined_Tokens)
+		if (Input.at(i)->WORD == s)
+		{
+			Input.at(i)->Tokens.push_back(Input.at(i + 1));
 			Input.erase(Input.begin() + i + 1);
 			return;
 		}
@@ -748,6 +763,8 @@ void Parser::Factory()
 	for (int i = 0; i < Input.size(); i++)
 		Connect_Address(i);
 	for (int i = 0; i < Input.size(); i++)
+		Check_For_Correlation_Link(i);		//link
+	for (int i = 0; i < Input.size(); i++)
 		Init_Definition(i);
 	for (int i = 0; i < Input.size(); i++)
 		Reserve_Function_Parameters(i);
@@ -762,7 +779,7 @@ void Parser::Factory()
 		Init_Parenthesis(i);
 		Type_Definition(i);
 		Init_Conditions(i);
-		Check_For_Correlation(i);
+		Check_For_Correlation(i);	//make
 	}
 	Layer--;
 }
