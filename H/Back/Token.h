@@ -43,6 +43,7 @@ using namespace std;
 #define _String_ (1<<26)
 #define _Preprosessor_ (1<<27)
 #define _Skip_ (1<<28)
+#define _Combined_ (1<<29)
 
 class Token : public Object
 {

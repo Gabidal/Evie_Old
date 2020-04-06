@@ -128,7 +128,7 @@ string Parser::Get_Size(int i)
 	if (Count_Familiar_Tokens(_PAREHTHESIS, i + 2) < 2)
 		return "0";
 	if (Input.at(i)->WORD == "func")
-		return "0";
+		return to_string(_SYSTEM_BIT_TYPE);
 	Parser p;
 	p.Input = Input.at(i + 3)->Tokens;
 	p.Defined_Keywords = Defined_Keywords;
@@ -475,30 +475,41 @@ void Parser::Type_Definition(int i)
 
 			Input.erase(Input.begin() + i + 2);
 			Input.erase(Input.begin() + i + 1);
+
 		}
 		else
 		{
 			return;
 		}
 		New_Defined_Text->Name = Input.at(i)->WORD;
-		for (Token* s : Defined_Keywords)
+		//if only a call seek the information from defined
+		if (New_Defined_Text->is(_Call_) || New_Defined_Text->is(_Constructor_))
+			for (Token* t : Defined_Keywords)
+				if (t->Name == New_Defined_Text->Name && (!New_Defined_Text->is(_Combined_)))
+				{
+					New_Defined_Text->Size = t->Size;
+					New_Defined_Text->add(t->get());
+					New_Defined_Text->Type = t->Type;
+					New_Defined_Text->PreFix_Type = t->PreFix_Type;
+					New_Defined_Text->add(_Combined_);
+					break;
+				}
+		//get the predefined types/prefixtypes.
+		if (New_Defined_Text->Type != "")
 		{
-			if (New_Defined_Text->Name == s->Name)
-			{
-				New_Defined_Text->Type = s->Type;
-				New_Defined_Text->PreFix_Type = s->PreFix_Type;
-				break;
+			//this new defined thing has already the needed requerems, no need to combine
+			Output.push_back(New_Defined_Text);
+		}
+		else {
+			for (Token* t : Defined_Keywords) {
+				if (t->Name == New_Defined_Text->Name)
+				{
+					t->Right_Side_Token = New_Defined_Text->Right_Side_Token;
+					t->Left_Side_Token = New_Defined_Text->Left_Side_Token;
+					t->add(New_Defined_Text->get());
+				}
 			}
 		}
-		for (int j = 0; j < Output.size(); j++)
-		{
-			if (Output.at(j)->Name == New_Defined_Text->Name)
-			{
-				Output.at(j) = New_Defined_Text;
-				return;
-			}
-		}
-		Output.push_back(New_Defined_Text);
 	}
 }
 
@@ -579,6 +590,9 @@ void Parser::Init_Variable(int i)
 	{
 		return;
 	}
+	for (Token* t : Defined_Keywords)
+		if (Input.at(i)->WORD == t->Name && (t->Type == "func"))
+			return;
 	if (Input.at(i)->is(_TEXT) && (Defined(Input.at(i)->WORD) != "") && (Layer > 1))
 	{
 		Token* New_Variable = new Token();

@@ -29,16 +29,16 @@ main()(
     while (a == 0)
     (
         #glClearColor(1.0, 0.0, 1.0, 1.0)
-        (glClear(GL_Color_Buffer_Bit))
-        (glBegin(GL_QUADS))
-            (glColor3f(1.0, 0.0, 0.0))
-            (glVertex2f((-0.5), (-0.5)))
-            (glVertex2f(0.5, (-0.5)))
-            (glVertex2f(0.5, 0.5))
-            (glVertex2f((-0.5), 0.5))
-        (glEnd())
+        glClear(GL_Color_Buffer_Bit)
+        glBegin(GL_QUADS)
+            glColor3f(1.0, 0.0, 0.0)
+            glVertex2f((-0.5), (-0.5))
+            glVertex2f(0.5, (-0.5))
+            glVertex2f(0.5, 0.5)
+            glVertex2f((-0.5), 0.5)
+        glEnd()
 
-        (glFlush())
+        glFlush()
 
         _glfwSwapBuffers(window)
 
