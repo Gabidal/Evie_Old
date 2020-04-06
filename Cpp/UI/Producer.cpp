@@ -193,6 +193,6 @@ void Producer::Assemble_Command()
     output << Get_Assembler() << Get_Debug() << Get_Type() << Get_Assembler_Output() << Output_File;
     system(output.str().c_str());
     output = stringstream();
-    output << Get_Linker_Type() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Added_Libs() << " /mix";
+    output << Get_Linker_Type() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Added_Libs();// << " /mix";
     system(output.str().c_str());
 }

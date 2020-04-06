@@ -23,16 +23,15 @@ void Emulator::Long_Operation_Allocator(int &i)
 	if ((Input.at(i)->ID == "==") || (Input.at(i)->ID == "!=") || (Input.at(i)->ID == "<") || (Input.at(i)->ID == ">") || (Input.at(i)->ID == "!<") || (Input.at(i)->ID == "!>") || (Input.at(i)->ID == "<=") || (Input.at(i)->ID == ">="))
 	{
 		//conditional operators need the cmp, and the condition jump operation.
-		Token* Reg = new Token;
-		Reg->add(_Register_);
-		Reg->add(Task_For_General_Purpose);
-		Reg->Name = Input.at(i)->Parameters.at(0)->Name;
-		Reg->Size = Input.at(i)->Parameters.at(0)->Size;
+		//Token* Reg = new Token;
+		//Reg->add(_Register_);
+		//Reg->add(Task_For_General_Purpose);
+		//Reg->Name = Input.at(i)->Parameters.at(0)->Name;
+		//Reg->Size = Input.at(i)->Parameters.at(0)->Size;
 
 		IR* cmp = new IR;
 		*cmp = *Input.at(i);
 		cmp->ID = "cmp";
-		cmp->Parameters.at(0) = Reg;
 		Input.at(i)->Parameters.clear();
 		Input.at(i)->PreFix = Input.at(i)->ID;
 		Input.at(i)->ID = Branching_Label.back() + "END";

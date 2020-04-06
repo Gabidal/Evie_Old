@@ -114,6 +114,18 @@ Beta 2.1.62 added:
 
 - ###### Added a new pattern to improve math.
 
+Beta 2.1.63 added:
+
+- ###### Added new link method:
+``` link /NXCOMPAT /DYNAMICBASE "glfw3.lib" "OpenGL32.lib" "kernel32.lib" "user32.li
+b" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.
+lib" "odbccp32.lib" /DEBUG /MACHINE:X86 /INCREMENTAL /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'
+" /ERRORREPORT:PROMPT /NOLOGO /TLBID:1  test.asm.obj /libpath:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\u
+m\x86" OpenGL32.lib /entry:main /out:test.asm.exe /libpath:"C:\Program Files (x86)\Microsoft Visual Studio\2019\Communit
+y\VC\Tools\MSVC\14.25.28610\lib\x86" vcruntime.lib /libpath:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\ucr
+t\x86" ucrt.lib```
+
+- ###### Evie can now use OpenGL 
 
 ## Manual
 
