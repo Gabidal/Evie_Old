@@ -18,6 +18,7 @@ void Generator::Factory()
 		Detect_Operator(Input.at(i));
 		Detect_Parenthesis(Input.at(i));
 		Detect_Pre_Defined_Tokens(Input.at(i));
+		Initialize_Global_Variable(i);
 	}
 }
 
@@ -274,6 +275,55 @@ void Generator::Dodge(Token* l, Token* r)
 		Output.push_back(save);
 		//now overwrite the existing calling convension by the newwly made register
 		*r = *reg;
+	}
+}
+
+void Generator::Initialize_Global_Variable(int i)
+{
+	Token* t = Input.at(i);
+	if (t->is(_Initialized_))
+	{
+		Scaler(t, t->Initial_Value);
+		IR* init = new IR;
+		t->Initial_Value->add(_Locked_);
+		init->Parameters.push_back(t->Initial_Value);
+		if (t->Initial_Value->is(_String_))
+		{
+			init->ID = "makestring";
+		}
+		else if (t->Initial_Value->Size == 1)
+		{
+			init->ID = "db";
+		}
+		else if (t->Initial_Value->Size == 2)
+		{
+			init->ID = "dw";
+		}
+		else if (t->Initial_Value->Size == 4)
+		{
+			init->ID = "dd";
+		}
+		else if (t->Initial_Value->Size == 8)
+		{
+			init->ID = "dq";
+		}
+		else if (t->Initial_Value->Size == 12)
+		{
+			init->ID = "dt";
+		}
+		IR* label = new IR;
+		label->PreFix = t->Name;
+		label->ID = "raw_label";
+		label->Childs.push_back(init);
+		Output.push_back(label);
+		Input.erase(Input.begin() + i);
+
+		if (i < Input.size())
+		{
+			Token* t = Input.at(i);
+			if (t->is(_Initialized_))
+				Initialize_Global_Variable(i);
+		}
 	}
 }
 

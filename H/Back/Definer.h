@@ -22,6 +22,7 @@ public:
     void Type_Collect(Token* t);
     Token* FIND(string name);
     bool Has(Token* t, string s);
+    void Initialize_Global_Variables();
     void Factory();
     Definer()
     {

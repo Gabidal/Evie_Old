@@ -18,6 +18,8 @@ import func _glfwSwapBuffers()()
 
 
 
+dword GL_Color_Buffer_Bit = 16384
+dword GL_QUADS = 7
 
 
 func glClear(dword Constant)(

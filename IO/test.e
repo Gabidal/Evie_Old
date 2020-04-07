@@ -4,10 +4,6 @@ use "gl.e"
 
 main()(
 
-
-    int GL_Color_Buffer_Bit = 16384
-    int GL_QUADS = 7
-
     int window = 0
     int Title = 0
     short tail = 0

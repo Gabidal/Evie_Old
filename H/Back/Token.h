@@ -44,6 +44,8 @@ using namespace std;
 #define _Preprosessor_ (1<<27)
 #define _Skip_ (1<<28)
 #define _Combined_ (1<<29)
+#define _Initialized_ (1<<30)
+#define _Locked_ (1<<31)
 
 class Token : public Object
 {
@@ -53,7 +55,6 @@ class Token : public Object
     map<string, Object*> Get_Members();
     int Size = 0;
     int Reservable_Size = 0;
-    int Initial_Value = 0;
     int Changable_Value = 0;
     int StackOffset = 0;
     int ParameterCount = 0;
@@ -66,6 +67,7 @@ class Token : public Object
     Token* Left_Non_Operative_Token = nullptr;
     Token* Right_Non_Operative_Token = nullptr;
     Token* Offsetter = nullptr;
+    Token* Initial_Value = nullptr;
     vector<Token*> Childs;
     string Name = "";
     string Type = "";

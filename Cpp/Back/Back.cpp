@@ -52,7 +52,9 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 	else if (t->is(_Register_))
 		return t->UID;
 	else if (t->is(_Number_))
-		return S->Get_ID(to_string(t->Size), "", { t->Size}) + t->Name;
+		return Get_Size(t) + t->Name;
+	else if (t->is(_String_))
+		return t->Name;			//change into the S1 pointters!!!
 	else if (t->is(_Call_) && ((t->PreFix_Type == "import") || (t->PreFix_Type == "export")))
 		return t->Name;
 	else if (t->is(_Call_))
@@ -63,6 +65,15 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 	cout << "Error: Cannot find info for >> " + t->Name + ", " + t->UID << endl;
+	return "";
+}
+
+string Back::Get_Size(Token* t)
+{
+	if (!t->is(_Locked_))
+	{
+		return S->Get_ID(to_string(t->Size), "", { t->Size });
+	}
 	return "";
 }
 

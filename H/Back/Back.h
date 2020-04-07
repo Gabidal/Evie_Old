@@ -18,6 +18,7 @@ public:
 	string Get_Direction(Token* t);
 	string Get_Handler(Token* t);
 	string Get_Info_Of(Token* t, bool Storing);
+	string Get_Size(Token* t);
 	void Make();
 	void Factory();
 

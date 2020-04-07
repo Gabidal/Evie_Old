@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
     d.Factory();
 
     Generator g;
-    g.Input = p.Output;
+    g.Input = d.Input_Of_Tokens;
     g.Types = d.Output;
     g.Factory();
 

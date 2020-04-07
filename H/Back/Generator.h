@@ -27,6 +27,7 @@ public:
 	void Detect_Prefixes(Token* t);
 	void Scaler(Token* l, Token* r);
 	void Dodge(Token* l, Token* r);
+	void Initialize_Global_Variable(int i);
 	void Append(vector<IR*> *Dest, vector<IR*> Source);
 	Generator()
 	{

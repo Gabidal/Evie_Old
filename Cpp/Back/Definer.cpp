@@ -91,6 +91,28 @@ bool Definer::Has(Token* t, string s)
 	return false;
 }
 
+void Definer::Initialize_Global_Variables()
+{
+	for (Token* t: Defined_Types)
+		if (t->is(_External_) && (t->Size > 0))
+		{
+			//if the token is declared as global then try to 
+			//find the first given value and set it as the initial value setted by that label.
+			int j = 0;
+			for (Token* i : Input_Of_Tokens) {
+				if (i->is(_Operator_) && (i->Left_Side_Token->Name == t->Name) && (i->Left_Side_Token->is(_External_) && (i->Name == "=")))
+				{
+					t->Initial_Value = new Token(*i->Right_Side_Token);
+					t->add(_Initialized_);
+					Input_Of_Tokens.erase(Input_Of_Tokens.begin() + j);
+					Input_Of_Tokens.push_back(new Token(*t));
+					break;
+				}
+				j++;
+			}
+		}
+}
+
 void Definer::Factory()
 {
 	//type var()
@@ -128,4 +150,5 @@ void Definer::Factory()
 		//ADVANCED
 		Type_Collect(i);
 	}
+	Initialize_Global_Variables();
 }

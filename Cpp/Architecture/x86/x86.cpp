@@ -112,6 +112,18 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_IMPORT_);
 	OpC* x86_LEAVE_ = new OpC(0, "leave", "leave ", {});
 	OpCodes.push_back(x86_LEAVE_);
+	OpC* x86_MAKESTRING_ = new OpC(0, "makestring", "db ", { 0, INT_MAX });
+	OpCodes.push_back(x86_MAKESTRING_);
+	OpC* x86_DB_ = new OpC(0, "db", "db ", { 0, 1 });
+	OpCodes.push_back(x86_DB_);
+	OpC* x86_DW_ = new OpC(0, "dw", "dw ", { 0, 2 });
+	OpCodes.push_back(x86_DW_);
+	OpC* x86_DD_ = new OpC(0, "dd", "dd ", { 0, 4 });
+	OpCodes.push_back(x86_DD_);
+	OpC* x86_DQ_ = new OpC(0, "dq", "dq ", { 0, 8 });
+	OpCodes.push_back(x86_DQ_);
+	OpC* x86_DT_ = new OpC(0, "dt", "dt ", { 0, 12 });
+	OpCodes.push_back(x86_DT_);
 
 
 	//8Bit
