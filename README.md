@@ -127,6 +127,16 @@ t\x86" ucrt.lib```
 
 - ###### Evie can now use OpenGL 
 
+
+Beta 2.1.64 added:
+
+- ###### Evie now supports global variables.
+
+- ###### Evie now supports the linking inline.
+Use OpenGL32.lib as a -lib argument, on windows.
+```-in IO/test.e -out IO/test.asm -lib OpenGL32.lib -os win32 -arch x86 -mode 4 -debug dwarf2```
+Sorry for Linux users, u have to use ur skills, until i have added a template for linux too...
+
 ## Manual
 
 ### Type

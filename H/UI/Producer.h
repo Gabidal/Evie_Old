@@ -38,6 +38,11 @@ private:
 	string Get_Added_Libs();
 	string Get_Entry();
 	string Link();
+	string Get_Template();
+	bool Find(vector<string> in, string f);
+	string Get_All(vector<string> in);
+	string Update_Dir(string File_Name);
+	string Change_Dir();
 	string Size;
 	string Output_File;
 	string Type;
