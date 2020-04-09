@@ -6,6 +6,14 @@ extern vector<Token*> Generated_Undefined_Tokens;
 extern map<string, Token*> Preprosessor_Tokens;
 extern int _SYSTEM_BIT_TYPE;
 
+string Definer::Get_All(vector<string> x, string add)
+{
+	string r = "";
+	for (string s : x)
+		r += s + add;
+	return r;
+}
+
 int Definer::Get_Location_Of_Type_Constructor(string type)
 {
 	int i = 0;
@@ -49,9 +57,11 @@ void Definer::Type_Collect(Token* t)
 {
 	if (t->is(_Inheritting_) != true)
 		return;
-	t->Size = FIND(t->Type)->Size + FIND(t->PreFix_Type)->Size;
-	t->State = FIND(t->Type)->State + FIND(t->PreFix_Type)->State;
-	cout << "Warning: You are using an inheritance type on --> " << t->Name + ", " + t->Type + ", " + t->PreFix_Type << endl;
+	for (string s : t->PreFix_Type)
+		t->Size += FIND(s)->Size;
+	for (string s : t->PreFix_Type)
+		t->State += " " + FIND(s)->State;
+	cout << "Warning: You are using an inheritance type on --> " << t->Name + ", " + Get_All(t->PreFix_Type, ", ") << endl;
 }
 
 Token* Definer::FIND(string name)
@@ -134,8 +144,7 @@ void Definer::Factory()
 			continue;
 		}
 		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "State");
-		Get_Modded_Content(s->Name, s->PreFix_Type);
-		Get_Modded_Content(s->Name, s->Type);
+		Get_Modded_Content(s->Name, Get_All(s->PreFix_Type, ""));
 		New_Defined_Class->Name = s->Name;
 		New_Defined_Class->Type = s->Type;
 		New_Defined_Class->_Dynamic_Size_ = s->_Dynamic_Size_;

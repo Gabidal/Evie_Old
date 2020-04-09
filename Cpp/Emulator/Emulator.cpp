@@ -5,6 +5,7 @@ extern Selector* S;
 		// Register, Regiser using token
 extern map<string, Token*> Preprosessor_Tokens;
 extern Object* Root;
+extern int _SYSTEM_BIT_TYPE;
 
 Token* Emulator::Get_Info(Token* t)
 {
@@ -157,9 +158,9 @@ void Emulator::Register_Chooser(Token* t)
 	}
 	else if (t->is(_Call_))
 	{
-		if (S->Check_For_Reg(Task_For_General_Purpose, t->Size)->is(Task_For_Returning))
+		if (S->Check_For_Reg(Task_For_General_Purpose, _SYSTEM_BIT_TYPE)->is(Task_For_Returning))
 		{
-			S->Increase(t->Size);
+			S->Increase(_SYSTEM_BIT_TYPE);
 		}
 	}
 }

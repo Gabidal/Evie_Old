@@ -59,7 +59,7 @@ void Parser::Connect_Address(int i)
 	Input.erase(Input.begin() + i);
 }
 
-void Parser::Init_Definition(int i)
+void Parser::Init_Definition(int &i)
 {
 	if (i >= (Input.size() - 1))
 		return;
@@ -68,28 +68,12 @@ void Parser::Init_Definition(int i)
 	//a = b
 	//const var b
 	//func a()
-	if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && (Input.at(i+1)->is(_TEXT)) && (Defined(Input.at(i + 1)->WORD) == ""))
+	if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && (Input.at(i+1)->is(_TEXT)))
 	{
 		Token* New_Defined_Type = new Token();
-		New_Defined_Type->Type = Input.at(i)->WORD;
-		New_Defined_Type->Name = Input.at(i + 1)->WORD;
-
-		if (i - 1 >= 0)
-		{
-			if (Defined(Input.at(i - 1)->WORD) != "")
-			{
-				if (i - 2 >= 0)
-				{
-					if (Input.at(i - 2)->is(_OPERATOR) && (Input.at(i - 2)->WORD != ","))
-					{
-						goto skip;
-					}
-				}
-				New_Defined_Type->PreFix_Type = Input.at(i - 1)->WORD;
-				New_Defined_Type->add(_Inheritting_);
-			}
-		}
-	skip:;
+		New_Defined_Type->PreFix_Type = Collect_All_Inherited_Types(i);
+		New_Defined_Type->Name = Input.at(i + New_Defined_Type->PreFix_Type.size())->WORD;
+		New_Defined_Type->Type = New_Defined_Type->PreFix_Type.at(0);
 		if (Input.at(i)->is(_KEYWORD))
 		{
 			string Size = Get_Size(i);
@@ -119,7 +103,26 @@ void Parser::Init_Definition(int i)
 		Set_Right_Flag_Info(New_Defined_Type);
 		Defined_Keywords.push_back(New_Defined_Type);
 		Space_Reservation += New_Defined_Type->Size;
+		i += New_Defined_Type->PreFix_Type.size();
 	}
+}
+
+vector<string> Parser::Collect_All_Inherited_Types(int start) //returned vector size needs to be deleted from input
+{
+	//[defined]import [defined]loyal [keyword]func [plain text]banana
+	vector<string> r;
+	for (int i = start; i < Input.size(); i++)
+	{
+		if ((Defined(Input.at(i)->WORD) != "") || Input.at(i)->is(_KEYWORD))
+		{
+			r.push_back(Input.at(i)->WORD);
+		}
+		else
+		{
+			break;
+		}
+	}
+	return r;
 }
 
 string Parser::Get_Size(int i)

@@ -24,7 +24,7 @@ map<string, Object*> Token::Get_Members()
 		std::make_pair("ID", new IntObject(&ID)),
 		std::make_pair("Name", new StringObject(&Name)),
 		std::make_pair("Type", new StringObject(&Type)),
-		std::make_pair("PreFix_Type", new StringObject(&PreFix_Type)),
+		std::make_pair("PreFix_Type", new SymbolTableList(PreFix_Type)),
 		std::make_pair("UID", new StringObject(&UID)),
 		std::make_pair("State", new StringObject(&State))
 	};

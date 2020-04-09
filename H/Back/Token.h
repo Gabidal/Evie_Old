@@ -69,9 +69,9 @@ class Token : public Object
     Token* Offsetter = nullptr;
     Token* Initial_Value = nullptr;
     vector<Token*> Childs;
+    vector<string> PreFix_Type;
     string Name = "";
     string Type = "";
-    string PreFix_Type = "";
     string UID = "";
     string State;
     Token(){}

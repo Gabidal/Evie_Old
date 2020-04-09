@@ -146,7 +146,7 @@ void Generator::Detect_Function(Token* t)
 		T->Size = _SYSTEM_BIT_TYPE;
 		Handle = T;
 		//check if this has init some objects so that we can reserve stack for it.
-		if (t->Reservable_Size > 0)
+		if ((t->Reservable_Size > 0) && (!Detect_Trait(t, "loyal")))
 		{
 			//make the register
 			Token* esp = new Token;
@@ -563,13 +563,21 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 
 void Generator::Detect_Prefixes(Token* t)
 {
-	if (t->PreFix_Type != "")
+	if (t->PreFix_Type.size() > 0)
 	{
 		IR* ir = new IR;
-		ir->PreFix = t->PreFix_Type;
+		ir->PreFix = t->PreFix_Type.at(0);
 		ir->ID = t->Name;
 		Output.push_back(ir);
 	}
+}
+
+bool Generator::Detect_Trait(Token* t, string trait)
+{
+	for (string s : t->PreFix_Type)
+		if (s == trait)
+			return true;
+	return false;
 }
 
 void Generator::Append(vector<IR*> *Dest, vector<IR*> Source)

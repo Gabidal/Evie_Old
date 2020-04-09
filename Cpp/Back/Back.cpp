@@ -29,7 +29,7 @@ string Back::Get_Handler(Token* t)
 
 string Back::Get_Info_Of(Token* t, bool Storing)
 {
-	if ((t->PreFix_Type == "export"))// && (t->Size == 0))
+	if (Check_For("export", t->PreFix_Type))// && (t->Size == 0))
 		return t->Name;
 	else if (t->Offsetter != nullptr)
 	{
@@ -55,7 +55,7 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return Get_Size(t) + t->Name;
 	else if (t->is(_String_))
 		return t->Name;			//change into the S1 pointters!!!
-	else if (t->is(_Call_) && ((t->PreFix_Type == "import") || (t->PreFix_Type == "export")))
+	else if (t->is(_Call_) && (Check_For("import", t->PreFix_Type) || Check_For("export", t->PreFix_Type)))
 		return t->Name;
 	else if (t->is(_Call_))
 		return "_" + t->Name;
@@ -75,6 +75,17 @@ string Back::Get_Size(Token* t)
 		return S->Get_ID(to_string(t->Size), "", { t->Size });
 	}
 	return "";
+}
+
+bool Back::Check_For(string dest, vector<string> source)
+{
+	for (string s : source) {
+		if (s == dest)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void Back::Make()

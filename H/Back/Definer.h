@@ -16,6 +16,7 @@ public:
     vector<Token*> Input_Of_Tokens;
     vector<Token*> Defined_Types;
     vector<Token*> Output;
+    string Get_All(vector<string> x, string add);
     int Get_Location_Of_Type_Constructor(string type);
     int Get_Definition_Setting(Token* t, string f);
     void Get_Modded_Content(string dest, string source);

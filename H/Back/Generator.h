@@ -25,6 +25,7 @@ public:
 	void Detect_Parenthesis(Token* t);
 	void Detect_Pre_Defined_Tokens(Token* t);
 	void Detect_Prefixes(Token* t);
+	bool Detect_Trait(Token* t, string trait);
 	void Scaler(Token* l, Token* r);
 	void Dodge(Token* l, Token* r);
 	void Initialize_Global_Variable(int i);
