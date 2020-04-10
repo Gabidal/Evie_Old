@@ -69,9 +69,8 @@ class Token : public Object
     Token* Offsetter = nullptr;
     Token* Initial_Value = nullptr;
     vector<Token*> Childs;
-    vector<string> PreFix_Type;
+    vector<string> Types;
     string Name = "";
-    string Type = "";
     string UID = "";
     string State;
     Token(){}
@@ -94,11 +93,13 @@ class Token : public Object
         add(_Register_);
     }
 
+    string Gather_Types(string comma);
     bool is(int flag);
     bool Any(int flags);
     void add(int flag);
     void remove(int flag);
     int get();
+    bool is(string type);
     string Get_Additive_Operator();
 };
 #endif

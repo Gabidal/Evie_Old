@@ -23,11 +23,18 @@ map<string, Object*> Token::Get_Members()
 		std::make_pair("ParameterCount", new IntObject(&ParameterCount)),
 		std::make_pair("ID", new IntObject(&ID)),
 		std::make_pair("Name", new StringObject(&Name)),
-		std::make_pair("Type", new StringObject(&Type)),
-		std::make_pair("PreFix_Type", new SymbolTableList(PreFix_Type)),
+		std::make_pair("Types", new SymbolTableList(Types)),
 		std::make_pair("UID", new StringObject(&UID)),
 		std::make_pair("State", new StringObject(&State))
 	};
+}
+
+string Token::Gather_Types(string comma)
+{
+	string r = "";
+	for (string s : Types)
+		r += s + comma;
+	return r;
 }
 
 bool Token::is(int flag)
@@ -53,6 +60,16 @@ void Token::remove(int flag)
 int Token::get()
 {
 	return Flags;
+}
+
+bool Token::is(string type)
+{
+	for (string s : Types) {
+		if (s == type) {
+			return true;
+		}
+	}
+	return false;
 }
 
 string Token::Get_Additive_Operator()

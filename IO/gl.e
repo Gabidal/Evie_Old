@@ -1,10 +1,8 @@
 use "gstd.e"
 type import()()
-type trustable()(
-	State trust
-)
+type loyal()()
 
-import loyal func _glClear@4()()
+import func _glClear@4()()
 import func _glClearColor@16()()
 import func _glVertex2f@8()()
 import func _glBegin@4()()
@@ -33,11 +31,7 @@ func glClear(dword Constant)(
 
 func glClearColor(dword r, dword g, dword b, dword a)
 (
-	push a
-	push b
-	push g
-	push r
-	(_glClearColor@16())
+	(_glClearColor@16(r, g, b, a))
 	return 0
 )
 

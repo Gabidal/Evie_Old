@@ -24,13 +24,6 @@ type double()(
 	Size 12
 )
 
-type const()(
-	State Static
-)
-
-type constexpr()(
-	State Static
-)
 
 type export()()
 

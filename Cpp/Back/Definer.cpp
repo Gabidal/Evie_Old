@@ -34,7 +34,7 @@ int Definer::Get_Definition_Setting(Token* t, string f)
 	{
 		//go a double loop and make a vector for type settings like: Size, etc...
 		//loop and find if that type constructor has correlating settings and set em.
-		if (i->Type == f)
+		if (i->is(f))
 		{
 			return atoi(i->Right_Side_Token->Name.c_str());
 		}
@@ -57,11 +57,11 @@ void Definer::Type_Collect(Token* t)
 {
 	if (t->is(_Inheritting_) != true)
 		return;
-	for (string s : t->PreFix_Type)
+	for (string s : t->Types)
 		t->Size += FIND(s)->Size;
-	for (string s : t->PreFix_Type)
+	for (string s : t->Types)
 		t->State += " " + FIND(s)->State;
-	cout << "Warning: You are using an inheritance type on --> " << t->Name + ", " + Get_All(t->PreFix_Type, ", ") << endl;
+	cout << "Warning: You are using an inheritance type on --> " << t->Name + ", " + Get_All(t->Types, ", ") << endl;
 }
 
 Token* Definer::FIND(string name)
@@ -144,9 +144,9 @@ void Definer::Factory()
 			continue;
 		}
 		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "State");
-		Get_Modded_Content(s->Name, Get_All(s->PreFix_Type, ""));
+		Get_Modded_Content(s->Name, Get_All(s->Types, ""));
 		New_Defined_Class->Name = s->Name;
-		New_Defined_Class->Type = s->Type;
+		New_Defined_Class->Types = s->Types;
 		New_Defined_Class->_Dynamic_Size_ = s->_Dynamic_Size_;
 		if (Has(s, "return"))
 		{

@@ -34,6 +34,7 @@ public:
     void Set_Right_Stack_Offset(Token* t);
     void Set_Right_Flag_Info(Token* t);
     string Defined(string name);
+    vector<string> Get_Type(string name);
     int Count_Familiar_Tokens(int F, int i);
     void Init_Variable(int i);
     void Check_For_Correlation(int i);

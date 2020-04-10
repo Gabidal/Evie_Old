@@ -198,7 +198,7 @@ optional<Object*> Object::Get_Const_Data(Token* t)
 			Source = Source->Get_Member(members.at(i));
 			if (Source == nullptr)
 			{
-				cout << "Error: " << "Illegal pointter fethcing! --> " << t->Name + ", " + t->Type << endl;
+				cout << "Error: " << "Illegal pointter fethcing! --> " << t->Name + ", " + t->Gather_Types(", ") << endl;
 				return nullopt;
 			}
 		}

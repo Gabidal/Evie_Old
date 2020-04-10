@@ -59,52 +59,59 @@ void Parser::Connect_Address(int i)
 	Input.erase(Input.begin() + i);
 }
 
-void Parser::Init_Definition(int &i)
+void Parser::Init_Definition(int& i)
 {
 	if (i >= (Input.size() - 1))
 		return;
+	if ((Collect_All_Inherited_Types(i).size() < 1))
+		return;
+	if (!Input.at(i + Collect_All_Inherited_Types(i).size())->is(_TEXT))
+		return;
+	if (Defined(Input.at(i + Collect_All_Inherited_Types(i).size())->WORD) != "")
+		return;
+	//import func banana()()
+	//func banana()()
+	//export loyal func banana()()
 	//type var
 	//var a
 	//a = b
 	//const var b
 	//func a()
-	if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && (Input.at(i+1)->is(_TEXT)))
+	//if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && ((Input.at(i+1)->is(_TEXT)) || (Input.at(i + 1)->is(_KEYWORD))) && (Input.at(i)->WORD != ","))
+	Token* New_Defined_Type = new Token();
+	New_Defined_Type->Types = Collect_All_Inherited_Types(i);
+	New_Defined_Type->Name = Input.at(i + New_Defined_Type->Types.size())->WORD;
+	if (Input.at(i)->is(_KEYWORD))
 	{
-		Token* New_Defined_Type = new Token();
-		New_Defined_Type->PreFix_Type = Collect_All_Inherited_Types(i);
-		New_Defined_Type->Name = Input.at(i + New_Defined_Type->PreFix_Type.size())->WORD;
-		New_Defined_Type->Type = New_Defined_Type->PreFix_Type.at(0);
-		if (Input.at(i)->is(_KEYWORD))
+		string Size = Get_Size(i);
+		if (Size == "$")
 		{
-			string Size = Get_Size(i);
-			if (Size == "$")
-			{
-				New_Defined_Type->_Dynamic_Size_ = true;
-				New_Defined_Type->Size = 0;
-			}
-			else
-			{
-				New_Defined_Type->Size = atoi(Size.c_str());
-			}
+			New_Defined_Type->_Dynamic_Size_ = true;
+			New_Defined_Type->Size = 0;
 		}
 		else
 		{
-			for (Token* t : Defined_Keywords)
+			New_Defined_Type->Size = atoi(Size.c_str());
+		}
+	}
+	else
+	{
+		for (Token* t : Defined_Keywords)
+		{
+			if (New_Defined_Type->is(t->Name))
 			{
-				if (New_Defined_Type->Type == t->Name)
-				{
-					New_Defined_Type->Size = t->Size;
-					New_Defined_Type->_Dynamic_Size_ = t->_Dynamic_Size_;
-					break;
-				}
+				New_Defined_Type->Size = t->Size;
+				New_Defined_Type->_Dynamic_Size_ = t->_Dynamic_Size_;
+				break;
 			}
 		}
-		Set_Right_Stack_Offset(New_Defined_Type);
-		Set_Right_Flag_Info(New_Defined_Type);
-		Defined_Keywords.push_back(New_Defined_Type);
-		Space_Reservation += New_Defined_Type->Size;
-		i += New_Defined_Type->PreFix_Type.size();
 	}
+	Set_Right_Stack_Offset(New_Defined_Type);
+	Set_Right_Flag_Info(New_Defined_Type);
+	Defined_Keywords.push_back(New_Defined_Type);
+	Space_Reservation += New_Defined_Type->Size;
+	i += New_Defined_Type->Types.size();
+
 }
 
 vector<string> Parser::Collect_All_Inherited_Types(int start) //returned vector size needs to be deleted from input
@@ -138,7 +145,7 @@ string Parser::Get_Size(int i)
 	p.Factory();
 	Token* t = nullptr;
 	for (int j = 0; j < p.Output.size(); j++) {
-		if (p.Output.at(j)->Type == "Size")
+		if (p.Output.at(j)->is("Size"))
 		{
 			t = p.Output.at(j);
 		}
@@ -342,6 +349,10 @@ void Parser::Init_Parenthesis(int i)
 		New_Defined_Parenthesis->add(_Parenthesis_);
 		New_Defined_Parenthesis->Reservable_Size = P.Space_Reservation;
 		New_Defined_Parenthesis->Size = P.Space_Reservation;
+		for (Token* j : New_Defined_Parenthesis->Childs)
+		{
+			New_Defined_Parenthesis->Size += j->Size;
+		}
 		Output.push_back(New_Defined_Parenthesis);
 		this->Space_Reservation = P.Space_Reservation;
 		if (Inside_Of_Constructor_As_Parameter)
@@ -492,13 +503,12 @@ void Parser::Type_Definition(int i)
 				{
 					New_Defined_Text->Size = t->Size;
 					New_Defined_Text->add(t->get());
-					New_Defined_Text->Type = t->Type;
-					New_Defined_Text->PreFix_Type = t->PreFix_Type;
+					New_Defined_Text->Types = t->Types;
 					New_Defined_Text->add(_Combined_);
 					break;
 				}
 		//get the predefined types/prefixtypes.
-		if (New_Defined_Text->Type != "")
+		if (New_Defined_Text->Types.size() > 0)
 		{
 			//this new defined thing has already the needed requerems, no need to combine
 			Output.push_back(New_Defined_Text);
@@ -553,10 +563,19 @@ string Parser::Defined(string name)
 	{
 		if (t->Name == name)
 		{
-			return t->Type;
+			return t->Name; //!!!!!
 		}
 	}
 	return "";
+}
+
+vector<string> Parser::Get_Type(string name)
+{
+	for (Token* t : Defined_Keywords)
+		if (t->Name == name)
+			return t->Types;
+	cout << "Error: " << name << " is not defined!" << endl;
+	throw runtime_error(name + " is not defined!");
 }
 
 int Parser::Count_Familiar_Tokens(int F, int i)
@@ -594,22 +613,22 @@ void Parser::Init_Variable(int i)
 		return;
 	}
 	for (Token* t : Defined_Keywords)
-		if (Input.at(i)->WORD == t->Name && (t->Type == "func"))
+		if ((Input.at(i)->WORD == t->Name) && (t->is("func")))
 			return;
 	if (Input.at(i)->is(_TEXT) && (Defined(Input.at(i)->WORD) != "") && (Layer > 1))
 	{
 		Token* New_Variable = new Token();
 		New_Variable->Name = Input.at(i)->WORD;
 		//idk
-		New_Variable->Type = Defined(New_Variable->Name);
-		if (New_Variable->Type == "type")
+		New_Variable->Types = Get_Type(New_Variable->Name);
+		if (New_Variable->is("type"))
 			return;
 		for (Token* t : Defined_Keywords)
 			if (t->Name == New_Variable->Name)
 			{
 				New_Variable->StackOffset = t->StackOffset;
 				New_Variable->add(t->get());
-				New_Variable->PreFix_Type = t->PreFix_Type;
+				New_Variable->Types = t->Types;
 				New_Variable->Size = t->Size;
 				New_Variable->_Dynamic_Size_ = t->_Dynamic_Size_;
 				break;
@@ -638,7 +657,7 @@ void Parser::Init_Variable(int i)
 		Token* New_Number = new Token();
 		New_Number->Name = Input.at(i)->_Pre_Modded;
 		New_Number->Name += Input.at(i)->WORD;
-		New_Number->Type = "number";
+		New_Number->Types.push_back("number");
 		New_Number->add(_Number_);
 		if (Input.at(i)->Offsetter != nullptr)
 		{
@@ -684,14 +703,14 @@ void Parser::Init_Variable(int i)
 		Str->add(_String_);
 		Str->Name = Input.at(i)->WORD;
 		Str->Size = _SYSTEM_BIT_TYPE;
-		Str->Type = "string";
+		Str->Types.push_back("string");
 		Output.push_back(Str);
 	}
 	if (Input.at(i)->WORD == "$")
 	{
 		Token* Let = new Token;
 		Let->Name = "$";
-		Let->Type = "Preprosessor";
+		Let->Types.push_back("Preprosessor");
 		Output.push_back(Let);
 	}
 }
@@ -704,7 +723,7 @@ void Parser::Check_For_Correlation(int i)
 		if (Input.at(i)->WORD == s)
 		{
 			Token* New_Pre_Defined_Token = new Token();
-			New_Pre_Defined_Token->Type = s;
+			New_Pre_Defined_Token->Types.push_back(s);
 
 			Parser P = *this;
 			P.Defined_Keywords = Defined_Keywords;
