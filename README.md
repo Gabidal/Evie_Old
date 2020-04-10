@@ -143,6 +143,14 @@ Use OpenGL32.lib as a -lib argument, on windows.
 ```
 Sorry for Linux users, u have to use ur skills, until i have added a template for linux too...
 
+Beta 2.1.68 added/fixed:
+
+- ###### added loyal keyword, use this if you dont want to clean the called functions parameters from stack.
+
+- ###### rewamped the whole typing system from string into vector strings so that you can inherit literally unlimited amount of types.
+
+
+
 
 ## Manual
 

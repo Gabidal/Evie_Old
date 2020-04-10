@@ -43,7 +43,6 @@ push dword [ebp  + 16]
 push dword [ebp  + 12]
 push dword [ebp  + 8]
 call _glClearColor@16
-add esp , dword 16
 xor al , al 
 leave 
 ret

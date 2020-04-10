@@ -3,7 +3,7 @@ type import()()
 type loyal()()
 
 import func _glClear@4()()
-import func _glClearColor@16()()
+import loyal func _glClearColor@16()()
 import func _glVertex2f@8()()
 import func _glBegin@4()()
 import func _glEnd@0()()

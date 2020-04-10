@@ -146,7 +146,7 @@ void Generator::Detect_Function(Token* t)
 		T->Size = _SYSTEM_BIT_TYPE;
 		Handle = T;
 		//check if this has init some objects so that we can reserve stack for it.
-		if ((t->Reservable_Size > 0))
+		if ((t->Reservable_Size > 0) && !t->is("loyal"))
 		{
 			//make the register
 			Token* esp = new Token;
