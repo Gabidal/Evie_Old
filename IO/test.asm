@@ -100,8 +100,8 @@ mov word [ebp  - 12], word 0
 _if29: 
 call _glfwInit
 mov al , byte 1
-movsx eax , al 
-cmp eax , eax 
+movsx edx , al 
+cmp eax , edx 
 je _if29END
 mov al , byte -1
 leave 
@@ -118,9 +118,9 @@ call _glfwCreateWindow
 add esp , dword 20
 mov dword [ebp  - 4], eax 
 _if30: 
-mov edx , dword [ebp  - 4]
-xor edi , edi 
-cmp edx , edi 
+mov edi , dword [ebp  - 4]
+xor ebx , ebx 
+cmp edi , ebx 
 jne _if30END
 call _glfwTerminate
 mov al , byte -1
@@ -134,8 +134,8 @@ add esp , dword 4
 mov dword [ebp  - 14], dword 0
 _while31: 
 mov esi , dword [ebp  - 14]
-xor eax , eax 
-cmp esi , eax 
+xor ebx , ebx 
+cmp esi , ebx 
 jne _while31END
 push dword [GL_Color_Buffer_Bit]
 call _glClear

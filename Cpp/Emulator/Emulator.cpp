@@ -94,20 +94,38 @@ void Emulator::Long_Operation_Allocator(int &i)
 			*R	= *Input.at(i)->Parameters.at(1);
 			if (L->Size != R->Size)
 			{
-				IR* D = Input.at(i);
-				//make a handle register
-				Register_Loader(*R, i);
-				Register_Chooser(R);
-				Register_Loader(*L, i);
-				Register_Chooser(L);
+				Token* Smaller = new Token;
+				Token* Converted = new Token;
+				Token* Bigger = new Token;
+				Token* Handle = new Token;
+				//find witch one is smaller
+				//copy it into smaller & bigger so that we can set convetion from small into big
+				if (R->Size < L->Size) {
+					*Smaller = *R;
+					*Converted = *R;
+					*Bigger = *L;
+					Handle = Input.at(i)->Parameters.at(1);
+				}
+				else {
+					*Smaller = *L;
+					*Converted = *L;
+					*Bigger = *R;
+					Handle = Input.at(i)->Parameters.at(0);
+				}
+				Converted->Name += "_Converted";
 
+				Register_Loader(*Smaller, i);
+				Register_Chooser(Smaller);
+
+				Converted->Size = Bigger->Size;
+				Register_Chooser(Converted);
 
 				IR* converter = new IR;
 				converter->ID = "convert";
-				converter->Parameters.push_back(L);
-				converter->Parameters.push_back(R);
+				converter->Parameters.push_back(new Token(*Converted));
+				converter->Parameters.push_back(new Token(*Smaller));
 				Input.insert(Input.begin() + i, converter);
-				D->Parameters.at(1) = L;
+				*Handle = *Converted;
 			}
 		}
 	}

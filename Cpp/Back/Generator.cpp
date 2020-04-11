@@ -408,8 +408,8 @@ void Generator::Detect_Operator(Token* t)
 			//make the loading IR token
 			IR* load = new IR;
 			load->ID = "ldr";
-			load->Parameters.push_back(Reg);
-			load->Parameters.push_back(t->Left_Side_Token);
+			load->Parameters.push_back(new Token(*Reg));
+			load->Parameters.push_back(new Token(*t->Left_Side_Token));
 			Output.push_back(load);
 			//more check if the destination is too big for the loaded register, in Emulator
 		}
@@ -426,12 +426,12 @@ void Generator::Detect_Operator(Token* t)
 		//make the loading IR token
 		IR* load = new IR;
 		load->ID = "ldr";
-		load->Parameters.push_back(Reg);
-		load->Parameters.push_back(t->Right_Side_Token);
+		load->Parameters.push_back(new Token(*Reg));
+		load->Parameters.push_back(new Token(*t->Right_Side_Token));
 		Output.push_back(load);
 	}
-	opCode->Parameters.push_back(Left_Token);
-	opCode->Parameters.push_back(Right_Token);
+	opCode->Parameters.push_back(new Token(*Left_Token));
+	opCode->Parameters.push_back(new Token(*Right_Token));
 	Handle = Left_Token;
 	Output.push_back(opCode);
 }
