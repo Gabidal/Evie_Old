@@ -42,7 +42,7 @@ OpC* Selector::OpCode_Selector()
 Token* Selector::Get_Right_Reg(int F, int Size)
 {
 	Token* r;
-	if (((F & Task_For_General_Purpose) == Task_For_General_Purpose) || ((F & Task_For_Floating_Math) == Task_For_Floating_Math))
+	if (((F & Task_For_General_Purpose) == F) || ((F & Task_For_Floating_Math) == F))
 	{
 		if (Size == 12)
 		{

@@ -732,7 +732,14 @@ void Parser::Check_For_Correlation(int i)
 			P.Input = Input.at(i)->Tokens;
 			P.Factory();
 
-			New_Pre_Defined_Token->Right_Side_Token = P.Output.at(0);
+			if (P.Output.size() > 0)
+				New_Pre_Defined_Token->Right_Side_Token = P.Output.at(0);
+			else
+			{
+				Token* Empty_And_Potentially_Useless = new Token;
+				Empty_And_Potentially_Useless->Name = Input.at(i)->Tokens.at(0)->WORD;
+				New_Pre_Defined_Token->Right_Side_Token = Empty_And_Potentially_Useless;
+			}
 			Output.push_back(New_Pre_Defined_Token);
 			return;
 		}

@@ -17,7 +17,7 @@ type long()(
 )
 
 type float()(
-	Size 12
+	Size 8
 )
 
 type double()(

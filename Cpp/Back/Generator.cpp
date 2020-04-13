@@ -12,6 +12,7 @@ void Generator::Factory()
 	{
 		//Detect_Prefixes(Input.at(i));
 		Detect_Pointters(Input.at(i));
+		Detect_Arrays(Input.at(i));
 		Detect_Address_Pointing(Input.at(i));
 		Detect_Condition(Input.at(i));
 		Detect_Function(Input.at(i));
@@ -438,66 +439,153 @@ void Generator::Detect_Operator(Token* t)
 
 void Generator::Detect_Pointters(Token* t)
 {
+	//a::0 --> mov reg, [a] --> mov reg2, [reg+0]
+	//a::0 == _Pointing_
+
+	//a:0 --> mov reg, [a+0]
+	//a:0 == _Array_
 	if (t->Offsetter == nullptr)
 		return;
-	if (t->is(_Number_) || t->Offsetter->is(_Number_))
-	{
-		Scaler(t, t->Offsetter);
-	}
+	if (!t->is(_Pointting_))
+		return;
+	Token* tmp_t = new Token;
+	*tmp_t = *t;
+	//empty the offsetter from tmp
+	tmp_t->Offsetter = nullptr;
 	Token* Offsetter = new Token;
-	*Offsetter = *t->Offsetter;
-	Token* Address = new Token;
-	*Address = *t;
-	Address->Offsetter = nullptr;
-	IR* Load_Token = new IR;
-	if (t->is(_Pointting_))
-	{
-		//make a handle register
-		Token* Reg = new Token;
-		Reg->add(Task_For_General_Purpose);
-		Reg->add(_Register_);
-		Reg->Name = "tmp_" + t->Name;
-		Reg->Size = t->Size;
 
-		Load_Token->ID = "ldr";
-		Load_Token->Parameters.push_back(Reg);
-		Load_Token->Parameters.push_back(Address);
-		t->Name = Reg->Name;
-		t->add(Reg->get());
-		t->add(_Pointting_);
-		Output.push_back(Load_Token);
-	}
-	if (Offsetter->is(_Number_) != true)
-	{
-		Generator g;
-		g.Input.push_back(Offsetter);
-		g.Factory();
-		g.Append(&Output, g.Output);
-		IR* Load_Offsetter = new IR;
-		if (g.Handle == nullptr)
-		{
-			//make a handle register
-			Token* Reg = new Token;
-			Reg->add(Task_For_General_Purpose);
-			Reg->add(_Register_);
-			Reg->Name = "tmp_" + Offsetter->Name;
-			Reg->Size = Offsetter->Size;
+	Scaler(t, t->Offsetter);
+	//load the Offsetter into a reg or if number stay number.
+	Generator g;
+	g.Input.clear();
+	g.Output.clear();
+	g.Types = Types;
 
-			Load_Offsetter->ID = "ldr";
-			Load_Offsetter->Parameters.push_back(Reg);
-			Load_Offsetter->Parameters.push_back(Offsetter);
-			*t->Offsetter = *Reg;
-		}
-		else
-		{
-			*t->Offsetter = *g.Handle;
-		}
-		Output.push_back(Load_Offsetter);
+	g.Input.push_back(t->Offsetter);
+	g.Factory();
+	Append(&Output, g.Output);
+	if (g.Handle != nullptr)
+		//a::(a:b) --> more complex
+		*Offsetter = *g.Handle;
+	else if (!t->Offsetter->is(_Number_)) {
+		//a::a --> more simpler offsetter
+		//setup the offsetter token to be the handle for the variable loading
+		Offsetter->add(_Register_);
+		Offsetter->add(Task_For_General_Purpose);
+		Offsetter->Name = t->Offsetter->Name + "_Offsetted_Handle_Reg";
+		//load the variable into a rgister
+		IR* load = new IR;
+		load->ID = "ldr";
+		load->Parameters.push_back(Offsetter);
+		load->Parameters.push_back(t->Offsetter);
+		Output.push_back(load);
 	}
+	else
+		//a::0 --> just a number offsetter in other words no need to do enything.
+		*Offsetter = *t->Offsetter;
+	//now load the main variable:
+	Token* Offsetter_Register = new Token;
+	Offsetter_Register->add(_Register_);
+	Offsetter_Register->add(Task_For_General_Purpose);
+	Offsetter_Register->Name = t->Name + "_Offsetter_Reg";
+	Offsetter_Register->Size = t->Size;
+
+	//mov sec_reg, [a]
+	IR* load_Secondary = new IR;
+	load_Secondary->ID = "ldr";
+	//make a copy so that when we add the offsetter it doesnt explode :D
+	load_Secondary->Parameters.push_back(new Token(*Offsetter_Register));
+	load_Secondary->Parameters.push_back(tmp_t);
+
+	Output.push_back(load_Secondary);
+
+	//now load the main, from secondary handle + offsetter
+	//mov reg, [sec_reg+offsetter]
+	Token* Main_Handle = new Token;
+	Main_Handle->add(_Register_);
+	Main_Handle->add(Task_For_General_Purpose);
+	Main_Handle->Name = t->Name + "_main_Handle_reg";
+	Main_Handle->Size = t->Size;
+
+	Offsetter_Register->Offsetter = Offsetter;
+	Offsetter_Register->add(_Pointting_);
+
+	//make the initial mov
+	IR* Main_Load = new IR;
+	Main_Load->ID = "ldr";
+	Main_Load->Parameters.push_back(Main_Handle);
+	Main_Load->Parameters.push_back(Offsetter_Register);
+
+	Output.push_back(Main_Load);
+
+	Handle = Main_Handle;
 }
+
+void Generator::Detect_Arrays(Token* t)
+{
+	//a:0 --> mov reg, [(ebp-4) + offsetter]
+	if (!t->is(_Array_))
+		return;
+	if (t->Offsetter == nullptr)
+		return;
+	//make the offsetter handle
+	Token* Offsetter = new Token;
+
+	Scaler(t, t->Offsetter);
+	//load the Offsetter into a reg or if number stay number.
+	Generator g;
+	g.Input.clear();
+	g.Output.clear();
+	g.Types = Types;
+
+	g.Input.push_back(t->Offsetter);
+	g.Factory();
+	Append(&Output, g.Output);
+	if (g.Handle != nullptr)
+		//a:(a:b) --> more complex
+		*Offsetter = *g.Handle;
+	else if (!t->Offsetter->is(_Number_)) {
+		//a:a --> more simpler offsetter
+		//setup the offsetter token to be the handle for the variable loading
+		Offsetter->add(_Register_);
+		Offsetter->add(Task_For_General_Purpose);
+		Offsetter->Name = t->Offsetter->Name + "_Offsetted_Handle_Reg";
+		//load the variable into a rgister
+		IR* load = new IR;
+		load->ID = "ldr";
+		load->Parameters.push_back(Offsetter);
+		load->Parameters.push_back(t->Offsetter);
+		Output.push_back(load);
+	}
+	else
+		//a:0 --> just a number offsetter in other words no need to do enything.
+		*Offsetter = *t->Offsetter;
+
+	//set the original offsetter into the new one
+	t->Offsetter = Offsetter;
+
+	//make the returning handle register
+	Token* Main_Handle = new Token;
+	Main_Handle->add(_Register_);
+	Main_Handle->add(Task_For_General_Purpose);
+	Main_Handle->Size = t->Size;
+	Main_Handle->Name = t->Name + "_Main_Handle";
+
+	//make the main load
+	IR* Main_Load = new IR;
+	Main_Load->ID = "ldr";
+	Main_Load->Parameters.push_back(Main_Handle);
+	Main_Load->Parameters.push_back(new Token(*t));
+
+	Output.push_back(Main_Load);
+
+	Handle = Main_Handle;
+}
+
 
 void Generator::Detect_Address_Pointing(Token* t)
 {
+	//@a
 	if (t->is(_Giving_Address_) != true) return;
 	//lea eax, [ebp -4 + ecx]
 	//eax

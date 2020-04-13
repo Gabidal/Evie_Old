@@ -21,6 +21,7 @@ public:
 	void Detect_Condition(Token* t);
 	void Detect_Operator(Token* t);
 	void Detect_Pointters(Token* t);
+	void Detect_Arrays(Token* t);
 	void Detect_Address_Pointing(Token* t);
 	void Detect_Parenthesis(Token* t);
 	void Detect_Pre_Defined_Tokens(Token* t);

@@ -21,9 +21,14 @@ string Back::Get_Handler(Token* t)
 	{
 		return t->UID;
 	}
-	else
+	else if (t->is(_External_) || t->is(_Number_))
 	{
 		return t->Name;
+	}
+	else
+	{
+		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+			Get_Direction(t) + to_string(t->StackOffset) + "]";
 	}
 }
 
