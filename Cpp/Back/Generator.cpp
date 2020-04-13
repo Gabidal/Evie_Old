@@ -582,7 +582,6 @@ void Generator::Detect_Arrays(Token* t)
 	Handle = Main_Handle;
 }
 
-
 void Generator::Detect_Address_Pointing(Token* t)
 {
 	//@a
@@ -652,6 +651,8 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 void Generator::Detect_Prefixes(Token* t)
 {
 	for (string s: t->Types) {
+		if (s == "Hidden")
+			return;
 		if (s == "type" || s == "func" || s == "loyal")
 			continue;
 		IR* ir = new IR;

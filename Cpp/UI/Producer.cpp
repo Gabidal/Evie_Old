@@ -194,7 +194,7 @@ string Producer::Get_Template()
     {
         if (OS == "win32")
         {
-            return "link \"glfw3.lib\" \"OpenGL32.lib\" \"kernel32.lib\" \"user32.lib\" \"gdi32.lib\" \"shell32.lib\" /DEBUG  /INCREMENTAL /SUBSYSTEM:CONSOLE /NOLOGO " + Output_File + ".obj /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\um\\x86\" OpenGL32.lib /entry:main /out:\"" + Output_File +".exe\" /libpath:\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.25.28610\\lib\\x86\" vcruntime.lib /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\ucrt\\x86\" /libpath:\"" + Produce_Working_Dir + "\" ucrt.lib";
+            return "link \"glfw3.lib\" \"OpenGL32.lib\" \"kernel32.lib\" \"user32.lib\" \"gdi32.lib\" \"shell32.lib\" /DEBUG /SUBSYSTEM:CONSOLE /NOLOGO " + Output_File + ".obj /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\um\\x86\" OpenGL32.lib /entry:main /out:\"" + Output_File +".exe\" /libpath:\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.25.28610\\lib\\x86\" vcruntime.lib /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\ucrt\\x86\" /libpath:\"" + Produce_Working_Dir + "\" ucrt.lib";
         }
         else
         {

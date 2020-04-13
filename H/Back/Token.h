@@ -45,7 +45,8 @@ constexpr int _Preprosessor_ (1<<27);
 constexpr int _Skip_ (1<<28);
 constexpr int _Combined_ (1<<29);
 constexpr int _Initialized_ (1<<30);
-constexpr int _Locked_ (1<<31); //!!!
+constexpr int _Locked_(1 << 31); //!!!
+
 
 class Token : public Object
 {
