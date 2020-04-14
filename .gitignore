@@ -1,8 +1,9 @@
 GAS.vcxproj
 GAS.vcxproj.filters
 GAS.vcxproj.user
-Release/
-Debug/
-CMakeFiles/
+Release
+Debug
+CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
+.vscode
