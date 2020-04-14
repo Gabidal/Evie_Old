@@ -139,7 +139,7 @@ string Producer::Get_Linker_Input()
     }
     else if (OS == "unix")
     {
-        return " -o " + Output_File + Get_Assembly_Dest_Marker();
+        return  Output_File + Get_Assembly_Dest_Marker();
     }
     return "";
 }
@@ -203,6 +203,7 @@ string Producer::Get_Template()
             return "";
         }
     }
+    return "";
 }
 
 
@@ -246,6 +247,16 @@ string Producer::Get_All(vector<string> in)
     return r;
 }
 
+string Producer::Get_Linker_Output(){
+    if (OS == "win32"){
+        return "";
+    }
+    else if (OS == "unix"){
+        return "-o" + Output_File + ".ThisIsTotallyExecutable";
+    }
+    return "";
+}
+
 void Producer::Assemble_Command()
 {
     stringstream output;
@@ -254,7 +265,7 @@ void Producer::Assemble_Command()
     output = stringstream();
     if (Get_Template() == "")
     {
-        output << Get_Linker_Type() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Added_Libs();// << " /mix";
+        output << Get_Linker_Type() << Get_Linker_aarch() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Linker_Output() << Get_Added_Libs();// << " /mix";
     }
     else
     {

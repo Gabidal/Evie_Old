@@ -1,0 +1,3 @@
+/home/gabe/Evie/CMakeFiles/rebuild_cache.dir
+/home/gabe/Evie/CMakeFiles/Evie.dir
+/home/gabe/Evie/CMakeFiles/edit_cache.dir

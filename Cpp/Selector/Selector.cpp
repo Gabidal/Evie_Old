@@ -172,7 +172,7 @@ Token* Selector::Check_For_Reg(int F, int Size)
 	{
 		return Registers8.at(Reg_Turn8);
 	}
-	cout << "Error: cannot check the size of --> " + Size << endl;
+	cout << "Error: cannot check the size of --> " << Size << endl;
 	return nullptr;
 }
 

@@ -1,11 +1,6 @@
-type Hidden()()
-type int()(
-    Size 4
-)
+use "cstd.e"
 
-type Virtual()(
-    Size 4
-)
+type Hidden()()
 
 Hidden Virtual onUpdate,
 

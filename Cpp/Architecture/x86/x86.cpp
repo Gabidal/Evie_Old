@@ -1,6 +1,6 @@
 #include "../../../H/Architecture/x86/x86.h"
 #include "../../../H/Back/Token.h"
-
+#include <limits.h>
 
 void x86::ARC_Factory()
 {
@@ -151,7 +151,7 @@ void x86::ARC_Factory()
 	DL->add(Task_For_Remainder);
 	DL->add(Task_For_General_Purpose);
 	Registers8.push_back(DL);
-	DH = new Token("¨dh ", 1);
+	DH = new Token("ï¿½dh ", 1);
 	DH->add(Task_For_Remainder);
 	DH->add(Task_For_General_Purpose);
 	Registers8.push_back(DH);

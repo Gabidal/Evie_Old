@@ -35,6 +35,7 @@ private:
 	string Get_Linker_aarch();
 	string Get_Assembler_Output();
 	string Get_Linker_Input();
+	string Get_Linker_Output();
 	string Get_Added_Libs();
 	string Get_Entry();
 	string Link();

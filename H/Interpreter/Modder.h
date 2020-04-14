@@ -1,4 +1,4 @@
-#ifndef _MODDE_H_
+#ifndef _MODDER_H_
 #define _MODDER_H_
 #include "../OpC/IR.h"
 #include "../Back/Token.h"
