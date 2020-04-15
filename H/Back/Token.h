@@ -47,7 +47,6 @@ constexpr int _Combined_ (1<<29);
 constexpr int _Initialized_ (1<<30);
 constexpr int _Locked_(1 << 31); //!!!
 
-
 class Token : public Object
 {
     private:
@@ -62,15 +61,15 @@ class Token : public Object
     int ID = 0;
     bool Semanticked = false;
     bool _Dynamic_Size_ = false;
-    //Token* Parent = nullptr;
     Token* Left_Side_Token = nullptr;
-    Token* Right_Side_Token = nullptr; // also as the offsetter in array
+    Token* Right_Side_Token = nullptr; 
     Token* Left_Non_Operative_Token = nullptr;
     Token* Right_Non_Operative_Token = nullptr;
-    Token* Offsetter = nullptr;
+    Token* Offsetter = nullptr;// also as the offsetter in array
     Token* Initial_Value = nullptr;
     vector<Token*> Childs;
     vector<string> Types;
+    string Context = "";
     string Name = "";
     string UID = "";
     string State;

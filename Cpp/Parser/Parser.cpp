@@ -1,16 +1,16 @@
 #include "../../H/Parser/Parser.h"
 #include "../../H/Interpreter/Interpreter.h"
 
+bool Inside_Of_Constructor_As_Parameter = false;
+bool Inside_Of_Constructor = false;
 int Layer = 0;
 int ID = 1;
 int Global_Stack_Offset = 0;
 int Local_Stack_Offest = 0;
-bool Inside_Of_Constructor_As_Parameter = false;
-bool Inside_Of_Constructor = false;
-extern vector<string> Pre_Defined_Tokens;
-extern vector<Token*> Generated_Undefined_Tokens;
 extern int _SYSTEM_BIT_TYPE;
 extern vector<string> Included_Files; //for loop holes to not exist
+extern vector<string> Pre_Defined_Tokens;
+extern vector<Token*> Generated_Undefined_Tokens;
 
 void Parser::Include_Files(int i)
 {
@@ -106,6 +106,7 @@ void Parser::Init_Definition(int& i)
 			}
 		}
 	}
+	New_Defined_Type->Context = Context;
 	Set_Right_Stack_Offset(New_Defined_Type);
 	Set_Right_Flag_Info(New_Defined_Type);
 	Defined_Keywords.push_back(New_Defined_Type);
@@ -210,6 +211,7 @@ void Parser::Init_Operator(int i)
 		Token* New_Right_Non_Operative_Token = P.Output.at(0);
 
 		Token* New_Defined_Operator = new Token();
+		New_Defined_Operator->Context = Context;
 		New_Defined_Operator->Name = Input.at(i)->WORD;
 		New_Defined_Operator->Left_Side_Token = New_Defined_Left_Side_Token;
 		New_Defined_Operator->Right_Side_Token = New_Defined_Right_Side_Token;
@@ -380,13 +382,19 @@ void Parser::Init_Conditions(int i)
 		New_Defined_Condition->add(_External_);
 		ID++;
 
+
 		Parser P = *this;
+
+		//update context
+		P.Context = Input.at(i)->WORD;
+
 		P.Output.clear();
 		P.Input.clear();
 		P.Input.push_back(Input.at(i + 1));				//The parameters for the condition.
 		P.Factory();
 
 		New_Defined_Condition->Left_Side_Token = P.Output.at(0);
+
 
 		P.Output.clear();
 		P.Input.clear();
@@ -427,13 +435,17 @@ void Parser::Type_Definition(int i)
 		Token* New_Defined_Text = new Token();
 		if (Input.at(i)->_Call)
 		{
+
 			Parser P = *this;
+			//update context
+			P.Context = Input.at(i)->WORD;
 			P.Input.clear();
 			P.Output.clear();
 			P.Input = Input.at(i)->Tokens;
 			Inside_Of_Constructor_As_Parameter = true;
 			P.Factory();
 			Inside_Of_Constructor_As_Parameter = false;
+
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			reverse(New_Defined_Text->Left_Side_Token->Childs.begin(), New_Defined_Text->Left_Side_Token->Childs.end());
 			New_Defined_Text->add(_Call_);
@@ -449,15 +461,22 @@ void Parser::Type_Definition(int i)
 		else if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 2)
 		{
 
+
 			Parser P = *this;
+			//update context
+			P.Context = Input.at(i)->WORD;
 
 			P.Input.clear();
 			P.Output.clear();
 			//parameters.
 			Inside_Of_Constructor_As_Parameter = true;
+
+
 			P.Input.push_back(Input.at(i + 1));
 			P.Factory();
 			Inside_Of_Constructor_As_Parameter = false;
+			
+
 			Local_Stack_Offest = 0;
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 
@@ -468,6 +487,7 @@ void Parser::Type_Definition(int i)
 
 			New_Defined_Text->Left_Side_Token->Reservable_Size = 0;
 
+
 			P.Output.clear();
 			P.Input.clear();
 			//childs
@@ -476,6 +496,8 @@ void Parser::Type_Definition(int i)
 			P.Space_Reservation = 0;			//!!!!!!!!!!!!!!
 			P.Factory();
 			Inside_Of_Constructor = false;
+
+
 			Local_Stack_Offest = 0;
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);
 			New_Defined_Text->add(_Constructor_);
@@ -649,6 +671,7 @@ void Parser::Init_Variable(int i)
 		{
 			New_Variable->add(_Giving_Address_);
 		}
+		New_Variable->Context = Context;
 		Output.push_back(New_Variable);
 		Generated_Undefined_Tokens.push_back(Output.back());
 	}

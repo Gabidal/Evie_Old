@@ -64,7 +64,7 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 				OFFSET + Get_Handler(t->Offsetter) + SCALE + to_string(t->Size) + "]";
 		}
 	}
-	else if (t->is(_Giving_Address_))
+	else if (t->is(_Giving_Address_) && (t->Context == "Global Scope"))
 	{
 		return Get_Address(t);
 	}

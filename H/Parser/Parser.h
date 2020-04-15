@@ -14,6 +14,7 @@ public:
 
     int Space_Reservation = 0;
 	string Working_Dir = "";
+    string Context = "Global Scope";
     vector<Word*> Input;
     vector<Token*> Output;
     vector<Token*> Defined_Keywords;

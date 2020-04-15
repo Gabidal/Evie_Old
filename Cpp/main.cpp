@@ -93,7 +93,6 @@ void Init_Pre_Defined_Tokens()
     //attach a string into output file
     Pre_Defined_Tokens.push_back("asm");
 }
-
 /*
 int argumentIterator;
 char dox86;
