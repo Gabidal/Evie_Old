@@ -1,3 +1,5 @@
+type Hidden()()
+
 type system,
 
 system sys,

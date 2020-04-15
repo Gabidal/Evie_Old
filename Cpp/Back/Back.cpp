@@ -23,18 +23,32 @@ string Back::Get_Handler(Token* t)
 	}
 	else if (t->is(_External_) || t->is(_Number_))
 	{
-		return t->Name;
+		if (t->is("import") || t->is("export") || t->is(_Number_))
+			return t->Name;
+		return "_" + t->Name;
 	}
 	else
 	{
-		return "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
-			Get_Direction(t) + to_string(t->StackOffset) + "]";
+		return S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+			Get_Direction(t) + to_string(t->StackOffset);
 	}
+}
+
+string Back::Get_Address(Token* t){
+	if (t->is(_External_)){
+		return "(" + Get_Handler(t) + ")";
+	}
+	else
+	{
+		return "(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+				Get_Direction(t) + to_string(t->StackOffset) + ")";
+	}
+	
 }
 
 string Back::Get_Info_Of(Token* t, bool Storing)
 {
-	if (t->is("export"))// && (t->Size == 0))
+	if (t->is("export") || t->is("import"))// && (t->Size == 0))
 		return t->Name;
 	else if (t->Offsetter != nullptr)
 	{
@@ -46,10 +60,13 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		else if (t->is(_Array_))
 		{
 			//[(ebp-4)+offsetter*Size]
-			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
-				Get_Direction(t) + to_string(t->StackOffset) + ")" +
+			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + Get_Address(t) +
 				OFFSET + Get_Handler(t->Offsetter) + SCALE + to_string(t->Size) + "]";
 		}
+	}
+	else if (t->is(_Giving_Address_))
+	{
+		return Get_Address(t);
 	}
 	else if (Storing && (t->is(_External_) != true))
 		return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
@@ -60,12 +77,10 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 		return Get_Size(t) + t->Name;
 	else if (t->is(_String_))
 		return t->Name;			//change into the S1 pointters!!!
-	else if (t->is(_Call_) && (t->is("import") || t->is("export")))
-		return t->Name;
 	else if (t->is(_Call_))
-		return "_" + t->Name;
+		return Get_Handler(t);
 	else if (t->is(_External_))
-		return S->Get_ID(to_string(t->Size), "", { t->Size}) + "[" + t->Name + "]";
+		return S->Get_ID(to_string(t->Size), "", { t->Size}) + "[" + Get_Handler(t) + "]";
 	else
 		return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";

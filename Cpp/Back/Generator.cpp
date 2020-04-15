@@ -314,7 +314,7 @@ void Generator::Initialize_Global_Variable(int i)
 		}
 		IR* label = new IR;
 		label->PreFix = t->Name;
-		label->ID = "raw_label";
+		label->ID = "label";
 		label->Childs.push_back(init);
 		Output.push_back(label);
 		Input.erase(Input.begin() + i);

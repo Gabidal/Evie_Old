@@ -1,12 +1,7 @@
 use "cstd.e"
 
-type Hidden()()
-
-Hidden Virtual onUpdate,
+int onUpdate = 1
 
 onUpdate(1, 2, 3)
 
-
-func onUpdate()(
-    return 1
-)
+int a = @onUpdate
