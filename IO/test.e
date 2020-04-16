@@ -1,12 +1,8 @@
 use "cstd.e"
+use "boost.e"
 
-int onUpdate = 1
-
-onUpdate(1, 2, 3)
-
-int a = @onUpdate
+int ptr = "banana"
 
 func main()(
-    int b = @onUpdate
-    return b
+    return @ptr:0
 )

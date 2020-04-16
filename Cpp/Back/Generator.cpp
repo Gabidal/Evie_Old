@@ -597,10 +597,13 @@ void Generator::Detect_Address_Pointing(Token* t)
 
 	IR* lea = new IR;
 	lea->ID = ":";
-	lea->Parameters.push_back(Reg);
+	lea->Parameters.push_back(new Token(*Reg));
 	lea->Parameters.push_back((new Token(*t)));
 	*t = *Reg;
+
 	Output.push_back(lea);
+
+	Handle = Reg;
 }
 
 void Generator::Detect_Parenthesis(Token* t)
