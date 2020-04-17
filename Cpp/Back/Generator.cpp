@@ -444,6 +444,8 @@ void Generator::Detect_Pointters(Token* t)
 
 	//a:0 --> mov reg, [a+0]
 	//a:0 == _Array_
+	if (t->is(_Giving_Address_))
+		return;
 	if (t->Offsetter == nullptr)
 		return;
 	if (!t->is(_Pointting_))
@@ -524,6 +526,8 @@ void Generator::Detect_Pointters(Token* t)
 void Generator::Detect_Arrays(Token* t)
 {
 	//a:0 --> mov reg, [(ebp-4) + offsetter]
+	if (t->is(_Giving_Address_))
+		return;
 	if (!t->is(_Array_))
 		return;
 	if (t->Offsetter == nullptr)

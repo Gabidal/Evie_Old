@@ -2,9 +2,7 @@ export main
 global main
 main: 
 _main: 
-mov eax , dword [(_ptr) + 0 * 4]
-lea ebx , dword [(_ptr) + 0 * 4]
-mov eax , ebx 
+lea eax , dword [_ptr]
 ret
  
 _ptr: 
