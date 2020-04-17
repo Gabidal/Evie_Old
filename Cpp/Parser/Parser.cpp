@@ -80,6 +80,9 @@ void Parser::Init_Definition(int& i)
 	//if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && ((Input.at(i+1)->is(_TEXT)) || (Input.at(i + 1)->is(_KEYWORD))) && (Input.at(i)->WORD != ","))
 	Token* New_Defined_Type = new Token();
 	New_Defined_Type->Types = Collect_All_Inherited_Types(i);
+	if (New_Defined_Type->Types.size() > 1)
+		New_Defined_Type->add(_Inheritting_);
+	
 	New_Defined_Type->Name = Input.at(i + New_Defined_Type->Types.size())->WORD;
 	if (Input.at(i)->is(_KEYWORD))
 	{
@@ -438,7 +441,7 @@ void Parser::Type_Definition(int i)
 
 			Parser P = *this;
 			//update context
-			P.Context = Input.at(i)->WORD;
+			P.Context = "Parameter";
 			P.Input.clear();
 			P.Output.clear();
 			P.Input = Input.at(i)->Tokens;
@@ -464,7 +467,7 @@ void Parser::Type_Definition(int i)
 
 			Parser P = *this;
 			//update context
-			P.Context = Input.at(i)->WORD;
+			P.Context = "Parameter";
 
 			P.Input.clear();
 			P.Output.clear();
@@ -487,6 +490,9 @@ void Parser::Type_Definition(int i)
 
 			New_Defined_Text->Left_Side_Token->Reservable_Size = 0;
 
+
+			//update context
+			P.Context = Input.at(i)->WORD;
 
 			P.Output.clear();
 			P.Input.clear();
@@ -523,6 +529,7 @@ void Parser::Type_Definition(int i)
 			for (Token* t : Defined_Keywords)
 				if (t->Name == New_Defined_Text->Name && (!New_Defined_Text->is(_Combined_)))
 				{
+					New_Defined_Text->StackOffset = t->StackOffset;
 					New_Defined_Text->Size = t->Size;
 					New_Defined_Text->add(t->get());
 					New_Defined_Text->Types = t->Types;

@@ -24,7 +24,4 @@ type double()(
 	Size 12
 )
 
-
-type export()()
-
 export func main,

@@ -20,6 +20,7 @@ public:
 	string Get_Info_Of(Token* t, bool Storing);
 	string Get_Size(Token* t);
 	string Get_Address(Token* t);
+	string Get_Call(Token* t);
 	bool Check_For(string dest, vector<string> source);
 	void Make();
 	void Factory();

@@ -1,8 +1,18 @@
 use "cstd.e"
 use "boost.e"
 
-int ptr = "banana"
+type portable()(
+    Size 4
+)
+
+Hidden portable banana()(
+    return 0
+)
 
 func main()(
-    return @ptr
+    int a = @banana
+    while (1 < 2)(
+        a(1)
+    )
+    return 0
 )

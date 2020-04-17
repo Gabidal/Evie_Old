@@ -46,6 +46,17 @@ string Back::Get_Address(Token* t){
 	
 }
 
+string Back::Get_Call(Token* t){
+	if (t->is("func"))
+	{
+		return Get_Handler(t);
+	}
+	else
+	{
+		return "[" + Get_Handler(t) + "]";
+	}
+}
+
 string Back::Get_Info_Of(Token* t, bool Storing)
 {
 	if (t->is("export") || t->is("import"))// && (t->Size == 0))
@@ -78,7 +89,7 @@ string Back::Get_Info_Of(Token* t, bool Storing)
 	else if (t->is(_String_))
 		return t->Name;			//change into the S1 pointters!!!
 	else if (t->is(_Call_))
-		return Get_Handler(t);
+		return Get_Call(t);
 	else if (t->is(_External_))
 		return S->Get_ID(to_string(t->Size), "", { t->Size}) + "[" + Get_Handler(t) + "]";
 	else

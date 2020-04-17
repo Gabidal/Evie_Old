@@ -66,20 +66,15 @@ void Definer::Type_Collect(Token* t)
 
 Token* Definer::FIND(string name)
 {
-	for (int i = 0; i < Output.size(); i++)
-	{
-		if (Output.at(i)->Name == name)
-		{
-			return Output.at(i);
-		}
-	}
-	for (int i = 0; i < Generated_Undefined_Tokens.size(); i++)
-	{
-		if (Generated_Undefined_Tokens.at(i)->Name == name)
-		{
-			return Generated_Undefined_Tokens.at(i);
-		}
-	}
+	for (Token* t: Defined_Types)
+		if (t->Name == name)
+			return t;
+	for (Token* t: Generated_Undefined_Tokens)
+		if (t->Name == name)
+			return t;
+	for (Token* t: Output)
+		if (t->Name == name)
+			return t;
 	cout << "Waring: uninitialized pre type: " + name + "." << endl;
 	Token* t = new Token;
 	return t;

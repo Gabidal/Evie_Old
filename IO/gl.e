@@ -1,6 +1,4 @@
 use "gstd.e"
-type import()()
-type loyal()()
 
 import func _glClear@4()()
 import loyal func _glClearColor@16()()

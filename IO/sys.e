@@ -1,5 +1,3 @@
-type Hidden()()
-
 type system,
 
 system sys,
@@ -7,6 +5,10 @@ system Info,
 
 system Static,
 system Virtual,
+system Hidden,
+system export,
+system import,
+system loyal,
 
 system Source_File,
 system Destination_File,
