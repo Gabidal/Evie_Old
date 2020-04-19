@@ -6,6 +6,9 @@ export main
 global main
 main: 
 _main: 
+push ebp 
+mov ebp , esp 
+sub esp , dword 4
 lea eax , dword [_banana]
 mov dword [ebp  - 4], eax 
 _while29: 
@@ -19,5 +22,6 @@ add esp , dword 4
 jmp _while29
 _while29END: 
 xor al , al 
+leave 
 ret
  

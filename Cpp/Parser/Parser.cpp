@@ -103,16 +103,17 @@ void Parser::Init_Definition(int& i)
 		{
 			if (New_Defined_Type->is(t->Name))
 			{
-				New_Defined_Type->Size = t->Size;
-				New_Defined_Type->_Dynamic_Size_ = t->_Dynamic_Size_;
-				break;
+				New_Defined_Type->Size += t->Size;
+				New_Defined_Type->_Dynamic_Size_ |= t->_Dynamic_Size_;
 			}
+			
 		}
 	}
 	New_Defined_Type->Context = Context;
 	Set_Right_Stack_Offset(New_Defined_Type);
 	Set_Right_Flag_Info(New_Defined_Type);
 	Defined_Keywords.push_back(New_Defined_Type);
+	Generated_Undefined_Tokens.push_back(New_Defined_Type);
 	Space_Reservation += New_Defined_Type->Size;
 	i += New_Defined_Type->Types.size();
 
@@ -201,7 +202,7 @@ void Parser::Init_Operator(int i)
 		Token* New_Defined_Right_Side_Token = P.Output.at(0);
 
 		//for non operative tokens
-		P.Output.clear();
+		/*P.Output.clear();
 		P.Input.clear();
 		P.Input.push_back(Input.at(i)->L);
 		P.Factory();
@@ -211,15 +212,15 @@ void Parser::Init_Operator(int i)
 		P.Input.clear();
 		P.Input.push_back(Input.at(i)->R);
 		P.Factory();
-		Token* New_Right_Non_Operative_Token = P.Output.at(0);
+		Token* New_Right_Non_Operative_Token = P.Output.at(0);*/
 
 		Token* New_Defined_Operator = new Token();
 		New_Defined_Operator->Context = Context;
 		New_Defined_Operator->Name = Input.at(i)->WORD;
 		New_Defined_Operator->Left_Side_Token = New_Defined_Left_Side_Token;
 		New_Defined_Operator->Right_Side_Token = New_Defined_Right_Side_Token;
-		New_Defined_Operator->Left_Non_Operative_Token = New_Left_Non_Operative_Token;
-		New_Defined_Operator->Right_Non_Operative_Token = New_Right_Non_Operative_Token;
+		//New_Defined_Operator->Left_Non_Operative_Token = New_Left_Non_Operative_Token;
+		//New_Defined_Operator->Right_Non_Operative_Token = New_Right_Non_Operative_Token;
 
 		New_Defined_Operator->add(_Operator_);
 		Output.push_back(New_Defined_Operator);
@@ -680,7 +681,7 @@ void Parser::Init_Variable(int i)
 		}
 		New_Variable->Context = Context;
 		Output.push_back(New_Variable);
-		Generated_Undefined_Tokens.push_back(Output.back());
+		//Generated_Undefined_Tokens.push_back(Output.back());
 	}
 	if (Input.at(i)->is(_NUMBER) && (Layer > 1))
 	{
