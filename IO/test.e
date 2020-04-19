@@ -1,11 +1,7 @@
 use "cstd.e"
 use "boost.e"
 
-type portable()(
-    Size 4
-)
-
-Hidden portable banana()(
+func banana()(
     return 0
 )
 

@@ -642,7 +642,7 @@ void Parser::Init_Variable(int i)
 		return;
 	}
 	for (Token* t : Defined_Keywords)
-		if ((Input.at(i)->WORD == t->Name) && (t->is("func")))
+		if ((Input.at(i)->WORD == t->Name) && (t->is("func")) && (!Input.at(i)->_Giving_Address))
 			return;
 	if (Input.at(i)->is(_TEXT) && (Defined(Input.at(i)->WORD) != "") && (Layer > 1))
 	{
