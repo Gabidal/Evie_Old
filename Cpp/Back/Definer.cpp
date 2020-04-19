@@ -138,7 +138,7 @@ void Definer::Factory()
 		{
 			continue;
 		}
-		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "State");
+		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "state");
 		Get_Modded_Content(s->Name, Get_All(s->Types, ""));
 		New_Defined_Class->Name = s->Name;
 		New_Defined_Class->Types = s->Types;

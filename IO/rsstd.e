@@ -1,4 +1,4 @@
 
 type let()(
-	Size 4
+	size 4
 )

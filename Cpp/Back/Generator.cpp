@@ -658,7 +658,7 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 void Generator::Detect_Prefixes(Token* t)
 {
 	for (string s: t->Types) {
-		if (s == "Hidden")
+		if (s == "hidden")
 			return;
 		if (s == "type" || s == "func" || s == "loyal")
 			continue;

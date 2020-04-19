@@ -86,8 +86,8 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("new");
 
     //type indicators(
-    Pre_Defined_Tokens.push_back("Size");
-    Pre_Defined_Tokens.push_back("State");
+    Pre_Defined_Tokens.push_back("size");
+    Pre_Defined_Tokens.push_back("state");
     //)
 
     //attach a string into output file

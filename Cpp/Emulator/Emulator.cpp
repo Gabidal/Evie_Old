@@ -242,7 +242,7 @@ void Emulator::Factory()
 		Load_UID(i);
 	for (int i = 0; i < (int)Input.size(); i++)
 	{
-		if (Input.at(i)->ID == "Size" || Input.at(i)->ID == "Static")
+		if (Input.at(i)->ID == "size" || Input.at(i)->ID == "state")
 		{
 			continue;
 		}

@@ -149,7 +149,7 @@ string Parser::Get_Size(int i)
 	p.Factory();
 	Token* t = nullptr;
 	for (int j = 0; j < p.Output.size(); j++) {
-		if (p.Output.at(j)->is("Size"))
+		if (p.Output.at(j)->is("size"))
 		{
 			t = p.Output.at(j);
 		}

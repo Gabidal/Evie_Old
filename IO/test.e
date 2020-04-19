@@ -6,7 +6,7 @@ func banana()(
 )
 
 func main()(
-    int a = @banana
+    cache int a = @banana
     while (1 < 2)(
         a(1)
     )

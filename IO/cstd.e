@@ -1,27 +1,27 @@
 use "sys.e"
 
 type int()(
-	Size 4
+	size 4
 )
 
 type short()(
-	Size 2
+	size 2
 )
 
 type char()(
-	Size 1
+	size 1
 )
 
 type long()(
-	Size 8
+	size 8
 )
 
 type float()(
-	Size 8
+	size 8
 )
 
 type double()(
-	Size 12
+	size 12
 )
 
 export func main,

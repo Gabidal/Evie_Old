@@ -1,19 +1,19 @@
 type var()(
-	Size 4
+	size 4
 )
 
 type byte()(
-	Size 1
+	size 1
 )
 
 type word()(
-	Size 2
+	size 2
 )
 
 type dword()(
-	Size 4
+	size 4
 )
 
 type qword()(
-	Size 8
+	size 8
 )
