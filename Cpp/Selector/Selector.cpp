@@ -200,6 +200,68 @@ void Selector::Increase(int Size)
 	}
 }
 
+int Selector::Get_Right_Reg_Index(int size, Token* r){
+	vector<Token*> registers;
+	if (size == 1)
+	{
+		registers = Registers8;
+	}
+	else if (size == 2)
+	{
+		registers = Registers16;
+	}
+	else if (size == 4)
+	{
+		registers = Registers32;
+	}
+	else if (size == 8)
+	{
+		registers = Registers64;
+	}
+	else if (size == 12)
+	{
+		registers = Registers128;
+	}
+	else
+	{
+		cout << "Error: no known size --> " << size << ". Register name --> " << r->Name << endl;
+		return 0;
+	}
+
+	for (int i = 0; i < registers.size(); i++)
+		if (registers.at(i)->Name == r->Name)
+			return i;
+}
+
+int& Selector::Get_Right_Register_List(int size){
+	if (size == 1)
+	{
+		return Reg_Turn8;
+	}
+	else if (size == 2)
+	{
+		return Reg_Turn16;
+	}
+	else if (size == 4)
+	{
+		return Reg_Turn32;
+	}
+	else if (size == 8)
+	{
+		return Reg_Turn64;
+	}
+	else if (size == 12)
+	{
+		return Reg_Turn128;
+	}
+	else
+	{
+		cout << "Error: no known size --> " << size << endl;
+		int tmp;
+		return tmp;
+	}
+}
+
 string Selector::Get_ID(string id, string trust, vector<int> minmax)
 {
 	if (id == "")

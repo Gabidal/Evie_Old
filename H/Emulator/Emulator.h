@@ -32,6 +32,7 @@ public:
 	void Factory();
 	void Pattern_User(int i);
 	void Load_UID(int i);
+	void Skip_Chained_Registers(Token* reg);
 	Emulator(string &in) : Output(in)
 	{
 	}

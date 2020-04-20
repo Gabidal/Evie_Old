@@ -170,6 +170,7 @@ void Emulator::Register_Chooser(Token* t)
 		}
 		//if not
 		Token* Reg = S->Get_Right_Reg(t->get(), t->Size);
+		Skip_Chained_Registers(Reg);
 		Register_Lock.insert({ t, Reg });
 		t->UID = Reg->Name;
 		return;
@@ -278,6 +279,24 @@ void Emulator::Pattern_User(int i)
 		Pattern = Preprosessor_Tokens[Branching_Label.back()];
 		Modder m(*p, *c, *n, Input, Pattern->Childs);
 		m.Factory();
+	}
+}
+
+void Emulator::Skip_Chained_Registers(Token* reg){
+	if (!reg->is(_Register_))
+		return;
+	for (Token* linked_reg : reg->Childs){
+		//this mission is to seek for all the childs 
+		//and theyre childs and add to the regi_turnX if it is on the mark.
+		//try to do same to childs of childs of etc...
+		Skip_Chained_Registers(linked_reg);
+		//now get the indexed child's index
+		int i = S->Get_Right_Reg_Index(linked_reg->Size, linked_reg);
+		//now get the right vector list
+		int& current_index = S->Get_Right_Register_List(linked_reg->Size);
+		//now just check for correlation
+		if (current_index == i)
+			current_index++;
 	}
 }
 

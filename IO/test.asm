@@ -12,9 +12,9 @@ sub esp , dword 4
 lea eax , dword [_banana]
 mov dword [ebp  - 4], eax 
 _while29: 
-mov al , byte 1
-mov ah , byte 2
-cmp al , ah 
+mov bl , byte 1
+mov bh , byte 2
+cmp bl , bh 
 jnl _while29END
 push dword 1
 call [ebp  - 4]
