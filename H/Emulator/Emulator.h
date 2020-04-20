@@ -33,6 +33,7 @@ public:
 	void Pattern_User(int i);
 	void Load_UID(int i);
 	void Skip_Chained_Registers(Token* reg);
+	void Link_Cache_User(Token* t);
 	Emulator(string &in) : Output(in)
 	{
 	}

@@ -300,10 +300,24 @@ void Emulator::Skip_Chained_Registers(Token* reg){
 	}
 }
 
+void Emulator::Link_Cache_User(Token* t){
+	if (t->is(_Register_))
+		return;
+	if (t->Offsetter != nullptr)
+		return;
+	if (!t->is("cache"))
+		return;
+	//try to find register lock match on the same scoped context.
+	for (auto i : Register_Lock)
+		if (i.first->Name == t->Name)
+			*t = *i.second;
+}
+
 void Emulator::Load_UID(int i)
 {
 	for (Token* T : Input.at(i)->Parameters)
 	{
+		Link_Cache_User(T);
 		Register_Chooser(T);
 		if (T->Offsetter != nullptr)
 			Register_Chooser(T->Offsetter);
