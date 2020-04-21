@@ -20,7 +20,7 @@ void Parser::Include_Files(int i)
 		for (string s : Included_Files)
 			if (Input.at(i+1)->is(_STRING) && (filename == s))
 			{
-				cout << "Warning:: " + Input.at(i + 1)->WORD + " has already been included." << endl;
+				cout << "Warning: " + Input.at(i + 1)->WORD + " has already been included." << endl;
 				Input.erase(Input.begin() + i + 1);
 				return;
 			}

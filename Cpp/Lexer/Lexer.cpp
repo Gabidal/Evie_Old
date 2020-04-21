@@ -43,7 +43,7 @@ int getString(string source, int continu)
 
     if (i == -1)
     {
-        cout << "Error:: Can't find end of string" << endl;
+        cout << "Error: Can't find end of string" << endl;
     }
 
     int length = i - continu;
@@ -257,7 +257,7 @@ void Lexer::OpenFile(const char* FileName)
     ifstream file(Working_Dir + Name);
     if (file.is_open() != true)
     {
-		cout << "File not found: " << Working_Dir + Name << '\n';
+		cout << "Error: File not found: " << Working_Dir + Name << '\n';
         exit(1);
     }
     else

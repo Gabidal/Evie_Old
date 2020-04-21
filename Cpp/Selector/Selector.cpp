@@ -125,7 +125,7 @@ Token* Selector::Get_Right_Reg(int F, int Size)
 			}
 		}
 	}
-	cout << "Error:: Couldn't find suitable architehture register(" + Board_type + ": " + to_string(Size * 8) + " )." << endl;
+	cout << "Error: Couldn't find suitable architehture register(" + Board_type + ": " + to_string(Size * 8) + " )." << endl;
 	return nullptr;
 }
 
@@ -231,6 +231,8 @@ int Selector::Get_Right_Reg_Index(int size, Token* r){
 	for (int i = 0; i < registers.size(); i++)
 		if (registers.at(i)->Name == r->Name)
 			return i;
+	cout << "Error: First of all this shouldnt be happening XD" << endl;
+	return 0;
 }
 
 int& Selector::Get_Right_Register_List(int size){
@@ -257,8 +259,8 @@ int& Selector::Get_Right_Register_List(int size){
 	else
 	{
 		cout << "Error: no known size --> " << size << endl;
-		int tmp;
-		return tmp;
+		int* tmp;
+		return *tmp;
 	}
 }
 
@@ -291,7 +293,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 		return id;
 	if ((trust != "label") && (trust != "<") && (trust != ">") && (trust != "!<") && (trust != "!>") && (trust != "==") && (trust != "!=") && (trust != "<=") && (trust != ">=") && (trust != "jmp"))
 	{
-		cout << "Warning:: This is here because your'e using a illegal opcode: " << id << " ";
+		cout << "Warning: This is here because your'e using a illegal opcode: " << id << " ";
 		for (int i : minmax)
 		{
 			cout << i << ", ";

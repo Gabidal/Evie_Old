@@ -61,11 +61,16 @@ void Definer::Type_Collect(Token* t)
 		t->Size += FIND(s)->Size;
 	for (string s : t->Types)
 		t->State += " " + FIND(s)->State;
-	cout << "Warning: You are using an inheritance type on --> " << t->Name + ", " + Get_All(t->Types, ", ") << endl;
+	cout << "Warning: You are using an inheritance type(s) --> " << Get_All(t->Types, ", ") << "| On --> " << t->Name << endl;
 }
 
 Token* Definer::FIND(string name)
 {
+	if (name == "func" || name == "type")
+	{
+		Token* t = new Token;
+		return t;
+	}
 	for (Token* t: Defined_Types)
 		if (t->Name == name)
 			return t;
@@ -75,7 +80,7 @@ Token* Definer::FIND(string name)
 	for (Token* t: Output)
 		if (t->Name == name)
 			return t;
-	cout << "Waring: uninitialized pre type: " + name + "." << endl;
+	cout << "Warning: uninitialized pre type: " + name + "." << endl;
 	Token* t = new Token;
 	return t;
 }
