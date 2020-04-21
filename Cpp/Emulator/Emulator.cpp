@@ -155,6 +155,12 @@ void Emulator::Register_Chooser(Token* t)
 {
 	if (t == nullptr)
 		return;
+	if (S->Fixable_Register(t) != nullptr){
+		//if the name is already a name of register
+		*t = *S->Fixable_Register(t);
+		t->UID = t->Name;
+		return;
+	}
 	if (t->is(_Register_))
 	{
 		if (!(t->is(Task_For_Returning))) {

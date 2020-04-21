@@ -303,3 +303,33 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 
 	return "_" + id;
 }
+
+Token* Selector::Fixable_Register(Token* r){
+	vector<Token*> rs;
+	if (r->Size == 1)
+	{
+		rs = Registers8;
+	}
+	else if (r->Size == 2)
+	{
+		rs = Registers16;
+	}
+	else if (r->Size == 4)
+	{
+		rs = Registers32;
+	}
+	else if (r->Size == 8)
+	{
+		rs = Registers64;
+	}
+	else if (r->Size == 12)
+	{
+		rs = Registers128;
+	}
+	for (Token* i : rs)
+		if (i->Name == r->Name)
+		{
+			return i;
+		}
+	return nullptr;
+}

@@ -2,22 +2,32 @@ _banana:
 xor al , al 
 ret
  
+_apple: 
+xor al , al 
+ret
+ 
+_orange: 
+xor al , al 
+ret
+ 
 export main
 global main
 main: 
 _main: 
 push ebp 
 mov ebp , esp 
-sub esp , dword 4
+sub esp , dword 12
 lea eax , dword [_banana]
+lea ebx , dword [_apple]
+lea ecx , dword [_orange]
 _while29: 
-mov bl , byte 2
-mov bh , byte 1
-cmp bh , bl 
+mov dl , byte 2
+mov  dh , byte 1
+cmp  dh , dl 
 jnl _while29END
-push dword 1
 call eax 
-add esp , dword 4
+call ebx 
+call ecx 
 jmp _while29
 _while29END: 
 xor al , al 

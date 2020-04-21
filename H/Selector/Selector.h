@@ -33,6 +33,7 @@ public:
 	int& Get_Right_Register_List(int size);
 	Token* Get_Reg(vector<Token*> regs, int F, int &previus);
 	Token* Check_For_Reg(int F, int Size);
+	Token* Fixable_Register(Token* r);
 	void Increase(int Size);
 	Selector(string s);
 	~Selector();
