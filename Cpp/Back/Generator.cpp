@@ -391,11 +391,29 @@ void Generator::Detect_Operator(Token* t)
 	bool Storing = (t->Name == "=" || t->Name == "str");
 	//b:0 = a:0
 	//lea edi, [(ebp-offset)+ecx*size]
+	if (Normal_Right)
+	{
+		//make a handle register
+		Token* Reg = new Token;
+		Reg->add(Task_For_General_Purpose);
+		Reg->add(_Register_);
+		Reg->Name = "Reg2_" + t->Right_Side_Token->Name;
+		Reg->Size = t->Right_Side_Token->Size;
+		Right_Token = Reg;
+		//make the loading IR token
+		IR* load = new IR;
+		load->ID = "ldr";
+		load->Parameters.push_back(new Token(*Reg));
+		load->Parameters.push_back(new Token(*t->Right_Side_Token));
+		Output.push_back(load);
+	}
 	if (Normal_Left)
 	{
 		if (Storing)
 		{
 			Left_Token = t->Left_Side_Token;
+			//this is for the optimized cache usation.
+			Left_Token->Name_Of_Same_Using_Register = Right_Token->Name;
 		}
 		else
 		{
@@ -414,22 +432,6 @@ void Generator::Detect_Operator(Token* t)
 			Output.push_back(load);
 			//more check if the destination is too big for the loaded register, in Emulator
 		}
-	}
-	if (Normal_Right)
-	{
-		//make a handle register
-		Token* Reg = new Token;
-		Reg->add(Task_For_General_Purpose);
-		Reg->add(_Register_);
-		Reg->Name = "Reg2_" + t->Right_Side_Token->Name;
-		Reg->Size = t->Right_Side_Token->Size;
-		Right_Token = Reg;
-		//make the loading IR token
-		IR* load = new IR;
-		load->ID = "ldr";
-		load->Parameters.push_back(new Token(*Reg));
-		load->Parameters.push_back(new Token(*t->Right_Side_Token));
-		Output.push_back(load);
 	}
 	opCode->Parameters.push_back(new Token(*Left_Token));
 	opCode->Parameters.push_back(new Token(*Right_Token));

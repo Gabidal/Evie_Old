@@ -63,8 +63,6 @@ class Token : public Object
     bool _Dynamic_Size_ = false;
     Token* Left_Side_Token = nullptr;
     Token* Right_Side_Token = nullptr; 
-    Token* Left_Non_Operative_Token = nullptr;
-    Token* Right_Non_Operative_Token = nullptr;
     Token* Offsetter = nullptr;// also as the offsetter in array
     Token* Initial_Value = nullptr;
     vector<Token*> Childs;
@@ -72,7 +70,7 @@ class Token : public Object
     string Context = "";
     string Name = "";
     string UID = "";
-    string State;
+    string State = "";
     Token(){}
     Token(string name, int size, Token* child) {
         Name = name;
@@ -101,6 +99,10 @@ class Token : public Object
     int get();
     bool is(string type);
     string Get_Additive_Operator();
+    //From this point on there are optimizing
+    //Member's.
+    //Have fun!
+    string Name_Of_Same_Using_Register = "";
 };
 #endif
 

@@ -8,18 +8,15 @@ main:
 _main: 
 push ebp 
 mov ebp , esp 
-sub esp , dword 8
+sub esp , dword 4
 lea eax , dword [_banana]
-mov dword [ebp  - 4], eax 
-mov ebx , dword [ebp  - 4]
-mov dword [ebp  - 8], ebx 
 _while29: 
-mov cl , byte 1
-mov ch , byte 2
-cmp cl , ch 
+mov bl , byte 2
+mov bh , byte 1
+cmp bh , bl 
 jnl _while29END
 push dword 1
-call [ebp  - 4]
+call eax 
 add esp , dword 4
 jmp _while29
 _while29END: 

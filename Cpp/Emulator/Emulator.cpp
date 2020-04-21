@@ -317,9 +317,24 @@ void Emulator::Load_UID(int i)
 {
 	for (Token* T : Input.at(i)->Parameters)
 	{
+		Optimized_Register_Linking_Between_Different_Parameters(T);
 		Link_Cache_User(T);
 		Register_Chooser(T);
 		if (T->Offsetter != nullptr)
 			Register_Chooser(T->Offsetter);
 	}
+}
+
+void Emulator::Optimized_Register_Linking_Between_Different_Parameters(Token* o){
+	if (o->Name_Of_Same_Using_Register == "")
+		return;
+	//this functions mission is to look up for name of using register as the Name_Of_Same_Using_Register
+	//and set it as this Token* o's register as well on register_lock.
+	Token* Register = new Token;
+	//find the register that o->Name_Of_Same_Using_Register named object uses.
+	for (auto i: Register_Lock)
+		if (i.first->Name == o->Name_Of_Same_Using_Register)
+			*Register = *i.second;
+	//now lock these register'n o.
+	Register_Lock.insert(make_pair(new Token(*o), Register));
 }

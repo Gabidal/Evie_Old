@@ -34,6 +34,7 @@ public:
 	void Load_UID(int i);
 	void Skip_Chained_Registers(Token* reg);
 	void Link_Cache_User(Token* t);
+	void Optimized_Register_Linking_Between_Different_Parameters(Token* o);
 	Emulator(string &in) : Output(in)
 	{
 	}
