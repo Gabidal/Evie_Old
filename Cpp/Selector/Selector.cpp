@@ -150,7 +150,7 @@ Token* Selector::Get_Reg(vector<Token*> regs, int F, int &Previus)
 	return nullptr;
 }
 
-Token* Selector::Check_For_Reg(int F, int Size)
+Token* Selector::Check_For_Reg(int Size)
 {
 	if (Size == 12)
 	{
@@ -172,7 +172,7 @@ Token* Selector::Check_For_Reg(int F, int Size)
 	{
 		return Registers8.at(Reg_Turn8);
 	}
-	cout << "Error: cannot check the size of --> " << Size << endl;
+	cout << "Error: Cannot check the size of --> " << Size << endl;
 	return nullptr;
 }
 
@@ -224,7 +224,7 @@ int Selector::Get_Right_Reg_Index(int size, Token* r){
 	}
 	else
 	{
-		cout << "Error: no known size --> " << size << ". Register name --> " << r->Name << endl;
+		cout << "Error: No known size --> " << size << ". Register name --> " << r->Name << endl;
 		return 0;
 	}
 
@@ -235,7 +235,7 @@ int Selector::Get_Right_Reg_Index(int size, Token* r){
 	return 0;
 }
 
-int& Selector::Get_Right_Register_List(int size){
+int& Selector::Get_Ongoing_Index(int size){
 	if (size == 1)
 	{
 		return Reg_Turn8;
@@ -258,7 +258,7 @@ int& Selector::Get_Right_Register_List(int size){
 	}
 	else
 	{
-		cout << "Error: no known size --> " << size << endl;
+		cout << "Error: No known size --> " << size << endl;
 		int* tmp;
 		return *tmp;
 	}
@@ -332,4 +332,17 @@ Token* Selector::Fixable_Register(Token* r){
 			return i;
 		}
 	return nullptr;
+}
+
+vector<Token*>& Selector::Get_Register_List(int s){
+	if (s == 12)
+		return Registers128;
+	else if (s == 8)
+		return Registers64;
+	else if (s == 4)
+		return Registers32;
+	else if (s == 2)
+		return Registers16;
+	else
+		return Registers8;
 }

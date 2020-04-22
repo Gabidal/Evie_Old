@@ -80,7 +80,7 @@ Token* Definer::FIND(string name)
 	for (Token* t: Output)
 		if (t->Name == name)
 			return t;
-	cout << "Warning: uninitialized pre type: " + name + "." << endl;
+	cout << "Warning: Uninitialized pre type: " + name + "." << endl;
 	Token* t = new Token;
 	return t;
 }

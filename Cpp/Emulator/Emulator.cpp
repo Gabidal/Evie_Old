@@ -159,6 +159,7 @@ void Emulator::Register_Chooser(Token* t)
 		//if the name is already a name of register
 		*t = *S->Fixable_Register(t);
 		t->UID = t->Name;
+		Skip_Chained_Registers(t);
 		return;
 	}
 	if (t->is(_Register_))
@@ -183,7 +184,7 @@ void Emulator::Register_Chooser(Token* t)
 	}
 	else if (t->is(_Call_))
 	{
-		if (S->Check_For_Reg(Task_For_General_Purpose, _SYSTEM_BIT_TYPE)->is(Task_For_Returning))
+		if (S->Check_For_Reg(_SYSTEM_BIT_TYPE)->is(Task_For_Returning))
 		{
 			S->Increase(_SYSTEM_BIT_TYPE);
 		}
@@ -299,10 +300,24 @@ void Emulator::Skip_Chained_Registers(Token* reg){
 		//now get the indexed child's index
 		int i = S->Get_Right_Reg_Index(linked_reg->Size, linked_reg);
 		//now get the right vector list
-		int& current_index = S->Get_Right_Register_List(linked_reg->Size);
+		int& current_index = S->Get_Ongoing_Index(linked_reg->Size);
 		//now just check for correlation
-		if (current_index == i)
-			current_index++;
+		while (true){
+			if (current_index == i)
+				current_index++;
+			else if (((current_index+1) == i) || ((current_index+2) == i))
+				if (S->Get_Register_List(linked_reg->Size).at(current_index)->get() != S->Get_Register_List(linked_reg->Size).at(i)->get()){
+					current_index++;
+					if ((current_index+1) == i) current_index++;
+				}
+				else
+					break;
+			else
+				break;
+		}
+		//{a, b, c, d}
+		// ^ <-- invalid
+		//do simple register getting emulation.
 	}
 }
 
@@ -325,6 +340,7 @@ void Emulator::Load_UID(int i)
 	{
 		Optimized_Register_Linking_Between_Different_Parameters(T);
 		Link_Cache_User(T);
+		Skip_Chained_Registers(T);
 		Register_Chooser(T);
 		if (T->Offsetter != nullptr)
 			Register_Chooser(T->Offsetter);

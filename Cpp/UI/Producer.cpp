@@ -198,8 +198,8 @@ string Producer::Get_Template()
         }
         else
         {
-            cout << "Warning: linker cannot find suitable template for:" << Get_All(Libs) << endl;
-            cout << "Warning: using fallback method for linking, might go wrong!" << endl;
+            cout << "Warning: Linker cannot find suitable template for:" << Get_All(Libs) << endl;
+            cout << "Warning: Using fallback method for linking, might go wrong!" << endl;
             return "";
         }
     }

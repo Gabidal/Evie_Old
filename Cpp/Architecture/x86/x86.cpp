@@ -129,11 +129,11 @@ void x86::ARC_Factory()
 	//8Bit
 	AL = new Token("al ", 1);
 	AL->add(Task_For_Returning);
-	AL->add(Task_For_General_Purpose);
+	//AL->add(Task_For_General_Purpose);
 	Registers8.push_back(AL);
 	AH = new Token("ah ", 1);
 	AH->add(Task_For_Returning);
-	AH->add(Task_For_General_Purpose);
+	//AH->add(Task_For_General_Purpose);
 	Registers8.push_back(AH);
 	BL = new Token("bl ", 1);
 	BL->add(Task_For_General_Purpose);
@@ -159,7 +159,7 @@ void x86::ARC_Factory()
 	//16Bit
 	AX = new Token("ax ", 2, AL, AH);
 	AX->add(Task_For_Returning);
-	AX->add(Task_For_General_Purpose);
+	//AX->add(Task_For_General_Purpose);
 	Registers16.push_back(AX);
 	BX = new Token("bx ", 2, BL, BH);
 	BX->add(Task_For_General_Purpose);
@@ -189,7 +189,7 @@ void x86::ARC_Factory()
 	//32 bit
 	EAX = new Token("eax ", 4, AX);
 	EAX->add(Task_For_Returning);
-	EAX->add(Task_For_General_Purpose);
+	//EAX->add(Task_For_General_Purpose);
 	Registers32.push_back(EAX);
 	EBX = new Token("ebx ", 4, BX);
 	EBX->add(Task_For_General_Purpose);
@@ -219,7 +219,7 @@ void x86::ARC_Factory()
 	//64 bit
 	RAX = new Token("rax ", 8, EAX);
 	RAX->add(Task_For_Returning);
-	RAX->add(Task_For_General_Purpose);
+	//RAX->add(Task_For_General_Purpose);
 	Registers64.push_back(RAX);
 	RBX = new Token("rbx ", 8, EBX);
 	RBX->add(Task_For_General_Purpose);
@@ -273,7 +273,7 @@ void x86::ARC_Factory()
 
 	//64 bit float
 	MMX0 = new Token("xmm0 ", 12);
-	MMX0->add(Task_For_Floating_Math);
+	//MMX0->add(Task_For_Floating_Math);
 	MMX0->add(Task_For_Returning);
 	Registers128.push_back(MMX0);
 	MMX1 = new Token("xmm1 ", 12);

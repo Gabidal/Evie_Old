@@ -30,11 +30,12 @@ public:
 	string Get_ID(string id, string trust, vector<int> minmax);
 	Token* Get_Right_Reg(int F, int Size);
 	int Get_Right_Reg_Index(int size, Token* r);
-	int& Get_Right_Register_List(int size);
+	int& Get_Ongoing_Index(int size);
 	Token* Get_Reg(vector<Token*> regs, int F, int &previus);
-	Token* Check_For_Reg(int F, int Size);
+	Token* Check_For_Reg(int Size);
 	Token* Fixable_Register(Token* r);
 	void Increase(int Size);
+	vector<Token*>& Get_Register_List(int s);
 	Selector(string s);
 	~Selector();
 private:
