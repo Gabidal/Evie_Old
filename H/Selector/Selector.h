@@ -36,6 +36,7 @@ public:
 	Token* Fixable_Register(Token* r);
 	void Increase(int Size);
 	vector<Token*>& Get_Register_List(int s);
+	int Get_Usable_Register_Amount(int size, int f);
 	Selector(string s);
 	~Selector();
 private:

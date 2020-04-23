@@ -454,6 +454,7 @@ void Parser::Type_Definition(int i)
 			reverse(New_Defined_Text->Left_Side_Token->Childs.begin(), New_Defined_Text->Left_Side_Token->Childs.end());
 			New_Defined_Text->add(_Call_);
 			New_Defined_Text->Size = _SYSTEM_BIT_TYPE;
+			New_Defined_Text->Context = Context;
 			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0 || (New_Defined_Text->Left_Side_Token->Childs.size() > 0))
 			{
 				New_Defined_Text->add(_Need_For_Space_);

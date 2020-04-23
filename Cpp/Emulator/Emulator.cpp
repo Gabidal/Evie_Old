@@ -182,13 +182,14 @@ void Emulator::Register_Chooser(Token* t)
 		t->UID = Reg->Name;
 		return;
 	}
-	else if (t->is(_Call_))
-	{
-		if (S->Check_For_Reg(_SYSTEM_BIT_TYPE)->is(Task_For_Returning))
-		{
-			S->Increase(_SYSTEM_BIT_TYPE);
-		}
-	}
+	//this is commented because this is useless because eax is not e general register enymore.
+	//else if (t->is(_Call_))
+	//{
+	//	if (S->Check_For_Reg(_SYSTEM_BIT_TYPE)->is(Task_For_Returning))
+	//	{
+	//		S->Increase(_SYSTEM_BIT_TYPE);
+	//	}
+	//}
 }
 
 void Emulator::Register_Loader(Token& t, int i)
@@ -338,6 +339,7 @@ void Emulator::Load_UID(int i)
 {
 	for (Token* T : Input.at(i)->Parameters)
 	{
+		Safe_Cache_Usation(T);
 		Optimized_Register_Linking_Between_Different_Parameters(T);
 		Link_Cache_User(T);
 		Skip_Chained_Registers(T);
@@ -359,4 +361,19 @@ void Emulator::Optimized_Register_Linking_Between_Different_Parameters(Token* o)
 			*Register = *i.second;
 	//now lock these register'n o.
 	Register_Lock.insert(make_pair(new Token(*o), Register));
+}
+
+void Emulator::Safe_Cache_Usation(Token* t){
+	//gather up same context using cache variables
+	if (!t->is("cache"))
+		return;
+	int cache_usation = Cache_Usation[t->Context];
+	if (cache_usation >= S->Get_Usable_Register_Amount(t->Size, Task_For_General_Purpose) / 2)
+	{
+		cout << "Warning: Cache usation limit has been reached on this register size --> " << cache_usation << "." << endl;
+		cout << "Warning: Dangerously high use of cache on variable --> " << t->Name << ". Inside of --> " << t->Context << endl;
+		cout << "Error: Please make --> " << t->Name << " --> into not cache using object!" << endl;
+		return;
+	}
+	Cache_Usation.at(t->Context) += 1;
 }

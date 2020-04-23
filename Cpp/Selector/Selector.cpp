@@ -41,90 +41,9 @@ OpC* Selector::OpCode_Selector()
 
 Token* Selector::Get_Right_Reg(int F, int Size)
 {
-	Token* r;
-	if (((F & Task_For_General_Purpose) == Task_For_General_Purpose) || ((F & Task_For_Floating_Math) == Task_For_Floating_Math))
-	{
-		if (Size == 12)
-		{
-			r = Get_Reg(Registers128, F, Reg_Turn128);
-			if (r != nullptr)
-				return r;
-		}
-		if (Size == 8)
-		{
-			r = Get_Reg(Registers64, F, Reg_Turn64);
-			if (r != nullptr)
-				return r;
-		}
-		else if (Size == 4)
-		{
-			r = Get_Reg(Registers32, F, Reg_Turn32);
-			if (r != nullptr)
-				return r;
-		}
-		else if (Size == 2)
-		{
-			r = Get_Reg(Registers16, F, Reg_Turn16);
-			if (r != nullptr)
-				return r;
-		}
-		else if (Size == 1)
-		{
-			r = Get_Reg(Registers8, F, Reg_Turn8);
-			if (r != nullptr)
-				return r;
-		}
-	}
-	if (Size == 12)
-	{
-		for (Token* r : Registers128)
-		{
-			if (r->is(F))
-			{
-				return r;
-			}
-		}
-	}
-	else if (Size == 8)
-	{
-		for (Token* r : Registers64)
-		{
-			if (r->is(F))
-			{
-				return r;
-			}
-		}
-	}
-	else if (Size == 4)
-	{
-		for (Token* r : Registers32)
-		{
-			if (r->is(F))
-			{
-				return r;
-			}
-		}
-	}
-	else if (Size == 2)
-	{
-		for (Token* r : Registers16)
-		{
-			if (r->is(F))
-			{
-				return r;
-			}
-		}
-	}
-	else
-	{
-		for (Token* r : Registers8)
-		{
-			if (r->is(F))
-			{
-				return r;
-			}
-		}
-	}
+	Token* t = Get_Reg(Get_Register_List(Size), F, Get_Ongoing_Index(Size));
+	if (t != nullptr)
+		return t;
 	cout << "Error: Couldn't find suitable architehture register(" + Board_type + ": " + to_string(Size * 8) + " )." << endl;
 	return nullptr;
 }
@@ -152,26 +71,10 @@ Token* Selector::Get_Reg(vector<Token*> regs, int F, int &Previus)
 
 Token* Selector::Check_For_Reg(int Size)
 {
-	if (Size == 12)
-	{
-		return Registers128.at(Reg_Turn128);
-	}
-	else if (Size == 8)
-	{
-		return Registers64.at(Reg_Turn64);
-	}
-	else if (Size == 4)
-	{
-		return Registers32.at(Reg_Turn32);
-	}
-	else if (Size == 2)
-	{
-		return Registers16.at(Reg_Turn16);
-	}
-	else if (Size == 1)
-	{
-		return Registers8.at(Reg_Turn8);
-	}
+	int tmp_index = Get_Ongoing_Index(Size);
+	Token* t = Get_Reg(Get_Register_List(Size), Task_For_General_Purpose, tmp_index);
+	if (t != nullptr)
+		return t;
 	cout << "Error: Cannot check the size of --> " << Size << endl;
 	return nullptr;
 }
@@ -345,4 +248,12 @@ vector<Token*>& Selector::Get_Register_List(int s){
 		return Registers16;
 	else
 		return Registers8;
+}
+
+int Selector::Get_Usable_Register_Amount(int size, int f){
+	int result = 0;
+	for (Token* t: Get_Register_List(size))
+		if (t->is(f))
+			result++;
+	return result;
 }

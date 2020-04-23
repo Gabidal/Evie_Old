@@ -19,6 +19,7 @@ public:
 	bool _NEED_FOR_PARAMETERING = false;
 	Token* Handle = nullptr;
 	map<Token*, Token*> Register_Lock;
+	map<string, int> Cache_Usation;
 
 	Token* Get_Info(Token* t);
 	void Long_Operation_Allocator(int &i);
@@ -35,6 +36,7 @@ public:
 	void Skip_Chained_Registers(Token* reg);
 	void Link_Cache_User(Token* t);
 	void Optimized_Register_Linking_Between_Different_Parameters(Token* o);
+	void Safe_Cache_Usation(Token* t);
 	Emulator(string &in) : Output(in)
 	{
 	}
