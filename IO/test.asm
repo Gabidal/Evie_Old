@@ -24,7 +24,6 @@ sub esp , dword 16
 lea ebx , dword [_banana]
 lea ecx , dword [_apple]
 lea edx , dword [_orange]
-mov dword [ebp  - 12], edx 
 lea edi , dword [_pear]
 mov dword [ebp  - 16], edi 
 _while29: 
@@ -34,7 +33,7 @@ cmp bh , bl
 jnl _while29END
 call ebx 
 call ecx 
-call [ebp  - 12]
+call edx 
 call [ebp  - 16]
 jmp _while29
 _while29END: 

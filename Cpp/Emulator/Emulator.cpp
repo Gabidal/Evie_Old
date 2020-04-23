@@ -339,7 +339,6 @@ void Emulator::Load_UID(int i)
 {
 	for (Token* T : Input.at(i)->Parameters)
 	{
-		Safe_Cache_Usation(T);
 		Optimized_Register_Linking_Between_Different_Parameters(T);
 		Link_Cache_User(T);
 		Skip_Chained_Registers(T);
@@ -363,17 +362,3 @@ void Emulator::Optimized_Register_Linking_Between_Different_Parameters(Token* o)
 	Register_Lock.insert(make_pair(new Token(*o), Register));
 }
 
-void Emulator::Safe_Cache_Usation(Token* t){
-	//gather up same context using cache variables
-	if (!t->is("cache"))
-		return;
-	int cache_usation = Cache_Usation[t->Context];
-	if (cache_usation >= S->Get_Usable_Register_Amount(t->Size, Task_For_General_Purpose) / 2)
-	{
-		cout << "Warning: Cache usation limit --> " << cache_usation << " has been reached on this register size --> " << t->Size << "." << endl;
-		cout << "Warning: Dangerously high use of cache on variable --> " << t->Name << ". Inside of --> " << t->Context << endl;
-		cout << "Error: Please make --> " << t->Name << " into not cache using object!" << endl;
-		return;
-	}
-	Cache_Usation.at(t->Context) += 1;
-}

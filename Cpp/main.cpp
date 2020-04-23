@@ -6,6 +6,7 @@
 #include "../H/Back/Generator.h"
 #include "../H/UI/Usr.h"
 #include "../H/UI/Producer.h"
+#include "../H/UI/Safe.h"
 #include <sstream>
 #include <iostream>
 #include <map>
@@ -219,6 +220,10 @@ int main(int argc, char* argv[])
     g.Input = d.Input_Of_Tokens;
     g.Types = d.Output;
     g.Factory();
+
+    Safe s;
+    s.Input = g.Output;
+    s.Factory();
 
     Emulator e(OUTPUT);
     e.Input = g.Output;

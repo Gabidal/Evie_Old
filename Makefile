@@ -528,6 +528,33 @@ Cpp/UI/Producer.cpp.s:
 	$(MAKE) -f CMakeFiles/Evie.dir/build.make CMakeFiles/Evie.dir/Cpp/UI/Producer.cpp.s
 .PHONY : Cpp/UI/Producer.cpp.s
 
+Cpp/UI/Safe.o: Cpp/UI/Safe.cpp.o
+
+.PHONY : Cpp/UI/Safe.o
+
+# target to build an object file
+Cpp/UI/Safe.cpp.o:
+	$(MAKE) -f CMakeFiles/Evie.dir/build.make CMakeFiles/Evie.dir/Cpp/UI/Safe.cpp.o
+.PHONY : Cpp/UI/Safe.cpp.o
+
+Cpp/UI/Safe.i: Cpp/UI/Safe.cpp.i
+
+.PHONY : Cpp/UI/Safe.i
+
+# target to preprocess a source file
+Cpp/UI/Safe.cpp.i:
+	$(MAKE) -f CMakeFiles/Evie.dir/build.make CMakeFiles/Evie.dir/Cpp/UI/Safe.cpp.i
+.PHONY : Cpp/UI/Safe.cpp.i
+
+Cpp/UI/Safe.s: Cpp/UI/Safe.cpp.s
+
+.PHONY : Cpp/UI/Safe.s
+
+# target to generate assembly for a file
+Cpp/UI/Safe.cpp.s:
+	$(MAKE) -f CMakeFiles/Evie.dir/build.make CMakeFiles/Evie.dir/Cpp/UI/Safe.cpp.s
+.PHONY : Cpp/UI/Safe.cpp.s
+
 Cpp/UI/Usr.o: Cpp/UI/Usr.cpp.o
 
 .PHONY : Cpp/UI/Usr.o
@@ -663,6 +690,9 @@ help:
 	@echo "... Cpp/UI/Producer.o"
 	@echo "... Cpp/UI/Producer.i"
 	@echo "... Cpp/UI/Producer.s"
+	@echo "... Cpp/UI/Safe.o"
+	@echo "... Cpp/UI/Safe.i"
+	@echo "... Cpp/UI/Safe.s"
 	@echo "... Cpp/UI/Usr.o"
 	@echo "... Cpp/UI/Usr.i"
 	@echo "... Cpp/UI/Usr.s"
