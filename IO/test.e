@@ -18,9 +18,9 @@ func pear()(
 )
 
 func main()(
-    cache int a = @banana,
-    cache int b = @apple,
-    cache int c = @orange,
+    int a = @banana,
+    int b = @apple,
+    int c = @orange,
     int d = @pear,
     while (1 < 2)(
         a()

@@ -223,6 +223,7 @@ int main(int argc, char* argv[])
 
     Safe s;
     s.Input = g.Output;
+    s.Types = p.Defined_Keywords;
     s.Factory();
 
     Emulator e(OUTPUT);
