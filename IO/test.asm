@@ -14,10 +14,6 @@ _pear:
 xor ah , ah 
 ret
  
-_melon: 
-xor al , al 
-ret
- 
 export main
 global main
 main: 

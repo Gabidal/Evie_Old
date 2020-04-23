@@ -17,10 +17,6 @@ func pear()(
     return 0
 )
 
-func melon()(
-    return 0
-)
-
 func main()(
     cache int a = @banana,
     cache int b = @apple,

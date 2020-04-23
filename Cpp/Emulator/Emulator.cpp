@@ -370,9 +370,9 @@ void Emulator::Safe_Cache_Usation(Token* t){
 	int cache_usation = Cache_Usation[t->Context];
 	if (cache_usation >= S->Get_Usable_Register_Amount(t->Size, Task_For_General_Purpose) / 2)
 	{
-		cout << "Warning: Cache usation limit has been reached on this register size --> " << cache_usation << "." << endl;
+		cout << "Warning: Cache usation limit --> " << cache_usation << " has been reached on this register size --> " << t->Size << "." << endl;
 		cout << "Warning: Dangerously high use of cache on variable --> " << t->Name << ". Inside of --> " << t->Context << endl;
-		cout << "Error: Please make --> " << t->Name << " --> into not cache using object!" << endl;
+		cout << "Error: Please make --> " << t->Name << " into not cache using object!" << endl;
 		return;
 	}
 	Cache_Usation.at(t->Context) += 1;
