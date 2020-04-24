@@ -23,7 +23,7 @@ public:
     void Connect_Address(int i);
     void Init_Definition(int &i);
     vector<string> Collect_All_Inherited_Types(int i);
-    string Get_Size(int i);
+    string Get_Size(int i, Token* t);
     void Init_Operator(int i);
     void Reserve_Operator_Tokens(int i);
     void Reserve_Function_Parameters(int i);

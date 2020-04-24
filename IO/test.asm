@@ -22,9 +22,7 @@ push ebp
 mov ebp , esp 
 sub esp , dword 16
 lea ebx , dword [_banana]
-mov dword [ebp  - 4], ebx 
 lea ecx , dword [_apple]
-mov dword [ebp  - 8], ecx 
 lea edx , dword [_orange]
 mov dword [ebp  - 12], edx 
 lea edi , dword [_pear]
@@ -34,8 +32,8 @@ mov bl , byte 2
 mov bh , byte 1
 cmp bh , bl 
 jnl _while29END
-call [ebp  - 4]
-call [ebp  - 8]
+call ebx 
+call ecx 
 call [ebp  - 12]
 call [ebp  - 16]
 jmp _while29

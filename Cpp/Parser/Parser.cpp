@@ -84,13 +84,12 @@ void Parser::Init_Definition(int& i)
 		New_Defined_Type->add(_Inheritting_);
 	
 	New_Defined_Type->Name = Input.at(i + New_Defined_Type->Types.size())->WORD;
-	if (Input.at(i)->is(_KEYWORD))
+	if (New_Defined_Type->is("type") || New_Defined_Type->is("func"))
 	{
-		string Size = Get_Size(i);
+		string Size = Get_Size(i, New_Defined_Type);
 		if (Size == "$")
 		{
 			New_Defined_Type->_Dynamic_Size_ = true;
-			New_Defined_Type->Size = 0;
 		}
 		else
 		{
@@ -137,13 +136,13 @@ vector<string> Parser::Collect_All_Inherited_Types(int start) //returned vector 
 	return r;
 }
 
-string Parser::Get_Size(int i)
+string Parser::Get_Size(int i, Token* defined)
 {
 	//type a()(..)
+	if (defined->is("func"))
+		return to_string(_SYSTEM_BIT_TYPE);
 	if (Count_Familiar_Tokens(_PAREHTHESIS, i + 2) < 2)
 		return "0";
-	if (Input.at(i)->WORD == "func")
-		return to_string(_SYSTEM_BIT_TYPE);
 	Parser p;
 	p.Input = Input.at(i + 3)->Tokens;
 	p.Defined_Keywords = Defined_Keywords;
