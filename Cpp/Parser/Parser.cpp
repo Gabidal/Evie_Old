@@ -200,8 +200,9 @@ void Parser::Init_Operator(int i)
 		P.Factory();
 		Token* New_Defined_Right_Side_Token = P.Output.at(0);
 
+		//EXPERIEMENTAL!!
 		//for non operative tokens
-		/*P.Output.clear();
+		P.Output.clear();
 		P.Input.clear();
 		P.Input.push_back(Input.at(i)->L);
 		P.Factory();
@@ -211,15 +212,15 @@ void Parser::Init_Operator(int i)
 		P.Input.clear();
 		P.Input.push_back(Input.at(i)->R);
 		P.Factory();
-		Token* New_Right_Non_Operative_Token = P.Output.at(0);*/
+		Token* New_Right_Non_Operative_Token = P.Output.at(0);
 
 		Token* New_Defined_Operator = new Token();
 		New_Defined_Operator->Context = Context;
 		New_Defined_Operator->Name = Input.at(i)->WORD;
 		New_Defined_Operator->Left_Side_Token = New_Defined_Left_Side_Token;
 		New_Defined_Operator->Right_Side_Token = New_Defined_Right_Side_Token;
-		//New_Defined_Operator->Left_Non_Operative_Token = New_Left_Non_Operative_Token;
-		//New_Defined_Operator->Right_Non_Operative_Token = New_Right_Non_Operative_Token;
+		New_Defined_Operator->Left_Non_Operative_Token = New_Left_Non_Operative_Token;
+		New_Defined_Operator->Right_Non_Operative_Token = New_Right_Non_Operative_Token;
 
 		New_Defined_Operator->add(_Operator_);
 		Output.push_back(New_Defined_Operator);
@@ -631,17 +632,12 @@ void Parser::Init_Variable(int i)
 		return;
 	//var a = 1
 	if (Input.at(i)->_operatorized)
-	{
 		return;
-	}
-	if ((i + 1) > (Input.size() - 1))
-	{
-		
-	}
+	if ((i + 1) > (Input.size() - 1)){	}
 	else if (Input.at(i+1)->is(_TEXT))
-	{
 		return;
-	}
+	if (Input.at(i)->_Call)
+		return;
 	for (Token* t : Defined_Keywords)
 		if ((Input.at(i)->WORD == t->Name) && (t->is("func")) && (!Input.at(i)->_Giving_Address))
 			return;

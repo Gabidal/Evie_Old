@@ -1,44 +1,37 @@
-_banana: 
-xor al , al 
-ret
- 
-_apple: 
-xor ah , ah 
-ret
- 
-_orange: 
-xor al , al 
-ret
- 
-_pear: 
-xor ah , ah 
-ret
- 
-export main
-global main
-main: 
-_main: 
+_a: 
 push ebp 
 mov ebp , esp 
-sub esp , dword 16
-lea ebx , dword [_banana]
-lea ecx , dword [_apple]
-lea edx , dword [_orange]
-mov dword [ebp  - 12], edx 
-lea edi , dword [_pear]
-mov dword [ebp  - 16], edi 
-_while29: 
-mov bl , byte 2
-mov bh , byte 1
-cmp bh , bl 
-jnl _while29END
-call ebx 
-call ecx 
-call [ebp  - 12]
-call [ebp  - 16]
-jmp _while29
-_while29END: 
-xor al , al 
+call [ebp  + 8]
+mov ebx , dword [ebp  + 8]
+mov ecx , dword [ebx  + 0 * 4]
+add ecx , eax 
+mov ebx , dword 1
+add ecx , ebx 
+mov eax , ecx 
+leave 
+ret
+ 
+_b: 
+push ebp 
+mov ebp , esp 
+call [ebp  + 8]
+mov ebx , dword [(ebp  + 8) + 0 * 4]
+add ebx , eax 
+mov ebx , dword 1
+add ebx , ebx 
+mov eax , ebx 
+leave 
+ret
+ 
+_c: 
+push ebp 
+mov ebp , esp 
+call [ebp  + 8]
+lea ebx , dword [ebp  + 8]
+add ebx , eax 
+mov ebx , dword 1
+add ebx , ebx 
+mov eax , ebx 
 leave 
 ret
  

@@ -340,10 +340,20 @@ void Generator::Detect_Operator(Token* t)
 	// cvsi2sd xmm0, eax
 	// mov [a], xmm0
 	//basic tools:
+	Token* R = nullptr;
+	Token* L = nullptr;
+	if (t->Right_Side_Token->is(_Operator_))
+		R = t->Right_Non_Operative_Token;
+	else 
+		R = t->Right_Side_Token;
+	if (t->Left_Side_Token->is(_Operator_))
+		L = t->Left_Non_Operative_Token;
+	else 
+		L = t->Left_Side_Token;
 
-	Scaler(t->Right_Side_Token, t->Left_Side_Token);
+	Scaler(R, L);
 
-	Dodge(t->Left_Side_Token, t->Right_Side_Token);
+	Dodge(L, R);
 
 	Token* Left_Token = nullptr;
 	Token* Right_Token = nullptr;

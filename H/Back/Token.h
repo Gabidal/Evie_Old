@@ -65,6 +65,9 @@ class Token : public Object
     Token* Right_Side_Token = nullptr; 
     Token* Offsetter = nullptr;// also as the offsetter in array
     Token* Initial_Value = nullptr;
+    //EXPERIMENTAL!!
+    Token* Right_Non_Operative_Token = nullptr;
+    Token* Left_Non_Operative_Token = nullptr;
     vector<Token*> Childs;
     vector<string> Types;
     string Context = "";

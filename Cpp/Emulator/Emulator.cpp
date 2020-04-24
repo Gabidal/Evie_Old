@@ -44,7 +44,7 @@ void Emulator::Long_Operation_Allocator(int &i)
 		Token* Reg = new Token;
 		Reg->add(_Register_);
 		Reg->add(Task_For_Returning);
-		Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name;
+		Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name + "_returning_register";
 		Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
 
 		IR* mov_to_return_Reg = new IR;
