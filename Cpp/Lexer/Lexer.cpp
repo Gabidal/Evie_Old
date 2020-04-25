@@ -270,7 +270,7 @@ void Lexer::OpenFile(const char* FileName)
 				continue;
 			}
             Remove_Comment(Line);
-            Lines += Line + " ";
+            Lines += Line + "\n";
             //Lines = Line; 
             //Lines = ReplaceString(Lines, "\t", " "); 
             //Lines = ReplaceString(Lines, "\n", "");

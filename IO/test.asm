@@ -9,6 +9,7 @@ ret
 _same: 
 push ebp 
 mov ebp , esp 
+sub esp , dword 4
 lea ebx , dword [ebp  + 8]
 mov eax , ebx 
 leave 

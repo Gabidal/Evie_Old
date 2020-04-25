@@ -621,7 +621,7 @@ int Parser::Count_Familiar_Tokens(int F, int i)
 		{
 			u++;
 		}
-		else
+		else if (!Input.at(j)->is(_END))
 		{
 			return u;
 		}

@@ -6,11 +6,11 @@ func good(int x)(
 )
 
 func same(int x)(
-    cache int y = @x,
+    cache int y = @x 
     return y
 )
 
 func bad(int x)(
-    int y = @x,
+    int y = @x
     return y
 )
