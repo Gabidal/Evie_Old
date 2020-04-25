@@ -109,11 +109,13 @@ void Parser::Init_Definition(int& i)
 		}
 	}
 	New_Defined_Type->Context = Context;
+	//if (!New_Defined_Type->is("cache"))
 	Set_Right_Stack_Offset(New_Defined_Type);
 	Set_Right_Flag_Info(New_Defined_Type);
 	Defined_Keywords.push_back(New_Defined_Type);
 	Generated_Undefined_Tokens.push_back(New_Defined_Type);
-	Space_Reservation += New_Defined_Type->Size;
+	if (!New_Defined_Type->is("cache"))
+		Space_Reservation += New_Defined_Type->Size;
 	i += New_Defined_Type->Types.size();
 
 }
@@ -566,6 +568,7 @@ void Parser::Set_Right_Stack_Offset(Token* t)
 		t->StackOffset = (_SYSTEM_BIT_TYPE * 2) + Local_Stack_Offest;
 	else
 		t->StackOffset = Global_Stack_Offset;
+	//because cached variables do not use mem
 	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter)
 		Local_Stack_Offest += t->Size;
 	else

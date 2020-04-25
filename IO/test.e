@@ -1,14 +1,16 @@
 use "cstd.e"
 use "boost.e"
 
-func a(int x)(
-    return (x::0 + x() + 1)
+func good(int x)(
+    return @x
 )
 
-func b(int x)(
-    return (x:0 + x() + 1)
+func same(int x)(
+    cache int y = @x,
+    return y
 )
 
-func c(int x)(
-    return (@x + x() + 1)
+func bad(int x)(
+    int y = @x,
+    return y
 )

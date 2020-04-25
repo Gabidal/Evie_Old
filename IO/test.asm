@@ -1,37 +1,26 @@
-_a: 
+_good: 
 push ebp 
 mov ebp , esp 
-call [ebp  + 8]
-mov ebx , dword [ebp  + 8]
-mov ecx , dword [ebx  + 0 * 4]
-add ecx , eax 
-mov ebx , dword 1
-add ecx , ebx 
-mov eax , ecx 
-leave 
-ret
- 
-_b: 
-push ebp 
-mov ebp , esp 
-call [ebp  + 8]
-mov ebx , dword [(ebp  + 8) + 0 * 4]
-add ebx , eax 
-mov ebx , dword 1
-add ebx , ebx 
-mov eax , ebx 
-leave 
-ret
- 
-_c: 
-push ebp 
-mov ebp , esp 
-call [ebp  + 8]
 lea ebx , dword [ebp  + 8]
-add ebx , eax 
-mov ebx , dword 1
-add ebx , ebx 
 mov eax , ebx 
+leave 
+ret
+ 
+_same: 
+push ebp 
+mov ebp , esp 
+lea ebx , dword [ebp  + 8]
+mov eax , ebx 
+leave 
+ret
+ 
+_bad: 
+push ebp 
+mov ebp , esp 
+sub esp , dword 4
+lea ebx , dword [ebp  + 8]
+mov dword [ebp  - 4], ebx 
+mov eax , dword [ebp  - 4]
 leave 
 ret
  
