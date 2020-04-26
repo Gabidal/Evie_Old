@@ -1,22 +1,22 @@
-type system,
+type system
 
-system sys,
-system Info,
+system sys
+system Info
 
-system hidden,
-hidden system static,
-hidden system virtual,
-hidden system export,
-hidden system import,
-hidden system loyal,
-hidden system cache,
+system hidden
+hidden system static
+hidden system virtual
+hidden system export
+hidden system import
+hidden system loyal
+hidden system cache
 
-system Source_File,
-system Destination_File,
-system OS,
-system Architecture,
-system Obj_Type,
-system Bits_Mode,
+system Source_File
+system Destination_File
+system OS
+system Architecture
+system Obj_Type
+system Bits_Mode
 
 
 $if (sys:(Info:OS) == "win32")(

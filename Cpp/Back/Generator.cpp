@@ -456,8 +456,8 @@ void Generator::Detect_Pointters(Token* t)
 
 	//a:0 --> mov reg, [a+0]
 	//a:0 == _Array_
-	if (t->is(_Giving_Address_))
-		return;
+	//if (t->is(_Giving_Address_))
+	//	return;
 	if (t->Offsetter == nullptr)
 		return;
 	if (!t->is(_Pointting_))
@@ -513,26 +513,37 @@ void Generator::Detect_Pointters(Token* t)
 
 	Output.push_back(load_Secondary);
 
-	//now load the main, from secondary handle + offsetter
-	//mov reg, [sec_reg+offsetter]
-	Token* Main_Handle = new Token;
-	Main_Handle->add(_Register_);
-	Main_Handle->add(Task_For_General_Purpose);
-	Main_Handle->Name = t->Name + "_main_Handle_reg";
-	Main_Handle->Size = t->Size;
+	if (!t->is(_Giving_Address_))
+	{
+		//now load the main, from secondary handle + offsetter
+		//mov reg, [sec_reg+offsetter]
+		Token* Main_Handle = new Token;
+		Main_Handle->add(_Register_);
+		Main_Handle->add(Task_For_General_Purpose);
+		Main_Handle->Name = t->Name + "_main_Handle_reg";
+		Main_Handle->Size = t->Size;
 
-	Offsetter_Register->Offsetter = Offsetter;
-	Offsetter_Register->add(_Pointting_);
+		Offsetter_Register->Offsetter = Offsetter;
+		Offsetter_Register->add(_Pointting_);
 
-	//make the initial mov
-	IR* Main_Load = new IR;
-	Main_Load->ID = "ldr";
-	Main_Load->Parameters.push_back(Main_Handle);
-	Main_Load->Parameters.push_back(Offsetter_Register);
+		//make the initial mov
+		IR* Main_Load = new IR;
+		Main_Load->ID = "ldr";
+		Main_Load->Parameters.push_back(Main_Handle);
+		Main_Load->Parameters.push_back(Offsetter_Register);
 
-	Output.push_back(Main_Load);
+		Output.push_back(Main_Load);
 
-	Handle = Main_Handle;
+		Handle = Main_Handle;
+	}
+	else
+	{
+		//now the offsetters main registers value has been loaded and just give it back.
+		Offsetter_Register->add(t->get());
+		Offsetter_Register->Offsetter = t->Offsetter;
+		*t = *Offsetter_Register;
+		//also give offsetter the giving address flag that above code loses.
+	}
 }
 
 void Generator::Detect_Arrays(Token* t)
@@ -606,7 +617,7 @@ void Generator::Detect_Address_Pointing(Token* t)
 	//eax
 	//make a token reg for to handle future of the pointers usage.
 	Token* Reg = new Token;
-	Reg->Name = t->Name;
+	Reg->Name = t->Name + "_Giving_Address_regiser";
 	Reg->Size = t->Size;
 	Reg->add(Task_For_General_Purpose);
 	Reg->add(_Register_);
