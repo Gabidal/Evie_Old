@@ -359,6 +359,11 @@ void Generator::Detect_Operator(Token* t)
 	Token* Right_Token = nullptr;
 	bool Normal_Left = false;
 	bool Normal_Right = false;
+	//check if this is a storing opcode:
+	bool Storing = (t->Name == "=" || t->Name == "str");
+	//set the leftside token to inherit the rightside tokens register
+	if (Storing)
+		t->Left_Side_Token->Name_Of_Same_Using_Register = t->Right_Side_Token->Name;
 	//now do the same but for right side.
 	Generator g;
 	g.Input.push_back(t->Right_Side_Token);
@@ -397,11 +402,9 @@ void Generator::Detect_Operator(Token* t)
 	{
 		Left_Token = t->Left_Side_Token;
 	}
-	//check if this is a storing opcode:
-	bool Storing = (t->Name == "=" || t->Name == "str");
 	//b:0 = a:0
 	//lea edi, [(ebp-offset)+ecx*size]
-	if (Normal_Right)
+	if (Normal_Right && !t->Right_Side_Token->is(_Number_))
 	{
 		//make a handle register
 		Token* Reg = new Token;
@@ -417,6 +420,9 @@ void Generator::Detect_Operator(Token* t)
 		load->Parameters.push_back(new Token(*t->Right_Side_Token));
 		Output.push_back(load);
 	}
+	else if (t->Right_Side_Token->is(_Number_)){
+		Right_Token = t->Right_Side_Token;
+	}
 	if (Normal_Left)
 	{
 		if (Storing)
@@ -425,7 +431,7 @@ void Generator::Detect_Operator(Token* t)
 			//this is for the optimized cache usation.
 			Left_Token->Name_Of_Same_Using_Register = Right_Token->Name;
 		}
-		else
+		else if (!t->Right_Side_Token->is(_Number_))
 		{
 			//make a handle register
 			Token* Reg = new Token;
@@ -441,6 +447,9 @@ void Generator::Detect_Operator(Token* t)
 			load->Parameters.push_back(new Token(*t->Left_Side_Token));
 			Output.push_back(load);
 			//more check if the destination is too big for the loaded register, in Emulator
+		}
+		else if (t->Left_Side_Token->is(_Number_)){
+			Left_Token = t->Left_Side_Token;
 		}
 	}
 	opCode->Parameters.push_back(new Token(*Left_Token));
@@ -503,6 +512,7 @@ void Generator::Detect_Pointters(Token* t)
 	Offsetter_Register->add(Task_For_General_Purpose);
 	Offsetter_Register->Name = t->Name + "_Offsetter_Reg";
 	Offsetter_Register->Size = t->Size;
+	//Offsetter_Register->Name_Of_Same_Using_Register = t->Name_Of_Same_Using_Register;
 
 	//mov sec_reg, [a]
 	IR* load_Secondary = new IR;
@@ -513,7 +523,7 @@ void Generator::Detect_Pointters(Token* t)
 
 	Output.push_back(load_Secondary);
 
-	if (!t->is(_Giving_Address_))
+	if (!t->is(_Giving_Address_) && (t->Name_Of_Same_Using_Register == ""))
 	{
 		//now load the main, from secondary handle + offsetter
 		//mov reg, [sec_reg+offsetter]
@@ -590,37 +600,45 @@ void Generator::Detect_Arrays(Token* t)
 
 	//set the original offsetter into the new one
 	t->Offsetter = Offsetter;
+	if (t->Name_Of_Same_Using_Register == ""){
+		//make the returning handle register
+		Token* Main_Handle = new Token;
+		Main_Handle->add(_Register_);
+		Main_Handle->add(Task_For_General_Purpose);
+		Main_Handle->Size = t->Size;
+		Main_Handle->Name = t->Name + "_Main_Handle";
 
-	//make the returning handle register
-	Token* Main_Handle = new Token;
-	Main_Handle->add(_Register_);
-	Main_Handle->add(Task_For_General_Purpose);
-	Main_Handle->Size = t->Size;
-	Main_Handle->Name = t->Name + "_Main_Handle";
+		//make the main load
+		IR* Main_Load = new IR;
+		Main_Load->ID = "ldr";
+		Main_Load->Parameters.push_back(Main_Handle);
+		Main_Load->Parameters.push_back(new Token(*t));
 
-	//make the main load
-	IR* Main_Load = new IR;
-	Main_Load->ID = "ldr";
-	Main_Load->Parameters.push_back(Main_Handle);
-	Main_Load->Parameters.push_back(new Token(*t));
+		Output.push_back(Main_Load);
 
-	Output.push_back(Main_Load);
-
-	Handle = Main_Handle;
+		Handle = Main_Handle;
+	}
 }
 
 void Generator::Detect_Address_Pointing(Token* t)
 {
 	//@a
 	if (t->is(_Giving_Address_) != true) return;
+	//if (t->Name_Of_Same_Using_Register != "") return;
 	//lea eax, [ebp -4 + ecx]
 	//eax
 	//make a token reg for to handle future of the pointers usage.
 	Token* Reg = new Token;
 	Reg->Name = t->Name + "_Giving_Address_regiser";
-	Reg->Size = t->Size;
+	Reg->Size = _SYSTEM_BIT_TYPE;
+	//Reg->Size = t->Size;					!!!!!fix this!!!!!
 	Reg->add(Task_For_General_Purpose);
 	Reg->add(_Register_);
+
+	//_:ebx , _24[ebp  - 4]
+	//this no good,
+	//give *t system bit size or else ill kill u
+	t->Size = _SYSTEM_BIT_TYPE;
 
 	IR* lea = new IR;
 	lea->ID = ":";

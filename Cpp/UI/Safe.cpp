@@ -7,6 +7,7 @@ void Safe::Factory(){
             Safe_Cache_Usation(t);
             Safe_Loyal_Usation(t);
             Safe_Type_Inheritance(t);
+            Safe_Array_Usage(t);
         }
         Insight(i);
     }
@@ -129,4 +130,18 @@ string Safe::Get_Keyword_Info(string s){
     if (s == "cache")
         return "No Saving into memory.";
     return "No info.";   
+}
+
+void Safe::Safe_Array_Usage(Token* t){
+    if (t->is("cache") && t->is(_Array_))
+    {
+        cout << "Error: Illegal use of 'cache' at '" << Context << "'!" << endl;
+        cout << "Problem: Use of 'array' with 'cache'." << endl;
+        cout << "Solution: " << endl;
+        cout << "{" << endl;
+        cout << "    If you want to get the address of '" << t->Name << "' offsetted by '" << t->Offsetter->Name << "'," << endl;
+        cout << "    Try changing the '" << t->Name << ":" << t->Offsetter->Name << "' into: " << endl;
+        cout << "    '" << t->Name << "::" << t->Offsetter->Name << "'" << endl;
+        cout << "}" << endl;
+    }
 }

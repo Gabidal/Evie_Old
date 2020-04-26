@@ -139,3 +139,33 @@ $pattern (
 		)
 	)
 )
+
+#this pattern deletes reuse of same opcode
+#by chekking the previus to have the same code as next 
+#but current doesnt change eny of them then skip the
+#example:
+#mov ecx, ebx
+#mov ....
+#mov ecx, ebx
+
+$pattern (
+	if (_p:ID == "ldr")(
+		if (_p:ID == _n:ID)(
+			if (_p:(Parameters:(0:Name)) == _n:(Parameters:(0:Name)))(
+				if (_p:(Parameters:(1:Name)) == _n:(Parameters:(1:Name)))(
+					if (_c:(Parameters:(0:Name)) == _p:(Parameters:(0:Name)))(
+						if (_c:(Parameters:(0:Flags)) & Flag:_Pointting_)(
+							_n:Flags |= Flag:_Skip_
+						)
+						if (_c:(Parameters:(0:Flags)) & Flag:_Array_)(
+							_n:Flags |= Flag:_Skip_
+						)
+					)
+					if (_c:(Parameters:(0:Name)) != _p:(Parameters:(0:Name)))(
+						_n:Flags |= Flag:_Skip_
+					)
+				)
+			)
+		)
+	)
+)

@@ -17,18 +17,20 @@ public:
 	Token* Handle = nullptr;
 	string Get_Direction(Token* t);
 	string Get_Handler(Token* t);
-	string Get_Info_Of(Token* t, bool Storing);
+	string Get_Info_Of(Token* t);
 	string Get_Size(Token* t);
 	string Get_Address(Token* t);
 	string Get_Call(Token* t);
 	bool Check_For(string dest, vector<string> source);
+
+	string Get_Frame(string inside);
 	void Make();
 	void Factory();
 
 	~Back() {}
 
 private:
-
+	bool storing = false;
 };
 
 

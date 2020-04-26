@@ -24,7 +24,8 @@ public:
     void Safe_Cache_Usation(Token* t);
     void Safe_Type_Inheritance(Token* t);
     void Safe_Loyal_Usation(Token* t);
-
+    void Safe_Array_Usage(Token* t);
+    
     void Get_Token_Info(Token* t, string name, int layer);
     string Get_Keyword_Info(string s);
 
