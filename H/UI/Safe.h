@@ -25,9 +25,10 @@ public:
     void Safe_Type_Inheritance(Token* t);
     void Safe_Loyal_Usation(Token* t);
     void Safe_Array_Usage(Token* t);
-    
+
     void Get_Token_Info(Token* t, string name, int layer);
     string Get_Keyword_Info(string s);
+    string Get_State_Info(Token* t);
 
     void Append(vector<IR*> &d, vector<IR*> s);
     Token* Find(string name);

@@ -110,7 +110,8 @@ void Parser::Init_Definition(int& i)
 	}
 	New_Defined_Type->Context = Context;
 	//if (!New_Defined_Type->is("cache"))
-	Set_Right_Stack_Offset(New_Defined_Type);
+	if (!New_Defined_Type->is("cache"))
+		Set_Right_Stack_Offset(New_Defined_Type);
 	Set_Right_Flag_Info(New_Defined_Type);
 	Defined_Keywords.push_back(New_Defined_Type);
 	Generated_Undefined_Tokens.push_back(New_Defined_Type);

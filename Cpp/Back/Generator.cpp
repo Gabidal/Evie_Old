@@ -490,12 +490,13 @@ void Generator::Detect_Pointters(Token* t)
 	if (g.Handle != nullptr)
 		//a::(a:b) --> more complex
 		*Offsetter = *g.Handle;
-	else if (!t->Offsetter->is(_Number_)) {
+	else if (!t->Offsetter->is(_Number_) && t->Name_Of_Same_Using_Register == "") {
 		//a::a --> more simpler offsetter
 		//setup the offsetter token to be the handle for the variable loading
 		Offsetter->add(_Register_);
 		Offsetter->add(Task_For_General_Purpose);
 		Offsetter->Name = t->Offsetter->Name + "_Offsetted_Handle_Reg";
+		Offsetter->Size = _SYSTEM_BIT_TYPE; //!!!!!dont trust !!!!
 		//load the variable into a rgister
 		IR* load = new IR;
 		load->ID = "ldr";
@@ -587,6 +588,7 @@ void Generator::Detect_Arrays(Token* t)
 		Offsetter->add(_Register_);
 		Offsetter->add(Task_For_General_Purpose);
 		Offsetter->Name = t->Offsetter->Name + "_Offsetted_Handle_Reg";
+		Offsetter->Size = _SYSTEM_BIT_TYPE; //!!!!! dont trust!!!!
 		//load the variable into a rgister
 		IR* load = new IR;
 		load->ID = "ldr";

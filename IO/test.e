@@ -12,8 +12,9 @@ type dot()(
 func main()(
     dot a
     cache int ptr = @a
-    ptr:0 = 1
-    ptr:1 = 2
-    ptr:3 = 3
+    int banana = 0
+    ptr::banana = 1
+    ptr::0 = 2
+    ptr::3 = 3
     return ptr
 )

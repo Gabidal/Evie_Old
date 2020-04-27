@@ -61,7 +61,7 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
     }
     cout << tab << t->Name << " { " << endl;
     cout << tab << "    " << "Size is " << t->Size << endl;
-    cout << tab << "    " << "State is " << t->State << endl;
+    cout << tab << "    " << "State is " << Get_State_Info(t) << "." << endl;
     cout << tab << "    " << "Inheritting { " << endl;
         for (string s: t->Types)
             Get_Token_Info(Find(s), s, layer + 2);
@@ -136,7 +136,7 @@ void Safe::Safe_Array_Usage(Token* t){
     if (t->is("cache") && t->is(_Array_))
     {
         cout << "Error: Illegal use of 'cache' at '" << Context << "'!" << endl;
-        cout << "Problem: Use of 'array' with 'cache'." << endl;
+        cout << "Problem: 'cache' variables dont have emory address for array offsetting." << endl;
         cout << "Solution: " << endl;
         cout << "{" << endl;
         cout << "    If you want to get the address of '" << t->Name << "' offsetted by '" << t->Offsetter->Name << "'," << endl;
@@ -144,4 +144,13 @@ void Safe::Safe_Array_Usage(Token* t){
         cout << "    '" << t->Name << "::" << t->Offsetter->Name << "'" << endl;
         cout << "}" << endl;
     }
+}
+
+string Safe::Get_State_Info(Token* t){
+    if (t->State != "")
+        return t->State;
+    else if (t->is(_Register_))
+        return "register";
+    else
+        return "normal";
 }
