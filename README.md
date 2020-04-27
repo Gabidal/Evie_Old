@@ -150,6 +150,11 @@ Beta 2.1.68 added/fixed:
 - ###### rewamped the whole typing system from string into vector strings so that you can inherit literally unlimited amount of types.
 
 
+Beta 2.1.82 fixed:
+
+- ###### cache variable inherit numbr and thus crash.
+
+- ###### optimized some array output.
 
 
 ## Manual

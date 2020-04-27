@@ -1,20 +1,11 @@
 use "cstd.e"
 use "boost.e"
 
-type dot()(
-    size (
-        int x,
-        int y,
-        int z,
+func memcpy(int dest, int source, int max_size)(
+    int i = 0
+    while(i < max_size)(
+        dest::i = source::i
+        i = i + 1
     )
-)
-
-func main()(
-    dot a
-    cache int ptr = @a
-    int banana = 0
-    ptr::banana = 1
-    ptr::0 = 2
-    ptr::3 = 3
-    return ptr
+    return 0
 )

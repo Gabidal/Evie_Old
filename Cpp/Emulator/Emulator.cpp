@@ -127,6 +127,29 @@ void Emulator::Long_Operation_Allocator(int &i)
 				Input.insert(Input.begin() + i, converter);
 				*Handle = *Converted;
 			}
+			//change number moving into empty 
+			//chache variables into number moving into cache registers
+			//mov [ebp - 0], 1 -->
+			//mov reg, 1
+			if (L->is("cache") && R->is(_Number_))
+			{
+				Token* tmp_L = new Token;
+				*tmp_L = *Input.at(i)->Parameters.at(0);
+				//make loading
+				Input.at(i)->ID = "ldr";
+				//make the tmp register
+				Token* reg = new Token;
+				reg->Name = tmp_L->Name + "_tmp_loading_register";
+				reg->Size = tmp_L->Size;
+				reg->add(_Register_);
+				reg->add(Task_For_General_Purpose);
+				*Input.at(i)->Parameters.at(0) = *reg;
+				//choose the right reg
+				Register_Chooser(reg);
+				//now link this register with the cache variable.
+				Register_Lock.insert({tmp_L, reg });
+			}
+			
 		}
 	}
 }
@@ -353,12 +376,13 @@ void Emulator::Optimized_Register_Linking_Between_Different_Parameters(Token* o)
 		return;
 	//this functions mission is to look up for name of using register as the Name_Of_Same_Using_Register
 	//and set it as this Token* o's register as well on register_lock.
-	Token* Register = new Token;
+	Token* Register = nullptr;
 	//find the register that o->Name_Of_Same_Using_Register named object uses.
 	for (auto i: Register_Lock)
 		if (i.first->Name == o->Name_Of_Same_Using_Register)
-			*Register = *i.second;
+			Register = i.second;
+	if (Register == nullptr) return;
 	//now lock these register'n o.
-	Register_Lock.insert(make_pair(new Token(*o), Register));
+	Register_Lock.insert(make_pair(new Token(*o), new Token(*Register)));
 }
 

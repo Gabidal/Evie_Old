@@ -1,17 +1,24 @@
-export main
-global main
-main: 
-_main: 
+_memcpy: 
 push ebp 
 mov ebp , esp 
-sub esp , dword 28
-lea ebx , dword [ebp  - 4]
-mov [ebp  - 28], dword 0
-mov ecx , ebx 
-mov dword [ecx  + ebp  - 28 * 4], dword 1
-mov dword [ecx  + 0 * 4], dword 2
-mov dword [ecx  + 3 * 4], dword 3
-mov eax , ebx 
+sub esp , dword 4
+mov [ebp  - 4], dword 0
+_while37: 
+mov ebx , dword [ebp  + 16]
+mov ecx , dword [ebp  - 4]
+cmp ecx , ebx 
+jnl _while37END
+mov edx , dword [ebp  - 4]
+mov edi , dword [ebp  + 12]
+mov esi , dword [edi  + edx  * 4]
+mov ebx , dword [ebp  + 8]
+mov dword [ebx  + ebp  - 4 * 4], esi 
+mov ecx , dword [ebp  - 4]
+add ecx , dword 1
+mov [ebp  - 4], ecx 
+jmp _while37
+_while37END: 
+xor al , al 
 leave 
 ret
  

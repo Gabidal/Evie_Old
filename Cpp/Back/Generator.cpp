@@ -431,7 +431,7 @@ void Generator::Detect_Operator(Token* t)
 			//this is for the optimized cache usation.
 			Left_Token->Name_Of_Same_Using_Register = Right_Token->Name;
 		}
-		else if (!t->Right_Side_Token->is(_Number_))
+		else if (!t->Left_Side_Token->is(_Number_))
 		{
 			//make a handle register
 			Token* Reg = new Token;
@@ -553,6 +553,8 @@ void Generator::Detect_Pointters(Token* t)
 		Offsetter_Register->add(t->get());
 		Offsetter_Register->Offsetter = t->Offsetter;
 		*t = *Offsetter_Register;
+		//test giving the handle:
+		Handle = t;
 		//also give offsetter the giving address flag that above code loses.
 	}
 }
