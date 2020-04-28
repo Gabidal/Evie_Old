@@ -1,21 +1,20 @@
 _memcpy: 
 push ebp 
 mov ebp , esp 
-sub esp , dword 4
-mov [ebp  - 4], dword 0
+xor ebx , ebx 
 _while37: 
 mov ebx , dword [ebp  + 16]
-mov ecx , dword [ebp  - 4]
+mov ecx , ebx 
 cmp ecx , ebx 
 jnl _while37END
-mov edx , dword [ebp  - 4]
+mov edx , ebx 
 mov edi , dword [ebp  + 12]
 mov esi , dword [edi  + edx  * 4]
 mov ebx , dword [ebp  + 8]
-mov dword [ebx  + ebp  - 4 * 4], esi 
-mov ecx , dword [ebp  - 4]
+mov dword [ebx  + ebp  - 0 * 4], esi 
+mov ecx , ebx 
 add ecx , dword 1
-mov [ebp  - 4], ecx 
+mov [ebx ], ecx 
 jmp _while37
 _while37END: 
 xor al , al 

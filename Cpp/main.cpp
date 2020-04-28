@@ -38,7 +38,7 @@ class FlagTable : public Object {
             make_pair("_Parameter_", new IntObject(new int(_Parameter_))),
             make_pair("_Register_", new IntObject(new int(_Register_))),
 
-            make_pair("_Inheritting_", new IntObject(new int(_Inheritting_))),
+            make_pair("Task_For_Non_Volatiling", new IntObject(new int(Task_For_Non_Volatiling))),
 
             make_pair("Task_For_Returning", new IntObject(new int(Task_For_Returning))),
             make_pair("Task_For_Type_Address_Basing", new IntObject(new int(Task_For_Type_Address_Basing))),

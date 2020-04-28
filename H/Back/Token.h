@@ -21,9 +21,8 @@ constexpr int _Parenthesis_ (1<<10);
 constexpr int _Constructor_ (1<<11);
 constexpr int _Register_ (1<<12);
 
-//ADVANCED
-constexpr int _Inheritting_ (1<<13);
-
+//  registers
+constexpr int Task_For_Non_Volatiling (1<<13);
 constexpr int Task_For_Returning (1<<14);
 constexpr int Task_For_Type_Address_Basing (1<<15);
 constexpr int Task_For_Type_Address (1<<16);

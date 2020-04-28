@@ -80,8 +80,6 @@ void Parser::Init_Definition(int& i)
 	//if ((Input.at(i)->is(_KEYWORD) || (Defined(Input.at(i)->WORD) != "")) && ((Input.at(i+1)->is(_TEXT)) || (Input.at(i + 1)->is(_KEYWORD))) && (Input.at(i)->WORD != ","))
 	Token* New_Defined_Type = new Token();
 	New_Defined_Type->Types = Collect_All_Inherited_Types(i);
-	if (New_Defined_Type->Types.size() > 1)
-		New_Defined_Type->add(_Inheritting_);
 	
 	New_Defined_Type->Name = Input.at(i + New_Defined_Type->Types.size())->WORD;
 	if (New_Defined_Type->is("type") || New_Defined_Type->is("func"))

@@ -37,8 +37,7 @@ Flag _Parenthesis_
 Flag _Constructor_
 Flag _Register_
 
-Flag _Inheritting_
-
+Flag Task_For_Non_Volatiling
 Flag Task_For_Returning
 Flag Task_For_Type_Address_Basing
 Flag Task_For_Type_Address

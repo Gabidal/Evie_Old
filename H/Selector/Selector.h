@@ -4,6 +4,7 @@
 #include <iostream>
 #include "../Architecture/ARM/ARM.h"
 #include "../Architecture/x86/x86.h"
+#include "../OpC/IR.h"
 #include <map>
 using namespace std;
 class Token;
@@ -11,7 +12,7 @@ class Token;
 //Selector's mission is to get right and the best solutionary opecodes for every operation.
 class Selector
 {
-public:
+private:
 	string Board_type = "";
 	int Reg_Turn128 = 0;
 	int Reg_Turn64 = 0;
@@ -23,22 +24,28 @@ public:
 	vector<Token*> Registers32;
 	vector<Token*> Registers16;
 	vector<Token*> Registers8;
+	//functions for giving good & optimized registers
+	vector<string> Flow;
+	map<string, map<string, Token*>> Register_Lock_Chunk;
+	vector<Token*> Get_Right_Current_Register_List(Token* t);
+	int& Get_Right_Current_Register_Index(Token* t);
+	//set the right label into Flow vector for chunks to open.
+	void Flow_Controll(IR* t);
+	map<string, Token*> Get_Chunk();
+	//this gives a valid Token* ,if there is a free register.
+	Token* Validate_Register(Token* flag);
+	//check if this is already taken
+	Token* Already_Is_Taken(Token* r);
+	//give new register.
+	Token* Get_New_Register(Token* flag);
+	//if the above function return nullptr it means we need to free up some registers:
+	void Free_Registers(Token* flag);
+public:
+	vector<IR*> Input;
+	void Factory();
 	vector<OpC*> OpCodes;
-	Token* Input;
-	string I = "";
-	OpC* OpCode_Selector();
-	string Get_ID(string id, string trust, vector<int> minmax);
-	Token* Get_Right_Reg(int F, int Size);
-	int Get_Right_Reg_Index(int size, Token* r);
-	int& Get_Ongoing_Index(int size);
-	Token* Get_Reg(vector<Token*> regs, int F, int &previus);
-	Token* Check_For_Reg(int Size);
-	Token* Fixable_Register(Token* r);
-	void Increase(int Size);
-	vector<Token*>& Get_Register_List(int s);
-	int Get_Usable_Register_Amount(int size, int f);
 	Selector(string s);
-	~Selector();
+	~Selector(){}
 private:
 
 };

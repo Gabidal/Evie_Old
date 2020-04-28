@@ -55,7 +55,7 @@ void Definer::Get_Modded_Content(string dest, string source)
 
 void Definer::Type_Collect(Token* t)
 {
-	if (t->is(_Inheritting_) != true)
+	if (t->Types.size() < 1)
 		return;
 	for (string s : t->Types)
 		t->Size += FIND(s)->Size;

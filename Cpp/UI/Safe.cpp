@@ -71,7 +71,7 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
 }
 
 void Safe::Safe_Type_Inheritance(Token* t){
-    if (!t->is(_Inheritting_))
+    if (t->Types.size() < 1)
         return;
     //if (!t->Size > 0)
     //    return;
