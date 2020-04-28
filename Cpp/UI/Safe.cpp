@@ -28,7 +28,7 @@ void Safe::Safe_Cache_Usation(Token* t){
 	if (!t->is("cache"))
 		return;
 	int cache_usation = Cache_Usation[t->Context];
-	if (cache_usation >= S->Get_Usable_Register_Amount(t->Size, Task_For_General_Purpose) / 2)
+	if (cache_usation >= S->Get_Right_Current_Register_List(t->Size).size() / 2)
 	{
         for (string s: Avoid_Duplication_On_Cache_Usation)
             if (s == t->Name)
