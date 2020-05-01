@@ -9,7 +9,6 @@
 using namespace std;
 class Token;
 
-//Selector's mission is to get right and the best solutionary opecodes for every operation.
 class Selector
 {
 private:
@@ -24,38 +23,25 @@ private:
 	vector<Token*> Registers32;
 	vector<Token*> Registers16;
 	vector<Token*> Registers8;
-	//functions for giving good & optimized registers
-	vector<string> Flow;
-	map<string, map<Token*, Token*>> Register_Lock_Chunk;
-	//set the right label into Flow vector for chunks to open.
-	void Flow_Controll(IR* t);
-	map<Token*, Token*> Get_Chunk();
-	//this gives a valid Token* ,if there is a free register.
-	Token* Validate_Register(Token* flag);
-	//check if this is already taken
-	Token* Already_Is_Taken(Token* r);
-	//give new register.
-	Token* Get_New_Register(Token* flag);
-	//if the above function return nullptr it means we need to free up some registers:
-	void Free_Registers(Token* flag);
-	//save overridable register into mem
-	void Save_Variable(Token* flag);
-	//load variable into register
-	void Load_Variable(Token* flag);
-	//index for input insertting
-	int I = 0;
+	vector<OpC*> OpCodes;
+	vector<Token*> Get_Right_Size_List(int s);
+	int& Get_Right_Ongoing_Register_Index(int s);
+	//the map for every register paired
+	//map<context, map<variable, register>>
+	map<string, map<Token, Token>> Chunk;
+	vector<string> Context;
 public:
-	vector<Token*> Get_Right_Current_Register_List(int size);
-	int& Get_Right_Current_Register_Index(int size);
-	vector<IR*> Input;
-	void Factory();
-	//request total dominance
-	void Clear();
-	//Get_Right_Reg
-	Token* Get_Right_Reg(int f, int s);
+	map<Token, Token>* Get_Chunk();
 	//get id
 	string Get_ID(string id, string trust, vector<int> minmax);
-	vector<OpC*> OpCodes;
+	//look up for owned register(s).
+	Token* Get_Register(Token* t);
+	//this returns nullptr if all registers are use, use Free_registers to get registers freed.
+	Token* Get_New_Register(Token* t);
+	//freeing registers by token.
+	vector<Token> Free_Registers(Token* t);
+	//check if register is already someones elses.
+	Token* Check_Other_Owner(Token* t); 
 	Selector(string s);
 	~Selector(){}
 private:

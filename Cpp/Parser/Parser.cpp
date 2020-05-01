@@ -391,7 +391,7 @@ void Parser::Init_Conditions(int i)
 		Parser P = *this;
 
 		//update context
-		P.Context = Input.at(i)->WORD;
+		P.Context = New_Defined_Condition->Name + to_string(New_Defined_Condition->ID);
 
 		P.Output.clear();
 		P.Input.clear();
