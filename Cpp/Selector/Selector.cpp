@@ -1,5 +1,4 @@
 #include "../../H/Selector/Selector.h"
-#include "../../H/Back/Token.h"
 extern int _SYSTEM_BIT_TYPE;
 
 Selector::Selector(string s)
@@ -69,7 +68,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 	return "_" + id;
 }
 
-map<Token, Token>* Selector::Get_Chunk(){
+map<Token*, Token*>* Selector::Get_Chunk(){
 	return &Chunk.at(Context.back());
 }
 
@@ -97,10 +96,11 @@ int& Selector::Get_Right_Ongoing_Register_Index(int s){
 	return Reg_Turn8;
 }
 
-Token* Selector::Get_Register(Token* t){
-	for (auto i: *Get_Chunk())
-		if (i.first.Name == t->Name)
-			return &i.second;
+Token* Selector::Get_Register(string t){
+	for (string c: Context)
+		for (auto& i: Chunk.at(c))
+			if (i.first->Name == t)
+				return i.second;
 	return nullptr;
 }
 
@@ -122,7 +122,7 @@ Token* Selector::Get_New_Register(Token* t){
 			if (Check_Other_Owner(reg) == nullptr){
 				//this already taken function returns a nullptr it means
 				//that this register is free and nobody uses it.
-				Chunk.at(Context.back()).insert({*t, *reg});
+				Chunk.at(Context.back()).insert({t, reg});
 				return reg;
 			}
 	}
@@ -131,10 +131,10 @@ Token* Selector::Get_New_Register(Token* t){
 	return nullptr;
 }
 
-vector<Token> Selector::Free_Registers(Token* t){
+vector<Token*> Selector::Free_Registers(Token* t){
 	//here we need to give order to generator to generate,
 	//IR tokens for saving the freed registers.
-	vector<Token> Output;
+	vector<Token*> Output;
 	//first get the next register that supports our usage.
 	vector<Token*> list = Get_Right_Size_List(t->Size);
 	//get the index and add it by 1 for next.
@@ -150,14 +150,36 @@ vector<Token> Selector::Free_Registers(Token* t){
 	//now try to find all the users of that reg on this context and other context.
 	for (string context: Context)
 		for (auto j: Chunk.at(context))
-			if (j.second.Name == Reg->Name)
+			if (j.second->Name == Reg->Name)
 				Output.push_back(j.first);
 	return Output;
 }
 
 Token* Selector::Check_Other_Owner(Token* t){
 	for (auto i: *Get_Chunk())
-		if (i.second.Name == t->Name)
+		if (i.second->Name == t->Name)
 			return t;
 	return nullptr;
+}
+
+int Selector::Get_Index_Of(Token* t){
+	vector<Token*> list = Get_Right_Size_List(t->Size);
+	for (int i = 0; i < list.size(); i++)
+		if (list.at(i)->Name == t->Name)
+			return i;
+	cout << "Error: Cannot find index of " << t->Name << "." << endl;
+	return -1;
+}
+
+void Selector::Disconnect_Register(Token* t){
+	for (string c: Context)
+		for (auto j: Chunk.at(c))
+			if (j.first->Name == t->Name)
+				Chunk.at(c).erase(j.first);
+	return;
+}
+
+void Selector::Link_Register(Token* t, Token* r){
+	Get_Chunk()->insert(t, r);
+	return;
 }

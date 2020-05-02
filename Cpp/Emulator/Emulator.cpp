@@ -139,26 +139,28 @@ void Emulator::Label_Recorder(int i)
 		if (Input.at(i)->is(_Start_Of_Label))
 		{
 			Branching_Label.push_back(Input.at(i)->PreFix);
+			S->Context.push_back(Input.at(i)->PreFix);
 		}
 		else if (Input.at(i)->is(_End_Of_Label))
 		{
 			Branching_Label.pop_back();
+			S->Context.pop_back();
 		}
 	}
 	else if (Input.at(i)->ID == "return")
 	{
 		Branching_Label.pop_back();
-		Register_Lock.clear();
+		S->Context.pop_back();
 	}
 }
 
-/*void Emulator::Register_Chooser(Token* t)
+void Emulator::Register_Chooser(Token* t, int i)
 {
 	if (t == nullptr)
 		return;
-	if (S->Fixable_Register(t) != nullptr){
+	if (S->Get_Index_Of(t) != -1){
 		//if the name is already a name of register
-		*t = *S->Fixable_Register(t);
+		*t = *S->Get_Right_Size_List(t->Size).at(S->Get_Index_Of(t));
 		t->UID = t->Name;
 		Skip_Chained_Registers(t);
 		return;
@@ -166,38 +168,35 @@ void Emulator::Label_Recorder(int i)
 	if (t->is(_Register_))
 	{
 		if (!(t->is(Task_For_Returning))) {
-			for (auto i : Register_Lock)
-			{
-				if (i.first->Name == t->Name)
-				{
-					//if this is finded
-					t->UID = i.second->Name;
-					return;
-				}
-			}
+			if (S->Get_Register(t->Name) != nullptr)
+				t->UID = S->Get_Register(t->Name)->UID;
+				return;
 		}
 		//if not
-		Token* Reg = S->Get_Right_Reg(t->get(), t->Size);
+		Token* Reg = S->Get_New_Register(t);
+		if (Reg == nullptr)
+		{
+			//need to free more space on registers.
+			vector<Token*> savable = S->Free_Registers(t);
+			//the free registers gives us a vector list of saving requested values.
+			for (Token* s: savable)
+				Save_Variable(s, i);
+			//disconnect the saved variables from register chunk list .
+			Disconnect_Register(savable);
+			//now try to use the freed register.
+			Reg = S->Get_New_Register(t);
+		}
+		
 		Skip_Chained_Registers(Reg);
-		Register_Lock.insert({ t, Reg });
 		t->UID = Reg->Name;
 		return;
 	}
-	//this is commented because this is useless because eax is not e general register enymore.
-	//else if (t->is(_Call_))
-	//{
-	//	if (S->Check_For_Reg(_SYSTEM_BIT_TYPE)->is(Task_For_Returning))
-	//	{
-	//		S->Increase(_SYSTEM_BIT_TYPE);
-	//	}
-	//}
-}*/
+}
 
-/*void Emulator::Register_Loader(Token& t, int i)
+void Emulator::Register_Loader(Token& t, int i)
 {
 	if (t.is(_Register_) != true)
 	{
-
 		//make a handle register
 		Token* Reg = new Token;
 		Reg->add(Task_For_General_Purpose);
@@ -212,7 +211,7 @@ void Emulator::Label_Recorder(int i)
 		t = *Reg;
 		Input.insert(Input.begin() + i, load);
 	}
-}*/
+}
 
 void Emulator::Frame_Handler(int i)
 {
@@ -248,8 +247,8 @@ void Emulator::Factory()
 {
 	for (int i = 0; i < (int)Input.size(); i++)
 		Long_Operation_Allocator(i);
-	S->Input = Input;
-	S->Factory();
+	for (int i = 0; i < (int)Input.size(); i++)
+		Load_UID(i);
 	for (int i = 0; i < (int)Input.size(); i++)
 	{
 		if (Input.at(i)->ID == "size" || Input.at(i)->ID == "state")
@@ -291,7 +290,7 @@ void Emulator::Pattern_User(int i)
 	}
 }
 
-/*void Emulator::Skip_Chained_Registers(Token* reg){
+void Emulator::Skip_Chained_Registers(Token* reg){
 	if (!reg->is(_Register_))
 		return;
 	for (Token* linked_reg : reg->Childs){
@@ -300,15 +299,15 @@ void Emulator::Pattern_User(int i)
 		//try to do same to childs of childs of etc...
 		Skip_Chained_Registers(linked_reg);
 		//now get the indexed child's index
-		int i = S->Get_Right_Reg_Index(linked_reg->Size, linked_reg);
+		int i = S->Get_Index_Of(linked_reg);
 		//now get the right vector list
-		int& current_index = S->Get_Ongoing_Index(linked_reg->Size);
+		int& current_index = S->Get_Right_Ongoing_Register_Index(linked_reg->Size);
 		//now just check for correlation
 		while (true){
 			if (current_index == i)
 				current_index++;
 			else if (((current_index+1) == i) || ((current_index+2) == i))
-				if (S->Get_Register_List(linked_reg->Size).at(current_index)->get() != S->Get_Register_List(linked_reg->Size).at(i)->get()){
+				if (S->Get_Right_Size_List(linked_reg->Size).at(current_index)->get() != S->Get_Right_Size_List(linked_reg->Size).at(i)->get()){
 					current_index++;
 					if ((current_index+1) == i) current_index++;
 				}
@@ -321,9 +320,9 @@ void Emulator::Pattern_User(int i)
 		// ^ <-- invalid
 		//do simple register getting emulation.
 	}
-}*/
+}
 
-/*void Emulator::Link_Cache_User(Token* t){
+void Emulator::Link_Cache_User(Token* t){
 	if (t->is(_Register_))
 		return;
 	if (t->Offsetter != nullptr)
@@ -331,34 +330,52 @@ void Emulator::Pattern_User(int i)
 	if (!t->is("cache"))
 		return;
 	//try to find register lock match on the same scoped context.
-	for (auto i : Register_Lock)
-		if (i.first->Name == t->Name)
-			*t = *i.second;
-}*/
+	if (S->Get_Register(t->Name) != nullptr){
+		*t = *S->Get_Register(t->Name);
+		return;
+	}
+	//if this is then something is wrong
+	cout << "Error: Too long use of " << t->Name << "." << endl;
+	return;
+}
 
-/*void Emulator::Load_UID(int i)
+void Emulator::Load_UID(int i)
 {
 	for (Token* T : Input.at(i)->Parameters)
 	{
 		Optimized_Register_Linking_Between_Different_Parameters(T);
 		Link_Cache_User(T);
 		Skip_Chained_Registers(T);
-		Register_Chooser(T);
+		Register_Chooser(T, i);
 		if (T->Offsetter != nullptr)
-			Register_Chooser(T->Offsetter);
+			Register_Chooser(T->Offsetter, i);
 	}
-}*/
+}
 
-/*void Emulator::Optimized_Register_Linking_Between_Different_Parameters(Token* o){
+void Emulator::Optimized_Register_Linking_Between_Different_Parameters(Token* o){
 	if (o->Name_Of_Same_Using_Register == "")
 		return;
 	//this functions mission is to look up for name of using register as the Name_Of_Same_Using_Register
 	//and set it as this Token* o's register as well on register_lock.
-	Token* Register = new Token;
 	//find the register that o->Name_Of_Same_Using_Register named object uses.
-	for (auto i: Register_Lock)
-		if (i.first->Name == o->Name_Of_Same_Using_Register)
-			*Register = *i.second;
-	//now lock these register'n o.
-	Register_Lock.insert(make_pair(new Token(*o), Register));
-}*/
+	if (S->Get_Register(o->Name_Of_Same_Using_Register) != nullptr)
+		//now lock these register'n o.
+		S->Link_Register(o, S->Get_Register(o->Name_Of_Same_Using_Register));
+	return;
+}
+
+void Emulator::Save_Variable(Token* t, int i){
+	//we need to save the token* t
+	IR* save = new IR;
+	save->ID = "=";
+	save->Parameters.push_back(t);
+	save->Parameters.push_back(S->Get_Register(t->Name));
+	//put
+	Input.insert(Input.begin() + i, save);
+}
+
+void Emulator::Disconnect_Register(vector<Token*> t){
+	for (Token* i : t)
+		S->Disconnect_Register(i);
+	return;
+}

@@ -24,24 +24,30 @@ private:
 	vector<Token*> Registers16;
 	vector<Token*> Registers8;
 	vector<OpC*> OpCodes;
-	vector<Token*> Get_Right_Size_List(int s);
-	int& Get_Right_Ongoing_Register_Index(int s);
 	//the map for every register paired
 	//map<context, map<variable, register>>
-	map<string, map<Token, Token>> Chunk;
-	vector<string> Context;
+	map<string, map<Token*, Token*>> Chunk;
 public:
-	map<Token, Token>* Get_Chunk();
+	vector<string> Context;
+	vector<Token*> Get_Right_Size_List(int s);
+	int& Get_Right_Ongoing_Register_Index(int s);
+	map<Token*, Token*>* Get_Chunk();
 	//get id
 	string Get_ID(string id, string trust, vector<int> minmax);
 	//look up for owned register(s).
-	Token* Get_Register(Token* t);
+	Token* Get_Register(string t);
 	//this returns nullptr if all registers are use, use Free_registers to get registers freed.
 	Token* Get_New_Register(Token* t);
-	//freeing registers by token.
-	vector<Token> Free_Registers(Token* t);
+	//freeing registers by token. (flag of register type)
+	vector<Token*> Free_Registers(Token* t);
 	//check if register is already someones elses.
 	Token* Check_Other_Owner(Token* t); 
+	//get a index of a register on the list
+	int Get_Index_Of(Token* t);
+	//disconnect register from its owner.
+	void Disconnect_Register(Token* t);
+	//raw link, be carefull!!!
+	void Link_Register(Token* t, Token* r);
 	Selector(string s);
 	~Selector(){}
 private:
