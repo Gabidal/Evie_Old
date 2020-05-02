@@ -68,7 +68,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 	return "_" + id;
 }
 
-map<Token*, Token*>* Selector::Get_Chunk(){
+map<Token*, Token*>& Selector::Get_Chunk(){
 	return Chunk.at(Context.back());
 }
 
@@ -98,8 +98,8 @@ int& Selector::Get_Right_Ongoing_Register_Index(int s){
 
 Token* Selector::Get_Register(string t){
 	for (string c: Context)
-		for (auto i: *Chunk.at(c))
-			if (i.first->Name == t)
+		for (auto i: Chunk[c])
+			if ((i.first != nullptr) && i.first->Name == t)
 				return i.second;
 	return nullptr;
 }
@@ -121,7 +121,7 @@ Token* Selector::Get_New_Register(Token* t){
 			if (Check_Other_Owner(reg) == nullptr){
 				//this already taken function returns a nullptr it means
 				//that this register is free and nobody uses it.
-				Get_Chunk()->insert(t, reg);
+				Get_Chunk().insert(make_pair(t, reg));
 				return reg;
 			}
 	}
@@ -148,14 +148,14 @@ vector<Token*> Selector::Free_Registers(Token* t){
 			Reg = list.at(j);
 	//now try to find all the users of that reg on this context and other context.
 	for (string context: Context)
-		for (auto j: *Chunk.at(context))
+		for (auto j: Chunk.at(context))
 			if (j.second->Name == Reg->Name)
 				Output.push_back(j.first);
 	return Output;
 }
 
 Token* Selector::Check_Other_Owner(Token* t){
-	for (auto i: *Get_Chunk())
+	for (auto i: Get_Chunk())
 		if (i.second->Name == t->Name)
 			return t;
 	return nullptr;
@@ -172,13 +172,13 @@ int Selector::Get_Index_Of(Token* t){
 
 void Selector::Disconnect_Register(Token* t){
 	for (string c: Context)
-		for (auto j: *Chunk.at(c))
+		for (auto j: Chunk.at(c))
 			if (j.first->Name == t->Name)
-				Chunk.at(c)->erase(j.first);
+				Chunk.at(c).erase(j.first);
 	return;
 }
 
 void Selector::Link_Register(Token* t, Token* r){
-	Get_Chunk()->insert(t, r);
+	Get_Chunk().insert(make_pair(t, r));
 	return;
 }

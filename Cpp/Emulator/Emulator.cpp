@@ -161,7 +161,6 @@ void Emulator::Register_Chooser(Token* t, int i)
 	if (S->Get_Index_Of(t) != -1){
 		//if the name is already a name of register
 		*t = *S->Get_Right_Size_List(t->Size).at(S->Get_Index_Of(t));
-		t->UID = t->Name;
 		Skip_Chained_Registers(t);
 		return;
 	}

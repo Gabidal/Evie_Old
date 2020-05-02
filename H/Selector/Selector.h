@@ -26,12 +26,12 @@ private:
 	vector<OpC*> OpCodes;
 	//the map for every register paired
 	//map<context, map<variable, register>>
-	map<string, map<Token*, Token*>*> Chunk;
+	map<string, map<Token*, Token*>> Chunk;
 public:
 	vector<string> Context;
 	vector<Token*> Get_Right_Size_List(int s);
 	int& Get_Right_Ongoing_Register_Index(int s);
-	map<Token*, Token*>* Get_Chunk();
+	map<Token*, Token*>& Get_Chunk();
 	//get id
 	string Get_ID(string id, string trust, vector<int> minmax);
 	//look up for owned register(s).

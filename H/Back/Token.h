@@ -74,20 +74,28 @@ class Token : public Object
     string UID = "";
     string State = "";
     Token(){}
-    Token(string name, int size, Token* child) {
+    Token(string name, string uid, int size, Token* child) {
         Name = name;
         Size = size;
+        UID = uid;
         Childs.push_back(child);
         add(_Register_);
     }
-    Token(string name, int size, Token* child1, Token* child2) {
+    Token(string name, string uid, int size, Token* child1, Token* child2) {
         Name = name;
         Size = size;
+        UID = uid;
         Childs.push_back(child1);
         Childs.push_back(child2);
         add(_Register_);
     }
     Token(string name, int size) {
+        Name = name;
+        Size = size;
+        add(_Register_);
+    }
+    Token(string name, string uid, int size){
+        UID = uid;
         Name = name;
         Size = size;
         add(_Register_);
