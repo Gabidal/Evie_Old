@@ -92,7 +92,6 @@ class Token : public Object
         Size = size;
         add(_Register_);
     }
-
     string Gather_Types(string comma);
     bool is(int flag);
     bool Any(int flags);

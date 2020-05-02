@@ -29,9 +29,10 @@ string Back::Get_Handler(Token* t)
 	}
 	else
 	{
-		return S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
-			Get_Direction(t) + to_string(t->StackOffset);
+		//return S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+		//	Get_Direction(t) + to_string(t->StackOffset);
 	}
+	return "";
 }
 
 string Back::Get_Frame(string inside){
@@ -51,10 +52,10 @@ string Back::Get_Address(Token* t){
 	}
 	else
 	{
-		return "(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
-				Get_Direction(t) + to_string(t->StackOffset) + ")";
+		//return "(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+		//		Get_Direction(t) + to_string(t->StackOffset) + ")";
 	}
-	
+	return "";
 }
 
 string Back::Get_Call(Token* t){
@@ -105,7 +106,7 @@ string Back::Get_Info_Of(Token* t)
 	else if (t->is(_External_))
 		return S->Get_ID(to_string(t->Size), "", { t->Size}) + "[" + Get_Handler(t) + "]";
 	else
-		return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+		//return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
 	cout << "Error: Cannot find info for >> " + t->Name + ", " + t->UID << endl;
 	return "";

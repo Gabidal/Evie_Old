@@ -1,5 +1,5 @@
-#ifndef SELECTOR_H_
-#define SELECTOR_H_
+#ifndef _SELECTOR_H_
+#define _SELECTOR_H_
 #include <vector>
 #include <iostream>
 #include "../Architecture/ARM/ARM.h"
@@ -26,7 +26,7 @@ private:
 	vector<OpC*> OpCodes;
 	//the map for every register paired
 	//map<context, map<variable, register>>
-	map<string, map<Token*, Token*>> Chunk;
+	map<string, map<Token*, Token*>*> Chunk;
 public:
 	vector<string> Context;
 	vector<Token*> Get_Right_Size_List(int s);
