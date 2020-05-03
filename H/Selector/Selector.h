@@ -48,6 +48,8 @@ public:
 	void Disconnect_Register(Token* t);
 	//raw link, be carefull!!!
 	void Link_Register(Token* t, Token* r);
+	//get boring register that over passes everything i have worked for. end me plzzz.
+	Token* Get_Right_Reg(int F, int s);
 	Selector(string s);
 	~Selector(){}
 private:

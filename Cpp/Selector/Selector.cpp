@@ -69,7 +69,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 }
 
 map<Token*, Token*>& Selector::Get_Chunk(){
-	return Chunk.at(Context.back());
+	return Chunk[Context.back()];
 }
 
 vector<Token*> Selector::Get_Right_Size_List(int s){
@@ -121,7 +121,7 @@ Token* Selector::Get_New_Register(Token* t){
 			if (Check_Other_Owner(reg) == nullptr){
 				//this already taken function returns a nullptr it means
 				//that this register is free and nobody uses it.
-				Get_Chunk().insert(make_pair(t, reg));
+				Get_Chunk().insert(make_pair(t, new Token(*reg)));
 				return reg;
 			}
 	}
@@ -144,19 +144,21 @@ vector<Token*> Selector::Free_Registers(Token* t){
 	Token* Reg = new Token;
 	for (int j = i; j < list.size(); j++)
 		//search for the right flagged register
-		if (list.at(j)->is(t->get()))
+		if (list.at(j)->is(t->get())){
 			Reg = list.at(j);
+			break;
+		}
 	//now try to find all the users of that reg on this context and other context.
 	for (string context: Context)
 		for (auto j: Chunk.at(context))
-			if (j.second->Name == Reg->Name)
+			if ((j.first != nullptr) && j.second->Name == Reg->Name)
 				Output.push_back(j.first);
 	return Output;
 }
 
 Token* Selector::Check_Other_Owner(Token* t){
 	for (auto i: Get_Chunk())
-		if (i.second->Name == t->Name)
+		if ((i.first != nullptr) && i.second->Name == t->Name)
 			return t;
 	return nullptr;
 }
@@ -171,14 +173,27 @@ int Selector::Get_Index_Of(Token* t){
 }
 
 void Selector::Disconnect_Register(Token* t){
-	for (string c: Context)
-		for (auto j: Chunk.at(c))
-			if (j.first->Name == t->Name)
-				Chunk.at(c).erase(j.first);
+	for (string c: Context){
+		vector<Token*> removables;
+		for (auto j: Chunk[c])
+			if ((j.first != nullptr) && j.first->Name == t->Name){
+				removables.push_back(j.first);
+			}
+		for (Token* i : removables)
+			Chunk[c].erase(i);
+	}
 	return;
 }
 
 void Selector::Link_Register(Token* t, Token* r){
 	Get_Chunk().insert(make_pair(t, r));
 	return;
+}
+
+Token* Selector::Get_Right_Reg(int F, int s){
+	vector<Token*> list = Get_Right_Size_List(s);
+	for (Token* i : list)
+		if (i->is(F))
+			return i;
+	return nullptr;
 }

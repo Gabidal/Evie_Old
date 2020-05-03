@@ -128,6 +128,30 @@ void Emulator::Long_Operation_Allocator(int &i)
 				Input.insert(Input.begin() + i, converter);
 				*Handle = *Converted;
 			}
+		
+			//change number moving into empty 
+			//chache variables into number moving into cache registers
+			//mov [ebp - 0], 1 -->
+			//mov reg, 1
+			if (L->is("cache") && R->is(_Number_))
+			{
+				Token* tmp_L = new Token;
+				*tmp_L = *Input.at(i)->Parameters.at(0);
+				//make loading
+				Input.at(i)->ID = "ldr";
+				//make the tmp register
+				Token* reg = new Token;
+				reg->Name = tmp_L->Name + "_tmp_loading_register";
+				reg->Size = tmp_L->Size;
+				reg->add(_Register_);
+				reg->add(Task_For_Non_Volatiling);
+				*Input.at(i)->Parameters.at(0) = *reg;
+				//choose the right reg
+				Register_Chooser(reg, i);
+				//now link this register with the cache variable.
+				S->Link_Register(tmp_L, reg);
+			}
+
 		}
 	}
 }
@@ -167,9 +191,10 @@ void Emulator::Register_Chooser(Token* t, int i)
 	if (t->is(_Register_))
 	{
 		if (!(t->is(Task_For_Returning))) {
-			if (S->Get_Register(t->Name) != nullptr)
+			if (S->Get_Register(t->Name) != nullptr){
 				t->UID = S->Get_Register(t->Name)->UID;
 				return;
+			}
 		}
 		//if not
 		Token* Reg = S->Get_New_Register(t);
