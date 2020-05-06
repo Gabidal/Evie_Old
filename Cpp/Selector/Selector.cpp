@@ -113,7 +113,8 @@ Token* Selector::Get_New_Register(Token* t){
 	//get right vector
 	vector<Token*> list = Get_Right_Size_List(t->Size);
 	Token* reg = nullptr;
-	int& i = Get_Right_Ongoing_Register_Index(t->Size);
+	//int& i = Get_Right_Ongoing_Register_Index(t->Size);
+	int i = 0;
 	if (i >= list.size()) i = 0;
 	for (; i < list.size(); i++){
 		reg = list.at(i);
@@ -137,15 +138,17 @@ vector<Token*> Selector::Free_Registers(Token* t){
 	//first get the next register that supports our usage.
 	vector<Token*> list = Get_Right_Size_List(t->Size);
 	//get the index and add it by 1 for next.
-	int& i = Get_Right_Ongoing_Register_Index(t->Size);
-	if (++i >= list.size()) i = 0;
+	//int& i = Get_Right_Ongoing_Register_Index(t->Size);
+	//if (++i >= list.size()) i = 0;
+	//else --i;
 	
 	//now get the register from there.
 	Token* Reg = new Token;
-	for (int j = i; j < list.size(); j++)
+	for (int j = 0; j < list.size(); j++)
 		//search for the right flagged register
 		if (list.at(j)->is(t->get())){
 			Reg = list.at(j);
+			//i = j;
 			break;
 		}
 	//now try to find all the users of that reg on this context and other context.
@@ -168,7 +171,7 @@ int Selector::Get_Index_Of(Token* t){
 	for (int i = 0; i < list.size(); i++)
 		if (list.at(i)->Name == t->Name)
 			return i;
-	cout << "Error: Cannot find index of " << t->Name << "." << endl;
+	//cout << "Error: Cannot find index of " << t->Name << "." << endl;
 	return -1;
 }
 
@@ -195,5 +198,37 @@ Token* Selector::Get_Right_Reg(int F, int s){
 	for (Token* i : list)
 		if (i->is(F))
 			return i;
+	return nullptr;
+}
+
+vector<Token*> Selector::Get_Lifetime_Of(vector<Token*> Think_Need_Freeing, vector<IR*> Input, int i){
+	vector<Token*> Deletable;
+	int Max_Lenght = i+2;
+	if (Max_Lenght >= Input.size())
+		return Deletable;
+	for (Token* r: Think_Need_Freeing)
+		for (int j = i; j < Max_Lenght; j++)
+			for (Token* t: Input.at(j)->Parameters){
+				if (r->Name == t->Name)
+					Deletable.push_back(r);
+				else if (t->Offsetter != nullptr)
+					if (r->Name == t->Offsetter->Name)
+						Deletable.push_back(r);
+			}
+
+	for (Token* t: Deletable)
+		for (int j = 0; j < Think_Need_Freeing.size(); j++)
+			if (t->Name == Think_Need_Freeing.at(j)->Name){
+				Think_Need_Freeing.erase(Think_Need_Freeing.begin() + j);
+				break;
+			}
+	return Think_Need_Freeing;
+}
+
+Token* Selector::Get_Register_Holder(Token* r){
+	for (string c: Context)
+		for (auto i: Chunk[c])
+			if ((i.first != nullptr) && i.second->Name == r->Name)
+				return i.first;
 	return nullptr;
 }

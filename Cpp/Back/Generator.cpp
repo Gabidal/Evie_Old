@@ -412,6 +412,7 @@ void Generator::Detect_Operator(Token* t)
 		Reg->add(_Register_);
 		Reg->Name = "Reg2_" + t->Right_Side_Token->Name;
 		Reg->Size = t->Right_Side_Token->Size;
+		Reg->StackOffset = t->StackOffset;
 		Right_Token = Reg;
 		//make the loading IR token
 		IR* load = new IR;
@@ -439,6 +440,7 @@ void Generator::Detect_Operator(Token* t)
 			Reg->add(_Register_);
 			Reg->Name = "Reg1_" + t->Left_Side_Token->Name;
 			Reg->Size = t->Left_Side_Token->Size;
+			Reg->StackOffset = t->StackOffset;
 			Left_Token = Reg;
 			//make the loading IR token
 			IR* load = new IR;
@@ -490,12 +492,13 @@ void Generator::Detect_Pointters(Token* t)
 	if (g.Handle != nullptr)
 		//a::(a:b) --> more complex
 		*Offsetter = *g.Handle;
-	else if (!t->Offsetter->is(_Number_) && t->Name_Of_Same_Using_Register == "") {
+	else if (!t->Offsetter->is(_Number_)) {
 		//a::a --> more simpler offsetter
 		//setup the offsetter token to be the handle for the variable loading
 		Offsetter->add(_Register_);
 		Offsetter->add(Task_For_General_Purpose);
 		Offsetter->Name = t->Offsetter->Name + "_Offsetted_Handle_Reg";
+		Offsetter->StackOffset = t->StackOffset;
 		Offsetter->Size = _SYSTEM_BIT_TYPE; //!!!!!dont trust !!!!
 		//load the variable into a rgister
 		IR* load = new IR;
@@ -512,6 +515,7 @@ void Generator::Detect_Pointters(Token* t)
 	Offsetter_Register->add(_Register_);
 	Offsetter_Register->add(Task_For_General_Purpose);
 	Offsetter_Register->Name = t->Name + "_Offsetter_Reg";
+	Offsetter->StackOffset = t->StackOffset;
 	Offsetter_Register->Size = t->Size;
 	//Offsetter_Register->Name_Of_Same_Using_Register = t->Name_Of_Same_Using_Register;
 
@@ -524,14 +528,18 @@ void Generator::Detect_Pointters(Token* t)
 
 	Output.push_back(load_Secondary);
 
-	if (!t->is(_Giving_Address_) && (t->Name_Of_Same_Using_Register == ""))
+	if (!t->is(_Giving_Address_))
 	{
 		//now load the main, from secondary handle + offsetter
 		//mov reg, [sec_reg+offsetter]
 		Token* Main_Handle = new Token;
 		Main_Handle->add(_Register_);
-		Main_Handle->add(Task_For_General_Purpose);
+		if (t->Name_Of_Same_Using_Register != "")
+			Main_Handle->add(Task_For_Dest_Offsetting);
+		else 
+			Main_Handle->add(Task_For_Source_Offsetting);
 		Main_Handle->Name = t->Name + "_main_Handle_reg";
+		Main_Handle->StackOffset = t->StackOffset;
 		Main_Handle->Size = t->Size;
 
 		Offsetter_Register->Offsetter = Offsetter;
@@ -539,8 +547,11 @@ void Generator::Detect_Pointters(Token* t)
 
 		//make the initial mov
 		IR* Main_Load = new IR;
-		Main_Load->ID = "ldr";
-		Main_Load->Parameters.push_back(Main_Handle);
+		if (t->Name_Of_Same_Using_Register != "")
+			Main_Load->ID = ":";
+		else 
+			Main_Load->ID = "ldr";
+		Main_Load->Parameters.push_back(new Token(*Main_Handle));
 		Main_Load->Parameters.push_back(Offsetter_Register);
 
 		Output.push_back(Main_Load);
@@ -591,6 +602,7 @@ void Generator::Detect_Arrays(Token* t)
 		Offsetter->add(Task_For_General_Purpose);
 		Offsetter->Name = t->Offsetter->Name + "_Offsetted_Handle_Reg";
 		Offsetter->Size = _SYSTEM_BIT_TYPE; //!!!!! dont trust!!!!
+		Offsetter->StackOffset = t->StackOffset;
 		//load the variable into a rgister
 		IR* load = new IR;
 		load->ID = "ldr";
@@ -608,7 +620,10 @@ void Generator::Detect_Arrays(Token* t)
 		//make the returning handle register
 		Token* Main_Handle = new Token;
 		Main_Handle->add(_Register_);
-		Main_Handle->add(Task_For_General_Purpose);
+		if (t->Name_Of_Same_Using_Register != "")
+			Main_Handle->add(Task_For_Dest_Offsetting);
+		else 
+			Main_Handle->add(Task_For_Source_Offsetting);
 		Main_Handle->Size = t->Size;
 		Main_Handle->Name = t->Name + "_Main_Handle";
 
@@ -638,6 +653,7 @@ void Generator::Detect_Address_Pointing(Token* t)
 	//Reg->Size = t->Size;					!!!!!fix this!!!!!
 	Reg->add(Task_For_General_Purpose);
 	Reg->add(_Register_);
+	Reg->StackOffset = t->StackOffset;
 
 	//_:ebx , _24[ebp  - 4]
 	//this no good,

@@ -50,6 +50,10 @@ public:
 	void Link_Register(Token* t, Token* r);
 	//get boring register that over passes everything i have worked for. end me plzzz.
 	Token* Get_Right_Reg(int F, int s);
+	//for not overlappin use of register
+	vector<Token*> Get_Lifetime_Of(vector<Token*> Think_Need_Freeing, vector<IR*> Input, int i);
+	//get ID of register
+	Token* Get_Register_Holder(Token* r);
 	Selector(string s);
 	~Selector(){}
 private:

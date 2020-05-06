@@ -203,8 +203,11 @@ void Emulator::Register_Chooser(Token* t, int i)
 			//need to free more space on registers.
 			vector<Token*> savable = S->Free_Registers(t);
 			//the free registers gives us a vector list of saving requested values.
-			for (Token* s: savable)
-				Save_Variable(s, i);
+			//now we need to check the life time of the freeable register and second question ouw selfs
+			savable = S->Get_Lifetime_Of(savable, Input, i);
+			if (savable.size() < 1)
+				//then try to free some other register's
+				savable = S->Free_Registers(t);
 			//disconnect the saved variables from register chunk list .
 			Disconnect_Register(savable);
 			//now try to use the freed register.
@@ -388,15 +391,15 @@ void Emulator::Optimized_Register_Linking_Between_Different_Parameters(Token* o)
 	return;
 }
 
-void Emulator::Save_Variable(Token* t, int i){
+/*void Emulator::Save_Variable(Token* t, int i){
 	//we need to save the token* t
 	IR* save = new IR;
 	save->ID = "=";
-	save->Parameters.push_back(t);
+	save->Parameters.push_back(S->Find_Owner(t));
 	save->Parameters.push_back(S->Get_Register(t->Name));
 	//put
 	Input.insert(Input.begin() + i, save);
-}
+}*/
 
 void Emulator::Disconnect_Register(vector<Token*> t){
 	for (Token* i : t)
