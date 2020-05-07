@@ -431,6 +431,9 @@ void Generator::Detect_Operator(Token* t)
 			Left_Token = t->Left_Side_Token;
 			//this is for the optimized cache usation.
 			Left_Token->Name_Of_Same_Using_Register = Right_Token->Name;
+			//now skip the "=" for cache users
+			if (Left_Token->is("cache"))
+				opCode->ID = "ldr";
 		}
 		else if (!t->Left_Side_Token->is(_Number_))
 		{
@@ -492,7 +495,7 @@ void Generator::Detect_Pointters(Token* t)
 	if (g.Handle != nullptr)
 		//a::(a:b) --> more complex
 		*Offsetter = *g.Handle;
-	else if (!t->Offsetter->is(_Number_)) {
+	else if (!t->Offsetter->is(_Number_) && !t->Offsetter->is("cache")) {
 		//a::a --> more simpler offsetter
 		//setup the offsetter token to be the handle for the variable loading
 		Offsetter->add(_Register_);
@@ -503,8 +506,8 @@ void Generator::Detect_Pointters(Token* t)
 		//load the variable into a rgister
 		IR* load = new IR;
 		load->ID = "ldr";
-		load->Parameters.push_back(Offsetter);
-		load->Parameters.push_back(t->Offsetter);
+		load->Parameters.push_back(new Token(*Offsetter));
+		load->Parameters.push_back(new Token(*t->Offsetter));
 		Output.push_back(load);
 	}
 	else
@@ -524,7 +527,7 @@ void Generator::Detect_Pointters(Token* t)
 	load_Secondary->ID = "ldr";
 	//make a copy so that when we add the offsetter it doesnt explode :D
 	load_Secondary->Parameters.push_back(new Token(*Offsetter_Register));
-	load_Secondary->Parameters.push_back(tmp_t);
+	load_Secondary->Parameters.push_back(new Token(*tmp_t));
 
 	Output.push_back(load_Secondary);
 
@@ -552,7 +555,7 @@ void Generator::Detect_Pointters(Token* t)
 		else 
 			Main_Load->ID = "ldr";
 		Main_Load->Parameters.push_back(new Token(*Main_Handle));
-		Main_Load->Parameters.push_back(Offsetter_Register);
+		Main_Load->Parameters.push_back(new Token(*Offsetter_Register));
 
 		Output.push_back(Main_Load);
 
@@ -595,7 +598,7 @@ void Generator::Detect_Arrays(Token* t)
 	if (g.Handle != nullptr)
 		//a:(a:b) --> more complex
 		*Offsetter = *g.Handle;
-	else if (!t->Offsetter->is(_Number_)) {
+	else if (!t->Offsetter->is(_Number_) && !t->is("cache")) {
 		//a:a --> more simpler offsetter
 		//setup the offsetter token to be the handle for the variable loading
 		Offsetter->add(_Register_);

@@ -193,6 +193,7 @@ void x86::ARC_Factory()
 	Registers32.push_back(EAX);
 	EBX = new Token("ebx", "ebx ", 4, BX);
 	EBX->add(Task_For_Non_Volatiling);
+	//EBX->add(Task_For_General_Purpose);
 	Registers32.push_back(EBX);
 	ECX = new Token("ecx", "ecx ", 4, CX);
 	ECX->add(Task_For_General_Purpose);

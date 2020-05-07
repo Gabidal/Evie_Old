@@ -374,8 +374,12 @@ void Emulator::Load_UID(int i)
 		Link_Cache_User(T);
 		Skip_Chained_Registers(T);
 		Register_Chooser(T, i);
-		if (T->Offsetter != nullptr)
+		if (T->Offsetter != nullptr){
+			Optimized_Register_Linking_Between_Different_Parameters(T->Offsetter);
+			Link_Cache_User(T->Offsetter);
+			Skip_Chained_Registers(T->Offsetter);
 			Register_Chooser(T->Offsetter, i);
+		}
 	}
 }
 
