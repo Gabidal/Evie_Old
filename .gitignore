@@ -7,3 +7,12 @@ CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
 .vscode
+out
+.vs
+IO/test
+IO/test.asm.ThisIsTotallyExecutable
+IO/test.asm.exe
+IO/test.asm.exp
+IO/test.asm.lib
+IO/test.asm.obj
+IO/test.asm.pdb
