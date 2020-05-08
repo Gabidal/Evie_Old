@@ -1,0 +1,30 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "",
+      "name": "build'n run",
+      "currentDir": "${workspaceRoot}",
+      "args": [
+        //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 4 -debug dwarf2
+        "-in",
+        "IO/test.e",
+        "-out",
+        "IO/test.asm",
+        "-f",
+        "exe",
+        "-os",
+        "win32",
+        "-arch",
+        "x86",
+        "-mode",
+        "4",
+        "-debug",
+        "dwarf2"
+      ]
+    }
+  ]
+}
