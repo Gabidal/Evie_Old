@@ -209,11 +209,11 @@ string Producer::Get_Template()
 
 string Producer::Update_Dir(string File_Name)
 {
-    int i = File_Name.find_last_of('/');
+    int i = (int)File_Name.find_last_of('/');
     if (i != -1)
     {
-        Produce_Working_Dir += File_Name.substr(0, i + 1);
-        return File_Name.substr(i + 1);
+        Produce_Working_Dir += File_Name.substr(0, (size_t)i + 1);
+        return File_Name.substr((size_t)i + 1);
     }
     return "";
 }

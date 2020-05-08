@@ -55,7 +55,7 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
     string tab = "";
     for (int i = 0; i < layer; i++)
         tab += "    ";
-    if (t == nullptr || !t->Size > 0){
+    if (t == nullptr || t->Size == 0){
         cout << tab << name << ": " << Get_Keyword_Info(name) << endl;
         return;
     }

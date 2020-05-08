@@ -42,8 +42,8 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 		for (int i = 0; i < (int)i_Sizes.size(); i++)
 		{
 			int in = i_Sizes.at(i);
-			int in_min = o_Sizes.at(i * 2);
-			int in_max = o_Sizes.at(i * 2 + 1);
+			int in_min = o_Sizes.at((size_t)i * 2);
+			int in_max = o_Sizes.at((size_t)i * 2 + 1);
 			if ((in_min <= in) && (in_max >= in))
 				continue;
 			else
@@ -232,3 +232,4 @@ Token* Selector::Get_Register_Holder(Token* r){
 				return i.first;
 	return nullptr;
 }
+

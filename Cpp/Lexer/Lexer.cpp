@@ -39,7 +39,7 @@ int getWord(string source, int continu, char StartType, char EndType)
 
 int getString(string source, int continu)
 {
-    int i = source.find(___STRING__, continu + 1);
+    int i = (int)source.find(___STRING__, (size_t)continu + 1);
 
     if (i == -1)
     {
@@ -202,7 +202,7 @@ void Lexer::Define()
         {
             i = getWord(Lines, i, '(', ')');
             Word* w = new Word("");
-            w->WORD = Lines.substr(start, i - start);
+            w->WORD = Lines.substr(start, (size_t)i - start);
             w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
             Base = Type::UNSPECIFIED;
@@ -212,7 +212,7 @@ void Lexer::Define()
         {
             i = getString(Lines, i);
             Word* w = new Word("");
-            w->WORD = Lines.substr(start, i - start);
+            w->WORD = Lines.substr(start, (size_t)i - start);
             w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
             Base = Type::UNSPECIFIED;
@@ -222,7 +222,7 @@ void Lexer::Define()
         if (!IsPartOf(Base, Current, Lines.at(i)) && Base != Type::UNSPECIFIED)
         {
             Word *w = new Word("");
-            w->WORD = Lines.substr(start, i-start);
+            w->WORD = Lines.substr(start, (size_t)i-start);
             w->Flags = translateIdentity(Base, w->WORD, w);
             output.push_back(w);
             Base = Type::UNSPECIFIED;
@@ -232,7 +232,7 @@ void Lexer::Define()
     if (Base != Type::UNSPECIFIED)
     {
         Word* w = new Word("");
-        w->WORD = Lines.substr(start, i - start);
+        w->WORD = Lines.substr(start, (size_t)i - start);
         w->Flags = translateIdentity(Base, w->WORD, w);
         output.push_back(w);
     }
@@ -241,10 +241,10 @@ void Lexer::Define()
 string ReplaceString(string subject, const string& search, const string& replace)
 {
 	int pos = 0;
-	while ((pos = subject.find(search, pos)) != string::npos)
+	while ((pos = (int)subject.find(search, pos)) != string::npos)
 	{
 		subject.replace(pos, search.length(), replace);
-		pos += replace.length();
+		pos += (int)replace.length();
 	}
 	return subject;
 }
@@ -290,7 +290,7 @@ void Lexer::Direct(string raw)
 
 void Lexer::Remove_Comment(string& line)
 {
-    int start = line.find("#");
+    int start = (int)line.find("#");
 
     if (start == -1)
     {
@@ -298,18 +298,18 @@ void Lexer::Remove_Comment(string& line)
         //throw std::runtime_error("Error: Couldn't find the start of a comment");
     }
 
-    int length = line.size() - start;
+    int length = (int)line.size() - start;
 
     line = line.erase(start, length);
 }
 
 string Lexer::Update_Dir(string File_Name)
 {
-    int i = File_Name.find_last_of('/');
+    int i = (int)File_Name.find_last_of('/');
     if (i != -1)
     {
-        Working_Dir += File_Name.substr(0, i + 1);
-        return File_Name.substr(i + 1);
+        Working_Dir += File_Name.substr(0, (size_t)i + 1);
+        return File_Name.substr((size_t)i + 1);
     }
     return File_Name;
 }

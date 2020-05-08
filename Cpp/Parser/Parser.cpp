@@ -16,11 +16,11 @@ void Parser::Include_Files(int i)
 {
 	if (Input.at(i)->WORD == "use")
 	{
-		string filename = Input.at(i + 1)->WORD.substr(1, Input.at(i + 1)->WORD.size() - 2);
+		string filename = Input.at((size_t)i + 1)->WORD.substr(1, Input.at((size_t)i + 1)->WORD.size() - 2);
 		for (string s : Included_Files)
-			if (Input.at(i+1)->is(_STRING) && (filename == s))
+			if (Input.at((size_t)i+1)->is(_STRING) && (filename == s))
 			{
-				cout << "Warning: " + Input.at(i + 1)->WORD + " has already been included." << endl;
+				cout << "Warning: " + Input.at((size_t)i + 1)->WORD + " has already been included." << endl;
 				Input.erase(Input.begin() + i + 1);
 				return;
 			}
@@ -43,10 +43,10 @@ void Parser::Connect_Array(int i)
 	if (Input.at(i)->WORD != ":" && Input.at(i)->WORD != "::")
 		return;
 	//b = a:0
-	Input.at(i - 1)->Offsetter = Input.at(i + 1);
+	Input.at((size_t)i - 1)->Offsetter = Input.at((size_t)i + 1);
 	if (Input.at(i)->WORD == "::")
 	{
-		Input.at(i-1)->Self_Mirroring = true;
+		Input.at((size_t)i-1)->Self_Mirroring = true;
 	}
 	Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i);
@@ -55,7 +55,7 @@ void Parser::Connect_Array(int i)
 void Parser::Connect_Address(int i)
 {
 	if (Input.at(i)->WORD != "@") return;
-	Input.at(i + 1)->_Giving_Address = true;
+	Input.at((size_t)i + 1)->_Giving_Address = true;
 	Input.erase(Input.begin() + i);
 }
 
@@ -115,7 +115,7 @@ void Parser::Init_Definition(int& i)
 	Generated_Undefined_Tokens.push_back(New_Defined_Type);
 	if (!New_Defined_Type->is("cache"))
 		Space_Reservation += New_Defined_Type->Size;
-	i += New_Defined_Type->Types.size();
+	i += (int)New_Defined_Type->Types.size();
 
 }
 
@@ -145,7 +145,7 @@ string Parser::Get_Size(int i, Token* defined)
 	if (Count_Familiar_Tokens(_PAREHTHESIS, i + 2) < 2)
 		return "0";
 	Parser p;
-	p.Input = Input.at(i + 3)->Tokens;
+	p.Input = Input.at((size_t)i + 3)->Tokens;
 	p.Defined_Keywords = Defined_Keywords;
 	p.Factory();
 	Token* t = nullptr;
@@ -242,13 +242,13 @@ void Parser::Reserve_Operator_Tokens(int i)
 	if (i-1 < 0)
 	{
 		//negatable operator
-		Input.at(i + 1)->_Pre_Modded = Input.at(i)->WORD;
+		Input.at((size_t)i + 1)->_Pre_Modded = Input.at(i)->WORD;
 		Input.erase(Input.begin() + i);
 	}
 	else
 	{
-		Input.at(i)->L = Input.at(i - 1);
-		Input.at(i)->R = Input.at(i + 1);
+		Input.at(i)->L = Input.at((size_t)i - 1);
+		Input.at(i)->R = Input.at((size_t)i + 1);
 	}
 }
 
@@ -258,7 +258,7 @@ void Parser::Reserve_Function_Parameters(int i)
 	{
 		if (Count_Familiar_Tokens(_PAREHTHESIS, i + 1) == 1)
 		{
-			Input.at(i)->Tokens.push_back(Input.at(i + 1));
+			Input.at(i)->Tokens.push_back(Input.at((size_t)i + 1));
 			Input.at(i)->_Call = true;
 			Input.erase(Input.begin() + i + 1);
 		}
@@ -273,9 +273,9 @@ void Parser::Patternize_Operations(int& i, string f)
 		return;
 	if (Input.at(i)->is(_OPERATOR) && (Input.at(i)->WORD == f) && (Input.at(i)->_initted != true))
 	{
-		Input.at(i)->Tokens.push_back(new Word (*Input.at(i - 1)));
+		Input.at(i)->Tokens.push_back(new Word (*Input.at((size_t)i - 1)));
 		Input.at(i)->Tokens.at(0)->_operatorized = false;
-		Input.at(i)->Tokens.push_back(new Word (*Input.at(i + 1)));
+		Input.at(i)->Tokens.push_back(new Word (*Input.at((size_t)i + 1)));
 		Input.at(i)->Tokens.at(1)->_operatorized = false;
 		Input.at(i)->_initted = true;
 
@@ -378,7 +378,7 @@ void Parser::Init_Conditions(int i)
 		return;
 	}
 	//if (a < b) (...)
-	if (Input.at(i)->is(_KEYWORD) && Input.at(i+1)->is(_PAREHTHESIS))
+	if (Input.at(i)->is(_KEYWORD) && Input.at((size_t)i+1)->is(_PAREHTHESIS))
 	{
 		Token* New_Defined_Condition = new Token();
 		New_Defined_Condition->Name = Input.at(i)->WORD;
@@ -395,7 +395,7 @@ void Parser::Init_Conditions(int i)
 
 		P.Output.clear();
 		P.Input.clear();
-		P.Input.push_back(Input.at(i + 1));				//The parameters for the condition.
+		P.Input.push_back(Input.at((size_t)i + 1));				//The parameters for the condition.
 		P.Factory();
 
 		New_Defined_Condition->Left_Side_Token = P.Output.at(0);
@@ -403,7 +403,7 @@ void Parser::Init_Conditions(int i)
 
 		P.Output.clear();
 		P.Input.clear();
-		P.Input.push_back(Input.at(i + 2));				//The Childs if that condition happends.
+		P.Input.push_back(Input.at((size_t)i + 2));				//The Childs if that condition happends.
 		P.Factory();
 
 		New_Defined_Condition->Right_Side_Token = P.Output.at(0);
@@ -478,7 +478,7 @@ void Parser::Type_Definition(int i)
 			Inside_Of_Constructor_As_Parameter = true;
 
 
-			P.Input.push_back(Input.at(i + 1));
+			P.Input.push_back(Input.at((size_t)i + 1));
 			P.Factory();
 			Inside_Of_Constructor_As_Parameter = false;
 			
@@ -501,7 +501,7 @@ void Parser::Type_Definition(int i)
 			P.Input.clear();
 			//childs
 			Inside_Of_Constructor = true;
-			P.Input.push_back(Input.at(i + 2));
+			P.Input.push_back(Input.at((size_t)i + 2));
 			P.Space_Reservation = 0;			//!!!!!!!!!!!!!!
 			P.Factory();
 			Inside_Of_Constructor = false;
@@ -635,8 +635,8 @@ void Parser::Init_Variable(int i)
 	//var a = 1
 	if (Input.at(i)->_operatorized)
 		return;
-	if ((i + 1) > (Input.size() - 1)){	}
-	else if (Input.at(i+1)->is(_TEXT))
+	if (((size_t)i + 1) > (Input.size() - 1)){	}
+	else if (Input.at((size_t)i+1)->is(_TEXT))
 		return;
 	if (Input.at(i)->_Call)
 		return;
@@ -781,7 +781,7 @@ void Parser::Check_For_Correlation_Link(int i)
 	for (string s : Pre_Defined_Tokens)
 		if (Input.at(i)->WORD == s)
 		{
-			Input.at(i)->Tokens.push_back(Input.at(i + 1));
+			Input.at(i)->Tokens.push_back(Input.at((size_t)i + 1));
 			Input.erase(Input.begin() + i + 1);
 			return;
 		}
@@ -789,11 +789,11 @@ void Parser::Check_For_Correlation_Link(int i)
 
 void Parser::Set_Special_Feature(int i)
 {
-	if ((i + 2) >= Input.size())
+	if (((size_t)i + 2) >= Input.size())
 		return;
 	Word* Access_Modifier = Input.at(i);
-	Word* Keyword = Input.at(i + 1);
-	Word* Name = Input.at(i + 2);
+	Word* Keyword = Input.at((size_t)i + 1);
+	Word* Name = Input.at((size_t)i + 2);
 	if (Access_Modifier->is(_KEYWORD) && Keyword->is(_KEYWORD) && Name->is(_TEXT))
 	{
 		//export type main
@@ -804,7 +804,7 @@ void Parser::Set_Special_Feature(int i)
 
 void Parser::Check_For_Inter(int i)
 {
-	if (Input.size() - 1 < i + 1)
+	if (Input.size() - 1 < (size_t)i + 1)
 		return;
 	if (Input.at(i)->WORD == "$")
 	{
