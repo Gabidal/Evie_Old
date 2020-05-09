@@ -201,13 +201,13 @@ void Emulator::Register_Chooser(Token* t, int i)
 		if (Reg == nullptr)
 		{
 			//need to free more space on registers.
-			vector<Token*> savable = S->Free_Registers(t);
+			vector<Token*> savable = S->Free_Registers(t, Input, i);
 			//the free registers gives us a vector list of saving requested values.
 			//now we need to check the life time of the freeable register and second question ouw selfs
-			savable = S->Get_Lifetime_Of(savable, Input, i);
-			if (savable.size() < 1)
+			//savable = S->Get_Lifetime_Of(savable, Input, i);
+			//if (savable.size() < 1)
 				//then try to free some other register's
-				savable = S->Free_Registers(t);
+			//	savable = S->Free_Registers(t);
 			//disconnect the saved variables from register chunk list .
 			Disconnect_Register(savable);
 			//now try to use the freed register.

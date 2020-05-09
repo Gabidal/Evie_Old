@@ -156,6 +156,10 @@ Beta 2.1.82 fixed:
 
 - ###### optimized some array output.
 
+Beta 2.1.103 fixed:
+
+- ###### Register selection is now improved.
+
 
 ## Manual
 

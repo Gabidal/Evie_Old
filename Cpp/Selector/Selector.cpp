@@ -1,6 +1,22 @@
 #include "../../H/Selector/Selector.h"
 extern int _SYSTEM_BIT_TYPE;
 
+bool Selector::Skipable(Token* r, vector<IR*> Input, int i)
+{
+	int Max_Lenght = i + 2;
+	if (Max_Lenght >= Input.size())
+		return false;		//do not skip
+	for (int j = i; j < Max_Lenght; j++)
+		for (Token* t : Input.at(j)->Parameters) {
+			if (r->Name == t->Name)
+				return true;		//no  skip
+			else if (t->Offsetter != nullptr)
+				if (r->Name == t->Offsetter->Name)
+					return true;		//no  skip
+		}
+	return false;
+}
+
 Selector::Selector(string s)
 {
 	Board_type = s;
@@ -131,7 +147,7 @@ Token* Selector::Get_New_Register(Token* t){
 	return nullptr;
 }
 
-vector<Token*> Selector::Free_Registers(Token* t){
+vector<Token*> Selector::Free_Registers(Token* t, vector<IR*> Input, int i){
 	//here we need to give order to generator to generate,
 	//IR tokens for saving the freed registers.
 	vector<Token*> Output;
@@ -148,6 +164,10 @@ vector<Token*> Selector::Free_Registers(Token* t){
 		//search for the right flagged register
 		if (list.at(j)->is(t->get())){
 			Reg = list.at(j);
+			//skipable return true if the life time is still important
+			if ((Get_Register_Holder(Reg) != nullptr) && Skipable(Get_Register_Holder(Reg), Input, i)) {
+				continue;
+			}
 			//i = j;
 			break;
 		}
