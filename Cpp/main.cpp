@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
     Lexer::Keywords = { "while", "type", "func", "use", "if", "export" };
-    Lexer::Operators = { "+", "-", "*", "/", "@", "$", "%", "==", "!=", "<", ">", "!<", "!>", "<=", ">=", "=", ":", "::", "&=", "|=", "<<", ">>", "&", "?", "!&", "|", "!|" };
+    Lexer::Operators = {"+-/*=|&%"};
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);

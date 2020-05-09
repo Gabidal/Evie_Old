@@ -196,6 +196,10 @@ void Parser::Init_Operator(int i)
 		return;
 	if (Input.at(i).Value == ",")
 		return;
+	if (Input.at(i).Value == ";")
+		return;
+	if (Input.at(i).Value == ".")
+		return;
 	//a = 1
 	//a < b
 	if (Input.at(i).is(OPERATOR_COMPONENT))
