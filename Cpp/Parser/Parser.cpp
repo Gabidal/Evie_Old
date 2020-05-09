@@ -7,6 +7,7 @@ int Layer = 0;
 int ID = 1;
 int Global_Stack_Offset = 0;
 int Local_Stack_Offest = 0;
+int LINE_NUMBER = 0;
 extern int _SYSTEM_BIT_TYPE;
 extern vector<string> Included_Files; //for loop holes to not exist
 extern vector<string> Pre_Defined_Tokens;
@@ -346,6 +347,7 @@ void Parser::Init_Parenthesis(int i)
 		return;
 	if (Input.at(i)->is(_PAREHTHESIS))
 	{
+		LINE_NUMBER = 0; //zero the line number because its based on relative to its woner like funciont a:1
 		Token* New_Defined_Parenthesis = new Token();
 		Parser P = *this;
 		P.Space_Reservation = 0;
@@ -366,6 +368,7 @@ void Parser::Init_Parenthesis(int i)
 		{
 			this->Defined_Keywords = P.Defined_Keywords;
 		}
+		LINE_NUMBER = 0; //zero the line number because its based on relative to its woner like funciont a:1
 	}
 }
 
@@ -688,6 +691,7 @@ void Parser::Init_Variable(int i)
 		New_Number->Name += Input.at(i)->WORD;
 		New_Number->Types.push_back("number");
 		New_Number->add(_Number_);
+		New_Number->Context = Context;
 		if (Input.at(i)->Offsetter != nullptr)
 		{
 			Parser p;
@@ -733,6 +737,7 @@ void Parser::Init_Variable(int i)
 		Str->Name = Input.at(i)->WORD;
 		Str->Size = _SYSTEM_BIT_TYPE;
 		Str->Types.push_back("string");
+		Str->Context = Context;
 		Output.push_back(Str);
 	}
 	if (Input.at(i)->WORD == "$")
@@ -845,6 +850,7 @@ void Parser::Factory()
 	Do_In_Order();
 	for (int i = 0; i < Input.size(); i++)
 	{
+		Update_Line_Number(Input.at(i));
 		Check_For_Inter(i);
 		Init_Operator(i);
 		Init_Variable(i);
@@ -861,5 +867,13 @@ void Parser::Append(vector<Token*>* Dest, vector<Token*> Source)
 	for (Token* i : Source)
 	{
 		Dest->push_back(i);
+	}
+}
+
+void Parser::Update_Line_Number(Word * t)
+{
+	if (t->WORD == "\n" && t->_initted == false) {
+		LINE_NUMBER++;
+		t->_initted = true;
 	}
 }

@@ -4,6 +4,8 @@
 #include <vector>
 #include "../UI/Usr.h"
 
+extern int LINE_NUMBER;
+
 using namespace std;
 
 //Identifiers
@@ -58,6 +60,7 @@ class Token : public Object
     int StackOffset = 0;
     int ParameterCount = 0;
     int ID = 0;
+    int Line_Number = LINE_NUMBER;
     bool Semanticked = false;
     bool _Dynamic_Size_ = false;
     Token* Left_Side_Token = nullptr;

@@ -160,6 +160,12 @@ Beta 2.1.103 fixed:
 
 - ###### Register selection is now improved.
 
+Beta 2.1.104 fixed:
+
+- ###### Safe doesnt yell at everything enymore.
+
+- ###### Added line number into token info at Safe, so now you can find your problems in life :P
+
 
 ## Manual
 

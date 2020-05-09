@@ -44,6 +44,9 @@ public:
     void Check_For_Inter(int i);
     void Factory();
     void Append(vector<Token*>* Dest, vector<Token*> Source);
+    //update the line number by detecting "\n"
+    void Update_Line_Number(Word* t);
+    //the Token.h constructor get the global line_number
     Parser &operator=(const Parser& other)
     {
         Working_Dir = other.Working_Dir;

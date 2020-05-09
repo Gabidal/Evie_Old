@@ -60,6 +60,7 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
         return;
     }
     cout << tab << t->Name << " { " << endl;
+    cout << tab << "    " << "In '" << Context << "' at line " << t->Line_Number << endl;
     cout << tab << "    " << "Size is " << t->Size << endl;
     cout << tab << "    " << "State is " << Get_State_Info(t) << "." << endl;
     cout << tab << "    " << "Inheritting { " << endl;
@@ -71,7 +72,7 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
 }
 
 void Safe::Safe_Type_Inheritance(Token* t){
-    if (t->Types.size() < 1)
+    if (t->Types.size() < 2)
         return;
     //if (!t->Size > 0)
     //    return;
@@ -129,6 +130,8 @@ string Safe::Get_Keyword_Info(string s){
         return "Dont print inheritted info into output.";
     if (s == "cache")
         return "No Saving into memory.";
+    if (s == "number")
+        return "Ordinary number.";
     return "No info.";   
 }
 
