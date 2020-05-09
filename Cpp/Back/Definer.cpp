@@ -60,7 +60,7 @@ void Definer::Type_Collect(Token* t)
 	for (string s : t->Types)
 		t->Size += FIND(s)->Size;
 	for (string s : t->Types)
-		t->State += " " + FIND(s)->State;
+		t->State += FIND(s)->State;
 	//cout << "Warning: You are using an inheritance type(s) --> " << Get_All(t->Types, ", ") << "| On --> " << t->Name << endl;
 }
 

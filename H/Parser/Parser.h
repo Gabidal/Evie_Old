@@ -2,10 +2,11 @@
 #define _PARSER_H_
 #include <vector>
 #include <string>
-#include "../Lexer/Word.h"
+#include "../Lexer/Component.h"
 #include "../Back/Token.h"
 #include "../Lexer/Lexer.h"
 #include <algorithm>
+#include <iostream>
 using namespace std;
 
 class Parser
@@ -13,9 +14,9 @@ class Parser
 public:
 
     int Space_Reservation = 0;
-	string Working_Dir = "";
+	//string Working_Dir = "";
     string Context = "Global Scope";
-    vector<Word*> Input;
+    vector<Component> Input;
     vector<Token*> Output;
     vector<Token*> Defined_Keywords;
     void Include_Files(int i);
@@ -40,16 +41,16 @@ public:
     void Init_Variable(int i);
     void Check_For_Correlation(int i);
     void Check_For_Correlation_Link(int i);
-    void Set_Special_Feature(int i);
     void Check_For_Inter(int i);
     void Factory();
     void Append(vector<Token*>* Dest, vector<Token*> Source);
     //update the line number by detecting "\n"
-    void Update_Line_Number(Word* t);
+    void Update_Line_Number(Component& t);
     //the Token.h constructor get the global line_number
+    string Update_Dir(string File_Name);
     Parser &operator=(const Parser& other)
     {
-        Working_Dir = other.Working_Dir;
+        //Working_Dir = other.Working_Dir;
         //Input = other.Input;
         //Output = other.Output;
         Defined_Keywords = other.Defined_Keywords;

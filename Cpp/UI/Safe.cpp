@@ -61,7 +61,7 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
     }
     cout << tab << t->Name << " { " << endl;
     cout << tab << "    " << "In '" << Context << "' at line " << t->Line_Number << endl;
-    cout << tab << "    " << "Size is " << t->Size << endl;
+    cout << tab << "    " << "Size is " << (float)t->Size * 8 << " bits" << endl;
     cout << tab << "    " << "State is " << Get_State_Info(t) << "." << endl;
     cout << tab << "    " << "Inheritting { " << endl;
         for (string s: t->Types)

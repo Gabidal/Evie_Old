@@ -22,18 +22,18 @@ void Interpreter::Detect_Ifs()
 	//$if(sys:Info:OS == "unix")(
 	//	using "unix_std.e"
 	//)
-	if (Input.at(i)->WORD != "$")
+	if (Input.at(i).Value != "$")
 		return;
-	if (Input.at(i + 1)->WORD != "if")
+	if (Input.at(i + 1).Value != "if")
 		return;
 	//construct the condition,
 	//then check if it is true or not.
 	if (Constructable(i + 2)) {
 		Input.erase(Input.begin() + i, Input.begin() + i + 3);
-		if (Input.at(i)->Tokens.size() > 0){
+		if (Input.at(i).Components.size() > 0){
 			//int s = Input.at(i)->Tokens.size();
 			//Append(&Input, Input.at(i)->Tokens, i);
-			Append(&Output, Input.at(i)->Tokens);
+			Append(Output, Input.at(i).Components);
 			Input.erase(Input.begin() + i, Input.begin() + i + 1);
 		}
 		else
@@ -61,16 +61,16 @@ void Interpreter::Detect_Patterns()
 			)
 		)
 	)*/
-	if (Input.at(i)->WORD != "$")
+	if (Input.at(i).Value != "$")
 		return;
-	if (Input.at(i + 1)->WORD != "pattern")
+	if (Input.at(i + 1).Value != "pattern")
 		return;
 	Token* pattern = new Token;
 	pattern->Name = "pattern";
 	pattern->add(_Preprosessor_);
 	pattern->add(_Parenthesis_);
 	Parser p;
-	p.Input = Input.at(i + 2)->Tokens;
+	p.Input = Input.at(i + 2).Components;
 	p.Defined_Keywords = Defined;
 	p.Factory();
 	pattern->Childs = p.Output;
@@ -92,7 +92,7 @@ bool Interpreter::Constructable(int i)
 {
 	//make a tmp parser and give it the condition method
 	Parser p;
-	p.Input = Input.at(i)->Tokens;
+	p.Input = Input.at(i).Components;
 	p.Defined_Keywords = this->Defined;
 	p.Factory();
 	//get the made tokens to define what is for example sys.info stuff to compare
@@ -115,23 +115,23 @@ void Interpreter::Detect_Mod()
 {
 	if (Input.size() < 1)
 		return;
-	if (Input.at(i)->WORD != "$")
+	if (Input.at(i).Value != "$")
 		return;
-	if (Input.at(i + 1)->WORD != "mod")
+	if (Input.at(i + 1).Value != "mod")
 		return;
-	Layer_Name = Input.at(i + 2)->WORD;
+	Layer_Name = Input.at(i + 2).Value;
 	Parser p;
-	p.Input = Input.at(i + 2)->Tokens;
+	p.Input = Input.at(i + 2).Components;
 	p.Defined_Keywords = Defined;
 	p.Factory();
 	Input.erase(Input.begin() + i, Input.begin() + i + 3);
 	Layer_Name = "";
 }
 
-void Interpreter::Append(vector<Word*>* Dest, vector<Word*> Source)
+void Interpreter::Append(vector<Component>& Dest, vector<Component> Source)
 {
-	for (auto i : Source)
+	for (auto& i : Source)
 	{
-		Dest->push_back(i);
+		Dest.push_back(i);
 	}
 }

@@ -1,166 +1,150 @@
+//
+//
+//
+//  Made by Joonas Lehto at 10/5/2020 0:47AM
+//  Few fixes by Gabe at 10/5/2020 0:47:00001AM
+//
+//
+//
 #include "../../H/Lexer/Lexer.h"
+#include <stdexcept>
+#include <sstream>
+#include <optional>
+#include <algorithm>
+#include <fstream>
 
-//a : b = c + find(a) * (a + b)
-#define ___COMMENT__ '#'
-#define ___STRING__ '\"'
-
-	enum class Type
-	{
-		UNSPECIFIED,
-		TEXT,
-		COMMENT,
-		NUMBER,
-		CONTENT,
-		OPERATOR,
-		STRING,
-		END
-	};
+constexpr char LineEnding = '\n';
 
 
-int getWord(string source, int continu, char StartType, char EndType)
+char Lexer::SingleLineCommentIdentifier = 0;
+char Lexer::StringIdentifier = 0;
+char Lexer::DecimalSeparator = 0;
+char Lexer::ExponentSeparator = 0;
+
+vector<string> Lexer::Operators;
+vector<string> Lexer::Keywords;
+
+enum class Type
 {
-    int LayerCount = 0;
-    int i = continu;
-    do 
-    {
-        if (source[i] == StartType)
-        {
-            LayerCount++;
-        }
-        if (source[i] == EndType)
-        {
-            LayerCount--;
-        }
-        i++;
-        
-    }while(LayerCount > 0);
-    return i;
+    UNSPECIFIED,
+    TEXT,
+    COMMENT,
+    NUMBER,
+    PARENTHESIS,
+    OPERATOR,
+    STRING,
+    END
+};
+
+struct Area
+{
+    Type Type;
+
+    string Text;
+
+    Position Start;
+    Position End;
+};
+
+template <typename T>
+bool Exists(const vector<T> &source, const T &value)
+{
+    return find(source.begin(), source.end(), value) != source.end();
 }
 
-int getString(string source, int continu)
+char GetParenthesisClosing(char opening)
 {
-    int i = (int)source.find(___STRING__, (size_t)continu + 1);
-
-    if (i == -1)
+    if (opening == '(')
     {
-        cout << "Error: Can't find end of string" << endl;
+        return ')';
+    }
+    else if (opening == '[')
+    {
+        return ']';
+    }
+    else if (opening == '{')
+    {
+        return '}';
     }
 
-    int length = i - continu;
-    return i + 1;
+    stringstream error;
+    error << "Unrecognized parenthesis opening '" << opening << "'";
+
+    throw runtime_error(error.str().c_str());
 }
 
-	bool IsOperator(char c)
-	{
-		return (c >= 33 && c <= 47 && c != ___COMMENT__ && c != ___STRING__) || (c >= 58 && c <= 64) || c == 94 || c == 124 || c == 126 ;
-	}
-
-	bool IsDigit(char c)
-	{
-		return c >= 48 && c <= 57;
-	}
-
-	bool IsText(char c)
-	{
-		return (c >= 65 && c <= 90) || (c >= 97 && c <= 122) || c == 95;
-	}
-
-	bool IsContent(char c)
-	{
-		return c == '(';
-	}
-
-	bool IsComment(char c)
-	{
-		return c == '#';
-	}
-
-	bool IsString(char c)
-	{
-		return c == '\"';
-	}
-
-	Type GetType(char c)
-	{
-		if (IsText(c))
-		{
-			return Type::TEXT;
-		}
-		else if (IsDigit(c))
-		{
-			return Type::NUMBER;
-		}
-		else if (IsContent(c))
-		{
-			return Type::CONTENT;
-		}
-		else if (IsOperator(c))
-		{
-			return Type::OPERATOR;
-		}
-		else if (IsComment(c))
-		{
-			return Type::COMMENT;
-		}
-		else if (IsString(c))
-		{
-			return Type::STRING;
-		}
-		else if (c == '\n')
-		{
-			return Type::END;
-		}
-
-		return Type::UNSPECIFIED;
-	}
-
-int translateIdentity(Type t, string text, Word *&w)
+string GetError(const Position &position, const char *message)
 {
-    if (t == Type::TEXT)
-    {
-        if (text == "while" || text == "type" || text == "func" ||text == "use"|| text == "if" )//|| text == "export")
-        {
-            return _KEYWORD;
-        }
-        else
-        {
-            return _TEXT;
-        }
-    }
-    else if (t == Type::COMMENT)
-    {
-        return _COMMENT;
-    }
-    else if (t == Type::NUMBER)
-    {
-        return _NUMBER;
-    }
-    else if (t == Type::CONTENT)
-    {
-        Lexer d;
-        d.Direct(text.substr(1, text.size() - 2));
-        w->Tokens = d.output; 
-        return _PAREHTHESIS;
-    }
-    else if (t == Type::STRING)
-    {
-        Lexer d;
-        d.Direct(text.substr(1, text.size() - 2));
-        w->Tokens = d.output;
-        return _STRING;
-    }
-    else if (t == Type::OPERATOR)
-    {
-        return _OPERATOR;
-    }
-    else if (t == Type::END)
-    {
-        return _END;
-    }
-    return 0;
+    stringstream error;
+    error << "Line: " << position.GetFriendlyLine() << ", Character: " << position.GetFriendlyCharacter() << " | " << message;
+    return error.str();
 }
 
-bool IsPartOf(Type previous, Type current, char c)
+bool IsOperator(char c)
+{
+    return ((c >= 33 && c <= 47) || (c >= 58 && c <= 63) || c == '^' || c == '|') && c != Lexer::SingleLineCommentIdentifier && c != Lexer::StringIdentifier;
+}
+
+bool IsDigit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
+bool IsText(char c)
+{
+    return c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '_';
+}
+
+bool IsParenthesis(char c)
+{
+    return c == '(' || c == '[' || c == '{' || c == ')' || c == ']' || c == '}';
+}
+
+bool IsComment(char c)
+{
+    return c == Lexer::SingleLineCommentIdentifier;
+}
+
+bool IsString(char c)
+{
+    return c == Lexer::StringIdentifier;
+}
+
+Type GetType(char c)
+{
+    if (IsText(c))
+    {
+        return Type::TEXT;
+    }
+    else if (IsDigit(c))
+    {
+        return Type::NUMBER;
+    }
+    else if (IsParenthesis(c))
+    {
+        return Type::PARENTHESIS;
+    }
+    else if (IsOperator(c))
+    {
+        return Type::OPERATOR;
+    }
+    else if (IsComment(c))
+    {
+        return Type::COMMENT;
+    }
+    else if (IsString(c))
+    {
+        return Type::STRING;
+    }
+    else if (c == LineEnding)
+    {
+        return Type::END;
+    }
+
+    return Type::UNSPECIFIED;
+}
+
+bool IsPartOf(Type previous, Type current, char previous_symbol, char current_symbol)
 {
     if (current == previous || previous == Type::UNSPECIFIED)
     {
@@ -169,147 +153,456 @@ bool IsPartOf(Type previous, Type current, char c)
 
     switch (previous)
     {
-        case Type::TEXT:
-        {
-            return current == Type::NUMBER || (c == '@');
-        }
 
-        case Type::NUMBER:
-        {
-            return c == '.';
-        }
+    case Type::TEXT:
+    {
+        return current == Type::NUMBER;
+    }
 
-        default: return false;
+    case Type::NUMBER:
+    {
+        return current_symbol == Lexer::DecimalSeparator ||                                                       // Example: 7.0
+               current_symbol == Lexer::ExponentSeparator ||                                                      // Example: 100e0
+               (previous_symbol == Lexer::ExponentSeparator && (current_symbol == '+' || current_symbol == '-')); // Examples: 3.14159e+10, 10e-10
+    }
+
+    default:
+        return false;
     }
 }
 
-void Lexer::Define()
+Position SkipSpaces(const string &text, Position &position)
 {
-    Type Base = Type::UNSPECIFIED;
-	Type Current = Type::UNSPECIFIED;
-    int start = 0;
-	int i = 0;
-    for (; i < int(Lines.size()); i++)
+    while (position.GetAbsolute() < text.size())
     {
-        Current = GetType(Lines.at(i));
-        if (Base == Type::UNSPECIFIED)
-        {
-            Base = Current;
-			start = i;
-        }
+        char c = text[position.GetAbsolute()];
 
-        if (Base == Type::CONTENT && Current == Type::CONTENT)
+        if (c != ' ')
         {
-            i = getWord(Lines, i, '(', ')');
-            Word* w = new Word("");
-            w->WORD = Lines.substr(start, (size_t)i - start);
-            w->Flags = translateIdentity(Base, w->WORD, w);
-            output.push_back(w);
-            Base = Type::UNSPECIFIED;
-            i--;
+            break;
         }
-        else if (Base == Type::STRING && Current == Type::STRING)
+        else
         {
-            i = getString(Lines, i);
-            Word* w = new Word("");
-            w->WORD = Lines.substr(start, (size_t)i - start);
-            w->Flags = translateIdentity(Base, w->WORD, w);
-            output.push_back(w);
-            Base = Type::UNSPECIFIED;
-            i--;
-        }
-        
-        if (!IsPartOf(Base, Current, Lines.at(i)) && Base != Type::UNSPECIFIED)
-        {
-            Word *w = new Word("");
-            w->WORD = Lines.substr(start, (size_t)i-start);
-            w->Flags = translateIdentity(Base, w->WORD, w);
-            output.push_back(w);
-            Base = Type::UNSPECIFIED;
-            i--;
+            position.NextCharacter();
         }
     }
-    if (Base != Type::UNSPECIFIED)
+
+    return position;
+}
+
+Position SkipParenthesis(const string &text, const Position &start)
+{
+    Position position = start.Clone();
+
+    char opening = text[position.GetAbsolute()];
+    char closing = GetParenthesisClosing(opening);
+
+    int count = 0;
+
+    while (position.GetAbsolute() < text.size())
     {
-        Word* w = new Word("");
-        w->WORD = Lines.substr(start, (size_t)i - start);
-        w->Flags = translateIdentity(Base, w->WORD, w);
-        output.push_back(w);
+        char c = text[position.GetAbsolute()];
+
+        if (c == LineEnding)
+        {
+            position.NextLine();
+        }
+        else
+        {
+            if (c == opening)
+            {
+                count++;
+            }
+            else if (c == closing)
+            {
+                count--;
+            }
+
+            position.NextCharacter();
+        }
+
+        if (count == 0)
+        {
+            return position;
+        }
     }
+
+    throw runtime_error(GetError(start, "Couldn't find closing parenthesis").c_str());
 }
 
-string ReplaceString(string subject, const string& search, const string& replace)
+Position SkipComment(const string &text, const Position &start)
 {
-	int pos = 0;
-	while ((pos = (int)subject.find(search, pos)) != string::npos)
-	{
-		subject.replace(pos, search.length(), replace);
-		pos += (int)replace.length();
-	}
-	return subject;
-}
+    int i = text.find(LineEnding, start.GetAbsolute());
 
-string Working_Dir = "";
-
-void Lexer::OpenFile(const char* FileName)
-{
-    string Name = Update_Dir(FileName);
-    ifstream file(Working_Dir + Name);
-    if (file.is_open() != true)
+    if (i != -1)
     {
-		cout << "Error: File not found: " << Working_Dir + Name << '\n';
-        exit(1);
+        int length = i - start.GetAbsolute();
+        return Position(start.GetLine(), start.GetCharacter() + length, i).NextLine();
     }
     else
     {
-        string Line;
-        while (getline(file, Line))
+        int length = text.size() - start.GetAbsolute();
+        return Position(start.GetLine(), start.GetCharacter() + length, text.size());
+    }
+}
+
+Position SkipString(const string &text, const Position &start)
+{
+    int i = text.find(Lexer::StringIdentifier, start.GetAbsolute() + 1);
+    int j = text.find(LineEnding, start.GetAbsolute() + 1);
+
+    if (i == -1 || j != -1 && j < i)
+    {
+        throw runtime_error(GetError(start, "Couldn't find the end of the string").c_str());
+    }
+
+    int length = i - start.GetAbsolute();
+
+    return Position(start.GetLine(), start.GetCharacter() + length, i + 1);
+}
+
+optional<Area> GetNextComponent(const string &text, Position start)
+{
+    // Firsly the spaces must be skipped to find the next token
+    Position position = SkipSpaces(text, start);
+
+    // Verify there's text to iterate
+    if (position.GetAbsolute() == text.size())
+    {
+        return nullopt;
+    }
+
+    Area area;
+    area.Start = position.Clone();
+    area.Type = GetType(text[position.GetAbsolute()]);
+
+    switch (area.Type)
+    {
+
+    case Type::COMMENT:
+    {
+        area.End = SkipComment(text, area.Start);
+        area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+        return area;
+    }
+
+    case Type::PARENTHESIS:
+    {
+        area.End = SkipParenthesis(text, area.Start);
+        area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+        return area;
+    }
+
+    case Type::END:
+    {
+        area.End = position.Clone().NextLine();
+        area.Text = "\n";
+        return area;
+    }
+
+    case Type::STRING:
+    {
+        area.End = SkipString(text, area.Start);
+        area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+        return area;
+    }
+
+    default:
+        break;
+    }
+
+    // Possible types are now: TEXT, NUMBER, OPERATOR
+    while (position.GetAbsolute() < text.size())
+    {
+        char current_symbol = text[position.GetAbsolute()];
+
+        if (IsParenthesis(current_symbol))
         {
-			if ((Line.size() > 0) && (Line.at(0) == '#'))
-			{
-				continue;
-			}
-            Remove_Comment(Line);
-            Lines += Line + "\n";
-            //Lines = Line; 
-            //Lines = ReplaceString(Lines, "\t", " "); 
-            //Lines = ReplaceString(Lines, "\n", "");
-            //Define();
-            //LineNumber++;
+            // There cannot be number and content tokens side by side
+            if (area.Type == Type::NUMBER)
+            {
+                throw runtime_error(GetError(position, "Missing operator between number and parenthesis").c_str());
+            }
+
+            break;
+        }
+
+        Type type = GetType(current_symbol);
+        char previous_symbol = position.GetAbsolute() == 0 ? (char)0 : text[position.GetAbsolute() - 1];
+
+        if (!IsPartOf(area.Type, type, previous_symbol, current_symbol))
+        {
+            break;
+        }
+
+        position.NextCharacter();
+    }
+
+    area.End = position;
+    area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+
+    return area;
+}
+
+Component ParseTextComponent(string text)
+{
+    if (Exists(Lexer::Operators, text))
+    {
+        return Component(text, OPERATOR_COMPONENT);
+    }
+    else if (Exists(Lexer::Keywords, text))
+    {
+        return Component(text, KEYWORD_COMPONENT);
+    }
+    else
+    {
+        return Component(text, TEXT_COMPONENT);
+    }
+}
+
+optional<int> TryParseInt(string text)
+{
+    try
+    {
+        return stoi(text);
+    }
+    catch (...)
+    {
+        return nullopt;
+    }
+}
+
+optional<int64_t> TryParseLong(string text)
+{
+    try
+    {
+        return stoll(text);
+    }
+    catch (...)
+    {
+        return nullopt;
+    }
+}
+
+optional<double> TryParseDouble(string text)
+{
+    try
+    {
+        return stod(text);
+    }
+    catch (...)
+    {
+        return nullopt;
+    }
+}
+
+string GetNumberPart(string text)
+{
+    int end = 0;
+
+    for (; end < text.size() && (IsDigit(text[end]) || text[end] == Lexer::DecimalSeparator); end++);
+
+    return text.substr(0, end);
+}
+
+int GetExponent(const string& text)
+{
+    int exponent_start = text.find(Lexer::ExponentSeparator);
+
+    if (exponent_start == -1)
+    {
+        return 0;
+    }
+    else
+    {
+        exponent_start++;
+
+        int index = exponent_start;
+
+        // Ensure that there's the exponent value
+        if (index == text.size())
+        {
+            stringstream message;
+            message << "Invalid number exponent '" << text << "'";
+
+            throw runtime_error(message.str().c_str());
+        }
+
+        // Skip the potential exponent sign
+        if (text[index + 1] == '+' || text[index + 1] == '-')
+        {
+            index++;
+
+            // Ensure that there's the exponent value
+            if (index == text.size())
+            {
+                stringstream message;
+                message << "Invalid number exponent '" << text << "'";
+
+                throw runtime_error(message.str().c_str());
+            }
+        }
+
+        int exponent_end = index;
+
+        // Get the exponent value's end index
+        for (; exponent_end < text.size() && IsDigit(text[exponent_end]); exponent_end++);
+
+        if (auto exponent = TryParseInt(text.substr(exponent_start, exponent_end)))
+        {
+            return exponent.value();
+        }
+        else
+        {
+            stringstream message;
+            message << "Invalid number exponent '" << text << "'";
+
+            throw runtime_error(message.str().c_str());
         }
     }
-	Lines = ReplaceString(Lines, "\t", " ");
-    Define();
 }
 
-void Lexer::Direct(string raw)
+bool IsDecimal(string text)
 {
-    Lines = raw;
-    Define();
+    return text.find(Lexer::DecimalSeparator) != -1;
 }
 
-void Lexer::Remove_Comment(string& line)
+Component CreateNumberComponent(string text, const Position& position)
 {
-    int start = (int)line.find("#");
+    int exponent = GetExponent(text);
+    string number_part = GetNumberPart(text);
 
-    if (start == -1)
+    if (IsDecimal(text))
     {
-        return;
-        //throw std::runtime_error("Error: Couldn't find the start of a comment");
+        if (auto number = TryParseDouble(number_part))
+        {
+            double value = number.value() * pow(10.0, exponent);
+
+            return Component(to_string(value), NUMBER_COMPONENT);
+        }
+        else
+        {
+            stringstream message;
+            message << "Invalid decimal number '" << text << "'";
+
+            throw runtime_error(GetError(position, message.str().c_str()).c_str());
+        }
+    }
+    else
+    {
+        if (auto number = TryParseLong(number_part))
+        {
+            int64_t value = number.value() * (int64_t)pow(10.0, exponent);
+
+            return Component(to_string(value), NUMBER_COMPONENT);
+        }
+        else
+        {
+            stringstream message;
+            message << "Invalid integer number '" << text << "'";
+
+            throw runtime_error(GetError(position, message.str().c_str()).c_str());
+        }
+    }
+}
+
+Component CreateParenthesisComponent(string text, const Position& position)
+{
+    Component component(text, PAREHTHESIS_COMPONENT);
+    component.Components = Lexer::GetComponents(text.substr(1, text.size() - 2));
+
+    return component;
+}
+
+Component ParseComponent(const Area& area, Position& anchor)
+{
+    switch (area.Type)
+    {
+    case Type::TEXT:
+        return ParseTextComponent(area.Text);
+    case Type::NUMBER:
+        return CreateNumberComponent(area.Text, area.Start);
+    case Type::OPERATOR:
+        return Component(area.Text, OPERATOR_COMPONENT);
+    case Type::PARENTHESIS:
+        return CreateParenthesisComponent(area.Text, anchor += area.Start);
+    case Type::END:
+        return Component("\n", END_COMPONENT);
+    case Type::STRING:
+        return Component(area.Text, STRING_COMPONENT);
+
+    default:
+    {
+        anchor += area.Start;
+
+        stringstream message;
+        message << "Unrecognized token '" << area.Text << "'";
+
+        throw runtime_error(GetError(anchor += area.Start, message.str().c_str()).c_str());
     }
 
-    int length = (int)line.size() - start;
-
-    line = line.erase(start, length);
+    }
 }
 
-string Lexer::Update_Dir(string File_Name)
+vector<Component> GetComponents(string text, Position anchor)
 {
-    int i = (int)File_Name.find_last_of('/');
-    if (i != -1)
+    vector<Component> components;
+    Position position;
+
+    while (position.GetAbsolute() < text.size())
     {
-        Working_Dir += File_Name.substr(0, (size_t)i + 1);
-        return File_Name.substr((size_t)i + 1);
+        optional<Area> area = GetNextComponent(text, position);
+
+        if (!area)
+        {
+            break;
+        }
+
+        if (area->Type != Type::COMMENT)
+        {
+            Component component = ParseComponent(area.value(), anchor);
+            component.Location = (anchor += area->Start);
+            components.push_back(component);
+        }
+
+        position = area->End;
     }
-    return File_Name;
+
+    return components;
+}
+
+vector<Component> Lexer::GetComponents(string text)
+{
+    return GetComponents(text, Position());
+}
+
+vector<Component> Lexer::GetComponentsFromFile(string file)
+{
+    if (Lexer::SingleLineCommentIdentifier == 0 || Lexer::StringIdentifier == 0 || Lexer::DecimalSeparator == 0 || Lexer::ExponentSeparator == 0)
+    {
+        throw runtime_error("Please configure all the identifiers and separators needed by the lexer");
+    }
+
+    ifstream stream(file);
+
+    if (!stream.is_open())
+    {
+        stringstream message;
+        message << "Couldn't find or open file '" << file << "'";
+
+        throw runtime_error(message.str().c_str());
+    }
+
+    string text;
+    string line;
+
+    while (getline(stream, line))
+    {
+        replace(line.begin(), line.end(), '\t', ' ');
+        text += line + LineEnding;
+    }
+
+    stream.close();
+
+    return GetComponents(text);
 }

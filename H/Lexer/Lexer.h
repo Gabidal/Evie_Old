@@ -1,33 +1,20 @@
 #ifndef _LEXER_H_
 #define _LEXER_H_
-#include <vector>
-#include <string>
-#include "Word.h"
-#include <fstream>
-#include <iostream>
-#include <algorithm>
-using namespace std;
 
-class Lexer
+#include "Component.h"
+
+namespace Lexer
 {
-public:
-    string Lines;
-    int LineNumber = 0;
-    vector<Word*> output;
-    bool INSIDE_OF_TYPE = false;
-    bool INSIDE_OF_FUNC = false;
+    extern char SingleLineCommentIdentifier;
+    extern char StringIdentifier;
+    extern char DecimalSeparator;
+    extern char ExponentSeparator;
 
-    Lexer(){}
-    ~Lexer(){}
+    extern vector<string> Operators;
+    extern vector<string> Keywords;
 
-    void Define();
-
-    void OpenFile(const char* fileName);
-    void Direct(string raw);
-    void Remove_Comment(string& in);
-    string Update_Dir(string File_Name);
-    
-};
-
+    extern vector<Component> GetComponentsFromFile(string file);
+    extern vector<Component> GetComponents(string text);
+}
 
 #endif

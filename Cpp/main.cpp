@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iostream>
 #include <map>
+#include <fstream>
 using namespace std;
 int SYNTAX = 0;
 
@@ -189,6 +190,12 @@ int main(int argc, char* argv[])
 {
     if (argc == 1)
         return -1 ;
+    Lexer::DecimalSeparator = '.';
+    Lexer::ExponentSeparator = 'e';
+    Lexer::SingleLineCommentIdentifier = '#';
+    Lexer::StringIdentifier = '\"';
+    Lexer::Keywords = { "while", "type", "func", "use", "if", "export" };
+    Lexer::Operators = { "+", "-", "*", "/", "@", "$", "%", "==", "!=", "<", ">", "!<", "!>", "<=", ">=", "=", ":", "::", "&=", "|=", "<<", ">>", "&", "?", "!&", "|", "!|" };
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);
@@ -198,14 +205,14 @@ int main(int argc, char* argv[])
     Root->Set("sys", sys);
     FT = new FlagTable();
 
-    Lexer l;
-    l.OpenFile(sys->Info.Source_File.c_str());
+    
     string start_file = sys->Info.Source_File.c_str();
     Included_Files.push_back(start_file);
 
     Parser p;
-    p.Input = l.output;
-    p.Working_Dir = start_file;
+    p.Update_Dir(sys->Info.Source_File.c_str());
+    p.Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
+    //p.Working_Dir = start_file;
     Init_Pre_Defined_Tokens();
     p.Factory();
 
