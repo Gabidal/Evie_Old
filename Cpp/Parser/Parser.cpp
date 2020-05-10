@@ -51,18 +51,27 @@ void Parser::Include_Files(int i)
 
 void Parser::Connect_Array(int i)
 {
-	if (Input.at(i).is(OPERATOR_COMPONENT) != true)
+	if (Input.at(i).Value == ":" || Input.at(i).Value == "::" || (Input.at(i).is(PAREHTHESIS_COMPONENT) && Input.at(i).Value.at(0) == '[' && i-1 > 0))
+	{
+	}
+	else
 		return;
-	if (Input.at(i).Value != ":" && Input.at(i).Value != "::")
-		return;
-	//b = a:0
-	Input.at((size_t)i - 1).Offsetter = new Component(Input.at((size_t)i + 1));
-	if (Input.at(i).Value == "::")
+	//get the offsetter getting position
+	int Offsetter = 0;
+	if (Input.at(i).is(PAREHTHESIS_COMPONENT))
+		Offsetter = i;		//<[0]>
+	else
+		Offsetter = i + 1; //<::> <0>
+	//b = a:b
+	Input.at((size_t)i - 1).Offsetter = new Component(Input.at((size_t)Offsetter));
+	if (Input.at(i).Value == "::" || (Input.at(i).is(PAREHTHESIS_COMPONENT) && Input.at(i).Value.at(0) == '['))
 	{
 		Input.at((size_t)i-1).IsPointter = true;
 	}
-	Input.erase(Input.begin() + i + 1);
+	if (!Input.at(i).is(PAREHTHESIS_COMPONENT))
+		Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i);
+	return;
 }
 
 void Parser::Connect_Address(int i)

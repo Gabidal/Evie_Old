@@ -3,9 +3,9 @@ use "boost.e"
 
 func memcpy(int dest, int source, int Size){
     cache int i = 0;
-    while (i < Size)[
-        dest::i = source::i;
+    while (i < Size){
+        dest[i] = source[i];
         i = i + 1;
-    ]
+    }
     return 0;
 }

@@ -167,6 +167,10 @@ Beta 2.1.104 fixed:
 - ###### Added line number into token info at Safe, so now you can find your problems in life :P
 
 
+Beta 2.1.105 added:
+
+- ###### Added C like array pointting:"int a[0] = 123".
+
 ## Manual
 
 ### Type
