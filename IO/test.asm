@@ -17,7 +17,17 @@ add edx , dword 1
 mov ebx , edx 
 jmp _while37
 _while37END: 
+_if38: 
+mov ecx, ebx 
+cmp ecx , dword 0
+jnl _if38END
+mov al, byte 1
+leave 
+ret
+ 
+_if38END: 
 xor al, al
 leave 
 ret
  
+_memcpyEND: 

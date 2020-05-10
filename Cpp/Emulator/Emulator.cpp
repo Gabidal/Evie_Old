@@ -171,11 +171,6 @@ void Emulator::Label_Recorder(int i)
 			S->Context.pop_back();
 		}
 	}
-	else if (Input.at(i)->ID == "return")
-	{
-		Branching_Label.pop_back();
-		S->Context.pop_back();
-	}
 }
 
 void Emulator::Register_Chooser(Token* t, int i)

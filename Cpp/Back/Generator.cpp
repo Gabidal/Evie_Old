@@ -93,6 +93,12 @@ void Generator::Detect_Function(Token* t)
 		g.Factory();
 		//get the output as the new IR's childs.
 		Append(&ir->Childs, g.Output);
+		//make the ending label
+		IR* end = new IR;
+		end->ID = "label";
+		end->PreFix = t->Name + "END";
+		end->add(_End_Of_Label);
+		ir->Childs.push_back(end);
 		Output.push_back(ir);
 	}
 	else if (t->is(_Call_))
@@ -355,8 +361,8 @@ void Generator::Detect_Operator(Token* t)
 
 	Dodge(L, R);
 
-	Token* Left_Token = nullptr;
-	Token* Right_Token = nullptr;
+	Token* Left_Token = new Token;
+	Token* Right_Token = new Token;
 	bool Normal_Left = false;
 	bool Normal_Right = false;
 	//check if this is a storing opcode:
@@ -722,7 +728,7 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 void Generator::Detect_Prefixes(Token* t)
 {
 	for (string s: t->Types) {
-		if (s == "hidden")
+		if (s == "hidden" || t->State == "hidden")
 			return;
 		if (s == "type" || s == "func" || s == "loyal")
 			continue;

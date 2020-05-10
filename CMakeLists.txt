@@ -35,5 +35,6 @@ add_executable(${PROJECT_NAME}
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Debug)
+target_compile_options(${PROJECT_NAME} PRIVATE)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)

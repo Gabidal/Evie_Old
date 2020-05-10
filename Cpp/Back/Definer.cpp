@@ -28,7 +28,7 @@ int Definer::Get_Location_Of_Type_Constructor(string type)
 	return -1;
 }
 
-int Definer::Get_Definition_Setting(Token* t, string f)
+string Definer::Get_Definition_Setting(Token* t, string f)
 {
 	for (Token* i : t->Right_Side_Token->Childs)
 	{
@@ -36,10 +36,10 @@ int Definer::Get_Definition_Setting(Token* t, string f)
 		//loop and find if that type constructor has correlating settings and set em.
 		if (i->is(f))
 		{
-			return atoi(i->Right_Side_Token->Name.c_str());
+			return i->Right_Side_Token->Name.c_str();
 		}
 	}
-	return 0;
+	return "";
 }
 
 void Definer::Get_Modded_Content(string dest, string source)
@@ -57,8 +57,8 @@ void Definer::Type_Collect(Token* t)
 {
 	if (t->Types.size() < 1)
 		return;
-	for (string s : t->Types)
-		t->Size += FIND(s)->Size;
+	//for (string s : t->Types)
+	//	t->Size += FIND(s)->Size;
 	for (string s : t->Types)
 		t->State += FIND(s)->State;
 	//cout << "Warning: You are using an inheritance type(s) --> " << Get_All(t->Types, ", ") << "| On --> " << t->Name << endl;
@@ -71,13 +71,13 @@ Token* Definer::FIND(string name)
 		Token* t = new Token;
 		return t;
 	}
+	for (Token* t : Output)
+		if (t->Name == name)
+			return t;
 	for (Token* t: Defined_Types)
 		if (t->Name == name)
 			return t;
 	for (Token* t: Generated_Undefined_Tokens)
-		if (t->Name == name)
-			return t;
-	for (Token* t: Output)
 		if (t->Name == name)
 			return t;
 	cout << "Warning: Uninitialized pre type: " + name + "." << endl;
@@ -148,13 +148,14 @@ void Definer::Factory()
 		New_Defined_Class->Name = s->Name;
 		New_Defined_Class->Types = s->Types;
 		New_Defined_Class->_Dynamic_Size_ = s->_Dynamic_Size_;
+		New_Defined_Class->Size = s->Size;
 		if (Has(s, "return"))
 		{
 			New_Defined_Class->add(_Returning_);
 		}
 		Output.push_back(New_Defined_Class);
 	}
-	for (Token* i : Generated_Undefined_Tokens)
+	for (Token* i : Input_Of_Tokens)
 	{
 		//ADVANCED
 		Type_Collect(i);

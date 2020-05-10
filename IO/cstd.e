@@ -25,3 +25,7 @@ type double()(
 )
 
 export func main,
+
+type void(){
+	state hidden
+}
