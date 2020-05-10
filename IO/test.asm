@@ -21,12 +21,12 @@ _if38:
 mov ecx, ebx 
 cmp ecx , dword 0
 jnl _if38END
-mov al, byte 1
+xor al, al
 leave 
 ret
  
 _if38END: 
-xor al, al
+mov eax, ebx 
 leave 
 ret
  

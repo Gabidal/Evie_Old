@@ -783,21 +783,24 @@ void Parser::Check_For_Correlation(int i)
 		{
 			Token* New_Pre_Defined_Token = new Token();
 			New_Pre_Defined_Token->Types.push_back(s);
+			//return 0;
+			//return;
+			if (Input.at(i).Components.size() > 0) {
+				Parser P = *this;
+				P.Defined_Keywords = Defined_Keywords;
+				P.Output.clear();
+				P.Input.clear();
+				P.Input = Input.at(i).Components;
+				P.Factory();
 
-			Parser P = *this;
-			P.Defined_Keywords = Defined_Keywords;
-			P.Output.clear();
-			P.Input.clear();
-			P.Input = Input.at(i).Components;
-			P.Factory();
-
-			if (P.Output.size() > 0)
-				New_Pre_Defined_Token->Right_Side_Token = P.Output.at(0);
-			else
-			{
-				Token* Empty_And_Potentially_Useless = new Token;
-				Empty_And_Potentially_Useless->Name = Input.at(i).Components.at(0).Value;
-				New_Pre_Defined_Token->Right_Side_Token = Empty_And_Potentially_Useless;
+				if (P.Output.size() > 0)
+					New_Pre_Defined_Token->Right_Side_Token = P.Output.at(0);
+				else
+				{
+					Token* Empty_And_Potentially_Useless = new Token;
+					Empty_And_Potentially_Useless->Name = Input.at(i).Components.at(0).Value;
+					New_Pre_Defined_Token->Right_Side_Token = Empty_And_Potentially_Useless;
+				}
 			}
 			Output.push_back(New_Pre_Defined_Token);
 			return;
@@ -811,6 +814,11 @@ void Parser::Check_For_Correlation_Link(int i)
 	for (string s : Pre_Defined_Tokens)
 		if (Input.at(i).Value == s)
 		{
+			//return;
+			if (i + 1 >= (int)Input.size())
+				return;
+			if (Input.at((size_t)i + 1).Value == ";" || Input.at((size_t)i + 1).Value == "\n")
+				return;
 			Input.at(i).Components.push_back(Input.at((size_t)i + 1));
 			Input.erase(Input.begin() + i + 1);
 			return;

@@ -41,27 +41,30 @@ void Emulator::Long_Operation_Allocator(int &i)
 	}
 	else if (Input.at(i)->ID == "return" && (Input.at(i)->is(_Allocated_) != true))
 	{
-		//make the returning
-		Token* Reg = new Token;
-		Reg->add(_Register_);
-		Reg->add(Task_For_Returning);
-		Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name + "_returning_register";
-		Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
-
-		IR* mov_to_return_Reg = new IR;
-		mov_to_return_Reg->ID = "ldr";
-		mov_to_return_Reg->Parameters.push_back(Reg);
-		mov_to_return_Reg->Parameters.push_back(Get_Info(Input.at(i)->Parameters.at(0)));
-		Input.at(i)->Parameters.clear();
+		int DOUBLETASKPOSITION = i;
 		Input.at(i)->add(_Allocated_);
-		Input.insert(Input.begin() + i, mov_to_return_Reg);
+		if (Input.at(i)->Parameters.size() > 0) {
+			//make the returning
+			Token* Reg = new Token;
+			Reg->add(_Register_);
+			Reg->add(Task_For_Returning);
+			Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name + "_returning_register";
+			Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
 
+			IR* mov_to_return_Reg = new IR;
+			mov_to_return_Reg->ID = "ldr";
+			mov_to_return_Reg->Parameters.push_back(Reg);
+			mov_to_return_Reg->Parameters.push_back(Get_Info(Input.at(i)->Parameters.at(0)));
+			Input.at(i)->Parameters.clear();
+			Input.insert(Input.begin() + i, mov_to_return_Reg);
+			DOUBLETASKPOSITION++;
+		}
 		//make the leave
-		if (Input.at(i + 1)->is(_Double_Task_))
+		if (Input.at(DOUBLETASKPOSITION)->is(_Double_Task_))
 		{
 			IR* Leave = new IR;
 			Leave->ID = "leave";
-			Input.insert(Input.begin() + i + 1, Leave);
+			Input.insert(Input.begin() + DOUBLETASKPOSITION, Leave);
 		}
 	}
 	else if (Input.at(i)->PreFix == "export")

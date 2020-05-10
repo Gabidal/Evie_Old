@@ -706,16 +706,18 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 			IR *ir = new IR;
 			ir->ID = T;
 			Generator g;
-			g.Input.push_back(t->Right_Side_Token);
-			g.Factory();
-			Append(&Output, g.Output);
-			if (g.Handle != nullptr)
-			{
-				ir->Parameters.push_back(g.Handle);
-			}
-			else
-			{
-				ir->Parameters.push_back(t->Right_Side_Token);
+			if (t->Right_Side_Token != nullptr) {
+				g.Input.push_back(t->Right_Side_Token);
+				g.Factory();
+				Append(&Output, g.Output);
+				if (g.Handle != nullptr)
+				{
+					ir->Parameters.push_back(g.Handle);
+				}
+				else
+				{
+					ir->Parameters.push_back(t->Right_Side_Token);
+				}
 			}
 			if (Double_Tasking)
 				ir->add(_Double_Task_);
