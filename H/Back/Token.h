@@ -61,6 +61,7 @@ class Token : public Object
     int ParameterCount = 0;
     int ID = 0;
     int Line_Number = LINE_NUMBER;
+    int Callation_Count = 0;
     bool Semanticked = false;
     bool _Dynamic_Size_ = false;
     Token* Left_Side_Token = nullptr;

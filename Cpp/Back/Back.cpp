@@ -59,7 +59,7 @@ string Back::Get_Address(Token* t){
 }
 
 string Back::Get_Call(Token* t){
-	if (t->is("func"))
+	if (t->is("func") || t->State == "func")
 	{
 		return Get_Handler(t);
 	}
@@ -108,7 +108,7 @@ string Back::Get_Info_Of(Token* t)
 	else
 		return S->Get_ID(to_string(t->Size), "", {t->Size}) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 		Get_Direction(t) + to_string(t->StackOffset) + "]";
-	cout << "Error: Cannot find info for >> " + t->Name + ", " + t->UID << endl;
+	cout << "Error: Cannot find info for " << t->Name << ". Used at line" << t->Line_Number << endl;
 	return "";
 }
 

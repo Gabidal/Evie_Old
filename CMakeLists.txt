@@ -25,10 +25,8 @@ add_executable(${PROJECT_NAME}
                 ${ui} 
                 ${back} 
                 ${lexer} 
-                ${linux} 
                 ${parser} 
                 ${emulator} 
-                ${windows} 
                 ${x86} 
                 ${arm})
  

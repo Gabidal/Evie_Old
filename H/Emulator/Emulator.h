@@ -31,7 +31,6 @@ public:
 	void Skip_Chained_Registers(Token* reg);
 	void Link_Cache_User(Token* t);
 	void Optimized_Register_Linking_Between_Different_Parameters(Token* o);
-	void Save_Variable(Token* t, int i);
 	void Register_Chooser(Token* t, int i);
 	void Register_Loader(Token& t, int i);
 	void Disconnect_Register(vector<Token*> t);

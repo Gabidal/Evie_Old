@@ -178,7 +178,7 @@ string Producer::Get_Entry()
     }
     else if (OS == "unix")
     {
-        return "";
+        return "-e main";
     }
     return "";
 }

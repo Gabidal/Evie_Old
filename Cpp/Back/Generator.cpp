@@ -11,6 +11,7 @@ void Generator::Factory()
 	for (int i = 0; i < (int)Input.size(); i++)
 	{
 		//Detect_Prefixes(Input.at(i));
+		Hide_Un_Used_Function(i);
 		Detect_Pointters(Input.at(i));
 		Detect_Arrays(Input.at(i));
 		Detect_Address_Pointing(Input.at(i));
@@ -747,4 +748,25 @@ void Generator::Append(vector<IR*> *Dest, vector<IR*> Source)
 	{
 		Dest->push_back(i);
 	}
+}
+
+void Generator::Hide_Un_Used_Function(int i)
+{
+	//the update of callation_count is made in parser.cpp
+	//find the f from types list where the updattors updates the count of function callation
+	//if the callation amount is 0 then delete this function, exept for EXPORT typed ones.
+	Token* f = Input.at(i);
+	if (!f->is(_Constructor_))
+		return;
+	if (f->is("export") || f->is("type"))
+		return;
+	int count = 0;
+	for (Token* t: Types)
+		if (f->Name == t->Name) {
+			count = t->Callation_Count;
+			break;
+		}
+	if (count == 0)
+		Input.erase(Input.begin() + i);
+	return;
 }

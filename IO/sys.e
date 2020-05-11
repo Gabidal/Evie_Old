@@ -10,6 +10,7 @@ hidden system export
 hidden system import
 hidden system loyal
 hidden system cache
+hidden system string
 
 system Source_File
 system Destination_File

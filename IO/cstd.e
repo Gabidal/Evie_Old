@@ -26,6 +26,11 @@ type double()(
 
 export func main,
 
-type void(){
-	state hidden
+func memcpy(int dest, int source, int Size){
+    cache int i = 0;
+    while (i < Size){
+        dest[i] = source[i];
+        i = i + 1;
+    }
+    return;
 }

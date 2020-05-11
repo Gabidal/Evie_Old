@@ -48,6 +48,7 @@ public:
     void Update_Line_Number(Component& t);
     //the Token.h constructor get the global line_number
     string Update_Dir(string File_Name);
+    void Parser::Update_Used_Functions_Value(Token* call);
     Parser &operator=(const Parser& other)
     {
         //Working_Dir = other.Working_Dir;

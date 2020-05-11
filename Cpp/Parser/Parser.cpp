@@ -567,6 +567,8 @@ void Parser::Type_Definition(int i)
 					New_Defined_Text->add(_Combined_);
 					break;
 				}
+		//update the callation amount of repsesentive funcion
+		Update_Used_Functions_Value(New_Defined_Text);
 		//get the predefined types/prefixtypes.
 		if (New_Defined_Text->Types.size() > 0)
 		{
@@ -894,4 +896,16 @@ void Parser::Update_Line_Number(Component& t)
 		LINE_NUMBER++;
 		t.IsInitialized = true;
 	}
+}
+
+void Parser::Update_Used_Functions_Value(Token* call)
+{
+	if (!call->is(_Call_))
+		return;
+	//this function seraches the types list to find the representative
+	for (Token* t : Defined_Keywords)
+		if (call->Name == t->Name) {
+			t->Callation_Count++;
+			return;
+		}
 }

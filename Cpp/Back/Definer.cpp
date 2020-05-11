@@ -143,12 +143,9 @@ void Definer::Factory()
 		{
 			continue;
 		}
+		*New_Defined_Class = *s;
 		New_Defined_Class->State = Get_Definition_Setting(Input_Of_Tokens.at(i), "state");
 		Get_Modded_Content(s->Name, Get_All(s->Types, ""));
-		New_Defined_Class->Name = s->Name;
-		New_Defined_Class->Types = s->Types;
-		New_Defined_Class->_Dynamic_Size_ = s->_Dynamic_Size_;
-		New_Defined_Class->Size = s->Size;
 		if (Has(s, "return"))
 		{
 			New_Defined_Class->add(_Returning_);

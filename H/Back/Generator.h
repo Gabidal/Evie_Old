@@ -30,6 +30,8 @@ public:
 	void Dodge(Token* l, Token* r);
 	void Initialize_Global_Variable(int i);
 	void Append(vector<IR*> *Dest, vector<IR*> Source);
+	void Hide_Un_Used_Function(int i);
+	//void Update_Used_Functions_Value(Token* call);
 	Generator()
 	{
 	}

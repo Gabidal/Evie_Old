@@ -2,11 +2,11 @@ _memcpy:
 push ebp 
 mov ebp , esp 
 xor ebx , ebx 
-  _while37: 
+  _while4: 
   mov ecx, dword [ebp + 16]
   mov edx, ebx 
   cmp edx , ecx 
-  jnl _while37END
+  jnl _while4END
   mov ecx, dword [ebp + 12]
   mov esi, dword [ecx  + ebx  * 4]
   mov ecx, dword [ebp + 8]
@@ -15,19 +15,15 @@ xor ebx , ebx
   mov edx , ebx 
   add edx , dword 1
   mov ebx , edx 
-  jmp _while37
-_while37END: 
-  _if38: 
-  mov ecx, ebx 
-  cmp ecx , dword 0
-  jnl _if38END
-  xor eax, eax
-  leave 
-  ret
- 
-_if38END: 
-mov eax, ebx 
+  jmp _while4
+_while4END: 
 leave 
 ret
  
 _memcpyEND: 
+export main
+global main
+main: 
+  _main: 
+  call _memcpy
+_mainEND: 

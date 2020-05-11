@@ -73,7 +73,7 @@ string Selector::Get_ID(string id, string trust, vector<int> minmax)
 		return id;
 	if ((trust != "label") && (trust != "<") && (trust != ">") && (trust != "!<") && (trust != "!>") && (trust != "==") && (trust != "!=") && (trust != "<=") && (trust != ">=") && (trust != "jmp"))
 	{
-		cout << "Warning: This is here because your'e using a illegal opcode: " << id << " ";
+		cout << "Warning: Notice Undefined word " << id << " ";
 		for (int i : minmax)
 		{
 			cout << i << ", ";
