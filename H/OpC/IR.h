@@ -15,6 +15,7 @@ private:
 	int Flags = 0;
 public:
 	string Comment = "";
+	string Tabs = "";
 	//for single line:
 		int Reg_Flag = 0;
 		string PreFix = "";

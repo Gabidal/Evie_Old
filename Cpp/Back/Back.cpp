@@ -135,7 +135,8 @@ void Back::Make()
 	else
 		trustFactor = Input->PreFix;
 
-	Output += S->Get_ID(Input->PreFix, trustFactor, MinMax) + S->Get_ID(Input->ID, trustFactor, MinMax);
+	//make the opcode and add the syntax tab
+	Output += Input->Tabs + S->Get_ID(Input->PreFix, trustFactor, MinMax) + S->Get_ID(Input->ID, trustFactor, MinMax);
 	for (int i = 0; i < (int)Input->Parameters.size(); i++)
 	{
 		if (i > 0)

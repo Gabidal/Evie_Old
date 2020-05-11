@@ -98,8 +98,8 @@ void Generator::Detect_Function(Token* t)
 		end->ID = "label";
 		end->PreFix = t->Name + "END";
 		end->add(_End_Of_Label);
-		ir->Childs.push_back(end);
 		Output.push_back(ir);
+		Output.push_back(end);
 	}
 	else if (t->is(_Call_))
 	{
@@ -222,8 +222,8 @@ void Generator::Detect_Condition(Token* t)
 		Exit_Label->PreFix = t->Name + to_string(t->ID) + "END";
 		Exit_Label->ID = "label";
 		Exit_Label->add(_End_Of_Label);
-		Condition->Childs.push_back(Exit_Label);
 		Output.push_back(Condition);
+		Output.push_back(Exit_Label);
 	}
 }
 

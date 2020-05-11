@@ -6,7 +6,7 @@ extern Selector* S;
 extern map<string, Token*> Preprosessor_Tokens;
 extern Object* Root;
 extern int _SYSTEM_BIT_TYPE;
-
+string SYNTAX_TABS = "";
 
 Token* Emulator::Get_Info(Token* t)
 {
@@ -49,7 +49,9 @@ void Emulator::Long_Operation_Allocator(int &i)
 			Reg->add(_Register_);
 			Reg->add(Task_For_Returning);
 			Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name + "_returning_register";
-			Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
+			//Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
+			//for safety
+			Reg->Size = _SYSTEM_BIT_TYPE;
 
 			IR* mov_to_return_Reg = new IR;
 			mov_to_return_Reg->ID = "ldr";
@@ -173,6 +175,7 @@ void Emulator::Label_Recorder(int i)
 			Branching_Label.pop_back();
 			S->Context.pop_back();
 		}
+		Update_Syntax_Tabs();
 	}
 }
 
@@ -261,32 +264,11 @@ void Emulator::Use_Assembly(int i)
 {
 	if (Input.at(i)->is(_Skip_))
 		return;
-
+	Set_Syntax_Tabs(Input.at(i));
 	Back b(Output);
 	b.Input = Input.at(i);
 	b.Factory();
 	Output += NL;
-}
-
-void Emulator::Factory()
-{
-	for (int i = 0; i < (int)Input.size(); i++)
-		Long_Operation_Allocator(i);
-	for (int i = 0; i < (int)Input.size(); i++)
-		Load_UID(i);
-	for (int i = 0; i < (int)Input.size(); i++)
-	{
-		if (Input.at(i)->ID == "size" || Input.at(i)->ID == "state")
-		{
-			continue;
-		}
-		Label_Recorder(i);
-		Frame_Handler(i);
-		FPU_Choser(i);
-		Pattern_User(i);
-		Use_Assembly(i);
-		Child(i);
-	}
 }
 
 void Emulator::Pattern_User(int i)
@@ -407,4 +389,43 @@ void Emulator::Disconnect_Register(vector<Token*> t){
 	for (Token* i : t)
 		S->Disconnect_Register(i);
 	return;
+}
+
+void Emulator::Update_Syntax_Tabs()
+{
+	//first clear the syntax_tabs to start fresh.
+	SYNTAX_TABS = "";
+	if (Branching_Label.size() < 2)
+		return;
+	//then start gather them
+	for (string s : Branching_Label)
+		SYNTAX_TABS += " ";
+	return;
+}
+
+void Emulator::Set_Syntax_Tabs(IR* t)
+{
+	t->Tabs = SYNTAX_TABS;
+	return;
+}
+
+void Emulator::Factory()
+{
+	for (int i = 0; i < (int)Input.size(); i++)
+		Long_Operation_Allocator(i);
+	for (int i = 0; i < (int)Input.size(); i++)
+		Load_UID(i);
+	for (int i = 0; i < (int)Input.size(); i++)
+	{
+		if (Input.at(i)->ID == "size" || Input.at(i)->ID == "state")
+		{
+			continue;
+		}
+		Label_Recorder(i);
+		Frame_Handler(i);
+		FPU_Choser(i);
+		Pattern_User(i);
+		Use_Assembly(i);
+		Child(i);
+	}
 }

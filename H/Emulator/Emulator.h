@@ -35,6 +35,8 @@ public:
 	void Register_Chooser(Token* t, int i);
 	void Register_Loader(Token& t, int i);
 	void Disconnect_Register(vector<Token*> t);
+	void Update_Syntax_Tabs();
+	void Set_Syntax_Tabs(IR* t);
 	Emulator(string &in) : Output(in)
 	{
 	}
