@@ -5,6 +5,7 @@
 #include "../Lexer/Component.h"
 #include "../Back/Token.h"
 #include "../Lexer/Lexer.h"
+#include "../Docker/Docker.h"
 #include <algorithm>
 #include <iostream>
 using namespace std;

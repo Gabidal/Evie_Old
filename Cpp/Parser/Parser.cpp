@@ -39,10 +39,12 @@ void Parser::Include_Files(int i)
 			}
 		string Name = Update_Dir(filename);
 		//now include the file
-		vector<Component> tmp = Lexer::GetComponentsFromFile(Working_Dir + Name);
+		Docker D(filename, Working_Dir, "");
+
+		//vector<Component> tmp = Lexer::GetComponentsFromFile(Working_Dir + Name);
 		Input.erase(Input.begin() + i + 1);
 		Input.erase(Input.begin() + i);
-		Input.insert(Input.begin() + i, tmp.begin(), tmp.end());
+		Input.insert(Input.begin() + i, D.Output.begin(), D.Output.end());
 		Included_Files.push_back(filename);
 	}
 	if (Input.at(i).Value == "use")
