@@ -9,12 +9,11 @@ FILE(GLOB opc Cpp/OpC/*.cpp)
 FILE(GLOB ui Cpp/UI/*.cpp)
 FILE(GLOB back Cpp/Back/*.cpp)
 FILE(GLOB lexer Cpp/Lexer/*.cpp)
-FILE(GLOB linux Cpp/Linux/*.cpp)
 FILE(GLOB parser Cpp/Parser/*.cpp)
 FILE(GLOB emulator Cpp/Emulator/*.cpp)
-FILE(GLOB windows Cpp/Windows/*.cpp)
 FILE(GLOB x86 Cpp/Architecture/x86/*.cpp)
 FILE(GLOB arm Cpp/Architecture/ARM/*.cpp)
+FILE(GLOB Docker Cpp/Docker/*.cpp)
 
 # Add source files
 add_executable(${PROJECT_NAME} 
@@ -28,7 +27,9 @@ add_executable(${PROJECT_NAME}
                 ${parser} 
                 ${emulator} 
                 ${x86} 
-                ${arm})
+                ${arm}
+                ${Docker}
+)
  
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
