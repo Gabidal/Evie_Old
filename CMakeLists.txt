@@ -29,7 +29,7 @@ add_executable(${PROJECT_NAME}
                 ${x86} 
                 ${arm}
                 ${Docker}
-)
+                )
  
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
