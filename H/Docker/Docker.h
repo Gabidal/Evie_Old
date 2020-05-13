@@ -6,6 +6,7 @@
 #include <functional>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 #include <algorithm>
 #include "../Back/Token.h"
 //the analyzers
@@ -23,14 +24,22 @@ public:
 		Translators.push_back({ "MZ", bind(&Docker::DLL_Analyzer, this)});
 		Translators.push_back({ "!<arch>\62",  bind(&Docker::LIB_Analyzer, this) });
 		Translators.push_back({ "\127ELF",  bind(&Docker::ELF_Analyzer, this) });
-		Get_Analyzer();
+		Start_Analyzer();
 	}
 	~Docker(){}
 
 private:
-	vector<Token*> Types;
+	//vector<pair<Type, Regex string>>
+	vector<pair<string, string>> Types;
 	//open the file and look for the identifier of the file header
-	void Get_Analyzer();
+	void Start_Analyzer();
+	//returns the filename of the header file
+	vector<Component> Get_Header();
+	//parse the tokens from the header file
+	vector<Token*> Get_Parsed_Include_File(vector<Component> In);
+	//parse the Tokens into Type'n Regex style.
+	//and remove the binfile header rule syntax thingys!
+	void Separate_Identification_Patterns(vector<Token*> Tokens);
 
 	void TXT_Analyzer();
 	void DLL_Analyzer();

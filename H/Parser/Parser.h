@@ -58,6 +58,7 @@ public:
         Defined_Keywords = other.Defined_Keywords;
         return *this;
     }
+    Parser(){}
     ~Parser()
     {
     }
