@@ -34,7 +34,7 @@ vector<Component> Docker::Get_Header()
 	string Name_No_Extension = "";
 	int i = (int)FileName.find_last_of('.');
 	if (i != -1)
-		Name_No_Extension = FileName.substr((size_t)i + 1);
+		Name_No_Extension = FileName.substr(0, (size_t)i);;
 	vector<string> Files;
 	//collect all filenames in the working dir
 	for (auto& p : filesystem::directory_iterator(Working_Dir))
@@ -45,7 +45,7 @@ vector<Component> Docker::Get_Header()
 	}
 	//now iterate the files with Docker within the Priority type of txt.
 	for (string s : Files) {
-		Docker d(s, Working_Dir, "txt");
+		Docker d(s, Working_Dir, "txt", Defined_Types);
 		if (d.Output.size() > 0)
 			return d.Output;
 	}
@@ -58,6 +58,7 @@ vector<Token*> Docker::Get_Parsed_Include_File(vector<Component> In)
 {
 	Parser P;
 	P.Input = In;
+	P.Defined_Keywords = Defined_Types;
 	P.Factory();
 	if (!(P.Output.size() > 0))
 		cout << "Warning: Header File is empty!" << endl;
@@ -69,9 +70,71 @@ void Docker::Separate_Identification_Patterns(vector<Token*> Tokens)
 	//try to find operattor that contains rightsided 
 	//string for regexing and left side for type info
 	for (Token* i : Tokens) {
-		if (i->is(_Operator_) && i->Right_Side_Token->is(_String_) && (i->Left_Side_Token->is("func") || i->Left_Side_Token->is("loyal"))) {
-			Types.push_back({ i->Left_Side_Token->Types.at(0), i->Right_Side_Token->Name });
+		if (i->is(_Operator_) && i->Right_Side_Token->is(_String_) && (i->Left_Side_Token->is("generic") || i->Left_Side_Token->is("loyal"))) {
+			Types.push_back({ i->Left_Side_Token->Types.at(0), i->Right_Side_Token->Name.substr(1, i->Right_Side_Token->Name.size() - 2) });
 		}
+	}
+}
+
+vector<string> Docker::Get_Elements(Section s, uint8_t* buffer)
+{
+
+	return vector<string>();
+}
+
+vector<unsigned char> Docker::Get_Char_Buffer_From_File(string FN, string WD)
+{
+	ifstream inFile(WD + FN, ios_base::binary);
+	if (!inFile.is_open()) {
+		cout << "Error: Cannot open file!" << endl;
+		return vector<unsigned char>();
+	}
+	inFile.seekg(0, ios_base::end);
+	size_t length = inFile.tellg();
+	inFile.seekg(0, ios_base::beg);
+
+	vector<unsigned char> buffer;
+	buffer.reserve(length);
+	copy(istreambuf_iterator<char>(inFile),
+		istreambuf_iterator<char>(),
+		back_inserter(buffer));
+	inFile.close();
+	return buffer;
+}
+
+//		    name, type
+vector<pair<string, string>> Docker::Get_Names_Of(Section area)
+{
+	for (int i = 0; i < area.size; i++) {
+		if (area.start[i] == '\0')
+			area.start[i] = '?';
+	}
+	string Input((char*)area.start, area.size);
+	vector<pair<string, string>> Result;
+	for (auto i : Types) {
+		smatch matches;
+		regex Pattern(i.second);
+		int Previus_Size = Input.size();
+		while (regex_search(Input, matches, Pattern)) {
+			Result.push_back({ matches.str(), i.first });
+			Input = matches.prefix().str() + matches.suffix().str();
+			if (Previus_Size == Input.size()) {
+				cout << "Error: Regex string " << i.second << " looped infinitely!" << endl;
+				break;
+			}
+			Previus_Size = Input.size();
+		}
+		//if (regex_search(Input, matches, Pattern))
+		//	for (auto j: matches)
+		//		Result.push_back({ j.str(), i.first });
+	}
+	return Result;
+}
+
+void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
+{
+	for (auto i : symbols) {
+
 	}
 }
 
@@ -92,43 +155,8 @@ void Docker::ELF_Analyzer()
 {
 	Separate_Identification_Patterns(Get_Parsed_Include_File(Get_Header()));
 	//open & read the bin file
-	ifstream inFile(FileName, ios_base::binary);
-	if (!inFile.is_open()) {
-		cout << "Error: Cannot open file!" << endl;
-		return;
-	}
-	inFile.seekg(0, ios_base::end);
-	size_t length = inFile.tellg();
-	inFile.seekg(0, ios_base::beg);
-
-	vector<unsigned char> buffer;
-	buffer.reserve(length);
-	copy(istreambuf_iterator<char>(inFile),
-		istreambuf_iterator<char>(),
-		back_inserter(buffer));
-	inFile.close();
-	constexpr int CLASS = 4;
-	constexpr int Size64 = 2;
-	bool Bit_Size_is_64 = buffer[CLASS] == Size64; // false == 32 || true == 64
-	int SECTION_HEADER_STARTING_OFFSET = 0x20;
-	if (Bit_Size_is_64)
-		SECTION_HEADER_STARTING_OFFSET = 0x28;
-	uint64_t Current_Section_Header = *(uint32_t*)&buffer[SECTION_HEADER_STARTING_OFFSET];
-	if (Bit_Size_is_64)
-		Current_Section_Header = *(uint64_t*)&buffer[SECTION_HEADER_STARTING_OFFSET];
-	int Header_Amount = *(short*)&buffer[0x30];
-	if (Bit_Size_is_64)
-		Header_Amount = *(short*)&buffer[0x3C];
-	int Header_Size = 0x28;
-	if (Bit_Size_is_64)
-		Header_Amount = 0x40;
-	for (int i = 0; i < Header_Amount; i++) {
-		if (*(uint32_t*)&buffer[Current_Section_Header + 0x04] == 0x3)
-			break;
-		Current_Section_Header += Header_Size;
-	}
-	uint64_t Symbol_Table_Address = *(uint32_t*)&buffer[Current_Section_Header + 0x10];
-	if (Bit_Size_is_64)
-		Symbol_Table_Address = *(uint64_t*)&buffer[Current_Section_Header + 0x18];
-
+	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
+	Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
+	vector<pair<string, string>> Result = Get_Names_Of(Function_Section);
+	return;
 }

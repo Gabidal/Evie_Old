@@ -16,7 +16,7 @@ uint64_t ELF::Get_Header_Amount(uint8_t* buffer)
 	return Get_Bits_Size(buffer) ? reinterpret_cast<elf32_hdr*>(buffer)->e_shnum : reinterpret_cast<elf64_hdr*>(buffer)->e_shnum;
 }
 
-vector<string> ELF::Get_Section_Names(uint8_t* buffer) {
+uint8_t* ELF::Get_Section_Names(uint8_t* buffer) {
     bool BIT_SIZE = Get_Bits_Size(buffer);
     uint16_t Index = Get_Bits_Size(buffer) ? reinterpret_cast<elf32_hdr*>(buffer)->e_shstrndx : reinterpret_cast<elf64_hdr*>(buffer)->e_shstrndx;
     uint64_t Current_Section_Header = Get_Section_Header_Offset(buffer);
@@ -96,10 +96,10 @@ vector<string> ELF::Get_Section_Names(uint8_t* buffer) {
 
         */
 
-        uint8_t* position = reinterpret_cast<uint8_t*>(&buffer[Section_Header.sh_offset]);
+        return reinterpret_cast<uint8_t*>(&buffer[Section_Header.sh_offset]);
 
         string type = "";
-        for (int i = 0; i < Section_Header.sh_size; i++)
+        /*for (int i = 0; i < Section_Header.sh_size; i++)
         {
             if (position[i] == 0) {
                 Names.push_back(type);
@@ -107,7 +107,7 @@ vector<string> ELF::Get_Section_Names(uint8_t* buffer) {
                 continue;
             }
             type.push_back(position[i]);
-        }
+        }*/
     }
     else
     {
@@ -115,10 +115,10 @@ vector<string> ELF::Get_Section_Names(uint8_t* buffer) {
         elf64_shdr* Section_Headers = reinterpret_cast<elf64_shdr*>(&buffer[Current_Section_Header]);
         elf64_shdr& Section_Header = Section_Headers[Index];
 
-        uint8_t* position = reinterpret_cast<uint8_t*>(&buffer[Section_Header.sh_offset]);
+        return reinterpret_cast<uint8_t*>(&buffer[Section_Header.sh_offset]);
 
         string type = "";
-        for (int i = 0; i < Section_Header.sh_size; i++)
+        /*for (int i = 0; i < Section_Header.sh_size; i++)
         {
             if (position[i] == 0) {
                 Names.push_back(type);
@@ -126,17 +126,18 @@ vector<string> ELF::Get_Section_Names(uint8_t* buffer) {
                 continue;
             }
             type.push_back(position[i]);
-        }
+        }*/
     }
-    return Names;
+    //Names.insert(Names.begin() + 1, ".hash");       //!!!!
+    //return Names;
 }
 
-uint64_t ELF::Find_Section(uint8_t* buffer, string type) {
+Section ELF::Find_Section(uint8_t* buffer, string type) {
     bool BIT_SIZE = Get_Bits_Size(buffer);
     uint64_t Current_Section_Header = Get_Section_Header_Offset(buffer);
     uint64_t Header_Count = Get_Header_Amount(buffer);
 
-    vector<string> Names = Get_Section_Names(buffer);
+    uint8_t* Names = Get_Section_Names(buffer);
 
     if (BIT_SIZE) {
         elf32_shdr* Section_Headers = reinterpret_cast<elf32_shdr*>(&buffer[Current_Section_Header]);
@@ -144,11 +145,11 @@ uint64_t ELF::Find_Section(uint8_t* buffer, string type) {
         {
             elf32_shdr& Section_Header = Section_Headers[i];
 
-            string name = Names[Section_Header.sh_name];
+            string name = (const char*)&Names[Section_Header.sh_name];
 
             if (name == type)
             {
-                return Section_Header.sh_offset;
+                return { &buffer[Section_Header.sh_offset], Section_Header.sh_size };
             }
         }
     }
@@ -159,13 +160,14 @@ uint64_t ELF::Find_Section(uint8_t* buffer, string type) {
         {
             elf64_shdr& Section_Header = Section_Headers[i];
 
-            string name = Names[Section_Header.sh_name];
+            string name = (const char*)&Names[Section_Header.sh_name];
 
             if (name == type)
             {
-                return Section_Header.sh_offset;
+                return { &buffer[Section_Header.sh_offset], Section_Header.sh_size };
             }
         }
     }
     cout << "Error: Couldn't find section " << type << endl;
+    throw "Yeet";
 }

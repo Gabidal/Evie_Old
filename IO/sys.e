@@ -6,8 +6,6 @@ system Info
 system hidden
 hidden system static
 hidden system virtual
-hidden system export
-hidden system import
 hidden system loyal
 hidden system cache
 hidden system string

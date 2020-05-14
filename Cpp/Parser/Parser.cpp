@@ -39,7 +39,7 @@ void Parser::Include_Files(int i)
 			}
 		string Name = Update_Dir(filename);
 		//now include the file
-		Docker D(filename, Working_Dir, "");
+		Docker D(filename, Working_Dir, "", Defined_Keywords);
 
 		//vector<Component> tmp = Lexer::GetComponentsFromFile(Working_Dir + Name);
 		Input.erase(Input.begin() + i + 1);

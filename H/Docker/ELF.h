@@ -5,16 +5,18 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "Section.h"
 using namespace std;
 
 namespace ELF {
 
     bool Get_Bits_Size(uint8_t* buffer);
     uint64_t Get_Section_Header_Offset(uint8_t* buffer);
-    uint64_t Find_Section(uint8_t* buffer, string type);
+    Section Find_Section(uint8_t* buffer, string type);
     uint64_t Get_Header_Amount(uint8_t* buffer);
-    vector<string> Get_Section_Names(uint8_t* buffer);
+    uint8_t* Get_Section_Names(uint8_t* buffer);
 }
+
 
 /* 32-bit ELF base types. */
 typedef uint32_t Elf32_Addr;
