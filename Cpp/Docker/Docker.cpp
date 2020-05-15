@@ -159,6 +159,7 @@ void Docker::DLL_Analyzer()
 
 void Docker::LIB_Analyzer()
 {
+	vector<ObjectFile> result = LIB::ExtractAllObjectFiles(Get_Char_Buffer_From_File(FileName, Working_Dir));
 }
 
 void Docker::ELF_Analyzer()

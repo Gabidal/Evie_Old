@@ -1,7 +1,6 @@
 use "cstd.e"
 use "boost.e"
-use "Apple.so"
+use "glfw3.lib"
 
 func main()(
-	_createApple()
 )
