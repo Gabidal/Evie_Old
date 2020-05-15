@@ -61,7 +61,7 @@ vector<Token*> Docker::Get_Parsed_Include_File(vector<Component> In)
 	P.Defined_Keywords = Defined_Types;
 	P.Factory();
 	if (!(P.Output.size() > 0))
-		cout << "Warning: Header File is empty!" << endl;
+		cout << "Warning: Header File for " << Working_Dir + FileName << " is empty!" << endl;
 	return P.Output;
 }
 
@@ -69,17 +69,18 @@ void Docker::Separate_Identification_Patterns(vector<Token*> Tokens)
 {
 	//try to find operattor that contains rightsided 
 	//string for regexing and left side for type info
+	int index = 0;
 	for (Token* i : Tokens) {
 		if (i->is(_Operator_) && i->Right_Side_Token->is(_String_) && (i->Left_Side_Token->is("generic") || i->Left_Side_Token->is("loyal"))) {
 			Types.push_back({ i->Left_Side_Token->Types.at(0), i->Right_Side_Token->Name.substr(1, i->Right_Side_Token->Name.size() - 2) });
+			//Tokens.erase(Tokens.begin() + index);
 		}
+		else
+		{
+			Waste.push_back(i);
+		}
+		index++;
 	}
-}
-
-vector<string> Docker::Get_Elements(Section s, uint8_t* buffer)
-{
-
-	return vector<string>();
 }
 
 vector<unsigned char> Docker::Get_Char_Buffer_From_File(string FN, string WD)
@@ -133,9 +134,18 @@ vector<pair<string, string>> Docker::Get_Names_Of(Section area)
 
 void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
 {
+	//import loyal func [name]()()
+	//import generic func [name]()()
 	for (auto i : symbols) {
-
+		Append(Output, Lexer::GetComponents("import " + i.second + " func " + i.first + "()() \n"));
 	}
+}
+
+void Docker::Append(vector<Component>& Dest, vector<Component> Source)
+{
+	for (Component i : Source)
+		Dest.push_back(i);
+	return;
 }
 
 void Docker::TXT_Analyzer()
@@ -157,6 +167,6 @@ void Docker::ELF_Analyzer()
 	//open & read the bin file
 	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
 	Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
-	vector<pair<string, string>> Result = Get_Names_Of(Function_Section);
+	Syntax_Correcter(Get_Names_Of(Function_Section));
 	return;
 }

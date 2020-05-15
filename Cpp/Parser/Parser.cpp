@@ -41,6 +41,9 @@ void Parser::Include_Files(int i)
 		//now include the file
 		Docker D(filename, Working_Dir, "", Defined_Keywords);
 
+		//keep the waste
+		Append(&Output, D.Waste);
+
 		//vector<Component> tmp = Lexer::GetComponentsFromFile(Working_Dir + Name);
 		Input.erase(Input.begin() + i + 1);
 		Input.erase(Input.begin() + i);

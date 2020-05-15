@@ -59,7 +59,7 @@ string Back::Get_Address(Token* t){
 }
 
 string Back::Get_Call(Token* t){
-	if (t->is("func") || t->State == "func")
+	if (t->is("func") || t->is("generic"))
 	{
 		return Get_Handler(t);
 	}

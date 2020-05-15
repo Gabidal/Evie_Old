@@ -206,7 +206,6 @@ string Producer::Get_Template()
     return "";
 }
 
-
 string Producer::Update_Dir(string File_Name)
 {
     int i = (int)File_Name.find_last_of('/');

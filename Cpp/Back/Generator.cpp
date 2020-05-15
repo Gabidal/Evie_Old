@@ -733,7 +733,7 @@ void Generator::Detect_Prefixes(Token* t)
 	for (string s: t->Types) {
 		if (s == "hidden" || t->State == "hidden")
 			return;
-		if (s == "type" || s == "func" || s == "loyal")
+		if (s == "type" || s == "func" || s == "loyal" || s == "generic")
 			continue;
 		IR* ir = new IR;
 		ir->PreFix = s;
@@ -755,10 +755,12 @@ void Generator::Hide_Un_Used_Function(int i)
 	//the update of callation_count is made in parser.cpp
 	//find the f from types list where the updattors updates the count of function callation
 	//if the callation amount is 0 then delete this function, exept for EXPORT typed ones.
+	if (i >= Input.size())
+		return;
 	Token* f = Input.at(i);
 	if (!f->is(_Constructor_))
 		return;
-	if (f->is("export") || f->is("type"))
+	if (f->is("export") || f->is("type") || f->Name == "main")
 		return;
 	int count = 0;
 	for (Token* t: Types)
@@ -766,7 +768,10 @@ void Generator::Hide_Un_Used_Function(int i)
 			count = t->Callation_Count;
 			break;
 		}
-	if (count == 0)
+	if (count == 0) {
 		Input.erase(Input.begin() + i);
+		if (Input.at(i)->is(_Constructor_))
+			Hide_Un_Used_Function(i);
+	}
 	return;
 }

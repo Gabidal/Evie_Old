@@ -23,6 +23,7 @@ class Docker
 {
 public:
 	vector<Component> Output;
+	vector<Token*> Waste;		//exess data for some reasons i feel keeping it :P
 	Docker(string FN, string WD, string PT, vector<Token*> DK) : FileName(FN), Working_Dir(WD), Priority_Type(PT), Defined_Types(DK){
 		//look up table at:https://en.wikipedia.org/wiki/List_of_file_signatures.
 		//TXT files do not have a header
@@ -47,8 +48,6 @@ private:
 	//parse the Tokens into Type'n Regex style.
 	//and remove the binfile header rule syntax thingys!
 	void Separate_Identification_Patterns(vector<Token*> Tokens);
-	//the regex string reader
-	vector<string> Get_Elements(Section s, uint8_t* buffer);
 	//open file to constexpr char buffer
 	vector<unsigned char> Get_Char_Buffer_From_File(string FN, string WD);
 	//Read section
@@ -56,6 +55,8 @@ private:
 	vector<pair<string, string>> Get_Names_Of(Section area);
 	//Syntaxly_Correct_Return_Of_Vector_Strings
 	void Syntax_Correcter(vector<pair<string, string>> symbols);
+	//append 
+	void Append(vector<Component>& Dest, vector<Component> Source);
 
 
 	void TXT_Analyzer();
