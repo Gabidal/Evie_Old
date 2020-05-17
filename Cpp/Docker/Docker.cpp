@@ -1,5 +1,4 @@
 #include "../../H/Docker/Docker.h"
-#include "../../H/Parser/Parser.h"
 
 void Docker::Start_Analyzer()
 {
@@ -31,7 +30,7 @@ void Docker::Start_Analyzer()
 		}
 	}
 	if (Wrong_Type) {
-		cout << "Warning: No known file " << FileName << " exists!" << endl;
+		//cout << "Warning: No specific header file for " << FileName << "." << endl;
 		return;
 	}
 	TXT_Analyzer();
@@ -54,43 +53,29 @@ vector<Component> Docker::Get_Header(string File_Name)
 	}
 	//now iterate the files with Docker within the Priority type of txt.
 	for (string s : Files) {
-		Docker d(s, Working_Dir, "txt", Defined_Types);
+		Docker d(s, Working_Dir, "txt");
 		if (d.Output.size() > 0)
 			return d.Output;
 	}
 	cout << "Warning: Docker didn't find suitable Header file for " << FileName << endl;
-	cout << "Docker: Fallback to find general.[a-z]" << endl;
+	cout << "Docker: Fallback to general header." << endl;
 	vector<Component> null;
 	return null;
 }
 
-vector<Token*> Docker::Get_Parsed_Include_File(vector<Component> In)
-{
-	Parser P;
-	P.Input = In;
-	P.Defined_Keywords = Defined_Types;
-	P.Factory();
-	if (!(P.Output.size() > 0))
-		cout << "Warning: Header File for " << Working_Dir + FileName << " is empty!" << endl;
-	return P.Output;
-}
-
-void Docker::Separate_Identification_Patterns(vector<Token*> Tokens)
+void Docker::Separate_Identification_Patterns(vector<Component> Tokens)
 {
 	//try to find operattor that contains rightsided 
 	//string for regexing and left side for type info
-	int index = 0;
-	for (Token* i : Tokens) {
-		if (i->is(_Operator_) && i->Right_Side_Token->is(_String_) && (i->Left_Side_Token->is("generic") || i->Left_Side_Token->is("loyal"))) {
-			Types.push_back({ i->Left_Side_Token->Types.at(0), i->Right_Side_Token->Name.substr(1, i->Right_Side_Token->Name.size() - 2) });
-			//Tokens.erase(Tokens.begin() + index);
+	for (int i = 0; i < Tokens.size(); i++) {
+		if (Tokens.at(i).Value == "=" && (Tokens.at(i + 1).is(STRING_COMPONENT))) {
+			Types.push_back({ Tokens.at(i - 2).Value, Tokens.at(i + 1).Value.substr(1, Tokens.at(i + 1).Value.size() - 2) });
+			Tokens.erase(Tokens.begin() + i - 2, Tokens.begin() + i + 2);
+			i--;
 		}
-		else
-		{
-			Waste.push_back(i);
-		}
-		index++;
 	}
+	//gahther the remaining tokens for parser.
+	Append(Output, Tokens);
 }
 
 vector<unsigned char> Docker::Get_Char_Buffer_From_File(string FN, string WD)
@@ -177,7 +162,7 @@ void Docker::ELF_Analyzer()
 	vector<Component> Header_Data = Get_Header(FileName);
 	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general.e");
-	Separate_Identification_Patterns(Get_Parsed_Include_File(Header_Data));
+	Separate_Identification_Patterns(Header_Data);
 	//open & read the bin file
 	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
 	Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");

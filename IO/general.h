@@ -1,2 +1,4 @@
 loyal std = "_(\w*@*)*"
-generic Generic = "[a-zA-Z0-9]+"
+func Generic = "[a-zA-Z0-9]+"
+
+int MAX_BUFFER_SIZE = 123

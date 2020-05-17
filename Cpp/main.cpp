@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
     Lexer::ExponentSeparator = 'e';
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
-    Lexer::Keywords = { "while", "type", "func", "loyal", "generic", "export", "import", "use", "if"};
+    Lexer::Keywords = { "while", "type", "func", "loyal", "export", "import", "use", "if"};
     Lexer::Operators = {"+-/*=|&%"};
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());

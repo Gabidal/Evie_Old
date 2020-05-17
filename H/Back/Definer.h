@@ -1,6 +1,8 @@
 #ifndef _DEFINER_H_
 #define _DEFINER_H_
 #include "Token.h"
+#include "../Lexer/Lexer.h"
+#include "../Lexer/Component.h"
 #include <vector>
 #include <string>
 

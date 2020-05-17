@@ -66,7 +66,7 @@ void Definer::Type_Collect(Token* t)
 
 Token* Definer::FIND(string name)
 {
-	if (name == "func" || name == "type")
+	if (Lexer::GetComponents(name).back().is(KEYWORD_COMPONENT))
 	{
 		Token* t = new Token;
 		return t;

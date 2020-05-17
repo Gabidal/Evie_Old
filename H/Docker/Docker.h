@@ -9,7 +9,6 @@
 #include <filesystem>
 #include <algorithm>
 #include <regex>
-#include "../Back/Token.h"
 //the analyzers
 #include "../Lexer/Lexer.h"
 #include "../Lexer/Component.h"
@@ -24,8 +23,7 @@ class Docker
 {
 public:
 	vector<Component> Output;
-	vector<Token*> Waste;		//exess data for some reasons i feel keeping it :P
-	Docker(string FN, string WD, string PT, vector<Token*> DK) : FileName(FN), Working_Dir(WD), Priority_Type(PT), Defined_Types(DK){
+	Docker(string FN, string WD, string PT) : FileName(FN), Working_Dir(WD), Priority_Type(PT){
 		//look up table at:https://en.wikipedia.org/wiki/List_of_file_signatures.
 		//TXT files do not have a header
 		//Translators.push_back({ "TXT", TXT_Analyzer });
@@ -37,7 +35,6 @@ public:
 	~Docker(){}
 
 private:
-	vector<Token*> Defined_Types;
 	//vector<pair<Type, Regex string>>
 	vector<pair<string, string>> Types;
 	//open the file and look for the identifier of the file header
@@ -45,10 +42,9 @@ private:
 	//returns the filename of the header file
 	vector<Component> Get_Header(string File_Name);
 	//parse the tokens from the header file
-	vector<Token*> Get_Parsed_Include_File(vector<Component> In);
 	//parse the Tokens into Type'n Regex style.
 	//and remove the binfile header rule syntax thingys!
-	void Separate_Identification_Patterns(vector<Token*> Tokens);
+	void Separate_Identification_Patterns(vector<Component> Tokens);
 	//open file to constexpr char buffer
 	vector<unsigned char> Get_Char_Buffer_From_File(string FN, string WD);
 	//Read section

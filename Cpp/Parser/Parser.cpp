@@ -39,10 +39,7 @@ void Parser::Include_Files(int i)
 			}
 		string Name = Update_Dir(filename);
 		//now include the file
-		Docker D(filename, Working_Dir, "", Defined_Keywords);
-
-		//keep the waste
-		Append(&Output, D.Waste);
+		Docker D(filename, Working_Dir, "");
 
 		//vector<Component> tmp = Lexer::GetComponentsFromFile(Working_Dir + Name);
 		Input.erase(Input.begin() + i + 1);
@@ -675,9 +672,10 @@ void Parser::Init_Variable(int i)
 		return;
 	if (Input.at(i).IsCall)
 		return;
-	for (Token* t : Defined_Keywords)
-		if ((Input.at(i).Value == t->Name) && (t->is("func")) && (!Input.at(i).IsGivingAddress))
-			return;
+	/*for (Token* t : Defined_Keywords)
+		if ((Input.at(i).Value == t->Name) && (t->is(_Call_)) && (!Input.at(i).IsGivingAddress))
+			return;*/
+
 	if (Input.at(i).is(TEXT_COMPONENT) && (Defined(Input.at(i).Value) != "") && (Layer > 1))
 	{
 		Token* New_Variable = new Token();
