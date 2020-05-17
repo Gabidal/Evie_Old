@@ -43,7 +43,7 @@ private:
 	//open the file and look for the identifier of the file header
 	void Start_Analyzer();
 	//returns the filename of the header file
-	vector<Component> Get_Header();
+	vector<Component> Get_Header(string File_Name);
 	//parse the tokens from the header file
 	vector<Token*> Get_Parsed_Include_File(vector<Component> In);
 	//parse the Tokens into Type'n Regex style.

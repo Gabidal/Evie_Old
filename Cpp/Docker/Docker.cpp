@@ -16,25 +16,34 @@ void Docker::Start_Analyzer()
 	//read Max_ID size into a buffer
 	char Buffer[16];
 	file.read(Buffer, 16);
+	//for not overlapping wrong file type into lexer
+	bool Wrong_Type = false;
 	//iterate every map ID in Translators map
 	for (auto i : Translators) {
-		if (Priority_Type == "txt")
-			break;
+		Wrong_Type = false;
 		if (strncmp(Buffer, i.first.c_str(), i.first.size()) == 0) {
+			if (Priority_Type == "txt") {
+				Wrong_Type = true;
+				continue;
+			}
 			i.second();
 			return;
 		}
+	}
+	if (Wrong_Type) {
+		cout << "Warning: No known file " << FileName << " exists!" << endl;
+		return;
 	}
 	TXT_Analyzer();
 	return;
 }
 
-vector<Component> Docker::Get_Header()
+vector<Component> Docker::Get_Header(string File_Name)
 {
 	string Name_No_Extension = "";
-	int i = (int)FileName.find_last_of('.');
+	int i = (int)File_Name.find_last_of('.');
 	if (i != -1)
-		Name_No_Extension = FileName.substr(0, (size_t)i);;
+		Name_No_Extension = File_Name.substr(0, (size_t)i);;
 	vector<string> Files;
 	//collect all filenames in the working dir
 	for (auto& p : filesystem::directory_iterator(Working_Dir))
@@ -49,7 +58,8 @@ vector<Component> Docker::Get_Header()
 		if (d.Output.size() > 0)
 			return d.Output;
 	}
-	cout << "Error: Cannot open Header for " << FileName << ". Make shure your header file is same name as the lib/dll/obj." << endl;
+	cout << "Warning: Docker didn't find suitable Header file for " << FileName << endl;
+	cout << "Docker: Fallback to find general.[a-z]" << endl;
 	vector<Component> null;
 	return null;
 }
@@ -164,7 +174,10 @@ void Docker::LIB_Analyzer()
 
 void Docker::ELF_Analyzer()
 {
-	Separate_Identification_Patterns(Get_Parsed_Include_File(Get_Header()));
+	vector<Component> Header_Data = Get_Header(FileName);
+	if (Header_Data.size() < 1)
+		Header_Data = Get_Header("general.e");
+	Separate_Identification_Patterns(Get_Parsed_Include_File(Header_Data));
 	//open & read the bin file
 	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
 	Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");

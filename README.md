@@ -12,6 +12,7 @@
     - ##### Array.
     - ##### Arguments.
     - ##### Preprosessor.
+    - ##### Docker.
     - ##### Future of Evie
 
 
@@ -171,6 +172,13 @@ Beta 2.1.105 added:
 
 - ###### Added C like array pointting:"int a[0] = 123".
 
+Beta 2.1.121 added/fixed:
+
+- ###### Fixed some issues with the docker system. Now using elf files should be working regardles the order of files.
+
+- ###### Now you dont even have to make header file to every elf file (or lib/dll in future) you just need to make one header file named "general.[a-z]".
+
+
 ## Manual
 
 ### Type
@@ -264,6 +272,31 @@ $if ([Condition (Use only constant values!!)])(
     [The code to be injected if the condition is true]
 )
 ```
+
+### Docker
+
+###### Docker is the next generation of file handling in Evie.
+
+###### Docker can understand elf and (lib & dll files in future).
+
+###### But how Evie knows what function is what?
+
+###### Evie has a built in REGEX support so that you can just give Evie in the header file the type of inheritting and the REGEX string it references. for example:
+
+```
+loyal std = "_(\w*@*)*"
+```
+
+###### The above code makes a new object named (std) and it inherites the (loyal) keyword.
+
+###### The loyal keyword implies that the function cleanes its own stack, not user.
+
+###### Now the object std is setted to value of the string ("_(\w*@*)*").
+
+###### That string is in REGEX syntax.
+
+###### And now the elf and (lib & dll in future) is given to Docker so it will find that corresponding header and sets every function it finds by that REGEX string the same inheritting features as (std) has.
+
 
 ### Future of Evie
 
