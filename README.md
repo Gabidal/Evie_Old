@@ -277,25 +277,27 @@ $if ([Condition (Use only constant values!!)])(
 
 ###### Docker is the next generation of file handling in Evie.
 
-###### Docker can understand elf and (lib & dll files in future).
+###### Docker can understand elf, as well as lib & dll files in future.
 
-###### But how Evie knows what function is what?
+###### "But how does Evie know what function is what", you might ask.
 
-###### Evie has a built in REGEX support so that you can just give Evie in the header file the type of inheritting and the REGEX string it references. for example:
+###### Evie has a built in REGEX support. Meaning that you can just give Evie the type of inheritting and the REGEX string it references, in the header file.
+
+###### Example:
 
 ```
-loyal std = "_(\w*@*)*"
+[loyal std = "_(\w*@*)*"]
 ```
 
-###### The above code makes a new object named (std) and it inherites the (loyal) keyword.
+###### The above code creates a new object named (std) which inherits the (loyal) keyword.
 
-###### The loyal keyword implies that the function cleanes its own stack, not user.
+###### The loyal keyword implies that the function cleans its stack on its own, not the user.
 
-###### Now the object std is setted to value of the string ("_(\w*@*)*").
+###### Now, the object std is set to the value of the string ("_(\w*@*)*").
 
 ###### That string is in REGEX syntax.
 
-###### And now the elf and (lib & dll in future) is given to Docker so it will find that corresponding header and sets every function it finds by that REGEX string the same inheritting features as (std) has.
+###### The elf(+lib & dll in future) is given to Docker so that it can find the corresponding header and then sets every function it finds, that has corresponding REGEX string, to the same inheriting features that (std) has.
 
 
 ### Future of Evie
