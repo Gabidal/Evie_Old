@@ -863,11 +863,11 @@ void Parser::Factory()
 	for (int i = 0; i < Input.size(); i++)
 		Connect_Address(i);
 	for (int i = 0; i < Input.size(); i++)
+		Reserve_Function_Parameters(i);
+	for (int i = 0; i < Input.size(); i++)
 		Check_For_Correlation_Link(i);		//link
 	for (int i = 0; i < Input.size(); i++)
 		Init_Definition(i);
-	for (int i = 0; i < Input.size(); i++)
-		Reserve_Function_Parameters(i);
 	for (int i = 0; i < Input.size(); i++)
 		Reserve_Operator_Tokens(i);
 	Do_In_Order();
