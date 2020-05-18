@@ -23,39 +23,28 @@ Beta 2.0.0 brings new Lexer, Parser, Back-end.
 More flexible than ever.
 
 Beta 2.0.8 fixed:
-
 - ###### multiline math register handle fix.
-
 - ###### removed reduntant register abuse.
 
 
 Beta 2.1.2 fixed:
-
 - ###### Stackframe added.
-
 - ###### Parameter order reversed.
-
 - ###### Stupid/Ridiclius stackOffset's removed.
-
 - ###### Tooken Registers from tokens away.
 
 
 Beta 2.1.4 fixed:
-
 - ###### Makefile updated.
 
 
 Beta 2.1.6 fixed:
-
 - ###### If's.
-
 - ###### AL & AH had same ID.
-
 - ###### Now calling a exported function works :D.
 
 
 Beta 2.1.9 fixed:
-
 - ###### Exporting is now
 
 From:
@@ -67,56 +56,41 @@ To:
 ```
     export func main()(..)
 ```
-
 - ###### Also Exporting has it's own type class in CSTD.e .
 
 
 Beta 2.1.10 fixed:
-
 - ###### Parameters didnt have stackframe.
 
-
 Beta 2.1.11 fixed:
-
 - ###### Fixed returning register.
 
 Beta 2.1.12 added:
-
 - ###### Added pointters (experimental)
 
-
 Beta 2.1.16 added:
-
 - ###### Added Scaler function to fix some scaling problems.
 
 Beta 2.1.20 fixed:
-
 - ###### Fixed stack register abuse.
 
 Beta 2.1.30 added:
-
 - ###### Added Linux file linking.
 
 Beta 2.1.40 added:
-
 - ###### Added post prosessor. See <sys.e> for a example.
 
 Beta 2.1.46 added:
-
 - ###### Boost lib to imrpove your code output.
 
 Beta 2.1.51 fixed:
-
 - ###### Fixed stupid parameter pusher.
-
 - ###### Added a new pattern into boost.e .
 
 Beta 2.1.62 added:
-
 - ###### Added a new pattern to improve math.
 
 Beta 2.1.63 added:
-
 - ###### Added new link method:
 ```
 link /NXCOMPAT /DYNAMICBASE "glfw3.lib" "OpenGL32.lib" "kernel32.lib" "user32.li
@@ -127,62 +101,47 @@ m\x86" OpenGL32.lib /entry:main /out:test.asm.exe /libpath:"C:\Program Files (x8
 y\VC\Tools\MSVC\14.25.28610\lib\x86" vcruntime.lib /libpath:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\ucr
 t\x86" ucrt.lib
 ```
-
 - ###### Evie can now use OpenGL 
 
 
 Beta 2.1.64 added:
 
 - ###### Evie now supports global variables.
-
 - ###### Evie now supports the linking inline.
 
 Use OpenGL32.lib as a -lib argument, on windows.
-
 ```
 -in IO/test.e -out IO/test.asm -lib OpenGL32.lib -os win32 -arch x86 -mode 4 -debug dwarf2
 ```
 Sorry for Linux users, u have to use ur skills, until i have added a template for linux too...
 
 Beta 2.1.68 added/fixed:
-
 - ###### added loyal keyword, use this if you dont want to clean the called functions parameters from stack.
-
 - ###### rewamped the whole typing system from string into vector strings so that you can inherit literally unlimited amount of types.
 
 
 Beta 2.1.82 fixed:
-
 - ###### cache variable inherit numbr and thus crash.
-
 - ###### optimized some array output.
 
 Beta 2.1.103 fixed:
-
 - ###### Register selection is now improved.
 
 Beta 2.1.104 fixed:
-
 - ###### Safe doesnt yell at everything enymore.
-
 - ###### Added line number into token info at Safe, so now you can find your problems in life :P
 
 
 Beta 2.1.105 added:
-
 - ###### Added C like array pointting:"int a[0] = 123".
 
 Beta 2.1.121 added/fixed:
-
 - ###### Fixed some issues with the docker system. Now using elf files should be working regardles the order of files.
-
 - ###### Now you dont even have to make header file to every elf file (or lib/dll in future) you just need to make one header file named "general.[a-z]".
 
 
 Beta 2.1.222 added:
-
 - ###### New Safe method into Safe.cpp, named: Safe_Calling(Token* t);
-
 - ###### Evie now should be able to assist you on right function calling's.
 
 
