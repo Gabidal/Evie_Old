@@ -8,11 +8,10 @@ void Safe::Factory(){
             Safe_Loyal_Usation(t);
             Safe_Type_Inheritance(t);
             Safe_Array_Usage(t);
+            Safe_Calling(t);
         }
         Insight(i);
     }
-    //for (Token* i: Types)
-    //    Safe_Type_Inheritance(i);
 }
 
 void Safe::Insight(IR* t){
@@ -149,6 +148,29 @@ void Safe::Safe_Array_Usage(Token* t){
     }
 }
 
+void Safe::Safe_Calling(Token* t)
+{
+    //type int a;
+    //a()   #cant exist simply becayse it has a raw template inheritted (TYPE).
+    //int a;
+    //a()   #will be called but! it will call the value as a address not calling into the variable's a's location!
+    //func a;
+    //a()   #will call as a normal generic function into a's location.
+    if (!t->is(_Call_))
+        return;
+    if (t->is("type") && !t->is("func")) {
+        Inform_Location_Of(t);
+        cout << "Error: Cannot call template " << t->Name << endl;
+        cout << "Solution: {" << endl;
+        cout << "Try to make a object that inherits " << t->Name << " and call that if must." << endl;
+        cout << "}" << endl;
+    }
+    else if (!t->is("func")) {
+        cout << "Warning: You are trying to call object " << t->Name << " value as an address." << endl;
+    }
+    return;
+}
+
 string Safe::Get_State_Info(Token* t){
     if (t->State != "")
         return t->State;
@@ -156,4 +178,9 @@ string Safe::Get_State_Info(Token* t){
         return "register";
     else
         return "normal";
+}
+
+void Safe::Inform_Location_Of(Token* t)
+{
+    cout << t->Name << " caused some issues at " << Context << endl;
 }

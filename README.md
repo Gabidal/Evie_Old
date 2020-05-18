@@ -179,6 +179,16 @@ Beta 2.1.121 added/fixed:
 - ###### Now you dont even have to make header file to every elf file (or lib/dll in future) you just need to make one header file named "general.[a-z]".
 
 
+Beta 2.1.222 added:
+
+- ###### New Safe method into Safe.cpp, named: Safe_Calling(Token* t);
+
+- ###### Evie now should be able to assist you on right function calling's.
+
+
+
+
+
 ## Manual
 
 ### Type

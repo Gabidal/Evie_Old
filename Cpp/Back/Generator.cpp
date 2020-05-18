@@ -26,8 +26,8 @@ void Generator::Factory()
 
 void Generator::Detect_Function(Token* t)
 {
-	if (t->is("type"))
-		return;
+	//if (t->is("type"))
+	//	return;
 	if (t->is(_Constructor_))
 	{
 		//make a label OpC*
@@ -760,7 +760,7 @@ void Generator::Hide_Un_Used_Function(int i)
 	Token* f = Input.at(i);
 	if (!f->is(_Constructor_))
 		return;
-	if (f->is("export") || f->is("type") || f->Name == "main")
+	if (f->is("export")  || f->Name == "main")	// || f->is("type")
 		return;
 	int count = 0;
 	for (Token* t: Types)
