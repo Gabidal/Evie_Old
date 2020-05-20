@@ -3,5 +3,6 @@ use "boost.e"
 use "Apple.so"
 
 func main()(
-	return _createApple()
+	int a = MAX_BUFFER_SIZE + 1
+	return _createApple() + a
 )

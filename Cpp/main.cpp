@@ -11,6 +11,7 @@
 #include <iostream>
 #include <map>
 #include <fstream>
+#include <vector>
 using namespace std;
 int SYNTAX = 0;
 
@@ -195,7 +196,6 @@ int main(int argc, char* argv[])
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
     Lexer::Keywords = { "while", "type", "func", "loyal", "export", "import", "use", "if"};
-    Lexer::Operators = {"+-/*=|&%"};
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);
@@ -205,6 +205,28 @@ int main(int argc, char* argv[])
     Root->Set("sys", sys);
     FT = new FlagTable();
 
+
+    //-_-_-_
+    /*
+    ifstream inFile("IO/IO.zip", ios_base::binary);
+    if (!inFile.is_open()) {
+        cout << "Error: Cannot open file!" << endl;
+        return -1;
+    }
+    inFile.seekg(0, ios_base::end);
+    size_t length = inFile.tellg();
+    inFile.seekg(0, ios_base::beg);
+
+    vector<unsigned char> buffer;
+    buffer.reserve(length);
+    copy(istreambuf_iterator<char>(inFile),
+        istreambuf_iterator<char>(),
+        back_inserter(buffer));
+    inFile.close();
+
+    LIB::ExtractAllObjectFiles(buffer.data(), buffer.size());
+    */
+    //-_-_-_
     
     string start_file = sys->Info.Source_File.c_str();
     Included_Files.push_back(start_file);

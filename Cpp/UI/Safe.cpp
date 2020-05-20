@@ -96,16 +96,13 @@ Token* Safe::Find(string name){
     return nullptr;
 }
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m" 
-
 void Safe::Safe_Loyal_Usation(Token* t){
     if (!t->is("loyal"))
         return;
     for (string s: Avoid_Duplication_On_Loyal_Usation)
         if (s == t->Name)
             return;
-    cout << RED << "Warning: Possible stack-overflow at '" << Context << "'" << RESET << endl;
+    cout << "Warning: Possible stack-overflow at '" << Context << "'" << endl;
     cout << "Problem: The use of 'loyal' keyword when defining '" << t->Name << "'" << endl;
     cout << "Solution: " << endl;
     cout << "{" << endl;
