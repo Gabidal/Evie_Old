@@ -25,7 +25,19 @@ export main
 global main
 main: 
   _main: 
+  push ebp 
+  mov ebp , esp 
+  sub esp, dword 32
+  mov [ebp - 28], dword 0
+  mov [ebp - 32], dword 1
+  push dword 1
+  lea ecx, dword [ebp - 32]
+  push ecx 
+  lea edx, dword [ebp - 28]
+  push edx 
   call _memcpy
+  add esp , dword 12
+  leave 
   ret
  
 _mainEND: 

@@ -24,11 +24,12 @@ type double()(
 	size 12
 )
 
-export func main
 
 type void(){
 	state func
 }
+
+export func main
 
 void memcpy(int dest, int source, int Size){
     cache int i = 0;
