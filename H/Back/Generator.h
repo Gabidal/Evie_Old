@@ -3,6 +3,8 @@
 #include <vector>
 #include "Token.h"
 #include "../OpC/IR.h"
+#include "../Lexer/Lexer.h"
+#include "../Lexer/Component.h"
 #include "Back.h"
 using namespace std;
 

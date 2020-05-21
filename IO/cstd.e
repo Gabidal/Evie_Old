@@ -24,9 +24,13 @@ type double()(
 	size 12
 )
 
-export func main,
+export func main
 
-func memcpy(int dest, int source, int Size){
+type void(){
+	state func
+}
+
+void memcpy(int dest, int source, int Size){
     cache int i = 0;
     while (i < Size){
         dest[i] = source[i];

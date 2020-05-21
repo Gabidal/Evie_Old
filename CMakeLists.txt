@@ -15,8 +15,6 @@ FILE(GLOB x86 Cpp/Architecture/x86/*.cpp)
 FILE(GLOB arm Cpp/Architecture/ARM/*.cpp)
 FILE(GLOB Docker Cpp/Docker/*.cpp)
 
-add_library( LibAr STATIC IMPORTED )
-set_property( TARGET LibAr PROPERTY IMPORTED_LOCATION C:/Users/Quanf/source/repos/Evie/H/Docker/bin/Windows/archive.lib )
 
 # Add source files
 add_executable(${PROJECT_NAME} 
@@ -38,6 +36,5 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Debug)
 target_compile_options(${PROJECT_NAME} PRIVATE)
-target_link_libraries( ${PROJECT_NAME} LibAr )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)

@@ -1,6 +1,4 @@
-#include "../../H/Docker/LIB.h"
-#include "../../H/Docker/includes/windows/archive_entry.h"
-#include "../../H/Docker/includes/windows/archive.h"
+#include "../../H/Docker/LIB/LIB.h"
 
 bool ends_with(std::string& value, std::string& ending)
 {
@@ -9,11 +7,16 @@ bool ends_with(std::string& value, std::string& ending)
    return equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+std::vector<ObjectFile> LIB::ExtractAllObjectFiles(uint8_t* buffer, uint64_t length)
+{
+    return std::vector<ObjectFile>();
+}
+
 std::vector<ObjectFile> LIB::ExtractAllObjectFiles(std::vector<uint8_t> buffer)
 {
     return ExtractAllObjectFiles(buffer.data(), buffer.size());
 }
-
+/*
 std::vector<ObjectFile> LIB::ExtractAllObjectFiles(uint8_t* buffer, uint64_t length)
 {
    constexpr int BUFFER_SIZE = 1024;
@@ -39,7 +42,7 @@ std::vector<ObjectFile> LIB::ExtractAllObjectFiles(uint8_t* buffer, uint64_t len
        if (archive_read_data(handle, buf, size) != size)
        std::cout << "Error reading " << path << std::endl;
        size++;
-      /*std::vector<uint8_t> result;
+      std::vector<uint8_t> result;
       uint64_t position = 0;
       std::string entry_name = archive_entry_pathname(entry);
       if (ends_with(entry_name, std::string(".obj")) ||
@@ -70,9 +73,9 @@ std::vector<ObjectFile> LIB::ExtractAllObjectFiles(uint8_t* buffer, uint64_t len
       else
       {
          archive_read_data_skip(handle);
-      }*/
+      }
    }
 
    archive_read_free(handle);
    return object_files;
-}
+}*/

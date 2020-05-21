@@ -158,14 +158,14 @@ void Safe::Safe_Calling(Token* t)
     //a()   #will call as a normal generic function into a's location.
     if (!t->is(_Call_))
         return;
-    if (t->is("type") && !t->is("func")) {
+    if (t->is("type") && (!t->is("func") && t->State != "func")) {
         Inform_Location_Of(t);
         cout << "Error: Cannot call template " << t->Name << endl;
         cout << "Solution: {" << endl;
         cout << "Try to make a object that inherits " << t->Name << " and call that if must." << endl;
         cout << "}" << endl;
     }
-    else if (!t->is("func")) {
+    else if (!t->is("func") && t->State != "func") {
         cout << "Warning: You are trying to call object " << t->Name << " value as an address." << endl;
     }
     return;

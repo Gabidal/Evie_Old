@@ -150,6 +150,7 @@ void Definer::Factory()
 		{
 			New_Defined_Class->add(_Returning_);
 		}
+		Type_Collect(New_Defined_Class);
 		Output.push_back(New_Defined_Class);
 	}
 	for (Token* i : Input_Of_Tokens)

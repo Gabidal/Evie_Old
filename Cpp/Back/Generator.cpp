@@ -104,6 +104,10 @@ void Generator::Detect_Function(Token* t)
 	}
 	else if (t->is(_Call_))
 	{
+		//unstable way to get the state from types list
+		for (Token* i : Types)
+			if (i->Name == t->Name)
+				t->State = i->State;
 		//make a callation OpC*
 		IR* ir = new IR;
 		ir->ID = "call";
@@ -733,7 +737,8 @@ void Generator::Detect_Prefixes(Token* t)
 	for (string s: t->Types) {
 		if (s == "hidden" || t->State == "hidden")
 			return;
-		if (s == "type" || s == "func" || s == "loyal" || s == "generic")
+		//only put those types here that we WANT to SKIP!
+		if (s == "type" || s == "func" || s == "loyal" || t->State == "type" || t->State == "func" || t->State == "loyal")//(Lexer::GetComponents(s).back().is(KEYWORD_COMPONENT) || Lexer::GetComponents(t->State).back().is(KEYWORD_COMPONENT))		 ..
 			continue;
 		IR* ir = new IR;
 		ir->PreFix = s;
