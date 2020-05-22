@@ -14,6 +14,5 @@ main()(
 	apple x;
 	int a = 0
 	int b = 1
-	memcpy(@a, @b, 1)
 	return
 )

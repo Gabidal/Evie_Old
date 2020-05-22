@@ -9,6 +9,7 @@ void Safe::Factory(){
             Safe_Type_Inheritance(t);
             Safe_Array_Usage(t);
             Safe_Calling(t);
+            Safe_Hidden_Usage(t);
         }
         Insight(i);
     }
@@ -169,6 +170,27 @@ void Safe::Safe_Calling(Token* t)
         cout << "Warning: You are trying to call object " << t->Name << " value as an address." << endl;
     }
     return;
+}
+
+void Safe::Safe_Hidden_Usage(Token* t)
+{
+    //document about the hidden keyword
+    //              v-hidden 
+    //export hidden int banana()()
+    //^-written into asm
+    //hidden gives user the power to accept/decline what is written as prefix into asm file
+    if (t->is("hidden") || t->State == "hidden") {
+        int Current_Type = 0;
+        string Not_Hidden = "'";
+        for (; Current_Type < t->Types.size(); Current_Type++) {
+            if (t->Types.at(Current_Type) == "hidden")
+                //we have the start point of the hiddens
+                break;
+            Not_Hidden += t->Types.at(Current_Type) + ", ";
+        }
+        cout << "Warning: Active type(s) of '" << t->Name << "' are " << Not_Hidden << "'." << endl;
+        cout << "Rest of the type(s) will be dismiss!" << endl;
+    }
 }
 
 string Safe::Get_State_Info(Token* t){
