@@ -25,8 +25,11 @@ public:
     void Connect_Address(int i);
     void Init_Definition(int &i);
     vector<string> Collect_All_Inherited_Types(int i);
-    string Get_Size(int i, Token* t);
+    Token* Get_Size(int i, Token* t);
+    Token* Find(string name, vector<Token*> list);
     void Init_Operator(int i);
+    void Init_Member_Reaching(int i);
+    void Reserve_Member_Offsetting(int i);
     void Reserve_Operator_Tokens(int i);
     void Reserve_Function_Parameters(int i);
     void Patternize_Operations(int& i, string f);

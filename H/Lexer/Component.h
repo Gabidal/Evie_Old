@@ -28,6 +28,7 @@ public:
     bool IsOperatorized = false; // _operatorized
     bool IsCall = false; // _Call
     bool IsGivingAddress = false; // _Giving_Address
+    bool HasMemberOffsetting = false;   //(x.y)
     string PreFix = "";
 
     string Fetcher;

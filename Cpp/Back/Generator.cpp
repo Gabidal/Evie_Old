@@ -593,6 +593,8 @@ void Generator::Detect_Arrays(Token* t)
 		return;
 	if (t->Offsetter == nullptr)
 		return;
+	if (t->_Has_Member_)
+		return;
 	//make the offsetter handle
 	Token* Offsetter = new Token;
 

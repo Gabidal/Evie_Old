@@ -3,6 +3,7 @@
 
 bool Inside_Of_Constructor_As_Parameter = false;
 bool Inside_Of_Constructor = false;
+bool Inside_Of_Class = false; //indicates if inside of Size keyword for members to use only local
 int Layer = 0;
 int ID = 1;
 int Global_Stack_Offset = 0;
@@ -106,28 +107,37 @@ void Parser::Init_Definition(int& i)
 	New_Defined_Type->Types = Collect_All_Inherited_Types(i);
 	
 	New_Defined_Type->Name = Input.at(i + New_Defined_Type->Types.size()).Value;
-	if (New_Defined_Type->is("type") || New_Defined_Type->is("func"))
+	if (New_Defined_Type->is("type"))
 	{
-		string Size = Get_Size(i, New_Defined_Type);
-		if (Size == "$")
-		{
+		//REMEMBER!!! this token* size is the raw Size x token
+		Token* Size = Get_Size(i, New_Defined_Type);
+		if (Size == nullptr)
+			New_Defined_Type->Size = 0;
+		else if (Size->Right_Side_Token->Name == "$")
 			New_Defined_Type->_Dynamic_Size_ = true;
-		}
-		else
-		{
-			New_Defined_Type->Size = atoi(Size.c_str());
+		else if (Size->Right_Side_Token->is(_Number_))
+			New_Defined_Type->Size = atoi(Size->Right_Side_Token->Name.c_str());
+		else if (Defined(Size->Right_Side_Token->Name) != "")
+			New_Defined_Type->Size = Find(Size->Right_Side_Token->Name, Defined_Keywords)->Size;
+		else if (Size->Right_Side_Token->is(_Parenthesis_)) {
+			//size (int a, int b, int c) give them into this defined keyword
+			New_Defined_Type->Size = Size->Right_Side_Token->Size;
+			Append(&New_Defined_Type->Childs, Size->Right_Side_Token->Childs);
 		}
 	}
+	else if (New_Defined_Type->is("func"))
+		New_Defined_Type->Size = _SYSTEM_BIT_TYPE;
 	else
 	{
 		for (Token* t : Defined_Keywords)
 		{
+			//loop all inherited types
 			if (New_Defined_Type->is(t->Name))
 			{
 				New_Defined_Type->Size += t->Size;
 				New_Defined_Type->_Dynamic_Size_ |= t->_Dynamic_Size_;
+				Append(&New_Defined_Type->Childs, t->Childs);
 			}
-			
 		}
 	}
 	New_Defined_Type->Context = Context;
@@ -161,17 +171,17 @@ vector<string> Parser::Collect_All_Inherited_Types(int start) //returned vector 
 	return r;
 }
 
-string Parser::Get_Size(int i, Token* defined)
+Token* Parser::Get_Size(int i, Token* defined)
 {
 	//type a()(..)
-	if (defined->is("func"))
-		return to_string(_SYSTEM_BIT_TYPE);
 	if (Count_Familiar_Tokens(PAREHTHESIS_COMPONENT, i + 2) < 2)
-		return "0";
+		return nullptr;
 	Parser p;
 	p.Input = Input.at((size_t)i + 3).Components;
 	p.Defined_Keywords = Defined_Keywords;
+	Inside_Of_Class = true;
 	p.Factory();
+	Inside_Of_Class = false;
 	Token* t = nullptr;
 	for (int j = 0; j < p.Output.size(); j++) {
 		if (p.Output.at(j)->is("size"))
@@ -179,24 +189,15 @@ string Parser::Get_Size(int i, Token* defined)
 			t = p.Output.at(j);
 		}
 	}
-	if (t == nullptr)
-	{
-		return "0";
-	}
-	if (t->Right_Side_Token->is(_Number_))
-	{
-		//if the size is defined by a number.
-		return t->Right_Side_Token->Name;
-	}
-	else if (t->Right_Side_Token->Name == "$")
-	{
-		return "$";
-	}
-	else
-	{
-		//if the number is defined by a variable.
-		return to_string(t->Right_Side_Token->Size);
-	}
+	return t;
+}
+
+Token* Parser::Find(string name, vector<Token*> list)
+{
+	for (Token* i : list)
+		if (i->Name == name)
+			return i;
+	return nullptr;
 }
 
 void Parser::Init_Operator(int i)
@@ -256,11 +257,86 @@ void Parser::Init_Operator(int i)
 	}
 }
 
+void Parser::Init_Member_Reaching(int i)
+{
+	//get the members offset from the initialized types list
+	if (!Input.at(i).HasMemberOffsetting)
+		return;
+	//we have a operator that has the member and the object
+	//a.b
+	//we just need to make a operator 'a:[b's address]'
+	/*
+	type banana(){
+		size (
+			int a
+			int b
+			int c
+		)
+	}
+	banana x
+	x.a must be translated into
+	x:(4-systemsize) == x:0
+	*/
+	//first get the defined class
+	//i.components.at(0) == object
+	//i.components.at(1) == member
+	Token* object = Find(Input.at(i).Components.at(0).Value, Defined_Keywords);
+	Token* member = new Token;
+	member->add(_Number_);
+	member->Size = _SYSTEM_BIT_TYPE;
+	member->Name = to_string(Find(Input.at(i).Components.at(1).Value, object->Childs)->StackOffset - _SYSTEM_BIT_TYPE);
+	//now that we have the 
+	/*if (Input.at(i).Offsetter != nullptr)
+	{
+		Parser p;
+		p.Input.push_back(*Input.at(i).Offsetter);
+		p.Defined_Keywords = this->Defined_Keywords;
+		p.Factory();
+		member->Offsetter = p.Output.at(0);
+		if (Input.at(i).IsPointter)
+			object->add(_Pointting_);
+		else
+			object->add(_Array_);
+	}
+	if (Input.at(i).IsGivingAddress)
+	{
+		object->add(_Giving_Address_);
+	}*/
+	object->add(_Array_);
+	object->Size = _SYSTEM_BIT_TYPE;
+	object->_Has_Member_ = true;
+	object->Offsetter = member;
+	Output.push_back(object);
+	return;
+}
+
+void Parser::Reserve_Member_Offsetting(int i)
+{
+	if (Input.at(i).Value != ".")
+		return;
+	//i-1 is the object
+	//i+1 is the member
+	//we need preserve this for the core to handle not for preprosessed
+	//so we wnat to wrap these into parenthses
+	//and then later on we unravel em.
+	//first make a parenthesis component
+	Component P = Lexer::GetComponents("( )").back();
+	//now put the member addressing into the parenthsesis
+	P.HasMemberOffsetting = true;
+	P.Components.push_back(Input.at(i - 1));
+	P.Components.push_back(Input.at(i + 1));
+	Input.erase(Input.begin() + i + 1);
+	Input.erase(Input.begin() + i - 1);
+	Input.at(i - 1) = P;
+}
+
 void Parser::Reserve_Operator_Tokens(int i)
 {
 	if (Input.at(i).Value == "$")
 		return;
 	if (Input.at(i).Value == ",")
+		return;
+	if (Input.at(i).Value == ";")
 		return;
 	if ((Input.at(i).is(OPERATOR_COMPONENT) == true) && (Input.at(i).IsInitialized == false))
 	{
@@ -299,6 +375,8 @@ void Parser::Patternize_Operations(int& i, string f)
 		return;
 	if (Input.at(i).Value == ",")
 		return;
+	if (Input.at(i).Value == ";")
+		return;
 	if (Input.at(i).is(OPERATOR_COMPONENT) && (Input.at(i).Value == f) && (Input.at(i).IsInitialized != true))
 	{
 		Input.at(i).Components.push_back(Input.at((size_t)i - 1));
@@ -320,6 +398,8 @@ void Parser::Do_In_Order()
 	//the combination and multilayering of operations.
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, ":");
+	for (int i = 0; i < Input.size(); i++)
+		Patternize_Operations(i, ".");
 	for (int i = 0; i < Input.size(); i++)
 		Patternize_Operations(i, "*");
 	for (int i = 0; i < Input.size(); i++)
@@ -593,14 +673,14 @@ void Parser::Type_Definition(int i)
 void Parser::Set_Right_Stack_Offset(Token* t)
 {
 	//the stack place giver
-	if (Inside_Of_Constructor)
+	if (Inside_Of_Constructor || Inside_Of_Class)
 		t->StackOffset = Local_Stack_Offest + 4;
 	else if (Inside_Of_Constructor_As_Parameter)
 		t->StackOffset = (_SYSTEM_BIT_TYPE * 2) + Local_Stack_Offest;
 	else
 		t->StackOffset = Global_Stack_Offset;
 	//because cached variables do not use mem
-	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter)
+	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter || Inside_Of_Class)
 		Local_Stack_Offest += t->Size;
 	else
 		Global_Stack_Offset += t->Size;
@@ -861,6 +941,8 @@ void Parser::Factory()
 	for (int i = 0; i < Input.size(); i++)
 		Connect_Array(i);
 	for (int i = 0; i < Input.size(); i++)
+		Reserve_Member_Offsetting(i);
+	for (int i = 0; i < Input.size(); i++)
 		Connect_Address(i);
 	for (int i = 0; i < Input.size(); i++)
 		Reserve_Function_Parameters(i);
@@ -874,6 +956,7 @@ void Parser::Factory()
 		Check_For_Correlation_Link(i);		//link like return etc with the parameter
 	for (int i = 0; i < Input.size(); i++)
 	{
+		Init_Member_Reaching(i);
 		Update_Line_Number(Input.at(i));
 		Check_For_Inter(i);
 		Init_Operator(i);

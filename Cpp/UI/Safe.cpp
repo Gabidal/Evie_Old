@@ -163,7 +163,7 @@ void Safe::Safe_Array_Usage(Token* t){
     //right way
     //int y = @x;
     //y::0 = 123;
-    if (t->is(_Array_) && t->Size > 12) {
+    if (t->is(_Array_) && t->Size > 12 && (!t->_Has_Member_)) {
         //this is the wrong way
         cout << "Error: Illegal use of array operator at '" << Context << "'!" << endl;
         cout << "Problem: Use of 128bit or bigger object as a raw array address is too big!" << endl;

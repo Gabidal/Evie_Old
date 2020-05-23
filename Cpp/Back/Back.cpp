@@ -75,7 +75,12 @@ string Back::Get_Info_Of(Token* t)
 		return t->Name;
 	else if (t->Offsetter != nullptr)
 	{
-		if (t->is(_Pointting_))
+		if (t->_Has_Member_) {
+			//[(ebp-4)+offsetter]
+			return S->Get_ID(to_string(_SYSTEM_BIT_TYPE), "", { _SYSTEM_BIT_TYPE }) + "[" + Get_Address(t) +
+				OFFSET + Get_Handler(t->Offsetter) + "]";
+		}
+		else if (t->is(_Pointting_))
 		{
 			//[address+offsetter*Size]
 			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + Get_Handler(t) + OFFSET + Get_Handler(t->Offsetter) + SCALE + to_string(t->Size) + "]";
