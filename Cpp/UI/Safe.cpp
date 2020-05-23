@@ -1,4 +1,5 @@
 #include "../../H/UI/Safe.h"
+#include <sstream>
 extern Selector* S;
 
 void Safe::Factory(){
@@ -10,6 +11,12 @@ void Safe::Factory(){
             Safe_Array_Usage(t);
             Safe_Calling(t);
             Safe_Hidden_Usage(t);
+        }
+        if (ERROR)
+        {
+            stringstream error;
+            error << "Cant continue, please fix the error's first!" << endl;;
+            throw runtime_error(error.str().c_str());
         }
         Insight(i);
     }
@@ -140,12 +147,33 @@ void Safe::Safe_Array_Usage(Token* t){
     {
         cout << "Error: Illegal use of 'cache' at '" << Context << "'!" << endl;
         cout << "Problem: 'cache' variables dont have emory address for array offsetting." << endl;
-        cout << "Solution: " << endl;
-        cout << "{" << endl;
+        cout << "Solution: {" << endl;
         cout << "    If you want to get the address of '" << t->Name << "' offsetted by '" << t->Offsetter->Name << "'," << endl;
         cout << "    Try changing the '" << t->Name << ":" << t->Offsetter->Name << "' into: " << endl;
         cout << "    '" << t->Name << "::" << t->Offsetter->Name << "'" << endl;
         cout << "}" << endl;
+        ERROR = true;
+        return;
+    }
+    //if a objects size is bigger than 12bits then we need to
+    //point into the original address and then array offset by the new pointter.
+    //error way
+    //banana x;
+    //x:0 = 123;
+    //right way
+    //int y = @x;
+    //y::0 = 123;
+    if (t->is(_Array_) && t->Size > 12) {
+        //this is the wrong way
+        cout << "Error: Illegal use of array operator at '" << Context << "'!" << endl;
+        cout << "Problem: Use of 128bit or bigger object as a raw array address is too big!" << endl;
+        cout << "Solution: {" << endl;
+        cout << "    If you want to get hands on " << t->Name << ":" << t->Offsetter->Name << " that badly then use this." << endl;
+        cout << "    First make a 32bit variable that can work as a pointter. 'int a = @" << t->Name << "'" << endl;
+        cout << "    Then use the newly created pointter like this: 'a::" << t->Offsetter->Name << " = VALUE'" << endl;
+        cout << "}" << endl;
+        ERROR = true;
+        return;
     }
 }
 
@@ -165,6 +193,8 @@ void Safe::Safe_Calling(Token* t)
         cout << "Solution: {" << endl;
         cout << "Try to make a object that inherits " << t->Name << " and call that if must." << endl;
         cout << "}" << endl;
+        ERROR = true;
+        return;
     }
     else if (!t->is("func") && t->State != "func") {
         cout << "Warning: You are trying to call object " << t->Name << " value as an address." << endl;

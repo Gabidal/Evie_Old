@@ -7,6 +7,7 @@
 class Safe
 {
 private:
+    bool ERROR = false;
 	map<string, int> Cache_Usation;
     string Context = "Global";
     vector<string> Avoid_Duplication_On_Inheritance;
