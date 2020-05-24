@@ -83,7 +83,7 @@ string Back::Get_Info_Of(Token* t)
 		else if (t->is(_Pointting_))
 		{
 			//[address+offsetter*Size]
-			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + Get_Handler(t) + OFFSET + Get_Handler(t->Offsetter) + SCALE + to_string(t->Size) + "]";
+			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + Get_Handler(t) + OFFSET + Get_Handler(t->Offsetter) + SCALE + to_string(t->Hidden_Size) + "]";
 		}
 		else if (t->is(_Array_))
 		{

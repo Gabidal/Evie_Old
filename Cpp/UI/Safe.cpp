@@ -61,19 +61,19 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
     //get the syntax tabbing ready as a string
     string tab = "";
     for (int i = 0; i < layer; i++)
-        tab += "    ";
+        tab += "  ";
     if (t == nullptr || t->Size == 0){
         cout << tab << name << ": " << Get_Keyword_Info(name) << endl;
         return;
     }
     cout << tab << t->Name << " { " << endl;
-    cout << tab << "    " << "In '" << Context << "' at line " << t->Line_Number << endl;
-    cout << tab << "    " << "Size is " << (float)t->Size * 8 << " bits" << endl;
-    cout << tab << "    " << "State is " << Get_State_Info(t) << "." << endl;
-    cout << tab << "    " << "Inheritting { " << endl;
+    cout << tab << "  " << "In '" << Context << "' at line " << t->Line_Number << endl;
+    cout << tab << "  " << "Size is " << (float)t->Size * 8 << " bits" << endl;
+    cout << tab << "  " << "State is " << Get_State_Info(t) << "." << endl;
+    cout << tab << "  " << "Inheritting { " << endl;
         for (string s: t->Types)
             Get_Token_Info(Find(s), s, layer + 2);
-    cout << tab << "    }" << endl;
+    cout << tab << "  }" << endl;
     cout << tab << "}" << endl;
     return;
 }
@@ -90,7 +90,7 @@ void Safe::Safe_Type_Inheritance(Token* t){
     cout << "Warning: You are using an inheritance type(s) '";
     for (string s: t->Types)
         cout << s + ", ";
-    cout << "' on symbol '" << t->Name << "' in '" << Context << "' scope." << endl;
+    cout << "' on symbol '" << t->Name << "' in '" << Context << "' scope at line " << t->Line_Number << "." << endl;
     cout << "Generating Symbol map..." << endl;
     Get_Token_Info(t, t->Name, 0);
     Avoid_Duplication_On_Inheritance.push_back(t->Name);
@@ -139,6 +139,16 @@ string Safe::Get_Keyword_Info(string s){
         return "No Saving into memory.";
     if (s == "number")
         return "Ordinary number.";
+    if (s == "ptr")
+        return "Uses the generic pointter scaling.";
+    if (s == "string")
+        return "Is a list of characters.";
+    if (s == "static")
+        return "Represents a shared object.";
+    if (s == "virtual")
+        return "Represents a changable func.";
+    if (s == "virtual")
+        return "Represents a changable func.";
     return "No info.";   
 }
 
@@ -234,5 +244,5 @@ string Safe::Get_State_Info(Token* t){
 
 void Safe::Inform_Location_Of(Token* t)
 {
-    cout << t->Name << " caused some issues at " << Context << endl;
+    cout << t->Name << " caused some issues in " << Context << " line " << t->Line_Number << endl;
 }

@@ -55,6 +55,7 @@ class Token : public Object
   public:
     map<string, Object*> Get_Members();
     int Size = 0;
+    int Hidden_Size = 0;
     int Reservable_Size = 0;
     int Changable_Value = 0;
     int StackOffset = 0;

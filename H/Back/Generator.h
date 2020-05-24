@@ -34,6 +34,7 @@ public:
 	void Initialize_Global_Variable(int i);
 	void Append(vector<IR*> *Dest, vector<IR*> Source);
 	void Hide_Un_Used_Function(int i);
+	void Hide_Real_Size(Token* t);
 	//void Update_Used_Functions_Value(Token* call);
 	Generator()
 	{

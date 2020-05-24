@@ -120,11 +120,11 @@ void Emulator::Long_Operation_Allocator(int &i)
 				}
 				Converted->Name += "_Converted";
 
-				//Register_Loader(*Smaller, i);
-				//Register_Chooser(Smaller);
+				Register_Loader(*Smaller, i);
+				Register_Chooser(Smaller, i);
 
 				Converted->Size = Bigger->Size;
-				//Register_Chooser(Converted);
+				Register_Chooser(Converted, i);
 
 				IR* converter = new IR;
 				converter->ID = "convert";

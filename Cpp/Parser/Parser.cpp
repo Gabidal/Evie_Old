@@ -286,22 +286,10 @@ void Parser::Init_Member_Reaching(int i)
 	member->Size = _SYSTEM_BIT_TYPE;
 	member->Name = to_string(Find(Input.at(i).Components.at(1).Value, object->Childs)->StackOffset - _SYSTEM_BIT_TYPE);
 	//now that we have the 
-	/*if (Input.at(i).Offsetter != nullptr)
-	{
-		Parser p;
-		p.Input.push_back(*Input.at(i).Offsetter);
-		p.Defined_Keywords = this->Defined_Keywords;
-		p.Factory();
-		member->Offsetter = p.Output.at(0);
-		if (Input.at(i).IsPointter)
-			object->add(_Pointting_);
-		else
-			object->add(_Array_);
-	}
 	if (Input.at(i).IsGivingAddress)
 	{
 		object->add(_Giving_Address_);
-	}*/
+	}
 	object->add(_Array_);
 	object->Size = _SYSTEM_BIT_TYPE;
 	object->_Has_Member_ = true;

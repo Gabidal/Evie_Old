@@ -1,4 +1,5 @@
 use "cstd.e"
+use "boost.e"
 
 type apple(){
 	size (
@@ -8,8 +9,9 @@ type apple(){
 	)
 }
 
-main()(
+main(){
 	apple x;
-	x.c = 0 + x.a + 1
+	char ptr a = @x.c
+	a[1] = 1
 	return
-)
+}

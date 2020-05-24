@@ -11,6 +11,7 @@ void Generator::Factory()
 	for (int i = 0; i < (int)Input.size(); i++)
 	{
 		//Detect_Prefixes(Input.at(i));
+		Hide_Real_Size(Input.at(i));
 		Hide_Un_Used_Function(i);
 		Detect_Pointters(Input.at(i));
 		Detect_Arrays(Input.at(i));
@@ -369,6 +370,9 @@ void Generator::Detect_Operator(Token* t)
 	else 
 		L = t->Left_Side_Token;
 
+	Hide_Real_Size(R);
+	Hide_Real_Size(L);
+
 	Scaler(R, L);
 
 	Dodge(L, R);
@@ -557,6 +561,7 @@ void Generator::Detect_Pointters(Token* t)
 	Offsetter_Register->Name = t->Name + "_Offsetter_Reg";
 	Offsetter->StackOffset = t->StackOffset;
 	Offsetter_Register->Size = t->Size;
+	Offsetter_Register->Hidden_Size = t->Hidden_Size;
 	//Offsetter_Register->Name_Of_Same_Using_Register = t->Name_Of_Same_Using_Register;
 
 	//mov sec_reg, [a]
@@ -805,6 +810,17 @@ void Generator::Hide_Un_Used_Function(int i)
 		Input.erase(Input.begin() + i);
 		if (Input.at(i)->is(_Constructor_))
 			Hide_Un_Used_Function(i);
+	}
+	return;
+}
+
+void Generator::Hide_Real_Size(Token* t)
+{
+	if (t->Hidden_Size > 0)
+		return;
+	if (t->is("ptr")){
+		t->Hidden_Size = t->Size;
+		t->Size = _SYSTEM_BIT_TYPE;
 	}
 	return;
 }
