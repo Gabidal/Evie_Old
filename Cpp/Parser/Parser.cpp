@@ -306,11 +306,11 @@ void Parser::Init_Member_Reaching(int i)
 	object->Size = _SYSTEM_BIT_TYPE;
 	object->_Has_Member_ = true;
 	object->Offsetter = member;
-	Output.push_back(object);
+	Output.push_back(new Token(*object));
 	return;
 }
 
-void Parser::Reserve_Member_Offsetting(int i)
+void Parser::Reserve_Member_Offsetting(int &i)
 {
 	if (Input.at(i).Value != ".")
 		return;
@@ -328,6 +328,7 @@ void Parser::Reserve_Member_Offsetting(int i)
 	Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i - 1);
 	Input.at(i - 1) = P;
+	i--;
 }
 
 void Parser::Reserve_Operator_Tokens(int i)
@@ -452,7 +453,7 @@ void Parser::Init_Parenthesis(int i)
 {
 	if (Input.size() < 1)
 		return;
-	if (Input.at(i).is(PAREHTHESIS_COMPONENT))
+	if (Input.at(i).is(PAREHTHESIS_COMPONENT) && (!Input.at(i).HasMemberOffsetting))
 	{
 		LINE_NUMBER = 0; //zero the line number because its based on relative to its woner like funciont a:1
 		Token* New_Defined_Parenthesis = new Token();

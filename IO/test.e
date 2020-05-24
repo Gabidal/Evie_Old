@@ -1,5 +1,4 @@
 use "cstd.e"
-use "boost.e"
 
 type apple(){
 	size (
@@ -11,6 +10,6 @@ type apple(){
 
 main()(
 	apple x;
-	x.c = 0
+	x.c = 0 + x.a + 1
 	return
 )

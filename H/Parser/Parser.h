@@ -29,7 +29,7 @@ public:
     Token* Find(string name, vector<Token*> list);
     void Init_Operator(int i);
     void Init_Member_Reaching(int i);
-    void Reserve_Member_Offsetting(int i);
+    void Reserve_Member_Offsetting(int &i);
     void Reserve_Operator_Tokens(int i);
     void Reserve_Function_Parameters(int i);
     void Patternize_Operations(int& i, string f);

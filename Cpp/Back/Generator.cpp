@@ -290,6 +290,13 @@ void Generator::Dodge(Token* l, Token* r)
 	}
 }
 
+void Generator::Rotator(Token* l, Token* r)
+{
+	if (!l->is(_Number_))
+		return;
+
+}
+
 void Generator::Initialize_Global_Variable(int i)
 {
 	Token* t = Input.at(i);
@@ -446,7 +453,25 @@ void Generator::Detect_Operator(Token* t)
 			if (Left_Token->is("cache"))
 				opCode->ID = "ldr";
 		}
-		else if (!t->Left_Side_Token->is(_Number_))
+		else
+		{
+			//make a handle register
+			Token* Reg = new Token;
+			Reg->add(Task_For_General_Purpose);
+			Reg->add(_Register_);
+			Reg->Name = "Reg1_" + t->Left_Side_Token->Name;
+			Reg->Size = t->Left_Side_Token->Size;
+			Reg->StackOffset = t->StackOffset;
+			Left_Token = Reg;
+			//make the loading IR token
+			IR* load = new IR;
+			load->ID = "ldr";
+			load->Parameters.push_back(new Token(*Reg));
+			load->Parameters.push_back(new Token(*t->Left_Side_Token));
+			Output.push_back(load);
+			//more check if the destination is too big for the loaded register, in Emulator
+		}
+		/*else if (!t->Left_Side_Token->is(_Number_))
 		{
 			//make a handle register
 			Token* Reg = new Token;
@@ -466,8 +491,9 @@ void Generator::Detect_Operator(Token* t)
 		}
 		else if (t->Left_Side_Token->is(_Number_)){
 			Left_Token = t->Left_Side_Token;
-		}
+		}*/
 	}
+	Rotator(Left_Token, Right_Token);
 	opCode->Parameters.push_back(new Token(*Left_Token));
 	opCode->Parameters.push_back(new Token(*Right_Token));
 	Handle = Left_Token;
