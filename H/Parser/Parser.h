@@ -27,6 +27,7 @@ public:
     vector<string> Collect_All_Inherited_Types(int i);
     Token* Get_Size(int i, Token* t);
     Token* Find(string name, vector<Token*> list);
+    vector<Component> Find_Root(Component parent);
     void Init_Operator(int i);
     void Init_Member_Reaching(int i);
     void Reserve_Member_Offsetting(int &i);
@@ -48,6 +49,7 @@ public:
     void Check_For_Inter(int i);
     void Factory();
     void Append(vector<Token*>* Dest, vector<Token*> Source);
+    void Append(vector<Component>* Dest, vector<Component> Source);
     //update the line number by detecting "\n"
     void Update_Line_Number(Component& t);
     //the Token.h constructor get the global line_number

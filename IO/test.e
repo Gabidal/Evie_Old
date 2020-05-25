@@ -1,7 +1,6 @@
 use "cstd.e"
-use "boost.e"
 
-type apple(){
+type banana(){
 	size (
 		int a
 		int b
@@ -9,9 +8,16 @@ type apple(){
 	)
 }
 
+type apple(){
+	size (
+		int a
+		int b
+		banana c
+	)
+}
+
 main(){
 	apple x;
-	char ptr a = @x.c
-	a[1] = 1
+	char ptr a = @x.c.a
 	return
 }

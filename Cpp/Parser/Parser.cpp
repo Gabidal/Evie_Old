@@ -147,8 +147,12 @@ void Parser::Init_Definition(int& i)
 	Set_Right_Flag_Info(New_Defined_Type);
 	Defined_Keywords.push_back(New_Defined_Type);
 	Generated_Undefined_Tokens.push_back(New_Defined_Type);
-	if (!New_Defined_Type->is("cache"))
-		Space_Reservation += New_Defined_Type->Size;
+	if (!New_Defined_Type->is("cache")) {
+		if (New_Defined_Type->is("ptr"))
+			Space_Reservation += _SYSTEM_BIT_TYPE;
+		else
+			Space_Reservation += New_Defined_Type->Size;
+	}
 	i += (int)New_Defined_Type->Types.size();
 
 }
@@ -198,6 +202,23 @@ Token* Parser::Find(string name, vector<Token*> list)
 		if (i->Name == name)
 			return i;
 	return nullptr;
+}
+
+vector<Component> Parser::Find_Root(Component parent)
+{
+	vector<Component> Route;
+	Component* i = &parent;
+
+	while (i->is(PAREHTHESIS_COMPONENT)) {
+		//push the member
+		Route.push_back(i->Components.at(1));
+		//set up the new component
+		i = &i->Components.at(0);
+	}
+	//now add the top hieararchy parent
+	Route.push_back(*i);
+	reverse(Route.begin(), Route.end());
+	return Route;
 }
 
 void Parser::Init_Operator(int i)
@@ -278,23 +299,38 @@ void Parser::Init_Member_Reaching(int i)
 	x:(4-systemsize) == x:0
 	*/
 	//first get the defined class
-	//i.components.at(0) == object
+	//i.components.at(0) == parent or ()
 	//i.components.at(1) == member
-	Token* object = Find(Input.at(i).Components.at(0).Value, Defined_Keywords);
+	//try to find the parents member template.
+	vector<Component> Route_To_Member = Find_Root(Input.at(i));
+
+	Token* object = nullptr;
+	Token* Master = Find(Route_To_Member.at(0).Value, Defined_Keywords);
+	vector<Token*> Types = Defined_Keywords;
+
+	int StackOffset = 0;
+
+	for (int j = 0; j < Route_To_Member.size(); j++) {
+		object = Find(Route_To_Member.at(j).Value, Types);
+		StackOffset += object->StackOffset - _SYSTEM_BIT_TYPE;
+		Types = object->Childs;
+	}
+
+	//the object that remainds is the final member we want!
 	Token* member = new Token;
 	member->add(_Number_);
 	member->Size = _SYSTEM_BIT_TYPE;
-	member->Name = to_string(Find(Input.at(i).Components.at(1).Value, object->Childs)->StackOffset - _SYSTEM_BIT_TYPE);
+	member->Name = to_string(StackOffset - Master->StackOffset);
 	//now that we have the 
 	if (Input.at(i).IsGivingAddress)
 	{
 		object->add(_Giving_Address_);
 	}
-	object->add(_Array_);
-	object->Size = _SYSTEM_BIT_TYPE;
-	object->_Has_Member_ = true;
-	object->Offsetter = member;
-	Output.push_back(new Token(*object));
+	Master->add(_Array_);
+	Master->Size = _SYSTEM_BIT_TYPE;
+	Master->_Has_Member_ = true;
+	Master->Offsetter = member;
+	Output.push_back(new Token(*Master));
 	return;
 }
 
@@ -454,10 +490,6 @@ void Parser::Init_Parenthesis(int i)
 		New_Defined_Parenthesis->add(_Parenthesis_);
 		New_Defined_Parenthesis->Reservable_Size = P.Space_Reservation;
 		New_Defined_Parenthesis->Size = P.Space_Reservation;
-		for (Token* j : New_Defined_Parenthesis->Childs)
-		{
-			New_Defined_Parenthesis->Size += j->Size;
-		}
 		Output.push_back(New_Defined_Parenthesis);
 		this->Space_Reservation = P.Space_Reservation;
 		if (Inside_Of_Constructor_As_Parameter)
@@ -669,10 +701,18 @@ void Parser::Set_Right_Stack_Offset(Token* t)
 	else
 		t->StackOffset = Global_Stack_Offset;
 	//because cached variables do not use mem
-	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter || Inside_Of_Class)
-		Local_Stack_Offest += t->Size;
-	else
-		Global_Stack_Offset += t->Size;
+	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter || Inside_Of_Class) {
+		if (t->is("ptr"))
+			Local_Stack_Offest += _SYSTEM_BIT_TYPE;
+		else
+			Local_Stack_Offest += t->Size;
+	}
+	else {
+		if (t->is("ptr"))
+			Global_Stack_Offset += _SYSTEM_BIT_TYPE;
+		else
+			Global_Stack_Offset += t->Size;
+	}
 }
 
 void Parser::Set_Right_Flag_Info(Token* t)
@@ -761,6 +801,7 @@ void Parser::Init_Variable(int i)
 				New_Variable->Types = t->Types;
 				New_Variable->Size = t->Size;
 				New_Variable->_Dynamic_Size_ = t->_Dynamic_Size_;
+				New_Variable->Childs = t->Childs;
 				break;
 			}
 		if (Input.at(i).Offsetter != nullptr)
@@ -961,6 +1002,14 @@ void Parser::Factory()
 void Parser::Append(vector<Token*>* Dest, vector<Token*> Source)
 {
 	for (Token* i : Source)
+	{
+		Dest->push_back(i);
+	}
+}
+
+void Parser::Append(vector<Component>* Dest, vector<Component> Source)
+{
+	for (Component i : Source)
 	{
 		Dest->push_back(i);
 	}

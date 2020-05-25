@@ -145,7 +145,9 @@ Beta 2.1.222 added:
 - ###### Evie now should be able to assist you on right function calling's.
 
 
+Beta 3.0.0 added:
 
+- ###### Finally the member support is here!
 
 
 ## Manual
