@@ -12,12 +12,12 @@ type apple(){
 	size (
 		int a
 		int b
-		banana c
+		int ptr c
 	)
 }
 
 main(){
 	apple x;
-	int ptr a = x.c[0]
-	return
+	int ptr a = @x.c[0]
+	return a
 }

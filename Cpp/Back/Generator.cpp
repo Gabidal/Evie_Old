@@ -592,7 +592,7 @@ void Generator::Detect_Pointters(Token* t)
 
 		//make the initial mov
 		IR* Main_Load = new IR;
-		if (t->Name_Of_Same_Using_Register != "")
+		if (t->Name_Of_Same_Using_Register != "" || t->is(_Pointting_))
 			Main_Load->ID = ":";
 		else 
 			Main_Load->ID = "ldr";
