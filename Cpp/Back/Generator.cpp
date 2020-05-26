@@ -573,46 +573,50 @@ void Generator::Detect_Pointters(Token* t)
 
 	Output.push_back(load_Secondary);
 
-	if (!t->is(_Giving_Address_))
-	{
-		//now load the main, from secondary handle + offsetter
-		//mov reg, [sec_reg+offsetter]
-		Token* Main_Handle = new Token;
-		Main_Handle->add(_Register_);
-		if (t->Name_Of_Same_Using_Register != "")
-			Main_Handle->add(Task_For_Dest_Offsetting);
-		else 
-			Main_Handle->add(Task_For_Source_Offsetting);
-		Main_Handle->Name = t->Name + "_main_Handle_reg";
-		Main_Handle->StackOffset = t->StackOffset;
-		Main_Handle->Size = t->Size;
-
-		Offsetter_Register->Offsetter = Offsetter;
-		Offsetter_Register->add(_Pointting_);
-
-		//make the initial mov
-		IR* Main_Load = new IR;
-		if (t->Name_Of_Same_Using_Register != "" || t->is(_Pointting_))
-			Main_Load->ID = ":";
-		else 
-			Main_Load->ID = "ldr";
-		Main_Load->Parameters.push_back(new Token(*Main_Handle));
-		Main_Load->Parameters.push_back(new Token(*Offsetter_Register));
-
-		Output.push_back(Main_Load);
-
-		Handle = Main_Handle;
-	}
+	//now load the main, from secondary handle + offsetter
+	//mov reg, [sec_reg+offsetter]
+	Token* Main_Handle = new Token;
+	Main_Handle->add(_Register_);
+	if (t->Name_Of_Same_Using_Register != "")
+		Main_Handle->add(Task_For_Dest_Offsetting);
 	else
-	{
-		//now the offsetters main registers value has been loaded and just give it back.
-		Offsetter_Register->add(t->get());
-		Offsetter_Register->Offsetter = t->Offsetter;
-		*t = *Offsetter_Register;
-		//test giving the handle:
-		Handle = t;
-		//also give offsetter the giving address flag that above code loses.
-	}
+		Main_Handle->add(Task_For_Source_Offsetting);
+	Main_Handle->Name = t->Name + "_main_Handle_reg";
+	Main_Handle->StackOffset = t->StackOffset;
+	Main_Handle->Size = t->Size;
+
+
+
+	Offsetter_Register->Offsetter = Offsetter;
+	Offsetter_Register->add(_Pointting_);
+
+
+	//if the main parent is a parameter the children arent so lets give em
+	if (t->is(_Parameter_))
+		Offsetter_Register->add(_Parameter_);
+
+	//make the initial mov
+	IR* Main_Load = new IR;
+	if (t->Name_Of_Same_Using_Register != "" || t->is(_Giving_Address_))
+		Main_Load->ID = ":";
+	else
+		Main_Load->ID = "ldr";
+	Main_Load->Parameters.push_back(new Token(*Main_Handle));
+	Main_Load->Parameters.push_back(new Token(*Offsetter_Register));
+
+	Output.push_back(Main_Load);
+
+	Handle = Main_Handle;
+	return;
+	/*
+	//now the offsetters main registers value has been loaded and just give it back.
+	Offsetter_Register->add(t->get());
+	Offsetter_Register->Offsetter = t->Offsetter;
+	*t = *Offsetter_Register;
+	//test giving the handle:
+	Handle = t;
+	//also give offsetter the giving address flag that above code loses.
+	*/
 }
 
 void Generator::Detect_Arrays(Token* t)
@@ -690,6 +694,7 @@ void Generator::Detect_Address_Pointing(Token* t)
 {
 	//@a
 	if (t->is(_Giving_Address_) != true) return;
+	if (t->is(_Pointting_)) return;
 	//if (t->Name_Of_Same_Using_Register != "") return;
 	//lea eax, [ebp -4 + ecx]
 	//eax

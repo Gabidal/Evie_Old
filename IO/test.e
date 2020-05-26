@@ -1,23 +1,16 @@
 use "cstd.e"
 
-type banana(){
-	size (
-		int a
-		int b
-		int c
-	)
-}
-
 type apple(){
 	size (
 		int a
 		int b
-		int ptr c
+		int c
+		int ptr d
 	)
 }
 
-main(){
-	apple x;
-	int ptr a = @x.c[0]
+main(apple x){
+	
+	int ptr a =	@x.d[10]
 	return a
 }

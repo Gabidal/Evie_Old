@@ -308,18 +308,19 @@ void Parser::Init_Member_Reaching(int i)
 	//try to find the parents member template.
 	vector<Component> Route_To_Member = Find_Root(Input.at(i));
 
-	Token* object = nullptr;
 	Token* Master = Find(Route_To_Member.at(0).Value, Defined_Keywords);
-	vector<Token*> Types = Defined_Keywords;
+	Token* object = Find(Route_To_Member.at(0).Value, Defined_Keywords);
+	vector<Token*> Types = object->Childs;
 
 	int StackOffset = 0;
 
-	for (int j = 0; j < Route_To_Member.size(); j++) {
+	for (int j = 1; j < Route_To_Member.size(); j++) {
 		object = Find(Route_To_Member.at(j).Value, Types);
 		StackOffset += object->StackOffset - _SYSTEM_BIT_TYPE;
 		Types = object->Childs;
 	}
-
+	//save the giving address
+	Route_To_Member.back().IsGivingAddress = Input.at(i).IsGivingAddress;
 	//first lets make a copy of the last member's data of pointter/arrays
 	Input.at(i) = Route_To_Member.back();
 	//now lets name it as master x so that the variable creator can access to is data

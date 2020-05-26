@@ -2,6 +2,7 @@
 #include "../../H/Selector/Selector.h"
 extern Selector* S;
 extern int _SYSTEM_BIT_TYPE;
+string Context = "";
 
 string Back::Get_Direction(Token* t)
 {
@@ -46,14 +47,20 @@ string Back::Get_Frame(string inside){
 	}
 }
 
-string Back::Get_Address(Token* t){
-	if (t->is(_External_)){
-		return "(" + Get_Handler(t) + ")";
+string Back::Get_Address(Token* t) {
+	string left_parathesis_type = "(";
+	string right_paranthesis_type = ")";
+	if (Context == "outline") {
+		left_parathesis_type = "[";
+		right_paranthesis_type = "]";
+	}
+	if (t->is(_External_)) {
+		return left_parathesis_type + Get_Handler(t) + right_paranthesis_type;
 	}
 	else
 	{
-		return "(" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
-				Get_Direction(t) + to_string(t->StackOffset) + ")";
+		return left_parathesis_type + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+			Get_Direction(t) + to_string(t->StackOffset) + right_paranthesis_type;
 	}
 	return "";
 }
@@ -78,22 +85,23 @@ string Back::Get_Info_Of(Token* t)
 		if (t->_Has_Member_) {
 			//[(ebp-4)+offsetter]
 			return S->Get_ID(to_string(_SYSTEM_BIT_TYPE), "", { _SYSTEM_BIT_TYPE }) + "[" + Get_Address(t) +
-				OFFSET + Get_Handler(t->Offsetter) + "]";
+				Get_Direction(t) + Get_Handler(t->Offsetter) + "]";
 		}
 		else if (t->is(_Pointting_))
 		{
 			//[address+offsetter*Size]
-			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + Get_Handler(t) + OFFSET + Get_Handler(t->Offsetter) + SCALE + to_string(t->Hidden_Size) + "]";
+			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + Get_Handler(t) + Get_Direction(t) + Get_Handler(t->Offsetter) + SCALE + to_string(t->Hidden_Size) + "]";
 		}
 		else if (t->is(_Array_))
 		{
 			//[(ebp-4)+offsetter*Size]
 			return S->Get_ID(to_string(t->Size), "", { t->Size }) + "[" + Get_Address(t) +
-				OFFSET + Get_Handler(t->Offsetter) + SCALE + to_string(t->Size) + "]";
+				Get_Direction(t) + Get_Handler(t->Offsetter) + SCALE + to_string(t->Size) + "]";
 		}
 	}
 	else if (t->is(_Giving_Address_) && (t->Context == "Global Scope"))
 	{
+		Context = "outline";
 		return Get_Address(t);
 	}
 	else if (storing && !t->is(_External_))
@@ -132,6 +140,7 @@ void Back::Make()
 	for (Token* t : Input->Parameters)
 		MinMax.push_back(t->Size);
 
+	Context = Input->ID;
 	storing = Input->ID == "=" || Input->ID == "str";
 
 	string trustFactor;
