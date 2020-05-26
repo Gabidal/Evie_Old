@@ -279,13 +279,15 @@ void x86::ARC_Factory()
 	MMX0->add(Task_For_Returning);
 	Registers128.push_back(MMX0);
 	MMX1 = new Token("xmm1", "xmm1 ", 12);
-	MMX1->add(Task_For_Floating_Math);
+	MMX1->add(Task_For_Dest_Offsetting);
+	MMX1->add(Task_For_Non_Volatiling);
 	Registers128.push_back(MMX1);
 	MMX2 = new Token("xmm2", "xmm2 ", 12);
-	MMX2->add(Task_For_Floating_Math);
+	MMX2->add(Task_For_Source_Offsetting);
+	MMX2->add(Task_For_Non_Volatiling);
 	Registers128.push_back(MMX2);
 	MMX3 = new Token("xmm3", "xmm3 ", 12);
-	MMX3->add(Task_For_Floating_Math);
+	MMX3->add(Task_For_General_Purpose);
 	Registers128.push_back(MMX3);
 	MMX4 = new Token("xmm4", "xmm4 ", 12);
 	MMX4->add(Task_For_Floating_Math);

@@ -184,7 +184,10 @@ Token* Parser::Get_Size(int i, Token* defined)
 	p.Input = Input.at((size_t)i + 3).Components;
 	p.Defined_Keywords = Defined_Keywords;
 	Inside_Of_Class = true;
+	int tmp = Local_Stack_Offest;
+	Local_Stack_Offest = 0;
 	p.Factory();
+	Local_Stack_Offest = tmp;
 	Inside_Of_Class = false;
 	Token* t = nullptr;
 	for (int j = 0; j < p.Output.size(); j++) {
@@ -283,6 +286,7 @@ void Parser::Init_Member_Reaching(int i)
 	//get the members offset from the initialized types list
 	if (!Input.at(i).HasMemberOffsetting)
 		return;
+	Input.at(i).HasMemberOffsetting = false;
 	//we have a operator that has the member and the object
 	//a.b
 	//we just need to make a operator 'a:[b's address]'
@@ -316,21 +320,27 @@ void Parser::Init_Member_Reaching(int i)
 		Types = object->Childs;
 	}
 
+	//first lets make a copy of the last member's data of pointter/arrays
+	Input.at(i) = Route_To_Member.back();
+	//now lets name it as master x so that the variable creator can access to is data
+	Input.at(i).Value = Master->Name;
+	Input.at(i).Flags = TEXT_COMPONENT;
+	Input.at(i).Components.clear();
+	//now make a new pareser and parse all pointter/array/addressgiving it has
+	Parser p;
+	p.Input.push_back(Input.at(i));
+	p.Defined_Keywords = Defined_Keywords;
+	p.Factory();
+	//now the Output should have all that we need
+	Token* Result = p.Output.back();
+	//give it the right size
+	Result->Hidden_Size = object->Size;
+	Result->Size = _SYSTEM_BIT_TYPE;
+	//give it the right stack offset
+	Result->StackOffset = StackOffset + Master->StackOffset;
 	//the object that remainds is the final member we want!
-	Token* member = new Token;
-	member->add(_Number_);
-	member->Size = _SYSTEM_BIT_TYPE;
-	member->Name = to_string(StackOffset - Master->StackOffset);
 	//now that we have the 
-	if (Input.at(i).IsGivingAddress)
-	{
-		object->add(_Giving_Address_);
-	}
-	Master->add(_Array_);
-	Master->Size = _SYSTEM_BIT_TYPE;
-	Master->_Has_Member_ = true;
-	Master->Offsetter = member;
-	Output.push_back(new Token(*Master));
+	Output.push_back(new Token(*Result));
 	return;
 }
 

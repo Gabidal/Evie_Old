@@ -18,6 +18,6 @@ type apple(){
 
 main(){
 	apple x;
-	char ptr a = @x.c.a
+	int ptr a = x.c[0]
 	return
 }
