@@ -5,13 +5,13 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
-using ObjectFile = std::vector<uint8_t>;
+#include <fstream>
+#include "../../UI/Usr.h"
+using namespace std;
+extern Usr* sys;
 
 namespace LIB {
-    std::vector<ObjectFile> ExtractAllObjectFiles(uint8_t* buffer, uint64_t length);
-
-    std::vector<ObjectFile> ExtractAllObjectFiles(std::vector<uint8_t> buffer);
+	void Generate_Binary_Symbols(string filename, string WD);
 }
 
 #endif

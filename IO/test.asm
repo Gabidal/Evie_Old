@@ -4,11 +4,10 @@ main:
   _main: 
   push ebp 
   mov ebp , esp 
-  sub esp, dword 4
-  mov ecx, [ebp + 20]
-  lea esi, dword [ecx  + 10 * 4]
-  mov [ebp - 4], esi 
-  mov eax, dword [ebp - 4]
+  sub esp, dword 20
+  lea ecx, dword [(ebp - 16) - 10 * 4]
+  mov [ebp - 20], ecx 
+  mov eax, dword [ebp - 20]
   leave 
   ret
  

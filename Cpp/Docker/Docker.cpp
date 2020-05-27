@@ -154,7 +154,17 @@ void Docker::DLL_Analyzer()
 
 void Docker::LIB_Analyzer()
 {
-	vector<ObjectFile> result = LIB::ExtractAllObjectFiles(Get_Char_Buffer_From_File(FileName, Working_Dir));
+	vector<Component> Header_Data = Get_Header(FileName);
+	if (Header_Data.size() < 1)
+		Header_Data = Get_Header("general.e");
+	Separate_Identification_Patterns(Header_Data);
+
+	LIB::Generate_Binary_Symbols(FileName, Working_Dir);
+	vector<uint8_t> tmp = Get_Char_Buffer_From_File(".TMP.txt", "");
+	string buffer = string((char*)tmp.data(), tmp.size());
+	Section Function_Section = Get_Section_From_String(buffer);
+	Syntax_Correcter(Get_Names_Of(Function_Section));
+	return;
 }
 
 void Docker::ELF_Analyzer()

@@ -9,8 +9,8 @@ type apple(){
 	)
 }
 
-main(apple x){
-	
-	int ptr a =	@x.d[10]
+main(){
+	apple x
+	int ptr a =	@x.d:10
 	return a
 }
