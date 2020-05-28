@@ -6,7 +6,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "../../UI/Usr.h"
+#include "../UI/Usr.h"
 using namespace std;
 extern Usr* sys;
 

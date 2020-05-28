@@ -96,6 +96,7 @@ void Init_Pre_Defined_Tokens()
     //attach a string into output file
     Pre_Defined_Tokens.push_back("asm");
 }
+
 /*
 int argumentIterator;
 char dox86;
@@ -103,29 +104,7 @@ int targetWin32;
 int targetUnix;
 
 char OFBUF[128];
-char WDBUF[128];*/
-
-/*t
-ypedef int(__cdecl* bananafunction)(int);
-
-void banana(const char* lib) {
-    HINSTANCE handle = LoadLibrary(lib);
-    if (handle == NULL)
-    {
-        cout << "ya fool!" << endl;
-        return;
-    }
-    bananafunction banana = (bananafunction)GetProcAddress(handle, "banana");
-    if (banana == NULL)
-    {
-        cout << "stupid!" << endl;
-        return;
-    }
-    cout << banana(1) << " working?" << endl;
-    FreeLibrary(handle);
-}*/
-
-/*
+char WDBUF[128];
 dox86 = 0;
 targetWin32 = 0;
 targetUnix = 0;
@@ -204,29 +183,6 @@ int main(int argc, char* argv[])
     Root = new RootTable();
     Root->Set("sys", sys);
     FT = new FlagTable();
-
-
-    //-_-_-_
-    /*
-    ifstream inFile("IO/IO.zip", ios_base::binary);
-    if (!inFile.is_open()) {
-        cout << "Error: Cannot open file!" << endl;
-        return -1;
-    }
-    inFile.seekg(0, ios_base::end);
-    size_t length = inFile.tellg();
-    inFile.seekg(0, ios_base::beg);
-
-    vector<unsigned char> buffer;
-    buffer.reserve(length);
-    copy(istreambuf_iterator<char>(inFile),
-        istreambuf_iterator<char>(),
-        back_inserter(buffer));
-    inFile.close();
-
-    LIB::ExtractAllObjectFiles(buffer.data(), buffer.size());
-    */
-    //-_-_-_
     
     string start_file = sys->Info.Source_File.c_str();
     Included_Files.push_back(start_file);
