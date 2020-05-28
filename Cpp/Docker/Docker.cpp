@@ -19,8 +19,8 @@ void Docker::Start_Analyzer()
 	bool Wrong_Type = false;
 	//iterate every map ID in Translators map
 	for (auto i : Translators) {
-		Wrong_Type = false;
 		if (strncmp(Buffer, i.first.c_str(), i.first.size()) == 0) {
+			Wrong_Type = false;
 			if (Priority_Type == "txt") {
 				Wrong_Type = true;
 				continue;
@@ -143,6 +143,20 @@ void Docker::Append(vector<Component>& Dest, vector<Component> Source)
 	return;
 }
 
+inline Section Get_Section_From_String(string& text)
+{
+	return Section{ (uint8_t*)text.c_str(), text.size() };
+}
+
+string ReplaceAll(string str, const string& from, const string& to) {
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+	}
+	return str;
+}
+
 void Docker::TXT_Analyzer()
 {
 	Output = Lexer::GetComponentsFromFile(Working_Dir + FileName);
@@ -158,10 +172,16 @@ void Docker::LIB_Analyzer()
 	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general.e");
 	Separate_Identification_Patterns(Header_Data);
-
+	//write the lib with nm to .TMP.txt file
 	LIB::Generate_Binary_Symbols(FileName, Working_Dir);
 	vector<uint8_t> tmp = Get_Char_Buffer_From_File(".TMP.txt", "");
 	string buffer = string((char*)tmp.data(), tmp.size());
+	//use filtters
+	buffer = ReplaceAll(buffer, "\r\n", "\n");
+	regex filtter("(\\?.*)|(\\ .\\ [0-9]+)|(.+:)|(__.+@.+)");
+	buffer = regex_replace(buffer, filtter, "");
+	regex filtter2("(\\n{2,})");
+	buffer = regex_replace(buffer, filtter2, "\n");
 	Section Function_Section = Get_Section_From_String(buffer);
 	Syntax_Correcter(Get_Names_Of(Function_Section));
 	return;

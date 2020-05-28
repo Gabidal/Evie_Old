@@ -12,3 +12,5 @@ main:
   ret
  
 _mainEND: 
+_MAX_BUFFER_SIZE: 
+dd 123
