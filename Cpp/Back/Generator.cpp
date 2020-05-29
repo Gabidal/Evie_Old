@@ -377,6 +377,7 @@ void Generator::Detect_Operator(Token* t)
 
 	Dodge(L, R);
 
+
 	Token* Left_Token = new Token;
 	Token* Right_Token = new Token;
 	bool Normal_Left = false;
