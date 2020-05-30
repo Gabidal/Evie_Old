@@ -9,21 +9,20 @@ using namespace std;
 class Comment
 {
 public:
-	Comment(Token* t) : AST(t) {}
-	Comment(IR* t) : IR(t) {}
-	void Factory();
 	void Make_Context();
 	void Gather_Subroutins();
-	string Get_Info_From_AST(Token* t);
+	void Make_Comment();
 	string Get_Token_Info(Token* t);
-	string Get_Comment();
 	~Comment(){}
-
+	Comment(IR* t) {
+		OPCode = t;
+		Make_Comment();
+	}
 private:
 	IR* OPCode = nullptr;
-	Token* AST = nullptr;
+	string Usr_Comment = "";
 	string Context = "";
-	vector<string> Subroutins;
+	string Sub_Content = "";
 };
 
 #endif

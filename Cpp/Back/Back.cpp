@@ -166,9 +166,10 @@ void Back::Make()
 
 void Back::Factory()
 {
-	if (Input->Comment != "")
-	{
-		Output += S->Get_ID("comment", "", {0, 0}) + Input->Comment;
+	Comment c(Input);
+	//c.Make_Comment();
+	for (string i : Input->Comments){
+		Output += S->Get_ID("comment", "", {0, 0}) + i;
 		Output += "\n";
 	}
 	Make();

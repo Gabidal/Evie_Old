@@ -14,7 +14,7 @@ class IR : public Object
 private:
 	int Flags = 0;
 public:
-	string Comment = "";
+	vector<string> Comments;
 	string Tabs = "";
 	//for single line:
 		int Reg_Flag = 0;

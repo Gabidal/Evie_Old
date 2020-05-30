@@ -4,6 +4,7 @@
 #include "Token.h"
 #include "Assembly_Definitions.h"
 #include "../OpC/IR.h"
+#include "Comment.h"
 using namespace std;
 
 class Back
@@ -21,7 +22,7 @@ public:
 	string Get_Size(Token* t);
 	string Get_Address(Token* t);
 	string Get_Call(Token* t);
-	bool Check_For(string dest, vector<string> source);
+	//bool Check_For(string dest, vector<string> source);
 
 	string Get_Frame(string inside);
 	void Make();

@@ -24,6 +24,7 @@ public:
     void Connect_Array(int i);
     void Connect_Address(int i);
     void Init_Definition(int &i);
+    void Init_Comments(int i);
     vector<string> Collect_All_Inherited_Types(int i);
     Token* Get_Size(int i, Token* t);
     Token* Find(string name, vector<Token*> list);

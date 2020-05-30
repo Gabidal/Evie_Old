@@ -1,43 +1,29 @@
 #include "../../H/Back/Comment.h"
 
-void Comment::Factory()
-{
-}
-
 void Comment::Make_Context()
 {
+	return;
 }
 
 void Comment::Gather_Subroutins()
 {
-	for (stirng s : Subroutins) {
-
-	}
+	for (Token* i : OPCode->Parameters)
+		Sub_Content += Get_Token_Info(i) + " ";
+	if (Sub_Content != "")
+		OPCode->Comments.push_back(Sub_Content);
+	return;
 }
 
-string Comment::Get_Info_From_AST(Token* t)
+void Comment::Make_Comment()
 {
-	//a = b + 1
-	string Result = "";
-	//first filter all complex stuff away.
-	if (t->is(_Operator_)) {
-		Subroutins.push_back(Get_Info_From_Token(t->Left_Side_Token));
-		Subroutins.push_back(Get_Info_From_Token(t->Right_Side_Token));
-	}
-	for (Token* i : t->Childs)
-		Subroutins.push_back(Get_Info_From_Token(i));
-	if (t->Name_Of_Same_Using_Register) {
-		//this means this token is on left side of the =
-		return Get_Token_Info(t) + " is getting the value of " + t->Name_Of_Same_Using_Register;
-	}
-	if (t->is(_Number_)) {
-		return Get_Token_Info(t);
-	}
-	return string();
+	Make_Context();
+	Gather_Subroutins();
+	return;
 }
 
 string Comment::Get_Token_Info(Token* t)
 {
+	//string r = (string)"[SIZE " + to_string(t->Size) + "]";
 	string r = "";
 	if (t->is(_Giving_Address_))
 		r += "@";
@@ -46,10 +32,9 @@ string Comment::Get_Token_Info(Token* t)
 		r += "[" + Get_Token_Info(t->Offsetter) + "]";
 	if (t->is(_Array_))
 		r += ":" + Get_Token_Info(t->Offsetter);
+	if (t->Name_Of_Same_Using_Register != "")
+		r += " gets value of " + t->Name_Of_Same_Using_Register;
+	if (t->Comment != "")
+		OPCode->Comments.push_back(t->Comment);
 	return r;
-}
-
-string Comment::Get_Comment()
-{
-	return string();
 }

@@ -12,6 +12,7 @@ type apple(){
 
 main(){
 	apple x
+	#banana is better than apple
 	int ptr a =	@x.d:10
 	return a
 }

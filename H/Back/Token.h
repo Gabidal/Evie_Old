@@ -75,6 +75,7 @@ class Token : public Object
     Token* Left_Non_Operative_Token = nullptr;
     vector<Token*> Childs;
     vector<string> Types;
+    vector<string> Comments;
     string Context = "";
     string Name = "";
     string UID = "";

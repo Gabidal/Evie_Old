@@ -530,7 +530,8 @@ Component ParseComponent(const Area& area, Position& anchor)
         return Component("\n", END_COMPONENT);
     case Type::STRING:
         return Component(area.Text, STRING_COMPONENT);
-
+    case Type::COMMENT:
+        return Component(area.Text, COMMENT_COMPONENT);
     default:
     {
         anchor += area.Start;
@@ -558,12 +559,9 @@ vector<Component> GetComponents(string text, Position anchor)
             break;
         }
 
-        if (area->Type != Type::COMMENT)
-        {
-            Component component = ParseComponent(area.value(), anchor);
-            component.Location = (anchor += area->Start);
-            components.push_back(component);
-        }
+        Component component = ParseComponent(area.value(), anchor);
+        component.Location = (anchor += area->Start);
+        components.push_back(component);
 
         position = area->End;
     }

@@ -9,6 +9,7 @@ int ID = 1;
 int Global_Stack_Offset = 0;
 int Local_Stack_Offest = 0;
 int LINE_NUMBER = 0;
+vector<string> Global_Comment;
 extern int _SYSTEM_BIT_TYPE;
 extern vector<string> Included_Files; //for loop holes to not exist
 extern vector<string> Pre_Defined_Tokens;
@@ -140,6 +141,10 @@ void Parser::Init_Definition(int& i)
 			}
 		}
 	}
+	if (Global_Comment.size() > 0) {
+		New_Defined_Type->Comments = Global_Comment;
+		Global_Comment.clear();
+	}
 	New_Defined_Type->Context = Context;
 	//if (!New_Defined_Type->is("cache"))
 	if (!New_Defined_Type->is("cache"))
@@ -155,6 +160,16 @@ void Parser::Init_Definition(int& i)
 	}
 	i += (int)New_Defined_Type->Types.size();
 
+}
+
+void Parser::Init_Comments(int i)
+{
+	if (Input.at(i).is(COMMENT_COMPONENT))
+		Global_Comment.push_back(Input.at(i).Value);
+	Input.erase(Input.begin() + i);
+	if (Input.at(i).is(COMMENT_COMPONENT))
+		Init_Comments(i);
+	return;
 }
 
 vector<string> Parser::Collect_All_Inherited_Types(int start) //returned vector size needs to be deleted from input
@@ -768,6 +783,8 @@ int Parser::Count_Familiar_Tokens(int F, int i)
 	int u = 0;
 	for (int j = i; j < Input.size(); j++)
 	{
+		if (Input.at(j).is(COMMENT_COMPONENT))
+			continue;
 		if (Input.at(j).is(F))
 		{
 			u++;
