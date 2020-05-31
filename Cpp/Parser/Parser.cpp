@@ -643,6 +643,7 @@ void Parser::Type_Definition(int i)
 			Local_Stack_Offest = 0;
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 
+
 			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0)
 			{
 				New_Defined_Text->add(_Need_For_Space_);
@@ -694,6 +695,8 @@ void Parser::Type_Definition(int i)
 					New_Defined_Text->add(t->get());
 					New_Defined_Text->Types = t->Types;
 					New_Defined_Text->add(_Combined_);
+					if (New_Defined_Text->is(_Constructor_))
+						t->Left_Side_Token = New_Defined_Text->Left_Side_Token;
 					break;
 				}
 		//update the callation amount of repsesentive funcion
@@ -874,7 +877,8 @@ void Parser::Init_Variable(int i)
 		}
 		if (New_Number->Name.find('.') != -1)
 		{
-			New_Number->Size = 4;
+			//floating unit
+			New_Number->Size = _SYSTEM_BIT_TYPE;
 		}
 		else if (Inside_Of_Constructor_As_Parameter)
 		{

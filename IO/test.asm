@@ -2,22 +2,28 @@ export main
 global main
 main: 
   _main: 
-; ebp 
   push ebp 
-; ebp esp 
   mov ebp , esp 
-; reserve memory please! 20 
-  sub esp, dword 20
-; x_Giving_Address_regiser @x:10 
+  sub esp, dword 21
   lea ecx, dword [(ebp - 16) - 10 * 4]
-; a gets value of x_Giving_Address_regiser x_Giving_Address_regiser 
   mov [ebp - 20], ecx 
-; a_returning_register a 
+  mov [ebp - 24], byte 0
+  push dword 1
+  push byte [ebp - 24]
+  call _banana
+  add esp , dword 5
   mov eax, dword [ebp - 20]
   leave 
   ret
  
 _mainEND: 
+  _banana: 
+  push ebp 
+  mov ebp , esp 
+  xor eax, eax
+  leave 
+  ret
+ 
+_bananaEND: 
 _MAX_BUFFER_SIZE: 
-; 123 
 dd 123

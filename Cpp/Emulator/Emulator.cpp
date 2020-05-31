@@ -53,6 +53,11 @@ void Emulator::Long_Operation_Allocator(int &i)
 			//for safety
 			Reg->Size = _SYSTEM_BIT_TYPE;
 
+			//fix the returning number size
+			if (Input.at(i)->Parameters.at(0)->is(_Number_))
+				if (Input.at(i)->Parameters.at(0)->Size < _SYSTEM_BIT_TYPE)
+					Input.at(i)->Parameters.at(0)->Size = _SYSTEM_BIT_TYPE;
+
 			IR* mov_to_return_Reg = new IR;
 			mov_to_return_Reg->ID = "ldr";
 			mov_to_return_Reg->Parameters.push_back(Reg);

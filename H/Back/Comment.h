@@ -9,20 +9,17 @@ using namespace std;
 class Comment
 {
 public:
-	void Make_Context();
-	void Gather_Subroutins();
-	void Make_Comment();
+	vector<string> Output;
+	void Factory();
+	void Detect_Complex_Numbers(Token* n);
 	string Get_Token_Info(Token* t);
 	~Comment(){}
 	Comment(IR* t) {
-		OPCode = t;
-		Make_Comment();
+		Input = t;
+		Factory();
 	}
 private:
-	IR* OPCode = nullptr;
-	string Usr_Comment = "";
-	string Context = "";
-	string Sub_Content = "";
+	IR* Input = nullptr;
 };
 
 #endif

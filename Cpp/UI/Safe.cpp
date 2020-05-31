@@ -209,6 +209,23 @@ void Safe::Safe_Calling(Token* t)
     else if (!t->is("func") && t->State != "func") {
         cout << "Warning: You are trying to call object " << t->Name << " value as an address." << endl;
     }
+    Token* Function = Find(t->Name);
+    vector<Token*> Callation_Parameters = t->Left_Side_Token->Childs;
+    reverse(Callation_Parameters.begin(), Callation_Parameters.end());
+    int j = 0;
+    for (Token*i : Function->Left_Side_Token->Childs) {
+        if (j >= Callation_Parameters.size()) {
+            cout << "Warning: The original function has different amount of parameters!" << endl;
+            break;
+        }
+        if (i->Size != Callation_Parameters.at(j)->Size) {
+            cout << "Warning: " + Function->Name + " doesnt take size " + to_string(Callation_Parameters.at(j)->Size) + " parameter at " + to_string(j) + "." << endl;
+            cout << "Solution: {" << endl;
+            cout << "    Try to give size " + to_string(i->Size) + " parameter at " + to_string(j) << endl;
+            cout << "}" << endl;
+        }
+         j++;
+    }
     return;
 }
 

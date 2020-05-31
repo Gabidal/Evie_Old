@@ -1,23 +1,20 @@
 #include "../../H/Back/Comment.h"
 
-void Comment::Make_Context()
+void Comment::Factory()
 {
-	return;
 }
 
-void Comment::Gather_Subroutins()
+void Comment::Detect_Complex_Numbers(Token* n)
 {
-	for (Token* i : OPCode->Parameters)
-		Sub_Content += Get_Token_Info(i) + " ";
-	if (Sub_Content != "")
-		OPCode->Comments.push_back(Sub_Content);
-	return;
-}
-
-void Comment::Make_Comment()
-{
-	Make_Context();
-	Gather_Subroutins();
+	if (!n->is(_Number_))
+		return;
+	if (n->Name.find('.') == -1)
+		return;
+	//size 4 == normal numbers
+	//size 8 == big numbers
+	//size 12 == complex numbers/ floating point ones
+	int value = atoi(n->Name.c_str());
+	Output.push_back("If it's value is broken here have this " + to_string(*(float*)&value) + ".");
 	return;
 }
 
@@ -34,7 +31,7 @@ string Comment::Get_Token_Info(Token* t)
 		r += ":" + Get_Token_Info(t->Offsetter);
 	if (t->Name_Of_Same_Using_Register != "")
 		r += " gets value of " + t->Name_Of_Same_Using_Register;
-	if (t->Comment != "")
-		OPCode->Comments.push_back(t->Comment);
+	for (string s : t->Comments)
+		Output.push_back(s);
 	return r;
 }
