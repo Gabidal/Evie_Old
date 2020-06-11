@@ -1,5 +1,7 @@
 #include "../../H/Docker/Docker.h"
 
+extern Usr* sys;
+
 void Docker::Start_Analyzer()
 {
 	//if everything fails to check out it means,
@@ -26,6 +28,7 @@ void Docker::Start_Analyzer()
 				continue;
 			}
 			i.second();
+			sys->Info.Libs.push_back(Working_Dir + FileName);
 			return;
 		}
 	}
@@ -132,7 +135,7 @@ void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
 	//import loyal func [name]()()
 	//import generic func [name]()()
 	for (auto i : symbols) {
-		Append(Output, Lexer::GetComponents("import " + i.second + " func " + i.first + "()() \n"));
+		Append(Output, Lexer::GetComponents("import " + i.second + " func " + Mangler::Un_Mangle(i.first) + "() \n"));
 	}
 }
 

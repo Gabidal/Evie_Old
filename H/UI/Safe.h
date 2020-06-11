@@ -3,6 +3,7 @@
 #include "../../H/Selector/Selector.h"
 #include "../../H/Back/Token.h"
 #include "../../H/OpC/IR.h"
+#include "../Mangler/Mangler.h"
 
 class Safe
 {

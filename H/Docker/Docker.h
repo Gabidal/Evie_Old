@@ -13,6 +13,8 @@
 #include "../Lexer/Lexer.h"
 #include "../Lexer/Component.h"
 #include "Section.h"
+#include "../../H/UI/Usr.h"
+#include "../Mangler/Mangler.h"
 //thanks for contribitors at github that are making linux, im not part of the writing team of the file!
 //https://github.com/torvalds/linux/blob/master/include/uapi/linux/elf.h
 #include "ELF.h"

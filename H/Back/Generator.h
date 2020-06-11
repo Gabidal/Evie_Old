@@ -6,6 +6,7 @@
 #include "../Lexer/Lexer.h"
 #include "../Lexer/Component.h"
 #include "Back.h"
+#include "../Mangler/Mangler.h"
 using namespace std;
 
 

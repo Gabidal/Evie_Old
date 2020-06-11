@@ -8,11 +8,12 @@ int Personalize = 0;
 
 void Generator::Factory()
 {
+	for ( int i = 0; i < Input.size(); i++)
+		Hide_Un_Used_Function(i);
 	for (int i = 0; i < (int)Input.size(); i++)
 	{
 		//Detect_Prefixes(Input.at(i));
 		Hide_Real_Size(Input.at(i));
-		Hide_Un_Used_Function(i);
 		Detect_Pointters(Input.at(i));
 		Detect_Arrays(Input.at(i));
 		Detect_Address_Pointing(Input.at(i));
@@ -21,6 +22,7 @@ void Generator::Factory()
 		Detect_Operator(Input.at(i));
 		Detect_Parenthesis(Input.at(i));
 		Detect_Pre_Defined_Tokens(Input.at(i));
+		//keep this last always last!!
 		Initialize_Global_Variable(i);
 	}
 }
@@ -35,7 +37,10 @@ void Generator::Detect_Function(Token* t)
 		Detect_Prefixes(t);
 		IR* ir = new IR;
 		ir->ID = "label";
-		ir->PreFix = t->Name;
+		if (t->is("mangle"))
+			ir->PreFix = Mangler::Mangle(t);
+		else
+			ir->PreFix = t->Name;
 		ir->add(_Start_Of_Label);
 		Double_Tasking = false;
 		//make the stackfrmae
@@ -98,7 +103,10 @@ void Generator::Detect_Function(Token* t)
 		//make the ending label
 		IR* end = new IR;
 		end->ID = "label";
-		end->PreFix = t->Name + "END";
+		if (t->is("mangle"))
+			end->PreFix = Mangler::Mangle(t) + "END";
+		else
+			end->PreFix = t->Name + "END";
 		end->add(_End_Of_Label);
 		Output.push_back(ir);
 		Output.push_back(end);
@@ -106,15 +114,22 @@ void Generator::Detect_Function(Token* t)
 	else if (t->is(_Call_))
 	{
 		//unstable way to get the state from types list
+		Token* Constructor = nullptr;
 		for (Token* i : Types)
-			if (i->Name == t->Name)
+			if (i->Name == t->Name) {
 				t->State = i->State;
+				Constructor = i;
+			}
 		//make a callation OpC*
 		IR* ir = new IR;
 		ir->ID = "call";
 		//when we give the token call, (name) to it and in parser defined as
 		//_External_ it can do something like this: call [banana] ; as a global variable.
 		t->ID = Personalize++;
+		if (t->is("mangle"))
+			t->Name = Mangler::Mangle(Constructor);
+		else
+			t->Name = t->Name;
 		ir->Parameters.push_back(t);
 
 		for (Token* t : t->Left_Side_Token->Childs)
@@ -777,7 +792,7 @@ void Generator::Detect_Prefixes(Token* t)
 		if (s == "hidden" || t->State == "hidden")
 			return;
 		//only put those types here that we WANT to SKIP!
-		if (s == "type" || s == "func" || s == "loyal" || t->State == "type" || t->State == "func" || t->State == "loyal")//(Lexer::GetComponents(s).back().is(KEYWORD_COMPONENT) || Lexer::GetComponents(t->State).back().is(KEYWORD_COMPONENT))		 ..
+		if (s == "type" || s == "func" || s == "loyal" || s == "mangle" || t->State == "type" || t->State == "func" || t->State == "loyal" )//(Lexer::GetComponents(s).back().is(KEYWORD_COMPONENT) || Lexer::GetComponents(t->State).back().is(KEYWORD_COMPONENT))		 ..
 			continue;
 		IR* ir = new IR;
 		ir->PreFix = s;
@@ -814,7 +829,7 @@ void Generator::Hide_Un_Used_Function(int i)
 		}
 	if (count == 0) {
 		Input.erase(Input.begin() + i);
-		if (Input.at(i)->is(_Constructor_))
+		if (i < Input.size() && Input.at(i)->is(_Constructor_))
 			Hide_Un_Used_Function(i);
 	}
 	return;

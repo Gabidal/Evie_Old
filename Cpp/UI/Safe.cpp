@@ -209,7 +209,7 @@ void Safe::Safe_Calling(Token* t)
     else if (!t->is("func") && t->State != "func") {
         cout << "Warning: You are trying to call object " << t->Name << " value as an address." << endl;
     }
-    Token* Function = Find(t->Name);
+    Token* Function = Find(Mangler::Get_Main_Name(t->Name));
     vector<Token*> Callation_Parameters = t->Left_Side_Token->Childs;
     reverse(Callation_Parameters.begin(), Callation_Parameters.end());
     int j = 0;

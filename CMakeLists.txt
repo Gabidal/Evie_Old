@@ -14,6 +14,7 @@ FILE(GLOB emulator Cpp/Emulator/*.cpp)
 FILE(GLOB x86 Cpp/Architecture/x86/*.cpp)
 FILE(GLOB arm Cpp/Architecture/ARM/*.cpp)
 FILE(GLOB Docker Cpp/Docker/*.cpp)
+FILE(GLOB Mangler Cpp/Mangler/*.cpp)
 
 
 # Add source files
@@ -30,6 +31,7 @@ add_executable(${PROJECT_NAME}
                 ${x86} 
                 ${arm}
                 ${Docker}
+                ${Mangler}
                )
  
 set(CMAKE_CXX_STANDARD 17)
