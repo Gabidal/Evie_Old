@@ -39,7 +39,7 @@ string Mangler::Un_Mangle(string Name)
 
 string Mangler::Mangle(Token* t)
 {
-	string Func_Name = "Z" + to_string(t->Name.size()) + t->Name;
+	string Func_Name = "_Z" + to_string(t->Name.size()) + t->Name;
 	for (Token* i : t->Left_Side_Token->Childs) {
 		if (i->is("ptr"))
 			Func_Name += "P";
@@ -57,7 +57,7 @@ string Mangler::Mangle(Token* t)
 string Mangler::Get_Main_Name(string Name)
 {
 	if (Name.size() < 3) return Name + " ()";
-	if (Name[0] != 'Z') return Name + " ()";
+	if (Name[0] != '_' || (Name[1] != 'Z')) return Name + " ()";
 
 
 	for (int i = 0; i < Name.size(); i++) {

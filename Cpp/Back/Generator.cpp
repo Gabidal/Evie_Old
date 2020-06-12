@@ -37,8 +37,10 @@ void Generator::Detect_Function(Token* t)
 		Detect_Prefixes(t);
 		IR* ir = new IR;
 		ir->ID = "label";
-		if (t->is("mangle"))
+		if (t->is("mangle")) {
 			ir->PreFix = Mangler::Mangle(t);
+			ir->ID = "raw_label";
+		}
 		else
 			ir->PreFix = t->Name;
 		ir->add(_Start_Of_Label);
@@ -103,8 +105,10 @@ void Generator::Detect_Function(Token* t)
 		//make the ending label
 		IR* end = new IR;
 		end->ID = "label";
-		if (t->is("mangle"))
+		if (t->is("mangle")) {
 			end->PreFix = Mangler::Mangle(t) + "END";
+			end->ID = "raw_label";
+		}
 		else
 			end->PreFix = t->Name + "END";
 		end->add(_End_Of_Label);

@@ -24,7 +24,7 @@ string Back::Get_Handler(Token* t)
 	}
 	else if (t->is(_External_) || t->is(_Number_))
 	{
-		if (t->is("import") || t->is("export") || t->is(_Number_))
+		if (t->is("import") || t->is("export") || t->is(_Number_) || t->is("mangle"))
 			return t->Name;
 		return "_" + t->Name;
 	}
