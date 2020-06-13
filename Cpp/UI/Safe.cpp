@@ -149,6 +149,8 @@ string Safe::Get_Keyword_Info(string s){
         return "Represents a changable func.";
     if (s == "virtual")
         return "Represents a changable func.";
+    if (s == "mangle")
+        return "Mangled name";
     return "No info.";   
 }
 

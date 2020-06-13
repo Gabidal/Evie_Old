@@ -12,16 +12,16 @@ type char()(
 	size 1
 )
 
-type long()(
-	size 8
-)
-
 type float()(
-	size 8
+	size 4
 )
 
 type double()(
-	size 12
+	size 8
+)
+
+type long()(
+	size 8
 )
 
 

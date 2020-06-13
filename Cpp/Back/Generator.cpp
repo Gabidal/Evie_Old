@@ -121,9 +121,18 @@ void Generator::Detect_Function(Token* t)
 		Token* Constructor = nullptr;
 		for (Token* i : Types)
 			if (i->Name == t->Name) {
-				t->State = i->State;
-				Constructor = i;
+				if (i->Left_Side_Token->Childs.size() != t->Left_Side_Token->Childs.size()) continue;
+				bool Right_Constructor = true;
+				for (int j = 0; j < i->Left_Side_Token->Childs.size(); j++)
+					if (i->Left_Side_Token->Childs[j]->Size != t->Left_Side_Token->Childs[j]->Size) Right_Constructor = false;
+				if (Right_Constructor) {
+					t->State = i->State;
+					Constructor = i;
+				}
 			}
+		if (Constructor == nullptr) {
+			cout << "Error: Could not find suitable constructor to call!" << endl;
+		}
 		//make a callation OpC*
 		IR* ir = new IR;
 		ir->ID = "call";
@@ -446,7 +455,7 @@ void Generator::Detect_Operator(Token* t)
 	}
 	//b:0 = a:0
 	//lea edi, [(ebp-offset)+ecx*size]
-	if (Normal_Right && !t->Right_Side_Token->is(_Number_))
+	if ((Normal_Right && !t->Right_Side_Token->is(_Number_)) || (Normal_Right &&  t->Right_Side_Token->Size >= 8))
 	{
 		//make a handle register
 		Token* Reg = new Token;

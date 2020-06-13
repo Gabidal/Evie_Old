@@ -690,14 +690,34 @@ void Parser::Type_Definition(int i)
 			for (Token* t : Defined_Keywords)
 				if (t->Name == New_Defined_Text->Name && (!New_Defined_Text->is(_Combined_)))
 				{
-					New_Defined_Text->StackOffset = t->StackOffset;
-					New_Defined_Text->Size = t->Size;
-					New_Defined_Text->add(t->get());
-					New_Defined_Text->Types = t->Types;
-					New_Defined_Text->add(_Combined_);
-					if (New_Defined_Text->is(_Constructor_))
-						t->Left_Side_Token = New_Defined_Text->Left_Side_Token;
-					break;
+					//check if have to make a new clone of the original with mangled
+					bool Different = false;
+					if (t->Left_Side_Token == nullptr) Different = false;
+					else if (t->Left_Side_Token->Childs.size() != New_Defined_Text->Left_Side_Token->Childs.size()) Different = true;
+					else
+						for (int j = 0; j < t->Left_Side_Token->Childs.size(); j++)
+							if (t->Left_Side_Token->Childs[j]->Size != New_Defined_Text->Left_Side_Token->Childs[j]->Size) Different = true;
+					if (Different) {
+						//start making the clone
+						New_Defined_Text->StackOffset = t->StackOffset;
+						New_Defined_Text->Size = t->Size;
+						New_Defined_Text->add(t->get());
+						New_Defined_Text->Types = t->Types;
+						New_Defined_Text->add(_Combined_);
+						Defined_Keywords.push_back(new Token(*New_Defined_Text));
+						break;
+					}
+					else
+					{
+						New_Defined_Text->StackOffset = t->StackOffset;
+						New_Defined_Text->Size = t->Size;
+						New_Defined_Text->add(t->get());
+						New_Defined_Text->Types = t->Types;
+						New_Defined_Text->add(_Combined_);
+						if (New_Defined_Text->is(_Constructor_))
+							t->Left_Side_Token = New_Defined_Text->Left_Side_Token;
+						break;
+					}
 				}
 		//update the callation amount of repsesentive funcion
 		Update_Used_Functions_Value(New_Defined_Text);

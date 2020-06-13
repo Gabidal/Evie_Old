@@ -1,10 +1,17 @@
 use "cstd.e"
 
-func mangle banana(int ptr a){
+func mangle banana;
+
+banana(float a){
+	return 0
+}
+
+banana(int ptr a){
 	return 0
 }
 
 main(){
-	banana(1)
+	float a = 1.0
+	banana(a)
 	return 0
 }
