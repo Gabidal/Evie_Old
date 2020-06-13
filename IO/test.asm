@@ -23,7 +23,7 @@ main:
   sub esp, dword 4
   mov [ebp - 4], dword 1.000000
   push dword [ebp - 4]
-  call _Z6bananaP3int
+  call _Z6banana5float
   add esp , dword 4
   mov eax, dword 0
   leave 

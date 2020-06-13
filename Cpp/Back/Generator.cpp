@@ -119,12 +119,29 @@ void Generator::Detect_Function(Token* t)
 	{
 		//unstable way to get the state from types list
 		Token* Constructor = nullptr;
-		for (Token* i : Types)
+		/*for (Token* i : Types)
 			if (i->Name == t->Name) {
 				if (i->Left_Side_Token->Childs.size() != t->Left_Side_Token->Childs.size()) continue;
 				bool Right_Constructor = true;
 				for (int j = 0; j < i->Left_Side_Token->Childs.size(); j++)
 					if (i->Left_Side_Token->Childs[j]->Size != t->Left_Side_Token->Childs[j]->Size) Right_Constructor = false;
+				if (Right_Constructor) {
+					t->State = i->State;
+					Constructor = i;
+				}
+			}*/
+		for (Token* i : Types)
+			if (i->Name == t->Name) {
+				if (i->Left_Side_Token->Childs.size() != t->Left_Side_Token->Childs.size()) continue;
+				bool Right_Constructor = true;
+				for (int x = 0; x < i->Left_Side_Token->Childs.size(); x++) {
+					if (i->Left_Side_Token->Childs[x]->Types.size() != t->Left_Side_Token->Childs[x]->Types.size()) {
+						Right_Constructor = false;
+						break;
+					}
+					for (int y = 0; y < i->Left_Side_Token->Childs[x]->Types.size(); y++)
+						if (i->Left_Side_Token->Childs[x]->Types[y] != t->Left_Side_Token->Childs[x]->Types[y]) Right_Constructor = false;
+				}
 				if (Right_Constructor) {
 					t->State = i->State;
 					Constructor = i;

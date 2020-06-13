@@ -130,16 +130,14 @@ void Parser::Init_Definition(int& i)
 		New_Defined_Type->Size = _SYSTEM_BIT_TYPE;
 	else
 	{
-		for (Token* t : Defined_Keywords)
-		{
-			//loop all inherited types
-			if (New_Defined_Type->is(t->Name))
-			{
-				New_Defined_Type->Size += t->Size;
-				New_Defined_Type->_Dynamic_Size_ |= t->_Dynamic_Size_;
-				Append(&New_Defined_Type->Childs, t->Childs);
-			}
-		}
+		for (string s : New_Defined_Type->Types)
+			for (Token* t : Defined_Keywords)
+				if (s == t->Name)
+				{
+					New_Defined_Type->Size += t->Size;
+					New_Defined_Type->_Dynamic_Size_ |= t->_Dynamic_Size_;
+					Append(&New_Defined_Type->Childs, t->Childs);
+				}
 	}
 	if (Global_Comment.size() > 0) {
 		New_Defined_Type->Comments = Global_Comment;
@@ -695,8 +693,14 @@ void Parser::Type_Definition(int i)
 					if (t->Left_Side_Token == nullptr) Different = false;
 					else if (t->Left_Side_Token->Childs.size() != New_Defined_Text->Left_Side_Token->Childs.size()) Different = true;
 					else
-						for (int j = 0; j < t->Left_Side_Token->Childs.size(); j++)
-							if (t->Left_Side_Token->Childs[j]->Size != New_Defined_Text->Left_Side_Token->Childs[j]->Size) Different = true;
+						for (int x = 0; x < t->Left_Side_Token->Childs.size(); x++) {
+							if (t->Left_Side_Token->Childs[x]->Types.size() != New_Defined_Text->Left_Side_Token->Childs[x]->Types.size()) {
+								Different = true;
+								break;
+							}
+							for (int y = 0; y < t->Left_Side_Token->Childs[x]->Types.size(); y++)
+								if (t->Left_Side_Token->Childs[x]->Types[y] != New_Defined_Text->Left_Side_Token->Childs[x]->Types[y])  Different = true;
+						}
 					if (Different) {
 						//start making the clone
 						New_Defined_Text->StackOffset = t->StackOffset;
