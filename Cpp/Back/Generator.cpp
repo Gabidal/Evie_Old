@@ -135,12 +135,17 @@ void Generator::Detect_Function(Token* t)
 				if (i->Left_Side_Token->Childs.size() != t->Left_Side_Token->Childs.size()) continue;
 				bool Right_Constructor = true;
 				for (int x = 0; x < i->Left_Side_Token->Childs.size(); x++) {
-					if (i->Left_Side_Token->Childs[x]->Types.size() != t->Left_Side_Token->Childs[x]->Types.size()) {
-						Right_Constructor = false;
-						break;
+					if (t->Left_Side_Token->Childs[x]->is(_Number_)) {
+						if (i->Left_Side_Token->Childs[x]->Size != t->Left_Side_Token->Childs[x]->Size) Right_Constructor = false;
 					}
-					for (int y = 0; y < i->Left_Side_Token->Childs[x]->Types.size(); y++)
-						if (i->Left_Side_Token->Childs[x]->Types[y] != t->Left_Side_Token->Childs[x]->Types[y]) Right_Constructor = false;
+					else {
+						if (i->Left_Side_Token->Childs[x]->Types.size() != t->Left_Side_Token->Childs[x]->Types.size()) {
+							Right_Constructor = false;
+							break;
+						}
+						for (int y = 0; y < i->Left_Side_Token->Childs[x]->Types.size(); y++)
+							if (i->Left_Side_Token->Childs[x]->Types[y] != t->Left_Side_Token->Childs[x]->Types[y]) Right_Constructor = false;
+					}
 				}
 				if (Right_Constructor) {
 					t->State = i->State;

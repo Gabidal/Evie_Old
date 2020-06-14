@@ -12,6 +12,7 @@ banana(int ptr a){
 
 main(){
 	float a = 1.0
+	banana(1)
 	banana(a)
 	return 0
 }
