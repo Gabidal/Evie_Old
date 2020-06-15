@@ -13,7 +13,6 @@ vector<string> Global_Comment;
 extern int _SYSTEM_BIT_TYPE;
 extern vector<string> Included_Files; //for loop holes to not exist
 extern vector<string> Pre_Defined_Tokens;
-extern vector<Token*> Generated_Undefined_Tokens;
 
 string Working_Dir = "";
 string Parser::Update_Dir(string File_Name)
@@ -111,7 +110,7 @@ void Parser::Init_Definition(int& i)
 	if (New_Defined_Type->is("type"))
 	{
 		//REMEMBER!!! this token* size is the raw Size x token
-		Token* Size = Get_Size(i, New_Defined_Type);
+		Token* Size = Get_Setting(i, New_Defined_Type, "size");
 		if (Size == nullptr)
 			New_Defined_Type->Size = 0;
 		else if (Size->Right_Side_Token->Name == "$")
@@ -125,6 +124,9 @@ void Parser::Init_Definition(int& i)
 			New_Defined_Type->Size = Size->Right_Side_Token->Size;
 			Append(&New_Defined_Type->Childs, Size->Right_Side_Token->Childs);
 		}
+		Token* State = Get_Setting(i, New_Defined_Type, "state");
+		if (State != nullptr)
+			New_Defined_Type->State = State->Right_Side_Token->Name;
 	}
 	else if (New_Defined_Type->is("func"))
 		New_Defined_Type->Size = _SYSTEM_BIT_TYPE;
@@ -135,6 +137,7 @@ void Parser::Init_Definition(int& i)
 				if (s == t->Name)
 				{
 					New_Defined_Type->Size += t->Size;
+					New_Defined_Type->State = t->State;
 					New_Defined_Type->_Dynamic_Size_ |= t->_Dynamic_Size_;
 					Append(&New_Defined_Type->Childs, t->Childs);
 				}
@@ -149,7 +152,6 @@ void Parser::Init_Definition(int& i)
 		Set_Right_Stack_Offset(New_Defined_Type);
 	Set_Right_Flag_Info(New_Defined_Type);
 	Defined_Keywords.push_back(New_Defined_Type);
-	Generated_Undefined_Tokens.push_back(New_Defined_Type);
 	if (!New_Defined_Type->is("cache")) {
 		if (New_Defined_Type->is("ptr"))
 			Space_Reservation += _SYSTEM_BIT_TYPE;
@@ -188,7 +190,7 @@ vector<string> Parser::Collect_All_Inherited_Types(int start) //returned vector 
 	return r;
 }
 
-Token* Parser::Get_Size(int i, Token* defined)
+Token* Parser::Get_Setting(int i, Token* defined, string setting)
 {
 	//type a()(..)
 	if (Count_Familiar_Tokens(PAREHTHESIS_COMPONENT, i + 2) < 2)
@@ -204,7 +206,7 @@ Token* Parser::Get_Size(int i, Token* defined)
 	Inside_Of_Class = false;
 	Token* t = nullptr;
 	for (int j = 0; j < p.Output.size(); j++) {
-		if (p.Output.at(j)->is("size"))
+		if (p.Output.at(j)->is(setting))
 		{
 			t = p.Output.at(j);
 		}
@@ -855,6 +857,7 @@ void Parser::Init_Variable(int i)
 				New_Variable->add(t->get());
 				New_Variable->Types = t->Types;
 				New_Variable->Size = t->Size;
+				New_Variable->State = t->State;
 				New_Variable->_Dynamic_Size_ = t->_Dynamic_Size_;
 				New_Variable->Childs = t->Childs;
 				break;

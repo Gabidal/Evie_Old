@@ -65,7 +65,6 @@ class FlagTable : public Object {
 };
 Object* FT;
 
-vector<Token*> Generated_Undefined_Tokens;
 map<string, Token*> Preprosessor_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
 Selector* S;
@@ -174,7 +173,7 @@ int main(int argc, char* argv[])
     Lexer::ExponentSeparator = 'e';
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
-    Lexer::Keywords = { "while", "type", "func", "loyal", "export", "import", "use", "if", "ptr", "mangle"};
+    Lexer::Keywords = { "while", "type", "func", "loyal", "export", "import", "use", "if", "ptr", "mangle", "cache", "decimal"};
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_TYPE = atoi(sys->Info.Bits_Mode.c_str());
     S = new Selector(sys->Info.Architecture);

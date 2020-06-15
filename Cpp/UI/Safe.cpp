@@ -1,5 +1,7 @@
 #include "../../H/UI/Safe.h"
 #include <sstream>
+#include <algorithm>
+
 extern Selector* S;
 
 void Safe::Factory(){
@@ -81,6 +83,10 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
 void Safe::Safe_Type_Inheritance(Token* t){
     if (t->Types.size() < 2)
         return;
+    if (t->is("mangle") || t->is("cache") || t->is("loyal"))
+        //we want to skip the mangled names as blacklisted
+        if (t->Types.size() - 1 < 2)
+            return;
     //if (!t->Size > 0)
     //    return;
     for (string s: Avoid_Duplication_On_Inheritance)

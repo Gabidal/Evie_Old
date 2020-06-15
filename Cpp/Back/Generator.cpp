@@ -135,8 +135,25 @@ void Generator::Detect_Function(Token* t)
 				if (i->Left_Side_Token->Childs.size() != t->Left_Side_Token->Childs.size()) continue;
 				bool Right_Constructor = true;
 				for (int x = 0; x < i->Left_Side_Token->Childs.size(); x++) {
-					if (t->Left_Side_Token->Childs[x]->is(_Number_)) {
-						if (i->Left_Side_Token->Childs[x]->Size != t->Left_Side_Token->Childs[x]->Size) Right_Constructor = false;
+					if (t->Left_Side_Token->Childs[x]->is(_Number_) || t->Left_Side_Token->Childs[x]->is("cache")) {
+						bool Parameter_Is_Decimal = false;
+						bool Template_Parameter_Is_Decimal = false;
+						//cheking if other is decimal and other is not
+						if (t->Left_Side_Token->Childs[x]->is(_Number_) && find(t->Left_Side_Token->Childs[x]->Name.begin(), t->Left_Side_Token->Childs[x]->Name.end(), '.') != t->Left_Side_Token->Childs[x]->Name.end())
+							Parameter_Is_Decimal = true;
+						else if (t->Left_Side_Token->Childs[x]->State == "decimal")
+							Parameter_Is_Decimal = true;
+						if (i->Left_Side_Token->Childs[x]->State == "decimal")
+							Template_Parameter_Is_Decimal = true;
+						if (Parameter_Is_Decimal ^ Template_Parameter_Is_Decimal) {
+							//if neither is then good, if other is and other not its bad, if both are its good
+							Right_Constructor = false;
+							break;
+						}
+						if (i->Left_Side_Token->Childs[x]->Size != t->Left_Side_Token->Childs[x]->Size) {
+							Right_Constructor = false;
+							break;
+						}
 					}
 					else {
 						if (i->Left_Side_Token->Childs[x]->Types.size() != t->Left_Side_Token->Childs[x]->Types.size()) {
@@ -144,16 +161,25 @@ void Generator::Detect_Function(Token* t)
 							break;
 						}
 						for (int y = 0; y < i->Left_Side_Token->Childs[x]->Types.size(); y++)
-							if (i->Left_Side_Token->Childs[x]->Types[y] != t->Left_Side_Token->Childs[x]->Types[y]) Right_Constructor = false;
+							if (i->Left_Side_Token->Childs[x]->Types[y] != t->Left_Side_Token->Childs[x]->Types[y]) {
+								Right_Constructor = false;
+								break;
+							}
 					}
 				}
 				if (Right_Constructor) {
 					t->State = i->State;
 					Constructor = i;
+					break;
 				}
 			}
 		if (Constructor == nullptr) {
-			cout << "Error: Could not find suitable constructor to call!" << endl;
+			cout << "Error: Could not find suitable constructor to call " << t->Name << "(";
+			for (int i = 0; i < t->Left_Side_Token->Childs.size()-1; i++) {
+				cout << "[" << t->Left_Side_Token->Childs[i]->Get_Types() << "]" << t->Left_Side_Token->Childs[i]->Name << " ,";
+			}
+			cout << "[" << t->Left_Side_Token->Childs[t->Left_Side_Token->Childs.size() - 1]->Get_Types() << "]" << t->Left_Side_Token->Childs[t->Left_Side_Token->Childs.size() - 1]->Name << ")" << endl;
+			exit(1);
 		}
 		//make a callation OpC*
 		IR* ir = new IR;
@@ -336,7 +362,7 @@ void Generator::Dodge(Token* l, Token* r)
 		save->Parameters.push_back(reg);
 		save->Parameters.push_back(g.Handle);
 		Output.push_back(save);
-		//now overwrite the existing calling convension by the newwly made register
+		//now overwrite the existing calling convension by the newly made register
 		*r = *reg;
 	}
 }
@@ -439,6 +465,7 @@ void Generator::Detect_Operator(Token* t)
 		t->Left_Side_Token->Name_Of_Same_Using_Register = t->Right_Side_Token->Name;
 	//now do the same but for right side.
 	Generator g;
+	g.Types = Types;
 	g.Input.push_back(t->Right_Side_Token);
 	g.Factory();
 	//save the information gived by the generator yet again.
@@ -800,6 +827,7 @@ void Generator::Detect_Pre_Defined_Tokens(Token* t)
 			IR *ir = new IR;
 			ir->ID = T;
 			Generator g;
+			g.Types = Types;
 			if (t->Right_Side_Token != nullptr) {
 				g.Input.push_back(t->Right_Side_Token);
 				g.Factory();

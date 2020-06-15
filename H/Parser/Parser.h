@@ -26,7 +26,7 @@ public:
     void Init_Definition(int &i);
     void Init_Comments(int i);
     vector<string> Collect_All_Inherited_Types(int i);
-    Token* Get_Size(int i, Token* t);
+    Token* Get_Setting(int i, Token* t, string setting);
     Token* Find(string name, vector<Token*> list);
     vector<Component> Find_Root(Component parent);
     void Init_Operator(int i);

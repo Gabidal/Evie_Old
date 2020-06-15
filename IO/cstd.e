@@ -14,16 +14,17 @@ type char()(
 
 type float()(
 	size 4
+	state decimal
 )
 
 type double()(
 	size 8
+	state decimal
 )
 
 type long()(
 	size 8
 )
-
 
 type void(){
 	state func

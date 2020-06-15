@@ -6,13 +6,11 @@ banana(float a){
 	return 0
 }
 
-banana(int ptr a){
+banana(int a){
 	return 0
 }
 
 main(){
-	float a = 1.0
-	banana(1)
-	banana(a)
-	return 0
+	cache float a = 1.0
+	return banana(a) + banana(1.0)
 }

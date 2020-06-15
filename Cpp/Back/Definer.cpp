@@ -2,7 +2,6 @@
 #include <iostream>
 using namespace std;
 extern vector<string> Pre_Defined_Tokens;
-extern vector<Token*> Generated_Undefined_Tokens; 
 extern map<string, Token*> Preprosessor_Tokens;
 extern int _SYSTEM_BIT_TYPE;
 
@@ -75,9 +74,6 @@ Token* Definer::FIND(string name)
 		if (t->Name == name)
 			return t;
 	for (Token* t: Defined_Types)
-		if (t->Name == name)
-			return t;
-	for (Token* t: Generated_Undefined_Tokens)
 		if (t->Name == name)
 			return t;
 	cout << "Warning: Uninitialized pre type: " + name + "." << endl;

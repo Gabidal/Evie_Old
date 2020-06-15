@@ -114,6 +114,7 @@ class Token : public Object
     void remove(int flag);
     int get();
     bool is(string type);
+    string Get_Types();
     string Get_Additive_Operator();
     //From this point on there are optimizing
     //Member's.

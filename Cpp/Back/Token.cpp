@@ -2,6 +2,7 @@
 #include <string>
 #include "../../H/Back/Token.h"
 #include "../../H/Back/Assembly_Definitions.h"
+#include <iostream>
 using namespace std;
 int RegisterTurn = 0;
 
@@ -70,6 +71,16 @@ bool Token::is(string type)
 		}
 	}
 	return false;
+}
+
+string Token::Get_Types()
+{
+	string result;
+	for (int i = 0; i < Types.size() - 1; i++) {
+		result += Types[i] + " ,";
+	}
+	result += Types[Types.size() - 1];
+	return result;
 }
 
 string Token::Get_Additive_Operator()

@@ -6,30 +6,28 @@ leave
 ret
  
 _Z6banana5floatEND: 
-_Z6bananaP3int: 
+_Z6banana3int: 
 push ebp 
 mov ebp , esp 
 mov eax, dword 0
 leave 
 ret
  
-_Z6bananaP3intEND: 
+_Z6banana3intEND: 
 export main
 global main
 main: 
   _main: 
-  push ebp 
-  mov ebp , esp 
-  sub esp, dword 4
-  mov [ebp - 4], dword 1.000000
-  push dword 1
-  call _Z6bananaP3int
-  add esp , dword 4
-  push dword [ebp - 4]
+  mov ebx , dword 1.000000
+  push dword 1.000000
+  call _Z6banana5float
+  add esp, dword 4
+  mov ecx, eax
+  push ebx 
   call _Z6banana5float
   add esp , dword 4
-  mov eax, dword 0
-  leave 
+  add eax, ecx 
+  mov eax, eax
   ret
  
 _mainEND: 
