@@ -132,39 +132,41 @@ void Generator::Detect_Function(Token* t)
 			}*/
 		for (Token* i : Types)
 			if (i->Name == t->Name) {
-				if (i->Left_Side_Token->Childs.size() != t->Left_Side_Token->Childs.size()) continue;
 				bool Right_Constructor = true;
-				for (int x = 0; x < i->Left_Side_Token->Childs.size(); x++) {
-					if (t->Left_Side_Token->Childs[x]->is(_Number_) || t->Left_Side_Token->Childs[x]->is("cache")) {
-						bool Parameter_Is_Decimal = false;
-						bool Template_Parameter_Is_Decimal = false;
-						//cheking if other is decimal and other is not
-						if (t->Left_Side_Token->Childs[x]->is(_Number_) && find(t->Left_Side_Token->Childs[x]->Name.begin(), t->Left_Side_Token->Childs[x]->Name.end(), '.') != t->Left_Side_Token->Childs[x]->Name.end())
-							Parameter_Is_Decimal = true;
-						else if (t->Left_Side_Token->Childs[x]->State == "decimal")
-							Parameter_Is_Decimal = true;
-						if (i->Left_Side_Token->Childs[x]->State == "decimal")
-							Template_Parameter_Is_Decimal = true;
-						if (Parameter_Is_Decimal ^ Template_Parameter_Is_Decimal) {
-							//if neither is then good, if other is and other not its bad, if both are its good
-							Right_Constructor = false;
-							break;
-						}
-						if (i->Left_Side_Token->Childs[x]->Size != t->Left_Side_Token->Childs[x]->Size) {
-							Right_Constructor = false;
-							break;
-						}
-					}
-					else {
-						if (i->Left_Side_Token->Childs[x]->Types.size() != t->Left_Side_Token->Childs[x]->Types.size()) {
-							Right_Constructor = false;
-							break;
-						}
-						for (int y = 0; y < i->Left_Side_Token->Childs[x]->Types.size(); y++)
-							if (i->Left_Side_Token->Childs[x]->Types[y] != t->Left_Side_Token->Childs[x]->Types[y]) {
+				if (t->is("mangle")) {
+					if (i->Left_Side_Token->Childs.size() != t->Left_Side_Token->Childs.size()) continue;
+					for (int x = 0; x < i->Left_Side_Token->Childs.size(); x++) {
+						if (t->Left_Side_Token->Childs[x]->is(_Number_) || t->Left_Side_Token->Childs[x]->is("cache")) {
+							bool Parameter_Is_Decimal = false;
+							bool Template_Parameter_Is_Decimal = false;
+							//cheking if other is decimal and other is not
+							if (t->Left_Side_Token->Childs[x]->is(_Number_) && find(t->Left_Side_Token->Childs[x]->Name.begin(), t->Left_Side_Token->Childs[x]->Name.end(), '.') != t->Left_Side_Token->Childs[x]->Name.end())
+								Parameter_Is_Decimal = true;
+							else if (t->Left_Side_Token->Childs[x]->State == "decimal")
+								Parameter_Is_Decimal = true;
+							if (i->Left_Side_Token->Childs[x]->State == "decimal")
+								Template_Parameter_Is_Decimal = true;
+							if (Parameter_Is_Decimal ^ Template_Parameter_Is_Decimal) {
+								//if neither is then good, if other is and other not its bad, if both are its good
 								Right_Constructor = false;
 								break;
 							}
+							if (i->Left_Side_Token->Childs[x]->Size != t->Left_Side_Token->Childs[x]->Size) {
+								Right_Constructor = false;
+								break;
+							}
+						}
+						else {
+							if (i->Left_Side_Token->Childs[x]->Types.size() != t->Left_Side_Token->Childs[x]->Types.size()) {
+								Right_Constructor = false;
+								break;
+							}
+							for (int y = 0; y < i->Left_Side_Token->Childs[x]->Types.size(); y++)
+								if (i->Left_Side_Token->Childs[x]->Types[y] != t->Left_Side_Token->Childs[x]->Types[y]) {
+									Right_Constructor = false;
+									break;
+								}
+						}
 					}
 				}
 				if (Right_Constructor) {

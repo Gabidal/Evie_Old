@@ -23,36 +23,36 @@ dword GL_QUADS = 7
 
 func glClear(dword Constant)(
 	push Constant
-	_glClear@4(),
-	(return 0)
+	_glClear@4()
+	return 0
 )
 
 func glClearColor(dword r, dword g, dword b, dword a)
 (
-	(_glClearColor@16(r, g, b, a))
+	_glClearColor@16(r, g, b, a)
 	return 0
 )
 
 func glVertex2f(dword x, dword y)(
 	push y
 	push x
-	(_glVertex2f@8())
+	_glVertex2f@8()
 	return 0
 )
 
 func glBegin(dword Mode)(
 	push Mode
-	(_glBegin@4())
+	_glBegin@4()
 	return 0
 )
 
 func glEnd()(
-	(_glEnd@0())
+	_glEnd@0()
 	return 0
 )
 
 func glFlush()(
-	(_glFlush@0())
+	_glFlush@0()
 	return 0
 )
 
@@ -60,6 +60,6 @@ func glColor3f(dword r, dword g, dword b)(
 	push b
 	push g
 	push r
-	(_glColor3f@12())
+	_glColor3f@12()
 	return 0
 )

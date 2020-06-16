@@ -558,14 +558,18 @@ void Parser::Init_Conditions(int i)
 		New_Defined_Condition->Left_Side_Token = P.Output.at(0);
 
 
+		int Next_Parenthesis_Index = 2;
+		if (Input.at(i + 2).Value == "\n")
+			Next_Parenthesis_Index = 3;
+
 		P.Output.clear();
 		P.Input.clear();
-		P.Input.push_back(Input.at((size_t)i + 2));				//The Childs if that condition happends.
+		P.Input.push_back(Input.at((size_t)i + Next_Parenthesis_Index));				//The Childs if that condition happends.
 		P.Factory();
 
 		New_Defined_Condition->Right_Side_Token = P.Output.at(0);
 
-		Input.erase(Input.begin() + i + 2);
+		Input.erase(Input.begin() + i + Next_Parenthesis_Index);
 		Input.erase(Input.begin() + i + 1);
 
 		//for space reservation
@@ -652,6 +656,10 @@ void Parser::Type_Definition(int i)
 			New_Defined_Text->Left_Side_Token->Reservable_Size = 0;
 
 
+			int Next_Parenthesis_Index = 2;
+			if (Input.at(i + 2).Value == "\n")
+				Next_Parenthesis_Index = 3;
+
 			//update context
 			P.Context = Input.at(i).Value;
 
@@ -659,7 +667,7 @@ void Parser::Type_Definition(int i)
 			P.Input.clear();
 			//childs
 			Inside_Of_Constructor = true;
-			P.Input.push_back(Input.at((size_t)i + 2));
+			P.Input.push_back(Input.at((size_t)i + Next_Parenthesis_Index));
 			P.Space_Reservation = 0;			//!!!!!!!!!!!!!!
 			P.Factory();
 			Inside_Of_Constructor = false;
@@ -676,7 +684,7 @@ void Parser::Type_Definition(int i)
 				New_Defined_Text->Reservable_Size = New_Defined_Text->Right_Side_Token->Reservable_Size;
 			}
 
-			Input.erase(Input.begin() + i + 2);
+			Input.erase(Input.begin() + i + Next_Parenthesis_Index);
 			Input.erase(Input.begin() + i + 1);
 
 		}

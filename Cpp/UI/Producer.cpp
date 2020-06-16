@@ -190,7 +190,7 @@ string Producer::Link()
 
 string Producer::Get_Template()
 {
-    if (Find(Libs, "OpenGL32.lib"))
+    if (Find(Libs, "OpenGL32.lib") || Find(Libs, "OpenGL32.Lib"))
     {
         if (OS == "win32")
         {

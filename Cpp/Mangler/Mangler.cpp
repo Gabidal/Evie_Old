@@ -56,8 +56,10 @@ string Mangler::Mangle(Token* t)
 
 string Mangler::Get_Main_Name(string Name)
 {
-	if (Name.size() < 3) return Name + " ()";
-	if (Name[0] != '_' || (Name[1] != 'Z')) return Name + " ()";
+	if (Name.size() < 3) return Name;
+	string tmp;
+	tmp += Name.substr(0, 2);
+	if (tmp != "_Z") return Name;
 
 
 	for (int i = 0; i < Name.size(); i++) {

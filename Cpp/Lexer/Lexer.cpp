@@ -318,7 +318,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
 
         if (IsParenthesis(current_symbol))
         {
-            // There cannot be number and content tokens side by side
+            // There cannot be number and content tokens side by side 1(
             if (area.Type == Type::NUMBER)
             {
                 throw runtime_error(GetError(position, "Missing operator between number and parenthesis").c_str());
