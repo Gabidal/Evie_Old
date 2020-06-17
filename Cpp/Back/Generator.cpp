@@ -176,7 +176,7 @@ void Generator::Detect_Function(Token* t)
 					break;
 				}
 			}
-		if (Constructor == nullptr) {
+		if (t->is("mangle") && Constructor == nullptr) {
 			cout << "Error: Could not find suitable constructor to call " << t->Name << "(";
 			for (int i = 0; i < t->Left_Side_Token->Childs.size()-1; i++) {
 				cout << "[" << t->Left_Side_Token->Childs[i]->Get_Types() << "]" << t->Left_Side_Token->Childs[i]->Name << " ,";

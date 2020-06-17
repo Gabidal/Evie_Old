@@ -18,6 +18,8 @@ system Obj_Type
 system Bits_Mode
 
 
+func print
+
 $if (sys:(Info:OS) == "win32")(
 	use "win32.asm"
 )

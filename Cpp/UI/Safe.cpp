@@ -221,6 +221,8 @@ void Safe::Safe_Calling(Token* t)
     vector<Token*> Callation_Parameters = t->Left_Side_Token->Childs;
     reverse(Callation_Parameters.begin(), Callation_Parameters.end());
     int j = 0;
+    if (Function->Left_Side_Token == nullptr)
+        return;
     for (Token*i : Function->Left_Side_Token->Childs) {
         if (j >= Callation_Parameters.size()) {
             cout << "Warning: The original function has different amount of parameters!" << endl;
