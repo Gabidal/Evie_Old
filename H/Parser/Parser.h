@@ -47,7 +47,7 @@ public:
     void Init_Variable(int i);
     void Check_For_Correlation(int i);
     void Check_For_Correlation_Link(int i);
-    void Check_For_Inter(int i);
+    void Check_For_Preprosessor(int i);
     void Factory();
     void Append(vector<Token*>* Dest, vector<Token*> Source);
     void Append(vector<Component>* Dest, vector<Component> Source);

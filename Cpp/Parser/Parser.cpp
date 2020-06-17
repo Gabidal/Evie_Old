@@ -30,26 +30,43 @@ void Parser::Include_Files(int i)
 {
 	if (Input.at(i).Value == "use")
 	{
+		bool Do_As_PreProsessor = false;
+		if (i - 1 >= 0)
+			if (Input.at(i - 1).Value == "$")
+				Do_As_PreProsessor = true;
 		string filename = Input.at((size_t)i + 1).Value.substr(1, Input.at((size_t)i + 1).Value.size() - 2);
 		for (string s : Included_Files)
-			if (Input.at((size_t)i+1).is(STRING_COMPONENT) && (filename == s))
+			if (Input.at((size_t)i + 1).is(STRING_COMPONENT) && (filename == s))
 			{
 				cout << "Warning: " << Input.at((size_t)i + 1).Value << " has already been included." << endl;
 				Input.erase(Input.begin() + i + 1);
+				Input.erase(Input.begin() + i);
 				return;
 			}
 		string Name = Update_Dir(filename);
-		//now include the file
-		Docker D(filename, Working_Dir, "");
+		//now include the file 
+		Docker* D;
+		//if prerosessing is needed use Docker if not make an %include "text" include as a Token*
+		if (Do_As_PreProsessor)
+			D = new Docker(Name, Working_Dir, "");
+		else {
+			Token* Include = new Token;
+			Include->Name = filename;
+			Include->_IS_ASM_INCLUDE_ = true;
+			Output.push_back(Include);
+		}
 
 		//vector<Component> tmp = Lexer::GetComponentsFromFile(Working_Dir + Name);
 		Input.erase(Input.begin() + i + 1);
 		Input.erase(Input.begin() + i);
-		Input.insert(Input.begin() + i, D.Output.begin(), D.Output.end());
+		if (Do_As_PreProsessor) {
+			Input.erase(Input.begin() + i - 1);
+			Input.insert(Input.begin() + i, D->Output.begin(), D->Output.end());
+		}
 		Included_Files.push_back(filename);
 	}
 	if (Input.at(i).Value == "use")
-	Include_Files(i);
+		Include_Files(i);
 }
 
 void Parser::Connect_Array(int i)
@@ -1007,7 +1024,7 @@ void Parser::Check_For_Correlation_Link(int i)
 		}
 }
 
-void Parser::Check_For_Inter(int i)
+void Parser::Check_For_Preprosessor(int i)
 {
 	if (Input.size() - 1 < (size_t)i + 1)
 		return;
@@ -1026,7 +1043,7 @@ void Parser::Check_For_Inter(int i)
 	if (Input.at(i).Value == "$")
 	{
 		//loops if these is right behind it another "$"
-		Check_For_Inter(i);
+		Check_For_Preprosessor(i);
 	}
 }
 
@@ -1055,7 +1072,7 @@ void Parser::Factory()
 	{
 		Init_Member_Reaching(i);
 		Update_Line_Number(Input.at(i));
-		Check_For_Inter(i);
+		Check_For_Preprosessor(i);
 		Init_Operator(i);
 		Init_Variable(i);
 		Init_Parenthesis(i);

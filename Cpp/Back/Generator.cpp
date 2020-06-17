@@ -12,6 +12,7 @@ void Generator::Factory()
 		Hide_Un_Used_Function(i);
 	for (int i = 0; i < (int)Input.size(); i++)
 	{
+		Detect_Assembly_Including(Input.at(i));
 		//Detect_Prefixes(Input.at(i));
 		Hide_Real_Size(Input.at(i));
 		Detect_Pointters(Input.at(i));
@@ -864,6 +865,21 @@ void Generator::Detect_Prefixes(Token* t)
 		ir->ID = t->Name;
 		Output.push_back(ir);
 	}
+}
+
+void Generator::Detect_Assembly_Including(Token* t)
+{
+	if (!t->_IS_ASM_INCLUDE_)
+		return;
+	//make an IR token that uses the selections %include ID
+	IR* Include = new IR;
+	Include->ID = "include";
+	//t as an parameter as an string
+	t->add(_String_);
+	t->_RAW_STRING_ = true;
+	Include->Parameters.push_back(t);
+	Output.push_back(Include);
+	return;
 }
 
 void Generator::Append(vector<IR*> *Dest, vector<IR*> Source)

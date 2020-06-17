@@ -19,9 +19,9 @@ system Bits_Mode
 
 
 $if (sys:(Info:OS) == "win32")(
-	using "win32.e"
+	use "win32.asm"
 )
 
 $if (sys:(Info:OS) == "unix")(
-	using "unix.e"
+	use "unix.asm"
 )

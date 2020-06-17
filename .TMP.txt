@@ -1,2582 +1,1106 @@
-IO/OpenGL32.Lib[OPENGL32.dll]:
-__IMPORT_DESCRIPTOR_OPENGL32 I 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-__NULL_IMPORT_DESCRIPTOR I 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-OPENGL32_NULL_THUNK_DATA I 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__GlmfBeginGlsBlock@4 I 00000000 
-_GlmfBeginGlsBlock@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__GlmfCloseMetaFile@4 I 00000000 
-_GlmfCloseMetaFile@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__GlmfEndGlsBlock@4 I 00000000 
-_GlmfEndGlsBlock@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__GlmfEndPlayback@4 I 00000000 
-_GlmfEndPlayback@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__GlmfInitPlayback@12 I 00000000 
-_GlmfInitPlayback@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__GlmfPlayGlsRecord@16 I 00000000 
-_GlmfPlayGlsRecord@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glAccum@8 I 00000000 
-_glAccum@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glAlphaFunc@8 I 00000000 
-_glAlphaFunc@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glAreTexturesResident@12 I 00000000 
-_glAreTexturesResident@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glArrayElement@4 I 00000000 
-_glArrayElement@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glBegin@4 I 00000000 
-_glBegin@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glBindTexture@8 I 00000000 
-_glBindTexture@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glBitmap@28 I 00000000 
-_glBitmap@28 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glBlendFunc@8 I 00000000 
-_glBlendFunc@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCallList@4 I 00000000 
-_glCallList@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCallLists@12 I 00000000 
-_glCallLists@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glClear@4 I 00000000 
-_glClear@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glClearAccum@16 I 00000000 
-_glClearAccum@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glClearColor@16 I 00000000 
-_glClearColor@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glClearDepth@8 I 00000000 
-_glClearDepth@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glClearIndex@4 I 00000000 
-_glClearIndex@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glClearStencil@4 I 00000000 
-_glClearStencil@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glClipPlane@8 I 00000000 
-_glClipPlane@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3b@12 I 00000000 
-_glColor3b@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3bv@4 I 00000000 
-_glColor3bv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3d@24 I 00000000 
-_glColor3d@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3dv@4 I 00000000 
-_glColor3dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3f@12 I 00000000 
-_glColor3f@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3fv@4 I 00000000 
-_glColor3fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3i@12 I 00000000 
-_glColor3i@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3iv@4 I 00000000 
-_glColor3iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3s@12 I 00000000 
-_glColor3s@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3sv@4 I 00000000 
-_glColor3sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3ub@12 I 00000000 
-_glColor3ub@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3ubv@4 I 00000000 
-_glColor3ubv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3ui@12 I 00000000 
-_glColor3ui@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3uiv@4 I 00000000 
-_glColor3uiv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3us@12 I 00000000 
-_glColor3us@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor3usv@4 I 00000000 
-_glColor3usv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4b@16 I 00000000 
-_glColor4b@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4bv@4 I 00000000 
-_glColor4bv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4d@32 I 00000000 
-_glColor4d@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4dv@4 I 00000000 
-_glColor4dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4f@16 I 00000000 
-_glColor4f@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4fv@4 I 00000000 
-_glColor4fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4i@16 I 00000000 
-_glColor4i@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4iv@4 I 00000000 
-_glColor4iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4s@16 I 00000000 
-_glColor4s@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4sv@4 I 00000000 
-_glColor4sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4ub@16 I 00000000 
-_glColor4ub@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4ubv@4 I 00000000 
-_glColor4ubv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4ui@16 I 00000000 
-_glColor4ui@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4uiv@4 I 00000000 
-_glColor4uiv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4us@16 I 00000000 
-_glColor4us@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColor4usv@4 I 00000000 
-_glColor4usv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColorMask@16 I 00000000 
-_glColorMask@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColorMaterial@8 I 00000000 
-_glColorMaterial@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glColorPointer@16 I 00000000 
-_glColorPointer@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCopyPixels@20 I 00000000 
-_glCopyPixels@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCopyTexImage1D@28 I 00000000 
-_glCopyTexImage1D@28 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCopyTexImage2D@32 I 00000000 
-_glCopyTexImage2D@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCopyTexSubImage1D@24 I 00000000 
-_glCopyTexSubImage1D@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCopyTexSubImage2D@32 I 00000000 
-_glCopyTexSubImage2D@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glCullFace@4 I 00000000 
-_glCullFace@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDebugEntry@8 I 00000000 
-_glDebugEntry@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDeleteLists@8 I 00000000 
-_glDeleteLists@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDeleteTextures@8 I 00000000 
-_glDeleteTextures@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDepthFunc@4 I 00000000 
-_glDepthFunc@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDepthMask@4 I 00000000 
-_glDepthMask@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDepthRange@16 I 00000000 
-_glDepthRange@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDisable@4 I 00000000 
-_glDisable@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDisableClientState@4 I 00000000 
-_glDisableClientState@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDrawArrays@12 I 00000000 
-_glDrawArrays@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDrawBuffer@4 I 00000000 
-_glDrawBuffer@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDrawElements@16 I 00000000 
-_glDrawElements@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glDrawPixels@20 I 00000000 
-_glDrawPixels@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEdgeFlag@4 I 00000000 
-_glEdgeFlag@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEdgeFlagPointer@8 I 00000000 
-_glEdgeFlagPointer@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEdgeFlagv@4 I 00000000 
-_glEdgeFlagv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEnable@4 I 00000000 
-_glEnable@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEnableClientState@4 I 00000000 
-_glEnableClientState@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEnd@0 I 00000000 
-_glEnd@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEndList@0 I 00000000 
-_glEndList@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord1d@8 I 00000000 
-_glEvalCoord1d@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord1dv@4 I 00000000 
-_glEvalCoord1dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord1f@4 I 00000000 
-_glEvalCoord1f@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord1fv@4 I 00000000 
-_glEvalCoord1fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord2d@16 I 00000000 
-_glEvalCoord2d@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord2dv@4 I 00000000 
-_glEvalCoord2dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord2f@8 I 00000000 
-_glEvalCoord2f@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalCoord2fv@4 I 00000000 
-_glEvalCoord2fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalMesh1@12 I 00000000 
-_glEvalMesh1@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalMesh2@20 I 00000000 
-_glEvalMesh2@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalPoint1@4 I 00000000 
-_glEvalPoint1@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glEvalPoint2@8 I 00000000 
-_glEvalPoint2@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFeedbackBuffer@12 I 00000000 
-_glFeedbackBuffer@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFinish@0 I 00000000 
-_glFinish@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFlush@0 I 00000000 
-_glFlush@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFogf@8 I 00000000 
-_glFogf@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFogfv@8 I 00000000 
-_glFogfv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFogi@8 I 00000000 
-_glFogi@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFogiv@8 I 00000000 
-_glFogiv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFrontFace@4 I 00000000 
-_glFrontFace@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glFrustum@48 I 00000000 
-_glFrustum@48 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGenLists@4 I 00000000 
-_glGenLists@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGenTextures@8 I 00000000 
-_glGenTextures@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetBooleanv@8 I 00000000 
-_glGetBooleanv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetClipPlane@8 I 00000000 
-_glGetClipPlane@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetDoublev@8 I 00000000 
-_glGetDoublev@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetError@0 I 00000000 
-_glGetError@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetFloatv@8 I 00000000 
-_glGetFloatv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetIntegerv@8 I 00000000 
-_glGetIntegerv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetLightfv@12 I 00000000 
-_glGetLightfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetLightiv@12 I 00000000 
-_glGetLightiv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetMapdv@12 I 00000000 
-_glGetMapdv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetMapfv@12 I 00000000 
-_glGetMapfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetMapiv@12 I 00000000 
-_glGetMapiv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetMaterialfv@12 I 00000000 
-_glGetMaterialfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetMaterialiv@12 I 00000000 
-_glGetMaterialiv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetPixelMapfv@8 I 00000000 
-_glGetPixelMapfv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetPixelMapuiv@8 I 00000000 
-_glGetPixelMapuiv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetPixelMapusv@8 I 00000000 
-_glGetPixelMapusv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetPointerv@8 I 00000000 
-_glGetPointerv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetPolygonStipple@4 I 00000000 
-_glGetPolygonStipple@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetString@4 I 00000000 
-_glGetString@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexEnvfv@12 I 00000000 
-_glGetTexEnvfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexEnviv@12 I 00000000 
-_glGetTexEnviv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexGendv@12 I 00000000 
-_glGetTexGendv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexGenfv@12 I 00000000 
-_glGetTexGenfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexGeniv@12 I 00000000 
-_glGetTexGeniv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexImage@20 I 00000000 
-_glGetTexImage@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexLevelParameterfv@16 I 00000000 
-_glGetTexLevelParameterfv@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexLevelParameteriv@16 I 00000000 
-_glGetTexLevelParameteriv@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexParameterfv@12 I 00000000 
-_glGetTexParameterfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glGetTexParameteriv@12 I 00000000 
-_glGetTexParameteriv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glHint@8 I 00000000 
-_glHint@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexMask@4 I 00000000 
-_glIndexMask@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexPointer@12 I 00000000 
-_glIndexPointer@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexd@8 I 00000000 
-_glIndexd@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexdv@4 I 00000000 
-_glIndexdv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexf@4 I 00000000 
-_glIndexf@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexfv@4 I 00000000 
-_glIndexfv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexi@4 I 00000000 
-_glIndexi@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexiv@4 I 00000000 
-_glIndexiv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexs@4 I 00000000 
-_glIndexs@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexsv@4 I 00000000 
-_glIndexsv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexub@4 I 00000000 
-_glIndexub@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIndexubv@4 I 00000000 
-_glIndexubv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glInitNames@0 I 00000000 
-_glInitNames@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glInterleavedArrays@12 I 00000000 
-_glInterleavedArrays@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIsEnabled@4 I 00000000 
-_glIsEnabled@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIsList@4 I 00000000 
-_glIsList@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glIsTexture@4 I 00000000 
-_glIsTexture@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLightModelf@8 I 00000000 
-_glLightModelf@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLightModelfv@8 I 00000000 
-_glLightModelfv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLightModeli@8 I 00000000 
-_glLightModeli@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLightModeliv@8 I 00000000 
-_glLightModeliv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLightf@12 I 00000000 
-_glLightf@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLightfv@12 I 00000000 
-_glLightfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLighti@12 I 00000000 
-_glLighti@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLightiv@12 I 00000000 
-_glLightiv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLineStipple@8 I 00000000 
-_glLineStipple@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLineWidth@4 I 00000000 
-_glLineWidth@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glListBase@4 I 00000000 
-_glListBase@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLoadIdentity@0 I 00000000 
-_glLoadIdentity@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLoadMatrixd@4 I 00000000 
-_glLoadMatrixd@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLoadMatrixf@4 I 00000000 
-_glLoadMatrixf@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLoadName@4 I 00000000 
-_glLoadName@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glLogicOp@4 I 00000000 
-_glLogicOp@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMap1d@32 I 00000000 
-_glMap1d@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMap1f@24 I 00000000 
-_glMap1f@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMap2d@56 I 00000000 
-_glMap2d@56 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMap2f@40 I 00000000 
-_glMap2f@40 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMapGrid1d@20 I 00000000 
-_glMapGrid1d@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMapGrid1f@12 I 00000000 
-_glMapGrid1f@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMapGrid2d@40 I 00000000 
-_glMapGrid2d@40 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMapGrid2f@24 I 00000000 
-_glMapGrid2f@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMaterialf@12 I 00000000 
-_glMaterialf@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMaterialfv@12 I 00000000 
-_glMaterialfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMateriali@12 I 00000000 
-_glMateriali@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMaterialiv@12 I 00000000 
-_glMaterialiv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMatrixMode@4 I 00000000 
-_glMatrixMode@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMultMatrixd@4 I 00000000 
-_glMultMatrixd@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glMultMatrixf@4 I 00000000 
-_glMultMatrixf@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNewList@8 I 00000000 
-_glNewList@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3b@12 I 00000000 
-_glNormal3b@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3bv@4 I 00000000 
-_glNormal3bv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3d@24 I 00000000 
-_glNormal3d@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3dv@4 I 00000000 
-_glNormal3dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3f@12 I 00000000 
-_glNormal3f@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3fv@4 I 00000000 
-_glNormal3fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3i@12 I 00000000 
-_glNormal3i@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3iv@4 I 00000000 
-_glNormal3iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3s@12 I 00000000 
-_glNormal3s@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormal3sv@4 I 00000000 
-_glNormal3sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glNormalPointer@12 I 00000000 
-_glNormalPointer@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glOrtho@48 I 00000000 
-_glOrtho@48 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPassThrough@4 I 00000000 
-_glPassThrough@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelMapfv@12 I 00000000 
-_glPixelMapfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelMapuiv@12 I 00000000 
-_glPixelMapuiv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelMapusv@12 I 00000000 
-_glPixelMapusv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelStoref@8 I 00000000 
-_glPixelStoref@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelStorei@8 I 00000000 
-_glPixelStorei@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelTransferf@8 I 00000000 
-_glPixelTransferf@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelTransferi@8 I 00000000 
-_glPixelTransferi@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPixelZoom@8 I 00000000 
-_glPixelZoom@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPointSize@4 I 00000000 
-_glPointSize@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPolygonMode@8 I 00000000 
-_glPolygonMode@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPolygonOffset@8 I 00000000 
-_glPolygonOffset@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPolygonStipple@4 I 00000000 
-_glPolygonStipple@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPopAttrib@0 I 00000000 
-_glPopAttrib@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPopClientAttrib@0 I 00000000 
-_glPopClientAttrib@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPopMatrix@0 I 00000000 
-_glPopMatrix@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPopName@0 I 00000000 
-_glPopName@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPrioritizeTextures@12 I 00000000 
-_glPrioritizeTextures@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPushAttrib@4 I 00000000 
-_glPushAttrib@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPushClientAttrib@4 I 00000000 
-_glPushClientAttrib@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPushMatrix@0 I 00000000 
-_glPushMatrix@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glPushName@4 I 00000000 
-_glPushName@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2d@16 I 00000000 
-_glRasterPos2d@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2dv@4 I 00000000 
-_glRasterPos2dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2f@8 I 00000000 
-_glRasterPos2f@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2fv@4 I 00000000 
-_glRasterPos2fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2i@8 I 00000000 
-_glRasterPos2i@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2iv@4 I 00000000 
-_glRasterPos2iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2s@8 I 00000000 
-_glRasterPos2s@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos2sv@4 I 00000000 
-_glRasterPos2sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3d@24 I 00000000 
-_glRasterPos3d@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3dv@4 I 00000000 
-_glRasterPos3dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3f@12 I 00000000 
-_glRasterPos3f@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3fv@4 I 00000000 
-_glRasterPos3fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3i@12 I 00000000 
-_glRasterPos3i@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3iv@4 I 00000000 
-_glRasterPos3iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3s@12 I 00000000 
-_glRasterPos3s@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos3sv@4 I 00000000 
-_glRasterPos3sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4d@32 I 00000000 
-_glRasterPos4d@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4dv@4 I 00000000 
-_glRasterPos4dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4f@16 I 00000000 
-_glRasterPos4f@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4fv@4 I 00000000 
-_glRasterPos4fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4i@16 I 00000000 
-_glRasterPos4i@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4iv@4 I 00000000 
-_glRasterPos4iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4s@16 I 00000000 
-_glRasterPos4s@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRasterPos4sv@4 I 00000000 
-_glRasterPos4sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glReadBuffer@4 I 00000000 
-_glReadBuffer@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glReadPixels@28 I 00000000 
-_glReadPixels@28 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRectd@32 I 00000000 
-_glRectd@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRectdv@8 I 00000000 
-_glRectdv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRectf@16 I 00000000 
-_glRectf@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRectfv@8 I 00000000 
-_glRectfv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRecti@16 I 00000000 
-_glRecti@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRectiv@8 I 00000000 
-_glRectiv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRects@16 I 00000000 
-_glRects@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRectsv@8 I 00000000 
-_glRectsv@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRenderMode@4 I 00000000 
-_glRenderMode@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRotated@32 I 00000000 
-_glRotated@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glRotatef@16 I 00000000 
-_glRotatef@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glScaled@24 I 00000000 
-_glScaled@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glScalef@12 I 00000000 
-_glScalef@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glScissor@16 I 00000000 
-_glScissor@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glSelectBuffer@8 I 00000000 
-_glSelectBuffer@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glShadeModel@4 I 00000000 
-_glShadeModel@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glStencilFunc@12 I 00000000 
-_glStencilFunc@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glStencilMask@4 I 00000000 
-_glStencilMask@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glStencilOp@12 I 00000000 
-_glStencilOp@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1d@8 I 00000000 
-_glTexCoord1d@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1dv@4 I 00000000 
-_glTexCoord1dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1f@4 I 00000000 
-_glTexCoord1f@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1fv@4 I 00000000 
-_glTexCoord1fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1i@4 I 00000000 
-_glTexCoord1i@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1iv@4 I 00000000 
-_glTexCoord1iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1s@4 I 00000000 
-_glTexCoord1s@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord1sv@4 I 00000000 
-_glTexCoord1sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2d@16 I 00000000 
-_glTexCoord2d@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2dv@4 I 00000000 
-_glTexCoord2dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2f@8 I 00000000 
-_glTexCoord2f@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2fv@4 I 00000000 
-_glTexCoord2fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2i@8 I 00000000 
-_glTexCoord2i@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2iv@4 I 00000000 
-_glTexCoord2iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2s@8 I 00000000 
-_glTexCoord2s@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord2sv@4 I 00000000 
-_glTexCoord2sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3d@24 I 00000000 
-_glTexCoord3d@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3dv@4 I 00000000 
-_glTexCoord3dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3f@12 I 00000000 
-_glTexCoord3f@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3fv@4 I 00000000 
-_glTexCoord3fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3i@12 I 00000000 
-_glTexCoord3i@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3iv@4 I 00000000 
-_glTexCoord3iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3s@12 I 00000000 
-_glTexCoord3s@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord3sv@4 I 00000000 
-_glTexCoord3sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4d@32 I 00000000 
-_glTexCoord4d@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4dv@4 I 00000000 
-_glTexCoord4dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4f@16 I 00000000 
-_glTexCoord4f@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4fv@4 I 00000000 
-_glTexCoord4fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4i@16 I 00000000 
-_glTexCoord4i@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4iv@4 I 00000000 
-_glTexCoord4iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4s@16 I 00000000 
-_glTexCoord4s@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoord4sv@4 I 00000000 
-_glTexCoord4sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexCoordPointer@16 I 00000000 
-_glTexCoordPointer@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexEnvf@12 I 00000000 
-_glTexEnvf@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexEnvfv@12 I 00000000 
-_glTexEnvfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexEnvi@12 I 00000000 
-_glTexEnvi@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexEnviv@12 I 00000000 
-_glTexEnviv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexGend@16 I 00000000 
-_glTexGend@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexGendv@12 I 00000000 
-_glTexGendv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexGenf@12 I 00000000 
-_glTexGenf@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexGenfv@12 I 00000000 
-_glTexGenfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexGeni@12 I 00000000 
-_glTexGeni@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexGeniv@12 I 00000000 
-_glTexGeniv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexImage1D@32 I 00000000 
-_glTexImage1D@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexImage2D@36 I 00000000 
-_glTexImage2D@36 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexParameterf@12 I 00000000 
-_glTexParameterf@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexParameterfv@12 I 00000000 
-_glTexParameterfv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexParameteri@12 I 00000000 
-_glTexParameteri@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexParameteriv@12 I 00000000 
-_glTexParameteriv@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexSubImage1D@28 I 00000000 
-_glTexSubImage1D@28 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTexSubImage2D@36 I 00000000 
-_glTexSubImage2D@36 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTranslated@24 I 00000000 
-_glTranslated@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glTranslatef@12 I 00000000 
-_glTranslatef@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2d@16 I 00000000 
-_glVertex2d@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2dv@4 I 00000000 
-_glVertex2dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2f@8 I 00000000 
-_glVertex2f@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2fv@4 I 00000000 
-_glVertex2fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2i@8 I 00000000 
-_glVertex2i@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2iv@4 I 00000000 
-_glVertex2iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2s@8 I 00000000 
-_glVertex2s@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex2sv@4 I 00000000 
-_glVertex2sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3d@24 I 00000000 
-_glVertex3d@24 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3dv@4 I 00000000 
-_glVertex3dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3f@12 I 00000000 
-_glVertex3f@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3fv@4 I 00000000 
-_glVertex3fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3i@12 I 00000000 
-_glVertex3i@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3iv@4 I 00000000 
-_glVertex3iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3s@12 I 00000000 
-_glVertex3s@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex3sv@4 I 00000000 
-_glVertex3sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4d@32 I 00000000 
-_glVertex4d@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4dv@4 I 00000000 
-_glVertex4dv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4f@16 I 00000000 
-_glVertex4f@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4fv@4 I 00000000 
-_glVertex4fv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4i@16 I 00000000 
-_glVertex4i@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4iv@4 I 00000000 
-_glVertex4iv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4s@16 I 00000000 
-_glVertex4s@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertex4sv@4 I 00000000 
-_glVertex4sv@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glVertexPointer@16 I 00000000 
-_glVertexPointer@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__glViewport@16 I 00000000 
-_glViewport@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglChoosePixelFormat@8 I 00000000 
-_wglChoosePixelFormat@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglCopyContext@12 I 00000000 
-_wglCopyContext@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglCreateContext@4 I 00000000 
-_wglCreateContext@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglCreateLayerContext@8 I 00000000 
-_wglCreateLayerContext@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglDeleteContext@4 I 00000000 
-_wglDeleteContext@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglDescribeLayerPlane@20 I 00000000 
-_wglDescribeLayerPlane@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglDescribePixelFormat@16 I 00000000 
-_wglDescribePixelFormat@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglGetCurrentContext@0 I 00000000 
-_wglGetCurrentContext@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglGetCurrentDC@0 I 00000000 
-_wglGetCurrentDC@0 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglGetDefaultProcAddress@4 I 00000000 
-_wglGetDefaultProcAddress@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglGetLayerPaletteEntries@20 I 00000000 
-_wglGetLayerPaletteEntries@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglGetPixelFormat@4 I 00000000 
-_wglGetPixelFormat@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglGetProcAddress@4 I 00000000 
-_wglGetProcAddress@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglMakeCurrent@8 I 00000000 
-_wglMakeCurrent@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglRealizeLayerPalette@12 I 00000000 
-_wglRealizeLayerPalette@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglSetLayerPaletteEntries@20 I 00000000 
-_wglSetLayerPaletteEntries@20 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglSetPixelFormat@12 I 00000000 
-_wglSetPixelFormat@12 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglShareLists@8 I 00000000 
-_wglShareLists@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglSwapBuffers@4 I 00000000 
-_wglSwapBuffers@4 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglSwapLayerBuffers@8 I 00000000 
-_wglSwapLayerBuffers@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglSwapMultipleBuffers@8 I 00000000 
-_wglSwapMultipleBuffers@8 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglUseFontBitmapsA@16 I 00000000 
-_wglUseFontBitmapsA@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglUseFontBitmapsW@16 I 00000000 
-_wglUseFontBitmapsW@16 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglUseFontOutlinesA@32 I 00000000 
-_wglUseFontOutlinesA@32 T 00000000 
-IO/OpenGL32.Lib[OPENGL32.dll]:
-.idata$4 I 00000000 
-.idata$5 I 00000000 
-.idata$6 I 00000000 
-.text T 00000000 
-__imp__wglUseFontOutlinesW@32 I 00000000 
-_wglUseFontOutlinesW@32 T 00000000 
+IO/glfw3.lib[glfw.dir/Release/osmesa_context.obj]:
+??_C@_0BC@HEACFLN@OSMesaMakeCurrent@ R 00000000 
+??_C@_0BF@BPPLLLDH@OSMesaGetDepthBuffer@ R 00000000 
+??_C@_0BF@HHLAJKBF@OSMesaGetColorBuffer@ R 00000000 
+??_C@_0BF@INJHJNOL@OSMesaGetProcAddress@ R 00000000 
+??_C@_0BF@OOKNCFMF@OSMesaDestroyContext@ R 00000000 
+??_C@_0BH@IPANDFMH@OSMesaCreateContextExt@ R 00000000 
+??_C@_0BK@MLLMMLGE@OSMesa?3?5Library?5not?5found@ R 00000000 
+??_C@_0BL@MIAEELOL@OSMesaCreateContextAttribs@ R 00000000 
+??_C@_0CB@LDOHHBIH@OSMesa?3?5Failed?5to?5create?5contex@ R 00000000 
+??_C@_0CE@OJEBIEPE@OSMesa?3?5OpenGL?5profiles?5unavail@ R 00000000 
+??_C@_0CH@CKFBCGDL@OSMesa?3?5Failed?5to?5make?5context?5@ R 00000000 
+??_C@_0CI@FJDKHGC@OSMesa?3?5Failed?5to?5retrieve?5dept@ R 00000000 
+??_C@_0CI@NAJLKNKH@OSMesa?3?5Failed?5to?5retrieve?5colo@ R 00000000 
+??_C@_0CN@JHECHMPF@OSMesa?3?5OpenGL?5ES?5is?5not?5availa@ R 00000000 
+??_C@_0CN@PEBHJDOE@OSMesa?3?5Failed?5to?5load?5required@ R 00000000 
+??_C@_0DC@KKLJAJOK@OSMesa?3?5Forward?9compatible?5cont@ R 00000000 
+??_C@_0L@GICFCFGJ@OSMesa?4dll@ R 00000000 
+??_C@_0O@DJDONBGH@libOSMesa?4dll@ R 00000000 
+__glfwCreateContextOSMesa T 00000000 
+__glfwInitOSMesa T 00000000 
+__glfwTerminateOSMesa T 00000000 
+_glfwGetOSMesaColorBuffer T 00000000 
+_glfwGetOSMesaContext T 00000000 
+_glfwGetOSMesaDepthBuffer T 00000000 
+IO/glfw3.lib[glfw.dir/Release/egl_context.obj]:
+??_C@_03LPIGJBNC@lib@ R 00000000 
+??_C@_07EAKGIKCB@EGL?4dll@ R 00000000 
+??_C@_07PBILKAFL@Success@ R 00000000 
+??_C@_0BA@BGJPOLDF@eglSwapInterval@ R 00000000 
+??_C@_0BB@KEKMNHDF@eglCreateContext@ R 00000000 
+??_C@_0BC@BNOBCLNJ@eglDestroyContext@ R 00000000 
+??_C@_0BC@HONLJDPH@eglGetProcAddress@ R 00000000 
+??_C@_0BC@ICHKG@eglDestroySurface@ R 00000000 
+??_C@_0BD@MAEGKKAE@eglGetConfigAttrib@ R 00000000 
+??_C@_0BG@GOAKKGGB@EGL_KHR_gl_colorspace@ R 00000000 
+??_C@_0BH@GIBFIFPN@EGL_KHR_create_context@ R 00000000 
+??_C@_0BH@MDMCFBDG@eglCreateWindowSurface@ R 00000000 
+??_C@_0BH@NFNALLIN@EGL?3?5Library?5not?5found@ R 00000000 
+??_C@_0BH@PDIOJKKP@EGL?3?5API?5not?5available@ R 00000000 
+??_C@_0BJ@KDFAHDEK@ERROR?3?5UNKNOWN?5EGL?5ERROR@ R 00000000 
+??_C@_0BL@OIILILNJ@Arguments?5are?5inconsistent@ R 00000000 
+??_C@_0BM@KHOPPJNJ@EGL?3?5No?5EGLConfigs?5returned@ R 00000000 
+??_C@_0BO@IDEEMGNC@EGL_KHR_context_flush_control@ R 00000000 
+??_C@_0BP@CDGGFNNF@EGL_KHR_get_all_proc_addresses@ R 00000000 
+??_C@_0BP@PHOHHIJJ@EGL?3?5Failed?5to?5bind?5OpenGL?3?5?$CFs@ R 00000000 
+??_C@_0CA@OJFEOPKP@EGL_KHR_create_context_no_error@ R 00000000 
+??_C@_0CC@DOIEFDD@EGL?3?5Failed?5to?5initialize?5EGL?3?5@ R 00000000 
+??_C@_0CC@GOIKODMM@EGL?3?5Failed?5to?5create?5context?3?5@ R 00000000 
+??_C@_0CC@NIBJMOI@EGL?3?5Failed?5to?5bind?5OpenGL?5ES?3?5@ R 00000000 
+??_C@_0CD@CODEPNKE@EGL?3?5Failed?5to?5get?5EGL?5display?3@ R 00000000 
+??_C@_0CD@JDEAKJCI@EGL?3?5Failed?5to?5load?5client?5libr@ R 00000000 
+??_C@_0CH@KLCPDMM@EGL?5is?5not?5or?5could?5not?5be?5init@ R 00000000 
+??_C@_0CH@MMCOKIKC@EGL?5cannot?5access?5a?5requested?5r@ R 00000000 
+??_C@_0CI@KAHNKLLC@One?5or?5more?5argument?5values?5are@ R 00000000 
+??_C@_0CI@MPJNGPNP@EGL?3?5Failed?5to?5make?5context?5cur@ R 00000000 
+??_C@_0CJ@JPDPLHCM@EGL?3?5Failed?5to?5find?5a?5suitable?5@ R 00000000 
+??_C@_0CJ@MHLGDLLP@EGL?3?5Failed?5to?5create?5window?5su@ R 00000000 
+??_C@_0CJ@NBJEEEJD@EGL?3?5Failed?5to?5clear?5current?5co@ R 00000000 
+??_C@_0CK@DCPJCPHH@EGL?3?5Failed?5to?5load?5required?5en@ R 00000000 
+??_C@_0DL@GNLICFMC@The?5application?5must?5destroy?5al@ R 00000000 
+??_C@_0DN@GNDEENDO@EGL?5failed?5to?5allocate?5resource@ R 00000000 
+??_C@_0ED@GAJEHCGA@An?5EGLContext?5argument?5does?5not@ R 00000000 
+??_C@_0EE@FBMMOIJB@A?5NativeWindowType?5argument?5doe@ R 00000000 
+??_C@_0EE@ICKHNPHB@An?5EGLDisplay?5argument?5does?5not@ R 00000000 
+??_C@_0EE@NKCAIGPH@A?5NativePixmapType?5argument?5doe@ R 00000000 
+??_C@_0EL@BBAGGFOK@An?5EGLConfig?5argument?5does?5not?5@ R 00000000 
+??_C@_0EN@CIIGDABJ@EGL?3?5The?5context?5must?5be?5curren@ R 00000000 
+??_C@_0EO@EKFIJHGG@An?5unrecognized?5attribute?5or?5at@ R 00000000 
+??_C@_0FB@EPGEGHDL@An?5EGLSurface?5argument?5does?5not@ R 00000000 
+??_C@_0GG@ODICGIHF@The?5current?5surface?5of?5the?5call@ R 00000000 
+??_C@_0L@CEBLLDFF@GLESv2?4dll@ R 00000000 
+??_C@_0L@ELKKGGMD@libEGL?4dll@ R 00000000 
+??_C@_0L@HJOCIPHF@eglBindAPI@ R 00000000 
+??_C@_0M@PPADKGOK@eglGetError@ R 00000000 
+??_C@_0N@IGFNFAOP@eglTerminate@ R 00000000 
+??_C@_0O@BMJFLKOA@eglGetDisplay@ R 00000000 
+??_C@_0O@EEJFKEKH@eglInitialize@ R 00000000 
+??_C@_0O@HFAAEHFL@libGLESv2?4dll@ R 00000000 
+??_C@_0O@KOJFNJDA@GLESv1_CM?4dll@ R 00000000 
+??_C@_0O@OMNEJBKO@eglGetConfigs@ R 00000000 
+??_C@_0P@DEBOOHKH@eglSwapBuffers@ R 00000000 
+??_C@_0P@HJKEKLKD@eglQueryString@ R 00000000 
+??_C@_0P@MADFBLIB@libGLES_CM?4dll@ R 00000000 
+??_C@_0P@PNPBPNLI@eglMakeCurrent@ R 00000000 
+__glfwCreateContextEGL T 00000000 
+__glfwInitEGL T 00000000 
+__glfwTerminateEGL T 00000000 
+_glfwGetEGLContext T 00000000 
+_glfwGetEGLDisplay T 00000000 
+_glfwGetEGLSurface T 00000000 
+IO/glfw3.lib[glfw.dir/Release/wgl_context.obj]:
+??_C@_0BA@BMKCDCKD@wglGetCurrentDC@ R 00000000 
+??_C@_0BB@GHMBNOIP@wglCreateContext@ R 00000000 
+??_C@_0BB@OGAIJNNO@wglDeleteContext@ R 00000000 
+??_C@_0BC@FFKMKEGM@wglGetProcAddress@ R 00000000 
+??_C@_0BD@IINOPBDD@wglSwapIntervalEXT@ R 00000000 
+??_C@_0BD@KGLHBPN@WGL_EXT_colorspace@ R 00000000 
+??_C@_0BE@BMOJHNDI@WGL_ARB_multisample@ R 00000000 
+??_C@_0BF@HABDPBMA@wglGetCurrentContext@ R 00000000 
+??_C@_0BF@NPDKPIKE@WGL_EXT_swap_control@ R 00000000 
+??_C@_0BF@OGGDOHFN@WGL_ARB_pixel_format@ R 00000000 
+??_C@_0BH@NCJDMLMG@WGL_ARB_create_context@ R 00000000 
+??_C@_0BJ@CIMJOHKL@WGL_ARB_framebuffer_sRGB@ R 00000000 
+??_C@_0BJ@ODLLHDDH@WGL_EXT_framebuffer_sRGB@ R 00000000 
+??_C@_0BK@HGDBIG@wglGetExtensionsStringEXT@ R 00000000 
+??_C@_0BK@JOBLJGNA@wglGetExtensionsStringARB@ R 00000000 
+??_C@_0BL@PDDHMPGF@wglCreateContextAttribsARB@ R 00000000 
+??_C@_0BN@GDKHKIAN@wglGetPixelFormatAttribivARB@ R 00000000 
+??_C@_0BO@FABLLHKK@WGL_ARB_context_flush_control@ R 00000000 
+??_C@_0BP@JAOBDJGN@WGL_ARB_create_context_profile@ R 00000000 
+??_C@_0CA@CJLAIOKE@WGL_ARB_create_context_no_error@ R 00000000 
+??_C@_0CB@FLGENKMO@WGL?3?5Failed?5to?5load?5opengl32?4dl@ R 00000000 
+??_C@_0CC@BFGHOMNL@WGL_ARB_create_context_robustne@ R 00000000 
+??_C@_0CD@FOMFMBIL@WGL_EXT_create_context_es2_prof@ R 00000000 
+??_C@_0CE@FEGPCKPN@WGL?3?5Failed?5to?5make?5context?5cur@ R 00000000 
+??_C@_0CE@KAEELGKL@WGL?3?5Failed?5to?5create?5dummy?5con@ R 00000000 
+??_C@_0CF@EKIADPFB@WGL?3?5Failed?5to?5clear?5current?5co@ R 00000000 
+??_C@_0CF@GFMDJIA@WGL?3?5Failed?5to?5create?5OpenGL?5co@ R 00000000 
+??_C@_0CF@OGLFKBHA@WGL?3?5Failed?5to?5describe?5pixel?5f@ R 00000000 
+??_C@_0CG@GMPEPNKL@WGL?3?5Failed?5to?5retrieve?5DC?5for?5@ R 00000000 
+??_C@_0CI@JNBCHAIF@WGL?3?5Failed?5to?5create?5OpenGL?5ES@ R 00000000 
+??_C@_0CJ@HAGOIHNO@WGL?3?5Failed?5to?5set?5selected?5pix@ R 00000000 
+??_C@_0CK@JKJFDJLH@WGL?3?5Failed?5to?5make?5dummy?5conte@ R 00000000 
+??_C@_0CM@DGJKGOGD@WGL?3?5Failed?5to?5find?5a?5suitable?5@ R 00000000 
+??_C@_0CO@KALOHMEN@WGL?3?5Unknown?5pixel?5format?5attri@ R 00000000 
+??_C@_0CP@FFKBMLDH@WGL?3?5Failed?5to?5retrieve?5pixel?5f@ R 00000000 
+??_C@_0DA@LMPKCOPB@WGL?3?5Failed?5to?5retrieve?5pixel?5f@ R 00000000 
+??_C@_0DC@CDLECLKD@WGL?3?5Driver?5does?5not?5support?5Op@ R 00000000 
+??_C@_0DC@HFHALHIB@WGL?3?5The?5driver?5does?5not?5appear@ R 00000000 
+??_C@_0DC@IPDIACJO@WGL?3?5Failed?5to?5set?5pixel?5format@ R 00000000 
+??_C@_0DF@NPMNAJFG@WGL?3?5Driver?5does?5not?5support?5Op@ R 00000000 
+??_C@_0DG@EPNPJJLB@WGL?3?5Failed?5to?5retrieve?5PFD?5for@ R 00000000 
+??_C@_0DK@CDBDDLLM@WGL?3?5Driver?5does?5not?5support?5th@ R 00000000 
+??_C@_0DM@FCAOPKO@WGL?3?5Failed?5to?5enable?5sharing?5w@ R 00000000 
+??_C@_0EE@LGMAAPCC@WGL?3?5The?5share?5context?5is?5not?5c@ R 00000000 
+??_C@_0EP@EKHGPGGO@WGL?3?5OpenGL?5ES?5requested?5but?5WG@ R 00000000 
+??_C@_0FA@OHOPKHFK@WGL?3?5OpenGL?5profile?5requested?5b@ R 00000000 
+??_C@_0FN@NPOMMKHN@WGL?3?5A?5forward?5compatible?5OpenG@ R 00000000 
+??_C@_0N@DOKAJOHF@opengl32?4dll@ R 00000000 
+??_C@_0O@GCGJMHDL@wglShareLists@ R 00000000 
+??_C@_0P@BBBFNDGG@wglMakeCurrent@ R 00000000 
+__glfwCreateContextWGL T 00000000 
+__glfwInitWGL T 00000000 
+__glfwTerminateWGL T 00000000 
+__xmm@00002003000020130000200100002010 R 00000000 
+__xmm@00002018000020170000201600002015 R 00000000 
+__xmm@0000201c0000201b0000201a00002019 R 00000000 
+__xmm@0000201e0000201d0000202300002022 R 00000000 
+__xmm@0000202400002021000020200000201f R 00000000 
+_glfwGetWGLContext T 00000000 
+IO/glfw3.lib[glfw.dir/Release/win32_window.obj]:
+??_C@_0BB@MKEDEAPF@Invalid?5scancode@ R 00000000 
+??_C@_0BF@COCMEDFO@VK_KHR_win32_surface@ R 00000000 
+??_C@_0BI@INMBJMIJ@vkCreateWin32SurfaceKHR@ R 00000000 
+??_C@_0BN@HJHDCKKP@Win32?3?5Failed?5to?5create?5icon@ R 00000000 
+??_C@_0BP@BFHGHOIO@Win32?3?5Failed?5to?5create?5window@ R 00000000 
+??_C@_0BP@OHFKOFFD@Win32?3?5Failed?5to?5create?5cursor@ R 00000000 
+??_C@_0CA@FNCFBEIG@Win32?3?5Failed?5to?5open?5clipboard@ R 00000000 
+??_C@_0CE@GCBEILKL@Win32?3?5Failed?5to?5create?5RGBA?5bi@ R 00000000 
+??_C@_0CE@OHDHEPIL@Win32?3?5Failed?5to?5lock?5global?5ha@ R 00000000 
+??_C@_0CE@PKGOIGHB@Win32?3?5Failed?5to?5create?5mask?5bi@ R 00000000 
+??_C@_0CH@GAPNPCHF@Win32?3?5Failed?5to?5register?5windo@ R 00000000 
+??_C@_0CI@LDEHPBDB@Win32?3?5Failed?5to?5create?5standar@ R 00000000 
+??_C@_0CJ@GILDAIDE@Win32?3?5Failed?5to?5retrieve?5raw?5i@ R 00000000 
+??_C@_0CJ@JFEDIEDE@Win32?3?5Failed?5to?5remove?5raw?5inp@ R 00000000 
+??_C@_0CL@GPJNIICL@Win32?3?5Failed?5to?5register?5raw?5i@ R 00000000 
+??_C@_0CL@LJNEEKEI@Win32?3?5Failed?5to?5create?5Vulkan?5@ R 00000000 
+??_C@_0CN@FGAGPCCP@Win32?3?5Failed?5to?5convert?5clipbo@ R 00000000 
+??_C@_0CP@FOBJNCLA@vkGetPhysicalDeviceWin32Present@ R 00000000 
+??_C@_0DG@CGDLBFFB@Win32?3?5Failed?5to?5allocate?5globa@ R 00000000 
+??_C@_0DO@PGEACBCJ@Win32?3?5Vulkan?5instance?5missing?5@ R 00000000 
+??_C@_0P@IENCOMCD@VK_KHR_surface@ R 00000000 
+??_C@_19JBPKICJI@?$AAG?$AAL?$AAF?$AAW@ R 00000000 
+??_C@_1BE@LDFMCOHA@?$AAG?$AAL?$AAF?$AAW?$AA_?$AAI?$AAC?$AAO?$AAN@ R 00000000 
+??_C@_1O@IBNLCBOC@?$AAG?$AAL?$AAF?$AAW?$AA3?$AA0@ R 00000000 
+__glfwPlatformCreateCursor T 00000000 
+__glfwPlatformCreateStandardCursor T 00000000 
+__glfwPlatformCreateWindow T 00000000 
+__glfwPlatformCreateWindowSurface T 00000000 
+__glfwPlatformDestroyCursor T 00000000 
+__glfwPlatformDestroyWindow T 00000000 
+__glfwPlatformFocusWindow T 00000000 
+__glfwPlatformFramebufferTransparent T 00000000 
+__glfwPlatformGetClipboardString T 00000000 
+__glfwPlatformGetCursorPos T 00000000 
+__glfwPlatformGetFramebufferSize T 00000000 
+__glfwPlatformGetKeyScancode T 00000000 
+__glfwPlatformGetPhysicalDevicePresentationSupport T 00000000 
+__glfwPlatformGetRequiredInstanceExtensions T 00000000 
+__glfwPlatformGetScancodeName T 00000000 
+__glfwPlatformGetWindowContentScale T 00000000 
+__glfwPlatformGetWindowFrameSize T 00000000 
+__glfwPlatformGetWindowOpacity T 00000000 
+__glfwPlatformGetWindowPos T 00000000 
+__glfwPlatformGetWindowSize T 00000000 
+__glfwPlatformHideWindow T 00000000 
+__glfwPlatformIconifyWindow T 00000000 
+__glfwPlatformMaximizeWindow T 00000000 
+__glfwPlatformPollEvents T 00000000 
+__glfwPlatformPostEmptyEvent T 00000000 
+__glfwPlatformRawMouseMotionSupported T 00000000 
+__glfwPlatformRequestWindowAttention T 00000000 
+__glfwPlatformRestoreWindow T 00000000 
+__glfwPlatformSetClipboardString T 00000000 
+__glfwPlatformSetCursor T 00000000 
+__glfwPlatformSetCursorMode T 00000000 
+__glfwPlatformSetCursorPos T 00000000 
+__glfwPlatformSetRawMouseMotion T 00000000 
+__glfwPlatformSetWindowAspectRatio T 00000000 
+__glfwPlatformSetWindowDecorated T 00000000 
+__glfwPlatformSetWindowFloating T 00000000 
+__glfwPlatformSetWindowIcon T 00000000 
+__glfwPlatformSetWindowMonitor T 00000000 
+__glfwPlatformSetWindowOpacity T 00000000 
+__glfwPlatformSetWindowPos T 00000000 
+__glfwPlatformSetWindowResizable T 00000000 
+__glfwPlatformSetWindowSize T 00000000 
+__glfwPlatformSetWindowSizeLimits T 00000000 
+__glfwPlatformSetWindowTitle T 00000000 
+__glfwPlatformShowWindow T 00000000 
+__glfwPlatformWaitEvents T 00000000 
+__glfwPlatformWaitEventsTimeout T 00000000 
+__glfwPlatformWindowFocused T 00000000 
+__glfwPlatformWindowHovered T 00000000 
+__glfwPlatformWindowIconified T 00000000 
+__glfwPlatformWindowMaximized T 00000000 
+__glfwPlatformWindowVisible T 00000000 
+__glfwRegisterWindowClassWin32 T 00000000 
+__glfwUnregisterWindowClassWin32 T 00000000 
+__real@3f800000 R 00000000 
+__real@405e000000000000 R 00000000 
+__real@408f400000000000 R 00000000 
+__real@42c00000 R 00000000 
+__real@437f0000 R 00000000 
+__xmm@00000158000000a100000154000000a0 R 00000000 
+__xmm@0000015b0000005c000001570000005b R 00000000 
+__xmm@80000000000000008000000000000000 R 00000000 
+_glfwGetWin32Window T 00000000 
+IO/glfw3.lib[glfw.dir/Release/win32_thread.obj]:
+??_C@_0CE@MEIEKJIC@Win32?3?5Failed?5to?5allocate?5TLS?5i@ R 00000000 
+__glfwPlatformCreateMutex T 00000000 
+__glfwPlatformCreateTls T 00000000 
+__glfwPlatformDestroyMutex T 00000000 
+__glfwPlatformDestroyTls T 00000000 
+__glfwPlatformGetTls T 00000000 
+__glfwPlatformLockMutex T 00000000 
+__glfwPlatformSetTls T 00000000 
+__glfwPlatformUnlockMutex T 00000000 
+IO/glfw3.lib[glfw.dir/Release/win32_time.obj]:
+__glfwInitTimerWin32 T 00000000 
+__glfwPlatformGetTimerFrequency T 00000000 
+__glfwPlatformGetTimerValue T 00000000 
+IO/glfw3.lib[glfw.dir/Release/win32_monitor.obj]:
+??_C@_0BC@DBAKKFEN@Invalid?5parameter@ R 00000000 
+??_C@_0BF@JHMFGJBN@Graphics?5mode?5failed@ R 00000000 
+??_C@_0BJ@EJOHFDHH@The?5system?5uses?5DualView@ R 00000000 
+??_C@_0BK@OEGBAIFC@Computer?5restart?5required@ R 00000000 
+??_C@_0BM@IGBABBBF@Failed?5to?5write?5to?5registry@ R 00000000 
+??_C@_0BM@KPJJBADD@Graphics?5mode?5not?5supported@ R 00000000 
+??_C@_0CD@EGEEPFHF@Win32?3?5Gamma?5ramp?5size?5must?5be?5@ R 00000000 
+??_C@_0CE@IKOICJPN@Win32?3?5Failed?5to?5set?5video?5mode@ R 00000000 
+??_C@_0O@IHOLGAKK@Invalid?5flags@ R 00000000 
+??_C@_0O@NIPGCINC@Unknown?5error@ R 00000000 
+??_C@_1BA@PICGEGJB@?$AAD?$AAI?$AAS?$AAP?$AAL?$AAA?$AAY@ R 00000000 
+__glfwGetMonitorContentScaleWin32 T 00000000 
+__glfwPlatformFreeMonitor T 00000000 
+__glfwPlatformGetGammaRamp T 00000000 
+__glfwPlatformGetMonitorContentScale T 00000000 
+__glfwPlatformGetMonitorPos T 00000000 
+__glfwPlatformGetMonitorWorkarea T 00000000 
+__glfwPlatformGetVideoMode T 00000000 
+__glfwPlatformGetVideoModes T 00000000 
+__glfwPlatformSetGammaRamp T 00000000 
+__glfwPollMonitorsWin32 T 00000000 
+__glfwRestoreVideoModeWin32 T 00000000 
+__glfwSetVideoModeWin32 T 00000000 
+__real@41cb3333 R 00000000 
+__real@42c00000 R 00000000 
+__xmm@41f00000000000000000000000000000 R 00000000 
+_glfwGetWin32Adapter T 00000000 
+_glfwGetWin32Monitor T 00000000 
+IO/glfw3.lib[glfw.dir/Release/win32_joystick.obj]:
+??_C@_03HAFBONIK@IG_@ R 00000000 
+??_C@_0BA@EPLGABLH@Xbox?5Controller@ R 00000000 
+??_C@_0BA@LCMKGGHA@XInput?5Drum?5Kit@ R 00000000 
+??_C@_0BB@JDDMDGFO@XInput?5Dance?5Pad@ R 00000000 
+??_C@_0BE@FABDLJKH@XInput?5Arcade?5Stick@ R 00000000 
+??_C@_0BE@HBNNGLHP@XInput?5Flight?5Stick@ R 00000000 
+??_C@_0BG@DGJLFNBN@Unknown?5XInput?5Device@ R 00000000 
+??_C@_0BJ@IIGAEGGE@Wireless?5Xbox?5Controller@ R 00000000 
+??_C@_0BP@OHJGLFIP@Win32?3?5Failed?5to?5create?5device@ R 00000000 
+??_C@_0CB@BIHPPBFK@03000000?$CF?44s0000?$CF?44s00000000000@ R 00000000 
+??_C@_0CC@MGDCJJKB@Win32?3?5Failed?5to?5create?5interfa@ R 00000000 
+??_C@_0CD@CBFNHKPK@78696e707574?$CF02x000000000000000@ R 00000000 
+??_C@_0CG@JJEBGGIE@Win32?3?5Failed?5to?5set?5device?5axi@ R 00000000 
+??_C@_0CI@MMBFOOEA@Win32?3?5Failed?5to?5set?5device?5dat@ R 00000000 
+??_C@_0CJ@HDJDHLNO@Failed?5to?5enumerate?5DirectInput@ R 00000000 
+??_C@_0CJ@NMCAPCBP@03000000?$CF02x?$CF02x0000?$CF02x?$CF02x000@ R 00000000 
+??_C@_0CK@FKJPIIOF@Win32?3?5Failed?5to?5enumerate?5devi@ R 00000000 
+??_C@_0CL@JHIPHFAC@Win32?3?5Failed?5to?5query?5device?5c@ R 00000000 
+??_C@_0DA@IIGLKABA@Win32?3?5Failed?5to?5convert?5joysti@ R 00000000 
+??_C@_0DH@LCNJGHOP@05000000?$CF02x?$CF02x?$CF02x?$CF02x?$CF02x?$CF02@ R 00000000 
+??_C@_0N@JENFOGFI@XInput?5Wheel@ R 00000000 
+??_C@_0N@OJEJPFOD@504944564944@ R 00000000 
+??_C@_0O@IFDGNEHH@XInput?5Guitar@ R 00000000 
+?_OptionsStorage@?1??__local_stdio_printf_options@@9@9 C 00000008 
+___local_stdio_printf_options T 00000000 
+__glfwDetectJoystickConnectionWin32 T 00000000 
+__glfwDetectJoystickDisconnectionWin32 T 00000000 
+__glfwInitJoysticksWin32 T 00000000 
+__glfwPlatformPollJoystick T 00000000 
+__glfwPlatformUpdateGamepadGUID T 00000000 
+__glfwTerminateJoysticksWin32 T 00000000 
+__real@3f000000 R 00000000 
+__real@3f800000 R 00000000 
+__real@42ff0000 R 00000000 
+__real@46ffff00 R 00000000 
+__real@c6ffff00 R 00000000 
+__xmm@00000006000000020000000300000001 R 00000000 
+__xmm@00000009000000080000000c00000004 R 00000000 
+_sprintf T 00000000 
+IO/glfw3.lib[glfw.dir/Release/win32_init.obj]:
+??_C@_06DJHOIPC@?$CFs?3?5?$CFs@ R 00000000 
+??_C@_08PEMNBIMD@DwmFlush@ R 00000000 
+??_C@_09CBHKFKGB@winmm?4dll@ R 00000000 
+??_C@_09FLKFJBLM@ntdll?4dll@ R 00000000 
+??_C@_0BA@GHGALGFD@xinput9_1_0?4dll@ R 00000000 
+??_C@_0BA@LGGPEDOH@GetDpiForWindow@ R 00000000 
+??_C@_0BB@MAMHPNNC@GetDpiForMonitor@ R 00000000 
+??_C@_0BD@ENICNPLM@SetProcessDPIAware@ R 00000000 
+??_C@_0BD@IJCCAMHG@DirectInput8Create@ R 00000000 
+??_C@_0BF@LOGLPPDD@RtlVerifyVersionInfo@ R 00000000 
+??_C@_0BG@ELBNFOBA@XInputGetCapabilities@ R 00000000 
+??_C@_0BH@DGFLCCMF@SetProcessDpiAwareness@ R 00000000 
+??_C@_0BI@KJPLJBHH@DwmIsCompositionEnabled@ R 00000000 
+??_C@_0BJ@MBAAGFCG@AdjustWindowRectExForDpi@ R 00000000 
+??_C@_0BK@HMMKMEOH@DwmEnableBlurBehindWindow@ R 00000000 
+??_C@_0BK@NKEDGNNN@EnableNonClientDpiScaling@ R 00000000 
+??_C@_0BM@OCGPLDNC@ChangeWindowMessageFilterEx@ R 00000000 
+??_C@_0BO@LHMLBOLK@SetProcessDpiAwarenessContext@ R 00000000 
+??_C@_0CA@EDJENDDE@Win32?3?5Failed?5to?5load?5winmm?4dll@ R 00000000 
+??_C@_0CB@HHJIGJHK@Win32?3?5Failed?5to?5load?5user32?4dl@ R 00000000 
+??_C@_0CD@EGJPKANE@3?43?42?5Win32?5WGL?5EGL?5OSMesa?5Visu@ R 00000000 
+??_C@_0CG@LDJIJKNI@Win32?3?5Failed?5to?5create?5helper?5@ R 00000000 
+??_C@_0CJ@EFIFNOJC@Win32?3?5Failed?5to?5convert?5string@ R 00000000 
+??_C@_0CL@JEJIBJNG@Win32?3?5Failed?5to?5convert?5string@ R 00000000 
+??_C@_0L@DMFDIJCG@shcore?4dll@ R 00000000 
+??_C@_0L@FACOJKPJ@dwmapi?4dll@ R 00000000 
+??_C@_0L@GMPLCCII@user32?4dll@ R 00000000 
+??_C@_0M@DEPJBPP@timeGetTime@ R 00000000 
+??_C@_0M@ONOEDIJO@dinput8?4dll@ R 00000000 
+??_C@_0O@GLACEBNI@xinput1_2?4dll@ R 00000000 
+??_C@_0O@KAFOJCHN@xinput1_3?4dll@ R 00000000 
+??_C@_0O@LNFLKCMF@xinput1_4?4dll@ R 00000000 
+??_C@_0O@ONJGDDHG@xinput1_1?4dll@ R 00000000 
+??_C@_0P@FCCEJHCC@XInputGetState@ R 00000000 
+??_C@_1CI@MPNNJFCJ@?$AAG?$AAL?$AAF?$AAW?$AA?5?$AAm?$AAe?$AAs?$AAs?$AAa?$AAg?$AAe?$AA?5?$AAw?$AAi@ R 00000000 
+??_C@_1O@IBNLCBOC@?$AAG?$AAL?$AAF?$AAW?$AA3?$AA0@ R 00000000 
+__glfwCreateUTF8FromWideStringWin32 T 00000000 
+__glfwCreateWideStringFromUTF8Win32 T 00000000 
+__glfwInputErrorWin32 T 00000000 
+__glfwIsWindows10BuildOrGreaterWin32 T 00000000 
+__glfwIsWindowsVersionOrGreaterWin32 T 00000000 
+__glfwPlatformGetVersionString T 00000000 
+__glfwPlatformInit T 00000000 
+__glfwPlatformTerminate T 00000000 
+__glfwUpdateKeyNamesWin32 T 00000000 
+__xmm@00380037003600350034003300320031 R 00000000 
+__xmm@01290128012701260125012401230122 R 00000000 
+__xmm@013501340133013201310130012f012e R 00000000 
+IO/glfw3.lib[glfw.dir/Release/window.obj]:
+??_C@_0BA@KMGHNAFM@Invalid?5time?5?$CFf@ R 00000000 
+??_C@_0BI@BFOJALMM@Invalid?5refresh?5rate?5?$CFi@ R 00000000 
+??_C@_0BK@KJGCMOHN@Invalid?5window?5size?5?$CFix?$CFi@ R 00000000 
+??_C@_0BK@MBEPKAIA@Invalid?5window?5opacity?5?$CFf@ R 00000000 
+??_C@_0BL@IDFNAMEG@Invalid?5window?5hint?50x?$CF08X@ R 00000000 
+??_C@_0CA@KCGCFCEG@Invalid?5window?5attribute?50x?$CF08X@ R 00000000 
+??_C@_0CC@BPDGBBAB@Invalid?5window?5aspect?5ratio?5?$CFi?3@ R 00000000 
+??_C@_0CC@HJEJGDAP@Invalid?5window?5minimum?5size?5?$CFix@ R 00000000 
+??_C@_0CC@NBPCCDGB@Invalid?5window?5hint?5string?50x?$CF0@ R 00000000 
+??_C@_0CC@NOHNODHG@Invalid?5window?5maximum?5size?5?$CFix@ R 00000000 
+__glfwInputFramebufferSize T 00000000 
+__glfwInputWindowCloseRequest T 00000000 
+__glfwInputWindowContentScale T 00000000 
+__glfwInputWindowDamage T 00000000 
+__glfwInputWindowFocus T 00000000 
+__glfwInputWindowIconify T 00000000 
+__glfwInputWindowMaximize T 00000000 
+__glfwInputWindowMonitor T 00000000 
+__glfwInputWindowPos T 00000000 
+__glfwInputWindowSize T 00000000 
+__real@3f800000 R 00000000 
+__real@7fefffffffffffff R 00000000 
+__xmm@00000000000000010003600100030001 R 00000000 
+__xmm@00000001000000010000000100000001 R 00000000 
+__xmm@00000008000000080000000800000008 R 00000000 
+_glfwCreateWindow T 00000000 
+_glfwDefaultWindowHints T 00000000 
+_glfwDestroyWindow T 00000000 
+_glfwFocusWindow T 00000000 
+_glfwGetFramebufferSize T 00000000 
+_glfwGetWindowAttrib T 00000000 
+_glfwGetWindowContentScale T 00000000 
+_glfwGetWindowFrameSize T 00000000 
+_glfwGetWindowMonitor T 00000000 
+_glfwGetWindowOpacity T 00000000 
+_glfwGetWindowPos T 00000000 
+_glfwGetWindowSize T 00000000 
+_glfwGetWindowUserPointer T 00000000 
+_glfwHideWindow T 00000000 
+_glfwIconifyWindow T 00000000 
+_glfwMaximizeWindow T 00000000 
+_glfwPollEvents T 00000000 
+_glfwPostEmptyEvent T 00000000 
+_glfwRequestWindowAttention T 00000000 
+_glfwRestoreWindow T 00000000 
+_glfwSetFramebufferSizeCallback T 00000000 
+_glfwSetWindowAspectRatio T 00000000 
+_glfwSetWindowAttrib T 00000000 
+_glfwSetWindowCloseCallback T 00000000 
+_glfwSetWindowContentScaleCallback T 00000000 
+_glfwSetWindowFocusCallback T 00000000 
+_glfwSetWindowIcon T 00000000 
+_glfwSetWindowIconifyCallback T 00000000 
+_glfwSetWindowMaximizeCallback T 00000000 
+_glfwSetWindowMonitor T 00000000 
+_glfwSetWindowOpacity T 00000000 
+_glfwSetWindowPos T 00000000 
+_glfwSetWindowPosCallback T 00000000 
+_glfwSetWindowRefreshCallback T 00000000 
+_glfwSetWindowShouldClose T 00000000 
+_glfwSetWindowSize T 00000000 
+_glfwSetWindowSizeCallback T 00000000 
+_glfwSetWindowSizeLimits T 00000000 
+_glfwSetWindowTitle T 00000000 
+_glfwSetWindowUserPointer T 00000000 
+_glfwShowWindow T 00000000 
+_glfwWaitEvents T 00000000 
+_glfwWaitEventsTimeout T 00000000 
+_glfwWindowHint T 00000000 
+_glfwWindowHintString T 00000000 
+_glfwWindowShouldClose T 00000000 
+IO/glfw3.lib[glfw.dir/Release/vulkan.obj]:
+??_C@_07PBILKAFL@Success@ R 00000000 
+??_C@_0BF@COCMEDFO@VK_KHR_win32_surface@ R 00000000 
+??_C@_0BF@NEMNBLEB@An?5event?5is?5signaled@ R 00000000 
+??_C@_0BG@HBCIDECD@vkGetInstanceProcAddr@ R 00000000 
+??_C@_0BH@MDCGBFEN@An?5event?5is?5unsignaled@ R 00000000 
+??_C@_0BJ@PGPMJKGJ@Vulkan?3?5Loader?5not?5found@ R 00000000 
+??_C@_0BM@OMEGJAIK@ERROR?3?5UNKNOWN?5VULKAN?5ERROR@ R 00000000 
+??_C@_0CB@EJFBPGFM@A?5surface?5is?5no?5longer?5availabl@ R 00000000 
+??_C@_0CC@HDNEDJNI@A?5validation?5layer?5found?5an?5err@ R 00000000 
+??_C@_0CE@HKNBGEPI@A?5host?5memory?5allocation?5has?5fa@ R 00000000 
+??_C@_0CF@OFADCJLJ@A?5requested?5feature?5is?5not?5supp@ R 00000000 
+??_C@_0CG@CHEOMKGJ@A?5device?5memory?5allocation?5has?5@ R 00000000 
+??_C@_0CG@CHGOPGBD@Mapping?5of?5a?5memory?5object?5has?5@ R 00000000 
+??_C@_0CH@DNHGEPME@vkEnumerateInstanceExtensionPro@ R 00000000 
+??_C@_0CH@GBHCOIGC@A?5fence?5or?5query?5has?5not?5yet?5co@ R 00000000 
+??_C@_0CH@NEGEBDM@A?5requested?5extension?5is?5not?5su@ R 00000000 
+??_C@_0CM@GKIHKJDL@A?5return?5array?5was?5too?5small?5fo@ R 00000000 
+??_C@_0CN@IHJGMBHI@The?5logical?5or?5physical?5device?5@ R 00000000 
+??_C@_0DA@LIIDOJC@Vulkan?3?5Failed?5to?5query?5instanc@ R 00000000 
+??_C@_0DD@OOKDLCED@A?5requested?5format?5is?5not?5suppo@ R 00000000 
+??_C@_0DF@FCIHEFHD@Vulkan?3?5Window?5surface?5creation@ R 00000000 
+??_C@_0DF@FEPNJFGL@Vulkan?3?5Loader?5does?5not?5export?5@ R 00000000 
+??_C@_0DF@KADNFCFI@Vulkan?3?5Failed?5to?5query?5instanc@ R 00000000 
+??_C@_0DH@EKEHMEFD@Too?5many?5objects?5of?5the?5type?5ha@ R 00000000 
+??_C@_0DI@GNLCAHHB@A?5requested?5layer?5is?5not?5presen@ R 00000000 
+??_C@_0DJ@KAONABFK@A?5wait?5operation?5has?5not?5comple@ R 00000000 
+??_C@_0EC@MCALKGHI@Vulkan?3?5Failed?5to?5retrieve?5vkEn@ R 00000000 
+??_C@_0EP@OJIEDFOO@The?5display?5used?5by?5a?5swapchain@ R 00000000 
+??_C@_0FE@ILJLDKCD@A?5swapchain?5no?5longer?5matches?5t@ R 00000000 
+??_C@_0FH@FIPMKLID@A?5surface?5has?5changed?5in?5such?5a@ R 00000000 
+??_C@_0FH@MCDKNJAI@Initialization?5of?5an?5object?5cou@ R 00000000 
+??_C@_0FM@BBONGFMN@The?5requested?5version?5of?5Vulkan@ R 00000000 
+??_C@_0FN@PJBCJBIL@The?5requested?5window?5is?5already@ R 00000000 
+??_C@_0FO@KAELFDNN@Vulkan?3?5Window?5surface?5creation@ R 00000000 
+??_C@_0N@IILPFLFM@vulkan?91?4dll@ R 00000000 
+??_C@_0P@IENCOMCD@VK_KHR_surface@ R 00000000 
+__glfwGetVulkanResultString T 00000000 
+__glfwInitVulkan T 00000000 
+__glfwTerminateVulkan T 00000000 
+_glfwCreateWindowSurface T 00000000 
+_glfwGetInstanceProcAddress T 00000000 
+_glfwGetPhysicalDevicePresentationSupport T 00000000 
+_glfwGetRequiredInstanceExtensions T 00000000 
+_glfwVulkanSupported T 00000000 
+IO/glfw3.lib[glfw.dir/Release/monitor.obj]:
+??_C@_0BH@BAPIEFAH@Invalid?5gamma?5value?5?$CFf@ R 00000000 
+??_C@_0BL@OAABODH@Invalid?5gamma?5ramp?5size?5?$CFi@ R 00000000 
+__glfwAllocGammaArrays T 00000000 
+__glfwAllocMonitor T 00000000 
+__glfwChooseVideoMode T 00000000 
+__glfwCompareVideoModes T 00000000 
+__glfwFreeGammaArrays T 00000000 
+__glfwFreeMonitor T 00000000 
+__glfwInputMonitor T 00000000 
+__glfwInputMonitorWindow T 00000000 
+__glfwSplitBPP T 00000000 
+__real@3f000000 R 00000000 
+__real@3f800000 R 00000000 
+__real@477fff00 R 00000000 
+__real@7f7fffff R 00000000 
+__xmm@41f00000000000000000000000000000 R 00000000 
+_glfwGetGammaRamp T 00000000 
+_glfwGetMonitorContentScale T 00000000 
+_glfwGetMonitorName T 00000000 
+_glfwGetMonitorPhysicalSize T 00000000 
+_glfwGetMonitorPos T 00000000 
+_glfwGetMonitors T 00000000 
+_glfwGetMonitorUserPointer T 00000000 
+_glfwGetMonitorWorkarea T 00000000 
+_glfwGetPrimaryMonitor T 00000000 
+_glfwGetVideoMode T 00000000 
+_glfwGetVideoModes T 00000000 
+_glfwSetGamma T 00000000 
+_glfwSetGammaRamp T 00000000 
+_glfwSetMonitorCallback T 00000000 
+_glfwSetMonitorUserPointer T 00000000 
+IO/glfw3.lib[glfw.dir/Release/input.obj]:
+??_C@_01EANLCPLP@y@ R 00000000 
+??_C@_01FJMABOPO@x@ R 00000000 
+??_C@_01IHBHIGKO@?0@ R 00000000 
+??_C@_01MCMALHOG@a@ R 00000000 
+??_C@_01OJONOECF@b@ R 00000000 
+??_C@_02PCIJFNDE@?$AN?6@ R 00000000 
+??_C@_04EDFFKKLO@dpup@ R 00000000 
+??_C@_04JFCNHLLM@back@ R 00000000 
+??_C@_05FAGFPHJG@start@ R 00000000 
+??_C@_05HLIEEKJG@guide@ R 00000000 
+??_C@_05MKIKPCON@leftx@ R 00000000 
+??_C@_05NDJBMDKM@lefty@ R 00000000 
+??_C@_06EBHLNDKL@dpleft@ R 00000000 
+??_C@_06EOBKMJJD@righty@ R 00000000 
+??_C@_06FHABPINC@rightx@ R 00000000 
+??_C@_06LDHPELJC@dpdown@ R 00000000 
+??_C@_07FLLKAONK@dpright@ R 00000000 
+??_C@_07LDLFNPGN@Windows@ R 00000000 
+??_C@_08CBHCFJJK@platform@ R 00000000 
+??_C@_09MEKLKMGE@leftstick@ R 00000000 
+??_C@_0BA@KMGHNAFM@Invalid?5time?5?$CFf@ R 00000000 
+??_C@_0BH@PHEJANJA@Invalid?5joystick?5ID?5?$CFi@ R 00000000 
+??_C@_0BI@POJNLJDO@Invalid?5mouse?5button?5?$CFi@ R 00000000 
+??_C@_0BK@PDCFBJPK@Invalid?5input?5mode?50x?$CF08X@ R 00000000 
+??_C@_0BL@IKJGDNLO@Invalid?5cursor?5mode?50x?$CF08X@ R 00000000 
+??_C@_0BO@JCPCDDEA@Invalid?5cursor?5position?5?$CFf?5?$CFf@ R 00000000 
+??_C@_0BP@EMCHFHHH@Invalid?5standard?5cursor?50x?$CF08X@ R 00000000 
+??_C@_0CI@DPNGBGFF@Invalid?5axis?5in?5gamepad?5mapping@ R 00000000 
+??_C@_0CK@HLLADGKC@Invalid?5button?5in?5gamepad?5mappi@ R 00000000 
+??_C@_0DB@JJADGKIE@Raw?5mouse?5motion?5is?5not?5support@ R 00000000 
+??_C@_0L@DHLNGPDM@rightstick@ R 00000000 
+??_C@_0M@FLKHLCCP@lefttrigger@ R 00000000 
+??_C@_0N@CLKIAFGP@righttrigger@ R 00000000 
+??_C@_0N@MEFCLEJO@leftshoulder@ R 00000000 
+??_C@_0O@LCPOPKLJ@rightshoulder@ R 00000000 
+??_C@_0P@PKABKPLF@Invalid?5key?5?$CFi@ R 00000000 
+__glfwAllocJoystick T 00000000 
+__glfwCenterCursorInContentArea T 00000000 
+__glfwFreeJoystick T 00000000 
+__glfwInputChar T 00000000 
+__glfwInputCursorEnter T 00000000 
+__glfwInputCursorPos T 00000000 
+__glfwInputDrop T 00000000 
+__glfwInputJoystick T 00000000 
+__glfwInputJoystickAxis T 00000000 
+__glfwInputJoystickButton T 00000000 
+__glfwInputJoystickHat T 00000000 
+__glfwInputKey T 00000000 
+__glfwInputMouseClick T 00000000 
+__glfwInputScroll T 00000000 
+__real@0000000000000000 R 00000000 
+__real@3f800000 R 00000000 
+__real@3fe0000000000000 R 00000000 
+__real@42112e0be8240000 R 00000000 
+__real@7fefffffffffffff R 00000000 
+__real@bf800000 R 00000000 
+__real@ffefffffffffffff R 00000000 
+_glfwCreateCursor T 00000000 
+_glfwCreateStandardCursor T 00000000 
+_glfwDestroyCursor T 00000000 
+_glfwGetClipboardString T 00000000 
+_glfwGetCursorPos T 00000000 
+_glfwGetGamepadName T 00000000 
+_glfwGetGamepadState T 00000000 
+_glfwGetInputMode T 00000000 
+_glfwGetJoystickAxes T 00000000 
+_glfwGetJoystickButtons T 00000000 
+_glfwGetJoystickGUID T 00000000 
+_glfwGetJoystickHats T 00000000 
+_glfwGetJoystickName T 00000000 
+_glfwGetJoystickUserPointer T 00000000 
+_glfwGetKey T 00000000 
+_glfwGetKeyName T 00000000 
+_glfwGetKeyScancode T 00000000 
+_glfwGetMouseButton T 00000000 
+_glfwGetTime T 00000000 
+_glfwGetTimerFrequency T 00000000 
+_glfwGetTimerValue T 00000000 
+_glfwJoystickIsGamepad T 00000000 
+_glfwJoystickPresent T 00000000 
+_glfwRawMouseMotionSupported T 00000000 
+_glfwSetCharCallback T 00000000 
+_glfwSetCharModsCallback T 00000000 
+_glfwSetClipboardString T 00000000 
+_glfwSetCursor T 00000000 
+_glfwSetCursorEnterCallback T 00000000 
+_glfwSetCursorPos T 00000000 
+_glfwSetCursorPosCallback T 00000000 
+_glfwSetDropCallback T 00000000 
+_glfwSetInputMode T 00000000 
+_glfwSetJoystickCallback T 00000000 
+_glfwSetJoystickUserPointer T 00000000 
+_glfwSetKeyCallback T 00000000 
+_glfwSetMouseButtonCallback T 00000000 
+_glfwSetScrollCallback T 00000000 
+_glfwSetTime T 00000000 
+_glfwUpdateGamepadMappings T 00000000 
+IO/glfw3.lib[glfw.dir/Release/init.obj]:
+??_C@_0BAA@HNPCOCLG@030000000d0f0000110000000000000@ R 00000000 
+??_C@_0BAB@ECLGICHB@03000000a3060000090100000001000@ R 00000000 
+??_C@_0BAC@DNICHFEF@03000000341a0000010800000000000@ R 00000000 
+??_C@_0BAE@KADGKHDN@030000000d0f0000700000000000000@ R 00000000 
+??_C@_0BAE@PFJOMAIP@03000000791d0000010300000000000@ R 00000000 
+??_C@_0BAF@EBPNLKIJ@0300000032150000000300000000000@ R 00000000 
+??_C@_0BAH@IALKLBBL@05000000d6200000ad0d00000100000@ R 00000000 
+??_C@_0BAK@MJMCJJPI@030000006f0e0000460100000101000@ R 00000000 
+??_C@_0BAK@PBDFELHA@030000000d0f0000220000000000000@ R 00000000 
+??_C@_0BAO@IFLNAJBP@0500000036280000010000000301000@ R 00000000 
+??_C@_0BAO@KKPFKFNM@0500000036280000010000000201000@ R 00000000 
+??_C@_0BAP@DAJEOIJO@03000000b5070000150300001001000@ R 00000000 
+??_C@_0BAP@FIHDOOAA@05000000ac050000323200000100000@ R 00000000 
+??_C@_0BAP@JLLKEDGG@030000008f0e0000120000000000000@ R 00000000 
+??_C@_0BAP@JMGBFLKA@0300000038070000803400001101000@ R 00000000 
+??_C@_0BAP@LBFKBICA@03000000ba220000201000000101000@ R 00000000 
+??_C@_0BAP@OAPLGGBD@0300000038070000808400001101000@ R 00000000 
+??_C@_0BBA@GMEAIAKA@6463343631396565666437363432336@ R 00000000 
+??_C@_0BBB@HMBGBDKD@03000000fa190000070600000000000@ R 00000000 
+??_C@_0BBB@PJOPHLEI@0300000036280000010000000000000@ R 00000000 
+??_C@_0BBC@EEECNPCM@0300000010080000010000000000000@ R 00000000 
+??_C@_0BBC@NOMIFJEF@0300000010080000030000000000000@ R 00000000 
+??_C@_0BBD@BKFDGCG@0300000038070000848300001101000@ R 00000000 
+??_C@_0BBD@CJIGNCA@030000005e040000020200000001000@ R 00000000 
+??_C@_0BBD@DBNHIIMF@0300000025090000e80300000000000@ R 00000000 
+??_C@_0BBD@EGNLFGDF@0300000038070000843300001101000@ R 00000000 
+??_C@_0BBD@EKDOFJJC@6136393165613533613066356161626@ R 00000000 
+??_C@_0BBD@FGLPEKLC@0300000038070000803400000000000@ R 00000000 
+??_C@_0BBD@GHNGPLFD@0300000038070000808400000000000@ R 00000000 
+??_C@_0BBD@JLOPFCFH@4e564944494120436f72706f7261746@ R 00000000 
+??_C@_0BBD@LABNEKLL@0300000038070000188800000000000@ R 00000000 
+??_C@_0BBD@MDEBLIDN@3733643566633865356531373130383@ R 00000000 
+??_C@_0BBD@NBNPKEPL@050000006964726f69643a636f6e000@ R 00000000 
+??_C@_0BBE@JGGOFFHI@0500000047532067616d65706164000@ R 00000000 
+??_C@_0BBE@LNDPKJOE@0300000010080000030000001001000@ R 00000000 
+??_C@_0BBE@MLLGJBKJ@0300000025090000e80300000000000@ R 00000000 
+??_C@_0BBF@EPOIEDBG@03000000e8200000605800000101000@ R 00000000 
+??_C@_0BBF@GOLEDGAH@030000006d04000011c200000000000@ R 00000000 
+??_C@_0BBF@IGGJOAJN@03000000341a0000020800000000000@ R 00000000 
+??_C@_0BBF@KJLMBACJ@030000000d0f00005e0000001101000@ R 00000000 
+??_C@_0BBF@LLNMODEL@0300000038070000188800001001000@ R 00000000 
+??_C@_0BBF@OFLEAFEJ@030000000d0f00005f0000001101000@ R 00000000 
+??_C@_0BBH@EKFHCAMB@03000000e8200000605800000000000@ R 00000000 
+??_C@_0BBH@LCHOLIJA@030000000d0f00005e0000000000000@ R 00000000 
+??_C@_0BBH@LKFOHLNE@030000000d0f00005f0000000000000@ R 00000000 
+??_C@_0BBI@BAKFEMPI@03000000a30600001af500000000000@ R 00000000 
+??_C@_0BBI@BOHGPDFB@0300000066660000048800000001000@ R 00000000 
+??_C@_0BBI@EIMFEPI@030000000d0f00005e0000000001000@ R 00000000 
+??_C@_0BBI@HFDFPBLC@030000000d0f00005f0000000001000@ R 00000000 
+??_C@_0BBI@IMFOKND@03000000d9040000020000000000000@ R 00000000 
+??_C@_0BBI@KAHKIEPM@0300000025090000050000000000000@ R 00000000 
+??_C@_0BBI@LFALHIDI@030000008305000031b000000000000@ R 00000000 
+??_C@_0BBJ@HFDIMAPN@030000006d04000011c200001001000@ R 00000000 
+??_C@_0BBJ@HOAKNPFO@03000000c9110000f05500001101000@ R 00000000 
+??_C@_0BBJ@JDAOMACH@030000008305000031b000000000000@ R 00000000 
+??_C@_0BBJ@KBEDPJIE@030000008f0e0000030000000000000@ R 00000000 
+??_C@_0BBJ@MDDMHFAO@0500000047532047616d65706164000@ R 00000000 
+??_C@_0BBK@FBBILDLI@0300000038070000853200000000000@ R 00000000 
+??_C@_0BBK@FGBLBHDL@0300000055090000107200001101000@ R 00000000 
+??_C@_0BBK@GEMHLGCN@0300000049190000020400000000000@ R 00000000 
+??_C@_0BBK@MKPNHENO@030000008f0e0000030000000000000@ R 00000000 
+??_C@_0BBL@BABJOOFG@03000000ffff0000000000000000000@ R 00000000 
+??_C@_0BBL@DAAIFGAP@030000005e0400008e0200000100000@ R 00000000 
+??_C@_0BBL@EFBOJJAL@0300000066f70000050000000000000@ R 00000000 
+??_C@_0BBL@GHEJCAFE@03000000ff110000313300001001000@ R 00000000 
+??_C@_0BBL@JKCMMIPG@0300000038070000388800000000000@ R 00000000 
+??_C@_0BBL@JOMIAFLN@030000005e0400008e0200000000000@ R 00000000 
+??_C@_0BBL@KFILJCLO@0500000020380000090000000001000@ R 00000000 
+??_C@_0BBL@KFMAAPPM@0300000002200000009000001101000@ R 00000000 
+??_C@_0BBM@ELODDBII@0300000045130000083000001001000@ R 00000000 
+??_C@_0BBM@FABKDNIJ@0500000047532047616d65706164000@ R 00000000 
+??_C@_0BBM@HCDMAOKG@0300000038070000665200000000000@ R 00000000 
+??_C@_0BBM@KHPICJGK@030000000d0f0000670000000101000@ R 00000000 
+??_C@_0BBM@MJENJJEJ@78696e7075740200000000000000000@ R 00000000 
+??_C@_0BBN@BGOOEGFK@030000008916000000fd00000000000@ R 00000000 
+??_C@_0BBN@CINIEJLK@030000006d04000018c200001001000@ R 00000000 
+??_C@_0BBN@CJJHAPIL@030000006d04000016c200001001000@ R 00000000 
+??_C@_0BBN@DDIMFOMP@0300000020380000090000000000000@ R 00000000 
+??_C@_0BBN@DIHFELEO@050000003215000000090000163a000@ R 00000000 
+??_C@_0BBN@DJLNDPIO@030000004c050000680200001081000@ R 00000000 
+??_C@_0BBN@DPJMNHJE@030000004c050000680200001101000@ R 00000000 
+??_C@_0BBN@EDFEDGHD@030000004c050000680200001001000@ R 00000000 
+??_C@_0BBN@EFHFNOGJ@030000004c050000680200001181000@ R 00000000 
+??_C@_0BBN@ENPINBAO@0300000032150000000900001101000@ R 00000000 
+??_C@_0BBN@FFFPOOGM@030000006d04000016c200001101000@ R 00000000 
+??_C@_0BBN@FMDJFAID@0300000002200000009000000000000@ R 00000000 
+??_C@_0BBN@GECLGOBK@0300000010080000010000001001000@ R 00000000 
+??_C@_0BBN@GGDBBCBA@050000004c050000680200000081000@ R 00000000 
+??_C@_0BBN@HKPLBABN@78696e7075740600000000000000000@ R 00000000 
+??_C@_0BBN@HMIJKEEJ@05000000050b0000004500003100000@ R 00000000 
+??_C@_0BBN@HPLMECEE@0300000066660000670600000001000@ R 00000000 
+??_C@_0BBN@JLAHEEFD@03000000300f0000110100000000000@ R 00000000 
+??_C@_0BBN@MMPLBLJD@0300000032150000030a00000000000@ R 00000000 
+??_C@_0BBO@CGCFIFNM@0300000032150000030a00000101000@ R 00000000 
+??_C@_0BBO@DLNBHCGB@030000008f0e0000753000000000000@ R 00000000 
+??_C@_0BBO@EDJENLCH@0300000032150000001000001101000@ R 00000000 
+??_C@_0BBO@FCIHICKG@03000000b5070000120300000000000@ R 00000000 
+??_C@_0BBO@FFLNCONJ@0300000002200000009000000100000@ R 00000000 
+??_C@_0BBO@HLNJIBPP@78696e7075740100000000000000000@ R 00000000 
+??_C@_0BBO@KEHJJI@0300000020380000090000000001000@ R 00000000 
+??_C@_0BBO@PKEFDNGG@030000004f04000023b300000000000@ R 00000000 
+??_C@_0BBP@BDFKEALO@050000004c050000680200000001000@ R 00000000 
+??_C@_0BBP@HENHOIBN@030000005e0400008e0200000000000@ R 00000000 
+??_C@_0BBP@IOECCAGN@030000004c050000680200000000000@ R 00000000 
+??_C@_0BBP@JNCLFIIB@030000004f04000020b300001001000@ R 00000000 
+??_C@_0BBP@KNBKPMNJ@0300000038070000808100000000000@ R 00000000 
+??_C@_0BBP@LNLJDDIF@030000004f04000003d000000000000@ R 00000000 
+??_C@_0BBP@MGAPJMFF@0300000038070000384700009004000@ R 00000000 
+??_C@_0BBP@MIJPCIGF@030000000d0f00004d0000000000000@ R 00000000 
+??_C@_0BBP@NCCKJBD@030000006d04000016c200000000000@ R 00000000 
+??_C@_0BBP@NMPDIJKG@78696e7075740800000000000000000@ R 00000000 
+??_C@_0BBP@PMDLBCBI@0300000045130000001000000000000@ R 00000000 
+??_C@_0BCA@BDAECPNL@030000004c050000680200000000000@ R 00000000 
+??_C@_0BCA@CNBGJAOB@030000004c050000680200000001000@ R 00000000 
+??_C@_0BCA@DEGBIFC@03000000450c0000204300001001000@ R 00000000 
+??_C@_0BCA@IBILPEIB@030000005e0400008e0200001001000@ R 00000000 
+??_C@_0BCA@IDEGIHPL@030000006d04000018c200000000000@ R 00000000 
+??_C@_0BCA@KDCHMLBI@030000005e0400008e0200001401000@ R 00000000 
+??_C@_0BCA@KPDCPHP@78696e7075740500000000000000000@ R 00000000 
+??_C@_0BCA@LOJNHICN@03000000a30600000b0400000000000@ R 00000000 
+??_C@_0BCA@MHMEHDFP@030000006d04000016c200001404000@ R 00000000 
+??_C@_0BCA@NIBPGNBN@030000006d04000016c200000002000@ R 00000000 
+??_C@_0BCA@OGANNCCH@030000006d04000016c200000003000@ R 00000000 
+??_C@_0BCA@PDBJCLJJ@030000006d04000019c200000000000@ R 00000000 
+??_C@_0BCB@BDJGNCHB@03000000de280000fc1100000100000@ R 00000000 
+??_C@_0BCB@CDFBLCMA@030000004c050000cc0900001181000@ R 00000000 
+??_C@_0BCB@CDNPOFJG@03000000341a0000030200000000000@ R 00000000 
+??_C@_0BCB@CKNNGBKB@030000004c050000c40500001101000@ R 00000000 
+??_C@_0BCB@CMKDLHCN@030000004c050000a00b00001101000@ R 00000000 
+??_C@_0BCB@EEEEOCLB@03000000300f0000120100000000000@ R 00000000 
+??_C@_0BCB@EFCKBGDL@030000006f0e0000130400000001000@ R 00000000 
+??_C@_0BCB@GBOFCHI@03000000a30600000c0400000000000@ R 00000000 
+??_C@_0BCB@HCCBPGP@03000000341a0000360800001101000@ R 00000000 
+??_C@_0BCB@HHIMPJIH@050000004c050000c40500000081000@ R 00000000 
+??_C@_0BCB@HOAACKOG@050000004c050000cc0900000001000@ R 00000000 
+??_C@_0BCB@JCCNBKOA@050000004c050000c40500000001000@ R 00000000 
+??_C@_0BCB@JLKBMJIB@050000004c050000cc0900000081000@ R 00000000 
+??_C@_0BCB@LLBDLKJJ@03000000c6240000045d00002501000@ R 00000000 
+??_C@_0BCB@MGPAFBKH@030000004c050000cc0900001101000@ R 00000000 
+??_C@_0BCB@MJACFEEK@030000004c050000a00b00001181000@ R 00000000 
+??_C@_0BCB@MPHMICMG@030000004c050000c40500001181000@ R 00000000 
+??_C@_0BCB@NOBGJFAM@0300000032150000001000000001000@ R 00000000 
+??_C@_0BCB@OOEANFEH@03000000300f0000100100000000000@ R 00000000 
+??_C@_0BCC@CJMNKOGI@03000000e3050000960500000000000@ R 00000000 
+??_C@_0BCC@DEAAENNG@030000006f0e0000010300000002000@ R 00000000 
+??_C@_0BCC@ELNLHOMK@0300000038070000388800001001000@ R 00000000 
+??_C@_0BCC@FCCEALDM@03000000450c0000204300000000000@ R 00000000 
+??_C@_0BCC@FGKMNKFE@030000008916000000fd00002401000@ R 00000000 
+??_C@_0BCC@FJIJNHMA@03000000d62000006dca00000000000@ R 00000000 
+??_C@_0BCC@GIAOEEEO@030000000d0f0000660000001101000@ R 00000000 
+??_C@_0BCC@ICCBFEBO@030000000d0f0000ee0000000000000@ R 00000000 
+??_C@_0BCC@ICCBMGAM@03000000a306000022f600000000000@ R 00000000 
+??_C@_0BCC@JKBJFGJE@030000005e040000890200002101000@ R 00000000 
+??_C@_0BCC@NBBPDEHC@030000000d0f00006e0000001101000@ R 00000000 
+??_C@_0BCC@NDPGPOIA@030000006f0e00001f0100000001000@ R 00000000 
+??_C@_0BCC@OCAPCLFC@030000005e040000850200000001000@ R 00000000 
+??_C@_0BCC@POEBDKJL@0300000010080000010000000000000@ R 00000000 
+??_C@_0BCD@BABDCDPH@030000004c050000cc0900000000000@ R 00000000 
+??_C@_0BCD@BBICEOLK@78696e7075740300000000000000000@ R 00000000 
+??_C@_0BCD@CGKCHHKM@78696e7075740400000000000000000@ R 00000000 
+??_C@_0BCD@DJDMNCGP@0300000088880000080300000000000@ R 00000000 
+??_C@_0BCD@GAJAFIPA@030000004c050000c40500000000000@ R 00000000 
+??_C@_0BCD@JEFDAAGB@0500000001000000010000000300000@ R 00000000 
+??_C@_0BCD@JIBGPOCI@030000004c050000a00b00000000000@ R 00000000 
+??_C@_0BCD@KBOGKJIK@03000000d81d00000f0000000000000@ R 00000000 
+??_C@_0BCD@MGDEOILE@03000000c0160000870400001101000@ R 00000000 
+??_C@_0BCD@OCJAOEJP@030000004f04000015b300001001000@ R 00000000 
+??_C@_0BCE@BGKGHCAB@05000000c82d0000203800000001000@ R 00000000 
+??_C@_0BCE@FGGGEOAO@030000000d0f00004d0000000000000@ R 00000000 
+??_C@_0BCE@FHGCGPIB@03000000a30600000b0400000001000@ R 00000000 
+??_C@_0BCE@FMFPKAKB@030000008f0e0000120000001001000@ R 00000000 
+??_C@_0BCE@FNNPEDPI@030000008f0e0000030000001001000@ R 00000000 
+??_C@_0BCE@HFFFNOMK@030000004c050000c40500000001000@ R 00000000 
+??_C@_0BCE@HLGICLNK@030000008f0e00000d3100000000000@ R 00000000 
+??_C@_0BCE@ILPMOMFJ@030000006f0e0000640100000101000@ R 00000000 
+??_C@_0BCE@JNCBHNAG@030000000d0f00006e0000000000000@ R 00000000 
+??_C@_0BCE@JNFEBCFK@030000004c050000c40500000000000@ R 00000000 
+??_C@_0BCE@LONHMMNE@030000000d0f0000660000000000000@ R 00000000 
+??_C@_0BCE@MMGBFIJB@03000000ad1b000001f500003305000@ R 00000000 
+??_C@_0BCE@MNGEPDHI@03000000786901006e7000000000000@ R 00000000 
+??_C@_0BCE@OLEBMIBC@030000004c050000cc0900000001000@ R 00000000 
+??_C@_0BCE@PHFLGEEP@03000000d81d0000100000000000000@ R 00000000 
+??_C@_0BCE@PNKFACIK@030000004c050000a00b00000001000@ R 00000000 
+??_C@_0BCF@BIADCONP@03000000d81d00000b0000000000000@ R 00000000 
+??_C@_0BCF@DJJAGGNO@030000000d0f00006e0000000001000@ R 00000000 
+??_C@_0BCF@FBGOCDJH@030000000d0f0000660000000001000@ R 00000000 
+??_C@_0BCF@GFBOBFNK@030000005e040000190700000001000@ R 00000000 
+??_C@_0BCF@HCNAOLEE@030000005e040000910200000701000@ R 00000000 
+??_C@_0BCF@HMAJMPIB@030000005e040000a10200000001000@ R 00000000 
+??_C@_0BCF@HOCGGOLH@030000004f04000015b300000000000@ R 00000000 
+??_C@_0BCG@EIEAMGGG@3564303130303332613031633035356@ R 00000000 
+??_C@_0BCG@GADBECOE@030000006d04000019c200001001000@ R 00000000 
+??_C@_0BCG@HCILKDJN@03000000de280000ff1100000100000@ R 00000000 
+??_C@_0BCG@HOFCBBCN@03000000120c0000100e00001101000@ R 00000000 
+??_C@_0BCG@IDKALIIN@5477696e20555342204a6f797374696@ R 00000000 
+??_C@_0BCG@IKGKKENL@03000000a30600000cff00001001000@ R 00000000 
+??_C@_0BCG@JCENNNEN@0300000063250000230500000000000@ R 00000000 
+??_C@_0BCG@JDIGBKMP@030000000d0f00006a0000000000000@ R 00000000 
+??_C@_0BCG@KCOGNPFA@030000000d0f00008b0000000000000@ R 00000000 
+??_C@_0BCG@LIMAPBKF@03000000a30600000b0400000001000@ R 00000000 
+??_C@_0BCG@NPOEDNBE@030000000d0f00008a0000000000000@ R 00000000 
+??_C@_0BCG@OKDHGBAK@0500000038070000665200002501000@ R 00000000 
+??_C@_0BCG@OOIEPIIL@030000000d0f00006b0000000000000@ R 00000000 
+??_C@_0BCG@PALCOHIL@3435613663336661353031633837613@ R 00000000 
+??_C@_0BCH@DECMPLLD@030000004b120000014d00000000000@ R 00000000 
+??_C@_0BCH@FCGDKOAJ@030000006d04000019c200001101000@ R 00000000 
+??_C@_0BCH@HONEFEFO@030000000d0f00005c0000000000000@ R 00000000 
+??_C@_0BCH@KBLGLPFO@030000008f0e0000080000000000000@ R 00000000 
+??_C@_0BCH@KGOLOPPA@030000000d0f00005b0000000000000@ R 00000000 
+??_C@_0BCH@LGGFCPBM@030000008916000001fd00002401000@ R 00000000 
+??_C@_0BCI@CPBKHDAC@030000004f04000000b300000000000@ R 00000000 
+??_C@_0BCI@DMOPMJOI@030000005e0400008e0200000401000@ R 00000000 
+??_C@_0BCI@EFPMNDOG@030000004f04000015b300000000000@ R 00000000 
+??_C@_0BCI@EOJPHONB@030000005e040000d10200000101000@ R 00000000 
+??_C@_0BCI@FCHAMOBL@03000000a30600000cff00000000000@ R 00000000 
+??_C@_0BCI@FEEBJOHL@030000005e040000ea0200000000000@ R 00000000 
+??_C@_0BCI@LFOBONOH@030000005e0400008e0200006223000@ R 00000000 
+??_C@_0BCI@LLHBIGCM@030000000d0f0000660000000000000@ R 00000000 
+??_C@_0BCJ@BFBFIAMH@05000000504c415953544154494f4e0@ R 00000000 
+??_C@_0BCJ@BMLEIPAJ@030000004f04000023b300000001000@ R 00000000 
+??_C@_0BCJ@FCBDJONF@030000005e040000a10200000701000@ R 00000000 
+??_C@_0BCJ@GBONJMEB@030000005e040000dd0200000000000@ R 00000000 
+??_C@_0BCJ@GDBCPJIF@030000000d0f0000840000000000000@ R 00000000 
+??_C@_0BCJ@GFLPLBLI@030000005e040000d10200000000000@ R 00000000 
+??_C@_0BCJ@HMCMMNGL@03000000c6240000045d00000000000@ R 00000000 
+??_C@_0BCJ@JBAGNBFA@03000000120c0000100e00000001000@ R 00000000 
+??_C@_0BCJ@JENDBJBA@030000005e040000e30200000000000@ R 00000000 
+??_C@_0BCJ@KDHNKOAJ@0000000058626f78203336302057690@ R 00000000 
+??_C@_0BCJ@LBBLNPD@03000000300f0000100100001001000@ R 00000000 
+??_C@_0BCJ@MOBPPOOO@060000004c050000680200000001000@ R 00000000 
+??_C@_0BCK@BJFGIGJE@030000006d04000018c200000000000@ R 00000000 
+??_C@_0BCK@EAEGJFKI@03000000a306000022f600001101000@ R 00000000 
+??_C@_0BCK@ECOEHMCF@030000004c050000cc0900000000000@ R 00000000 
+??_C@_0BCK@FNPDAAAN@030000004f04000008d000000001000@ R 00000000 
+??_C@_0BCK@NFPNBBGL@030000006d04000016c200000000000@ R 00000000 
+??_C@_0BCL@BCOILFMC@030000006f0e0000300100000101000@ R 00000000 
+??_C@_0BCL@GAPBJBMC@0300000025090000050000000001000@ R 00000000 
+??_C@_0BCL@HMJAKFPC@030000006b140000005500000000000@ R 00000000 
+??_C@_0BCL@INCIKJEN@030000006f0e0000010400000001000@ R 00000000 
+??_C@_0BCL@MPGLFJGC@03000000a306000018f500001001000@ R 00000000 
+??_C@_0BCL@NEEKFJEM@030000005e040000d10200000302000@ R 00000000 
+??_C@_0BCL@OCCALEC@0500000017270000443100002901000@ R 00000000 
+??_C@_0BCM@CAPIHIPI@030000005e040000e00200000309000@ R 00000000 
+??_C@_0BCM@CHDEFE@030000006b140000010d00001101000@ R 00000000 
+??_C@_0BCM@KABHDKAM@030000005e040000e00200000000000@ R 00000000 
+??_C@_0BCM@KAENMMC@06000000adde0000efbe00000201000@ R 00000000 
+??_C@_0BCM@LGBONGPL@03000000a30600000c0400001101000@ R 00000000 
+??_C@_0BCM@LKOLHFDG@03000000c82d0000019000001101000@ R 00000000 
+??_C@_0BCN@BFDCBFPE@03000000ad1b000016f000009004000@ R 00000000 
+??_C@_0BCN@CJELOFCC@030000006f0e00001e0100001101000@ R 00000000 
+??_C@_0BCN@GGIJABAL@03000000a306000022f600000103000@ R 00000000 
+??_C@_0BCN@GIEEMMPB@03000000341a0000360800000000000@ R 00000000 
+??_C@_0BCN@HMAHPPDL@050000005769696d6f7465202831380@ R 00000000 
+??_C@_0BCN@JLGOFCN@0300000017270000443100000000000@ R 00000000 
+??_C@_0BCN@KNLNJPBN@03000000a306000023f600001101000@ R 00000000 
+??_C@_0BCN@MJMBNEGC@050000005e040000e00200000309000@ R 00000000 
+??_C@_0BCN@PKJKBBEM@03000000f025000021c100001001000@ R 00000000 
+??_C@_0BCN@PNMODGGJ@0300000079000000060000001001000@ R 00000000 
+??_C@_0BCO@BCABGFMI@030000006d04000019c200000000000@ R 00000000 
+??_C@_0BCO@CIKJBCCE@0300000038070000503200001101000@ R 00000000 
+??_C@_0BCO@DEGLBPGO@0300000017270000443100002901000@ R 00000000 
+??_C@_0BCO@GFHGFBHD@030000004f04000004b300000000000@ R 00000000 
+??_C@_0BCO@LFBKGNJI@0300000038070000508200001101000@ R 00000000 
+??_C@_0BCO@NGLDHPOC@030000006b140000010d00000000000@ R 00000000 
+??_C@_0BCO@PCHLJLMH@030000006d0400001fc200000000000@ R 00000000 
+??_C@_0BCP@BOKNKFAN@03000000ad1b000001f900000000000@ R 00000000 
+??_C@_0BCP@FOHDAEKD@030000006d0400001ec200002020000@ R 00000000 
+??_C@_0BCP@HPMIMEAF@03000000a306000023f600000000000@ R 00000000 
+??_C@_0BCP@JCIBHFNJ@030000006b140000010d00000001000@ R 00000000 
+??_C@_0BCP@MOKGLCJ@030000006f0e00001e0100000000000@ R 00000000 
+??_C@_0BCP@OCIJELBG@030000006d0400001dc200001440000@ R 00000000 
+??_C@_0BCP@OFKGICJK@030000006e050000032000001001000@ R 00000000 
+??_C@_0BCP@OGBHLJIO@030000006d0400001fc200000503000@ R 00000000 
+??_C@_0BCP@ONIMJMJ@0300000066660000048800000000000@ R 00000000 
+??_C@_0BDA@CMOFFENL@030000000d0f0000850000000000000@ R 00000000 
+??_C@_0BDA@FHCCADPL@030000005e040000fd0200000309000@ R 00000000 
+??_C@_0BDA@HBJEDFJC@0300000038070000508200000000000@ R 00000000 
+??_C@_0BDA@KMJLBBJI@030000000d0f0000490000000000000@ R 00000000 
+??_C@_0BDA@MJBCKDNM@0000000058626f782047616d6570610@ R 00000000 
+??_C@_0BDA@PJFOCFDI@0300000038070000503200000000000@ R 00000000 
+??_C@_0BDB@COLJAIGG@050000005e040000fd0200000309000@ R 00000000 
+??_C@_0BDB@EFGMHJKD@050000007e050000092000000100000@ R 00000000 
+??_C@_0BDB@FLDCOIHG@030000005e0400008e0200007305000@ R 00000000 
+??_C@_0BDB@JKIBJCFK@0300000038070000508200000001000@ R 00000000 
+??_C@_0BDB@KMAKBCLM@0300000038070000503200000001000@ R 00000000 
+??_C@_0BDB@OHAMDKML@0300000038070000818400000000000@ R 00000000 
+??_C@_0BDB@PGNJIFCM@050000007e050000300300000100000@ R 00000000 
+??_C@_0BDB@PPKHIPGK@0300000038070000813400000000000@ R 00000000 
+??_C@_0BDC@MKHPLOHI@0300000038070000848300000000000@ R 00000000 
+??_C@_0BDC@NMPFEEAB@030000000d0f00006b0000001101000@ R 00000000 
+??_C@_0BDC@OFOLAELJ@030000000d0f00006a0000001101000@ R 00000000 
+??_C@_0BDD@DODHFLKI@030000007e050000092000000000000@ R 00000000 
+??_C@_0BDD@FPBHPBO@030000000d050000030800001001000@ R 00000000 
+??_C@_0BDD@IGLAPCDD@030000000d0f00005e0000000000000@ R 00000000 
+??_C@_0BDD@JHJMHIEF@030000000d0f00005f0000000000000@ R 00000000 
+??_C@_0BDD@OGBJHHE@0300000038070000164700001004000@ R 00000000 
+??_C@_0BDE@BBKMEPF@030000004f04000000b300001001000@ R 00000000 
+??_C@_0BDE@EOILIDOK@030000008f0e0000061000000001000@ R 00000000 
+??_C@_0BDE@HMLCIHHK@03000000f0250000c18300001001000@ R 00000000 
+??_C@_0BDE@PILKGMJP@030000007e050000092000000000000@ R 00000000 
+??_C@_0BDG@FAKOKHMO@030000004f04000000b300000000000@ R 00000000 
+??_C@_0BDG@HMNPKELM@030000005e0400008e0200002020000@ R 00000000 
+??_C@_0BDG@JHAIGEPC@0300000079000000431800000000000@ R 00000000 
+??_C@_0BDI@DKEINFDE@030000004c050000a00b00000000000@ R 00000000 
+??_C@_0BDI@JNKGOPKH@030000004f04000009d000000001000@ R 00000000 
+??_C@_0BDI@OFDDGNHK@030000006f0e0000390100002006000@ R 00000000 
+??_C@_0BDM@IEGKPAEF@03000000222c0000022300000000000@ R 00000000 
+??_C@_0BDN@CCAJAJCK@0300000079000000001800000000000@ R 00000000 
+??_C@_0BDN@OKDOLNP@03000000222c0000002300000000000@ R 00000000 
+??_C@_0BEG@EJMIOODK@0300000079000000001800000000000@ R 00000000 
+??_C@_0BJ@HDECIKCI@Invalid?5init?5hint?50x?$CF08X@ R 00000000 
+??_C@_0BK@PMMAHJAK@ERROR?3?5UNKNOWN?5GLFW?5ERROR@ R 00000000 
+??_C@_0BM@BADCNPOM@Invalid?5value?5for?5parameter@ R 00000000 
+??_C@_0BM@PKHPFLOM@There?5is?5no?5current?5context@ R 00000000 
+??_C@_0CB@HAFFDHLH@The?5requested?5API?5is?5unavailabl@ R 00000000 
+??_C@_0CD@HJEBEGLD@A?5platform?9specific?5error?5occur@ R 00000000 
+??_C@_0CE@BEELAIPG@The?5GLFW?5library?5is?5not?5initial@ R 00000000 
+??_C@_0CE@KDBKFLEE@Invalid?5argument?5for?5enum?5param@ R 00000000 
+??_C@_0CE@OJFJMLEI@The?5specified?5window?5has?5no?5con@ R 00000000 
+??_C@_0CE@PCLEMLLO@The?5requested?5format?5is?5unavail@ R 00000000 
+??_C@_0CJ@KOFEFGNB@The?5requested?5API?5version?5is?5un@ R 00000000 
+??_C@_0GC@KIFEGHB@03000000fa2d0000010000000000000@ R 00000000 
+??_C@_0IA@GKEJEKKE@0300000079000000110000000001000@ R 00000000 
+??_C@_0JN@HKCNMPIP@030000003512000021ab00000000000@ R 00000000 
+??_C@_0JO@HBLEAOAI@03000000c0110000135200000000000@ R 00000000 
+??_C@_0JP@HAMMIOGK@0300000000f00000030000000001000@ R 00000000 
+??_C@_0JP@IFPNDHMB@05000000a0050000323200000100000@ R 00000000 
+??_C@_0KA@FLFCPCAP@0500000010280000090000000001000@ R 00000000 
+??_C@_0KA@KADDKLCN@05000000c82d0000302800000001000@ R 00000000 
+??_C@_0KB@CIFFNJNE@0300000000f00000030000000000000@ R 00000000 
+??_C@_0KC@BDMHLJAH@0300000010280000090000000000000@ R 00000000 
+??_C@_0KE@IGCCAIEM@030000009b280000030000000101000@ R 00000000 
+??_C@_0KG@DPPFDBEG@0300000000f00000f10000000001000@ R 00000000 
+??_C@_0KG@NLINLDLG@03000000b40400000a0100000001000@ R 00000000 
+??_C@_0KG@OGEBLKCF@03000000bd12000015d000000000000@ R 00000000 
+??_C@_0KI@EKALFCGN@4d466947616d6570616402000000000@ R 00000000 
+??_C@_0KI@EPMKBGDM@0300000000f00000f10000000000000@ R 00000000 
+??_C@_0KJ@LPEGFINE@0300000079000000110000000000000@ R 00000000 
+??_C@_0KM@JJPDJFIO@0300000010280000090000000000000@ R 00000000 
+??_C@_0KN@HDHEFAON@03000000b40400000a0100000000000@ R 00000000 
+??_C@_0LB@OEDBDJLN@0300000083050000602000000000000@ R 00000000 
+??_C@_0LE@DMNOHJBL@03000000300f0000121000000000000@ R 00000000 
+??_C@_0LF@CJKOEMML@030000009b280000050000000000000@ R 00000000 
+??_C@_0LF@DNFJHMLL@0300000000050000289b00000000000@ R 00000000 
+??_C@_0LH@BHNKFLDL@03000000ff110000413300001001000@ R 00000000 
+??_C@_0LH@NGGJMINF@030000001008000001e500001001000@ R 00000000 
+??_C@_0LH@ONKJILKM@03000000fd050000003000000001000@ R 00000000 
+??_C@_0LI@EODKGEOE@05000000a0050000323200000801000@ R 00000000 
+??_C@_0LJ@GGIFBABN@030000001008000001e500000000000@ R 00000000 
+??_C@_0LJ@IMKHDMOP@030000008f0e0000133000001001000@ R 00000000 
+??_C@_0LK@DEPDOLNO@0300000028040000014000000000000@ R 00000000 
+??_C@_0LK@EONCFH@030000001008000001e500000601000@ R 00000000 
+??_C@_0LK@IEAMBPJF@03000000a0050000323200000000000@ R 00000000 
+??_C@_0LL@DGCKBEJD@03000000a0050000323200000801000@ R 00000000 
+??_C@_0LL@KLNOPNHB@030000008f0e0000133000000000000@ R 00000000 
+??_C@_0LL@NJNOLIBF@0300000083050000602000001001000@ R 00000000 
+??_C@_0LM@JBBKIHKB@03000000bd12000015d000001001000@ R 00000000 
+??_C@_0LM@MLHGLOBN@0300000079000000110000001001000@ R 00000000 
+??_C@_0LN@ELDHBANA@0300000083050000602000000000000@ R 00000000 
+??_C@_0LO@EDCIDLIK@0300000079000000110000000000000@ R 00000000 
+??_C@_0LO@FPEHDPEM@0300000083050000602000000001000@ R 00000000 
+??_C@_0LP@BCPNPHOA@03000000bd12000015d000000001000@ R 00000000 
+??_C@_0LP@CBGMIEGG@0300000078000000060000001001000@ R 00000000 
+??_C@_0LP@NHDHAKJG@0300000079000000110000000601000@ R 00000000 
+??_C@_0MA@ECCMLEBD@03000000bd12000015d000000000000@ R 00000000 
+??_C@_0MA@LPHGGGL@0300000025090000012800000000000@ R 00000000 
+??_C@_0MA@OBAHHDGF@0300000028040000014000000001000@ R 00000000 
+??_C@_0MA@POCHILFA@030000008f0e0000133000001101000@ R 00000000 
+??_C@_0MC@LLGGFHJA@03000000d814000007cd00001101000@ R 00000000 
+??_C@_0MH@LCFKBGGK@030000000d0f00000d0000000001000@ R 00000000 
+??_C@_0MI@LOAEOOPA@050000005769696d6f7465202830300@ R 00000000 
+??_C@_0MN@MECJDKLN@05000000de280000051100000100000@ R 00000000 
+??_C@_0MO@OPMCNAC@03000000d8140000086200001101000@ R 00000000 
+??_C@_0MP@FHHAFDCH@05000000de280000051100000100000@ R 00000000 
+??_C@_0MP@FPFJAMOP@03000000de280000421100000100000@ R 00000000 
+??_C@_0MP@JHHJFJJN@03000000de280000021100000100000@ R 00000000 
+??_C@_0MP@JPEINMFL@05000000de280000021200000100000@ R 00000000 
+??_C@_0MP@KIEFCEND@03000000de280000011200000100000@ R 00000000 
+??_C@_0MP@MJDHGAFA@030000006d04000015c200001001000@ R 00000000 
+??_C@_0MP@NNGGKFCK@0300000025090000001700000000000@ R 00000000 
+??_C@_0NB@GCLNIPCM@05000000de280000051100000100000@ R 00000000 
+??_C@_0ND@PBMAPEC@03000000d8140000cecf00000000000@ R 00000000 
+??_C@_0NH@JDHAOPDE@03000000c0160000e10500000101000@ R 00000000 
+??_C@_0NL@BDDOKBNO@03000000811700007e0500000000000@ R 00000000 
+??_C@_0O@NALGGDJF@Out?5of?5memory@ R 00000000 
+??_C@_0OA@BPMCGMAH@78696e7075740300000000000000000@ R 00000000 
+??_C@_0OB@DOLNAILH@0300000026090000262500000000000@ R 00000000 
+??_C@_0OC@FELEMKIB@03000000120c0000f60e00000000000@ R 00000000 
+??_C@_0OD@GOLNACF@030000000d0f0000270000000000000@ R 00000000 
+??_C@_0OF@MLANCIHH@03000000ad1b00002ef000009004000@ R 00000000 
+??_C@_0OH@FOPKIOOK@030000000d0f0000880000000000000@ R 00000000 
+??_C@_0OH@IPHKKKC@03000000790000001b1800000000000@ R 00000000 
+??_C@_0OH@PKEJNDDF@030000000d0f0000870000000000000@ R 00000000 
+??_C@_0OI@PJKINAML@03000000b5070000140300000000000@ R 00000000 
+??_C@_0OJ@EIDEAACM@03000000341a000005f700001001000@ R 00000000 
+??_C@_0OJ@KFMPHKBC@0300000010000000820000000000000@ R 00000000 
+??_C@_0OJ@OOLHGLBN@03000000d8140000086200000000000@ R 00000000 
+??_C@_0OM@HGBIMFGF@03000000300f0000161100000000000@ R 00000000 
+??_C@_0OM@IHEDDKBH@0300000010000000820000001101000@ R 00000000 
+??_C@_0OM@LMFECDOF@0300000079000000441800001001000@ R 00000000 
+??_C@_0OM@PAPEIDEH@030000000d0f0000400000000000000@ R 00000000 
+??_C@_0ON@KEJKIAHI@03000000222c0000002000000000000@ R 00000000 
+??_C@_0OO@GJNLNJJL@030000000d0f0000100000001101000@ R 00000000 
+??_C@_0OO@JIILGAHM@030000006f0e0000240100000000000@ R 00000000 
+??_C@_0OP@DKGLPNPK@0300000038070000843300000000000@ R 00000000 
+??_C@_0OP@OEFNKJH@0300000079000000441800000001000@ R 00000000 
+??_C@_0PA@BDIKJOAM@030000000d0f0000220000001101000@ R 00000000 
+??_C@_0PC@EBDFKGFN@0300000079000000441800000000000@ R 00000000 
+??_C@_0PE@FLCANBLK@0300000011010000201400000000000@ R 00000000 
+??_C@_0PF@JBCCEDOB@03000000300f0000001100000000000@ R 00000000 
+??_C@_0PF@JMKDDKBC@0300000026090000888800000001000@ R 00000000 
+??_C@_0PG@CFHNEHNN@4d466947616d6570616401000000000@ R 00000000 
+??_C@_0PG@GJECLCNG@0300000038100000201400000100000@ R 00000000 
+??_C@_0PG@OBBCDHKC@0300000011010000201400000100000@ R 00000000 
+??_C@_0PH@HDPKEOEB@0300000026090000888800000000000@ R 00000000 
+??_C@_0PH@KBBCNIOJ@03000000300f0000121100001101000@ R 00000000 
+??_C@_0PI@JHAKKPHF@030000008f0e0000103000000000000@ R 00000000 
+??_C@_0PI@MHCFEKFM@03000000ff110000313300000000000@ R 00000000 
+??_C@_0PI@OKGGAFMJ@03000000341a0000010400000000000@ R 00000000 
+??_C@_0PI@PKAABFLP@0300000026090000888800008802000@ R 00000000 
+??_C@_0PK@JJMJGHLF@0300000011010000171400002001000@ R 00000000 
+??_C@_0PK@LDNIFGGP@0300000011010000171400000000000@ R 00000000 
+?_OptionsStorage@?1??__local_stdio_printf_options@@9@9 C 00000008 
+___local_stdio_printf_options T 00000000 
+__glfw B 00000000 
+__glfw_fmaxf T 00000000 
+__glfw_fminf T 00000000 
+__glfw_strdup T 00000000 
+__glfwDefaultMappings D 00000000 
+__glfwInputError T 00000000 
+_glfwGetError T 00000000 
+_glfwGetVersion T 00000000 
+_glfwGetVersionString T 00000000 
+_glfwInit T 00000000 
+_glfwInitHint T 00000000 
+_glfwSetErrorCallback T 00000000 
+_glfwTerminate T 00000000 
+IO/glfw3.lib[glfw.dir/Release/context.obj]:
+??_C@_07IBAPPAHJ@glClear@ R 00000000 
+??_C@_08FOJKHHJA@?$CFd?4?$CFd?4?$CFd@ R 00000000 
+??_C@_0BC@CLDFFND@GL_EXT_robustness@ R 00000000 
+??_C@_0BC@EOBKJDCM@GL_ARB_robustness@ R 00000000 
+??_C@_0BE@OHIPHHMJ@GL_ARB_debug_output@ R 00000000 
+??_C@_0BF@CJMIIMBG@GL_ARB_compatibility@ R 00000000 
+??_C@_0BK@EIOPBJJH@Invalid?5client?5API?50x?$CF08X@ R 00000000 
+??_C@_0BN@DHKEBMCG@Invalid?5OpenGL?5version?5?$CFi?4?$CFi@ R 00000000 
+??_C@_0BN@FNDGKECA@GL_KHR_context_flush_control@ R 00000000 
+??_C@_0BO@PCKHNBJ@Invalid?5OpenGL?5profile?50x?$CF08X@ R 00000000 
+??_C@_0CA@LDAANPIM@Entry?5point?5retrieval?5is?5broken@ R 00000000 
+??_C@_0CA@LFIDGAHJ@Invalid?5OpenGL?5ES?5version?5?$CFi?4?$CFi@ R 00000000 
+??_C@_0CE@JBLPENML@Invalid?5context?5creation?5API?50x@ R 00000000 
+??_C@_0CF@KMMHNOMI@Extension?5string?5retrieval?5is?5b@ R 00000000 
+??_C@_0CH@PNNMGINB@Invalid?5context?5robustness?5mode@ R 00000000 
+??_C@_0CI@JDDJIGNN@Invalid?5context?5release?5behavio@ R 00000000 
+??_C@_0CJ@JDBBFPLM@Extension?5name?5cannot?5be?5an?5emp@ R 00000000 
+??_C@_0CK@DDNMEIKD@No?5version?5found?5in?5OpenGL?5vers@ R 00000000 
+??_C@_0CK@DKAFEDIC@OpenGL?5version?5string?5retrieval@ R 00000000 
+??_C@_0CN@FALFGDO@No?5version?5found?5in?5OpenGL?5ES?5v@ R 00000000 
+??_C@_0CN@GOPDCGGI@OpenGL?5ES?5version?5string?5retrie@ R 00000000 
+??_C@_0DC@KIAJNHJN@Requested?5OpenGL?5version?5?$CFi?4?$CFi?0@ R 00000000 
+??_C@_0DF@EFFMOKHE@Requested?5OpenGL?5ES?5version?5?$CFi?4@ R 00000000 
+??_C@_0ED@FEABOOIM@Context?5profiles?5are?5only?5defin@ R 00000000 
+??_C@_0EF@NMJGLODJ@Cannot?5query?5extension?5without?5@ R 00000000 
+??_C@_0EH@BEBOCAGI@Cannot?5set?5swap?5interval?5withou@ R 00000000 
+??_C@_0EH@CMDCLIEA@Forward?9compatibility?5is?5only?5d@ R 00000000 
+??_C@_0EH@LGPPFAO@Cannot?5query?5entry?5point?5withou@ R 00000000 
+??_C@_0EI@PJFDHBJK@Cannot?5swap?5buffers?5of?5a?5window@ R 00000000 
+??_C@_0EK@HBJBDMAL@Cannot?5make?5current?5with?5a?5wind@ R 00000000 
+??_C@_0L@JLFHOCGA@OpenGL?5ES?5@ R 00000000 
+??_C@_0M@OPOBFDCB@glGetString@ R 00000000 
+??_C@_0N@PILJCBOD@glGetStringi@ R 00000000 
+??_C@_0O@DHHDCCLF@glGetIntegerv@ R 00000000 
+??_C@_0O@EMKFPNOG@OpenGL?5ES?9CL?5@ R 00000000 
+??_C@_0O@ENGHJHNB@OpenGL?5ES?9CM?5@ R 00000000 
+?_OptionsStorage@?1??__local_stdio_scanf_options@@9@9 C 00000008 
+___local_stdio_scanf_options T 00000000 
+__glfwChooseFBConfig T 00000000 
+__glfwIsValidContextConfig T 00000000 
+__glfwRefreshContextAttribs T 00000000 
+__glfwStringInExtensionString T 00000000 
+_glfwExtensionSupported T 00000000 
+_glfwGetCurrentContext T 00000000 
+_glfwGetProcAddress T 00000000 
+_glfwMakeContextCurrent T 00000000 
+_glfwSwapBuffers T 00000000 
+_glfwSwapInterval T 00000000 
+_sscanf T 00000000 

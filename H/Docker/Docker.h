@@ -62,7 +62,6 @@ private:
 	void DLL_Analyzer();
 	void LIB_Analyzer();
 	void ELF_Analyzer();
-
 	string FileName = "";
 	string Working_Dir = "";
 	string Priority_Type = "";

@@ -29,6 +29,7 @@ public:
 	void Detect_Parenthesis(Token* t);
 	void Detect_Pre_Defined_Tokens(Token* t);
 	void Detect_Prefixes(Token* t);
+	void Detect_Assembly_Including(Token* t);
 	void Scaler(Token* l, Token* r);
 	void Dodge(Token* l, Token* r);
 	void Rotator(Token* l, Token* r);

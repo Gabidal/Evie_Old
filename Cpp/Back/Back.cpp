@@ -112,6 +112,8 @@ string Back::Get_Info_Of(Token* t)
 		return t->UID;
 	else if (t->is(_Number_))
 		return Get_Size(t) + t->Name;
+	else if (t->_RAW_STRING_)
+		return "\"" + t->Name + "\"";
 	else if (t->is(_String_))
 		return t->Name;			//change into the S1 pointters!!!
 	else if (t->is(_Call_))

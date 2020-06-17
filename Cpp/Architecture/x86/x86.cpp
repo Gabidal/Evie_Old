@@ -124,6 +124,8 @@ void x86::ARC_Factory()
 	OpCodes.push_back(x86_DQ_);
 	OpC* x86_DT_ = new OpC(0, "dt", "dt ", { 0, 12 });
 	OpCodes.push_back(x86_DT_);
+	OpC* x86_INCLUDE_ = new OpC(0, "include", "%include ", {0, 0});
+	OpCodes.push_back(x86_INCLUDE_);
 
 
 	//8Bit

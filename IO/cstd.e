@@ -1,4 +1,4 @@
-use "sys.e"
+$use "sys.e"
 
 type int()(
 	size 4

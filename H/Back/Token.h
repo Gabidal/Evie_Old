@@ -66,6 +66,8 @@ class Token : public Object
     bool Semanticked = false;
     bool _Dynamic_Size_ = false;
     bool _Has_Member_ = false;
+    bool _IS_ASM_INCLUDE_ = false;
+    bool _RAW_STRING_ = false;
     Token* Left_Side_Token = nullptr;
     Token* Right_Side_Token = nullptr; 
     Token* Offsetter = nullptr;// also as the offsetter in array
