@@ -92,8 +92,8 @@ void Init_Pre_Defined_Tokens()
     Pre_Defined_Tokens.push_back("state");
     //)
 
-    //attach a string into output file
-    Pre_Defined_Tokens.push_back("asm");
+    //the caster
+    //Pre_Defined_Tokens.push_back("as");
 }
 
 /*

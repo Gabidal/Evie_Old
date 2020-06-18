@@ -1,2 +1,4 @@
-_print:
+;analyze
+
+print:
 ret

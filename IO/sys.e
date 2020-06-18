@@ -17,13 +17,10 @@ system Architecture
 system Obj_Type
 system Bits_Mode
 
-
-func print
-
 $if (sys:(Info:OS) == "win32")(
-	use "win32.asm"
+	$use "win32.asm"
 )
 
 $if (sys:(Info:OS) == "unix")(
-	use "unix.asm"
+	$use "unix.asm"
 )

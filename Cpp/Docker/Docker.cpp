@@ -45,14 +45,17 @@ vector<Component> Docker::Get_Header(string File_Name)
 	string Name_No_Extension = "";
 	int i = (int)File_Name.find_last_of('.');
 	if (i != -1)
-		Name_No_Extension = File_Name.substr(0, (size_t)i);;
+		Name_No_Extension = File_Name.substr(0, (size_t)i);
+	else
+		Name_No_Extension = File_Name;
 	vector<string> Files;
 	//collect all filenames in the working dir
 	for (auto& p : filesystem::directory_iterator(Working_Dir))
 	{
 		string file_name = p.path().filename().string();
 		if (file_name.find(Name_No_Extension) == 0)
-			Files.push_back(file_name);
+			if (file_name != File_Name)
+				Files.push_back(file_name);
 	}
 	//now iterate the files with Docker within the Priority type of txt.
 	for (string s : Files) {
@@ -135,7 +138,10 @@ void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
 	//import loyal func [name]()()
 	//import generic func [name]()()
 	for (auto i : symbols) {
-		Append(Output, Lexer::GetComponents("import " + i.second + " func " + Mangler::Un_Mangle(i.first) + "() \n"));
+		if (i.second != "func")
+			Append(Output, Lexer::GetComponents("import " + i.second + " func " + Mangler::Un_Mangle(i.first) + "() \n"));
+		else
+			Append(Output, Lexer::GetComponents("import " + i.second + " " + Mangler::Un_Mangle(i.first) + "() \n"));
 	}
 }
 
@@ -173,7 +179,7 @@ void Docker::LIB_Analyzer()
 {
 	vector<Component> Header_Data = Get_Header(FileName);
 	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("general.e");
+		Header_Data = Get_Header("general");
 	Separate_Identification_Patterns(Header_Data);
 	//write the lib with nm to .TMP.txt file
 	LIB::Generate_Binary_Symbols(FileName, Working_Dir);
@@ -194,11 +200,29 @@ void Docker::ELF_Analyzer()
 {
 	vector<Component> Header_Data = Get_Header(FileName);
 	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("general.e");
+		Header_Data = Get_Header("general");
 	Separate_Identification_Patterns(Header_Data);
 	//open & read the bin file
 	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
 	Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
 	Syntax_Correcter(Get_Names_Of(Function_Section));
+	return;
+}
+
+void Docker::ASM_Analyzer()
+{
+	//here we will just make an prototype from every label. Parser can analyse witch one is a function, and what is not.
+	//and after that we want to give Evie Core the "use "filename"" without the preprosessor so that Evie Core can implement an
+	//post-prosessing include
+	vector<Component> Header_Data = Get_Header(FileName);
+	if (Header_Data.size() < 1)
+		Header_Data = Get_Header("general");
+	Separate_Identification_Patterns(Header_Data);
+	vector<uint8_t> tmp = Get_Char_Buffer_From_File(FileName, Working_Dir);
+	string buffer = string((char*)tmp.data(), tmp.size());
+	Section Function_Section = Get_Section_From_String(buffer);
+	Syntax_Correcter(Get_Names_Of(Function_Section));
+	//now make the %include token for YASM
+	Append(Output, Lexer::GetComponents("use \"" + FileName + "\""));
 	return;
 }

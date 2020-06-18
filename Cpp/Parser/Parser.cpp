@@ -31,17 +31,19 @@ void Parser::Include_Files(int i)
 	if (Input.at(i).Value == "use")
 	{
 		bool Do_As_PreProsessor = false;
-		if (i - 1 >= 0)
-			if (Input.at(i - 1).Value == "$")
-				Do_As_PreProsessor = true;
 		string filename = Input.at((size_t)i + 1).Value.substr(1, Input.at((size_t)i + 1).Value.size() - 2);
-		for (string s : Included_Files)
-			if (Input.at((size_t)i + 1).is(STRING_COMPONENT) && (filename == s))
-			{
-				cout << "Warning: " << Input.at((size_t)i + 1).Value << " has already been included." << endl;
-				Input.erase(Input.begin() + i + 1);
-				Input.erase(Input.begin() + i);
-				return;
+		if (i - 1 >= 0)
+			if (Input.at(i - 1).Value == "$") {
+				//this made for the asm prpose
+				Do_As_PreProsessor = true;
+				for (string s : Included_Files)
+					if (Input.at((size_t)i + 1).is(STRING_COMPONENT) && (filename == s))
+					{
+						cout << "Warning: " << Input.at((size_t)i + 1).Value << " has already been included." << endl;
+						Input.erase(Input.begin() + i + 1);
+						Input.erase(Input.begin() + i);
+						return;
+					}
 			}
 		string Name = Update_Dir(filename);
 		//now include the file 
@@ -61,12 +63,17 @@ void Parser::Include_Files(int i)
 		Input.erase(Input.begin() + i);
 		if (Do_As_PreProsessor) {
 			Input.erase(Input.begin() + i - 1);
-			Input.insert(Input.begin() + i, D->Output.begin(), D->Output.end());
+			Input.insert(Input.end(), D->Output.begin(), D->Output.end());
 		}
 		Included_Files.push_back(filename);
+		if (i == Input.size())
+			return;
+		if (Do_As_PreProsessor)
+			if (Input.at(i - 1).Value == "use")
+				Include_Files(i-1);
+		if (Input.at(i).Value == "use")
+			Include_Files(i);
 	}
-	if (Input.at(i).Value == "use")
-		Include_Files(i);
 }
 
 void Parser::Connect_Array(int i)
