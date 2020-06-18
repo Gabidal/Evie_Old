@@ -144,6 +144,7 @@ Beta 3.0.0 added:
 - ###### Finally the member support is here!
 
 
+
 ## Manual
 
 ### Type
@@ -157,6 +158,7 @@ Beta 3.0.0 added:
     [type_name] [new_defined_object_Name] 
 ```
 
+
 ### Function
 ###### The functions are nontype.
 #### Syntax:
@@ -165,6 +167,7 @@ func [name] ([parameter,s])(
     [code]
 )
 ```
+
 
 ### Condition
 ###### Notice how the condition does not have else if's nor else's.
@@ -175,6 +178,7 @@ if ([condition])(
 )
 ```
 
+
 ### Loop
 ###### It loop's until the condition it is given proves wrong.
 #### Synatx:
@@ -184,12 +188,20 @@ while ([condition])(
 )
 ```
 
-### Multi-file
 
+### Multi-file
 #### Syntax:
 ```
-using "[folder/filename]"
+$use "[folder/filename]"
 ```
+#### You can also give Evie ASM files like this:
+```
+use "[folder/filename]"
+```
+###### Note $ missing on the ASM including.
+###### Main reason for that is that preprosessor always starts first and then all the other will be added to it.
+###### Same for including, not putting the $ in front include makes it a post-prosessing token.
+
 
 ### Math
 ###### Like other languages.
@@ -206,16 +218,13 @@ using "[folder/filename]"
 ```
 
 ### Argument's
-
 #### Synatx:
 ```
 [./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] (-mode [bits mode] == not a must)  (-debug [type(for example dwarf2)] = not a must)
 ```
 
 ### Preprosessor
-
 ###### Atm there is only preprosessor conditional if's
-
 ###### Also the preprosessor gives us some goods: 
 ```
 system sys,
@@ -230,7 +239,6 @@ system Bits_Mode,
 ```
 
 ###### These are some information gathered from the argument's given to Evie.
-
 #### Syntax:
 ```
 $if ([Condition (Use only constant values!!)])(
@@ -239,15 +247,10 @@ $if ([Condition (Use only constant values!!)])(
 ```
 
 ### Docker
-
 ###### Docker is the next generation of file handling in Evie.
-
 ###### Docker can understand elf, as well as lib & dll files in future.
-
 ###### "But how does Evie know what function is what", you might ask.
-
 ###### Evie has a built in REGEX support. Meaning that you can just give Evie the type of inheritting and the REGEX string it references, in the header file.
-
 ###### Example:
 
 ```
@@ -255,18 +258,12 @@ $if ([Condition (Use only constant values!!)])(
 ```
 
 ###### The above code creates a new object named (std) which inherits the (loyal) keyword.
-
 ###### The loyal keyword implies that the function cleans its stack on its own, not the user.
-
 ###### Now, the object std is set to the value of the string ("_(\w*@*)*").
-
 ###### That string is in REGEX syntax.
-
 ###### The elf(+lib & dll in future) is given to Docker so that it can find the corresponding header and then sets every function it finds, that has corresponding REGEX string, to the same inheriting features that (std) has.
 
 
 ### Future of Evie
-
 ###### Atm, just fixes.
-
 ###### Then the FPU support and new type feature: ```[precision] [number of decimal's]```.
