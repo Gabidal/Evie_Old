@@ -63,7 +63,7 @@ void Parser::Include_Files(int i)
 		Input.erase(Input.begin() + i);
 		if (Do_As_PreProsessor) {
 			Input.erase(Input.begin() + i - 1);
-			Input.insert(Input.end(), D->Output.begin(), D->Output.end());
+			Input.insert(Input.begin() + i, D->Output.begin(), D->Output.end());
 		}
 		Included_Files.push_back(filename);
 		if (i == Input.size())
