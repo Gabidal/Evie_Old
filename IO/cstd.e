@@ -30,6 +30,10 @@ type void(){
 	state func
 }
 
+type string(){
+	size 1
+}
+
 export func main
 
 void memcpy(int dest, int source, int Size){

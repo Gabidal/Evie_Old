@@ -644,8 +644,12 @@ void Parser::Type_Definition(int i)
 			if (New_Defined_Text->Left_Side_Token->Reservable_Size > 0 || (New_Defined_Text->Left_Side_Token->Childs.size() > 0))
 			{
 				New_Defined_Text->add(_Need_For_Space_);
-				for (Token* t: New_Defined_Text->Left_Side_Token->Childs)
-				New_Defined_Text->Reservable_Size += t->Size;
+				for (Token* t : New_Defined_Text->Left_Side_Token->Childs) {
+					if (t->is("ptr"))
+						New_Defined_Text->Reservable_Size += _SYSTEM_BIT_TYPE;
+					else
+					New_Defined_Text->Reservable_Size += t->Size;
+				}
 				New_Defined_Text->Reservable_Size += New_Defined_Text->Left_Side_Token->Reservable_Size;
 			}
 		}

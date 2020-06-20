@@ -1,15 +1,18 @@
-extern print
-_print: 
-_printEND: 
+extern sys_print
+_sys_print: 
+_sys_printEND: 
 export main
 global main
 main: 
   _main: 
-  push dword 3
-  push dword 2
-  push dword 1
-  call print
-  add esp, dword 12
+  push dword 14
+  lea ecx, dword [_banana]
+  push ecx 
+  call sys_print
+  add esp, dword 8
+  xor eax, eax
   ret
  
 _mainEND: 
+_banana: 
+db "kurkkujugurtti"
