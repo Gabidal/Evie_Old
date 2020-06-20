@@ -33,6 +33,7 @@ public:
 		Translators.push_back({ "!<arch>",  bind(&Docker::LIB_Analyzer, this) });
 		Translators.push_back({ "\x7F" "ELF",  bind(&Docker::ELF_Analyzer, this) });
 		Translators.push_back({ ";analyze",  bind(&Docker::ASM_Analyzer, this) });
+		Translators.push_back({ "\x4C" "\x01",  bind(&Docker::OBJ_analyser, this) });
 		Start_Analyzer();
 	}
 	~Docker() {}
@@ -64,6 +65,7 @@ private:
 	void LIB_Analyzer();
 	void ELF_Analyzer();
 	void ASM_Analyzer();
+	void OBJ_analyser();
 	string FileName = "";
 	string Working_Dir = "";
 	string Priority_Type = "";

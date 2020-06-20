@@ -2,6 +2,5 @@ $use "cstd.e"
 $use "boost.e"
 
 main(){
-	print(1, 2, 3)
-	return
+	return print(1, 2, 3)
 }

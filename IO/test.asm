@@ -1,4 +1,3 @@
-%include "win32.asm"
 extern print
 _print: 
 _printEND: 

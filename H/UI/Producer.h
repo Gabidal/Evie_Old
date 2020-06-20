@@ -19,12 +19,14 @@ public:
 		OS = sys->Info.OS;
 		Debug = sys->Info.Debug;
 		Libs = sys->Info.Libs;
+		Source_Files = sys->Info.Source_Files;
 	}
 
 	~Producer(){}
 	void Assemble_Command();
 
 private:
+	void Assembly_Other_Source_Files();
 	string Get_Linker_Type();
 	string Get_Assembler();
 	string Get_Debug();
@@ -51,6 +53,7 @@ private:
 	string OS;
 	string Debug;
 	vector<string> Libs;
+	vector<string> Source_Files;;
 };
 
 

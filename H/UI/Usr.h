@@ -81,6 +81,7 @@ public:
 	string OS = "win32";
 	string Architecture = "x86";
 	vector<string> Libs;
+	vector<string> Source_Files;
 	string Format = "exe";
 	string Bits_Mode = "4";
 	string Disable = "";
@@ -91,6 +92,7 @@ public:
 		 OS = other.OS;
 		 Architecture = other.Architecture;
 		 Libs = other.Libs;
+		 Source_Files = other.Source_Files;
 		 Format = other.Format;
 		 Bits_Mode = other.Bits_Mode;
 		 Disable = other.Disable;

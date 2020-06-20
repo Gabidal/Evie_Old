@@ -28,7 +28,7 @@ void Docker::Start_Analyzer()
 				continue;
 			}
 			i.second();
-			sys->Info.Libs.push_back(Working_Dir + FileName);
+			//sys->Info.Libs.push_back(Working_Dir + FileName);
 			return;
 		}
 	}
@@ -179,6 +179,8 @@ void Docker::LIB_Analyzer()
 {
 	vector<Component> Header_Data = Get_Header(FileName);
 	if (Header_Data.size() < 1)
+		Header_Data = Get_Header("lib..e");
+	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general");
 	Separate_Identification_Patterns(Header_Data);
 	//write the lib with nm to .TMP.txt file
@@ -193,6 +195,7 @@ void Docker::LIB_Analyzer()
 	buffer = regex_replace(buffer, filtter2, "\n");
 	Section Function_Section = Get_Section_From_String(buffer);
 	Syntax_Correcter(Get_Names_Of(Function_Section));
+	sys->Info.Libs.push_back(Working_Dir + FileName);
 	return;
 }
 
@@ -200,12 +203,15 @@ void Docker::ELF_Analyzer()
 {
 	vector<Component> Header_Data = Get_Header(FileName);
 	if (Header_Data.size() < 1)
+		Header_Data = Get_Header("elf..e");
+	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general");
 	Separate_Identification_Patterns(Header_Data);
 	//open & read the bin file
 	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
 	Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
 	Syntax_Correcter(Get_Names_Of(Function_Section));
+	sys->Info.Libs.push_back(Working_Dir + FileName);
 	return;
 }
 
@@ -216,13 +222,23 @@ void Docker::ASM_Analyzer()
 	//post-prosessing include
 	vector<Component> Header_Data = Get_Header(FileName);
 	if (Header_Data.size() < 1)
+		Header_Data = Get_Header("asm..e");
+	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general");
 	Separate_Identification_Patterns(Header_Data);
 	vector<uint8_t> tmp = Get_Char_Buffer_From_File(FileName, Working_Dir);
 	string buffer = string((char*)tmp.data(), tmp.size());
 	Section Function_Section = Get_Section_From_String(buffer);
-	Syntax_Correcter(Get_Names_Of(Function_Section));
-	//now make the %include token for YASM
-	Append(Output, Lexer::GetComponents("use \"" + FileName + "\""));
+	vector<pair<string, string>> Raw_Data = Get_Names_Of(Function_Section);
+	//we need to get rid of : in the asm labels
+	for (auto& i : Raw_Data)
+		i.first = ReplaceAll(i.first, ":", "");
+	Syntax_Correcter(Raw_Data);
+	//now make the obj token for YASM
+	sys->Info.Source_Files.push_back(Working_Dir + FileName);
 	return;
+}
+
+void Docker::OBJ_analyser()
+{
 }

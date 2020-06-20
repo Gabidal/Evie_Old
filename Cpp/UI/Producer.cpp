@@ -28,6 +28,17 @@ string Produce_Working_Dir = "";
     }
 */
 
+void Producer::Assembly_Other_Source_Files()
+{
+    stringstream output;
+    for (string i : Source_Files)
+        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + i + ".obj " << i;
+    for (string i : Source_Files)
+        Libs.push_back(i + ".obj");
+    system(output.str().c_str());
+    return ;
+}
+
 string Producer::Get_Linker_Type()
 {
     if (OS == "win32")
@@ -258,6 +269,7 @@ string Producer::Get_Linker_Output(){
 
 void Producer::Assemble_Command()
 {
+    Assembly_Other_Source_Files();
     stringstream output;
     output << Get_Assembler() << Get_Debug() << Get_Type() << Get_Assembler_Output() << Output_File;
     system(output.str().c_str());
