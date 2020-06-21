@@ -5,14 +5,18 @@ export main
 global main
 main: 
   _main: 
+  push ebp 
+  mov ebp , esp 
+  sub esp, dword 4
+  mov ecx, "kurkkujugurtti"
+  mov [ebp - 4], ecx 
   push dword 14
-  lea ecx, dword [_banana]
-  push ecx 
+  lea edx, dword [ebp - 4]
+  push edx 
   call sys_print
-  add esp, dword 8
+  add esp , dword 8
   xor eax, eax
+  leave 
   ret
  
 _mainEND: 
-_banana: 
-db "kurkkujugurtti"

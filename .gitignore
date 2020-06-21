@@ -9,6 +9,7 @@ cmake_install.cmake
 .vscode
 out
 .vs
+!.vs/launch.vs.json
 IO/test
 IO/test.asm.ThisIsTotallyExecutable
 IO/test.asm.exe
