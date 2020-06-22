@@ -474,8 +474,10 @@ void Generator::Detect_Operator(Token* t)
 	//save the information gived by the generator yet again.
 	Append(&Output, g.Output);
 	//check if right side has more complex instruction.
-	if (g.Handle != nullptr)
+	if (g.Handle != nullptr) {
 		Right_Token = g.Handle;
+		g.Handle->Tangled.push_back(Right_Token);
+	}
 	//if normal right side.
 	else if(!(t->Right_Side_Token->is(_Register_)))
 		Normal_Right = true;
@@ -496,15 +498,15 @@ void Generator::Detect_Operator(Token* t)
 	//save the information that the new generator gived.
 	Append(&Output, g.Output);
 	//check if left side holds a more complex instruction for loading into a register.
-	if (g.Handle != nullptr)
+	if (g.Handle != nullptr) {
 		Left_Token = g.Handle;
+		g.Handle->Tangled.push_back(Left_Token);
+	}
 	//if not then probably just a normal number/variable
 	else if (!(t->Left_Side_Token->is(_Register_)))
 		Normal_Left = true;
 	else
-	{
 		Left_Token = t->Left_Side_Token;
-	}
 	//b:0 = a:0
 	//lea edi, [(ebp-offset)+ecx*size]
 	if ((Normal_Right && !t->Right_Side_Token->is(_Number_)) || (Normal_Right &&  t->Right_Side_Token->Size >= 8))
@@ -579,8 +581,8 @@ void Generator::Detect_Operator(Token* t)
 		}*/
 	}
 	Rotator(Left_Token, Right_Token);
-	opCode->Parameters.push_back(new Token(*Left_Token));
-	opCode->Parameters.push_back(new Token(*Right_Token));
+	opCode->Parameters.push_back(Left_Token);
+	opCode->Parameters.push_back(Right_Token);
 	Handle = Left_Token;
 	Output.push_back(opCode);
 }
@@ -682,8 +684,8 @@ void Generator::Detect_Pointters(Token* t)
 		Main_Load->ID = ":";
 	else
 		Main_Load->ID = "ldr";
-	Main_Load->Parameters.push_back(new Token(*Main_Handle));
-	Main_Load->Parameters.push_back(new Token(*Offsetter_Register));
+	Main_Load->Parameters.push_back(Main_Handle);
+	Main_Load->Parameters.push_back(Offsetter_Register);
 
 	Output.push_back(Main_Load);
 
@@ -763,7 +765,7 @@ void Generator::Detect_Arrays(Token* t)
 		IR* Main_Load = new IR;
 		Main_Load->ID = "ldr";
 		Main_Load->Parameters.push_back(Main_Handle);
-		Main_Load->Parameters.push_back(new Token(*t));
+		Main_Load->Parameters.push_back(t);
 
 		Output.push_back(Main_Load);
 
@@ -795,8 +797,8 @@ void Generator::Detect_Address_Pointing(Token* t)
 
 	IR* lea = new IR;
 	lea->ID = ":";
-	lea->Parameters.push_back(new Token(*Reg));
-	lea->Parameters.push_back((new Token(*t)));
+	lea->Parameters.push_back(Reg);
+	lea->Parameters.push_back(new Token(*t));
 	*t = *Reg;
 
 	Output.push_back(lea);

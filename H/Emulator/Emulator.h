@@ -13,6 +13,7 @@ public:
 	string& Output;
 	vector<IR*> Input;
 	vector<string> Branching_Label;
+	vector<Token*> Stack_Indebted_Tokens;
 	bool _NEED_FOR_FPU = false;
 	bool _IN_PROGRESS = false;
 	bool _NEED_FOR_PARAMETERING = false;
@@ -31,9 +32,11 @@ public:
 	void Skip_Chained_Registers(Token* reg);
 	void Link_Cache_User(Token* t);
 	void Optimized_Register_Linking_Between_Different_Parameters(Token* o);
+
 	void Register_Chooser(Token* t, int i);
 	void Register_Loader(Token& t, int i);
 	void Disconnect_Register(vector<Token*> t);
+
 	void Update_Syntax_Tabs();
 	void Set_Syntax_Tabs(IR* t);
 	Emulator(string &in) : Output(in)

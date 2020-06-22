@@ -202,13 +202,19 @@ void Emulator::Register_Chooser(Token* t, int i)
 				return;
 			}
 		}
-		//if not
+
+		//lets try to find the future use of this token and 
+		//thus determine the volatile/non-volatility register we give em
+		if (!S->Skipable(t, Input, i)) {
+			t->add(Task_For_Non_Volatiling);
+		}
+
 		Token* Reg = S->Get_New_Register(t);
 		if (Reg == nullptr)
 		{
 			//need to free more space on registers.
-			vector<Token*> savable = S->Free_Registers(t, Input, i);
-			//the free registers gives us a vector list of saving requested values.
+			vector<Token*> savable = S->Free_Registers(t, Input, i, false); //dont take the last checked
+			//the free registers gives us a vector list of no saving requed values.
 			//now we need to check the life time of the freeable register and second question ouw selfs
 			//savable = S->Get_Lifetime_Of(savable, Input, i);
 			//if (savable.size() < 1)
@@ -218,6 +224,14 @@ void Emulator::Register_Chooser(Token* t, int i)
 			Disconnect_Register(savable);
 			//now try to use the freed register.
 			Reg = S->Get_New_Register(t);
+			//if still the register is nullptr try to put the used registers into mem and reserve some mem also plzz
+			if (Reg == nullptr) {
+				vector<Token*> savable = S->Free_Registers(t, Input, i, true); //take the last checked
+				//now the free_register vill give us list of variables that we need to save
+
+				Disconnect_Register(savable);
+				Reg = S->Get_New_Register(t);
+			}
 		}
 		
 		Skip_Chained_Registers(Reg);
@@ -228,7 +242,7 @@ void Emulator::Register_Chooser(Token* t, int i)
 
 void Emulator::Register_Loader(Token& t, int i)
 {
-	if (t.is(_Register_) != true)
+	if (!t.is(_Register_))
 	{
 		//make a handle register
 		Token* Reg = new Token;

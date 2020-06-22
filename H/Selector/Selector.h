@@ -39,7 +39,7 @@ public:
 	//this returns nullptr if all registers are use, use Free_registers to get registers freed.
 	Token* Get_New_Register(Token* t);
 	//freeing registers by token. (flag of register type)
-	vector<Token*> Free_Registers(Token* t, vector<IR*> Input, int i);
+	vector<Token*> Free_Registers(Token* t, vector<IR*> Input, int i, bool Get_Last_Taken);
 	//check if register is already someones elses.
 	Token* Check_Other_Owner(Token* t); 
 	//get a index of a register on the list
@@ -51,7 +51,7 @@ public:
 	//get boring register that over passes everything i have worked for. end me plzzz.
 	Token* Get_Right_Reg(int F, int s);
 	//for not overlappin use of register
-	vector<Token*> Get_Lifetime_Of(vector<Token*> Think_Need_Freeing, vector<IR*> Input, int i);
+	int Get_Right_Task_Flags(vector<IR*>, int i, Token* t);
 	//get ID of register
 	Token* Get_Register_Holder(Token* r);
 	//get skippable

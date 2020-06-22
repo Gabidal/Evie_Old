@@ -78,6 +78,7 @@ class Token : public Object
     vector<Token*> Childs;
     vector<string> Types;
     vector<string> Comments;
+    vector<Token*> Tangled;
     string Context = "";
     string Name = "";
     string UID = "";

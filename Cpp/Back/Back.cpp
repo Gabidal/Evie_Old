@@ -28,6 +28,11 @@ string Back::Get_Handler(Token* t)
 			return t->Name;
 		return "_" + t->Name;
 	}
+	else if (t->is(Task_For_Type_Address))
+	{
+		return S->Get_Right_Reg(Task_For_Type_Address, _SYSTEM_BIT_TYPE)->Name +
+			Get_Direction(t) + to_string(t->StackOffset);
+	}
 	else
 	{
 		return S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +

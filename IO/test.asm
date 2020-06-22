@@ -1,22 +1,34 @@
-extern sys_print
-_sys_print: 
-_sys_printEND: 
+_f: 
+push ebp 
+mov ebp , esp 
+sub esp, dword 4
+mov ecx, dword [ebp + 20]
+mov edx, dword [ebp + 16]
+imul edx , ecx 
+sub , dword 4
+add esp , dword 4
+mov edx , dword [ebp + 12]
+mov ecx, dword [ebp + 8]
+imul ecx , edx 
+sub , dword 4
+add esp , dword 4
+add ecx , edx 
+mov [ebp - 4], ecx 
+mov eax, dword [ebp - 4]
+leave 
+ret
+ 
+_fEND: 
 export main
 global main
 main: 
   _main: 
-  push ebp 
-  mov ebp , esp 
-  sub esp, dword 4
-  mov ecx, "kurkkujugurtti"
-  mov [ebp - 4], ecx 
-  push dword 14
-  lea edx, dword [ebp - 4]
-  push edx 
-  call sys_print
-  add esp , dword 8
-  xor eax, eax
-  leave 
+  push dword 4
+  push dword 3
+  push dword 2
+  push dword 1
+  call _f
+  add esp, dword 16
   ret
  
 _mainEND: 

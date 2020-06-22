@@ -4,8 +4,15 @@ extern int _SYSTEM_BIT_TYPE;
 bool Selector::Skipable(Token* r, vector<IR*> Input, int i)
 {
 	int Max_Lenght = i + 2;
+	/*int Skipping_Chunk_Start_Position = i - 4;
+	if (Skipping_Chunk_Start_Position < 0)
+		if (++Skipping_Chunk_Start_Position < 0)
+			if (++Skipping_Chunk_Start_Position < 0)
+				if (++Skipping_Chunk_Start_Position < 0)
+					if (++Skipping_Chunk_Start_Position < 0)
+						Skipping_Chunk_Start_Position = i;*/
 	if (Max_Lenght >= Input.size())
-		return false;		//do not skip
+		return false;		//do skip
 	for (int j = i; j < Max_Lenght; j++)
 		for (Token* t : Input.at(j)->Parameters) {
 			if (r->Name == t->Name)
@@ -147,7 +154,7 @@ Token* Selector::Get_New_Register(Token* t){
 	return nullptr;
 }
 
-vector<Token*> Selector::Free_Registers(Token* t, vector<IR*> Input, int i){
+vector<Token*> Selector::Free_Registers(Token* t, vector<IR*> Input, int i, bool Get_Last_Taken){
 	//here we need to give order to generator to generate,
 	//IR tokens for saving the freed registers.
 	vector<Token*> Output;
@@ -166,11 +173,16 @@ vector<Token*> Selector::Free_Registers(Token* t, vector<IR*> Input, int i){
 			Reg = list.at(j);
 			//skipable return true if the life time is still important
 			if ((Get_Register_Holder(Reg) != nullptr) && Skipable(Get_Register_Holder(Reg), Input, i)) {
+				if (!Get_Last_Taken)
+					Reg = nullptr;
 				continue;
 			}
 			//i = j;
 			break;
 		}
+	if (Reg == nullptr) {
+		return vector<Token*>();
+	}
 	//now try to find all the users of that reg on this context and other context.
 	for (string context: Context)
 		for (auto j: Chunk.at(context))
@@ -221,28 +233,10 @@ Token* Selector::Get_Right_Reg(int F, int s){
 	return nullptr;
 }
 
-vector<Token*> Selector::Get_Lifetime_Of(vector<Token*> Think_Need_Freeing, vector<IR*> Input, int i){
-	vector<Token*> Deletable;
-	int Max_Lenght = i+2;
-	if (Max_Lenght >= Input.size())
-		return Deletable;
-	for (Token* r: Think_Need_Freeing)
-		for (int j = i; j < Max_Lenght; j++)
-			for (Token* t: Input.at(j)->Parameters){
-				if (r->Name == t->Name)
-					Deletable.push_back(r);
-				else if (t->Offsetter != nullptr)
-					if (r->Name == t->Offsetter->Name)
-						Deletable.push_back(r);
-			}
-
-	for (Token* t: Deletable)
-		for (int j = 0; j < Think_Need_Freeing.size(); j++)
-			if (t->Name == Think_Need_Freeing.at(j)->Name){
-				Think_Need_Freeing.erase(Think_Need_Freeing.begin() + j);
-				break;
-			}
-	return Think_Need_Freeing;
+int Selector::Get_Right_Task_Flags(vector<IR*>, int i, Token* t)
+{
+	//look up the future use of this particular Token*t and see if needs TASK_FOR_NON_VOLATILING_ like properties
+	return 0;
 }
 
 Token* Selector::Get_Register_Holder(Token* r){

@@ -1,9 +1,11 @@
 $use "cstd.e"
 $use "boost.e"
 
-string ptr banana = "kurkkujugurtti"
+func f(int a, int b, int i, int j) {
+    int result = a * b + i * j
+    return result
+}
 
-main(){
-	sys_print(@banana, 14)
-	return 0
+main() {
+    return f(1, 2, 3, 4)
 }
