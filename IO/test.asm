@@ -2,11 +2,11 @@ _f:
 push ebp 
 mov ebp , esp 
 sub esp , dword 4
-mov ecx, dword [ebp + 20]
-mov ebx, dword [ebp + 16]
+mov ecx , dword [ebp + 20]
+mov ebx , dword [ebp + 16]
 imul ebx , ecx 
-mov edx, dword [ebp + 12]
-mov edi, dword [ebp + 8]
+mov edx , dword [ebp + 12]
+mov edi , dword [ebp + 8]
 imul edi , edx 
 add edi , ebx 
 mov [ebp - 4], edi 
@@ -25,7 +25,6 @@ main:
   push dword 1
   call _f
   add esp , dword 16
-  mov eax , eax
   ret
  
 _mainEND: 

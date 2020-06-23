@@ -235,7 +235,7 @@ void Emulator::Register_Chooser(Token* t, int i)
 		}
 		
 		Skip_Chained_Registers(Reg);
-		t->UID = Reg->Name;
+		t->UID = Reg->UID;
 		return;
 	}
 }
