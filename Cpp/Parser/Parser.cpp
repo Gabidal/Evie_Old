@@ -112,7 +112,7 @@ void Parser::Init_Definition(int& i)
 {
 	if (i >= (Input.size() - 1))
 		return;
-	if ((Collect_All_Inherited_Types(i).size() < 1))
+	if ((Collect_All_Inherited_Types(i).size() < 1) || (i + Collect_All_Inherited_Types(i).size() > Input.size() - 1))
 		return;
 	if (!Input.at(i + Collect_All_Inherited_Types(i).size()).is(TEXT_COMPONENT))
 		return;
