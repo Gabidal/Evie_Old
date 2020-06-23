@@ -233,10 +233,37 @@ Token* Selector::Get_Right_Reg(int F, int s){
 	return nullptr;
 }
 
-int Selector::Get_Right_Task_Flags(vector<IR*>, int i, Token* t)
+int Selector::Get_Right_Task_Flags(vector<IR*> Input, int i, Token* t)
 {
 	//look up the future use of this particular Token*t and see if needs TASK_FOR_NON_VOLATILING_ like properties
-	return 0;
+	int Dynamic_Chunk_Size = 0;
+	//first determine the size of this math operation context.
+	//so that we can SKIP it!
+	for (int j = i; j < Input.size(); j++) {
+		if (Input[j]->is(_Operator_))
+			break;	//now we know the size of this operator instance and can check if Token*t is used on the next
+		Dynamic_Chunk_Size++;
+	}
+
+	int Last_Use_Of_This_Token_Instance = i;
+	//first determine the last use of this token
+	for (int j = i + Dynamic_Chunk_Size; j < Input.size(); j++) {
+		if (Input[j]->ID == "=")
+			break; //this usually tells us the math has its conclusion, no need to continue.
+		for (Token* p : Input[j]->Parameters)
+			if (p->Name == t->Name)
+				Last_Use_Of_This_Token_Instance = j;
+	}
+
+	//we need to skip this instance that we can see if it is used in future
+	if (Last_Use_Of_This_Token_Instance > i + Dynamic_Chunk_Size) {
+		if (t->is(Task_For_General_Purpose))
+			t->remove(Task_For_General_Purpose);
+		//this means that the last instance use of this token is other than this.
+		return Task_For_Non_Volatiling;
+	}
+
+	return Task_For_General_Purpose;
 }
 
 Token* Selector::Get_Register_Holder(Token* r){

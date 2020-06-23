@@ -48,7 +48,8 @@ void Emulator::Long_Operation_Allocator(int &i)
 			Token* Reg = new Token;
 			Reg->add(_Register_);
 			Reg->add(Task_For_Returning);
-			Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name + "_returning_register";
+			//Reg->Name = Get_Info(Input.at(i)->Parameters.at(0))->Name + "_returning_register";
+			Reg->Name = "eax";
 			//Reg->Size = Get_Info(Input.at(i)->Parameters.at(0))->Size;
 			//for safety
 			Reg->Size = _SYSTEM_BIT_TYPE;
@@ -205,9 +206,8 @@ void Emulator::Register_Chooser(Token* t, int i)
 
 		//lets try to find the future use of this token and 
 		//thus determine the volatile/non-volatility register we give em
-		if (!S->Skipable(t, Input, i)) {
-			t->add(Task_For_Non_Volatiling);
-		}
+		if (t->is(Task_For_General_Purpose))
+			t->add(S->Get_Right_Task_Flags(Input, i, t));
 
 		Token* Reg = S->Get_New_Register(t);
 		if (Reg == nullptr)

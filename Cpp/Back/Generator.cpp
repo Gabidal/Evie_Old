@@ -64,16 +64,16 @@ void Generator::Detect_Function(Token* t)
 			ir->Childs.push_back(push);
 			//load the atm stack head
 			//stack head
-			Token* esp = new Token;
-			esp->Name = "esp";
-			esp->Size = _SYSTEM_BIT_TYPE;
-			esp->add(_Register_);
-			esp->add(Task_For_Type_Address);
+			Token* esp_head = new Token;
+			esp_head->Name = "esp";
+			esp_head->Size = _SYSTEM_BIT_TYPE;
+			esp_head->add(_Register_);
+			esp_head->add(Task_For_Type_Address);
 			//mov ebp, esp
 			IR* movebpesp = new IR;
 			movebpesp->ID = "ldr";
 			movebpesp->Parameters.push_back(ebp);
-			movebpesp->Parameters.push_back(esp);
+			movebpesp->Parameters.push_back(esp_head);
 			ir->Childs.push_back(movebpesp);
 			if (t->Reservable_Size > 0)
 			{
@@ -81,7 +81,7 @@ void Generator::Detect_Function(Token* t)
 				Token* esp = new Token;
 				esp->add(_Register_);
 				esp->add(Task_For_Type_Address);
-				esp->Name = "reserve memory please!";
+				esp->Name = "esp";
 				esp->Size = _SYSTEM_BIT_TYPE;
 				//make the number to subtract from esp
 				Token* num = new Token;
@@ -244,7 +244,7 @@ void Generator::Detect_Function(Token* t)
 			Token* esp = new Token;
 			esp->add(_Register_);
 			esp->add(Task_For_Type_Address);
-			esp->Name = "reserve memory please!";
+			esp->Name = "esp";
 			esp->Size = _SYSTEM_BIT_TYPE;
 			//make the number to subtract from esp
 			Token* num = new Token;
