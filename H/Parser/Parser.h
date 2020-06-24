@@ -34,7 +34,7 @@ public:
     void Reserve_Member_Offsetting(int &i);
     void Reserve_Operator_Tokens(int i);
     void Reserve_Function_Parameters(int i);
-    void Patternize_Operations(int& i, string f);
+    void Patternize_Operations(int& i, vector<string> operators);
     void Do_In_Order();
     void Init_Parenthesis(int i);
     void Init_Conditions(int i);

@@ -444,7 +444,7 @@ void Parser::Reserve_Function_Parameters(int i)
 	}
 }
 
-void Parser::Patternize_Operations(int& i, string f)
+void Parser::Patternize_Operations(int& i, vector<string> operators)
 {
 	if (Input.at(i).Value == "$")
 		return;
@@ -452,75 +452,50 @@ void Parser::Patternize_Operations(int& i, string f)
 		return;
 	if (Input.at(i).Value == ";")
 		return;
-	if (Input.at(i).is(OPERATOR_COMPONENT) && (Input.at(i).Value == f) && (Input.at(i).IsInitialized != true))
-	{
-		Input.at(i).Components.push_back(Input.at((size_t)i - 1));
-		Input.at(i).Components.at(0).IsOperatorized = false;
-		Input.at(i).Components.push_back(Input.at((size_t)i + 1));
-		Input.at(i).Components.at(1).IsOperatorized = false;
-		Input.at(i).IsInitialized = true;
+	for (string s: operators)
+		if (Input.at(i).is(OPERATOR_COMPONENT) && (Input.at(i).Value == s) && (Input.at(i).IsInitialized != true))
+		{
+			Input.at(i).Components.push_back(Input.at((size_t)i - 1));
+			Input.at(i).Components.at(0).IsOperatorized = false;
+			Input.at(i).Components.push_back(Input.at((size_t)i + 1));
+			Input.at(i).Components.at(1).IsOperatorized = false;
+			Input.at(i).IsInitialized = true;
 
-		//Input.at(i + 1)->_operatorized = true;
-		//Input.at(i - 1)->_operatorized = true;
-		Input.erase(Input.begin() + i + 1);
-		Input.erase(Input.begin() + i - 1);
-		i--;
-	}
+			//Input.at(i + 1)->_operatorized = true;
+			//Input.at(i - 1)->_operatorized = true;
+			Input.erase(Input.begin() + i + 1);
+			Input.erase(Input.begin() + i - 1);
+			i--;
+			break;
+		}
+	return;
 }
 
 void Parser::Do_In_Order()
 {
 	//the combination and multilayering of operations.
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, ":");
+		Patternize_Operations(i, { ":" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, ".");
+		Patternize_Operations(i, { "." });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "*");
+		Patternize_Operations(i, { "*", "/" , "%" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "/");
+		Patternize_Operations(i, { "<<", ">>" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "%");
+		Patternize_Operations(i, { "&", "!&" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "<<");
+		Patternize_Operations(i, { "?" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, ">>");
+		Patternize_Operations(i, { "|", "!|" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "&");
+		Patternize_Operations(i, { "+", "-" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "?");
+		Patternize_Operations(i, { "<", ">" });
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "!&");
+		Patternize_Operations(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&="});
 	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "|");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "!|");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "+");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "-");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "<");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, ">");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "==");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "!=");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "<=");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, ">=");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "!<");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "!>");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "=");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "|=");
-	for (int i = 0; i < Input.size(); i++)
-		Patternize_Operations(i, "&=");
+		Patternize_Operations(i, { "=" });
 }
 
 void Parser::Init_Parenthesis(int i)

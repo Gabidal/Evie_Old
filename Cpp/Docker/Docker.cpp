@@ -63,8 +63,6 @@ vector<Component> Docker::Get_Header(string File_Name)
 		if (d.Output.size() > 0)
 			return d.Output;
 	}
-	cout << "Warning: Docker didn't find suitable Header file for " << FileName << endl;
-	cout << "Docker: Fallback to general header." << endl;
 	vector<Component> null;
 	return null;
 }
@@ -182,6 +180,8 @@ void Docker::LIB_Analyzer()
 		Header_Data = Get_Header("lib..e");
 	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general");
+	if (Header_Data.size() < 1)
+		cout << "Error: Docker didn't find Header file for " << FileName << endl;
 	Separate_Identification_Patterns(Header_Data);
 	//write the lib with nm to .TMP.txt file
 	LIB::Generate_Binary_Symbols(FileName, Working_Dir);
@@ -206,6 +206,8 @@ void Docker::ELF_Analyzer()
 		Header_Data = Get_Header("elf..e");
 	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general");
+	if (Header_Data.size() < 1)
+		cout << "Error: Docker didn't find Header file for " << FileName << endl;
 	Separate_Identification_Patterns(Header_Data);
 	//open & read the bin file
 	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
@@ -225,6 +227,8 @@ void Docker::ASM_Analyzer()
 		Header_Data = Get_Header("asm..e");
 	if (Header_Data.size() < 1)
 		Header_Data = Get_Header("general");
+	if (Header_Data.size() < 1)
+		cout << "Error: Docker didn't find Header file for " << FileName << endl;
 	Separate_Identification_Patterns(Header_Data);
 	vector<uint8_t> tmp = Get_Char_Buffer_From_File(FileName, Working_Dir);
 	string buffer = string((char*)tmp.data(), tmp.size());
