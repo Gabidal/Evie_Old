@@ -11,14 +11,14 @@ extern Object* FT;
 
 map<string, Object*> Modder::Get_Members()
 {
-	Root->Set("c", &C);
+	Root->Set("_CURRENT_", &C);
 	return {
-		std::make_pair("Flag", FT),
-		std::make_pair("_p", (Object*)&P),
-		std::make_pair("_c", (Object*)&C),
-		std::make_pair("_n", (Object*)&N),
-		std::make_pair("IN", new SymbolTableList(Output)),
-		std::make_pair("Pattern", new SymbolTableList(Input))
+		std::make_pair("_FLAG_", FT),
+		std::make_pair("_PREVIOUS_", (Object*)&P),
+		std::make_pair("_CURRENT_", (Object*)&C),
+		std::make_pair("_NEXT_", (Object*)&N),
+		std::make_pair("_TOKENS_", new SymbolTableList(Output)),
+		std::make_pair("_PATTERNS_", new SymbolTableList(Input))
 	};
 }
 

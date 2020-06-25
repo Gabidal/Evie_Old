@@ -181,16 +181,9 @@ void Safe::Safe_Array_Usage(Token* t){
     //right way
     //int y = @x;
     //y::0 = 123;
-    if (t->is(_Array_) && t->Size > 12 && (!t->_Has_Member_)) {
+    if ((t->Offsetter != nullptr) && (t->Hidden_Size == 0)) {
         //this is the wrong way
-        cout << "Error: Illegal use of array operator at '" << Context << "'!" << endl;
-        cout << "Problem: Use of 128bit or bigger object as a raw array address is too big!" << endl;
-        cout << "Solution: {" << endl;
-        cout << "    If you want to get hands on " << t->Name << ":" << t->Offsetter->Name << " that badly then use this." << endl;
-        cout << "    First make a 32bit variable that can work as a pointter. 'int a = @" << t->Name << "'" << endl;
-        cout << "    Then use the newly created pointter like this: 'a::" << t->Offsetter->Name << " = VALUE'" << endl;
-        cout << "}" << endl;
-        ERROR = true;
+        cout << "Warning: Keyword 'ptr' was not found, making " << t->Name << endl;
         return;
     }
 }

@@ -660,15 +660,10 @@ void Generator::Detect_Pointters(Token* t)
 	//mov reg, [sec_reg+offsetter]
 	Token* Main_Handle = new Token;
 	Main_Handle->add(_Register_);
-	if (t->Name_Of_Same_Using_Register != "")
-		Main_Handle->add(Task_For_Dest_Offsetting);
-	else
-		Main_Handle->add(Task_For_Source_Offsetting);
+	Main_Handle->add(Task_For_Non_Volatiling);
 	Main_Handle->Name = t->Name + "_main_Handle_reg";
 	Main_Handle->StackOffset = t->StackOffset;
 	Main_Handle->Size = t->Size;
-
-
 
 	Offsetter_Register->Offsetter = Offsetter;
 	Offsetter_Register->add(_Pointting_);
@@ -754,10 +749,7 @@ void Generator::Detect_Arrays(Token* t)
 		//make the returning handle register
 		Token* Main_Handle = new Token;
 		Main_Handle->add(_Register_);
-		if (t->Name_Of_Same_Using_Register != "")
-			Main_Handle->add(Task_For_Dest_Offsetting);
-		else 
-			Main_Handle->add(Task_For_Source_Offsetting);
+		Main_Handle->add(Task_For_Non_Volatiling);
 		Main_Handle->Size = t->Size;
 		Main_Handle->Name = t->Name + "_Main_Handle";
 

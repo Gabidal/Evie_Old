@@ -1,11 +1,10 @@
 $use "cstd.e"
-
-func banana(int a, int b, int c, int d, int e, int f, int g) {
-    #int result = ((((a * b) + (c * d)) - (e * f)) + g)
-    int result = a * b + c * d - e * f + g
-    return result
-}
+$use "boost.e"
 
 main() {
-    return banana(1, 2, 3, 4, 5, 6, 7)
+    char a = 0 + 1
+    char b = 1 + 2
+    char c = 2 + 3
+    char d = 3 + 4
+    return d
 }

@@ -1,72 +1,73 @@
 #Boost variables:
 
-type String
-type IR
-type Token
-type List
-type Integer
-Integer Flag
-Integer Stack_Offset
-String UID
-String Comment
+type _STRING_
+type _IR_
+type _TOKEN_
+type _LIST_
+type _INTEGER_
+_INTEGER_ _FLAG_
+_INTEGER_ _STACK_OFFSET_
+_STRING_ _UID_
+_STRING_ _COMMENT_
 
-List IN
-Integer _p
-Integer _c
-Integer _n
+_LIST_ _INPUT_
+_INTEGER_ _PREVIOUS_
+_INTEGER_ _CURRENT_
+_INTEGER_ _NEXT_
 
 
-IR ID
-List Parameters
+_IR_ _ID_
+_LIST_ _PARAMETERS_
 
-Token Flags
-Token Name
-Token Type
-Flag _Register_
-Flag _Number_
-Flag _External_
-Flag _Type_
-Flag _Function_
-Flag _Array_
-Flag _Condition_
-Flag _Operator_
-Flag _Returning_
-Flag _Call_
-Flag _Parameter_
-Flag _Parenthesis_
-Flag _Constructor_
-Flag _Register_
+_TOKEN_ _FLAGS_
+_TOKEN_ _NAME_
+_TOKEN_ _TYPE_
+_FLAG_ _REGISTER_
+_FLAG_ _NUMBER_
+_FLAG_ _EXTERNAL_
+_FLAG_ _TYPE_
+_FLAG_ _FUNCTION_
+_FLAG_ _ARRAY_
+_FLAG_ _CONDITION_
+_FLAG_ _OPERATOR_
+_FLAG_ _RETURNING_
+_FLAG_ _CALL_
+_FLAG_ _PARAMETER_
+_FLAG_ _PARANTHESIS_
+_FLAG_ _CONSTRUCTOR_
+_FLAG_ _REGISTER_
 
-Flag Task_For_Non_Volatiling
-Flag Task_For_Returning
-Flag Task_For_Type_Address_Basing
-Flag Task_For_Type_Address
-Flag Task_For_Moving_Parameter
-Flag Task_For_Remainder
-Flag Task_For_General_Purpose
-Flag Task_For_Floating_Math
+_FLAG_ _TASK_FOR_NON_VOLATILING_
+_FLAG_ _TASK_FOR_RETURNING_
+_FLAG_ _TASK_FOR_STACK_BASE_ADDRESSING_
+_FLAG_ _TASK_FOR_STACK_ADDRESSING_
+_FLAG_ _TASK_FOR_DEST_OFFSETTING_
+_FLAG_ _TASK_FOR_SOURCE_OFFSETTING_
+_FLAG_ _TASK_FOR_REMAINDER_
+_FLAG_ _TASK_FOR_GENERAL_PURPOSE_
+_FLAG_ _TASK_FOR_FLOATING_MATH_
 
-Flag _Need_For_Space_
-Flag _Generated_
+_FLAG_ _NEED_FOR_SPACE_
+_FLAG_ _GENERATED_
 
-Flag _Pointting_
-Flag _Array_
-Flag _Giving_Address_
-Flag _String_
-Flag _Preprosessor_
-Flag _Skip_
+_FLAG_ _POINTTING_
+_FLAG_ _ARRAY_
+_FLAG_ _GIVING_ADDRESS_
+_FLAG_ _STRING_
+_FLAG_ _PREPROSESSOR_
+_FLAG_ _SKIP_
 
 
 #this pattern moves the number straight into the memory address
 $pattern (
-	if (_c:ID == "ldr")(
-		if (_n:ID == "=")(
-			if (_c:(Parameters:(0:Flags)) & Flag:_Register_)(
-				if (_c:(Parameters:(1:Flags)) & Flag:_Number_)(
-					if (_n:(Parameters:(0:Flags)) !& Flag:_Register_)(
-						if (_n:(Parameters:(1:Flags)) & Flag:_Register_)(
-							_c:Flags |= Flag:_Skip_,
-							_n:(Parameters:1) = _c:(Parameters:1)
+	if (_CURRENT_:_ID_ == "ldr")(
+		if (_NEXT_:_ID_ == "=")(
+			if (_CURRENT_:(_PARAMETERS_:(0:_FLAGS_)) & _FLAG_:_REGISTER_)(
+				if (_CURRENT_:(_PARAMETERS_:(1:_FLAGS_)) & _FLAG_:_NUMBER_)(
+					if (_NEXT_:(_PARAMETERS_:(0:_FLAGS_)) !& _FLAG_:_REGISTER_)(
+						if (_NEXT_:(_PARAMETERS_:(1:_FLAGS_)) & _FLAG_:_REGISTER_)(
+							_CURRENT_:_FLAGS_ |= _FLAG_:_SKIP_,
+							_NEXT_:(_PARAMETERS_:1) = _CURRENT_:(_PARAMETERS_:1)
 						)
 					)
 				)
@@ -77,11 +78,11 @@ $pattern (
 
 #This pattern checks if we can make "reg <- 0" into just "xor reg, reg".
 $pattern (
-	if (_c:ID == "ldr")(
-		if (_c:(Parameters:(0:Flags)) & Flag:_Register_)(
-			if (_c:(Parameters:(1:Name)) == "0")(
-				_c:(Parameters:1) = _c:(Parameters:0),
-				_c:ID = "^"
+	if (_CURRENT_:_ID_ == "ldr")(
+		if (_CURRENT_:(_PARAMETERS_:(0:_FLAGS_)) & _FLAG_:_REGISTER_)(
+			if (_CURRENT_:(_PARAMETERS_:(1:_NAME_)) == "0")(
+				_CURRENT_:(_PARAMETERS_:1) = _CURRENT_:(_PARAMETERS_:0),
+				_CURRENT_:_ID_ = "^"
 			)
 		)
 	)
@@ -89,12 +90,12 @@ $pattern (
 
 #this pattern deletes reduntant savind/loading issues.
 $pattern(
-	if (_c:ID == "=")(
-		if (_n:ID == "ldr")(
-			if (_c:(Parameters:(0:Name)) == _n:(Parameters:(1:Name)))(
-				if (_c:(Parameters:(1:UID)) == _n:(Parameters:(0:UID)))(
-					_c:Flags |= Flag:_Skip_,
-					_n:Flags |= Flag:_Skip_,
+	if (_CURRENT_:_ID_ == "=")(
+		if (_NEXT_:_ID_ == "ldr")(
+			if (_CURRENT_:(_PARAMETERS_:(0:_NAME_)) == _NEXT_:(_PARAMETERS_:(1:_NAME_)))(
+				if (_CURRENT_:(_PARAMETERS_:(1:_UID_)) == _NEXT_:(_PARAMETERS_:(0:_UID_)))(
+					_CURRENT_:_FLAGS_ |= _FLAG_:_SKIP_,
+					_NEXT_:_FLAGS_ |= _FLAG_:_SKIP_,
 				)
 			)
 		)
@@ -103,17 +104,17 @@ $pattern(
 
 #this pattern deletes moving same reg into same reg.
 $pattern(
-	if (_c:ID == "ldr")(
-		if (_c:(Parameters:(0:UID)) != "")(
-			if (_c:(Parameters:(0:UID)) == _c:(Parameters:(1:UID)))(
-				_c:Flags |= Flag:_Skip_
+	if (_CURRENT_:_ID_ == "ldr")(
+		if (_CURRENT_:(_PARAMETERS_:(0:_UID_)) != "")(
+			if (_CURRENT_:(_PARAMETERS_:(0:_UID_)) == _CURRENT_:(_PARAMETERS_:(1:_UID_)))(
+				_CURRENT_:_FLAGS_ |= _FLAG_:_SKIP_
 			)
 		)
 	)
-	if (_c:ID == "=")(
-		if (_c:(Parameters:(0:UID)) != "")(
-			if (_c:(Parameters:(0:UID)) == _c:(Parameters:(1:UID)))(
-				_c:Flags |= Flag:_Skip_
+	if (_CURRENT_:_ID_ == "=")(
+		if (_CURRENT_:(_PARAMETERS_:(0:_UID_)) != "")(
+			if (_CURRENT_:(_PARAMETERS_:(0:_UID_)) == _CURRENT_:(_PARAMETERS_:(1:_UID_)))(
+				_CURRENT_:_FLAGS_ |= _FLAG_:_SKIP_
 			)
 		)
 	)
@@ -122,15 +123,15 @@ $pattern(
 
 #this pattern deletes reduntant loading of mem into two different regs
 $pattern (
-	if (_p:ID == "ldr")(
-		if (_c:ID == "ldr")(
-			if (_p:(Parameters:(1:Name)) == _c:(Parameters:(1:Name)))(
-				if (_n:Flags & Flag:_Operator_)(
-					if (_n:(Parameters:(0:UID)) == _p:(Parameters:(0:UID)))(
-						if (_n:(Parameters:(1:UID)) == _c:(Parameters:(0:UID)))(
-							_c:Flags |= Flag:_Skip_,
-							_n:(Parameters:1) = _p:(Parameters:0),
-							_n:Comment = "Boosted"
+	if (_PREVIOUS_:_ID_ == "ldr")(
+		if (_CURRENT_:_ID_ == "ldr")(
+			if (_PREVIOUS_:(_PARAMETERS_:(1:_NAME_)) == _CURRENT_:(_PARAMETERS_:(1:_NAME_)))(
+				if (_NEXT_:_FLAGS_ & _FLAG_:_OPERATOR_)(
+					if (_NEXT_:(_PARAMETERS_:(0:_UID_)) == _PREVIOUS_:(_PARAMETERS_:(0:_UID_)))(
+						if (_NEXT_:(_PARAMETERS_:(1:_UID_)) == _CURRENT_:(_PARAMETERS_:(0:_UID_)))(
+							_CURRENT_:_FLAGS_ |= _FLAG_:_SKIP_,
+							_NEXT_:(_PARAMETERS_:1) = _PREVIOUS_:(_PARAMETERS_:0),
+							_NEXT_:_COMMENT_ = "Boosted"
 						)
 					)
 				)
@@ -148,20 +149,20 @@ $pattern (
 #mov ecx, ebx
 
 $pattern (
-	if (_p:ID == "ldr")(
-		if (_p:ID == _n:ID)(
-			if (_p:(Parameters:(0:Name)) == _n:(Parameters:(0:Name)))(
-				if (_p:(Parameters:(1:Name)) == _n:(Parameters:(1:Name)))(
-					if (_c:(Parameters:(0:Name)) == _p:(Parameters:(0:Name)))(
-						if (_c:(Parameters:(0:Flags)) & Flag:_Pointting_)(
-							_n:Flags |= Flag:_Skip_
+	if (_PREVIOUS_:_ID_ == "ldr")(
+		if (_PREVIOUS_:_ID_ == _NEXT_:_ID_)(
+			if (_PREVIOUS_:(_PARAMETERS_:(0:_NAME_)) == _NEXT_:(_PARAMETERS_:(0:_NAME_)))(
+				if (_PREVIOUS_:(_PARAMETERS_:(1:_NAME_)) == _NEXT_:(_PARAMETERS_:(1:_NAME_)))(
+					if (_CURRENT_:(_PARAMETERS_:(0:_NAME_)) == _PREVIOUS_:(_PARAMETERS_:(0:_NAME_)))(
+						if (_CURRENT_:(_PARAMETERS_:(0:_FLAGS_)) & _FLAG_:_POINTTING_)(
+							_NEXT_:_FLAGS_ |= _FLAG_:_SKIP_
 						)
-						if (_c:(Parameters:(0:Flags)) & Flag:_Array_)(
-							_n:Flags |= Flag:_Skip_
+						if (_CURRENT_:(_PARAMETERS_:(0:_FLAGS_)) & _FLAG_:_ARRAY_)(
+							_NEXT_:_FLAGS_ |= _FLAG_:_SKIP_
 						)
 					)
-					if (_c:(Parameters:(0:Name)) != _p:(Parameters:(0:Name)))(
-						_n:Flags |= Flag:_Skip_
+					if (_CURRENT_:(_PARAMETERS_:(0:_NAME_)) != _PREVIOUS_:(_PARAMETERS_:(0:_NAME_)))(
+						_NEXT_:_FLAGS_ |= _FLAG_:_SKIP_
 					)
 				)
 			)

@@ -35,7 +35,7 @@ map<string, Object*> Usr::Get_Members()
 	output Info;
 	*/
 	return {
-		std::make_pair(string("Info"), &Info)
+		std::make_pair(string("_INFO_"), &Info)
 	};
 }
 
@@ -138,14 +138,14 @@ map<string, Object*> output::Get_Members(){
 	string Obj_Type;
 	int Bits_Mode = 4;*/
 	return {
-		std::make_pair(string("Source_File"), new StringObject(&Source_File)),
-		std::make_pair(string("Destination_File"), new StringObject(&Destination_File)),
-		std::make_pair(string("OS"),new StringObject(&OS)),
-		std::make_pair(string("Architecture"),new StringObject(&Architecture)),
-		std::make_pair(string("Format"), new StringObject(&Format)),
-		std::make_pair(string("Libs"), new SymbolTableList(Libs)),
-		std::make_pair(string("Bits_Mode"), new StringObject(&Bits_Mode)),
-		std::make_pair(string("Debug"), new StringObject(&Debug))
+		std::make_pair(string("_SOURCE_FILE_"), new StringObject(&Source_File)),
+		std::make_pair(string("_DESTINATION_FILE_"), new StringObject(&Destination_File)),
+		std::make_pair(string("_OS_"),new StringObject(&OS)),
+		std::make_pair(string("_ARCHITECTURE_"),new StringObject(&Architecture)),
+		std::make_pair(string("_FORMAT_"), new StringObject(&Format)),
+		std::make_pair(string("_LIBS_"), new SymbolTableList(Libs)),
+		std::make_pair(string("_BITS_MODE_"), new StringObject(&Bits_Mode)),
+		std::make_pair(string("_DEBUG_"), new StringObject(&Debug))
 	};
 }
 

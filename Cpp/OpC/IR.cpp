@@ -14,12 +14,12 @@ map<string, Object*> IR::Get_Members()
 {
 
 	return {
-		make_pair("Flags", new IntObject(&Flags)),
-		make_pair("Parameters", new SymbolTableList(Parameters)),
-		make_pair("Childs", new SymbolTableList(Childs)),
-		std::make_pair("Reg_Flag", new IntObject(&Reg_Flag)),
-		std::make_pair("PreFix", new StringObject(&PreFix)),
-		std::make_pair("ID", new StringObject(&ID)),
-		std::make_pair("Comment", new SymbolTableList(Comments)),
+		make_pair("_FLAGS_", new IntObject(&Flags)),
+		make_pair("_PARAMETERS_", new SymbolTableList(Parameters)),
+		make_pair("_CHILDS_", new SymbolTableList(Childs)),
+		std::make_pair("_REG_FLAG_", new IntObject(&Reg_Flag)),
+		std::make_pair("_PREFIX_", new StringObject(&PreFix)),
+		std::make_pair("_ID_", new StringObject(&ID)),
+		std::make_pair("_COMMENT_", new SymbolTableList(Comments)),
 	};
 }

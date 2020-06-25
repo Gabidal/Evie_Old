@@ -14,19 +14,19 @@ map<string, Object*> Token::Get_Members()
 		Token* Offsetter = nullptr;
 		vector<Token*> Childs;*/
 	return {
-		std::make_pair("Left_Side_Token", Left_Side_Token),
-		std::make_pair("Right_Side_Token", Right_Side_Token),
-		std::make_pair("Offsetter", Offsetter),
-		std::make_pair("Childs", new SymbolTableList(Childs)),
-		std::make_pair("Flags", new IntObject(&Flags)),
-		std::make_pair("Size", new IntObject(&Size)),
-		std::make_pair("StackOffset", new IntObject(&StackOffset)),
-		std::make_pair("ParameterCount", new IntObject(&ParameterCount)),
-		std::make_pair("ID", new IntObject(&ID)),
-		std::make_pair("Name", new StringObject(&Name)),
-		std::make_pair("Types", new SymbolTableList(Types)),
-		std::make_pair("UID", new StringObject(&UID)),
-		std::make_pair("State", new StringObject(&State))
+		std::make_pair("_LEFT_SIDE_TOKEN_", Left_Side_Token),
+		std::make_pair("_RIGHT_SIDE_TOKEN_", Right_Side_Token),
+		std::make_pair("_OFFSETTER_", Offsetter),
+		std::make_pair("_CHILDS_", new SymbolTableList(Childs)),
+		std::make_pair("_FLAGS_", new IntObject(&Flags)),
+		std::make_pair("_SIZE_", new IntObject(&Size)),
+		std::make_pair("_STACK_OFFSET_", new IntObject(&StackOffset)),
+		std::make_pair("_PARAMETER_COUNT_", new IntObject(&ParameterCount)),
+		std::make_pair("_ID_", new IntObject(&ID)),
+		std::make_pair("_NAME_", new StringObject(&Name)),
+		std::make_pair("_TYPES_", new SymbolTableList(Types)),
+		std::make_pair("_UID_", new StringObject(&UID)),
+		std::make_pair("_STATE_", new StringObject(&State))
 	};
 }
 

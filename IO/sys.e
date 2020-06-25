@@ -1,19 +1,19 @@
-type system
+type _SYSTEM_
 
-system sys
-system Info
+_SYSTEM_ _SYS_
+_SYSTEM_ _INFO_
 
-system Source_File
-system Destination_File
-system OS
-system Architecture
-system Obj_Type
-system Bits_Mode
+_SYSTEM_ _SOURCE_FILE_
+_SYSTEM_ DESTINATION_FILE_
+_SYSTEM_ _OS_
+_SYSTEM_ _ARCHITECTURE_ 
+_SYSTEM_ _OBJ_TYPE_
+_SYSTEM_ _BITS_MODE_
 
-$if (sys:(Info:OS) == "win32")(
+$if (_SYS_:(_INFO_:_OS_) == "win32")(
 	$use "win32.asm"
 )
 
-$if (sys:(Info:OS) == "unix")(
+$if (_SYS_:(_INFO_:_OS_) == "unix")(
 	$use "unix.asm"
 )
