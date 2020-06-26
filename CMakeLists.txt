@@ -17,7 +17,6 @@ FILE(GLOB Docker Cpp/Docker/*.cpp)
 FILE(GLOB Mangler Cpp/Mangler/*.cpp)
 FILE(GLOB TestSweet Cpp/Test/*.cpp)
 
-
 # Add source files
 add_executable(${PROJECT_NAME} 
                 ${root} 
@@ -33,12 +32,30 @@ add_executable(${PROJECT_NAME}
                 ${arm}
                 ${Docker}
                 ${Mangler}
-                ${TestSweet}
-               )
- 
+                )
+                
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE Debug)
 target_compile_options(${PROJECT_NAME} PRIVATE)
-
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+
+
+add_executable(tester 
+                ${TestSweet}
+                ${interpreter} 
+                ${selector} 
+                ${opc} 
+                ${ui} 
+                ${back} 
+                ${lexer} 
+                ${parser} 
+                ${emulator} 
+                ${x86} 
+                ${arm}
+                ${Docker}
+                ${Mangler}
+                )      
+enable_testing()
+set(CT_BUILD_TYPE Debug)
+add_test(Tester tester)
