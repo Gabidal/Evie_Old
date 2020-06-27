@@ -25,12 +25,17 @@ public:
 	~Test() {}
 	void Print_Results();	//prints working & not working features into console
 private:
-	//			CLASS ID,   Expectation, Result
+	//			CLASS ID,   INPUT, RESULT
 	vector<pair<string, pair<string, string>>> Working_Features;
-	//			CLASS ID,   Expectation, Result
+	//			CLASS ID,   INPUT, RESULT
 	vector<pair<string, pair<string, string>>> Not_Working_Features;
+	//			CLASS ID,  FEATURE,  INPUT_STRING
+	vector<pair<string, pair<string, string>>> Input;
+
 	Token* Find(string name, vector<Token*>);
-	void Parser_Classes();
+	string Replace(string Source, char oldVal, string newVal);
+	void Report_Behaviour(int i, string report, bool working);
+	void Parser_Classes(int i);
 
 };
 
