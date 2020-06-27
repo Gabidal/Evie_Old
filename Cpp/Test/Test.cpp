@@ -33,7 +33,7 @@ void Test::Parser_Classes()
 			}
 	*/
 	Parser p;
-	p.Input = Lexer::GetComponents("type int()\n{\n}");
+	p.Input = Lexer::GetComponents("type int()\n{\nsize 123\n}");
 	p.Factory();
 	//[-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-]
 	if (Find("int", p.Defined_Keywords) == nullptr)
@@ -45,5 +45,10 @@ void Test::Parser_Classes()
 		Not_Working_Features.push_back({ "Parser", {"Classes", "Output[0] didnt contain made class constructor."} });
 	else
 		Working_Features.push_back({ "Parser", {"Classes", "Output[0] did contain made class constructor"} });
+	//[-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-]
+	if ((Find("int", p.Defined_Keywords) != nullptr) && (Find("int", p.Defined_Keywords)->Size != 123))
+		Not_Working_Features.push_back({ "Parser", {"Classes", "Defined_Keywords[0] didnt contain made class size."} });
+	else if (Find("int", p.Defined_Keywords) != nullptr)
+		Working_Features.push_back({ "Parser", {"Classes", "Defined_Keywords[0] did contain made class size"} });
 	//[-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-]
 }

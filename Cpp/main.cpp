@@ -186,6 +186,8 @@ int main(int argc, char* argv[])
     string start_file = sys->Info.Source_File.c_str();
     Included_Files.push_back(start_file);
 
+    Init_Pre_Defined_Tokens();
+
     //testsweetter
     Test t;
     //end of testsweetter
@@ -194,7 +196,6 @@ int main(int argc, char* argv[])
     p.Update_Dir(sys->Info.Source_File.c_str());
     p.Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
     //p.Working_Dir = start_file;
-    Init_Pre_Defined_Tokens();
     p.Factory();
 
     Definer d;

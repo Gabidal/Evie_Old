@@ -220,7 +220,10 @@ Token* Parser::Get_Setting(int i, Token* defined, string setting)
 	if (Count_Familiar_Tokens(PAREHTHESIS_COMPONENT, i + 2) < 2)
 		return nullptr;
 	Parser p;
-	p.Input = Input.at((size_t)i + 3).Components;
+	int Next_Parenthesis_Index = 3;
+	if (Input.at(i + Next_Parenthesis_Index).Value == "\n")
+		Next_Parenthesis_Index = 4;
+	p.Input = Input.at((size_t)i + Next_Parenthesis_Index).Components;
 	p.Defined_Keywords = Defined_Keywords;
 	Inside_Of_Class = true;
 	int tmp = Local_Stack_Offest;
@@ -660,7 +663,7 @@ void Parser::Type_Definition(int i)
 
 
 			int Next_Parenthesis_Index = 2;
-			if (Input.at(i + 2).Value == "\n")
+			if (Input.at(i + Next_Parenthesis_Index).Value == "\n")
 				Next_Parenthesis_Index = 3;
 
 			//update context
