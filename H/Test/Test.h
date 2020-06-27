@@ -22,13 +22,14 @@ class Test
 {
 public:
 	Test();//factory
-	~Test() {} 
+	~Test() {}
 	void Print_Results();	//prints working & not working features into console
 private:
 	//			CLASS ID,   Expectation, Result
 	vector<pair<string, pair<string, string>>> Working_Features;
 	//			CLASS ID,   Expectation, Result
 	vector<pair<string, pair<string, string>>> Not_Working_Features;
+	Token* Find(string name, vector<Token*>);
 	void Parser_Classes();
 
 };

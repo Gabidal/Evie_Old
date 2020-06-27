@@ -7,6 +7,7 @@
 #include "../H/UI/Usr.h"
 #include "../H/UI/Producer.h"
 #include "../H/UI/Safe.h"
+#include "../H/Test/Test.h"
 #include <sstream>
 #include <iostream>
 #include <map>
@@ -184,6 +185,10 @@ int main(int argc, char* argv[])
     
     string start_file = sys->Info.Source_File.c_str();
     Included_Files.push_back(start_file);
+
+    //testsweetter
+    Test t;
+    //end of testsweetter
 
     Parser p;
     p.Update_Dir(sys->Info.Source_File.c_str());
