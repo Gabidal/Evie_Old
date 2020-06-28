@@ -35,7 +35,10 @@ private:
 	Token* Find(string name, vector<Token*>);
 	string Replace(string Source, char oldVal, string newVal);
 	void Report_Behaviour(int i, string report, bool working);
-	void Parser_Classes(int i);
+
+	void Parser_Constructors(int i);
+	void Parser_Prototypes(int i);
+	void Parser_Size(int i);
 
 };
 
