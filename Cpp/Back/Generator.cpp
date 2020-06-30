@@ -28,6 +28,40 @@ void Generator::Factory()
 	}
 }
 
+/*void Generator::Detect_Pointter_Member_Call(Token* t)
+{
+	if (!(t->Additional_Member_Stack_Offset > 0))
+		return;
+	//mov reg, [class object]
+	//return the reg with an number offsetter to the member into Handle
+	//make the ptr loading register
+	Token* reg = new Token;
+	reg->Name = t->Name + "_reg";
+	reg->Size = _SYSTEM_BIT_TYPE;
+	reg->Hidden_Size = t->Hidden_Size;
+	reg->add(_Register_);
+	reg->add(Task_For_General_Purpose);
+	reg->Types.push_back("ptr");
+	reg->Context = t->Context;
+	//make the opcode for the movement
+	IR* mov = new IR;
+	mov->ID = "ldr";
+	mov->Parameters.push_back(new Token(*reg));
+	mov->Parameters.push_back(new Token(*t));
+	Output.push_back(mov);
+	//now make the returning handle reg
+	Token* offsetter = new Token;
+	offsetter->Name = to_string(t->Additional_Member_Stack_Offset);
+	offsetter->add(_Number_);
+	offsetter->Size = _SYSTEM_BIT_TYPE;
+	offsetter->Context = t->Context;
+	offsetter->add(_Pointting_);
+	//now give it to reg
+	reg->Offsetter = offsetter;
+	Handle = new Token(*reg);
+	return;
+}*/
+
 void Generator::Detect_Function(Token* t)
 {
 	//if (t->is("type"))

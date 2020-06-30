@@ -50,5 +50,9 @@ mov eax, [esp]
 add esp, 4
 ret
 
+global sys_new
+	sys_new:
+	
+
 section .data
 written dd 0

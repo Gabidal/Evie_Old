@@ -1,9 +1,17 @@
-$use "cstd.e"
-$use "boost.e"
+type int(){
+    size 4
+}
 
-main() {
-    sys_print(@"hello!", 6)
+type banana(){
+    size (
+        int a
+        int b
+        int c
+    )
+}
 
-    char ptr a = @"hello!"
+func main() {
+    banana ptr b
+    b.c = 2
     return 0
 }

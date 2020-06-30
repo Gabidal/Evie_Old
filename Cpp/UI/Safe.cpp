@@ -73,9 +73,15 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
     cout << tab << "  " << "Size is " << (float)t->Size * 8 << " bits" << endl;
     cout << tab << "  " << "State is " << Get_State_Info(t) << "." << endl;
     cout << tab << "  " << "Inheritting { " << endl;
-        for (string s: t->Types)
-            Get_Token_Info(Find(s), s, layer + 2);
+    for (string s : t->Types)
+        Get_Token_Info(Find(s), s, layer + 2);
     cout << tab << "  }" << endl;
+    if (t->Defined_Local_Types.size() > 0) {
+        cout << tab << "  " << "Members {" << endl;
+        for (Token* m : t->Defined_Local_Types)
+            Get_Token_Info(m, m->Name, layer + 2);
+        cout << tab << "  }" << endl;
+    }
     cout << tab << "}" << endl;
     return;
 }

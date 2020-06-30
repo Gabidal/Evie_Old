@@ -59,6 +59,7 @@ class Token : public Object
     int Reservable_Size = 0;
     int Changable_Value = 0;
     int StackOffset = 0;
+    int Additional_Member_Stack_Offset = 0;
     int ParameterCount = 0;
     int ID = 0;
     int Line_Number = LINE_NUMBER;

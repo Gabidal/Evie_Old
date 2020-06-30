@@ -150,7 +150,7 @@ void Parser::Init_Definition(int& i)
 		else if (Size->Right_Side_Token->is(_Parenthesis_)) {
 			//size (int a, int b, int c) give them into this defined keyword
 			New_Defined_Type->Size = Size->Right_Side_Token->Size;
-			Append(&New_Defined_Type->Childs, Size->Right_Side_Token->Childs);
+			Append(&New_Defined_Type->Defined_Local_Types, Size->Right_Side_Token->Childs);
 		}
 		Token* State = Get_Setting(i, New_Defined_Type, "state");
 		if (State != nullptr)
@@ -167,7 +167,7 @@ void Parser::Init_Definition(int& i)
 					New_Defined_Type->Size += t->Size;
 					New_Defined_Type->State = t->State;
 					New_Defined_Type->_Dynamic_Size_ |= t->_Dynamic_Size_;
-					Append(&New_Defined_Type->Childs, t->Childs);
+					Append(&New_Defined_Type->Defined_Local_Types, t->Defined_Local_Types);
 				}
 	}
 	if (Global_Comment.size() > 0) {
@@ -183,7 +183,7 @@ void Parser::Init_Definition(int& i)
 	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter || Inside_Of_Class)
 		Defined_Local_Keywords.push_back(New_Defined_Type);
 
-	Defined_Keywords.push_back(New_Defined_Type);
+	Defined_Keywords.push_back(new Token(*New_Defined_Type));
 
 	if (!New_Defined_Type->is("cache")) {
 		if (New_Defined_Type->is("ptr"))
@@ -361,14 +361,14 @@ void Parser::Init_Member_Reaching(int i)
 
 	Token* Master = Find(Route_To_Member.at(0).Value, Defined_Keywords);
 	Token* object = Find(Route_To_Member.at(0).Value, Defined_Keywords);
-	vector<Token*> Types = object->Childs;
+	vector<Token*> Types = object->Defined_Local_Types;
 
 	int StackOffset = 0;
 
 	for (int j = 1; j < Route_To_Member.size(); j++) {
 		object = Find(Route_To_Member.at(j).Value, Types);
 		StackOffset += object->StackOffset - _SYSTEM_BIT_TYPE;
-		Types = object->Childs;
+		Types = object->Defined_Local_Types;
 	}
 	//save the giving address
 	Route_To_Member.back().IsGivingAddress = Input.at(i).IsGivingAddress;
@@ -389,7 +389,13 @@ void Parser::Init_Member_Reaching(int i)
 	Result->Hidden_Size = object->Size;
 	Result->Size = _SYSTEM_BIT_TYPE;
 	//give it the right stack offset
-	Result->StackOffset = StackOffset + Master->StackOffset;
+	//make the offsetter token
+	Token* offsetter = new Token;
+	offsetter->Name = to_string(StackOffset + Master->StackOffset - Result->StackOffset);
+	offsetter->add(_Number_);
+	offsetter->Size = _SYSTEM_BIT_TYPE;
+	Result->Offsetter = offsetter;
+	Result->add(_Pointting_);
 	//the object that remainds is the final member we want!
 	//now that we have the 
 	Output.push_back(new Token(*Result));
@@ -884,7 +890,7 @@ void Parser::Init_Variable(int i)
 				New_Variable->Size = t->Size;
 				New_Variable->State = t->State;
 				New_Variable->_Dynamic_Size_ = t->_Dynamic_Size_;
-				New_Variable->Childs = t->Childs;
+				New_Variable->Defined_Local_Types = t->Defined_Local_Types;
 				break;
 			}
 		if (Input.at(i).Offsetter != nullptr)

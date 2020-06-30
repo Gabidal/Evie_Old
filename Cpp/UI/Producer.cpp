@@ -31,6 +31,7 @@ string Produce_Working_Dir = "";
 void Producer::Assembly_Other_Source_Files()
 {
     stringstream output;
+    output << " ";
     for (string i : Source_Files)
         output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + i + ".obj " << i;
     for (string i : Source_Files)
