@@ -175,7 +175,12 @@ void Parser::Init_Definition(int& i)
 	if (!New_Defined_Type->is("cache"))
 		Set_Right_Stack_Offset(New_Defined_Type);
 	Set_Right_Flag_Info(New_Defined_Type);
+
+	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter || Inside_Of_Class)
+		Defined_Local_Keywords.push_back(New_Defined_Type);
+
 	Defined_Keywords.push_back(New_Defined_Type);
+
 	if (!New_Defined_Type->is("cache")) {
 		if (New_Defined_Type->is("ptr"))
 			Space_Reservation += _SYSTEM_BIT_TYPE;
@@ -520,6 +525,7 @@ void Parser::Init_Parenthesis(int i)
 		New_Defined_Parenthesis->Size = P.Space_Reservation;
 		Output.push_back(New_Defined_Parenthesis);
 		this->Space_Reservation = P.Space_Reservation;
+		this->Defined_Local_Keywords = P.Defined_Local_Keywords;
 		if (Inside_Of_Constructor_As_Parameter)
 		{
 			this->Defined_Keywords = P.Defined_Keywords;
@@ -613,6 +619,7 @@ void Parser::Type_Definition(int i)
 			Inside_Of_Constructor_As_Parameter = true;
 			P.Factory();
 			Inside_Of_Constructor_As_Parameter = false;
+			New_Defined_Text->Defined_Local_Types = P.Defined_Local_Keywords;
 
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
 			reverse(New_Defined_Text->Left_Side_Token->Childs.begin(), New_Defined_Text->Left_Side_Token->Childs.end());
@@ -648,7 +655,7 @@ void Parser::Type_Definition(int i)
 			P.Input.push_back(Input.at((size_t)i + 1));
 			P.Factory();
 			Inside_Of_Constructor_As_Parameter = false;
-			
+			New_Defined_Text->Defined_Local_Types = P.Defined_Local_Keywords;
 
 			Local_Stack_Offest = 0;
 			New_Defined_Text->Left_Side_Token = P.Output.at(0);
@@ -677,7 +684,7 @@ void Parser::Type_Definition(int i)
 			P.Space_Reservation = 0;			//!!!!!!!!!!!!!!
 			P.Factory();
 			Inside_Of_Constructor = false;
-
+			Append(&New_Defined_Text->Defined_Local_Types, P.Defined_Local_Keywords);
 
 			Local_Stack_Offest = 0;
 			New_Defined_Text->Right_Side_Token = P.Output.at(0);

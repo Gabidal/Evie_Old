@@ -19,6 +19,7 @@ public:
     vector<Component> Input;
     vector<Token*> Output;
     vector<Token*> Defined_Keywords;
+    vector<Token*> Defined_Local_Keywords;
     string Update_Dir(string File_Name);
     void Factory();    Parser& operator=(const Parser& other)
     {

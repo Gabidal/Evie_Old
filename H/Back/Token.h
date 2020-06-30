@@ -76,6 +76,7 @@ class Token : public Object
     Token* Right_Non_Operative_Token = nullptr;
     Token* Left_Non_Operative_Token = nullptr;
     vector<Token*> Childs;
+    vector<Token*> Defined_Local_Types;
     vector<string> Types;
     vector<string> Comments;
     vector<Token*> Tangled;

@@ -18,6 +18,7 @@ map<string, Object*> Token::Get_Members()
 		std::make_pair("_RIGHT_SIDE_TOKEN_", Right_Side_Token),
 		std::make_pair("_OFFSETTER_", Offsetter),
 		std::make_pair("_CHILDS_", new SymbolTableList(Childs)),
+		std::make_pair("_DEFINED_LOCAL_TYPES_", new SymbolTableList(Defined_Local_Types)),
 		std::make_pair("_FLAGS_", new IntObject(&Flags)),
 		std::make_pair("_SIZE_", new IntObject(&Size)),
 		std::make_pair("_STACK_OFFSET_", new IntObject(&StackOffset)),

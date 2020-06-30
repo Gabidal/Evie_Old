@@ -312,30 +312,26 @@ void Generator::Detect_Condition(Token* t)
 	}
 }
 
-void Generator::Scaler(Token* l, Token* r)
+void Generator::Scaler(Token* op)
 {
-	if (l->is(_Number_))
-	{
-		if (l->Size < r->Size)
-		{
-			l->Size = r->Size;
-		}
-	}
-	if (r->is(_Number_))
-	{
-		if (r->Size < l->Size)
-		{
-			r->Size = l->Size;
-		}
-	}
-	if (r->_Dynamic_Size_)
-	{
-		r->Size = l->Size;
-	}
-	if (l->_Dynamic_Size_)
-	{
+	int Largest = 0;
+	for (Token* i : Get_Math_Member_List(op))
+		if (i->Size > Largest)
+			Largest = i->Size;
+
+
+	for (Token* i : Get_Math_Member_List(op))
+			i->Size = Largest;
+	return;
+}
+
+void Generator::Scale(Token* l, Token* r)
+{
+	if (l->Size < r->Size)
 		l->Size = r->Size;
-	}
+	if (r->Size < l->Size)
+		r->Size = r->Size;
+	return;
 }
 
 void Generator::Dodge(Token* l, Token* r)
@@ -382,7 +378,7 @@ void Generator::Initialize_Global_Variable(int i)
 	Token* t = Input.at(i);
 	if (t->is(_Initialized_))
 	{
-		Scaler(t, t->Initial_Value);
+		Scale(t, t->Initial_Value);
 		IR* init = new IR;
 		t->Initial_Value->add(_Locked_);
 		init->Parameters.push_back(t->Initial_Value);
@@ -452,7 +448,7 @@ void Generator::Detect_Operator(Token* t)
 	Hide_Real_Size(R);
 	Hide_Real_Size(L);
 
-	Scaler(R, L);
+	Scaler(t);
 
 	Dodge(L, R);
 
@@ -606,7 +602,7 @@ void Generator::Detect_Pointters(Token* t)
 	tmp_t->Offsetter = nullptr;
 	Token* Offsetter = new Token;
 
-	Scaler(t, t->Offsetter);
+	Scale(t, t->Offsetter);
 	//load the Offsetter into a reg or if number stay number.
 	Generator g;
 	g.Input.clear();
@@ -711,7 +707,7 @@ void Generator::Detect_Arrays(Token* t)
 	//make the offsetter handle
 	Token* Offsetter = new Token;
 
-	Scaler(t, t->Offsetter);
+	Scale(t, t->Offsetter);
 	//load the Offsetter into a reg or if number stay number.
 	Generator g;
 	g.Input.clear();
@@ -876,9 +872,17 @@ void Generator::Detect_Assembly_Including(Token* t)
 	return;
 }
 
-void Generator::Append(vector<IR*> *Dest, vector<IR*> Source)
+void Generator::Append(vector<IR*>* Dest, vector<IR*> Source)
 {
 	for (IR* i : Source)
+	{
+		Dest->push_back(i);
+	}
+}
+
+void Generator::Append(vector<Token*>* Dest, vector<Token*> Source)
+{
+	for (Token* i : Source)
 	{
 		Dest->push_back(i);
 	}
@@ -919,4 +923,17 @@ void Generator::Hide_Real_Size(Token* t)
 		t->Size = _SYSTEM_BIT_TYPE;
 	}
 	return;
+}
+
+vector<Token*> Generator::Get_Math_Member_List(Token* Operattor)
+{
+	vector<Token*> Result;
+	if (Operattor->is(_Operator_)) {
+		Append(&Result, Get_Math_Member_List(Operattor->Left_Side_Token));
+		Append(&Result, Get_Math_Member_List(Operattor->Right_Side_Token));
+	}
+	else
+		Result.push_back(Operattor);
+
+	return Result;
 }

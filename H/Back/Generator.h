@@ -30,13 +30,16 @@ public:
 	void Detect_Pre_Defined_Tokens(Token* t);
 	void Detect_Prefixes(Token* t);
 	void Detect_Assembly_Including(Token* t);
-	void Scaler(Token* l, Token* r);
+	void Scaler(Token* op);
+	void Scale(Token* l, Token* r);
 	void Dodge(Token* l, Token* r);
 	void Rotator(Token* l, Token* r);
 	void Initialize_Global_Variable(int i);
-	void Append(vector<IR*> *Dest, vector<IR*> Source);
+	void Append(vector<IR*>* Dest, vector<IR*> Source);
+	void Append(vector<Token*>* Dest, vector<Token*> Source);
 	void Hide_Un_Used_Function(int i);
 	void Hide_Real_Size(Token* t);
+	vector<Token*> Get_Math_Member_List(Token* Operattor);
 	//void Update_Used_Functions_Value(Token* call);
 	Generator()
 	{
