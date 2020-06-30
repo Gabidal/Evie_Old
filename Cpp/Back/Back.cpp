@@ -117,6 +117,8 @@ string Back::Get_Info_Of(Token* t)
 		return t->UID;
 	else if (t->is(_Number_))
 		return Get_Size(t) + t->Name;
+	else if (t->_Give_String_Address_)
+		return "_" + t->Name;		//usually string name is the same as the stirng adress
 	else if (t->_RAW_STRING_)
 		return "\"" + t->Name + "\"";
 	else if (t->is(_String_))

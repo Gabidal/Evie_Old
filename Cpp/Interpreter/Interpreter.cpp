@@ -3,6 +3,7 @@
 extern Object* Root;
 
 extern map<string, Token*> Preprosessor_Tokens;
+extern bool Inside_Of_PreProcess;
 string Layer_Name = "";
 
 void Interpreter::Factory()
@@ -72,7 +73,9 @@ void Interpreter::Detect_Patterns()
 	Parser p;
 	p.Input = Input.at(i + 2).Components;
 	p.Defined_Keywords = Defined;
+	Inside_Of_PreProcess = true;
 	p.Factory();
+	Inside_Of_PreProcess = false;
 	pattern->Childs = p.Output;
 	if (Preprosessor_Tokens.find(Layer_Name) == Preprosessor_Tokens.end())
 	{
@@ -94,7 +97,9 @@ bool Interpreter::Constructable(int i)
 	Parser p;
 	p.Input = Input.at(i).Components;
 	p.Defined_Keywords = this->Defined;
+	Inside_Of_PreProcess = true;
 	p.Factory();
+	Inside_Of_PreProcess = false;
 	//get the made tokens to define what is for example sys.info stuff to compare
 	//our job here is to detect the system typed tokens and handle them.
 	Token* Condition = p.Output.at(0);
@@ -123,7 +128,9 @@ void Interpreter::Detect_Mod()
 	Parser p;
 	p.Input = Input.at(i + 2).Components;
 	p.Defined_Keywords = Defined;
+	Inside_Of_PreProcess = true;
 	p.Factory();
+	Inside_Of_PreProcess = false;
 	Input.erase(Input.begin() + i, Input.begin() + i + 3);
 	Layer_Name = "";
 }

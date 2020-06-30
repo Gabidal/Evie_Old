@@ -65,6 +65,8 @@ class FlagTable : public Object {
 };
 Object* FT;
 
+extern vector<Token*> Global_Data;
+extern vector<Token*> Defined_Local_To_Global_Variables;
 map<string, Token*> Preprosessor_Tokens;
 vector<string> Included_Files; //for loop holes to not exist
 Selector* S;
@@ -197,6 +199,9 @@ int main(int argc, char* argv[])
     p.Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
     //p.Working_Dir = start_file;
     p.Factory();
+
+    p.Append(&p.Output, Global_Data);
+    p.Append(&p.Defined_Keywords, Defined_Local_To_Global_Variables);
 
     Definer d;
     d.Input_Of_Tokens = p.Output;

@@ -67,6 +67,7 @@ class Token : public Object
     bool _Dynamic_Size_ = false;
     bool _Has_Member_ = false;
     bool _IS_ASM_INCLUDE_ = false;
+    bool _Give_String_Address_ = false;
     bool _RAW_STRING_ = false;
     Token* Left_Side_Token = nullptr;
     Token* Right_Side_Token = nullptr; 

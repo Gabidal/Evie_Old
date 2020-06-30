@@ -131,7 +131,7 @@ $pattern (
 						if (_NEXT_:(_PARAMETERS_:(1:_UID_)) == _CURRENT_:(_PARAMETERS_:(0:_UID_)))(
 							_CURRENT_:_FLAGS_ |= _FLAG_:_SKIP_,
 							_NEXT_:(_PARAMETERS_:1) = _PREVIOUS_:(_PARAMETERS_:0),
-							_NEXT_:_COMMENT_ = "Boosted"
+							_NEXT_:_COMMENT_ ="Boosted"
 						)
 					)
 				)

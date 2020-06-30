@@ -4,12 +4,16 @@
 bool Inside_Of_Constructor_As_Parameter = false;
 bool Inside_Of_Constructor = false;
 bool Inside_Of_Class = false; //indicates if inside of Size keyword for members to use only local
+bool Inside_Of_PreProcess = false;
 int Layer = 0;
 int ID = 1;
+int String_ID = 0;
 int Global_Stack_Offset = 0;
 int Local_Stack_Offest = 0;
 int LINE_NUMBER = 0;
 vector<string> Global_Comment;
+vector<Token*> Global_Data;
+vector<Token*> Defined_Local_To_Global_Variables;
 extern int _SYSTEM_BIT_TYPE;
 extern vector<string> Included_Files; //for loop holes to not exist
 extern vector<string> Pre_Defined_Tokens;
@@ -950,7 +954,7 @@ void Parser::Init_Variable(int i)
 		}
 		Output.push_back(New_Number);
 	}
-	if (Input.at(i).is(STRING_COMPONENT) && (Layer > 1))
+	if (Input.at(i).is(STRING_COMPONENT) && (Layer > 1) && Inside_Of_PreProcess)
 	{
 		Token* Str = new Token;
 		Str->add(_String_);
@@ -959,6 +963,58 @@ void Parser::Init_Variable(int i)
 		Str->Types.push_back("string");
 		Str->Context = Context;
 		Output.push_back(Str);
+	}
+	else if (Input[i].is(STRING_COMPONENT)) {
+		//S1 db "hello World!"
+		//push S1
+		//mov reg, S1
+		//this is the raw string
+		Token* Str_Word = new Token;
+		Str_Word->add(_String_);
+		Str_Word->Name = Input.at(i).Value;
+		Str_Word->Size = _SYSTEM_BIT_TYPE;
+		Str_Word->Types.push_back("string");
+		Str_Word->Context = Context;
+
+		//now make the string global variable pointter
+		//string a = Str_Word
+		Token* Str_Ptr = new Token;
+		Str_Ptr->Name = "S" + to_string(String_ID);
+		String_ID++;
+		Str_Ptr->Size = _SYSTEM_BIT_TYPE; //space needed to reserve the string pointter
+		Str_Ptr->Hidden_Size = 1; //scaling size by char
+		Str_Ptr->Types.push_back("ptr");
+		Str_Ptr->add(_Pointting_);
+		Str_Ptr->add(_External_);
+		if (Input[i].IsGivingAddress) {
+			Str_Ptr->_Give_String_Address_ = true;
+		}
+		Str_Ptr->Context = Context;
+
+		//save this as an defined type
+		Defined_Keywords.push_back(Str_Ptr);
+		//also for definer.cpp
+		Defined_Local_To_Global_Variables.push_back(Str_Ptr);
+
+		//we need now to add this into Global_Data list
+		//S0 = "Hello world!"
+		//and then return Str_Ptr into output
+		Token* Op = new Token;
+		Op->Name = "=";
+		Op->add(_Operator_);
+		Op->Left_Side_Token = new Token(*Str_Ptr);
+		Op->Right_Side_Token = new Token(*Str_Word);
+		Op->Left_Non_Operative_Token = new Token(*Str_Ptr);
+		Op->Right_Non_Operative_Token = new Token(*Str_Word);
+		Op->Context = Context;
+		//save the operattor
+		Global_Data.push_back(Op);
+
+		//now return the S pointter
+		Output.push_back(new Token(*Str_Ptr));
+
+		//clean the remnant of the original string
+		Input.erase(Input.begin() + i);
 	}
 	if (Input.at(i).Value == "$")
 	{

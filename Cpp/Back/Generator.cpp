@@ -196,11 +196,11 @@ void Generator::Detect_Function(Token* t)
 			t->Name = t->Name;
 		ir->Parameters.push_back(t);
 
-		for (Token* t : t->Left_Side_Token->Childs)
+		for (Token* i : t->Left_Side_Token->Childs)
 		{
 			Generator g;
 			g.Types = Types;
-			g.Input.push_back(t);
+			g.Input.push_back(i);
 			g.Factory();
 
 			Append(&Output, g.Output);
@@ -212,7 +212,7 @@ void Generator::Detect_Function(Token* t)
 				push->Parameters.push_back(g.Handle);
 			}
 			else {
-				push->Parameters.push_back(t);
+				push->Parameters.push_back(i);
 			}
 			Output.push_back(push);
 		}

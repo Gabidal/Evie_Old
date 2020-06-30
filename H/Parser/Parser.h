@@ -21,6 +21,8 @@ public:
     vector<Token*> Defined_Keywords;
     vector<Token*> Defined_Local_Keywords;
     string Update_Dir(string File_Name);
+    void Append(vector<Token*>* Dest, vector<Token*> Source);
+    void Append(vector<Component>* Dest, vector<Component> Source);
     void Factory();    Parser& operator=(const Parser& other)
     {
         //Working_Dir = other.Working_Dir;
@@ -62,8 +64,6 @@ private:
     void Check_For_Correlation(int i);
     void Check_For_Correlation_Link(int i);
     void Check_For_Preprosessor(int i);
-    void Append(vector<Token*>* Dest, vector<Token*> Source);
-    void Append(vector<Component>* Dest, vector<Component> Source);
     //update the line number by detecting "\n"
     void Update_Line_Number(Component& t);
     //the Token.h constructor get the global line_number

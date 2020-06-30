@@ -1,4 +1,5 @@
-;analyzesection .text
+;analyze
+section .text
 
 extern _GetStdHandle@4
 extern _WriteConsoleA@20
