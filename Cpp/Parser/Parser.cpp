@@ -970,7 +970,13 @@ void Parser::Init_Variable(int i)
 		for (Token* t : Global_Data)
 			if (t->Right_Side_Token->is(_String_))
 				if (t->Right_Side_Token->Name == Input.at(i).Value) {
-					Output.push_back(t->Left_Side_Token);
+					Token* tmp = new Token(*t->Left_Side_Token);
+					if (Input[i].IsGivingAddress)
+						tmp->_Give_String_Address_ = true;
+					else
+						tmp->_Give_String_Address_ = false;
+
+					Output.push_back(tmp);
 					return;
 				}
 
@@ -985,7 +991,7 @@ void Parser::Init_Variable(int i)
 		Str_Word->Size = _SYSTEM_BIT_TYPE;
 		Str_Word->Types.push_back("string");
 		Str_Word->Context = Context;
-
+		
 		//now make the string global variable pointter
 		//string a = Str_Word
 		Token* Str_Ptr = new Token;
