@@ -965,6 +965,16 @@ void Parser::Init_Variable(int i)
 		Output.push_back(Str);
 	}
 	else if (Input[i].is(STRING_COMPONENT)) {
+
+		//first start to find if this same stirng is already defined
+		for (Token* t : Global_Data)
+			if (t->Right_Side_Token->is(_String_))
+				if (t->Right_Side_Token->Name == Input.at(i).Value) {
+					Output.push_back(t->Left_Side_Token);
+					return;
+				}
+
+
 		//S1 db "hello World!"
 		//push S1
 		//mov reg, S1
@@ -1015,6 +1025,8 @@ void Parser::Init_Variable(int i)
 
 		//clean the remnant of the original string
 		Input.erase(Input.begin() + i);
+		if (Input.size() == 0)
+			return;
 	}
 	if (Input.at(i).Value == "$")
 	{
