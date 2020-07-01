@@ -14,6 +14,7 @@ private:
     vector<string> Avoid_Duplication_On_Inheritance;
     vector<string> Avoid_Duplication_On_Cache_Usation;
     vector<string> Avoid_Duplication_On_Loyal_Usation;
+    vector<string> Avoid_Duplication_On_Member_Listing;
 public:
     vector<IR*> Input;
     vector<IR*> Output;

@@ -6,8 +6,8 @@ Test::Test()
 	Input.push_back({ "Parser", {"Prototype", "type int"} });
 	Input.push_back({ "Parser", {"Size", "type int(){size 123}"} });
 	//type int()(size 4)\n type test()( size (int a\n int b\n int c))\n int main()(test me\n me.a = 123)
-	Input.push_back({ "Parser", {"Member", "type int()(size 4)\n type test()( size (int a\n int b\n int c))\n int main()(test me\n me.b)"} });
-	Input.push_back({ "Parser", {"Member", "type int()(size 4)\n type test()( size (int a\n int b\n int c))\n int main()(test ptr me\n me.c)"} });
+	Input.push_back({ "Parser", {"Member", "type int()(size 4)\n type foo()( size (int x\n int y\n int z))\n type test()( size( foo a\n foo b\n foo z)) int main()(test ptr me\n me.b.x)"} });
+	Input.push_back({ "Parser", {"Member", "type int()(size 4)\n type foo()( size (int x\n int y\n int z))\n type test()( size( foo a\n foo b\n foo z)) int main()(test me\n me.b.x)"} });
 	for (int i = 0; i < Input.size(); i++) {
 		Parser_Constructors(i);
 		Parser_Prototypes(i);
@@ -143,9 +143,13 @@ void Test::Parser_Members(int i)
 				}
 			if (me.Offsetter != nullptr) {
 				Report_Behaviour(i, "Object did contain the member offset " + me.Offsetter->Name, true);
+				if (me.Offsetter->Name == "16")
+					Report_Behaviour(i, "Offsetting value is correct. ", true);
+				else
+					Report_Behaviour(i, "Offsetting value is not correct!", false);
 				if (me.is(_Pointting_))
 					Report_Behaviour(i, "Member fetching is called by ptr.", true);
-				else if (me.is(_Array_))
+				else if (me._Has_Member_)
 					Report_Behaviour(i, "Member fetching is called directly.", true);
 			}
 			else

@@ -67,21 +67,31 @@ void Safe::Get_Token_Info(Token* t, string name, int layer){
     if (t == nullptr || t->Size == 0){
         cout << tab << name << ": " << Get_Keyword_Info(name) << endl;
         return;
-    }
+    }    
+
     cout << tab << t->Name << " { " << endl;
-    cout << tab << "  " << "In '" << Context << "' at line " << t->Line_Number << endl;
-    cout << tab << "  " << "Size is " << (float)t->Size * 8 << " bits" << endl;
-    cout << tab << "  " << "State is " << Get_State_Info(t) << "." << endl;
-    cout << tab << "  " << "Inheritting { " << endl;
-    for (string s : t->Types)
-        Get_Token_Info(Find(s), s, layer + 2);
-    cout << tab << "  }" << endl;
-    if (t->Defined_Local_Types.size() > 0) {
-        cout << tab << "  " << "Members {" << endl;
-        for (Token* m : t->Defined_Local_Types)
-            Get_Token_Info(m, m->Name, layer + 2);
+    bool No_Need_For_Type_Tell = false;
+    for (string s : Avoid_Duplication_On_Member_Listing)
+        if (s == (t->Name + "_" + t->Types[0]))
+            No_Need_For_Type_Tell = true;
+    if (!No_Need_For_Type_Tell) {
+        cout << tab << "  " << "In '" << Context << "' at line " << t->Line_Number << endl;
+        cout << tab << "  " << "Size is " << (float)t->Size * 8 << " bits" << endl;
+        cout << tab << "  " << "State is " << Get_State_Info(t) << "." << endl;
+        cout << tab << "  " << "Inheritting { " << endl;
+        for (string s : t->Types)
+            Get_Token_Info(Find(s), s, layer + 2);
         cout << tab << "  }" << endl;
+        if (t->Defined_Local_Types.size() > 0) {
+            cout << tab << "  " << "Members {" << endl;
+            for (Token* m : t->Defined_Local_Types)
+                Get_Token_Info(m, m->Name, layer + 2);
+            cout << tab << "  }" << endl;
+        }
     }
+    else
+        cout << tab << "  " << "This info has been already given." << endl;
+    Avoid_Duplication_On_Member_Listing.push_back(t->Name + "_" + t->Types[0]);
     cout << tab << "}" << endl;
     return;
 }

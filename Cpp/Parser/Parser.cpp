@@ -398,7 +398,8 @@ void Parser::Init_Member_Reaching(int i)
 	Token* Result = p.Output.back();
 	//give it the right size
 	Result->Hidden_Size = object->Size;
-	Result->Size = _SYSTEM_BIT_TYPE;
+	if (Result->is("ptr"))
+		Result->Size = _SYSTEM_BIT_TYPE;
 	//give it the right stack offset
 	//make the offsetter token
 	Token* offsetter = new Token;
@@ -408,8 +409,7 @@ void Parser::Init_Member_Reaching(int i)
 	Result->Offsetter = offsetter;
 	if (Result->is("ptr"))
 		Result->add(_Pointting_);
-	else
-		Result->_Has_Member_ = true;
+	Result->_Has_Member_ = true;
 	//the object that remainds is the final member we want!
 	//now that we have the 
 	Output.push_back(new Token(*Result));
@@ -795,8 +795,12 @@ void Parser::Type_Definition(int i)
 void Parser::Set_Right_Stack_Offset(Token* t)
 {
 	//the stack place giver
-	if (Inside_Of_Constructor || Inside_Of_Class)
-		t->StackOffset = Local_Stack_Offest + t->Size;
+	if (Inside_Of_Constructor || Inside_Of_Class) {
+		if (t->is("ptr"))
+			t->StackOffset = Local_Stack_Offest + _SYSTEM_BIT_TYPE;
+		else
+			t->StackOffset = Local_Stack_Offest + t->Size;
+	}
 	else if (Inside_Of_Constructor_As_Parameter)
 		t->StackOffset = (_SYSTEM_BIT_TYPE * 2) + Local_Stack_Offest;
 	else

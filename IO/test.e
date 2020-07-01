@@ -19,7 +19,7 @@ type test(){
 }
 
 func main() {
-    test me 
-    me.c.x = 2
+    test ptr me
+    me.b.y = 2
     return 0
 }
