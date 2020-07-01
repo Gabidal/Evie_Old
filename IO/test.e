@@ -1,17 +1,25 @@
-type int(){
+type int()(
     size 4
+)
+
+type foo(){
+    size (
+        int x
+        int y
+        int z
+    )
 }
 
-type banana(){
+type test(){
     size (
-        int a
-        int b
-        int c
+        foo a
+        foo b
+        foo c
     )
 }
 
 func main() {
-    banana ptr b
-    b.c = 2
+    test me 
+    me.c.x = 2
     return 0
 }

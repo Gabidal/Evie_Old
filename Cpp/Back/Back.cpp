@@ -88,8 +88,8 @@ string Back::Get_Info_Of(Token* t)
 	else if (t->Offsetter != nullptr)
 	{
 		if (t->_Has_Member_) {
-			//[(ebp-4)+offsetter]
-			return S->Get_ID(to_string(_SYSTEM_BIT_TYPE), "", { _SYSTEM_BIT_TYPE }) + "[" + Get_Address(t) +
+			//[ebp-offsetter]
+			return S->Get_ID(to_string(_SYSTEM_BIT_TYPE), "", { _SYSTEM_BIT_TYPE }) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 				Get_Direction(t) + Get_Handler(t->Offsetter) + "]";
 		}
 		else if (t->is(_Pointting_))

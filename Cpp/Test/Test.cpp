@@ -5,10 +5,14 @@ Test::Test()
 	Input.push_back({ "Parser", {"Constructor", "type int()\n{}"} });
 	Input.push_back({ "Parser", {"Prototype", "type int"} });
 	Input.push_back({ "Parser", {"Size", "type int(){size 123}"} });
+	//type int()(size 4)\n type test()( size (int a\n int b\n int c))\n int main()(test me\n me.a = 123)
+	Input.push_back({ "Parser", {"Member", "type int()(size 4)\n type test()( size (int a\n int b\n int c))\n int main()(test me\n me.b)"} });
+	Input.push_back({ "Parser", {"Member", "type int()(size 4)\n type test()( size (int a\n int b\n int c))\n int main()(test ptr me\n me.c)"} });
 	for (int i = 0; i < Input.size(); i++) {
 		Parser_Constructors(i);
 		Parser_Prototypes(i);
 		Parser_Size(i);
+		Parser_Members(i);
 	}
     Print_Results();
 }
@@ -115,4 +119,42 @@ void Test::Parser_Size(int i)
 	else
 		Report_Behaviour(i, "Defined_Keywords did contain made class size " + to_string(p.Defined_Keywords[0]->Size) + ".", true);
 	//[-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-]
+}
+
+void Test::Parser_Members(int i)
+{
+	if (Input[i].first != "Parser")
+		return;
+	if (Input[i].second.first != "Member")
+		return;
+	//type int()(size 4)\n type test()( size (int a\n int b\n int c))\n int main()(test me\n me.a = 123)
+	Parser p;
+	p.Input = Lexer::GetComponents(Input[i].second.second);
+	p.Factory();
+	//[-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-]
+	if (Find("main", p.Output) != nullptr) {
+		vector<Token*> local_variables = Find("main", p.Output)->Right_Side_Token->Childs;
+		if (Find("me", local_variables) != nullptr) {
+			Token me;
+			for (Token* j : local_variables)
+				if ((j->Name == "me") && (j->Offsetter != nullptr)) {
+					me = *j;
+					break;
+				}
+			if (me.Offsetter != nullptr) {
+				Report_Behaviour(i, "Object did contain the member offset " + me.Offsetter->Name, true);
+				if (me.is(_Pointting_))
+					Report_Behaviour(i, "Member fetching is called by ptr.", true);
+				else if (me.is(_Array_))
+					Report_Behaviour(i, "Member fetching is called directly.", true);
+			}
+			else
+				Report_Behaviour(i, "Object offsetter was nullptr!", false);
+		}
+		else
+			Report_Behaviour(i, "Object could not be created!", false);
+	}
+	else
+		Report_Behaviour(i, "Main function could not be made!", false);
+
 }

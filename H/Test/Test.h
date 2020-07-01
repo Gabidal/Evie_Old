@@ -39,6 +39,7 @@ private:
 	void Parser_Constructors(int i);
 	void Parser_Prototypes(int i);
 	void Parser_Size(int i);
+	void Parser_Members(int i);
 
 };
 

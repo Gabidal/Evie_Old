@@ -363,13 +363,24 @@ void Parser::Init_Member_Reaching(int i)
 	Token* object = Find(Route_To_Member.at(0).Value, Defined_Keywords);
 	vector<Token*> Types = object->Defined_Local_Types;
 
+
+	//this is my lecasy boyyss, sin for life
 	int StackOffset = 0;
+	int Previus_Stack_Offset = 0;
+	bool up = false;
 
 	for (int j = 1; j < Route_To_Member.size(); j++) {
 		object = Find(Route_To_Member.at(j).Value, Types);
-		StackOffset += object->StackOffset - _SYSTEM_BIT_TYPE;
+		if (up)
+			StackOffset -= Previus_Stack_Offset - object->StackOffset;
+		else
+			StackOffset += object->StackOffset;
 		Types = object->Defined_Local_Types;
+		up = !up;
+		Previus_Stack_Offset = object->Size;
 	}
+
+
 	//save the giving address
 	Route_To_Member.back().IsGivingAddress = Input.at(i).IsGivingAddress;
 	//first lets make a copy of the last member's data of pointter/arrays
@@ -391,11 +402,14 @@ void Parser::Init_Member_Reaching(int i)
 	//give it the right stack offset
 	//make the offsetter token
 	Token* offsetter = new Token;
-	offsetter->Name = to_string(StackOffset + Master->StackOffset - Result->StackOffset);
+	offsetter->Name = to_string(StackOffset);
 	offsetter->add(_Number_);
 	offsetter->Size = _SYSTEM_BIT_TYPE;
 	Result->Offsetter = offsetter;
-	Result->add(_Pointting_);
+	if (Result->is("ptr"))
+		Result->add(_Pointting_);
+	else
+		Result->_Has_Member_ = true;
 	//the object that remainds is the final member we want!
 	//now that we have the 
 	Output.push_back(new Token(*Result));
@@ -751,6 +765,7 @@ void Parser::Type_Definition(int i)
 						New_Defined_Text->add(t->get());
 						New_Defined_Text->Types = t->Types;
 						New_Defined_Text->add(_Combined_);
+						New_Defined_Text->Defined_Local_Types = t->Defined_Local_Types;
 						if (New_Defined_Text->is(_Constructor_))
 							t->Left_Side_Token = New_Defined_Text->Left_Side_Token;
 						break;
@@ -781,7 +796,7 @@ void Parser::Set_Right_Stack_Offset(Token* t)
 {
 	//the stack place giver
 	if (Inside_Of_Constructor || Inside_Of_Class)
-		t->StackOffset = Local_Stack_Offest + 4;
+		t->StackOffset = Local_Stack_Offest + t->Size;
 	else if (Inside_Of_Constructor_As_Parameter)
 		t->StackOffset = (_SYSTEM_BIT_TYPE * 2) + Local_Stack_Offest;
 	else
@@ -790,8 +805,10 @@ void Parser::Set_Right_Stack_Offset(Token* t)
 	if (Inside_Of_Constructor || Inside_Of_Constructor_As_Parameter || Inside_Of_Class) {
 		if (t->is("ptr"))
 			Local_Stack_Offest += _SYSTEM_BIT_TYPE;
+		else if (Inside_Of_Constructor_As_Parameter)
+			Local_Stack_Offest = t->StackOffset - (_SYSTEM_BIT_TYPE * 2);
 		else
-			Local_Stack_Offest += t->Size;
+			Local_Stack_Offest = t->StackOffset;
 	}
 	else {
 		if (t->is("ptr"))
