@@ -28,7 +28,7 @@ type test(){
 
 func main() {
     test ptr me
-    int ptr a = @me.b.y.j
+    int ptr a = @me.a.x.i
     a[1] = 2
     return 0
 }

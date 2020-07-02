@@ -699,6 +699,9 @@ void Generator::Detect_Pointters(Token* t)
 	Offsetter_Register->Offsetter = new Token(*Offsetter);
 	Offsetter_Register->add(_Pointting_);
 
+	//we want to tell the compiler that pointters use the + route guing up
+	Offsetter_Register->_Located_At_Heap_ = true;
+
 
 	//if the main parent is a parameter the children arent so lets give em
 	if (t->is(_Parameter_))

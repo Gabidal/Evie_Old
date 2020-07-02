@@ -6,7 +6,7 @@ string Context = "";
 
 string Back::Get_Direction(Token* t)
 {
-	if (t->is(_Parameter_))
+	if (t->is(_Parameter_) || t->_Located_At_Heap_)
 	{
 		return " + ";
 	}
@@ -89,7 +89,12 @@ string Back::Get_Info_Of(Token* t)
 	{
 		if (t->_Has_Member_) {
 			//[ebp-offsetter]
-			return S->Get_ID(to_string(_SYSTEM_BIT_TYPE), "", { _SYSTEM_BIT_TYPE }) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
+			if (t->is(_Pointting_))
+				//[reg-offsetter]
+				return S->Get_ID(to_string(_SYSTEM_BIT_TYPE), "", { _SYSTEM_BIT_TYPE }) + "[" + Get_Handler(t) +
+				Get_Direction(t) + Get_Handler(t->Offsetter) + "]";
+			else
+				return S->Get_ID(to_string(_SYSTEM_BIT_TYPE), "", { _SYSTEM_BIT_TYPE }) + "[" + S->Get_Right_Reg(Task_For_Type_Address_Basing, _SYSTEM_BIT_TYPE)->Name +
 				Get_Direction(t) + Get_Handler(t->Offsetter) + "]";
 		}
 		else if (t->is(_Pointting_))

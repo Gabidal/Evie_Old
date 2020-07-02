@@ -70,6 +70,7 @@ class Token : public Object
     bool _IS_ASM_INCLUDE_ = false;
     bool _Give_String_Address_ = false;
     bool _RAW_STRING_ = false;
+    bool _Located_At_Heap_ = false;
     Token* Left_Side_Token = nullptr;
     Token* Right_Side_Token = nullptr; 
     Token* Offsetter = nullptr;// also as the offsetter in array

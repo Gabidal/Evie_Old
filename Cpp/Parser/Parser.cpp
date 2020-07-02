@@ -381,7 +381,11 @@ void Parser::Init_Member_Reaching(int i)
 		Previus_Stack_Offset = object->Size;
 	}*/
 
-	int StackOffset = Master->StackOffset;	//align the with the masters stackoffset
+	int StackOffset;
+	if (Master->is("ptr"))
+		StackOffset = Master->Size;	//align the with the masters stackoffset
+	else
+		StackOffset = Master->StackOffset;
 	//stakki on 108
 	int Parent_Size = Master->Size;
 
