@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
     Init_Pre_Defined_Tokens();
 
     //testsweetter
-    Test t;
+    //Test t;
     //end of testsweetter
 
     Parser p;

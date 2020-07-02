@@ -675,6 +675,7 @@ void Generator::Detect_Pointters(Token* t)
 	Offsetter->StackOffset = t->StackOffset;
 	Offsetter_Register->Size = t->Size;
 	Offsetter_Register->Hidden_Size = t->Hidden_Size;
+	Offsetter_Register->_Has_Member_ = t->_Has_Member_;
 	//Offsetter_Register->Name_Of_Same_Using_Register = t->Name_Of_Same_Using_Register;
 
 	//mov sec_reg, [a]

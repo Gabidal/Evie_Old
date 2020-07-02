@@ -2,11 +2,19 @@ type int()(
     size 4
 )
 
+type baz(){
+    size (
+        int i
+        int j
+        int k
+    )
+}
+
 type foo(){
     size (
-        int x
-        int y
-        int z
+        baz x
+        baz y
+        baz z
     )
 }
 
@@ -19,7 +27,7 @@ type test(){
 }
 
 func main() {
-    test ptr me
-    me.b.y = 2
+    test me
+    me.b.z.i = 2
     return 0
 }

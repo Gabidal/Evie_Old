@@ -400,6 +400,8 @@ void Parser::Init_Member_Reaching(int i)
 	Result->Hidden_Size = object->Size;
 	if (Result->is("ptr"))
 		Result->Size = _SYSTEM_BIT_TYPE;
+	else
+		Result->Size = object->Size;
 	//give it the right stack offset
 	//make the offsetter token
 	Token* offsetter = new Token;
