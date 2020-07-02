@@ -362,10 +362,11 @@ void Parser::Init_Member_Reaching(int i)
 	Token* Master = Find(Route_To_Member.at(0).Value, Defined_Keywords);
 	Token* object = Find(Route_To_Member.at(0).Value, Defined_Keywords);
 	vector<Token*> Types = object->Defined_Local_Types;
+	//vector<Token*> Types = Defined_Keywords;
 
 
-	//this is my lecasy boyyss, sin for life
-	int StackOffset = 0;
+	//this is my legacy boyyss, sin for life
+	/*int StackOffset = 0;
 	int Previus_Stack_Offset = 0;
 	bool up = false;
 
@@ -378,11 +379,23 @@ void Parser::Init_Member_Reaching(int i)
 		Types = object->Defined_Local_Types;
 		up = !up;
 		Previus_Stack_Offset = object->Size;
+	}*/
+
+	int StackOffset = Master->StackOffset;	//align the with the masters stackoffset
+	//stakki on 108
+	int Parent_Size = Master->Size;
+
+	for (int j = 1; j < Route_To_Member.size(); j++) {
+		object = Find(Route_To_Member.at(j).Value, Types);
+		StackOffset -= Parent_Size - object->StackOffset;
+		Types = object->Defined_Local_Types;
+		Parent_Size = object->Size;
 	}
 
 
 	//save the giving address
 	Route_To_Member.back().IsGivingAddress = Input.at(i).IsGivingAddress;
+
 	//first lets make a copy of the last member's data of pointter/arrays
 	Input.at(i) = Route_To_Member.back();
 	//now lets name it as master x so that the variable creator can access to is data

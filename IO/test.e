@@ -5,7 +5,7 @@ type int()(
 type baz(){
     size (
         int i
-        int j
+        int ptr j
         int k
     )
 }
@@ -27,7 +27,8 @@ type test(){
 }
 
 func main() {
-    test me
-    me.b.z.i = 2
+    test ptr me
+    int ptr a = @me.b.y.j
+    a[1] = 2
     return 0
 }

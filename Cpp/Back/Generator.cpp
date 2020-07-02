@@ -696,7 +696,7 @@ void Generator::Detect_Pointters(Token* t)
 	Main_Handle->StackOffset = t->StackOffset;
 	Main_Handle->Size = t->Size;
 
-	Offsetter_Register->Offsetter = Offsetter;
+	Offsetter_Register->Offsetter = new Token(*Offsetter);
 	Offsetter_Register->add(_Pointting_);
 
 
@@ -710,8 +710,8 @@ void Generator::Detect_Pointters(Token* t)
 		Main_Load->ID = ":";
 	else
 		Main_Load->ID = "ldr";
-	Main_Load->Parameters.push_back(Main_Handle);
-	Main_Load->Parameters.push_back(Offsetter_Register);
+	Main_Load->Parameters.push_back(new Token(*Main_Handle));
+	Main_Load->Parameters.push_back(new Token(*Offsetter_Register));
 
 	Output.push_back(Main_Load);
 
