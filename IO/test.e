@@ -1,34 +1,54 @@
-type int()(
-    size 4
-)
+$use "cstd.e"
 
-type baz(){
-    size (
-        int i
-        int ptr j
-        int k
-    )
+type foo(){
+    int m
+    int n
+}
+
+#inherit foo members into baz
+foo baz(){
+    int i
+    int ptr j
+    int k
 }
 
 type foo(){
-    size (
-        baz x
-        baz y
-        baz z
-    )
+    baz x
+    baz y
+    baz z
 }
 
 type test(){
-    size (
-        foo a
-        foo b
-        foo c
-    )
+    int size
+    foo a
+    foo b
+    foo c
+    func get
+}
+
+#all the member functions need to be copyed into the newly made object
+test.get(test ptr this){
+    return @this.a.x.m
+}
+
+test.size(test ptr this){
+    return this.size
+}
+
+$replace(test ptr this, operator =, test ptr other){
+    memcpy(this[0], other[0], this.size())
 }
 
 func main() {
-    test ptr me
-    int ptr a = @me.a.x.i
-    a[1] = 2
-    return 0
+    test first
+    int ptr a = first.get(@first)
+    #if the other side of the operator is also an ptr then use the mem of variable a
+    #otherwise load the address of that ptr a points to and do the operator to it
+    a = 2 + 1
+    if (a == 2){
+        return first.get(@first)
+    }
+    #the replace will replace this by memcpy()
+    test second = first
+    return second.get(@second)
 }
