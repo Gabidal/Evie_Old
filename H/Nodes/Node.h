@@ -11,6 +11,7 @@ class Node
 {
 	//test ptr a
 public:
+	Node() {};
 	Node(long type) : Type(type){}
 	~Node(){}
 	string Name = "";

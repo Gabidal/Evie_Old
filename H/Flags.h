@@ -14,7 +14,7 @@ namespace Flags{
 	constexpr long TEXT_COMPONENT		 = 1 << 8;
 }
 
-enum Type {
+enum Node_Type {
 	CONTENT_NODE,
 	ELSE_IF_NODE,
 	ELSE_NODE,

@@ -12,7 +12,6 @@ public:
 	Node* Prefix = nullptr;
 	//int ptr
 	Node* Return_Type = nullptr;
-
 private:
 
 };

@@ -72,7 +72,7 @@ void Docker::Separate_Identification_Patterns(vector<Component> Tokens)
 	//try to find operattor that contains rightsided 
 	//string for regexing and left side for type info
 	for (int i = 0; i < Tokens.size(); i++) {
-		if (Tokens.at(i).Value == "=" && (Tokens.at(i + 1).is(STRING_COMPONENT))) {
+		if (Tokens.at(i).Value == "=" && (Tokens.at(i + 1).is(Flags::STRING_COMPONENT))) {
 			Types.push_back({ Tokens.at(i - 2).Value, Tokens.at(i + 1).Value.substr(1, Tokens.at(i + 1).Value.size() - 2) });
 			Tokens.erase(Tokens.begin() + i - 2, Tokens.begin() + i + 2);
 			i--;
@@ -135,12 +135,13 @@ void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
 {
 	//import loyal func [name]()()
 	//import generic func [name]()()
-	for (auto i : symbols) {
+	/*for (auto i : symbols) {
 		if (i.second != "func")
 			Append(Output, Lexer::GetComponents("import " + i.second + " func " + Mangler::Un_Mangle(i.first) + "() \n"));
 		else
 			Append(Output, Lexer::GetComponents("import " + i.second + " " + Mangler::Un_Mangle(i.first) + "() \n"));
 	}
+	*/
 }
 
 void Docker::Append(vector<Component>& Dest, vector<Component> Source)

@@ -11,8 +11,8 @@ using namespace std;
 class Scope_Node : public Node
 {
 public:
-	Parent_Node(){}
-	~Parent_Node(){}
+	Scope_Node(){}
+	~Scope_Node(){}
 	
 	//for AST
 	Content_Node Parameters;
