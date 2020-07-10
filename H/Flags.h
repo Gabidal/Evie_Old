@@ -12,13 +12,24 @@ namespace Flags{
 	constexpr long COMMENT_COMPONENT	 = 1 << 6;
 	constexpr long OPERATOR_COMPONENT	 = 1 << 7;
 	constexpr long TEXT_COMPONENT		 = 1 << 8;
-	//more complex flags
-	constexpr long GIVING_ADDRESS_COMPONENT = 1 << 9;
-	constexpr long ARRAY_OPERATOR_COMPONENT = 1 << 10;
-	constexpr long FUNCTION_CALL_COMPONENT = 1 << 11;
-	//the while loopper and the iffer are int the same, while loopper just has the jmp in the end
-	//while ID is located in the NAME member in Node.h
-	constexpr long CONDITION_COMPONENT = 1 << 12;
 }
+
+enum Type {
+	CONTENT_NODE,
+	ELSE_IF_NODE,
+	ELSE_NODE,
+	IF_NODE,
+	FUNCTION_NODE,
+	FLOW_NODE,
+	PTR_NODE,
+	WHILE_NODE,
+	NUMBER_NODE,
+	OPERATOR_NODE,
+	STRING_NODE,
+	CLASS_NODE,
+	OBJECT_NODE,
+	ANY,
+	TEMPLATE_NODE
+};
 
 #endif

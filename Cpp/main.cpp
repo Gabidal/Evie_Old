@@ -108,7 +108,6 @@ int main(int argc, char* argv[])
     //p.Working_Dir = start_file;
     p.Factory();
 
-
     ofstream o(sys->Info.Destination_File.c_str());
     o << OUTPUT;//b.Output;
     o.close();
