@@ -55,7 +55,7 @@ func main() {
 
     #the copy of the object into heap
     test ptr third = new(first)
-
+    
     #the reference of the first object
     test ptr fourth = first
 

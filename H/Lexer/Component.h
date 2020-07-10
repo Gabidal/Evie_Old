@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "Position.h"
+#include "../Nodes/Node.h"
 using namespace std;
 
 class Component 
@@ -14,7 +15,7 @@ public:
     vector<Component> Components; // Tokens
     Component(string value, long flags) : Value(value), Flags(flags) {}
     Component(string value, const Position& position, long flags) : Value(value), Location(position), Flags(flags) {}
-
+    Node* node = nullptr;
     bool is(long flag)
     {
         return (Flags & flag) == flag;

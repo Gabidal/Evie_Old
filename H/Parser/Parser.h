@@ -6,6 +6,7 @@
 #include "../Nodes/NODES.h"
 
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -20,6 +21,7 @@ public:
 	Node* Is_Defined(string name, Scope_Node* p);
 	void Definition_Pattern(int i);
 	void Paranthesis_Pattern(int i);
+	void Math_Pattern(int i, vector<string> Operator);
 	void Factory();
 private:
 

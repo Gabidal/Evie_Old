@@ -74,6 +74,44 @@ void Parser::Paranthesis_Pattern(int i)
 	return;
 }
 
+void Parser::Math_Pattern(int i, vector<string> Operators)
+{
+	//a = b + c * d
+	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
+		return;
+	if (i - 1 < 0)
+		return;
+	if (((size_t)i + 1) > Input.size())
+		return;
+	bool op_Pass = false;
+	for (string s : Operators)
+		if (Input[i].Value == s)
+			op_Pass = true;
+	if (!op_Pass)
+		return;
+
+	Operator_Node Operator;
+	Operator.Name = Input[i].Value;
+
+	if (Input[(size_t)i - 1].node != nullptr)
+		Operator.Left_Side_Nodes = Input[(size_t)i - 1].node;
+	else
+		cout << "Error: Left side Of operator " << Input[i].Value << " is not Initialized!" << endl;
+
+	if (Input[(size_t)i + 1].node != nullptr)
+		Operator.Right_Side_Nodes = Input[(size_t)i + 1].node;
+	else
+		cout << "Error: Right side Of operator " << Input[i].Value << " is Initialized!" << endl;
+
+	Input[i].node = new Operator_Node(Operator);
+	Input.erase(Input.begin() + i - 1);
+	Input.erase(Input.begin() + i + 1);
+
+	if (Input[i].is(Flags::OPERATOR_COMPONENT))
+		Math_Pattern(i, Operators);
+	return;
+}
+
 void Parser::Factory() {
 
 }
