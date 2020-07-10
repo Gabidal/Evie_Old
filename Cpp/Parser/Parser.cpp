@@ -51,6 +51,27 @@ void Parser::Definition_Pattern(int i)
 	Parent->Defined.push_back(new Object_Node(New_Defined_Object));
 
 	Input.erase(Input.begin() + i, Input.begin() + i + New_Defined_Object.Inheritted.Childs.size() + 1);
+	return;
+}
+
+void Parser::Paranthesis_Pattern(int i)
+{
+	if (!Input[i].is(Flags::PAREHTHESIS_COMPONENT))
+		return;
+	//create an content Node and output it into Parent's childs list.
+	Content_Node Paranthesis;
+	
+	Scope_Node TMP_Parent;
+	Parser TMP_Parser(&TMP_Parent);
+	TMP_Parser.Input = Input[i].Components;
+	TMP_Parser.Factory();
+
+	Paranthesis = TMP_Parent.Childs;
+	Paranthesis.Paranthesis_Type = Input[i].Value[0];
+	Parent->Childs.Childs.push_back(new Content_Node(Paranthesis));
+
+	Input.erase(Input.begin() + i);
+	return;
 }
 
 void Parser::Factory() {

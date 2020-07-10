@@ -10,6 +10,7 @@ public:
 	Content_Node() { Type = CONTENT_NODE; }
 	//for AST
 	vector<Node*> Childs;
+	char Paranthesis_Type = '(';
 private:
 
 };
