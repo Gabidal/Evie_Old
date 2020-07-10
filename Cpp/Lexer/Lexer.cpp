@@ -348,15 +348,15 @@ Component ParseTextComponent(string text)
 {
     if (Exists(Lexer::Operators, text))
     {
-        return Component(text, OPERATOR_COMPONENT);
+        return Component(text, Flags::OPERATOR_COMPONENT);
     }
     else if (Exists(Lexer::Keywords, text))
     {
-        return Component(text, KEYWORD_COMPONENT);
+        return Component(text, Flags::KEYWORD_COMPONENT);
     }
     else
     {
-        return Component(text, TEXT_COMPONENT);
+        return Component(text, Flags::TEXT_COMPONENT);
     }
 }
 
@@ -478,7 +478,7 @@ Component CreateNumberComponent(string text, const Position& position)
         {
             double value = number.value() * pow(10.0, exponent);
 
-            return Component(to_string(value), NUMBER_COMPONENT);
+            return Component(to_string(value), Flags::NUMBER_COMPONENT);
         }
         else
         {
@@ -494,7 +494,7 @@ Component CreateNumberComponent(string text, const Position& position)
         {
             int64_t value = number.value() * (int64_t)pow(10.0, exponent);
 
-            return Component(to_string(value), NUMBER_COMPONENT);
+            return Component(to_string(value), Flags::NUMBER_COMPONENT);
         }
         else
         {
@@ -508,7 +508,7 @@ Component CreateNumberComponent(string text, const Position& position)
 
 Component CreateParenthesisComponent(string text, const Position& position)
 {
-    Component component(text, PAREHTHESIS_COMPONENT);
+    Component component(text, Flags::PAREHTHESIS_COMPONENT);
     component.Components = Lexer::GetComponents(text.substr(1, text.size() - 2));
 
     return component;
@@ -523,15 +523,15 @@ Component ParseComponent(const Area& area, Position& anchor)
     case Type::NUMBER:
         return CreateNumberComponent(area.Text, area.Start);
     case Type::OPERATOR:
-        return Component(area.Text, OPERATOR_COMPONENT);
+        return Component(area.Text, Flags::OPERATOR_COMPONENT);
     case Type::PARENTHESIS:
         return CreateParenthesisComponent(area.Text, anchor += area.Start);
     case Type::END:
-        return Component("\n", END_COMPONENT);
+        return Component("\n", Flags::END_COMPONENT);
     case Type::STRING:
-        return Component(area.Text, STRING_COMPONENT);
+        return Component(area.Text, Flags::STRING_COMPONENT);
     case Type::COMMENT:
-        return Component(area.Text, COMMENT_COMPONENT);
+        return Component(area.Text, Flags::COMMENT_COMPONENT);
     default:
     {
         anchor += area.Start;

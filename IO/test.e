@@ -1,12 +1,12 @@
 $use "cstd.e"
 
-type foo(){
+type bar(){
     int m
     int n
 }
 
 #inherit foo members into baz
-foo baz(){
+bar baz(){
     int i
     int ptr j
     int k
@@ -26,29 +26,38 @@ type test(){
     func get
 }
 
-#all the member functions need to be copyed into the newly made object
-test.get(test ptr this){
-    return @this.a.x.m
+#return the address of the &this.a.x.m
+ptr test.get(test ptr this){
+    return this.a.x.m
 }
 
-test.size(test ptr this){
+#return the size as an 32bit reg
+int test.size(test ptr this){
     return this.size
-}
-
-$replace(test ptr this, operator =, test ptr other){
-    memcpy(this[0], other[0], this.size())
 }
 
 func main() {
     test first
-    int ptr a = first.get(@first)
+
+    #the post prosessing can put the object fetching the function as first parameter
+    int ptr a = first.get()
+
     #if the other side of the operator is also an ptr then use the mem of variable a
     #otherwise load the address of that ptr a points to and do the operator to it
     a = 2 + 1
-    if (a == 2){
-        return first.get(@first)
-    }
-    #the replace will replace this by memcpy()
+
+    #the way to change the pointter value is to manage the offsetter value
+    #you dont want to change the initial value of the pointter just add an offsetter when you use it
+    if (a[1] == 1){}
+
+    #give the content of 'first' to 'second'
     test second = first
-    return second.get(@second)
+
+    #the copy of the object into heap
+    test ptr third = new(first)
+
+    #the reference of the first object
+    test ptr fourth = first
+
+    return second.get()
 }

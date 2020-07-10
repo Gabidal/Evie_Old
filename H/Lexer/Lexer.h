@@ -2,6 +2,7 @@
 #define _LEXER_H_
 
 #include "Component.h"
+#include "..//Flags.h"
 
 namespace Lexer
 {

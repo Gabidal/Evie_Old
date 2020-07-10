@@ -3,35 +3,18 @@ project(Evie)
 
 # Source files:
 FILE(GLOB root Cpp/*.cpp)
-FILE(GLOB interpreter Cpp/Interpreter/*.cpp)
-FILE(GLOB selector Cpp/Selector/*.cpp)
-FILE(GLOB opc Cpp/OpC/*.cpp)
 FILE(GLOB ui Cpp/UI/*.cpp)
-FILE(GLOB back Cpp/Back/*.cpp)
 FILE(GLOB lexer Cpp/Lexer/*.cpp)
 FILE(GLOB parser Cpp/Parser/*.cpp)
-FILE(GLOB emulator Cpp/Emulator/*.cpp)
-FILE(GLOB x86 Cpp/Architecture/x86/*.cpp)
-FILE(GLOB arm Cpp/Architecture/ARM/*.cpp)
 FILE(GLOB Docker Cpp/Docker/*.cpp)
-FILE(GLOB Mangler Cpp/Mangler/*.cpp)
 FILE(GLOB TestSweet Cpp/Test/*.cpp)
 
 # Add source files
 add_executable(${PROJECT_NAME} 
                 ${root} 
-                ${interpreter} 
-                ${selector} 
-                ${opc} 
-                ${ui} 
-                ${back} 
                 ${lexer} 
                 ${parser} 
-                ${emulator} 
-                ${x86} 
-                ${arm}
                 ${Docker}
-                ${Mangler}
                 ${TestSweet}
                 )
                 
