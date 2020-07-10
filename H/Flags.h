@@ -29,7 +29,8 @@ enum Node_Type {
 	CLASS_NODE,
 	OBJECT_NODE,
 	ANY,
-	TEMPLATE_NODE
+	TEMPLATE_NODE,
+	KEYWORD_NODE,
 };
 
 #endif

@@ -5,14 +5,14 @@
 
 #include "Node.h"
 #include "Content_Node.h"
+#include "../Flags.h"
 
 using namespace std;
 
 class Scope_Node : public Node
 {
 public:
-	Scope_Node(){}
-	~Scope_Node(){}
+	using Node::Node;
 	
 	//for AST
 	Content_Node Parameters;

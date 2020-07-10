@@ -4,6 +4,7 @@
 #include "../H/UI/Producer.h"
 #include "../H/UI/Safe.h"
 #include "../H/Test/Test.h"
+#include "../H/Nodes/NODES.h"
 #include <sstream>
 #include <iostream>
 #include <map>
@@ -103,7 +104,10 @@ int main(int argc, char* argv[])
     //Test t;
     //end of testsweetter
 
-    Parser p;
+    Scope_Node Global_Scope;
+    Global_Scope.Name = "GLOBAL_SCOPE";
+
+    Parser p(&Global_Scope);
     p.Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
     //p.Working_Dir = start_file;
     p.Factory();

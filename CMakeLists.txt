@@ -16,6 +16,7 @@ add_executable(${PROJECT_NAME}
                 ${parser} 
                 ${Docker}
                 ${TestSweet}
+                ${ui}
                 )
                 
 set(CMAKE_CXX_STANDARD 17)

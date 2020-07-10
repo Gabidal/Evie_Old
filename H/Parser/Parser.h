@@ -12,11 +12,14 @@ using namespace std;
 class Parser
 {
 public:
-	Parser(){}
+	Parser(Scope_Node* p) : Parent(p){}
 	~Parser(){}
-	vector<string> Defined;
+	Scope_Node* Parent = nullptr;
 	vector<Component> Input;
+	vector<Component> Get_Inheritting_Components(int i);
+	Node* Is_Defined(string name, Scope_Node* p);
 	void Definition_Pattern(int i);
+	void Paranthesis_Pattern(int i);
 	void Factory();
 private:
 

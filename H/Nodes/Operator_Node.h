@@ -2,12 +2,12 @@
 #define _OPERATOR_NODE_H_
 
 #include "Node.h"
+#include "../Flags.h"
 
 class Operator_Node : public Node
 {
 public:
-	Operator_Node(){}
-	~Operator_Node(){}
+	Operator_Node() { Type = OPERATOR_NODE; }
 
 	//for the AST
 	Node* Right_Side_Nodes;
