@@ -20,8 +20,11 @@ public:
 	vector<Component> Get_Inheritting_Components(int i);
 	Node* Is_Defined(string name, Scope_Node* p);
 	void Definition_Pattern(int i);
+	void Object_Pattern(int i);
 	void Paranthesis_Pattern(int i);
 	void Math_Pattern(int i, vector<string> Operator);
+	void Number_Pattern(int i);
+	void Operator_PreFix(int i, vector<string> Prefix);
 	void Factory();
 private:
 

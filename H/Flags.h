@@ -31,6 +31,8 @@ enum Node_Type {
 	ANY,
 	TEMPLATE_NODE,
 	KEYWORD_NODE,
+	PREFIX_NODE,
+	POSTFIX_NODE,
 };
 
 #endif

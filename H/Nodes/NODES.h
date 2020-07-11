@@ -4,3 +4,6 @@
 #include "Object_Node.h"
 #include "Operator_Node.h"
 #include "Scope_Node.h"
+#include "Number_Node.h"
+#include "PostFix_Node.h"
+#include "PreFix_Node.h"

@@ -8,10 +8,11 @@ class Operator_Node : public Node
 {
 public:
 	Operator_Node() { Type = OPERATOR_NODE; }
+	~Operator_Node(){}
 
 	//for the AST
-	Node* Right_Side_Nodes;
-	Node* Left_Side_Nodes;
+	Node* Right_Side_Nodes = nullptr;
+	Node* Left_Side_Nodes = nullptr;
 private:
 
 };
