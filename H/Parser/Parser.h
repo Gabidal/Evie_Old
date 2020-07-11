@@ -27,6 +27,7 @@ public:
 	void String_Pattern(int i);									//"abc"
 	void Operator_PreFix_Pattern(int i, vector<string> Prefix);	//++a/-2123/-(a-b)/-b()
 	void Callation_Pattern(int i);								//b(a, b, c, d)
+	void Array_Pattern(int i);									//a[1]/b[a]
 	void Factory();
 private:
 

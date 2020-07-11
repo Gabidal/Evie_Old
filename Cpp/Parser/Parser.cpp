@@ -230,6 +230,30 @@ void Parser::Callation_Pattern(int i)
 	return;
 }
 
+void Parser::Array_Pattern(int i)
+{
+	//<summary>
+	//find paranthesis with signature of '[' and put it into Input[i]
+	//Notice!!! The paranthesis must be initialized before this unition of array operation!!!
+	//</summary>
+	if (!Input[i].is(Flags::TEXT_COMPONENT))
+		return;
+	if (!Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
+		return;
+	if (((Content_Node*)Input[(size_t)i + 1].node)->Paranthesis_Type != '[')
+		return;
+
+	Operator_Node* arr = new Operator_Node;
+	*arr->Left_Side_Nodes = *Input[i].node;
+	*arr->Right_Side_Nodes = *Input[(size_t)i + 1].node;
+	arr->Name = "[]";
+
+	Input[i].node = arr;
+
+	Input.erase(Input.begin() + i + 1);
+	return;
+}
+
 void Parser::Factory() {
 
 }
