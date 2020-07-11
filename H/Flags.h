@@ -34,6 +34,7 @@ enum Node_Type {
 	KEYWORD_NODE,
 	PREFIX_NODE,
 	POSTFIX_NODE,
+	OBJECT_DEFINTION_NODE
 };
 
 #endif

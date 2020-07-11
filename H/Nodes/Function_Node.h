@@ -8,10 +8,8 @@ class Function_Node : public Scope_Node
 {
 public:
 	Function_Node() { Type = FUNCTION_NODE; }
-	//import loyal
-	Node* Prefix = nullptr;
-	//int ptr
-	Node* Return_Type = nullptr;
+	//import loyal ptr int
+	vector<string> behavior;
 private:
 
 };

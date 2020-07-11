@@ -10,6 +10,26 @@ Node* Parser::Is_Defined(string name, Scope_Node* p)
 	return nullptr;
 }
 
+vector<int> Parser::Get_Amount_Of(int i, long Flag)
+{
+	//<summary>
+	//check from the index to next and counts-
+	//how many componets match the flag given
+	//</summary>
+	vector<int> Indexes;
+	for (; i < Input.size(); i++) {
+		if (Input[i].is(Flag))
+			Indexes.push_back(i);
+		else
+			if  (Input[i].is(Flags::END_COMPONENT) || 
+				(Input[i].is(Flags::COMMENT_COMPONENT)))
+				continue;
+			else
+				break;
+	}
+	return Indexes;
+}
+
 vector<Component> Parser::Get_Inheritting_Components(int i)
 {
 	//import int ptr func a
@@ -35,29 +55,29 @@ void Parser::Definition_Pattern(int i)
 	if (!(Input[i + Get_Inheritting_Components(i).size() + 1].is(Flags::TEXT_COMPONENT)))
 		return;
 	//type a
-	Content_Node Inheritted;
+	vector<string> Inheritted;
 
 	for (int j = 0; j < Get_Inheritting_Components(i).size(); j++) {
 		if (Input[(size_t)i + j].is(Flags::KEYWORD_COMPONENT)) {
 			Node keyword(KEYWORD_NODE);
 			keyword.Name	= Input[(size_t)i + j].Value;
 			keyword.Parent	= Parent;
-			Inheritted.Childs.push_back(new Node(keyword));
+			Inheritted.push_back(keyword.Name);
 		}
 		else {
-			Inheritted.Childs.push_back(Is_Defined(Input[(size_t)i + j].Value, Parent));
+			Inheritted.push_back(Is_Defined(Input[(size_t)i + j].Value, Parent)->Name);
 		}
 	}
 
-	Object_Node New_Defined_Object;
+	Object_Definition_Node New_Defined_Object;
 	New_Defined_Object.Inheritted = Inheritted;
 	New_Defined_Object.Name = Input[i + Get_Inheritting_Components(i).size() + 1].Value;
-	Parent->Defined.push_back(new Object_Node(New_Defined_Object));
+	Parent->Defined.push_back(new Object_Definition_Node(New_Defined_Object));
 
 	//for later AST use
-	Input[i + New_Defined_Object.Inheritted.Childs.size() + 1].node = new Object_Node(New_Defined_Object);
+	Input[i + New_Defined_Object.Inheritted.size() + 1].node = new Object_Definition_Node(New_Defined_Object);
 
-	Input.erase(Input.begin() + i, Input.begin() + i + New_Defined_Object.Inheritted.Childs.size());
+	Input.erase(Input.begin() + i, Input.begin() + i + New_Defined_Object.Inheritted.size());
 	return;
 }
 
@@ -77,7 +97,7 @@ void Parser::Object_Pattern(int i)
 	return;
 }
 
-void Parser::Paranthesis_Pattern(int i)
+void Parser::Parenthesis_Pattern(int i)
 {
 	// a = (a + b) * c
 	//<summary>
@@ -210,7 +230,7 @@ void Parser::Callation_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (!Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
+	if (Get_Amount_Of(i+1, Flags::PAREHTHESIS_COMPONENT).size() != 1)
 		return;
 	if (Input[(size_t)i + 1].node == nullptr)
 		return;
@@ -251,6 +271,44 @@ void Parser::Array_Pattern(int i)
 	Input[i].node = arr;
 
 	Input.erase(Input.begin() + i + 1);
+	return;
+}
+
+void Parser::Function_Pattern(int i)
+{
+	//import loyal int func main() [\n] {..}
+	//<summary>
+	//Notice!!! The parameter parenthesis & Childs parenthesis must be already initialized!!!
+	//Notice!!! The construction of function must be done before this!!!
+	//Notice!!! The Including must be done before this!!!
+	//Build the function as 
+	//</summary>
+	if (!Input[i].is(Flags::TEXT_COMPONENT))
+		return;
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
+	if (Parenthesis_Indexes.size() != 2)
+		return;
+	if (((Content_Node*)Input[Parenthesis_Indexes[0]].node)->Paranthesis_Type != '(')
+		return;
+
+	Object_Definition_Node* Function_Definition = nullptr;
+	if ((size_t)i - 1 < Input.size())
+		Function_Definition = (Object_Definition_Node*)Is_Defined(Input[i].Value, Parent);
+	if (Function_Definition == nullptr)
+		cout << "Error: Function definition wasnt found!" << endl;
+
+	//first try to get the behavior
+	Function_Node* func = new Function_Node;
+	func->behavior = Function_Definition->Inheritted;
+
+	func->Parameters = *(Content_Node*)Input[Parenthesis_Indexes[0]].node;
+	func->Childs = *(Content_Node*)Input[Parenthesis_Indexes[1]].node;
+
+	Input[i].node = func;
+
+	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
+	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
+
 	return;
 }
 

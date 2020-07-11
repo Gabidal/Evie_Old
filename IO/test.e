@@ -1,5 +1,8 @@
 $use "cstd.e"
 
+
+
+
 type bar(){
     int m
     int n
