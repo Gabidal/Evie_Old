@@ -236,7 +236,7 @@ void Parser::Callation_Pattern(int i)
 		return;
 	if (Input[i].node == nullptr)
 		return;
-	if (((Content_Node*)Input[(size_t)i + 1].node)->Paranthesis_Type == '[')
+	if (((Content_Node*)Input[(size_t)i + 1].node)->Paranthesis_Type != '(')
 		return;
 
 	Call_Node* call = new Call_Node(*(Object_Node*)Input[i].node);
@@ -303,11 +303,48 @@ void Parser::Function_Pattern(int i)
 
 	func->Parameters = *(Content_Node*)Input[Parenthesis_Indexes[0]].node;
 	func->Childs = *(Content_Node*)Input[Parenthesis_Indexes[1]].node;
+	func->Name = Input[i].Value;
 
 	Input[i].node = func;
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
 	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
+
+	return;
+}
+
+void Parser::Type_Pattern(int i)
+{
+	//type int{ size 4}
+	//<summary>
+	//
+	//
+	//</summary>
+	if (!Input[i].is(Flags::TEXT_COMPONENT))
+		return;
+	if (Is_Defined(Input[i].Value, Parent) == nullptr)
+		return;
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i, Flags::PAREHTHESIS_COMPONENT);
+	if (Parenthesis_Indexes.size() != 1)
+		return;
+	if (((Content_Node*)Input[Parenthesis_Indexes[0]].node)->Paranthesis_Type != '{')
+		return;
+
+
+	Object_Definition_Node* Type_Definition = nullptr;
+	if ((size_t)i - 1 < Input.size())
+		Type_Definition = (Object_Definition_Node*)Is_Defined(Input[i].Value, Parent);
+	if (Type_Definition == nullptr)
+		cout << "Error: Type definition was not found!" << endl;
+
+	Type_Node* Type = new Type_Node;
+	Type->Inheritted = Type_Definition->Inheritted;
+	Type->Name = Input[i].Value;
+	Type->Childs = *(Content_Node*)Input[Parenthesis_Indexes[0]].node;
+
+	Input[i].node = Type;
+
+	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
 
 	return;
 }

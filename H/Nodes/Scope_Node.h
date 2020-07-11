@@ -15,7 +15,6 @@ public:
 	using Node::Node;
 	
 	//for AST
-	Content_Node Parameters;
 	Content_Node Childs;
 	//all the defined Nodes in this scope
 	vector<Node*> Defined;

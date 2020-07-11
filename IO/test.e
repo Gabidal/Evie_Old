@@ -1,27 +1,24 @@
 $use "cstd.e"
 
-
-
-
-type bar(){
+type bar{
     int m
     int n
 }
 
 #inherit foo members into baz
-bar baz(){
+bar baz{
     int i
     int ptr j
     int k
 }
 
-type foo(){
+type foo{
     baz x
     baz y
     baz z
 }
 
-type test(){
+type test{
     int size
     foo a
     foo b

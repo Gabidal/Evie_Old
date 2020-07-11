@@ -10,6 +10,7 @@ public:
 	Function_Node() { Type = FUNCTION_NODE; }
 	//import loyal ptr int
 	vector<string> behavior;
+	Content_Node Parameters;
 private:
 
 };

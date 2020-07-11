@@ -10,3 +10,4 @@
 #include "String_Node.h"
 #include "Call_Node.h"
 #include "Object_Definition_Node.h"
+#include "Type_Node.h"
