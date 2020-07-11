@@ -1,5 +1,5 @@
 #ifndef _POSTFIX_NODE_H_
-#deifne _POSTFIX_NODE_H_
+#define _POSTFIX_NODE_H_
 
 #include "Node.h"
 #include "../Flags.h"

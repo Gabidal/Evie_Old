@@ -170,7 +170,7 @@ void Parser::String_Pattern(int i)
 	return;
 }
 
-void Parser::Operator_PreFix(int i, vector<string> Prefixes)
+void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 {
 	//<summary>
 	//-123/-a/-b()
@@ -200,6 +200,34 @@ void Parser::Operator_PreFix(int i, vector<string> Prefixes)
 	Input[i].node = new PreFix_Node(PreFix);
 
 	Input.erase(Input.begin() + i + 1);
+}
+
+void Parser::Callation_Pattern(int i)
+{
+	//<summary>
+	//Notice!!! the Parameter Paranthesis must be before this defined!!!
+	//Also the callation as an object should be already be in the node member
+	//</summary>
+	if (!Input[i].is(Flags::TEXT_COMPONENT))
+		return;
+	if (!Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
+		return;
+	if (Input[(size_t)i + 1].node == nullptr)
+		return;
+	if (Input[i].node == nullptr)
+		return;
+	if (((Content_Node*)Input[(size_t)i + 1].node)->Paranthesis_Type == '[')
+		return;
+
+	Call_Node* call = new Call_Node(*(Object_Node*)Input[i].node);
+
+	//call.Paranthesis = *(new Content_Node(*(Content_Node*)(Node*)Input[i].node));
+
+	call->Paranthesis = *(Content_Node*)Input[(size_t)i + 1].node;
+	Input[i].node = call;
+
+	Input.erase(Input.begin() + i + 1);
+	return;
 }
 
 void Parser::Factory() {
