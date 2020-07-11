@@ -157,6 +157,19 @@ void Parser::Number_Pattern(int i)
 	return;
 }
 
+void Parser::String_Pattern(int i)
+{
+	//<summary>
+	//Make component string into real string_node.
+	//</summary>
+	if (!Input[i].is(Flags::STRING_COMPONENT))
+		return;
+	String_Node String;
+	String.Value = Input[i].Value;
+	Input[i].node = new String_Node(String);
+	return;
+}
+
 void Parser::Operator_PreFix(int i, vector<string> Prefixes)
 {
 	//<summary>

@@ -7,3 +7,4 @@
 #include "Number_Node.h"
 #include "PostFix_Node.h"
 #include "PreFix_Node.h"
+#include "String_Node.h"
