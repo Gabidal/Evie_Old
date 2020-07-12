@@ -35,8 +35,10 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	//import int ptr func a
 	vector<Component> Result;
 	for (; i < Input.size(); i++) {
-		if (Input[i].is(Flags::KEYWORD_COMPONENT) || !(Is_Defined(Input[i].Value, Parent) != nullptr))
+		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Is_Defined(Input[i].Value, Parent) != nullptr) || Input[i].Value == ".")
 			Result.push_back(Input[i]);
+		else 
+			break;
 	}
 	return Result;
 }
@@ -46,16 +48,20 @@ void Parser::Definition_Pattern(int i)
 	//foo ptr a = ...
 	//<summary>
 	//list all previusly defined and find the last as an text to define a new object
-	//put that result object into parents defined list and also into the INPUT[i + object index] the newly created object
+	//put that result object into parents defined list and also into-
+	//the INPUT[i + object index] the newly created object
 	//</summary>
 	if (!(Get_Inheritting_Components(i).size() > 0))
 		return;
 	if (i + Get_Inheritting_Components(i).size() + 1 > Input.size())
 		return;
-	if (!(Input[i + Get_Inheritting_Components(i).size() + 1].is(Flags::TEXT_COMPONENT)))
+	if (!(Input[i + Get_Inheritting_Components(i).size() - 1 + 1].is(Flags::TEXT_COMPONENT)))
+		return;
+	if (Get_Inheritting_Components(i)[0].Value == ".")
 		return;
 	//type a
 	vector<string> Inheritted;
+
 
 	for (int j = 0; j < Get_Inheritting_Components(i).size(); j++) {
 		if (Input[(size_t)i + j].is(Flags::KEYWORD_COMPONENT)) {
@@ -65,17 +71,17 @@ void Parser::Definition_Pattern(int i)
 			Inheritted.push_back(keyword.Name);
 		}
 		else {
-			Inheritted.push_back(Is_Defined(Input[(size_t)i + j].Value, Parent)->Name);
+			Inheritted.push_back(Input[(size_t)i + j].Value);
 		}
 	}
 
 	Object_Definition_Node New_Defined_Object;
 	New_Defined_Object.Inheritted = Inheritted;
-	New_Defined_Object.Name = Input[i + Get_Inheritting_Components(i).size() + 1].Value;
+	New_Defined_Object.Name = Input[i + Get_Inheritting_Components(i).size() - 1 + 1].Value;
 	Parent->Defined.push_back(new Object_Definition_Node(New_Defined_Object));
 
 	//for later AST use
-	Input[i + New_Defined_Object.Inheritted.size() + 1].node = new Object_Definition_Node(New_Defined_Object);
+	Input[i + New_Defined_Object.Inheritted.size() -1 + 1].node = new Object_Definition_Node(New_Defined_Object);
 
 	Input.erase(Input.begin() + i, Input.begin() + i + New_Defined_Object.Inheritted.size());
 	return;
@@ -109,12 +115,11 @@ void Parser::Parenthesis_Pattern(int i)
 	//create an content Node and output it into Parent's childs list.
 	Content_Node Paranthesis;
 	
-	Scope_Node TMP_Parent;
-	Parser TMP_Parser(&TMP_Parent);
+	Parser TMP_Parser(Parent);
 	TMP_Parser.Input = Input[i].Components;
 	TMP_Parser.Factory();
 
-	Paranthesis = TMP_Parent.Childs;
+	Paranthesis = Parent->Childs;
 	Paranthesis.Paranthesis_Type = Input[i].Value[0];
 	Input[i].node = new Content_Node(Paranthesis);
 
@@ -134,6 +139,8 @@ void Parser::Math_Pattern(int i, vector<string> Operators)
 	if (i - 1 < 0)
 		return;
 	if (((size_t)i + 1) > Input.size())
+		return;
+	if (Input[i].node != nullptr)
 		return;
 	bool op_Pass = false;
 	for (string s : Operators)
@@ -156,9 +163,11 @@ void Parser::Math_Pattern(int i, vector<string> Operators)
 		cout << "Error: Right side Of operator " << Input[i].Value << " is Initialized!" << endl;
 
 	Input[i].node = new Operator_Node(Operator);
-	Input.erase(Input.begin() + i - 1);
 	Input.erase(Input.begin() + i + 1);
+	Input.erase(Input.begin() + i - 1);
 
+	if (i + 1 > Input.size() - 1)
+		return;
 	if (Input[i].is(Flags::OPERATOR_COMPONENT))
 		Math_Pattern(i, Operators);
 	return;
@@ -232,16 +241,12 @@ void Parser::Callation_Pattern(int i)
 		return;
 	if (Get_Amount_Of(i+1, Flags::PAREHTHESIS_COMPONENT).size() != 1)
 		return;
-	if (Input[(size_t)i + 1].node == nullptr)
-		return;
-	if (Input[i].node == nullptr)
-		return;
 	if (((Content_Node*)Input[(size_t)i + 1].node)->Paranthesis_Type != '(')
 		return;
+	if (Input[(size_t)i + 1].node == nullptr)
+		return;
 
-	Call_Node* call = new Call_Node(*(Object_Node*)Input[i].node);
-
-	//call.Paranthesis = *(new Content_Node(*(Content_Node*)(Node*)Input[i].node));
+	Call_Node* call = new Call_Node;
 
 	call->Paranthesis = *(Content_Node*)Input[(size_t)i + 1].node;
 	Input[i].node = call;
@@ -257,6 +262,8 @@ void Parser::Array_Pattern(int i)
 	//Notice!!! The paranthesis must be initialized before this unition of array operation!!!
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
+		return;
+	if (i + 1 > Input.size() - 1)
 		return;
 	if (!Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
 		return;
@@ -281,29 +288,42 @@ void Parser::Function_Pattern(int i)
 	//Notice!!! The parameter parenthesis & Childs parenthesis must be already initialized!!!
 	//Notice!!! The construction of function must be done before this!!!
 	//Notice!!! The Including must be done before this!!!
+	//Notice!!! This must be done before Object_Pattern & after Defintitin_Pattern!!!
 	//Build the function as 
 	//</summary>
-	if (!Input[i].is(Flags::TEXT_COMPONENT))
+	if (Input[i].node == nullptr)
+		return;
+	if (Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
 	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
 	if (Parenthesis_Indexes.size() != 2)
 		return;
-	if (((Content_Node*)Input[Parenthesis_Indexes[0]].node)->Paranthesis_Type != '(')
+	if (Input[Parenthesis_Indexes[0]].Value[0] != '(')
 		return;
 
+	/*
 	Object_Definition_Node* Function_Definition = nullptr;
 	if ((size_t)i - 1 < Input.size())
 		Function_Definition = (Object_Definition_Node*)Is_Defined(Input[i].Value, Parent);
 	if (Function_Definition == nullptr)
 		cout << "Error: Function definition wasnt found!" << endl;
+	*/
 
 	//first try to get the behavior
 	Function_Node* func = new Function_Node;
-	func->behavior = Function_Definition->Inheritted;
-
-	func->Parameters = *(Content_Node*)Input[Parenthesis_Indexes[0]].node;
-	func->Childs = *(Content_Node*)Input[Parenthesis_Indexes[1]].node;
+	func->Constructor = Input[i].node;
 	func->Name = Input[i].Value;
+
+	Parser p((Scope_Node*)func);
+	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
+	p.Factory();
+	func->Parameters = *(Content_Node*)p.Input[0].node;
+	p.Input.clear();
+
+	p.Input.push_back(Input[Parenthesis_Indexes[1]]);
+	p.Factory();
+	func->Childs = *(Content_Node*)p.Input[0].node;
+	p.Input.clear();
 
 	Input[i].node = func;
 
@@ -317,8 +337,8 @@ void Parser::Type_Pattern(int i)
 {
 	//type int{ size 4}
 	//<summary>
-	//
-	//
+	//Notice!!! The Parenthesis that contains the members needs to be initialized before this!!!
+	//Does same as the Function_Pattern but just one less parenthesis to worrie about.
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
@@ -327,10 +347,11 @@ void Parser::Type_Pattern(int i)
 	vector<int> Parenthesis_Indexes = Get_Amount_Of(i, Flags::PAREHTHESIS_COMPONENT);
 	if (Parenthesis_Indexes.size() != 1)
 		return;
-	if (((Content_Node*)Input[Parenthesis_Indexes[0]].node)->Paranthesis_Type != '{')
+	if (Input[Parenthesis_Indexes[0]].Value[0] != '{')
 		return;
 
 
+	//This works because there is only one constructor named by this type class
 	Object_Definition_Node* Type_Definition = nullptr;
 	if ((size_t)i - 1 < Input.size())
 		Type_Definition = (Object_Definition_Node*)Is_Defined(Input[i].Value, Parent);
@@ -340,7 +361,12 @@ void Parser::Type_Pattern(int i)
 	Type_Node* Type = new Type_Node;
 	Type->Inheritted = Type_Definition->Inheritted;
 	Type->Name = Input[i].Value;
-	Type->Childs = *(Content_Node*)Input[Parenthesis_Indexes[0]].node;
+
+	Parser p((Scope_Node*)Type);
+	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
+	p.Factory();
+	Type->Childs = *(Content_Node*)p.Input[0].node;
+	p.Input.clear();
 
 	Input[i].node = Type;
 
@@ -349,6 +375,70 @@ void Parser::Type_Pattern(int i)
 	return;
 }
 
-void Parser::Factory() {
+void Parser::Member_Pattern(int i)
+{
+	//foo.a = 1
+	//<summary>
+	//
+	//
+	//</summary>
+	if ((size_t)i + 2 > Input.size() - 1)
+		return;
+	if (Is_Defined(Input[i].Value, Parent) == nullptr)
+		return;
+	//use operator token to capture the members int o a AST like tree
+	//IF LEXER ALREADY USES DOT COMPONENT AS OPERATOR THEN WE DONT NEED TO DO ENYTHING HERE :D.
+}
 
+void Parser::Operator_Order()
+{
+	for (int i = 0; i < Input.size(); i++)
+		Operator_PreFix_Pattern(i, { "++", "--", "-" });
+	//the combination and multilayering of operations.
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { ":" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "." });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "*", "/" , "%" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "<<", ">>" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "&", "!&" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "?" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "|", "!|" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "+", "-" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "<", ">" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&=" });
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "=" });
+}
+
+void Parser::Factory() {
+	for (int i = 0; i < Input.size(); i++)
+		Definition_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Parenthesis_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Callation_Pattern(i);
+	Operator_Order();
+	for (int i = 0; i < Input.size(); i++)
+		Member_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Function_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Type_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Object_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Array_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		String_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Number_Pattern(i);
 }

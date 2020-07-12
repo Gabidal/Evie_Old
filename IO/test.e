@@ -1,4 +1,8 @@
-$use "cstd.e"
+#use "cstd.e"
+
+type int{
+    size 4
+}
 
 type bar{
     int m
@@ -6,7 +10,7 @@ type bar{
 }
 
 #inherit foo members into baz
-bar baz{
+type bar baz{
     int i
     int ptr j
     int k

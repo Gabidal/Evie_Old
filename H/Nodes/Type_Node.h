@@ -1,5 +1,5 @@
 #ifndef _TYPE_NODE_H_
-#deifne _TYPE_NODE_H_
+#define _TYPE_NODE_H_
 
 #include "Scope_Node.h"
 #include "../Flags.h"

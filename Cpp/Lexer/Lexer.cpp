@@ -561,7 +561,8 @@ vector<Component> GetComponents(string text, Position anchor)
 
         Component component = ParseComponent(area.value(), anchor);
         component.Location = (anchor += area->Start);
-        components.push_back(component);
+        if (!component.is(Flags::COMMENT_COMPONENT))
+            components.push_back(component);
 
         position = area->End;
     }

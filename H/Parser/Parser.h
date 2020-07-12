@@ -20,6 +20,8 @@ public:
 	vector<Component> Get_Inheritting_Components(int i);
 	Node* Is_Defined(string name, Scope_Node* p);
 	vector<int> Get_Amount_Of(int i, long Flag);
+	//PATTERNS
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
@@ -30,7 +32,11 @@ public:
 	void Callation_Pattern(int i);								//b(a, b, c, d)
 	void Array_Pattern(int i);									//a[1]/b[a]
 	void Function_Pattern(int i);								//func int ptr f(int x) {..}
-	void Type_Pattern(int i);
+	void Type_Pattern(int i);									//type [inheritted] foo{member 1,}
+	void Member_Pattern(int i);									//Dot operator is in Operator_Pattern()
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	//Pattern Users
+	void Operator_Order();
 	void Factory();
 private:
 
