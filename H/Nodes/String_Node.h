@@ -10,6 +10,7 @@ public:
 	String_Node() { Type = STRING_NODE; }
 	~String_Node(){}
 	string Value = "";
+	int Ptr_ID = 0;
 private:
 
 };

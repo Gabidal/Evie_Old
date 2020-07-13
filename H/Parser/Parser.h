@@ -34,6 +34,7 @@ public:
 	void Function_Pattern(int i);								//func int ptr f(int x) {..}
 	void Type_Pattern(int i);									//type [inheritted] foo{member 1,}
 	void Member_Pattern(int i);									//Dot operator is in Operator_Pattern()
+	void If_Pattern(int i);										//if (contidion){..}
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	//Pattern Users
 	void Operator_Order();

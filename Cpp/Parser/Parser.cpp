@@ -112,14 +112,18 @@ void Parser::Parenthesis_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::PAREHTHESIS_COMPONENT))
 		return;
-	//create an content Node and output it into Parent's childs list.
+	//create an content Node and output will be in the same input.
 	Content_Node Paranthesis;
+	Paranthesis.Parent = Parent;
 	
 	Parser TMP_Parser(Parent);
 	TMP_Parser.Input = Input[i].Components;
 	TMP_Parser.Factory();
 
-	Paranthesis = Parent->Childs;
+	for (Component j : TMP_Parser.Input)
+		if (j.node != nullptr)
+			Paranthesis.Childs.push_back(new Node(*j.node));
+
 	Paranthesis.Paranthesis_Type = Input[i].Value[0];
 	Input[i].node = new Content_Node(Paranthesis);
 
@@ -239,14 +243,15 @@ void Parser::Callation_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Get_Amount_Of(i+1, Flags::PAREHTHESIS_COMPONENT).size() != 1)
+	if (Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT).size() != 1)
 		return;
-	if (((Content_Node*)Input[(size_t)i + 1].node)->Paranthesis_Type != '(')
-		return;
-	if (Input[(size_t)i + 1].node == nullptr)
+	if (Input[i + 1].Value[0] != '(')
 		return;
 
 	Call_Node* call = new Call_Node;
+
+	//initialize the parenthesis that contains the parameters
+	Parenthesis_Pattern(i + 1);
 
 	call->Paranthesis = *(Content_Node*)Input[(size_t)i + 1].node;
 	Input[i].node = call;
@@ -271,8 +276,9 @@ void Parser::Array_Pattern(int i)
 		return;
 
 	Operator_Node* arr = new Operator_Node;
-	*arr->Left_Side_Nodes = *Input[i].node;
-	*arr->Right_Side_Nodes = *Input[(size_t)i + 1].node;
+
+	arr->Left_Side_Nodes = new Node(*Input[i].node);
+	arr->Right_Side_Nodes = new Node(*((Content_Node*)Input[(size_t)i + 1].node)->Childs[0]);
 	arr->Name = "[]";
 
 	Input[i].node = arr;
@@ -313,6 +319,7 @@ void Parser::Function_Pattern(int i)
 	Function_Node* func = new Function_Node;
 	func->Constructor = Input[i].node;
 	func->Name = Input[i].Value;
+	func->Parent = Parent;
 
 	Parser p((Scope_Node*)func);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
@@ -361,6 +368,7 @@ void Parser::Type_Pattern(int i)
 	Type_Node* Type = new Type_Node;
 	Type->Inheritted = Type_Definition->Inheritted;
 	Type->Name = Input[i].Value;
+	Type->Parent = Parent;
 
 	Parser p((Scope_Node*)Type);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
@@ -390,8 +398,57 @@ void Parser::Member_Pattern(int i)
 	//IF LEXER ALREADY USES DOT COMPONENT AS OPERATOR THEN WE DONT NEED TO DO ENYTHING HERE :D.
 }
 
+void Parser::If_Pattern(int i)
+{
+	//<summary>
+	//make the AST of condition as IF
+	//if <condition/(condition)> <code-single-line/(multiline-code)>
+	//Notice!!! The two next components need to be initialized before this!!!
+	//</summary>
+	if (!Input[i].is(Flags::KEYWORD_COMPONENT))
+		return;
+	if ((size_t)i + 2 > Input.size() - 1)
+		return;				//can take the second & the first as an parenthesis or just pure code
+
+	//if (){..}
+	//else (){..}		//this works as 'else if'
+	//while (..){..}
+	Condition_Node* con;
+	if (Input[i].Value == "if")
+		con = new Condition_Node(IF_NODE);
+	else if (Input[i].Value == "else")
+		con = new Condition_Node(ELSE_NODE);
+	else if (Input[i].Value == "while")
+		con = new Condition_Node(WHILE_NODE);
+	else
+		return;
+
+	Parser p((Scope_Node*)con);
+	con->Name = Input[i].Value;
+	con->Parent = Parent;
+
+	p.Input.push_back(Input[(size_t)i + 1]);
+	p.Factory();
+	Node* Condition = p.Input[0].node;
+	p.Input.clear();
+
+	p.Input.push_back(Input[(size_t)i + 2]);
+	p.Factory();
+	Node* Child = p.Input[0].node;
+
+	con->Condition_Initializer(Condition, Child);
+
+	Input[i].node = con;
+
+	Input.erase(Input.begin() + i + 1, Input.begin() + i + 2);
+
+	return;
+}
+
 void Parser::Operator_Order()
 {
+	for (int i = 0; i < Input.size(); i++)
+		Array_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
 		Operator_PreFix_Pattern(i, { "++", "--", "-" });
 	//the combination and multilayering of operations.
@@ -422,23 +479,17 @@ void Parser::Operator_Order()
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++)
 		Definition_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
-		Parenthesis_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
-		Callation_Pattern(i);
-	Operator_Order();
-	for (int i = 0; i < Input.size(); i++)
-		Member_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < Input.size(); i++) {
 		Function_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
 		Type_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
+		If_Pattern(i);
+		Callation_Pattern(i);
+	}
+	for (int i = 0; i < Input.size(); i++) {
 		Object_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
-		Array_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
+		Parenthesis_Pattern(i);
 		String_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
 		Number_Pattern(i);
+	}
+	Operator_Order();
 }

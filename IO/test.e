@@ -5,15 +5,15 @@ type int{
 }
 
 type bar{
-    int m
-    int n
+    int m = 0
+    int n = 1
 }
 
 #inherit foo members into baz
 type bar baz{
-    int i
-    int ptr j
-    int k
+    int i = 2
+    int ptr j = 3
+    int k = 4
 }
 
 type foo{
