@@ -25,7 +25,7 @@ class Docker
 {
 public:
 	vector<Component> Output;
-	Docker(string FN, string WD, string PT) : FileName(FN), Working_Dir(WD), Priority_Type(PT) {
+	Docker(string FN, string WD, string PT = "") : FileName(FN), Working_Dir(WD), Priority_Type(PT) {
 		//look up table at:https://en.wikipedia.org/wiki/List_of_file_signatures.
 		//TXT files do not have a header
 		//Translators.push_back({ "TXT", TXT_Analyzer });

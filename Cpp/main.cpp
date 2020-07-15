@@ -1,10 +1,12 @@
-#include "../H/Lexer/Lexer.h"
-#include "../H/Parser/Parser.h"
 #include "../H/UI/Usr.h"
-#include "../H/UI/Producer.h"
+#include "../H/Lexer/Lexer.h"
+#include "../H/PreProsessor/PreProsessor.h"
+#include "../H/Parser/Parser.h"
 #include "../H/UI/Safe.h"
 #include "../H/Test/Test.h"
+#include "../H/UI/Producer.h"
 #include "../H/Nodes/NODES.h"
+
 #include <sstream>
 #include <iostream>
 #include <map>
@@ -107,9 +109,14 @@ int main(int argc, char* argv[])
     Scope_Node Global_Scope;
     Global_Scope.Name = "GLOBAL_SCOPE";
 
+    vector<Component> Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
+
+    PreProsessor preprosessor(Input);
+    preprosessor.Included_Files.push_back(preprosessor.Update_Working_Dir(sys->Info.Source_File.c_str()));
+    preprosessor.Factory();
+
     Parser p(&Global_Scope);
-    p.Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
-    //p.Working_Dir = start_file;
+    p.Input = Input;
     p.Factory();
 
     ofstream o(sys->Info.Destination_File.c_str());

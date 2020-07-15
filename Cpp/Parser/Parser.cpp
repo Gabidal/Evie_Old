@@ -277,6 +277,8 @@ void Parser::Array_Pattern(int i)
 
 	Operator_Node* arr = new Operator_Node;
 
+	//TODO:
+	//Needs more testing with more complex array usage like: a[x][y][z]
 	arr->Left_Side_Nodes = new Node(*Input[i].node);
 	arr->Right_Side_Nodes = new Node(*((Content_Node*)Input[(size_t)i + 1].node)->Childs[0]);
 	arr->Name = "[]";
@@ -412,7 +414,8 @@ void Parser::If_Pattern(int i)
 
 	//if (){..}
 	//else (){..}		//this works as 'else if'
-	//while (..){..}
+	//else {..}			//and this as normal 'else'
+	//while (..){..}	//loop
 	Condition_Node* con;
 	if (Input[i].Value == "if")
 		con = new Condition_Node(IF_NODE);
@@ -478,18 +481,22 @@ void Parser::Operator_Order()
 
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++)
+		//variable/objects definator.
 		Definition_Pattern(i);
 	for (int i = 0; i < Input.size(); i++) {
+		//multiline AST stuff
 		Function_Pattern(i);
 		Type_Pattern(i);
 		If_Pattern(i);
 		Callation_Pattern(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
+		//prepreattor for math operator AST combinator.
 		Object_Pattern(i);
 		Parenthesis_Pattern(i);
 		String_Pattern(i);
 		Number_Pattern(i);
 	}
+	//AST operator combinator.
 	Operator_Order();
 }

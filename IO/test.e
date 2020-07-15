@@ -1,8 +1,4 @@
-#use "cstd.e"
-
-type int{
-    size 4
-}
+use "cstd.e"
 
 type bar{
     int m = 0

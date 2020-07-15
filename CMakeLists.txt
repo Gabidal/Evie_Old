@@ -8,6 +8,7 @@ FILE(GLOB lexer Cpp/Lexer/*.cpp)
 FILE(GLOB parser Cpp/Parser/*.cpp)
 FILE(GLOB Docker Cpp/Docker/*.cpp)
 FILE(GLOB TestSweet Cpp/Test/*.cpp)
+FILE(GLOB PreProses Cpp/PreProsessor/*.cpp)
 
 # Add source files
 add_executable(${PROJECT_NAME} 
@@ -17,6 +18,7 @@ add_executable(${PROJECT_NAME}
                 ${Docker}
                 ${TestSweet}
                 ${ui}
+                ${PreProses}
                 )
                 
 set(CMAKE_CXX_STANDARD 17)
