@@ -1,5 +1,3 @@
-use "cstd.e"
-
 type bar{
     int m = 0
     int n = 1

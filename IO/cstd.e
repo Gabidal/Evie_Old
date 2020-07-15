@@ -32,11 +32,9 @@ type string{
 
 export func main
 
-func memcpy(int ptr dest, int ptr source, int Size){
-    #int i = 0;
-    #while (i < Size){
-        #dest[i] = source[i];
-        #i = i + 1;
-    #}
-    #return;
+func memcpy(type ptr dest, type ptr source, int Size){
+    if (int i = 0, i < Size, i++){
+        dest[i] = source[i];
+    }
+    return;
 }

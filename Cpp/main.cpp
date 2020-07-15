@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
     Lexer::ExponentSeparator = 'e';
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
-    Lexer::Keywords = { "while", "type", "func", "loyal", "export", "import", "use", "if", "ptr", "mangle", "cache", "decimal", "hidden"};
+    Lexer::Keywords = {"type", "func", "loyal", "export", "import", "use", "if", "ptr", "mangle", "cache", "decimal", "hidden"};
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());
 
@@ -114,15 +114,17 @@ int main(int argc, char* argv[])
 
     PreProsessor preprosessor(Input);
     preprosessor.Included_Files.push_back(preprosessor.Update_Working_Dir(sys->Info.Source_File.c_str()));
-    preprosessor.Defined_Constants = {
-        {"SOURCE_FILE", Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
-        {"DESTINATION_FILE", Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
-        {"OS", Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
-        {"ARCHITECTURE", Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
-        {"FORMAT", Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
-        {"BITS_MODE", Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
 
+    preprosessor.Defined_Constants = 
+    {
+        {"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
+        {"DESTINATION_FILE",    Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
+        {"OS",                  Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
+        {"ARCHITECTURE",        Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
+        {"FORMAT",              Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
+        {"BITS_MODE",           Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
     };
+
     preprosessor.Factory();
 
     Parser p(&Global_Scope);

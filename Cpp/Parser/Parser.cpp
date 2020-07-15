@@ -125,6 +125,7 @@ void Parser::Parenthesis_Pattern(int i)
 			Paranthesis.Childs.push_back(new Node(*j.node));
 
 	Paranthesis.Paranthesis_Type = Input[i].Value[0];
+	Input[i].Components = TMP_Parser.Input;
 	Input[i].node = new Content_Node(Paranthesis);
 
 	return;
@@ -337,7 +338,7 @@ void Parser::Function_Pattern(int i)
 	Input[i].node = func;
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
-	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
+	Input.erase(Input.begin() + Parenthesis_Indexes[1] - 1);
 
 	return;
 }
@@ -409,8 +410,9 @@ void Parser::If_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
-	if ((size_t)i + 2 > Input.size() - 1)
-		return;				//can take the second & the first as an parenthesis or just pure code
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i+1, Flags::PAREHTHESIS_COMPONENT);
+	if (Parenthesis_Indexes.size() != 2)
+		return;				
 
 	//if (){..}
 	//else (){..}		//this works as 'else if'
@@ -421,8 +423,6 @@ void Parser::If_Pattern(int i)
 		con = new Condition_Node(IF_NODE);
 	else if (Input[i].Value == "else")
 		con = new Condition_Node(ELSE_NODE);
-	else if (Input[i].Value == "while")
-		con = new Condition_Node(WHILE_NODE);
 	else
 		return;
 
@@ -430,20 +430,21 @@ void Parser::If_Pattern(int i)
 	con->Name = Input[i].Value;
 	con->Parent = Parent;
 
-	p.Input.push_back(Input[(size_t)i + 1]);
+	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
-	Node* Condition = p.Input[0].node;
+	Content_Node Condition(*(Content_Node*)p.Input[0].node);
 	p.Input.clear();
 
-	p.Input.push_back(Input[(size_t)i + 2]);
+	p.Input.push_back(Input[Parenthesis_Indexes[1]]);
 	p.Factory();
-	Node* Child = p.Input[0].node;
+	Content_Node Child(*(Content_Node*)p.Input[0].node);
 
 	con->Condition_Initializer(Condition, Child);
 
 	Input[i].node = con;
 
-	Input.erase(Input.begin() + i + 1, Input.begin() + i + 2);
+	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
+	Input.erase(Input.begin() + Parenthesis_Indexes[1] - 1);
 
 	return;
 }
@@ -476,7 +477,7 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&=" });
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "=" });
+		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" });
 }
 
 void Parser::Factory() {

@@ -16,13 +16,13 @@ public:
 		Type = type;	
 	}
 	~Condition_Node(){}
-	void Condition_Initializer(Node* first, Node* Second) {
-		if (((Content_Node*)first)->Childs.size() == 1)
-			Condition = *(Operator_Node*)((Content_Node*)first)->Childs[0];
+	void Condition_Initializer(Content_Node first, Content_Node Second) {
+		if (first.Childs.size() == 1)
+			Condition = *(Operator_Node*)first.Childs[0];
 		else {
-			Index = *(Operator_Node*)((Content_Node*)first)->Childs[0];
-			Condition = *(Operator_Node*)((Content_Node*)first)->Childs[1];
-			Footer = *(Operator_Node*)((Content_Node*)first)->Childs[2];
+			Index = *(Operator_Node*)first.Childs[0];
+			Condition = *(Operator_Node*)first.Childs[1];
+			Footer = *(Operator_Node*)first.Childs[2];
 		}
 	}
 	//{

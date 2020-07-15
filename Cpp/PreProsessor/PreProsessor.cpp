@@ -79,10 +79,7 @@ bool PreProsessor::Calculate(vector<Component> condition)
 	//first determine the side the SYS info is
 	//Notice!!! this cannot happen after parser because if the preprosessed if has-
 	//an include inside it, it wont work post parser!!!
-	bool same = false;
-
-	if (condition[0].Value == condition[2].Value)
-		same = true;
+	bool same = condition[0].Value == condition[2].Value;
 
 	if (condition[1].Value == "==")
 		return same;
@@ -115,7 +112,6 @@ void PreProsessor::Replace_Const_Name_With_Value(vector<Component> &in)
 	}
 	return;
 }
-
 
 string PreProsessor::Update_Working_Dir(string File_Name)
 {
