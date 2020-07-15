@@ -109,3 +109,29 @@ optional<int> If_Int(string s) {
 	}
 	return nullopt;
 }
+
+void output::Update_Mapped_Values()
+{
+	/*
+	string Source_File;
+	string Destination_File;
+	string OS = "win32";
+	string Architecture = "x86";
+	vector<string> Libs;
+	vector<string> Source_Files;
+	string Format = "exe";
+	string Bits_Mode = "4";
+	string Disable = "";
+	string Debug = "";
+	*/
+	Mapped_Values.insert({ "SOURCE_FILE", Source_File });
+	Mapped_Values.insert({ "DESTINATION_FILE", Destination_File });
+	Mapped_Values.insert({ "OS", OS });
+	Mapped_Values.insert({ "ARCHTITECTURE", Architecture });
+	//Mapped_Values.insert({ "SOURCE_FILE", Libs });
+	//Mapped_Values.insert({ "SOURCE_FILE", Source_Files });
+	Mapped_Values.insert({ "FORMAT", Format });
+	Mapped_Values.insert({ "BITS_MODE", Bits_Mode });
+	Mapped_Values.insert({ "DISABLE", Disable });
+	Mapped_Values.insert({ "DEBUG", Debug });
+}

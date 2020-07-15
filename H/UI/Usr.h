@@ -19,6 +19,9 @@ public:
 	string Disable = "";
 	string Debug = "";
 
+	//	ID	  , Value
+	map<string, string> Mapped_Values;
+	void Update_Mapped_Values();
 };
 
 class Usr
@@ -30,6 +33,7 @@ public:
 		Input = in;
 		Argument_Amount = count;
 		Create_Argument_Stats();
+		Info.Update_Mapped_Values();
 	}
 
 	~Usr(){}

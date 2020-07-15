@@ -15,6 +15,7 @@
 using namespace std;
 
 Usr* sys;
+Scope_Node Global_Scope;
 int _SYSTEM_BIT_SIZE_ = 4;
 
 /*
@@ -106,13 +107,22 @@ int main(int argc, char* argv[])
     //Test t;
     //end of testsweetter
 
-    Scope_Node Global_Scope;
+    Global_Scope;
     Global_Scope.Name = "GLOBAL_SCOPE";
 
     vector<Component> Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
 
     PreProsessor preprosessor(Input);
     preprosessor.Included_Files.push_back(preprosessor.Update_Working_Dir(sys->Info.Source_File.c_str()));
+    preprosessor.Defined_Constants = {
+        {"SOURCE_FILE", Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
+        {"DESTINATION_FILE", Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
+        {"OS", Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
+        {"ARCHITECTURE", Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
+        {"FORMAT", Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
+        {"BITS_MODE", Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
+
+    };
     preprosessor.Factory();
 
     Parser p(&Global_Scope);
