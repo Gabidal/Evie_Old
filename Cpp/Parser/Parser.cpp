@@ -354,7 +354,7 @@ void Parser::Type_Pattern(int i)
 		return;
 	if (Is_Defined(Input[i].Value, Parent) == nullptr)
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i, Flags::PAREHTHESIS_COMPONENT);
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
 	if (Parenthesis_Indexes.size() != 1)
 		return;
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '{')
@@ -363,7 +363,7 @@ void Parser::Type_Pattern(int i)
 
 	//This works because there is only one constructor named by this type class
 	Object_Definition_Node* Type_Definition = nullptr;
-	if ((size_t)i - 1 < Input.size())
+	if (i < Input.size())
 		Type_Definition = (Object_Definition_Node*)Is_Defined(Input[i].Value, Parent);
 	if (Type_Definition == nullptr)
 		cout << "Error: Type definition was not found!" << endl;

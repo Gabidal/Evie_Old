@@ -124,7 +124,6 @@ int main(int argc, char* argv[])
         {"FORMAT",              Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
         {"BITS_MODE",           Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
     };
-
     preprosessor.Factory();
 
     Parser p(&Global_Scope);
