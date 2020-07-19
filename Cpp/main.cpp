@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
     Lexer::ExponentSeparator = 'e';
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
-    Lexer::Keywords = {"type", "func", "loyal", "export", "import", "use", "if", "ptr", "mangle", "cache", "decimal", "hidden"};
+    Lexer::Keywords = {"type", "func", "loyal", "export", "import", "use", "if", "while", "ptr", "cache", "decimal"};
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());
 
