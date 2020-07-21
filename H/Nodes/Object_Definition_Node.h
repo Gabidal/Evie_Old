@@ -15,6 +15,7 @@ public:
 	}
 	~Object_Definition_Node(){}
 	vector<string> Inheritted;
+	int Size = 0;
 private:
 
 };

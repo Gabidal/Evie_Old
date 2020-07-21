@@ -33,6 +33,18 @@ void PostProsessor::Return(int i)
 
 void PostProsessor::Size(int i)
 {
+	//size 4
+	if (Input[i].Value != "size")
+		return;
+	Object_Definition_Node* size = new Object_Definition_Node;
+
+	size->Size = atoi(((Number_Node*)Input[(size_t)i + 1].node)->Value.c_str());
+
+	size->Name = "_SIZE_";
+	size->Inheritted.push_back("type");
+
+	Input[i].node = size;
+	return;
 }
 
 void PostProsessor::Override(int i)
