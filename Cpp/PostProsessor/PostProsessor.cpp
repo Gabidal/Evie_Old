@@ -1,15 +1,34 @@
 #include "../../H/PostProsessor/PostProsessor.h"
 
 void PostProsessor::Factory() {
-
+	Transform_Component_Into_Node();
 }
 
-void PostProsessor::Transform_Component_Into_Node(int i)
+void PostProsessor::Transform_Component_Into_Node()
 {
+	//<summary>
+	//Extracts the Node ptr's from the component tokens
+	//</summary>
+	for (auto i : Input) {
+		Node* n = i.node;
+		Output.push_back(n);
+	}
+	return;
 }
 
 void PostProsessor::Return(int i)
 {
+	if (Input[i].Value != "return")
+		return;
+	bool No_Return_Value = ((size_t)i + 1 > Input.size() - 1);
+
+	//return a + b
+	//return;
+	Return_Node* ret = new Return_Node;
+	if (!No_Return_Value)
+		ret->Return_Val = Input[(size_t)i + 1].node;
+	Input[i].node = ret;
+	return;
 }
 
 void PostProsessor::Size(int i)

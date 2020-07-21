@@ -3,6 +3,7 @@
 
 #include "../Lexer/Component.h"
 #include "../Nodes/NODES.h"
+#include "../Flags.h"
 
 #include <vector>
 #include <iostream>
@@ -19,7 +20,7 @@ public:
 	~PostProsessor(){}
 
 	void Factory();
-	void Transform_Component_Into_Node(int i);
+	void Transform_Component_Into_Node();
 	void Return(int i);
 	void Size(int i);
 	void Override(int i);
