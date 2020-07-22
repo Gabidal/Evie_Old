@@ -21,8 +21,6 @@ public:
 
 	void Factory();
 	void Transform_Component_Into_Node();
-	void Return(int i);
-	void Size(int i);
 	void Override(int i);
 	void Template_Parameter(int i);
 	void Templates(int i);

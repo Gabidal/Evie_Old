@@ -16,37 +16,6 @@ void PostProsessor::Transform_Component_Into_Node()
 	return;
 }
 
-void PostProsessor::Return(int i)
-{
-	if (Input[i].Value != "return")
-		return;
-	bool No_Return_Value = ((size_t)i + 1 > Input.size() - 1);
-
-	//return a + b
-	//return;
-	Return_Node* ret = new Return_Node;
-	if (!No_Return_Value)
-		ret->Return_Val = Input[(size_t)i + 1].node;
-	Input[i].node = ret;
-	return;
-}
-
-void PostProsessor::Size(int i)
-{
-	//size 4
-	if (Input[i].Value != "size")
-		return;
-	Object_Definition_Node* size = new Object_Definition_Node;
-
-	size->Size = atoi(((Number_Node*)Input[(size_t)i + 1].node)->Value.c_str());
-
-	size->Name = "_SIZE_";
-	size->Inheritted.push_back("type");
-
-	Input[i].node = size;
-	return;
-}
-
 void PostProsessor::Override(int i)
 {
 }

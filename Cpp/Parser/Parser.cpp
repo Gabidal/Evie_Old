@@ -160,18 +160,25 @@ void Parser::Math_Pattern(int i, vector<string> Operators)
 	if (Input[(size_t)i - 1].node != nullptr)
 		Operator.Left_Side_Nodes = Input[(size_t)i - 1].node;
 	else
-		cout << "Error: Left side Of operator " << Input[i].Value << " is not Initialized!" << endl;
+		cout << "Error: " << Input[(size_t)i+1].Value << " Left side of " << Input[i].Value << " operator is not Initialized!" << endl;
 
 	if (Input[(size_t)i + 1].node != nullptr)
 		Operator.Right_Side_Nodes = Input[(size_t)i + 1].node;
-	else
-		cout << "Error: Right side Of operator " << Input[i].Value << " is Initialized!" << endl;
+	else {
+		//test.a.m //these a.m are in different localscope.
+		//the right side does not need to be determined as the left one needs to.
+		//Dont worry about function calls
+		Object_Node* new_member = new Object_Node;
+		new_member->Name = Input[(size_t)i + 1].Value;
+
+		Operator.Right_Side_Nodes = new_member;
+	}
 
 	Input[i].node = new Operator_Node(Operator);
 	Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i - 1);
 
-	if (i + 1 > Input.size() - 1)
+	if ((size_t)i + 1 > Input.size() - 1)
 		return;
 	if (Input[i].is(Flags::OPERATOR_COMPONENT))
 		Math_Pattern(i, Operators);
@@ -246,7 +253,7 @@ void Parser::Callation_Pattern(int i)
 		return;
 	if (Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT).size() != 1)
 		return;
-	if (Input[i + 1].Value[0] != '(')
+	if (Input[(size_t)i + 1].Value[0] != '(')
 		return;
 
 	Call_Node* call = new Call_Node;
@@ -480,6 +487,39 @@ void Parser::Operator_Order()
 		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" });
 }
 
+void Parser::Return_Pattern(int i)
+{
+	if (Input[i].Value != "return")
+		return;
+	bool No_Return_Value = ((size_t)i + 1 > Input.size() - 1);
+
+	//return a + b
+	//return;
+	Return_Node* ret = new Return_Node;
+	if (!No_Return_Value)
+		ret->Return_Val = Input[(size_t)i + 1].node;
+	Input[i].node = ret;
+	return;
+}
+
+void Parser::Size_Pattern(int i)
+{
+	//size 4
+	if (Input[i].Value != "size")
+		return;
+	if (!Input[i + 1].is(Flags::NUMBER_COMPONENT))
+		return;
+	Object_Definition_Node* size = new Object_Definition_Node;
+
+	size->Size = atoi(((Number_Node*)Input[(size_t)i + 1].node)->Value.c_str());
+
+	size->Name = "_SIZE_";
+	size->Inheritted.push_back("type");
+
+	Input[i].node = size;
+	return;
+}
+
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++)
 		//variable/objects definator.
@@ -497,6 +537,10 @@ void Parser::Factory() {
 		Parenthesis_Pattern(i);
 		String_Pattern(i);
 		Number_Pattern(i);
+	}
+	for (int i = 0; i < Input.size(); i++) {
+		Return_Pattern(i);
+		Size_Pattern(i);
 	}
 	//AST operator combinator.
 	Operator_Order();

@@ -59,5 +59,13 @@ func main() {
     #the reference of the first object
     test ptr fourth = first
 
+    #stack list
+    fourth fifth = fourth[123]
+
+    #pointter list
+    fourth ptr fifth = fourth[123] 
+
+
+
     return second.get()
 }
