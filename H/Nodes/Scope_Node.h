@@ -5,6 +5,7 @@
 
 #include "Node.h"
 #include "Content_Node.h"
+#include "Object_Definition_Node.h"
 #include "../Flags.h"
 
 using namespace std;
@@ -25,6 +26,12 @@ public:
 			//dont worry about pointters: 
 			//ptr scaler is in different place than size is.
 			Result += i->Size;
+	}
+
+	void Update_Member_Size() {
+		for (auto i : Defined)
+			i->Update_Size();
+		return;
 	}
 
 	void Update_Member_Stack_Offset() {

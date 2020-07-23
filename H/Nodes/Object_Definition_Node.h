@@ -5,6 +5,8 @@
 #include "../Flags.h"
 #include <vector>
 
+extern int _SYSTEM_BIT_SIZE_;
+
 class Object_Definition_Node : public Node
 {
 public:
@@ -16,7 +18,20 @@ public:
 	~Object_Definition_Node(){}
 	vector<string> Inheritted;
 	int Size = 0;
+	int Scaler = 0;
 	int Location = 0;
+
+	void Update_Size() {
+		for (auto i : Inheritted) {
+			if (i == "ptr")
+				continue;
+			int size = ((Object_Definition_Node*)Find(i, Parent))->Size;
+		}
+		if (is("ptr") != -1) {
+			Scaler = Size;
+			Size = _SYSTEM_BIT_SIZE_;
+		}
+	}
 
 	int is(string type) {
 		for (int i = 0; i < Inheritted.size(); i++)

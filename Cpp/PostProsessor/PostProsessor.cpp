@@ -28,6 +28,9 @@ void PostProsessor::Type_Definer(int i)
 	//point into the parents defined list not input list
 	Type_Node* type = (Type_Node*)Input[i]->Parent->Find(Input[i]->Name, Input[i]->Parent);
 
+	//update members sizes
+	type->Update_Member_Size();
+
 	//update the member stack offsets
 	type->Update_Member_Stack_Offset();
 

@@ -149,14 +149,19 @@ void Parser::Math_Pattern(int i, vector<string> Operators)
 
 	if (Input[(size_t)i - 1].node != nullptr)
 		Operator.Left_Side_Nodes = Input[(size_t)i - 1].node;
-	else
-		cout << "Error: " << Input[(size_t)i+1].Value << " Left side of " << Input[i].Value << " operator is not Initialized!" << endl;
+	else {
+		//Dont worry about function calls
+		Object_Node* new_member = new Object_Node;
+		new_member->Name = Input[(size_t)i + 1].Value;
+
+		Operator.Right_Side_Nodes = new_member;
+	}
 
 	if (Input[(size_t)i + 1].node != nullptr)
 		Operator.Right_Side_Nodes = Input[(size_t)i + 1].node;
 	else {
 		//test.a.m //these a.m are in different localscope.
-		//the right side does not need to be determined as the left one needs to.
+		//the right side does not need to be determined as well the left.
 		//Dont worry about function calls
 		Object_Node* new_member = new Object_Node;
 		new_member->Name = Input[(size_t)i + 1].Value;
