@@ -22,6 +22,18 @@ public:
 		return Type == type;
 	}
 
+	Node* Find(string name, Scope_Node* p)
+	{
+		for (Node* s : p->Defined)
+			if (name == s->Name)
+				return s;
+		if (p->Parent != nullptr)
+			return Find(name, p->Parent);
+		return nullptr;
+	}
+
+
+
 	//the parent
 	Scope_Node* Parent = nullptr;
 private:

@@ -9,10 +9,27 @@ void PostProsessor::Transform_Component_Into_Node()
 	//<summary>
 	//Extracts the Node ptr's from the component tokens
 	//</summary>
-	for (auto i : Input) {
+	for (auto i : Components) {
 		Node* n = i.node;
 		Output.push_back(n);
 	}
+	return;
+}
+
+void PostProsessor::Type_Definer(int i)
+{
+	//<summary>
+	//stack type info
+	//</summary>
+	if (!Input[i]->Type == CLASS_NODE)
+		return;
+
+	//test!!!: Node* type = Input[i];
+	Type_Node* type = (Type_Node*)Input[i];
+
+	//update the member stack offsets
+	type->Update_Member_Stack_Offset();
+
 	return;
 }
 

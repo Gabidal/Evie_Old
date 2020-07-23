@@ -18,7 +18,6 @@ public:
 	Scope_Node* Parent = nullptr;
 	vector<Component> Input;
 	vector<Component> Get_Inheritting_Components(int i);
-	Node* Is_Defined(string name, Scope_Node* p);
 	vector<int> Get_Amount_Of(int i, long Flag);
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-

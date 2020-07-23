@@ -1,15 +1,5 @@
 #include "../../H/Parser/Parser.h"
 
-Node* Parser::Is_Defined(string name, Scope_Node* p)
-{
-	for (Node* s : p->Defined)
-		if (name == s->Name)
-			return s;
-	if (p->Parent != nullptr)
-		return Is_Defined(name, p->Parent);
-	return nullptr;
-}
-
 vector<int> Parser::Get_Amount_Of(int i, long Flag)
 {
 	//<summary>
@@ -35,7 +25,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	//import int ptr func a
 	vector<Component> Result;
 	for (; i < Input.size(); i++) {
-		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Is_Defined(Input[i].Value, Parent) != nullptr) || Input[i].Value == ".")
+		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Parent->Find(Input[i].Value, Parent) != nullptr) || Input[i].Value == ".")
 			Result.push_back(Input[i]);
 		else 
 			break;
@@ -95,11 +85,11 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Is_Defined(Input[i].Value, Parent) == nullptr)
+	if (Parent->Find(Input[i].Value, Parent) == nullptr)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
-	Input[i].node = new Node(*Is_Defined(Input[i].Value, Parent));
+	Input[i].node = new Node(*Parent->Find(Input[i].Value, Parent));
 	return;
 }
 
@@ -359,7 +349,7 @@ void Parser::Type_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Is_Defined(Input[i].Value, Parent) == nullptr)
+	if (Parent->Find(Input[i].Value, Parent) == nullptr)
 		return;
 	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
 	if (Parenthesis_Indexes.size() != 1)
@@ -371,7 +361,7 @@ void Parser::Type_Pattern(int i)
 	//This works because there is only one constructor named by this type class
 	Object_Definition_Node* Type_Definition = nullptr;
 	if (i < Input.size())
-		Type_Definition = (Object_Definition_Node*)Is_Defined(Input[i].Value, Parent);
+		Type_Definition = (Object_Definition_Node*)Parent->Find(Input[i].Value, Parent);
 	if (Type_Definition == nullptr)
 		cout << "Error: Type definition was not found!" << endl;
 
@@ -402,7 +392,7 @@ void Parser::Member_Pattern(int i)
 	//</summary>
 	if ((size_t)i + 2 > Input.size() - 1)
 		return;
-	if (Is_Defined(Input[i].Value, Parent) == nullptr)
+	if (Parent->Find(Input[i].Value, Parent) == nullptr)
 		return;
 	//use operator token to capture the members int o a AST like tree
 	//IF LEXER ALREADY USES DOT COMPONENT AS OPERATOR THEN WE DONT NEED TO DO ENYTHING HERE :D.
