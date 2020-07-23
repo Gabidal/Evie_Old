@@ -23,6 +23,7 @@ public:
 	void Factory();
 	void Transform_Component_Into_Node();			//transfer the components into pure nodes
 	void Type_Definer(int i);							//defines all the members of type
+	void Member_Function(int i);
 	void Override(int i);
 	void Template_Parameter(int i);
 	void Templates(int i);

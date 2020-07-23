@@ -23,17 +23,16 @@ type test{
     foo a
     foo b
     foo c
-    func get
 }
 
 #return the address of the &this.a.x.m
-ptr test.get(test ptr this){
-    return this.a.x.m
+ptr test.get(){
+    return a.x.m
 }
 
 #return the size as an 32bit reg
-int test.size(test ptr this){
-    return this.size
+int test.size(){
+    return size
 }
 
 func main() {

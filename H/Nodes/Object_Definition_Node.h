@@ -17,6 +17,13 @@ public:
 	vector<string> Inheritted;
 	int Size = 0;
 	int Location = 0;
+
+	int is(string type) {
+		for (int i = 0; i < Inheritted.size(); i++)
+			if (type == Inheritted[i])
+				return i;
+		return -1;
+	}
 private:
 
 };

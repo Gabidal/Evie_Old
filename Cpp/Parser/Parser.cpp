@@ -317,7 +317,10 @@ void Parser::Function_Pattern(int i)
 
 	//first try to get the behavior
 	Function_Node* func = new Function_Node;
-	func->Constructor = Input[i].node;
+	if (Input[i].node->Type == OBJECT_DEFINTION_NODE)
+		func->Constructor = (Object_Definition_Node*)Input[i].node;
+	else
+		Parent->Find(Input[i].Value, Parent);
 	func->Name = Input[i].Value;
 	func->Parent = Parent;
 

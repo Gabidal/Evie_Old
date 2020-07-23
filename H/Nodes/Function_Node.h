@@ -3,14 +3,13 @@
 
 #include "Scope_Node.h"
 #include "../Flags.h"
+#include "Object_Definition_Node.h"
 
 class Function_Node : public Scope_Node
 {
 public:
 	Function_Node() { Type = FUNCTION_NODE; }
-	//import loyal ptr int
-	vector<string> behavior;
-	Node* Constructor = nullptr;
+	Object_Definition_Node* Constructor = nullptr;
 	Content_Node Parameters;
 private:
 
