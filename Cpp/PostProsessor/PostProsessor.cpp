@@ -2,6 +2,12 @@
 
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
+	for (int i = 0; i < Input.size(); i++)
+		Type_Definer(i);
+	for (int i = 0; i < Input.size(); i++) {
+		Operator_Overload(i);
+		Member_Function(i);
+	}
 }
 
 void PostProsessor::Transform_Component_Into_Node()
@@ -26,13 +32,13 @@ void PostProsessor::Type_Definer(int i)
 
 	//test!!!: Node* type = Input[i];
 	//point into the parents defined list not input list
-	Type_Node* type = (Type_Node*)Input[i]->Parent->Find(Input[i]->Name, Input[i]->Parent);
+	Node* type = Parent->Find(Input[i]->Name, Input[i]->Parent);
 
 	//update members sizes
-	type->Update_Member_Size();
+	type->Update_Members_Size();
 
 	//update the member stack offsets
-	type->Update_Member_Stack_Offset();
+	type->Update_Members_Mem_Offset();
 
 	return;
 }
@@ -46,15 +52,17 @@ void PostProsessor::Member_Function(int i)
 	//</summary>
 	if (!Input[i]->Type == FUNCTION_NODE)
 		return;
-	if (((Function_Node*)Input[i])->Constructor->is(".") == -1)
+	if (Input[i]->is(".") == -1)
 		return;
 
-	Function_Node* func = ((Function_Node*)Input[i]);
+	Node* func = Input[i];
 	
-	Type_Node* type = (Type_Node*)func->Parent->Find(
-		func->Constructor->Inheritted[
-			func->Constructor->is(".") - 1
-		], func->Parent
+	//get the parent type that this member function belong to.
+	Node* type = Parent->Find(
+		func->Inheritted[
+			(size_t)func->is(".") - 1
+		], 
+		func->Parent
 	);
 
 	//for member variables accessing
@@ -65,8 +73,9 @@ void PostProsessor::Member_Function(int i)
 	return;
 }
 
-void PostProsessor::Override(int i)
+void PostProsessor::Operator_Overload(int i)
 {
+	//todo: make the override syntax
 }
 
 void PostProsessor::Template_Parameter(int i)

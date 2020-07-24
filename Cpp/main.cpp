@@ -2,10 +2,12 @@
 #include "../H/Lexer/Lexer.h"
 #include "../H/PreProsessor/PreProsessor.h"
 #include "../H/Parser/Parser.h"
+#include "../H/PostProsessor/PostProsessor.h"
 #include "../H/UI/Safe.h"
 #include "../H/Test/Test.h"
 #include "../H/UI/Producer.h"
-#include "../H/Nodes/NODES.h"
+#include "../H/Nodes/Node.h"
+#include "../H/Flags.h"
 
 #include <sstream>
 #include <iostream>
@@ -15,7 +17,7 @@
 using namespace std;
 
 Usr* sys;
-Scope_Node Global_Scope;
+Node* Global_Scope;
 int _SYSTEM_BIT_SIZE_ = 4;
 
 /*
@@ -107,8 +109,8 @@ int main(int argc, char* argv[])
     //Test t;
     //end of testsweetter
 
-    Global_Scope;
-    Global_Scope.Name = "GLOBAL_SCOPE";
+    Global_Scope = new Node(CLASS_NODE);
+    Global_Scope->Name = "GLOBAL_SCOPE";
 
     vector<Component> Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
 
@@ -126,9 +128,13 @@ int main(int argc, char* argv[])
     };
     preprosessor.Factory();
 
-    Parser p(&Global_Scope);
+    Parser p(Global_Scope);
     p.Input = Input;
     p.Factory();
+
+    PostProsessor postprosessor(Global_Scope);
+    postprosessor.Components = p.Input;
+    postprosessor.Factory();
 
     ofstream o(sys->Info.Destination_File.c_str());
     o << OUTPUT;//b.Output;

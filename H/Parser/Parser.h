@@ -3,7 +3,7 @@
 
 #include "../../H/Flags.h"
 #include "../Lexer/Component.h"
-#include "../Nodes/NODES.h"
+#include "../Nodes/Node.h"
 
 #include <vector>
 #include <iostream>
@@ -13,9 +13,9 @@ using namespace std;
 class Parser
 {
 public:
-	Parser(Scope_Node* p) : Parent(p){}
+	Parser(Node* p) : Parent(p){}
 	~Parser(){}
-	Scope_Node* Parent = nullptr;
+	Node* Parent = nullptr;
 	vector<Component> Input;
 	vector<Component> Get_Inheritting_Components(int i);
 	vector<int> Get_Amount_Of(int i, long Flag);
@@ -41,7 +41,6 @@ public:
 	void Operator_Order();
 	void Factory();
 private:
-
 };
 
 #endif

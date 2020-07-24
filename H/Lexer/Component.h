@@ -3,8 +3,9 @@
 #include <string>
 #include <vector>
 #include "Position.h"
-#include "../Nodes/Node.h"
 using namespace std;
+
+class Node;
 
 class Component 
 {
