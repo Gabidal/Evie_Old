@@ -25,7 +25,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	//import int ptr func a
 	vector<Component> Result;
 	for (; i < Input.size(); i++) {
-		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Parent->Find(Input[i].Value, Parent) != nullptr) || Input[i].Value == ".")
+		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Parent->Find(Input[i].Value, Parent, false) != nullptr) || Input[i].Value == ".")
 			Result.push_back(Input[i]);
 		else 
 			break;
@@ -86,11 +86,11 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Parent->Find(Input[i].Value, Parent) == nullptr)
+	if (Parent->Find(Input[i].Value, Parent, true) == nullptr)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
-	Input[i].node = new Node(*Parent->Find(Input[i].Value, Parent));
+	Input[i].node = new Node(*Parent->Find(Input[i].Value, Parent, true));
 	return;
 }
 
@@ -328,7 +328,7 @@ void Parser::Function_Pattern(int i)
 	if (Input[i].node->Type == OBJECT_DEFINTION_NODE)
 		func = Input[i].node;
 	else
-		Parent->Find(Input[i].Value, Parent);
+		func = Parent->Find(Input[i].Value, Parent, true);
 	func->Name = Input[i].Value;
 	func->Parent = Parent;
 
@@ -345,8 +345,8 @@ void Parser::Function_Pattern(int i)
 
 	Input[i].node = func;
 
+	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
-	Input.erase(Input.begin() + Parenthesis_Indexes[1] - 1);
 
 	return;
 }
@@ -360,7 +360,7 @@ void Parser::Type_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Parent->Find(Input[i].Value, Parent) == nullptr)
+	if (Parent->Find(Input[i].Value, Parent, false) == nullptr)
 		return;
 	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
 	if (Parenthesis_Indexes.size() != 1)
@@ -372,7 +372,7 @@ void Parser::Type_Pattern(int i)
 	//This works because there is only one constructor named by this type class
 	Node* Type = new Node(CLASS_NODE);
 	if (i < Input.size())
-		Type = Parent->Find(Input[i].Value, Parent);
+		Type = Parent->Find(Input[i].Value, Parent, true);
 	if (Type == nullptr)
 		cout << "Error: Type definition was not found!" << endl;
 
@@ -396,10 +396,10 @@ void Parser::Member_Pattern(int i)
 	//
 	//
 	//</summary>
-	if ((size_t)i + 2 > Input.size() - 1)
-		return;
-	if (Parent->Find(Input[i].Value, Parent) == nullptr)
-		return;
+	//if ((size_t)i + 2 > Input.size() - 1)
+	//	return;
+	//if (Parent->Find(Input[i].Value, Parent) == nullptr)
+	//	return;
 	//use operator token to capture the members int o a AST like tree
 	//IF LEXER ALREADY USES DOT COMPONENT AS OPERATOR THEN WE DONT NEED TO DO ENYTHING HERE :D.
 }
@@ -413,7 +413,7 @@ void Parser::If_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i+1, Flags::PAREHTHESIS_COMPONENT);
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
 	if (Parenthesis_Indexes.size() != 2)
 		return;				
 
@@ -424,8 +424,10 @@ void Parser::If_Pattern(int i)
 	Node* con;
 	if (Input[i].Value == "if")
 		con = new Node(IF_NODE);
+	else if (Input[i].Value == "while")
+		con = new Node(WHILE_NODE);
 	else if (Input[i].Value == "else")
-		con = new Node(ELSE_NODE);
+		con = new Node(ELSE_NODE);		//this works for only else if because it requers 2 paranthesis
 	else
 		return;
 
@@ -506,7 +508,7 @@ void Parser::Size_Pattern(int i)
 	//size 4
 	if (Input[i].Value != "size")
 		return;
-	if (!Input[i + 1].is(Flags::NUMBER_COMPONENT))
+	if (!Input[(size_t)i + 1].is(Flags::NUMBER_COMPONENT))
 		return;
 	Node* size = new Node(OBJECT_DEFINTION_NODE);
 
@@ -514,6 +516,9 @@ void Parser::Size_Pattern(int i)
 
 	size->Name = "_SIZE_";
 	size->Inheritted.push_back("type");
+	size->Parent = Parent;
+
+	Parent->Defined.push_back(size);
 
 	Input[i].node = size;
 	return;

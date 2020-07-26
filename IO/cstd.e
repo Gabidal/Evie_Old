@@ -30,7 +30,7 @@ type string{
 	size 1
 }
 
-export func main
+#export func main
 
 func memcpy(type ptr dest, type ptr source, int Size){
     if (int i = 0, i < Size, i++){

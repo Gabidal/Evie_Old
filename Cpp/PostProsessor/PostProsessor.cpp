@@ -16,8 +16,10 @@ void PostProsessor::Transform_Component_Into_Node()
 	//Extracts the Node ptr's from the component tokens
 	//</summary>
 	for (auto i : Components) {
+		if (i.node == nullptr)
+			continue;
 		Node* n = i.node;
-		Output.push_back(n);
+		Input.push_back(n);
 	}
 	return;
 }
@@ -32,7 +34,7 @@ void PostProsessor::Type_Definer(int i)
 
 	//test!!!: Node* type = Input[i];
 	//point into the parents defined list not input list
-	Node* type = Parent->Find(Input[i]->Name, Input[i]->Parent);
+	Node* type = Parent->Find(Input[i]->Name, Parent, true);
 
 	//update members sizes
 	type->Update_Members_Size();
@@ -50,7 +52,7 @@ void PostProsessor::Member_Function(int i)
 	//and sets the function into types function list
 	//and changes the parent pointter into the class type
 	//</summary>
-	if (!Input[i]->Type == FUNCTION_NODE)
+	if (Input[i]->Type != FUNCTION_NODE)
 		return;
 	if (Input[i]->is(".") == -1)
 		return;
@@ -62,7 +64,8 @@ void PostProsessor::Member_Function(int i)
 		func->Inheritted[
 			(size_t)func->is(".") - 1
 		], 
-		func->Parent
+		func->Parent,
+				true
 	);
 
 	//for member variables accessing

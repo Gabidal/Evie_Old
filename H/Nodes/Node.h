@@ -68,22 +68,27 @@ public:
 			cout << "Critical Error: " << raw << " didnt contain the start of the name indicator '_Z[0-9]'" << endl;
 		int Name_Start = match.position();
 	}
-	Node* Find(string name, Node* parent) {
-		if (parent == nullptr) {
+	Node* Find(string name, Node* parent, bool Need_Parent_existance) {
+		if (name == "\n")
+			return nullptr;
+		if (parent == nullptr && Need_Parent_existance) {
 			cout << "Critical Error: parent is null!" << endl;
 			return nullptr;
 		}
 		for (Node* i : parent->Defined)
 			if (i->Name == name)
 				return i;
-		return Find(name, parent->Parent);
+		if (parent->Parent != nullptr)
+			return Find(name, parent->Parent, Need_Parent_existance);
+		return nullptr;
 	}
 	void Update_Size() {
-		Size = 0;
+		if (Name != "_SIZE_")
+			Size = 0;
 		for (string s : Inheritted) {
 			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
-			Size += Find(s, Parent)->Size;
+			Size += Find(s, Parent, true)->Size;
 		}
 		if (is("ptr")) {
 			Scaler = Size;
@@ -99,7 +104,7 @@ public:
 		int Offset = 0;
 		for (auto i : Defined) {
 			i->Memory_Offset = Offset;
-			Offset += i->Memory_Offset;
+			Offset += i->Size;
 		}
 		return;
 	}

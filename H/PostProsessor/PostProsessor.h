@@ -27,8 +27,8 @@ public:
 	void Type_Definer(int i);						//defines all the members of type
 	void Member_Function(int i);					//puts the func into parenting type class
 	
-	void Operator_Overload(int i);
-	void Template_Parameter(int i);
+	void Operator_Overload(int i);					//makes new instance of using different operators
+	void Template_Parameter(int i);					//dynamic parameters
 	void Templates(int i);
 	void Algebra();
 private:
