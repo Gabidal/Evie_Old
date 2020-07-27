@@ -26,6 +26,8 @@ public:
 	void Transform_Component_Into_Node();			//transfer the components into pure nodes
 	void Type_Definer(int i);						//defines all the members of type
 	void Member_Function(int i);					//puts the func into parenting type class
+	void Combine_Conditions(int i);					//combines the if and else
+	void Open_Function_For_Prosessing(int i);
 	
 	void Operator_Overload(int i);					//makes new instance of using different operators
 	void Template_Parameter(int i);					//dynamic parameters

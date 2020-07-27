@@ -37,15 +37,18 @@ public:
 	int Scaler = 0;
 	//content features
 	char Paranthesis_Type = 0;
+	//condition features
+	Node* Succsessor = nullptr;
+	Node* Predecessor = nullptr;
 	
 
 	bool is(int F) {
 		return Type == F;
 	}
-	bool is(string t) {
-		for (string s : Inheritted)
-			if (t == s)
-				return true;
+	int is(string t) {
+		for (int i = 0; i < Inheritted.size(); i++)
+			if (t == Inheritted[i])
+				return i;
 		return false;
 	}
 	string Get_Mangled_Name() {
@@ -68,7 +71,7 @@ public:
 			cout << "Critical Error: " << raw << " didnt contain the start of the name indicator '_Z[0-9]'" << endl;
 		int Name_Start = match.position();
 	}
-	Node* Find(string name, Node* parent, bool Need_Parent_existance) {
+	Node* Find(string name, Node* parent, bool Need_Parent_existance = true) {
 		if (name == "\n")
 			return nullptr;
 		if (parent == nullptr && Need_Parent_existance) {
@@ -82,13 +85,24 @@ public:
 			return Find(name, parent->Parent, Need_Parent_existance);
 		return nullptr;
 	}
-	void Update_Size() {
-		if (Name != "_SIZE_")
-			Size = 0;
+	void Get_Inheritted_Class_Members() {
 		for (string s : Inheritted) {
 			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
-			Size += Find(s, Parent, true)->Size;
+			if (s == ".")
+				continue;
+			Node* inheritted = Find(s, Parent);
+			for (auto i : inheritted->Defined) {
+				//now insert the inheritted classes members
+				Defined.push_back(i);
+			}
+		}
+	}
+	void Update_Size() {
+		for (Node* m : Defined) {
+			//gather member variables
+			m->Update_Size();
+			Size += m->Size;
 		}
 		if (is("ptr")) {
 			Scaler = Size;
@@ -97,8 +111,19 @@ public:
 		return;
 	}
 	void Update_Members_Size() {
-		for (auto i : Defined)
+		if (Name != "_SIZE_")
+			Size = 0;
+		for (auto i : Defined) {
+			if (i->Name != "_SIZE_")
+				i->Size = 0;
+			for (string s : i->Inheritted) {
+				if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
+					continue;
+				i->Size += Find(s, i->Parent, true)->Size;
+			}
 			i->Update_Size();
+		}
+		Update_Size();
 	}
 	void Update_Members_Mem_Offset() {
 		int Offset = 0;

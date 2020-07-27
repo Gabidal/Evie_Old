@@ -7,6 +7,8 @@ void PostProsessor::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		Operator_Overload(i);
 		Member_Function(i);
+		Open_Function_For_Prosessing(i);
+		Combine_Conditions(i);
 	}
 }
 
@@ -29,12 +31,14 @@ void PostProsessor::Type_Definer(int i)
 	//<summary>
 	//stack type info
 	//</summary>
-	if (!Input[i]->Type == CLASS_NODE)
+	if (Input[i]->Type != CLASS_NODE)
 		return;
 
-	//test!!!: Node* type = Input[i];
 	//point into the parents defined list not input list
 	Node* type = Parent->Find(Input[i]->Name, Parent, true);
+
+	//combine inheritted memebrs
+	type->Get_Inheritted_Class_Members();
 
 	//update members sizes
 	type->Update_Members_Size();
@@ -54,7 +58,7 @@ void PostProsessor::Member_Function(int i)
 	//</summary>
 	if (Input[i]->Type != FUNCTION_NODE)
 		return;
-	if (Input[i]->is(".") == -1)
+	if (Input[i]->is(".") == false)
 		return;
 
 	Node* func = Input[i];
@@ -64,14 +68,45 @@ void PostProsessor::Member_Function(int i)
 		func->Inheritted[
 			(size_t)func->is(".") - 1
 		], 
-		func->Parent,
-				true
+		func->Parent
 	);
 
 	//for member variables accessing
 	func->Parent = type;
 
 	type->Member_Functions.push_back(func);
+
+	return;
+}
+
+void PostProsessor::Combine_Conditions(int i)
+{
+	if ((Input[i]->is(IF_NODE)) && (Input[i]->is(WHILE_NODE)))
+		return;
+	if ((size_t)i + 1 > Input.size() - 1)
+		return;
+	if (!Input[(size_t)i + 1]->is(ELSE_IF_NODE) && !Input[(size_t)i + 1]->is(ELSE_NODE))
+		return;
+	//<summary>
+	//here we will combine the successor & Predecessor.
+	//</sumarry>
+	Input[i]->Succsessor = Input[(size_t)i + 1];
+	Input.erase(Input.begin() + (size_t)i + 1);
+	//update the sucessors Predecessor.
+	Input[i]->Succsessor->Predecessor = Input[i];
+
+	return;
+}
+
+void PostProsessor::Open_Function_For_Prosessing(int i)
+{
+	if (!Input[i]->is(FUNCTION_NODE))
+		return;
+	//here we just go trugh the insides of the function
+	//for optimization and other cool stuff :D
+	PostProsessor p(Input[i]);
+	p.Input = Input[i]->Childs;
+	p.Factory();
 
 	return;
 }

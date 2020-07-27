@@ -324,11 +324,16 @@ void Parser::Function_Pattern(int i)
 	*/
 
 	//first try to get the behavior
-	Node* func = new Node(FUNCTION_NODE);
+	Node* func = nullptr;
 	if (Input[i].node->Type == OBJECT_DEFINTION_NODE)
 		func = Input[i].node;
 	else
 		func = Parent->Find(Input[i].Value, Parent, true);
+	if (func == nullptr)
+		cout << "Error: Parser didnt find " << Input[i].node->Name << " constructor!" << endl;
+	//override the object definition node flag
+	func->Type = FUNCTION_NODE;
+	//set the other values
 	func->Name = Input[i].Value;
 	func->Parent = Parent;
 
@@ -495,6 +500,7 @@ void Parser::Return_Pattern(int i)
 	//return a + b
 	//return;
 	Node* ret = new Node(FLOW_NODE);
+	ret->Name = "return";
 	if (!No_Return_Value) {
 		ret->Right = Input[(size_t)i + 1].node;
 		Input.erase(Input.begin() + i + 1);
