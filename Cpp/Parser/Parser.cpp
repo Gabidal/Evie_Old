@@ -348,6 +348,8 @@ void Parser::Function_Pattern(int i)
 	func->Childs = p.Input[0].node->Childs;
 	p.Input.clear();
 
+	func->Mangled_Name = func->Get_Mangled_Name();
+
 	Input[i].node = func;
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
@@ -375,11 +377,13 @@ void Parser::Type_Pattern(int i)
 
 
 	//This works because there is only one constructor named by this type class
-	Node* Type = new Node(CLASS_NODE);
+	Node* Type = nullptr;
 	if (i < Input.size())
 		Type = Parent->Find(Input[i].Value, Parent, true);
 	if (Type == nullptr)
 		cout << "Error: Type definition was not found!" << endl;
+	//reset the value
+	Type->Type = CLASS_NODE;
 
 	Parser p(Type);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);

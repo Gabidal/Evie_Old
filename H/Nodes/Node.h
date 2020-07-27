@@ -30,6 +30,7 @@ public:
 	vector<Node*> Operator_Overloads;
 	//function features
 	vector<Node*> Parameters;
+	string Mangled_Name = "";
 	//operator features
 	Node* Left = nullptr;
 	Node* Right = nullptr;
@@ -57,10 +58,17 @@ public:
 		//add the returning type
 		for (auto i : Inheritted)
 			mname += "_" + i;
-		mname += "Z" + to_string(Name.size()) + Name;
+		mname += "_Z" + to_string(Name.size()) + Name;
 		for (auto i : Parameters)
-			mname += "_" + i->Name;
+			mname += "__" + i->Get_Inheritted("_");
 		return mname;
+	}
+	string Get_Inheritted(string seperator) {
+		string result = "";
+		for (int i = 0; i < Inheritted.size() - 1; i++) {
+			result += Inheritted[i] + seperator;
+		}
+		return result + Inheritted.back();
 	}
 	Node* Un_Mangle(string raw) {
 		//TODO!!

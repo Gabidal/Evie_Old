@@ -35,6 +35,10 @@ int test.size(){
     return size
 }
 
+int ptr temp(type a, type b){
+    return a
+}
+
 func main() {
     test first
 
