@@ -9,6 +9,8 @@ void PostProsessor::Factory() {
 		Member_Function(i);
 		Open_Function_For_Prosessing(i);
 		Combine_Conditions(i);
+		Function_Callation(i);
+		Math_Optimizer(i);
 	}
 }
 
@@ -147,6 +149,9 @@ void PostProsessor::Function_Callation(int i)
 
 	Node* OgFunc = nullptr;
 
+	//TODO:
+	//make that even the returning type affect the choosing of og-function.
+
 	//if the code gets here it means the og-function has template paramters!
 	for (auto f : Global_Scope->Defined) {
 		for (int p = 0; p < f->Parameters.size(); p++) {
@@ -160,11 +165,11 @@ void PostProsessor::Function_Callation(int i)
 		//here if we get this function is the og-function.
 		OgFunc = f;
 		break;
-	Next_Function:
+	Next_Function:;
 	}
 
 	//now we want to copy that function again but this time we will put the called parameter types
-	Node* func = Copy_Node(OgFunc);
+	Node* func = OgFunc->Copy_Node(OgFunc);
 
 	//now we want to through the templates and put on them the right parameter infos
 	for (int p = 0; p < func->Parameters.size(); p++) {
@@ -181,36 +186,10 @@ void PostProsessor::Function_Callation(int i)
 	return;
 }
 
-Node* PostProsessor::Copy_Node(Node* What_Node)
+void PostProsessor::Math_Optimizer(int i)
 {
-	//this will only copy the ptrs in list but we want to also copy what those ptr point to.
-	Node* Result = new Node(*What_Node);
-
-	//lets start from defined
-	for (Node* d : Result->Defined)
-		//also define theyre insides
-		d = Copy_Node(d);
-
-	for (Node* c : Result->Childs)
-		c = Copy_Node(c);
-
-	for (Node* m : Result->Member_Functions)
-		m = Copy_Node(m);
-
-	for (Node* o : Result->Operator_Overloads)
-		o = Copy_Node(o);
-
-	for (Node* p : Result->Parameters)
-		p = Copy_Node(p);
-
-	Result->Left = Copy_Node(Result->Left);
-	Result->Right = Copy_Node(Result->Right);
-
-	Result->Succsessor = Copy_Node(Result->Succsessor);
-	Result->Predecessor = Copy_Node(Result->Predecessor);
-
-	//now we have copyed every ptr into a new base to point.
-	return Result;
+	Algebra a(Parent);
+	a.Factory();
 }
 
 void PostProsessor::Operator_Overload(int i)
@@ -219,10 +198,6 @@ void PostProsessor::Operator_Overload(int i)
 }
 
 void PostProsessor::Template_Parameter(int i)
-{
-}
-
-void PostProsessor::Algebra()
 {
 }
 

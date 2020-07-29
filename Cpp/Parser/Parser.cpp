@@ -91,6 +91,7 @@ void Parser::Object_Pattern(int i)
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 	Input[i].node = new Node(*Parent->Find(Input[i].Value, Parent, true));
+	Input[i].node->Type = OBJECT_NODE;
 	return;
 }
 
