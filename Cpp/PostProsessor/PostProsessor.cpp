@@ -191,7 +191,7 @@ void PostProsessor::Algebra_Laucher(int i)
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
 	Algebra a(Input[i]);
-	a.Input = Input[i]->Childs;
+	a.Input = &Input[i]->Childs;
 	a.Factory();
 }
 

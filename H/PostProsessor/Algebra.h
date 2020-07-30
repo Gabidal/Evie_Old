@@ -10,12 +10,12 @@ using namespace std;
 class Algebra {
 public:
 	Algebra(Node* parent) : Parent(parent) {}
-	vector<Node*> Input;
+	vector<Node*>* Input = nullptr;
 
 	void Factory();
 private:
 	Node* Parent;
-	vector<Node*> Linearise(Node* ast);
+	vector<Node*> Linearise(Node* ast, bool Include_Operator);
 
 	void Set_Defining_Value(int i);
 	void Set_Coefficient_Value(int i);
