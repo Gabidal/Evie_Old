@@ -30,7 +30,7 @@ public:
 	void Combine_Conditions(int i);					//combines the if and else
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
 	void Function_Callation(int i);					//justifyes the fucntion to call
-	void Math_Optimizer(int i);
+	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
 	
 	void Operator_Overload(int i);					//makes new instance of using different operators
 	void Template_Parameter(int i);					//dynamic parameters

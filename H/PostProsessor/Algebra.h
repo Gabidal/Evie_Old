@@ -17,8 +17,13 @@ private:
 	Node* Parent;
 	vector<Node*> Linearise(Node* ast);
 
-	void Inline_Variables(int i);
 	void Set_Defining_Value(int i);
+	void Set_Coefficient_Value(int i);
+
+	void Inline_Variables(int i);
+
+	void Operate_Coefficient_Constants(Node* op);
+	void Operate_Numbers_As_Constants(Node* op);
 };
 
 #endif

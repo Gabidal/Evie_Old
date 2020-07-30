@@ -14,7 +14,7 @@ using namespace std;
 
 class Node {
 public:
-	Node(int t) : Type(t){}
+	Node(int flag) : Type(flag){}
 	//Node(){}
 	//Normal features
 	string Name = "";
@@ -42,7 +42,8 @@ public:
 	Node* Succsessor = nullptr;
 	Node* Predecessor = nullptr;
 	//algebra optimizer features
-	int grade = 0;
+	int Order = 0;
+	int Coefficient = 0;
 	Node* Current_Value = nullptr;
 	
 

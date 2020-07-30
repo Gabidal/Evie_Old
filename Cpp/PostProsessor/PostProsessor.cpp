@@ -10,7 +10,7 @@ void PostProsessor::Factory() {
 		Open_Function_For_Prosessing(i);
 		Combine_Conditions(i);
 		Function_Callation(i);
-		Math_Optimizer(i);
+		Algebra_Laucher(i);
 	}
 }
 
@@ -186,9 +186,12 @@ void PostProsessor::Function_Callation(int i)
 	return;
 }
 
-void PostProsessor::Math_Optimizer(int i)
+void PostProsessor::Algebra_Laucher(int i)
 {
-	Algebra a(Parent);
+	if (!Input[i]->is(FUNCTION_NODE))
+		return;
+	Algebra a(Input[i]);
+	a.Input = Input[i]->Childs;
 	a.Factory();
 }
 

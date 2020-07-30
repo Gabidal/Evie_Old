@@ -154,9 +154,9 @@ void Parser::Math_Pattern(int i, vector<string> Operators)
 	else {
 		//Dont worry about function calls
 		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
-		new_member->Name = Input[(size_t)i + 1].Value;
+		new_member->Name = Input[(size_t)i - 1].Value;
 
-		Operator->Right = new_member;
+		Operator->Left = new_member;
 	}
 
 	if (Input[(size_t)i + 1].node != nullptr)
@@ -256,6 +256,7 @@ void Parser::Callation_Pattern(int i)
 		return;
 
 	Node* call = new Node(CALL_NODE);
+	call->Name = Input[i].Value;
 
 	//initialize the parenthesis that contains the parameters
 	Parenthesis_Pattern(i + 1);
@@ -500,7 +501,7 @@ void Parser::Return_Pattern(int i)
 {
 	if (Input[i].Value != "return")
 		return;
-	bool No_Return_Value = ((size_t)i + 1 > Input.size() - 1);
+	bool No_Return_Value = (((size_t)i + 1 > Input.size() - 1) || (Input[i + 1].Value == ";"));
 
 	//return a + b
 	//return;
@@ -553,10 +554,10 @@ void Parser::Factory() {
 		String_Pattern(i);
 		Number_Pattern(i);
 	}
+	//AST operator combinator.
+	Operator_Order();
 	for (int i = 0; i < Input.size(); i++) {
 		Return_Pattern(i);
 		Size_Pattern(i);
 	}
-	//AST operator combinator.
-	Operator_Order();
 }

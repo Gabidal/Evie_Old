@@ -39,7 +39,7 @@ int ptr temp(type a, type b){
     return a
 }
 
-func main() {
+func main(int x) {
     test first
 
     #the post prosessing can put the object fetching the function as first parameter
@@ -48,6 +48,9 @@ func main() {
     #if the other side of the operator is also an ptr then use the mem of variable a
     #otherwise load the address of that ptr a points to and do the operator to it
     a = 2 + 1
+    int b = a + 2
+    a = x * 2
+    b = x * 2 + x * 2
 
     #the way to change the pointter value is to manage the offsetter value
     #you dont want to change the initial value of the pointter just add an offsetter when you use it
