@@ -6,6 +6,8 @@ void Algebra::Factory() {
 		Set_Defining_Value(i);
 		Inline_Variables(i);
 	}
+	for (int i = 0; i < Input->size(); i++)
+		Clean(i);
 	for (auto i : *Input)
 		Operate_Numbers_As_Constants(i);
 	for (auto i : *Input)
@@ -53,10 +55,30 @@ void Algebra::Inline_Variables(int i)
 		Node* d = Parent->Find(n->Name, Parent);
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
-			if (d->Current_Value != nullptr)
+			if (d->Current_Value != nullptr) {
 				*n = *d->Current_Value;
+				d->Inlined = true;
+				//maybe this is useless:
+				n->Inlined = false;
+			}
 	}
 
+}
+
+void Algebra::Clean(int i)
+{
+	if (!Input->at(i)->is(OPERATOR_NODE))
+		return;
+	if (Input->at(i)->Name != "=")
+		return;
+	if (Parent->Find(Input->at(i)->Left->Name, Parent)->Inlined == false)
+		return;
+
+	Input->erase(Input->begin() + i);
+
+	Clean(i);
+		
+	return;
 }
 
 void Algebra::Set_Defining_Value(int i)
@@ -73,9 +95,9 @@ void Algebra::Set_Defining_Value(int i)
 	//give the defining node the current set-val.
 	Parent->Find(Input->at(i)->Left->Name, Parent)->Current_Value = Input->at(i)->Right;
 
-	//not shure delete this if thing broke up!!!
+	//not shure delete this if things break up!!!
 	//Input->erase(Input->begin() + i);
-	//Set_Defining_Value(i);
+	//Factory();
 
 	return;
 }

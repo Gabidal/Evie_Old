@@ -22,6 +22,8 @@ private:
 
 	void Inline_Variables(int i);
 
+	void Clean(int i);
+
 	void Operate_Coefficient_Constants(Node* op);
 	void Operate_Numbers_As_Constants(Node* op);
 };

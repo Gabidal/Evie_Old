@@ -45,7 +45,7 @@ public:
 	int Order = 0;
 	int Coefficient = 0;
 	Node* Current_Value = nullptr;
-	
+	bool Inlined = false;
 
 	bool is(int F) {
 		return Type == F;
