@@ -43,7 +43,7 @@ func main(int x) {
     test first
 
     #the post prosessing can put the object fetching the function as first parameter
-    int ptr a = first.get()
+    int ptr a = first.get() + first.size()
 
     #if the other side of the operator is also an ptr then use the mem of variable a
     #otherwise load the address of that ptr a points to and do the operator to it

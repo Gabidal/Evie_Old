@@ -46,6 +46,8 @@ public:
 	int Coefficient = 0;
 	Node* Current_Value = nullptr;
 	bool Inlined = false;
+	//fetching features
+	Node* Fetcher = nullptr;
 
 	bool is(int F) {
 		return Type == F;
@@ -175,6 +177,35 @@ public:
 
 		//now we have copyed every ptr into a new base to point.
 		return Result;
+	}
+	vector<Node*> Has(Node* n, int f)
+	{
+		vector<Node*> Result;
+		if (n->is(OPERATOR_NODE)) {
+			vector<Node*> left = Has(n->Left, f);
+			Result.insert(Result.end(), left.begin(), left.end());
+
+			vector<Node*> right = Has(n->Right, f);
+			Result.insert(Result.end(), right.begin(), right.end());
+		}
+
+		else if (n->is(CONTENT_NODE)) {
+			for (Node* i : n->Childs)
+				Result.push_back(i);
+		}
+
+		else if (n->is(CALL_NODE)) {
+			for (Node* i : n->Parameters)
+				Result.push_back(i);
+		}
+
+		if (n->is(f))
+			Result.push_back(n);
+
+		return Result;
+	}
+	vector<Node*> Has(int f) {
+		return Has(this, f);
 	}
 };
 

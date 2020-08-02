@@ -12,6 +12,8 @@ void Algebra::Factory() {
 		Operate_Numbers_As_Constants(i);
 	for (auto i : *Input)
 		Operate_Coefficient_Constants(i);
+	for (auto i : *Input)
+		Fix_Coefficient_Into_Real_Operator(i);
 }
 
 vector<Node*> Algebra::Linearise(Node* ast, bool Include_Operator = false)
@@ -74,7 +76,15 @@ void Algebra::Clean(int i)
 	if (Parent->Find(Input->at(i)->Left->Name, Parent)->Inlined == false)
 		return;
 
+	//!!! MUST COMBINE THE CALLATION AND THE CLASS FETCHER!!!
+	vector<Node*> Calls = Input->at(i)->Has(CALL_NODE);
+
 	Input->erase(Input->begin() + i);
+
+	if (Calls.size() > 0) {
+		//put the function callations into the deleted operations location else.
+		Input->insert(Input->begin() + i, Calls.begin(), Calls.end());
+	}
 
 	Clean(i);
 		
@@ -91,13 +101,11 @@ void Algebra::Set_Defining_Value(int i)
 		return;
 	if (Input->at(i)->Name != "=")
 		return;
+	//remeber if functoin call has do something global/pointter-
+	//dont let this function run on that!
 
 	//give the defining node the current set-val.
 	Parent->Find(Input->at(i)->Left->Name, Parent)->Current_Value = Input->at(i)->Right;
-
-	//not shure delete this if things break up!!!
-	//Input->erase(Input->begin() + i);
-	//Factory();
 
 	return;
 }
@@ -236,4 +244,41 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 		New_Num->Name = to_string(pow(left, right));
 
 	*op = *New_Num;
+}
+
+void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
+{
+	//here we will fix the coefficient into a real operator as the name yells.
+	if (n->is(OPERATOR_NODE)) {
+		Fix_Coefficient_Into_Real_Operator(n->Left);
+		Fix_Coefficient_Into_Real_Operator(n->Right);
+	}
+	//only variables are accepted
+	if (!n->is(OBJECT_NODE))
+		return;
+	//no point in fixing nothing :D
+	if (n->Coefficient == 0)
+		return;
+
+	//make operator that is going to hold the new coefficient and the variable
+	Node* New_Operator = new Node(OPERATOR_NODE);
+	New_Operator->Name = "*";
+
+	//making the coefficient into a real number token
+	Node* Coefficient = new Node(NUMBER_NODE);
+	Coefficient->Name = to_string(n->Coefficient);
+
+	//now clean the coefficient
+	n->Coefficient = 0;
+
+	//combine
+	//this is because the override later
+	New_Operator->Left = new Node(OBJECT_NODE);
+
+	*New_Operator->Left = *n;
+	New_Operator->Right = Coefficient;
+
+	*n = *New_Operator;
+
+	return;
 }

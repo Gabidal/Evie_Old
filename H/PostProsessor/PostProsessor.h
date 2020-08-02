@@ -31,7 +31,9 @@ public:
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
 	void Function_Callation(int i);					//justifyes the fucntion to call
 	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
-	
+	void Combine_Member_Fetching(Node* n);
+	Node* Get_Combined(Node* n);
+		
 	void Operator_Overload(int i);					//makes new instance of using different operators
 	void Template_Parameter(int i);					//dynamic parameters
 	void Templates(int i);

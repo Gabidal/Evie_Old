@@ -26,6 +26,8 @@ private:
 
 	void Operate_Coefficient_Constants(Node* op);
 	void Operate_Numbers_As_Constants(Node* op);
+
+	void Fix_Coefficient_Into_Real_Operator(Node* n);
 };
 
 #endif

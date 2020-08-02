@@ -10,6 +10,7 @@ void PostProsessor::Factory() {
 		Open_Function_For_Prosessing(i);
 		Combine_Conditions(i);
 		Function_Callation(i);
+		Combine_Member_Fetching(Input[i]);
 		Algebra_Laucher(i);
 	}
 }
@@ -193,6 +194,45 @@ void PostProsessor::Algebra_Laucher(int i)
 	Algebra a(Input[i]);
 	a.Input = &Input[i]->Childs;
 	a.Factory();
+}
+
+void PostProsessor::Combine_Member_Fetching(Node* n)
+{
+	//((a.x).m)
+	if (n->is(OPERATOR_NODE)) {
+		if (n->Name == ".") {
+			Node* last = new Node(*n->Right);
+			last->Fetcher = Get_Combined(n->Left);
+			*n = *last;
+		}
+		else {
+			Combine_Member_Fetching(n->Left);
+			Combine_Member_Fetching(n->Right);
+		}
+	}
+	if (n->is(CONTENT_NODE)) {
+		for (auto i : n->Childs)
+			Combine_Member_Fetching(i);
+	}
+}
+
+Node* PostProsessor::Get_Combined(Node* n)
+{
+	Node* Result;
+	//((a.x).m).b
+	if (n->is(OPERATOR_NODE)) {
+		if (n->Name == ".") {
+			Result = n->Right;
+			Result->Fetcher = Get_Combined(n->Left);
+		}
+	}
+	else if (n->is(CONTENT_NODE)) {
+		Result = n;
+	}
+	else {
+		Result = n;
+	}
+	return Result;
 }
 
 void PostProsessor::Operator_Overload(int i)
