@@ -39,6 +39,31 @@ int ptr temp(type a, type b){
     return a
 }
 
+func banana(){
+    func a(int x) {return 1}
+    return a
+}
+
+func ptr apple(){
+    func ptr a = new func
+    return a
+}
+
+func function_pointters(){
+    #if the paranthesis arent after the function name the function name return its own address.
+    func normal_reference = banana
+
+    #if the new func is a pointter it has the array offsetting ability.
+    func ptr function_pointter_as_array_handle = banana
+
+    #the function returning type doesnt matter if the function hasnt been called.
+
+    #these same features can be returned.
+    normal_reference = banana()
+
+    function_pointter_as_array_handle = apple()
+}
+
 func main(int x) {
     test first
 
