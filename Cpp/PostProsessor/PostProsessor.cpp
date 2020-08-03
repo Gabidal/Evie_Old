@@ -4,6 +4,7 @@ void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
 	for (int i = 0; i < Input.size(); i++)
 		Type_Definer(i);
+	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
 		Operator_Overload(i);
 		Member_Function(i);
@@ -109,6 +110,10 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 	//for optimization and other cool stuff :D
 	PostProsessor p(Input[i]);
 	p.Input = Input[i]->Childs;
+
+	//preprare the local variables
+	p.Define_Sizes(Input[i]);
+
 	p.Factory();
 
 	return;
@@ -213,6 +218,15 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 	if (n->is(CONTENT_NODE)) {
 		for (auto i : n->Childs)
 			Combine_Member_Fetching(i);
+	}
+}
+
+void PostProsessor::Define_Sizes(Node* p)
+{
+	//here we set the defined size of the variable
+	for (Node* d : p->Defined) {
+		d->Update_Members_Size();
+		d->Update_Members_Mem_Offset();
 	}
 }
 

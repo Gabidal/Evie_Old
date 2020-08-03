@@ -99,6 +99,12 @@ public:
 			return Find(name, parent->Parent, Need_Parent_existance);
 		return nullptr;
 	}
+	bool Locate(string name, vector<Node*> list) {
+		for (Node* i : list)
+			if (i->Name == name)
+				return true;
+		return false;
+	}
 	void Get_Inheritted_Class_Members() {
 		for (string s : Inheritted) {
 			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
@@ -108,9 +114,22 @@ public:
 			Node* inheritted = Find(s, Parent);
 			for (auto i : inheritted->Defined) {
 				//now insert the inheritted classes members
-				Defined.push_back(i);
+				if (Locate(i->Name, Defined) != true)
+					//if this is already defined no luck trying to re defining the same variable twice :D
+					Defined.push_back(i);
 			}
 		}
+	}	
+	void Get_Inheritted_Class_Members(string s) {
+			if (s == ".")
+				return;
+			Node* inheritted = Find(s, Parent);
+			for (auto i : inheritted->Defined) {
+				//now insert the inheritted classes members
+				if (Locate(i->Name, Defined) != true)
+					//if this is already defined no luck trying to re defining the same variable twice :D
+					Defined.push_back(i);
+			}
 	}
 	void Update_Size() {
 		for (Node* m : Defined) {
@@ -124,21 +143,55 @@ public:
 		}
 		return;
 	}
-	void Update_Members_Size() {
+
+	/*void Update_Members_Size() {
 		if (Name != "_SIZE_")
 			Size = 0;
 		for (auto i : Defined) {
 			if (i->Name != "_SIZE_")
 				i->Size = 0;
+			//this needs maybe revamping?
 			for (string s : i->Inheritted) {
 				if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
 					continue;
 				i->Size += Find(s, i->Parent, true)->Size;
 			}
 			i->Update_Size();
+			//-----------------------------
 		}
 		Update_Size();
+	}*/
+
+	void Update_Members_Size() {
+		if (Name != "_SIZE_")
+			Size = 0;
+		//this needs maybe revamping?
+		//decide between this forloop and inheritting the members that we inherit
+		for (string s : Inheritted) {
+			//there is no inheritable type that doesnt have enything init.
+			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT)) {
+				if (s == "func")
+					//this is for function pointters.
+					Size += _SYSTEM_BIT_SIZE_;
+				continue;
+			}
+			if (Find(s, Parent)->Defined[0]->Name == "_SIZE_")
+				//this is a preprossed size, take it!
+				Size += Find(s, Parent, true)->Size;
+				//if this happends we this class will inherit the members of the inheritted.
+			else
+				//there we handle more complex inheritance instances.
+				Get_Inheritted_Class_Members(s);
+		}
+		for (Node* i : Defined) {
+			//now revaluate the all new and old defined variables.
+			i->Update_Members_Size();
+		}
+		//now apply those revaluated values into us.
+		Update_Size();
 	}
+
+
 	void Update_Members_Mem_Offset() {
 		int Offset = 0;
 		for (auto i : Defined) {

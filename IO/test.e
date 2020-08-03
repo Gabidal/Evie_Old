@@ -40,12 +40,12 @@ int ptr temp(type a, type b){
 }
 
 func banana(){
-    func a(int x) {return 1}
+    #func a(int x) {return 1}
     return a
 }
 
 func ptr apple(){
-    func ptr a = new func
+    func ptr a #= new func
     return a
 }
 
@@ -69,6 +69,9 @@ func main(int x) {
 
     #the post prosessing can put the object fetching the function as first parameter
     int ptr a = first.get() + first.size()
+
+    #list
+    int ptr list = new(100)
 
     #if the other side of the operator is also an ptr then use the mem of variable a
     #otherwise load the address of that ptr a points to and do the operator to it
