@@ -21,6 +21,7 @@ private:
 	void Set_Coefficient_Value(int i);
 
 	void Inline_Variables(int i);
+	void Reduce_Condition_Operations(int i);
 
 	void Clean(int i);
 

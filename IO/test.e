@@ -40,7 +40,7 @@ int ptr temp(type a, type b){
 }
 
 func banana(){
-    #func a(int x) {return 1}
+    func a #(int x) {return 1}
     return a
 }
 
@@ -75,8 +75,8 @@ func main(int x) {
 
     #if the other side of the operator is also an ptr then use the mem of variable a
     #otherwise load the address of that ptr a points to and do the operator to it
-    a = 2 + 1
-    int b = a + 2
+    a = 1 + 2
+    int b = -a + 2
     a = x * 2
     b = x * 2 + a
 

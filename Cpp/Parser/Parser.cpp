@@ -123,7 +123,7 @@ void Parser::Parenthesis_Pattern(int i)
 	return;
 }
 
-void Parser::Math_Pattern(int i, vector<string> Operators)
+void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 {
 	//<summary>
 	//This function paternises the math order.
@@ -178,7 +178,7 @@ void Parser::Math_Pattern(int i, vector<string> Operators)
 	if ((size_t)i + 1 > Input.size() - 1)
 		return;
 	if (Input[i].is(Flags::OPERATOR_COMPONENT))
-		Math_Pattern(i, Operators);
+		Math_Pattern(i, Operators, F);
 	return;
 }
 
@@ -232,14 +232,38 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	if (!op_Pass)
 		return;
 	Node* PreFix = new Node(PREFIX_NODE);
+	//name
+	PreFix->Name = Input[i].Value;
+	//for more complex casting
 	PreFix->Left = Input[i].node;
-	PreFix->Right = Input[i + 1].node;
+	PreFix->Right = Input[(size_t)i + 1].node;
 	
 	//Operator_Node PreFix;	//++a/-a/--a
 	//Operator_Node PostFix;	//a++/a--
 	Input[i].node = PreFix;
 
 	Input.erase(Input.begin() + i + 1);
+}
+
+void Parser::PreFix_Variable_Pattern(int i)
+{
+	if (Input[i].Value != "-")
+		return;
+	if (Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT))		//a -b
+		return;
+	if (Input[(size_t)i - 1].is(Flags::NUMBER_COMPONENT))		//1 -b
+		return;
+	if (Input[(size_t)i - 1].is(Flags::PAREHTHESIS_COMPONENT))		//(a+b) -a
+		return;
+	if (((size_t)i + 1) > Input.size())
+		return;
+
+	Input[(size_t)i+1].node->Coefficient *= -1;
+
+	//remove the negettor operator
+	Input.erase(Input.begin() + i);
+
+	return;
 }
 
 void Parser::Callation_Pattern(int i)
@@ -471,30 +495,32 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Array_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
-		Operator_PreFix_Pattern(i, { "++", "--", "-" });
+		PreFix_Variable_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Operator_PreFix_Pattern(i, { "++", "--" });
 	//the combination and multilayering of operations.
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { ":" });
+		Math_Pattern(i, { ":" }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "." });
+		Math_Pattern(i, { "." }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "*", "/" , "%" });
+		Math_Pattern(i, { "*", "/" , "%" }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "<<", ">>" });
+		Math_Pattern(i, { "<<", ">>" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "&", "!&" });
+		Math_Pattern(i, { "&", "!&" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "?" });
+		Math_Pattern(i, { "?" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "|", "!|" });
+		Math_Pattern(i, { "|", "!|" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "+", "-" });
+		Math_Pattern(i, { "+", "-" }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "<", ">" });
+		Math_Pattern(i, { "<", ">" }, CONDITION_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&=" });
+		Math_Pattern(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&=" }, CONDITION_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" });
+		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" }, CONDITION_OPERATOR_NODE);
 }
 
 void Parser::Return_Pattern(int i)

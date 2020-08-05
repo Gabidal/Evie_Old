@@ -43,7 +43,7 @@ public:
 	Node* Predecessor = nullptr;
 	//algebra optimizer features
 	int Order = 0;
-	int Coefficient = 0;
+	int Coefficient = 1;
 	Node* Current_Value = nullptr;
 	bool Inlined = false;
 	//fetching features

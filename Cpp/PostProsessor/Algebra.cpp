@@ -58,12 +58,28 @@ void Algebra::Inline_Variables(int i)
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
 			if (d->Current_Value != nullptr) {
+				//set right current coefficient value
+				//n = -1
+				//a = -n
+				d->Current_Value->Coefficient *= n->Coefficient;
 				*n = *d->Current_Value;
 				d->Inlined = true;
 				//maybe this is useless:
 				n->Inlined = false;
 			}
 	}
+
+}
+
+void Algebra::Reduce_Condition_Operations(int i)
+{
+	if (!Input->at(i)->is(CONDITION_OPERATOR_NODE))
+		return;
+	//a * 2 < a + 1
+	//2a -a < a - a + 1
+	//a < 1
+
+
 
 }
 
@@ -104,8 +120,17 @@ void Algebra::Set_Defining_Value(int i)
 	//remeber if functoin call has do something global/pointter-
 	//dont let this function run on that!
 
+	//if the right side is a operator wrap it in a parenthesis just because the '-' prefix!!
+	Node* right = Input->at(i)->Right;
+
+	if (Input->at(i)->Right->is(OPERATOR_NODE)) {
+		right = new Node(CONTENT_NODE);
+		right->Paranthesis_Type = '(';
+		right->Childs.push_back(Input->at(i)->Right);
+	}
+
 	//give the defining node the current set-val.
-	Parent->Find(Input->at(i)->Left->Name, Parent)->Current_Value = Input->at(i)->Right;
+	Parent->Find(Input->at(i)->Left->Name, Parent)->Current_Value = right;
 
 	return;
 }
@@ -153,7 +178,7 @@ void Algebra::Set_Coefficient_Value(int i)
 
 void Algebra::Operate_Coefficient_Constants(Node* op)
 {
-	//b = x2 + x2
+	//b = 2x * -2x
 	if (!op->is(OPERATOR_NODE))
 		return;
 	if (op->Left->is(OPERATOR_NODE))
@@ -161,10 +186,6 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 	if (op->Right->is(OPERATOR_NODE))
 		Operate_Coefficient_Constants(op->Right);
 
-	if (op->Left->Coefficient == 0)
-		return;
-	if (op->Right->Coefficient == 0)
-		return;
 	if (op->Left->Name != op->Right->Name)
 		return;
 
@@ -199,6 +220,12 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 
 	*op = *New_Num;
 
+	if (op->Coefficient == 0) {
+		Node* num = new Node(NUMBER_NODE);
+		num->Name = "0";
+		*op = *num;
+	}
+
 }
 
 void Algebra::Operate_Numbers_As_Constants(Node* op)
@@ -207,8 +234,16 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 		return;
 	if (op->Left->is(OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Left);
+	else if (op->Left->is(CONTENT_NODE)) {
+		for (Node* i : op->Left->Childs)
+			Operate_Numbers_As_Constants(i);
+	}
 	if (op->Right->is(OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Right);
+	else if (op->Right->is(CONTENT_NODE)) {
+		for (Node* i : op->Right->Childs)
+			Operate_Numbers_As_Constants(i);
+	}
 
 	if (!op->Left->is(NUMBER_NODE))
 		return;

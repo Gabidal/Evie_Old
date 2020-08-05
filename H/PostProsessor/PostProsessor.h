@@ -32,7 +32,7 @@ public:
 	void Function_Callation(int i);					//justifyes the fucntion to call
 	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
-	void Define_Sizes(Node* p);
+	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
 
 	Node* Get_Combined(Node* n);
 		
