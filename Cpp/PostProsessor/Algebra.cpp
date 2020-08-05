@@ -13,13 +13,15 @@ void Algebra::Factory() {
 	for (auto i : *Input)
 		Operate_Coefficient_Constants(i);
 	for (auto i : *Input)
+		Reduce_Condition_Operations(i);
+	for (auto i : *Input)
 		Fix_Coefficient_Into_Real_Operator(i);
 }
 
 vector<Node*> Algebra::Linearise(Node* ast, bool Include_Operator = false)
 {
 	vector<Node*> Result;
-	if (ast->is(OPERATOR_NODE)) {
+	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE)) {
 		vector<Node*> left = Linearise(ast->Left, Include_Operator);
 		Result.insert(Result.end(), left.begin(), left.end());
 
@@ -71,15 +73,43 @@ void Algebra::Inline_Variables(int i)
 
 }
 
-void Algebra::Reduce_Condition_Operations(int i)
+void Algebra::Reduce_Condition_Operations(Node* n)
 {
-	if (!Input->at(i)->is(CONDITION_OPERATOR_NODE))
+	if (!n->is(CONDITION_OPERATOR_NODE))
 		return;
-	//a * 2 < a + 1
+	//a * 2 < 1 - a
 	//2a -a < a - a + 1
 	//a < 1
 
+	/*
+	//first optimize with -O1
+	Algebra a(Parent);
+	a.Input = new vector<Node*>();
+	a.Input->push_back(n->Left);
+	a.Factory();
 
+	//do same to right side
+	a.Input->clear();
+	a.Input->push_back(n->Right);
+	a.Factory();
+	*/
+
+	vector<Node*> Variables = Linearise(n);
+
+	//now go through one side and try to delete one coefficient amount of that variable on both sides.
+	for (Node* v : Variables) {
+		if (v->is(OBJECT_NODE)) {
+			for (Node* other_v : Variables) {
+				if (other_v == v)
+					//skip same, at end we zero out this!
+					continue;
+				if (other_v->Name == v->Name)
+					other_v->Coefficient -= v->Coefficient;
+			}
+			//zero this variable out here:
+			v->Coefficient -= v->Coefficient;
+		}
+	}
 
 }
 
@@ -139,7 +169,7 @@ void Algebra::Set_Coefficient_Value(int i)
 {
 	//a = x * 2
 	//b = x * 2 + a
-	if (!Input->at(i)->is(OPERATOR_NODE))
+	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE))
 		return;
 
 	vector<Node*> linear_ast = Linearise(Input->at(i), true);
@@ -237,12 +267,20 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 	else if (op->Left->is(CONTENT_NODE)) {
 		for (Node* i : op->Left->Childs)
 			Operate_Numbers_As_Constants(i);
+		if (op->Left->Childs.size() == 1) {
+			op->Left->Childs[0]->Coefficient *= op->Left->Coefficient;
+			*op->Left = *op->Left->Childs[0];
+		}
 	}
 	if (op->Right->is(OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Right);
 	else if (op->Right->is(CONTENT_NODE)) {
 		for (Node* i : op->Right->Childs)
 			Operate_Numbers_As_Constants(i);
+		if (op->Left->Childs.size() == 1) {
+			op->Left->Childs[0]->Coefficient *= op->Left->Coefficient;
+			*op->Left = *op->Left->Childs[0];
+		}
 	}
 
 	if (!op->Left->is(NUMBER_NODE))
@@ -284,15 +322,28 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 {
 	//here we will fix the coefficient into a real operator as the name yells.
-	if (n->is(OPERATOR_NODE)) {
-		Fix_Coefficient_Into_Real_Operator(n->Left);
-		Fix_Coefficient_Into_Real_Operator(n->Right);
+	if (n->is(OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE)) {
+		if (n->Left->Coefficient != 0)
+			Fix_Coefficient_Into_Real_Operator(n->Left);
+		else {
+			//this is needed to be cleaned!!
+			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
+			*n = *n->Right;
+			return;
+		}
+		if (n->Right->Coefficient != 0)
+			Fix_Coefficient_Into_Real_Operator(n->Right);
+		else {
+			//this is needed to be cleaned!!
+			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
+			*n = *n->Left;
+			return;
+		}
 	}
 	//only variables are accepted
 	if (!n->is(OBJECT_NODE))
 		return;
-	//no point in fixing nothing :D
-	if (n->Coefficient == 0)
+	if (n->Coefficient == 1)
 		return;
 
 	//make operator that is going to hold the new coefficient and the variable

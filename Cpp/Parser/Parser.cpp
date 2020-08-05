@@ -146,7 +146,7 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 	if (!op_Pass)
 		return;
 
-	Node* Operator = new Node(OPERATOR_NODE);
+	Node* Operator = new Node(F);
 	Operator->Name = Input[i].Value;
 
 	if (Input[(size_t)i - 1].node != nullptr)
@@ -167,6 +167,10 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 		//Dont worry about function calls
 		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
 		new_member->Name = Input[(size_t)i + 1].Value;
+
+		//this is for advanced only!!
+		if (Input[i].Value == "-")
+			new_member->Coefficient *= -1;
 
 		Operator->Right = new_member;
 	}
@@ -520,7 +524,7 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&=" }, CONDITION_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" }, CONDITION_OPERATOR_NODE);
+		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" }, OPERATOR_NODE);
 }
 
 void Parser::Return_Pattern(int i)
