@@ -89,6 +89,7 @@ const char* Source = "";
 }*/
 
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
+//Evie.exe -in ~/test.e
 int main(int argc, char* argv[])
 {
     if (argc == 1) {

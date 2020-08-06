@@ -15,13 +15,15 @@ public:
 	vector<string> Libs;
 	vector<string> Source_Files;
 	string Format = "exe";
-	string Bits_Mode = "4";
+	string Bits_Mode = "0";
 	string Disable = "";
 	string Debug = "";
-
-	//	ID	  , Value
-	map<string, string> Mapped_Values;
-	void Update_Mapped_Values();
+	output() {
+		#ifndef _WIN32
+			OS = "unix";
+		#endif
+	}
+	void Fill_Empty_Arguments();
 };
 
 class Usr
@@ -33,7 +35,7 @@ public:
 		Input = in;
 		Argument_Amount = count;
 		Create_Argument_Stats();
-		Info.Update_Mapped_Values();
+		Info.Fill_Empty_Arguments();
 	}
 
 	~Usr(){}
@@ -50,6 +52,7 @@ private:
 	void Find_Format(int &i);
 	void Find_Lib(int& i);
 	void Find_Debug_Type(int& i);
+
 };
 
 
