@@ -80,7 +80,10 @@ func main(int x) {
     a = x * 2
     b = x * 2 + a
 
-    a * 2 == a + 1
+    if (a * 2 == a - 1){
+    }
+    else {
+    }
 
     #the way to change the pointter value is to manage the offsetter value
     #you dont want to change the initial value of the pointter just add an offsetter when you use it

@@ -168,12 +168,12 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
 		new_member->Name = Input[(size_t)i + 1].Value;
 
-		//this is for advanced only!!
-		if (Input[i].Value == "-")
-			new_member->Coefficient *= -1;
-
 		Operator->Right = new_member;
 	}
+
+	//this is for advanced only!!
+	if (Input[i].Value == "-")
+		Operator->Right->Coefficient *= -1;
 
 	Input[i].node = Operator;
 	Input.erase(Input.begin() + i + 1);
@@ -494,6 +494,36 @@ void Parser::If_Pattern(int i)
 	return;
 }
 
+void Parser::Else_Pattern(int i)
+{
+	//here we patternise the alse without a condition
+	if (!Input[i].is(Flags::KEYWORD_COMPONENT))
+		return;
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
+	if (Parenthesis_Indexes.size() != 1)
+		return;
+
+	if (Input[i].Value != "else")
+		return;
+
+	Node* Else = new Node(ELSE_NODE);
+
+	Parser p(Else);
+	Else->Name = Input[i].Value;
+	Else->Parent = Parent;
+
+	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
+	p.Factory();
+
+	Else->Childs = p.Input[0].node->Childs;
+
+	Input[i].node = Else;
+
+	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
+
+	return;
+}
+
 void Parser::Operator_Order()
 {
 	for (int i = 0; i < Input.size(); i++)
@@ -575,6 +605,7 @@ void Parser::Factory() {
 		Function_Pattern(i);
 		Type_Pattern(i);
 		If_Pattern(i);
+		Else_Pattern(i);
 		Callation_Pattern(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {

@@ -9,6 +9,7 @@ void PostProsessor::Factory() {
 		Operator_Overload(i);
 		Member_Function(i);
 		Open_Function_For_Prosessing(i);
+		Open_Condition_For_Prosessing(i);
 		Combine_Conditions(i);
 		Function_Callation(i);
 		Combine_Member_Fetching(Input[i]);
@@ -114,6 +115,27 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 	//preprare the local variables
 	p.Define_Sizes(Input[i]);
 
+	p.Factory();
+
+	return;
+}
+
+void PostProsessor::Open_Condition_For_Prosessing(int i)
+{
+	if (!Input[i]->is(IF_NODE) && !Input[i]->is(ELSE_IF_NODE))
+		return;
+
+	//here we pass the condition operator into algebra optimizer
+	Algebra a(Input[i]);
+	a.Input = &Input[i]->Parameters;
+	a.Factory();
+
+	//here we now postprosess also the insides of the condition
+	PostProsessor p(Input[i]);
+	p.Input = Input[i]->Childs;
+
+	//preprare the local variables
+	p.Define_Sizes(Input[i]);
 	p.Factory();
 
 	return;
