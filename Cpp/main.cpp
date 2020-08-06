@@ -88,11 +88,26 @@ const char* Source = "";
     }
 }*/
 
-//Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 4 -debug dwarf2
+//Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 int main(int argc, char* argv[])
 {
-    if (argc == 1)
-        return -1 ;
+    if (argc == 1) {
+        //this happends when do parameter are given
+        cout << "Argument types are: \n";
+        cout << "-in [relative path/source file]\n";
+        cout << "-out [relative path/output file name]\n";
+        cout << (string)"-f [\n  supported output file formats are:\n" +
+            "  exe(executable works for unix as well),\n" + 
+            "  lib(static lib),\n" +
+            "  dll(dynamic library support is not made yet!)\n" + 
+            "]\n";
+        cout << "-os [operating system (win32/unix)]\n";
+        cout << "-arch [x86/arm]\n";
+        cout << "-mode [bit mode 32/64]\n";
+        cout << "-debug [debug symbol type(dwarf2)]\n";
+        cout << endl;
+        return -1;
+    }
     Lexer::DecimalSeparator = '.';
     Lexer::ExponentSeparator = 'e';
     Lexer::SingleLineCommentIdentifier = '#';

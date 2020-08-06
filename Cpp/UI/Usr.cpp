@@ -59,7 +59,7 @@ void Usr::Find_Bits_Mode(int &i)
 {
 	if ((i <= Argument_Amount) && strcmp(Input[i], "-mode") == 0)
 	{
-		Info.Bits_Mode = Input[i + 1];
+		Info.Bits_Mode = to_string(atoi(Input[i + 1]) / 8);
 		i++;
 	}
 }
