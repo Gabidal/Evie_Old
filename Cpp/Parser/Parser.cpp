@@ -221,11 +221,11 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	//</summary>
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
 		return;
-	if (Input[i - 1].is(Flags::TEXT_COMPONENT))		//a -b
+	if (Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT))		//a -b
 		return;
-	if (Input[i - 1].is(Flags::NUMBER_COMPONENT))		//1 -b
+	if (Input[(size_t)i - 1].is(Flags::NUMBER_COMPONENT))		//1 -b
 		return;
-	if (Input[i - 1].is(Flags::PAREHTHESIS_COMPONENT))		//(a+b) -a
+	if (Input[(size_t)i - 1].is(Flags::PAREHTHESIS_COMPONENT))		//(a+b) -a
 		return;
 	if (((size_t)i + 1) > Input.size())
 		return;
@@ -249,7 +249,45 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	Input.erase(Input.begin() + i + 1);
 }
 
-void Parser::PreFix_Variable_Pattern(int i)
+void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
+{	
+	//<summary>
+	//a--/b()--
+	//a++/b()++
+	//Adds the Operator_Postfix into the previus object
+	//</summary>
+	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
+		return;		//++
+	if ((size_t)i + 1 < Input.size() - 1) {
+		if (Input[(size_t)i + 1].is(Flags::TEXT_COMPONENT))
+			return;		//++ abc
+		if (Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
+			return;		//++ (..)
+	}
+
+	bool op_Pass = false;
+	for (string s : Postfix)
+		if (Input[i].Value == s)
+			op_Pass = true;
+	if (!op_Pass)
+		return;
+
+	Node* post = new Node(POSTFIX_NODE);
+	post->Name = Input[i].Value;
+	
+	//set the node to postfix as left
+	post->Left = Input[(size_t)i - 1].node;
+	//for casting
+	post->Right = Input[i].node;
+
+	Input[i].node = post;
+
+	Input.erase(Input.begin() + i - 1);
+
+	return;
+}
+
+void Parser::Variable_Negate_Pattern(int i)
 {
 	if (Input[i].Value != "-")
 		return;
@@ -529,9 +567,11 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Array_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
-		PreFix_Variable_Pattern(i);
+		Variable_Negate_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
 		Operator_PreFix_Pattern(i, { "++", "--" });
+	for (int i = 0; i < Input.size(); i++)
+		Operator_PostFix_Pattern(i, { "++", "--" });
 	//the combination and multilayering of operations.
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { ":" }, OPERATOR_NODE);
