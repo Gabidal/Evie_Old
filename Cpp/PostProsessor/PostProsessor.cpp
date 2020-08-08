@@ -10,11 +10,13 @@ void PostProsessor::Factory() {
 		Member_Function(i);
 		Open_Function_For_Prosessing(i);
 		Open_Condition_For_Prosessing(i);
-		Combine_Conditions(i);
+		//Combine_Conditions(i);
 		Function_Callation(i);
 		Combine_Member_Fetching(Input[i]);
 		Algebra_Laucher(i);
 	}
+	for (int i = 0; i < Input.size(); i++)
+		Combine_Condition(i);
 }
 
 void PostProsessor::Transform_Component_Into_Node()
@@ -84,6 +86,7 @@ void PostProsessor::Member_Function(int i)
 	return;
 }
 
+/*
 void PostProsessor::Combine_Conditions(int i)
 {
 	if ((Input[i]->is(IF_NODE)) && (Input[i]->is(WHILE_NODE)))
@@ -101,7 +104,7 @@ void PostProsessor::Combine_Conditions(int i)
 	Input[i]->Succsessor->Predecessor = Input[i];
 
 	return;
-}
+}*/
 
 void PostProsessor::Open_Function_For_Prosessing(int i)
 {
@@ -250,6 +253,32 @@ void PostProsessor::Define_Sizes(Node* p)
 		d->Update_Members_Size();
 		d->Update_Members_Mem_Offset();
 	}
+}
+
+void PostProsessor::Combine_Condition(int i)
+{
+	if (!Input[i]->is(IF_NODE))
+		return;
+
+	Node* current_condition = Input[i];
+	int j;
+	//loop through the next nodes if theyre else ifs
+	for (j = i + 1; j < Input.size(); j++) {
+		if (Input[j]->is(ELSE_IF_NODE) || Input[j]->is(ELSE_NODE)) {
+			//give the else if the parent as the if
+			Input[j]->Predecessor = current_condition;
+			//give the if the child as successor else if
+			current_condition->Succsessor = Input[j];
+			//give the successor as the current pointter
+			current_condition = Input[j];
+		}
+		else {
+			break;
+		}
+	}
+
+	//now remove the elses
+	Input.erase(Input.begin() + i + 1, Input.begin() + j);
 }
 
 Node* PostProsessor::Get_Combined(Node* n)

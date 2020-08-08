@@ -27,13 +27,14 @@ public:
 	void Transform_Component_Into_Node();			//transfer the components into pure nodes
 	void Type_Definer(int i);						//defines all the members of type
 	void Member_Function(int i);					//puts the func into parenting type class
-	void Combine_Conditions(int i);					//combines the if and else
+	//void Combine_Conditions(int i);					//combines the if and else
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
-	void Open_Condition_For_Prosessing(int i);
+	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
 	void Function_Callation(int i);					//justifyes the fucntion to call
 	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
+	void Combine_Condition(int i);
 
 	Node* Get_Combined(Node* n);
 		

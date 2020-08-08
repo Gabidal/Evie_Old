@@ -68,7 +68,7 @@ func main(int x) {
     test first
 
     #the post prosessing can put the object fetching the function as first parameter
-    int ptr a = first.get() + first.size()
+    int ptr a = first.get(1, 2) + first.size(1 + 2)
 
     #list
     int ptr list = new(100)

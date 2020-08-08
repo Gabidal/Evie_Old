@@ -244,13 +244,17 @@ public:
 
 		else if (n->is(CONTENT_NODE)) {
 			for (Node* i : n->Childs)
-				Result.push_back(i);
+				if (i->is(f))
+					Result.push_back(i);
 		}
 
+		/*
+		//this doesnt work dont use unless must!!
 		else if (n->is(CALL_NODE)) {
 			for (Node* i : n->Parameters)
-				Result.push_back(i);
-		}
+				if (i->is(f))
+					Result.push_back(i);
+		}*/
 
 		if (n->is(f))
 			Result.push_back(n);
