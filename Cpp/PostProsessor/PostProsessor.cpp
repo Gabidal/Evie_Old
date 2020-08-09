@@ -1,5 +1,7 @@
 #include "../../H/PostProsessor/PostProsessor.h"
 
+extern Node* Global_Scope;
+
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
 	for (int i = 0; i < Input.size(); i++)
@@ -11,9 +13,10 @@ void PostProsessor::Factory() {
 		Open_Function_For_Prosessing(i);
 		Open_Condition_For_Prosessing(i);
 		//Combine_Conditions(i);
-		Function_Callation(i);
 		Combine_Member_Fetching(Input[i]);
 		Algebra_Laucher(i);
+		Open_Operator_For_Prosessing(i);
+		Function_Callation(Input[i]);
 	}
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
@@ -65,7 +68,7 @@ void PostProsessor::Member_Function(int i)
 	//</summary>
 	if (Input[i]->Type != FUNCTION_NODE)
 		return;
-	if (Input[i]->is(".") == false)
+	if (Input[i]->is(".") == -1)
 		return;
 
 	Node* func = Input[i];
@@ -144,22 +147,24 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	return;
 }
 
-void PostProsessor::Function_Callation(int i)
+void PostProsessor::Function_Callation(Node* n)
 {
-	if (!Input[i]->is(CALL_NODE))
+	if (!n->is(CALL_NODE))
+		return;
+	if (n->Template_Function != nullptr)
 		return;
 	//<summary>
 	//this function tryes to find the function to call
 	//</summary>
 	//first try to find if this fucntion is a virtual function
-	Node* defition = Parent->Find(Input[i]->Name, Parent);
-	if ((defition != nullptr) && defition->is("ptr")) {
+	Node* defition = Parent->Find(n->Name, Parent);
+	if ((defition != nullptr) && defition->is("ptr") != -1) {
 		//now we need to give it the appropriate memory offset-
 		//so the virtual function can actually call itself.
-		Input[i]->Memory_Offset = defition->Memory_Offset;
-		Input[i]->Size = defition->Size;
-		Input[i]->Scaler = defition->Scaler;
-		Input[i]->Inheritted = defition->Inheritted;
+		n->Memory_Offset = defition->Memory_Offset;
+		n->Size = defition->Size;
+		n->Scaler = defition->Scaler;
+		n->Inheritted = defition->Inheritted;
 		return;
 	}
 	//other wise we have normal functions
@@ -167,16 +172,20 @@ void PostProsessor::Function_Callation(int i)
 	//as parameters on the function this callation calls
 
 	//first make a mangled name outof the caller
-	Input[i]->Mangled_Name = Input[i]->Get_Mangled_Name();
+	n->Mangled_Name = n->Get_Mangled_Name();
 
-	//get the global scop where all the funciton are
-	Node* Global_Scope = Parent->Find("GLOBAL_SCOPE", Parent);
+	//also the returning type of this callation is not made,
+	//we can determine it by the operations other side objects type.
+	//if the 
 
 	//first ignore the template parameters for now
 	for (auto f : Global_Scope->Defined)
-		if (f->Mangled_Name == Input[i]->Mangled_Name)
-			//we dont need to do enything, everything is fine.
-			return;
+		if (f->is(FUNCTION_NODE))
+			if (f->Mangled_Name == n->Mangled_Name) {
+				n->Template_Function = f;
+				//we dont need to do enything, everything is fine.
+				return;
+			}
 
 	Node* OgFunc = nullptr;
 
@@ -185,11 +194,15 @@ void PostProsessor::Function_Callation(int i)
 
 	//if the code gets here it means the og-function has template paramters!
 	for (auto f : Global_Scope->Defined) {
+		if (!f->is(FUNCTION_NODE))
+			continue;
+		if (f->Name != n->Name)
+			continue;
 		for (int p = 0; p < f->Parameters.size(); p++) {
-			if (f->Parameters[p]->is("type"))
+			if (f->Parameters[p]->is("type") != -1)
 				continue;		//just ignore the template parameters for now.
 			//here we will determine if this function is the og-fucntion or not.
-			else if (f->Parameters[p]->Get_Inheritted("") != Input[i]->Parameters[p]->Get_Inheritted("")) {
+			else if (f->Parameters[p]->Get_Inheritted("") != n->Parameters[p]->Get_Inheritted("")) {
 				goto Next_Function;
 			}
 		}
@@ -204,11 +217,24 @@ void PostProsessor::Function_Callation(int i)
 
 	//now we want to through the templates and put on them the right parameter infos
 	for (int p = 0; p < func->Parameters.size(); p++) {
-		func->Parameters[p]->Inheritted = Input[i]->Parameters[p]->Inheritted;
+		vector<string> tmp = func->Parameters[p]->Inheritted;
+		//update the parent
+		func->Parameters[p]->Parent = func;
+
+		func->Parameters[p]->Inheritted = n->Parameters[p]->Inheritted;
+		//now iterate the leftover types like ptr
+		for (string s : tmp) {
+			if (s == "type")
+				continue;
+			if (func->Parameters[p]->is(s) == -1)
+				func->Parameters[p]->Inheritted.push_back(s);
+		}
 		//alsoset the defined types into right inheritance.
-		func->Find(func->Parameters[p]->Name, func)->Inheritted = Input[i]->Parameters[p]->Inheritted;
+		func->Find(func->Parameters[p]->Name, func)->Inheritted = func->Parameters[p]->Inheritted;
 	}
 
+	n->Template_Function = func;
+	func->Mangled_Name = func->Get_Mangled_Name();
 	
 	//now we want to inject it to global scope to be reached next time.
 	Global_Scope->Childs.push_back(func);
@@ -279,6 +305,66 @@ void PostProsessor::Combine_Condition(int i)
 
 	//now remove the elses
 	Input.erase(Input.begin() + i + 1, Input.begin() + j);
+}
+
+void PostProsessor::Open_Operator_For_Prosessing(int i)
+{
+	if (Input[i]->is(CALL_NODE))
+		Determine_Return_Type(Input[i], nullptr);
+	else if (Input[i]->is(OPERATOR_NODE)) {
+		Determine_Return_Type(Input[i]->Left, Input[i]->Right);
+		Determine_Return_Type(Input[i]->Right, Input[i]->Left);
+	}
+	else if (Input[i]->is(CONTENT_NODE))
+		for (Node* n : Input[i]->Childs)
+			Determine_Return_Type(n, nullptr);
+}
+
+void PostProsessor::Determine_Return_Type(Node* n, Node* closest_type)
+{
+	//int a = banana() + apple()	<-- this local type is 'int'
+	//string a = to_string(banana() + apple() * 1) <--here the local type is what to_string takes as a parameter
+	//an paranthesis can work as a own local space where there can be a local type
+	if (n->is(CALL_NODE)) {
+		//if the closest type is a nullptr it is a void function
+		if (closest_type != nullptr) {
+			n->Inheritted = closest_type->Inheritted;
+		}
+		else
+			n->Inheritted.push_back("func");	//void
+		Function_Callation(n);
+	}
+	if (!n->is(OPERATOR_NODE))
+		return;
+	if (n->Left->is(OPERATOR_NODE) || n->Left->is(CONTENT_NODE))
+		Determine_Return_Type(n->Left, n->Right);
+	if (n->Right->is(OPERATOR_NODE) || n->Right->is(CONTENT_NODE))
+		Determine_Return_Type(n->Right, n->Left);
+
+}
+
+void PostProsessor::Operator_Type_Definer(Node* n)
+{
+	//go trhough the ast tree
+	if (n->is(OPERATOR_NODE)) {
+		Operator_Type_Definer(n->Left);
+		Operator_Type_Definer(n->Right);
+	}
+	if (n->is(CONTENT_NODE))
+		for (Node* i : n->Childs)
+			Operator_Type_Definer(i);
+
+	//now set the values
+	if (n->is(OPERATOR_NODE)) {
+		n->Inheritted = n->Left->Inheritted;
+		if (n->Inheritted.size() == 0)
+			//for callation instances
+			n->Inheritted = n->Right->Inheritted;
+	}
+	if (n->is(CONTENT_NODE)) {
+		n->Inheritted = n->Childs[0]->Inheritted;
+	}
+	return;
 }
 
 Node* PostProsessor::Get_Combined(Node* n)

@@ -195,6 +195,7 @@ void Parser::Number_Pattern(int i)
 		return;
 	Node* Num = new Node(NUMBER_NODE);
 	Num->Name = Input[i].Value;
+	Num->Parent = Parent;
 	Input[i].node = Num;
 	return;
 }

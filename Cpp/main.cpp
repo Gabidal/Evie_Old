@@ -153,6 +153,7 @@ int main(int argc, char* argv[])
     PostProsessor postprosessor(Global_Scope);
     postprosessor.Components = p.Input;
     postprosessor.Factory();
+    Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
 
     ofstream o(sys->Info.Destination_File.c_str());
     o << OUTPUT;//b.Output;

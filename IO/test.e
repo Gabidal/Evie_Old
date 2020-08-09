@@ -64,6 +64,12 @@ func function_pointters(){
     function_pointter_as_array_handle = apple()
 }
 
+func copy(){
+    int a
+    int b
+    memcpy(a, b, 1)
+}
+
 func main(int x) {
     test first
 
@@ -71,7 +77,7 @@ func main(int x) {
     int ptr a = first.get(1, 2) + first.size(1 + 2)
 
     #list
-    int ptr list = new(100)
+    int ptr list #= new(100)
 
     #if the other side of the operator is also an ptr then use the mem of variable a
     #otherwise load the address of that ptr a points to and do the operator to it
@@ -96,7 +102,7 @@ func main(int x) {
     test second = first
 
     #the copy of the object into heap
-    test ptr third = new(first)
+    test ptr third #= new(first)
     
     #the reference of the first object
     test ptr fourth = first
