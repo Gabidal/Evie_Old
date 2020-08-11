@@ -8,11 +8,11 @@ extern _ReadConsoleA@20
 global sys_print
 sys_print:
 
-; esp+16: len
-; esp+12: buf
-; esp+8: return
-; esp+4: 0
-; esp: written
+; esp+16 =  len
+; esp+12 = buf
+; esp+8 = return
+; esp+4 = 0
+; esp = written
 
 push -11 ; STD_OUTPUT_HANDLE
 call _GetStdHandle@4
@@ -50,9 +50,12 @@ mov eax, [esp]
 add esp, 4
 ret
 
-global sys_new
-	sys_new:
+;test the normal laber analyzer
+global new
+	new:
 	
+global _Z3newi1A
+	_Z3newi1A:
 
 section .data
 written dd 0

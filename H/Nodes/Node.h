@@ -95,15 +95,141 @@ public:
 			return result + Inheritted.back();
 		}
 	}
+
+	string Un_Mangle(Node* n) {
+		string Result;
+		for (string s : n->Inheritted)
+			Result += s + " ";
+		Result += n->Name + "(";
+		for (Node* p : n->Parameters)
+			for (string s : p->Inheritted)
+				Result += s + ", ";
+		Result += ")\n";
+		return Result;
+	}
 	
 	Node* Un_Mangle(string raw) {
-		//TODO!!
-		//_int_ptr_Z6banana_int_int_short
+		Node* Result = new Node(FUNCTION_NODE);
+		//type ptr new  type
 		regex r("_Z[0-9]+");
 		smatch match;
-		if (!regex_match(raw, match, r))
-			cout << "Critical Error: " << raw << " didnt contain the start of the name indicator '_Z[0-9]'" << endl;
-		int Name_Start = match.position();
+		if (regex_match(raw, match, r)) {
+			//C++ unmangler
+			//_Z3NEWi3ABC
+			bool Func_Name = true;
+			string Current;
+			vector<string> Current_Parameter;
+			for (int i = 2; i < raw.size(); i++) {
+				if		(raw[i] == 'P') {
+					Current_Parameter.push_back("ptr");
+					continue;
+				}
+				else if (raw[i] == 'R') {
+					Current_Parameter.push_back("ref");
+					continue;
+				}
+				else if (raw[i] == 'c') {
+					Result->Parameters.push_back(new Node(*Find(1, this)));
+					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
+					Current_Parameter.clear();
+				}
+				else if (raw[i] == 's') {
+					Result->Parameters.push_back(new Node(*Find(2, this)));
+					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
+					Current_Parameter.clear();
+				}
+				else if (raw[i] == 'f') {
+					Result->Parameters.push_back(new Node(*Find(4, this)));
+					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
+					Current_Parameter.clear();
+				}
+				else if (raw[i] == 'i') {
+					Result->Parameters.push_back(new Node(*Find(4, this)));
+					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
+					Current_Parameter.clear();
+				}
+				else if (raw[i] == 'd') {
+					Result->Parameters.push_back(new Node(*Find(8, this)));
+					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
+					Current_Parameter.clear();
+				}
+
+				else if (((raw[i] >= 48) && (raw[i] <= 57))) {
+					string tmp = "" + (char)raw[i];
+					for (int j = i + 1; j < raw.size(); j++) {
+						if (((raw[i] >= 48) && (raw[i] <= 57)))
+							tmp += (char)raw[j];
+						else
+							break;
+					}
+					int size = atoi(tmp.c_str());
+					string name = "";
+					for (int j = i + tmp.size(); (j < (size + i)) && j < raw.size(); j++) {
+						name += (char)raw[j];
+					}
+					if (Func_Name) {
+						Result->Name = name;
+					}
+					else {
+						Node* p = new Node(OBJECT_DEFINTION_NODE);
+						p->Inheritted.push_back(name);
+						Append(p->Inheritted, Current_Parameter);
+						Current_Parameter.clear();
+					}
+					i += size;
+				}
+			}
+		}
+		else {
+			vector<string> Return_type;
+			vector<vector<string>> Parameters;
+			string Func_Name;
+			bool Currently_Return_Type = true;
+			string Current;
+			vector<string> Current_Parameter_Types;
+			for (int i = 0; i < raw.size(); i++) {
+				if (raw[i] == ' ') {
+					if (!(i + 1 > raw.size()) && (raw[i + 1] == ' ')) {
+						//__
+						if (Currently_Return_Type) {
+							Currently_Return_Type = false;
+							Func_Name = Return_type.back();
+							Return_type.pop_back();
+						}
+						else {
+							Parameters.push_back(Current_Parameter_Types);
+							Current_Parameter_Types.clear();
+						}
+					}
+					else {
+						//_
+						if (Currently_Return_Type) {
+							Return_type.push_back(Current);
+							Current = "";
+						}
+						else {
+							Current_Parameter_Types.push_back(Current);
+							Current = "";
+						}
+					}
+				}
+				else {
+					Current += raw[i];
+				}
+			}
+			if (Currently_Return_Type) {
+				Func_Name = Current;
+			}
+			int i = 0;
+			for (auto i : Parameters) {
+				Node* p = new Node(OBJECT_DEFINTION_NODE);
+				p->Inheritted = i;
+				Result->Parameters.push_back(p);
+			}
+			Result->Name = Func_Name;
+			Result->Inheritted = Return_type;
+		}
+		return Result;
 	}
 	
 	Node* Find(string name, Node* parent, bool Need_Parent_existance = true) {
@@ -300,7 +426,8 @@ public:
 		return Has(this, f);
 	}
 
-	void Append(vector<Node*>& d, vector<Node*> s) {
+	template<typename T>
+	void Append(vector<T>& d, vector<T> s) {
 		for (int i = 0; i < s.size(); i++)
 			d.push_back(s[i]);
 		return;

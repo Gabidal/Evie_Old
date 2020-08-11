@@ -67,7 +67,7 @@ func function_pointters(){
 func copy(){
     int a
     int b
-    memcpy(a, b, 1)
+    int c = memcpy(a, b, 1.123)
 }
 
 func main(int x) {
@@ -77,7 +77,7 @@ func main(int x) {
     int ptr a = first.get(1, 2) + first.size(1 + 2)
 
     #list
-    int ptr list #= new(100)
+    int ptr list = new(100)
 
     #if the other side of the operator is also an ptr then use the mem of variable a
     #otherwise load the address of that ptr a points to and do the operator to it

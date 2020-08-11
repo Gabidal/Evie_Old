@@ -1,6 +1,8 @@
 #include "../../H/Docker/Docker.h"
+#include "../../H/Nodes/Node.h"
 
 extern Usr* sys;
+extern Node* Global_Scope;
 
 void Docker::Start_Analyzer()
 {
@@ -135,13 +137,14 @@ void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
 {
 	//import loyal func [name]()()
 	//import generic func [name]()()
-	/*for (auto i : symbols) {
+
+	for (auto i : symbols) {
 		if (i.second != "func")
-			Append(Output, Lexer::GetComponents("import " + i.second + " func " + Mangler::Un_Mangle(i.first) + "() \n"));
+			Append(Output, Lexer::GetComponents( Global_Scope->Un_Mangle(Global_Scope->Un_Mangle("import func " + i.second + " " + i.first))));
 		else
-			Append(Output, Lexer::GetComponents("import " + i.second + " " + Mangler::Un_Mangle(i.first) + "() \n"));
+			Append(Output, Lexer::GetComponents(Global_Scope->Un_Mangle(Global_Scope->Un_Mangle("import " + i.second + " " + i.first))));
 	}
-	*/
+	
 }
 
 void Docker::Append(vector<Component>& Dest, vector<Component> Source)

@@ -324,6 +324,7 @@ void Parser::Callation_Pattern(int i)
 
 	Node* call = new Node(CALL_NODE);
 	call->Name = Input[i].Value;
+	call->Parent = Parent;
 
 	//initialize the parenthesis that contains the parameters
 	Parenthesis_Pattern(i + 1);
