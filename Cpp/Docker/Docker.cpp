@@ -81,7 +81,7 @@ void Docker::Separate_Identification_Patterns(vector<Component> Tokens)
 		}
 	}
 	//gahther the remaining tokens for parser.
-	Append(Output, Tokens);
+	Global_Scope->Append(Output, Tokens);
 }
 
 vector<unsigned char> Docker::Get_Char_Buffer_From_File(string FN, string WD)
@@ -140,18 +140,10 @@ void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
 
 	for (auto i : symbols) {
 		if (i.second != "func")
-			Append(Output, Lexer::GetComponents( Global_Scope->Un_Mangle(Global_Scope->Un_Mangle("import func " + i.second + " " + i.first))));
+			Global_Scope->Append(Output, Global_Scope->Append(Lexer::GetComponents("import func " + i.second ), Global_Scope->Un_Mangle(i.first)));
 		else
-			Append(Output, Lexer::GetComponents(Global_Scope->Un_Mangle(Global_Scope->Un_Mangle("import " + i.second + " " + i.first))));
+			Global_Scope->Append(Output, Global_Scope->Append(Lexer::GetComponents("import " + i.second), Global_Scope->Un_Mangle(i.first)));
 	}
-	
-}
-
-void Docker::Append(vector<Component>& Dest, vector<Component> Source)
-{
-	for (Component i : Source)
-		Dest.push_back(i);
-	return;
 }
 
 inline Section Get_Section_From_String(string& text)
@@ -238,6 +230,13 @@ void Docker::ASM_Analyzer()
 	string buffer = string((char*)tmp.data(), tmp.size());
 	Section Function_Section = Get_Section_From_String(buffer);
 	vector<pair<string, string>> Raw_Data = Get_Names_Of(Function_Section);
+	//delete all the comments that start with ;
+	for (int i = 0; i < Raw_Data.size(); i++) {
+		if (Raw_Data[i].first[0] == ';')
+			Raw_Data.erase(Raw_Data.begin() + i);
+		if (Raw_Data[i].first[0] == ';')
+			i--;
+	}
 	//we need to get rid of : in the asm labels
 	for (auto& i : Raw_Data)
 		i.first = ReplaceAll(i.first, ":", "");

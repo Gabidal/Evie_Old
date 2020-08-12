@@ -1,1 +1,1 @@
-func Local = "[A-z]+\:"
+func Local = "((_Z\d+\w+\:)|(\w+\:)|(\w+\d+\:))|(;.*)"

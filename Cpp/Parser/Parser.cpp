@@ -78,6 +78,56 @@ void Parser::Definition_Pattern(int i)
 	return;
 }
 
+void Parser::Duplicated_Prototype_Handler(int i)
+{	
+	//foo ptr a = ...
+	//<summary>
+	//list all previusly defined and find the last as an text to define a new object
+	//put that result object into parents defined list and also into-
+	//the INPUT[i + object index] the newly created object
+	//</summary>
+	if (Input[i].node != nullptr)
+		return;
+	if (!(Get_Inheritting_Components(i).size() > 0))
+		return;
+	if (i + Get_Inheritting_Components(i).size() + 1 > Input.size())
+		return;
+	if (!(Input[i + Get_Inheritting_Components(i).size() - 1 + 1].is(Flags::PAREHTHESIS_COMPONENT)))
+		return;
+	if (!Input[i + Get_Inheritting_Components(i).size() - 1].is(Flags::TEXT_COMPONENT))
+		//if this is is true that means the case is a duplicate prototypes.
+		return;
+	if (Get_Inheritting_Components(i)[0].Value == ".")
+		return;
+	//type a
+	vector<string> Inheritted;
+
+
+	for (int j = 0; j < Get_Inheritting_Components(i).size() -1; j++) {
+		if (Input[(size_t)i + j].is(Flags::KEYWORD_COMPONENT)) {
+			Node keyword(KEYWORD_NODE);
+			keyword.Name = Input[(size_t)i + j].Value;
+			keyword.Parent = Parent;
+			Inheritted.push_back(keyword.Name);
+		}
+		else {
+			Inheritted.push_back(Input[(size_t)i + j].Value);
+		}
+	}
+
+	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE);
+	New_Defined_Object->Inheritted = Inheritted;
+	New_Defined_Object->Name = Input[i + Get_Inheritting_Components(i).size() - 1].Value;
+	New_Defined_Object->Parent = Parent;
+	Parent->Defined.push_back(New_Defined_Object);
+
+	//for later AST use
+	Input[i + New_Defined_Object->Inheritted.size() - 1 + 1].node = New_Defined_Object;
+
+	Input.erase(Input.begin() + i, Input.begin() + i + New_Defined_Object->Inheritted.size());
+	return;
+}
+
 void Parser::Object_Pattern(int i)
 {
 	//<summary>
@@ -322,7 +372,19 @@ void Parser::Callation_Pattern(int i)
 	if (Input[(size_t)i + 1].Value[0] != '(')
 		return;
 
-	Node* call = new Node(CALL_NODE);
+	Node* call;
+
+	if (Input[i].node != nullptr) {
+		if (Input[i].node->Inheritted.size() > 0) {
+			//this is how prototypes are made!
+			call = new Node(PROTOTYPE);
+			call->Inheritted = Input[i].node->Inheritted;
+		}
+		else
+			call = new Node(CALL_NODE);
+	}
+	else
+		call = new Node(CALL_NODE);
 	call->Name = Input[i].Value;
 	call->Parent = Parent;
 
@@ -639,9 +701,11 @@ void Parser::Size_Pattern(int i)
 }
 
 void Parser::Factory() {
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.
 		Definition_Pattern(i);
+		Duplicated_Prototype_Handler(i);
+	}
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
 		Function_Pattern(i);

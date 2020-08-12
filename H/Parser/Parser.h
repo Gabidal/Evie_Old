@@ -22,6 +22,7 @@ public:
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
+	void Duplicated_Prototype_Handler(int i);
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int i, vector<string> Operator, int Flag);			//a = b + c * d

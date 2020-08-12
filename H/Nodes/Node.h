@@ -50,6 +50,10 @@ public:
 	Node* Fetcher = nullptr;
 	//calling features
 	Node* Template_Function = nullptr;
+	//function prototype features
+	//the import has the flag to prototyping
+	//and the paramters are Named as the size needed. thx!
+
 
 	bool is(int F) {
 		return Type == F;
@@ -108,127 +112,93 @@ public:
 		return Result;
 	}
 	
-	Node* Un_Mangle(string raw) {
-		Node* Result = new Node(FUNCTION_NODE);
+	vector<Component> Un_Mangle(string raw) {
+		Component Function = Component("", Flags::TEXT_COMPONENT);
+		Component Parenthesis = Component("()", Flags::PAREHTHESIS_COMPONENT);
+		bool Func_Name = true;
+		string Current;
+		vector<Component> Current_Parameter_Inheritted;
 		//type ptr new  type
-		regex r("_Z[0-9]+");
-		smatch match;
-		if (regex_match(raw, match, r)) {
+		if (raw[0] == '_' && raw[1] == 'Z') {
 			//C++ unmangler
 			//_Z3NEWi3ABC
-			bool Func_Name = true;
-			string Current;
-			vector<string> Current_Parameter;
 			for (int i = 2; i < raw.size(); i++) {
 				if		(raw[i] == 'P') {
-					Current_Parameter.push_back("ptr");
+					Component ptr = Component("ptr", Flags::KEYWORD_COMPONENT);
+					Current_Parameter_Inheritted.push_back(ptr);
 					continue;
 				}
 				else if (raw[i] == 'R') {
-					Current_Parameter.push_back("ref");
+					Component ref = Component("ref", Flags::KEYWORD_COMPONENT);
+					Current_Parameter_Inheritted.push_back(ref);
 					continue;
 				}
 				else if (raw[i] == 'c') {
-					Result->Parameters.push_back(new Node(*Find(1, this)));
-					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
-					Current_Parameter.clear();
+					//because there is nothign defined yet we want to preserve these datas for later definition.
+					Component p = Component("1", Flags::NUMBER_COMPONENT);
+					p.Components = Current_Parameter_Inheritted;
+					Current_Parameter_Inheritted.clear();
+					Parenthesis.Components.push_back(p);
 				}
 				else if (raw[i] == 's') {
-					Result->Parameters.push_back(new Node(*Find(2, this)));
-					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
-					Current_Parameter.clear();
+					Component p = Component("2", Flags::NUMBER_COMPONENT);
+					p.Components = Current_Parameter_Inheritted;
+					Current_Parameter_Inheritted.clear();
+					Parenthesis.Components.push_back(p);
 				}
 				else if (raw[i] == 'f') {
-					Result->Parameters.push_back(new Node(*Find(4, this)));
-					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
-					Current_Parameter.clear();
+					Component p = Component("4", Flags::NUMBER_COMPONENT);
+					p.Components = Current_Parameter_Inheritted;
+					Current_Parameter_Inheritted.clear();
+					Parenthesis.Components.push_back(p);
 				}
 				else if (raw[i] == 'i') {
-					Result->Parameters.push_back(new Node(*Find(4, this)));
-					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
-					Current_Parameter.clear();
+					Component p = Component("4", Flags::NUMBER_COMPONENT);
+					p.Components = Current_Parameter_Inheritted;
+					Current_Parameter_Inheritted.clear();
+					Parenthesis.Components.push_back(p);
 				}
 				else if (raw[i] == 'd') {
-					Result->Parameters.push_back(new Node(*Find(8, this)));
-					Append(Result->Parameters.back()->Inheritted, Current_Parameter);
-					Current_Parameter.clear();
+					Component p = Component("8", Flags::NUMBER_COMPONENT);
+					p.Components = Current_Parameter_Inheritted;
+					Current_Parameter_Inheritted.clear();
+					Parenthesis.Components.push_back(p);
 				}
 
 				else if (((raw[i] >= 48) && (raw[i] <= 57))) {
-					string tmp = "" + (char)raw[i];
+					string tmp = "";
+					tmp += raw[i];
 					for (int j = i + 1; j < raw.size(); j++) {
-						if (((raw[i] >= 48) && (raw[i] <= 57)))
+						if (((raw[j] >= 48) && (raw[j] <= 57)))
 							tmp += (char)raw[j];
 						else
 							break;
 					}
 					int size = atoi(tmp.c_str());
 					string name = "";
-					for (int j = i + tmp.size(); (j < (size + i)) && j < raw.size(); j++) {
+					for (int j = i + tmp.size(); (j < (size + i + 1)) && j < raw.size(); j++) {
 						name += (char)raw[j];
 					}
 					if (Func_Name) {
-						Result->Name = name;
+						Function.Value = name;
+						Func_Name = false;
 					}
 					else {
-						Node* p = new Node(OBJECT_DEFINTION_NODE);
-						p->Inheritted.push_back(name);
-						Append(p->Inheritted, Current_Parameter);
-						Current_Parameter.clear();
+						//class based parameters.
+						Component p = Component(name, Flags::TEXT_COMPONENT);
+						p.Components = Current_Parameter_Inheritted;
+						Current_Parameter_Inheritted.clear();
+						Parenthesis.Components.push_back(p);
 					}
 					i += size;
 				}
 			}
 		}
 		else {
-			vector<string> Return_type;
-			vector<vector<string>> Parameters;
-			string Func_Name;
-			bool Currently_Return_Type = true;
-			string Current;
-			vector<string> Current_Parameter_Types;
-			for (int i = 0; i < raw.size(); i++) {
-				if (raw[i] == ' ') {
-					if (!(i + 1 > raw.size()) && (raw[i + 1] == ' ')) {
-						//__
-						if (Currently_Return_Type) {
-							Currently_Return_Type = false;
-							Func_Name = Return_type.back();
-							Return_type.pop_back();
-						}
-						else {
-							Parameters.push_back(Current_Parameter_Types);
-							Current_Parameter_Types.clear();
-						}
-					}
-					else {
-						//_
-						if (Currently_Return_Type) {
-							Return_type.push_back(Current);
-							Current = "";
-						}
-						else {
-							Current_Parameter_Types.push_back(Current);
-							Current = "";
-						}
-					}
-				}
-				else {
-					Current += raw[i];
-				}
-			}
-			if (Currently_Return_Type) {
-				Func_Name = Current;
-			}
-			int i = 0;
-			for (auto i : Parameters) {
-				Node* p = new Node(OBJECT_DEFINTION_NODE);
-				p->Inheritted = i;
-				Result->Parameters.push_back(p);
-			}
-			Result->Name = Func_Name;
-			Result->Inheritted = Return_type;
+			//this lauches when no call type is identifyed.
+			Function.Value = raw;
 		}
+		vector<Component> Result = { Function, Parenthesis };
 		return Result;
 	}
 	
@@ -251,7 +221,7 @@ public:
 		for (Node* i : parent->Defined)
 			if (i->Size == size)
 				return i;
-		if (parent != nullptr)
+		if (parent->Parent != nullptr)
 			return Find(size, parent->Parent);
 		return nullptr;
 	}
@@ -427,10 +397,10 @@ public:
 	}
 
 	template<typename T>
-	void Append(vector<T>& d, vector<T> s) {
+	vector<T>& Append(vector<T>& d, vector<T> s) {
 		for (int i = 0; i < s.size(); i++)
 			d.push_back(s[i]);
-		return;
+		return d;
 	}
 };
 

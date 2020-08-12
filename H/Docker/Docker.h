@@ -56,8 +56,6 @@ private:
 	vector<pair<string, string>> Get_Names_Of(Section area);
 	//Syntaxly_Correct_Return_Of_Vector_Strings
 	void Syntax_Correcter(vector<pair<string, string>> symbols);
-	//append 
-	void Append(vector<Component>& Dest, vector<Component> Source);
 
 
 	void TXT_Analyzer();
