@@ -54,8 +54,8 @@ ret
 global new
 	new:
 	
-global _Z3newi1A
-	_Z3newi1A:
+global _Z3newiP1A
+	_Z3newiP1A:
 
 section .data
 written dd 0

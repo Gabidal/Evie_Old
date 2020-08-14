@@ -22,7 +22,7 @@ public:
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
-	void Duplicated_Prototype_Handler(int i);
+	void Duplicated_Prototype_Handler(int i);					//func banan(int), func banana()
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int i, vector<string> Operator, int Flag);			//a = b + c * d
@@ -40,6 +40,7 @@ public:
 	void Else_Pattern(int i);
 	void Return_Pattern(int i);
 	void Size_Pattern(int i);									//if (contidion){..}
+	void Set_Keyword_Prop_To_Imported_Function_Parameter(int i);
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	//Pattern Users
 	void Operator_Order();

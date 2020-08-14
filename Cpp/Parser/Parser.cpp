@@ -700,6 +700,22 @@ void Parser::Size_Pattern(int i)
 	return;
 }
 
+void Parser::Set_Keyword_Prop_To_Imported_Function_Parameter(int i)
+{
+	if (Input[i].node == nullptr)
+		return;
+	if (!Input[i].node->is(OBJECT_NODE) && !Input[i].node->is(NUMBER_NODE))
+		return;
+	if (Input[i].Components.size() <= 0)
+		return;
+
+	for (auto n : Input[i].Components) {
+		Input[i].node->Inheritted.push_back(n.Value);
+	}
+
+
+}
+
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.
@@ -720,6 +736,7 @@ void Parser::Factory() {
 		Parenthesis_Pattern(i);
 		String_Pattern(i);
 		Number_Pattern(i);
+		Set_Keyword_Prop_To_Imported_Function_Parameter(i);
 	}
 	//AST operator combinator.
 	Operator_Order();

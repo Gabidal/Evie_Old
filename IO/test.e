@@ -1,5 +1,9 @@
 use "cstd.e"
 
+type A{
+    size 2
+}
+
 type bar{
     int m = 0
     int n = 1

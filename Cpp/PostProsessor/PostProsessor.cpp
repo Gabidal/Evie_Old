@@ -17,6 +17,7 @@ void PostProsessor::Factory() {
 		Algebra_Laucher(i);
 		Open_Operator_For_Prosessing(i);
 		Function_Callation(Input[i]);
+		Handle_Prototypes(i);
 	}
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
@@ -89,26 +90,6 @@ void PostProsessor::Member_Function(int i)
 	return;
 }
 
-/*
-void PostProsessor::Combine_Conditions(int i)
-{
-	if ((Input[i]->is(IF_NODE)) && (Input[i]->is(WHILE_NODE)))
-		return;
-	if ((size_t)i + 1 > Input.size() - 1)
-		return;
-	if (!Input[(size_t)i + 1]->is(ELSE_IF_NODE) && !Input[(size_t)i + 1]->is(ELSE_NODE))
-		return;
-	//<summary>
-	//here we will combine the successor & Predecessor.
-	//</sumarry>
-	Input[i]->Succsessor = Input[(size_t)i + 1];
-	Input.erase(Input.begin() + (size_t)i + 1);
-	//update the sucessors Predecessor.
-	Input[i]->Succsessor->Predecessor = Input[i];
-
-	return;
-}*/
-
 void PostProsessor::Open_Function_For_Prosessing(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
@@ -180,8 +161,8 @@ void PostProsessor::Function_Callation(Node* n)
 
 	//first ignore the template parameters for now
 	for (auto f : Global_Scope->Defined)
-		if (f->is(FUNCTION_NODE))
-			if (f->Mangled_Name == n->Mangled_Name) {
+		if (f->is(FUNCTION_NODE) || f->is(PROTOTYPE))
+			if (f->Get_Mangled_Name() == n->Mangled_Name) {
 				n->Template_Function = f;
 				//we dont need to do enything, everything is fine.
 				return;
@@ -194,14 +175,21 @@ void PostProsessor::Function_Callation(Node* n)
 
 	//if the code gets here it means the og-function has template paramters!
 	for (auto f : Global_Scope->Defined) {
-		if (!f->is(FUNCTION_NODE))
+		if (!f->is(FUNCTION_NODE) && !f->is(PROTOTYPE))
 			continue;
 		if (f->Name != n->Name)
 			continue;
+		bool Direct_Type = false;
+		if (f->is(PROTOTYPE))
+			Direct_Type = true;
 		for (int p = 0; p < f->Parameters.size(); p++) {
-			if (f->Parameters[p]->is("type") != -1)
+			if (Direct_Type && f->Parameters[p]->Name == "type")
+				continue;
+			else if (f->Parameters[p]->is("type") != -1)
 				continue;		//just ignore the template parameters for now.
 			//here we will determine if this function is the og-fucntion or not.
+			else if (Direct_Type && (f->Parameters[p]->Name != n->Parameters[p]->Get_Inheritted("")))
+				goto Next_Function;
 			else if (f->Parameters[p]->Get_Inheritted("") != n->Parameters[p]->Get_Inheritted("")) {
 				goto Next_Function;
 			}
@@ -211,6 +199,9 @@ void PostProsessor::Function_Callation(Node* n)
 		break;
 	Next_Function:;
 	}
+
+	if (OgFunc->is(PROTOTYPE))
+		cout << "Error: You simply can NOT use template parameter in prototypes!" << endl;
 
 	//now we want to copy that function again but this time we will put the called parameter types
 	Node* func = OgFunc->Copy_Node(OgFunc);
@@ -365,6 +356,23 @@ void PostProsessor::Operator_Type_Definer(Node* n)
 		n->Inheritted = n->Childs[0]->Inheritted;
 	}
 	return;
+}
+
+void PostProsessor::Handle_Prototypes(int i)
+{
+	if (!Input[i]->is(PROTOTYPE))
+		return;
+	//import func new (4, ABC)
+	//all numbers need to be redefined by type size.
+	//and all other text is already classes.
+	//pointters are inside the parameter as inheritance.
+	for (int j = 0; j < Input[i]->Parameters.size(); j++) {
+		if (Input[i]->Parameters[j]->is(NUMBER_NODE)) {
+			Input[i]->Parameters[j] = Global_Scope->Find(atoi(Input[i]->Parameters[j]->Name.c_str()), Global_Scope);
+		}
+	}
+	//now all types are good to go.
+	//although function calling might get tricky with just types as the parameters.
 }
 
 Node* PostProsessor::Get_Combined(Node* n)
