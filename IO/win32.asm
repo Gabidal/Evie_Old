@@ -54,8 +54,17 @@ ret
 global new
 	new:
 	
-global _Z3newiP1A
-	_Z3newiP1A:
+global _Z3newi
+	_Z3newi:
+
+;int ptr banana(int, apple ptr)
+;_E stands for Evie
+;P stands for ptr
+;number stands for the length of the class name
+;first type is the returning type
+;second is the func name
+;rest are the parameters
+_EP3int6banana3intP5apple:
 
 section .data
 written dd 0

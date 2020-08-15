@@ -74,12 +74,15 @@ public:
 			mname += "_" + i;
 		mname += "_" + Name;
 		for (auto i : Parameters)
-			mname += "__" + i->Get_Inheritted("_");
+			mname += "__" + i->Get_Inheritted("_", is(PROTOTYPE));
 		return mname;
 	}
 	
-	string Get_Inheritted(string seperator) {
-		if (is(NUMBER_NODE)) {
+	string Get_Inheritted(string seperator, bool Dirent_Type = false) {
+		if (Dirent_Type) {
+			return Name;
+		}
+		else if (is(NUMBER_NODE)) {
 			//1.29348
 			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
@@ -194,6 +197,9 @@ public:
 				}
 			}
 		}
+		//else if (raw[0] == '_' && raw[1] == 'E') {
+
+		//}
 		else {
 			//this lauches when no call type is identifyed.
 			Function.Value = raw;

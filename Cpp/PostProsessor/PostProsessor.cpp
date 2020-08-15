@@ -6,6 +6,8 @@ void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
 	for (int i = 0; i < Input.size(); i++)
 		Type_Definer(i);
+	for (int i = 0; i < Input.size(); i++)
+		Handle_Prototypes(i);
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
 		Operator_Overload(i);
@@ -17,7 +19,6 @@ void PostProsessor::Factory() {
 		Algebra_Laucher(i);
 		Open_Operator_For_Prosessing(i);
 		Function_Callation(Input[i]);
-		Handle_Prototypes(i);
 	}
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
@@ -182,15 +183,17 @@ void PostProsessor::Function_Callation(Node* n)
 		bool Direct_Type = false;
 		if (f->is(PROTOTYPE))
 			Direct_Type = true;
+		if (f->Parameters.size() != n->Parameters.size())
+			continue;
 		for (int p = 0; p < f->Parameters.size(); p++) {
 			if (Direct_Type && f->Parameters[p]->Name == "type")
 				continue;
-			else if (f->Parameters[p]->is("type") != -1)
-				continue;		//just ignore the template parameters for now.
+			else if (!Direct_Type && f->Parameters[p]->is("type") != -1)
+				continue;	//just ignore the template parameters for now.
 			//here we will determine if this function is the og-fucntion or not.
 			else if (Direct_Type && (f->Parameters[p]->Name != n->Parameters[p]->Get_Inheritted("")))
 				goto Next_Function;
-			else if (f->Parameters[p]->Get_Inheritted("") != n->Parameters[p]->Get_Inheritted("")) {
+			else if (!Direct_Type && f->Parameters[p]->Get_Inheritted("") != n->Parameters[p]->Get_Inheritted("")) {
 				goto Next_Function;
 			}
 		}
@@ -200,30 +203,45 @@ void PostProsessor::Function_Callation(Node* n)
 	Next_Function:;
 	}
 
-	if (OgFunc->is(PROTOTYPE))
-		cout << "Error: You simply can NOT use template parameter in prototypes!" << endl;
-
-	//now we want to copy that function again but this time we will put the called parameter types
-	Node* func = OgFunc->Copy_Node(OgFunc);
-
-	//now we want to through the templates and put on them the right parameter infos
-	for (int p = 0; p < func->Parameters.size(); p++) {
-		vector<string> tmp = func->Parameters[p]->Inheritted;
-		//update the parent
-		func->Parameters[p]->Parent = func;
-
-		func->Parameters[p]->Inheritted = n->Parameters[p]->Inheritted;
-		//now iterate the leftover types like ptr
-		for (string s : tmp) {
-			if (s == "type")
-				continue;
-			if (func->Parameters[p]->is(s) == -1)
-				func->Parameters[p]->Inheritted.push_back(s);
+	if (OgFunc == nullptr) {
+		cout << "Error: Can't find suitable funciton to call with parameters:\n";
+		for (int j = 0; j < n->Parameters.size(); j++) {
+			cout << "  " << n->Parameters[j]->Name << "\n";
 		}
-		//alsoset the defined types into right inheritance.
-		func->Find(func->Parameters[p]->Name, func)->Inheritted = func->Parameters[p]->Inheritted;
+		cout << endl;
 	}
 
+	if (OgFunc->is(PROTOTYPE))
+		for (auto j : OgFunc->Parameters)
+			if (j->Name == "type")		//REMEBER THE DIRECT TYPING!!	
+				cout << "Error: Can't copy a foreingh function " << OgFunc->Name << "." << endl;
+
+	Node* func = nullptr;
+	if (!OgFunc->is(PROTOTYPE)) {
+		//now we want to copy that function again but this time we will put the called parameter types
+		func = OgFunc->Copy_Node(OgFunc);
+
+		//now we want to through the templates and put on them the right parameter infos
+		for (int p = 0; p < func->Parameters.size(); p++) {
+			vector<string> tmp = func->Parameters[p]->Inheritted;
+			//update the parent
+			func->Parameters[p]->Parent = func;
+
+			func->Parameters[p]->Inheritted = n->Parameters[p]->Inheritted;
+			//now iterate the leftover types like ptr
+			for (string s : tmp) {
+				if (s == "type")
+					continue;
+				if (func->Parameters[p]->is(s) == -1)
+					func->Parameters[p]->Inheritted.push_back(s);
+			}
+			//alsoset the defined types into right inheritance.
+			func->Find(func->Parameters[p]->Name, func)->Inheritted = func->Parameters[p]->Inheritted;
+		}
+	}
+	else {
+		func = OgFunc;
+	}
 	n->Template_Function = func;
 	func->Mangled_Name = func->Get_Mangled_Name();
 	

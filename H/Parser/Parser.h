@@ -25,7 +25,7 @@ public:
 	void Duplicated_Prototype_Handler(int i);					//func banan(int), func banana()
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
-	void Math_Pattern(int i, vector<string> Operator, int Flag);			//a = b + c * d
+	void Math_Pattern(int i, vector<string> Operator, int Flag);			//a = b + c * d, a.b.c.d()
 	void Number_Pattern(int i);									//123
 	void String_Pattern(int i);									//"abc"
 	void Operator_PreFix_Pattern(int i, vector<string> Prefix);	//++a/--b()

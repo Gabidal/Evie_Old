@@ -1,9 +1,5 @@
 use "cstd.e"
 
-type A{
-    size 2
-}
-
 type bar{
     int m = 0
     int n = 1
@@ -30,13 +26,13 @@ type test{
 }
 
 #return the address of the &this.a.x.m
-ptr test.get(){
-    return a.x.m
+ptr int get(test ptr this){
+    return this.a.x.m
 }
 
 #return the size as an 32bit reg
-int test.size(){
-    return size
+int size(test ptr this){
+    return this.size
 }
 
 int ptr temp(type a, type b){
@@ -78,7 +74,7 @@ func main(int x) {
     test first
 
     #the post prosessing can put the object fetching the function as first parameter
-    int ptr a = first.get(1, 2) + first.size(1 + 2)
+    int ptr a = get(first, 1, 2) + size(first, 1 + 2)
 
     #list
     int ptr list = new(100)
@@ -119,5 +115,5 @@ func main(int x) {
 
 
 
-    return second.get()
+    return get(second)
 }
