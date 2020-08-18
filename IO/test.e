@@ -67,14 +67,14 @@ func function_pointters(){
 func copy(){
     int a
     int b
-    int c = memcpy(a, b, 1.123)
+    int c = memcpy(a, b, 1)
 }
 
 func main(int x) {
     test first
 
     #the post prosessing can put the object fetching the function as first parameter
-    int ptr a = get(first, 1, 2) + size(first, 1 + 2)
+    int ptr a = first.get(1, 2) + first.size(1 + 2)
 
     #list
     int ptr list = new(100)

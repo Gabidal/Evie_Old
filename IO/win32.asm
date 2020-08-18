@@ -64,7 +64,7 @@ global _Z3newi
 ;first type is the returning type
 ;second is the func name
 ;rest are the parameters
-_EP3int6banana3intP5apple:
+_EP3int6banana3intP5appleF3int4pear3int5floatE:
 
 section .data
 written dd 0

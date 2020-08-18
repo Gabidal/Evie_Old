@@ -50,10 +50,10 @@ public:
 	Node* Fetcher = nullptr;
 	//calling features
 	Node* Template_Function = nullptr;
+	string Calling_Convention = "";
 	//function prototype features
 	//the import has the flag to prototyping
 	//and the paramters are Named as the size needed. thx!
-
 
 	bool is(int F) {
 		return Type == F;
@@ -64,18 +64,6 @@ public:
 			if (t == Inheritted[i])
 				return i;
 		return -1;
-	}
-	
-	string Get_Mangled_Name() {
-		//_int_ptr_Z6banana_int_int_short
-		string mname = "";
-		//add the returning type
-		for (auto i : Inheritted)
-			mname += "_" + i;
-		mname += "_" + Name;
-		for (auto i : Parameters)
-			mname += "__" + i->Get_Inheritted("_", is(PROTOTYPE));
-		return mname;
 	}
 	
 	string Get_Inheritted(string seperator, bool Dirent_Type = false) {
@@ -103,6 +91,18 @@ public:
 		}
 	}
 
+	string Get_Mangled_Name() {
+		//_int_ptr_Z6banana_int_int_short
+		string mname = "";
+		//add the returning type
+		for (auto i : Inheritted)
+			mname += "_" + i;
+		mname += "_" + Name;
+		for (auto i : Parameters)
+			mname += "__" + i->Get_Inheritted("_", is(PROTOTYPE));
+		return mname;
+	}
+
 	string Un_Mangle(Node* n) {
 		string Result;
 		for (string s : n->Inheritted)
@@ -115,6 +115,17 @@ public:
 		return Result;
 	}
 	
+	//returns atm: Cpp, Evie
+	string Get_Calling_Convention_Type(string raw) {
+		if (raw[0] == '_') {
+			if (raw[1] == 'Z')
+				return "Cpp";
+			if (raw[1] == 'E')
+				return "Evie";
+		}
+		return "UNKNOWN";
+	}
+
 	vector<Component> Un_Mangle(string raw) {
 		Component Function = Component("", Flags::TEXT_COMPONENT);
 		Component Parenthesis = Component("()", Flags::PAREHTHESIS_COMPONENT);
@@ -280,24 +291,6 @@ public:
 		return;
 	}
 
-	/*void Update_Members_Size() {
-		if (Name != "_SIZE_")
-			Size = 0;
-		for (auto i : Defined) {
-			if (i->Name != "_SIZE_")
-				i->Size = 0;
-			//this needs maybe revamping?
-			for (string s : i->Inheritted) {
-				if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
-					continue;
-				i->Size += Find(s, i->Parent, true)->Size;
-			}
-			i->Update_Size();
-			//-----------------------------
-		}
-		Update_Size();
-	}*/
-
 	void Update_Members_Size() {
 		if (Name != "_SIZE_")
 			Size = 0;
@@ -327,7 +320,6 @@ public:
 		Update_Size();
 	}
 
-
 	void Update_Members_Mem_Offset() {
 		int Offset = 0;
 		for (auto i : Defined) {
@@ -336,6 +328,7 @@ public:
 		}
 		return;
 	}
+
 	Node* Copy_Node(Node* What_Node)
 	{
 		if (What_Node == nullptr)
@@ -368,6 +361,7 @@ public:
 		//now we have copyed every ptr into a new base to point.
 		return Result;
 	}
+
 	vector<Node*> Has(Node* n, int f)
 	{
 		vector<Node*> Result;
@@ -398,6 +392,7 @@ public:
 
 		return Result;
 	}
+
 	vector<Node*> Has(int f) {
 		return Has(this, f);
 	}

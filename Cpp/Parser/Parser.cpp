@@ -25,7 +25,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	//import int ptr func a
 	vector<Component> Result;
 	for (; i < Input.size(); i++) {
-		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Parent->Find(Input[i].Value, Parent, false) != nullptr) || Input[i].Value == ".")
+		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Parent->Find(Input[i].Value, Parent, false) != nullptr))
 			Result.push_back(Input[i]);
 		else 
 			break;

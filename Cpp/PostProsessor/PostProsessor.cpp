@@ -263,14 +263,21 @@ void PostProsessor::Algebra_Laucher(int i)
 
 void PostProsessor::Combine_Member_Fetching(Node* n)
 {
-	//((a.x).m)
+	//(a.x).m
+	//(a.x).m()
 	if (n->is(OPERATOR_NODE)) {
 		if (n->Name == ".") {
-			Node* last = new Node(*n->Right);
-			last->Fetcher = Get_Combined(n->Left);
-			*n = *last;
+			//x.m()
+			if (n->Right->is(CALL_NODE)) {
+				//put the fetcher to the first parameters slot
+				n->Right->Parameters.insert(n->Right->Parameters.begin(), Get_Combined(n->Left));
+			}
+			else
+				n->Right->Fetcher = Get_Combined(n->Left);
+			*n = *n->Right;
 		}
 		else {
+			//a = b + x.m()
 			Combine_Member_Fetching(n->Left);
 			Combine_Member_Fetching(n->Right);
 		}
@@ -396,11 +403,16 @@ void PostProsessor::Handle_Prototypes(int i)
 Node* PostProsessor::Get_Combined(Node* n)
 {
 	Node* Result;
-	//((a.x).m).b
+	//((a.x).m()).b
 	if (n->is(OPERATOR_NODE)) {
 		if (n->Name == ".") {
 			Result = n->Right;
-			Result->Fetcher = Get_Combined(n->Left);
+			if (n->Right->is(CALL_NODE)) {
+				//put the fetcher to the first parameters slot
+				Result->Parameters.insert(Result->Parameters.begin(), Get_Combined(n->Left));
+			}
+			else
+				Result->Fetcher = Get_Combined(n->Left);
 		}
 	}
 	else if (n->is(CONTENT_NODE)) {
