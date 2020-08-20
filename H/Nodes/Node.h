@@ -243,6 +243,35 @@ public:
 		return nullptr;
 	}
 
+	Node* Get_Right_Parent() {
+		if (Fetcher != nullptr) {
+			return Get_Final_Fetcher(this , 1);
+		}
+		else {
+			return Parent;
+		}
+	}
+
+	vector<string> Tree;
+	//a.x.b.y
+	Node* Get_Final_Fetcher(Node* n, int offset) {
+		Tree.push_back(n->Name);
+		if (n->Fetcher != nullptr) {
+			return Get_Final_Fetcher(n->Fetcher, offset);
+		}
+
+		//now got though the tree and find the right defined in the last that is inside of node* n.
+		reverse(Tree.begin(), Tree.end());
+		//a.x.b.y
+		Node* Result = Find(Tree[0], n->Parent);
+
+		for (int i = 1; i < Tree.size() - offset; i++) {
+			Result = Find(Tree[i], Result);
+		}
+
+		return Result;
+	}
+
 	bool Locate(string name, vector<Node*> list) {
 		for (Node* i : list)
 			if (i->Name == name)

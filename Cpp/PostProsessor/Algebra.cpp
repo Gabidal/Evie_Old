@@ -158,9 +158,14 @@ void Algebra::Set_Defining_Value(int i)
 		right->Paranthesis_Type = '(';
 		right->Childs.push_back(Input->at(i)->Right);
 	}
-
+	Node* Left;
+	if (Input->at(i)->Left->is(ARRAY_NODE)) {
+		Left = Input->at(i)->Left->Left;
+	}
+	else
+		Left = Input->at(i)->Left;
 	//give the defining node the current set-val.
-	Parent->Find(Input->at(i)->Left->Name, Parent)->Current_Value = right;
+	Parent->Find(Left->Name, Left->Get_Right_Parent())->Current_Value = right;
 
 	return;
 }

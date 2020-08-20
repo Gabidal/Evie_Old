@@ -13,8 +13,8 @@ type bar baz{
 }
 
 type foo{
-    baz x
-    baz y
+    baz ptr x
+    baz ptr y
     baz z
 }
 
@@ -113,7 +113,8 @@ func main(int x) {
     #pointter list
     fourth ptr fifth = fourth[123] 
 
-
+    first.b.y[first.b.x[0]] = 1
+    first.b.y[1][2][3] = 2
 
     return get(second)
 }

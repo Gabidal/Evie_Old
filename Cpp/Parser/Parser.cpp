@@ -411,15 +411,36 @@ void Parser::Array_Pattern(int i)
 
 	Node* arr = new Node(ARRAY_NODE);
 
+	if (Input[(size_t)i].node != nullptr)
+		arr->Left = Input[(size_t)i].node;
+	else {
+		//Dont worry about function calls
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
+		new_member->Name = Input[(size_t)i].Value;
+
+		arr->Left = new_member;
+	}
+
+	if (Input[(size_t)i + 1].node->Childs[0] != nullptr)
+		arr->Right = Input[(size_t)i + 1].node->Childs[0];
+	else {
+		//test.a.m //these a.m are in different localscope.
+		//the right side does not need to be determined as well the left.
+		//Dont worry about function calls
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
+		new_member->Name = Input[(size_t)i + 1].Components[0].Value;
+
+		arr->Right = new_member;
+	}
+
 	//TODO:
 	//Needs more testing with more complex array usage like: a[x][y][z]
-	arr->Left = new Node(*Input[i].node);
-	arr->Right = new Node(*Input[(size_t)i + 1].node->Childs[0]);
 	arr->Name = "[]";
 
 	Input[i].node = arr;
 
 	Input.erase(Input.begin() + i + 1);
+	Array_Pattern(i);
 	return;
 }
 

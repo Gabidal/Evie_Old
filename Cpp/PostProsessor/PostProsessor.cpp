@@ -140,7 +140,7 @@ void PostProsessor::Function_Callation(Node* n)
 	//</summary>
 	//first try to find if this fucntion is a virtual function
 	Node* defition = Parent->Find(n->Name, Parent);
-	if ((defition != nullptr) && defition->is("ptr") != -1) {
+	/*if ((defition != nullptr) && defition->is("ptr") != -1) {
 		//now we need to give it the appropriate memory offset-
 		//so the virtual function can actually call itself.
 		n->Memory_Offset = defition->Memory_Offset;
@@ -148,7 +148,7 @@ void PostProsessor::Function_Callation(Node* n)
 		n->Scaler = defition->Scaler;
 		n->Inheritted = defition->Inheritted;
 		return;
-	}
+	}*/
 	//other wise we have normal functions
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
@@ -178,8 +178,9 @@ void PostProsessor::Function_Callation(Node* n)
 	for (auto f : Global_Scope->Defined) {
 		if (!f->is(FUNCTION_NODE) && !f->is(PROTOTYPE))
 			continue;
-		if (f->Name != n->Name)
-			continue;
+		if (n->is("ptr") == -1)
+			if (f->Name != n->Name)
+				continue;
 		bool Direct_Type = false;
 		if (f->is(PROTOTYPE))
 			Direct_Type = true;
@@ -202,6 +203,9 @@ void PostProsessor::Function_Callation(Node* n)
 		break;
 	Next_Function:;
 	}
+
+	if (n->is("ptr") != -1)
+		return;
 
 	if (OgFunc == nullptr) {
 		cout << "Error: Can't find suitable funciton to call with parameters:\n";
@@ -265,12 +269,18 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 {
 	//(a.x).m
 	//(a.x).m()
+	//(a.x[0]).m()
+	//a[b[c[0]]]
 	if (n->is(OPERATOR_NODE)) {
 		if (n->Name == ".") {
 			//x.m()
 			if (n->Right->is(CALL_NODE)) {
 				//put the fetcher to the first parameters slot
 				n->Right->Parameters.insert(n->Right->Parameters.begin(), Get_Combined(n->Left));
+			}
+			else if (n->Right->is(ARRAY_NODE)) {
+				n->Right->Left->Fetcher = Get_Combined(n->Left);
+				Combine_Member_Fetching(n->Right->Right);
 			}
 			else
 				n->Right->Fetcher = Get_Combined(n->Left);
@@ -404,6 +414,7 @@ Node* PostProsessor::Get_Combined(Node* n)
 {
 	Node* Result;
 	//((a.x).m()).b
+	//((a.x[0]).m()).b
 	if (n->is(OPERATOR_NODE)) {
 		if (n->Name == ".") {
 			Result = n->Right;
