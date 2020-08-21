@@ -114,7 +114,7 @@ func main(int x) {
     fourth ptr fifth = fourth[123] 
 
     first.b.y[first.b.x[0]] = 1
-    first.b.y[1][2][3] = 2
+    first.b.z[1][2][3] = 2
 
     return get(second)
 }

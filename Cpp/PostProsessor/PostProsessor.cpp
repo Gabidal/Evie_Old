@@ -271,6 +271,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 	//(a.x).m()
 	//(a.x[0]).m()
 	//a[b[c[0]]]
+	//(a.x).m[1][2][3]
 	if (n->is(OPERATOR_NODE)) {
 		if (n->Name == ".") {
 			//x.m()
@@ -279,7 +280,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 				n->Right->Parameters.insert(n->Right->Parameters.begin(), Get_Combined(n->Left));
 			}
 			else if (n->Right->is(ARRAY_NODE)) {
-				n->Right->Left->Fetcher = Get_Combined(n->Left);
+				n->Right->Get_Most_Left()->Fetcher = Get_Combined(n->Left);
 				Combine_Member_Fetching(n->Right->Right);
 			}
 			else

@@ -268,8 +268,19 @@ public:
 		for (int i = 1; i < Tree.size() - offset; i++) {
 			Result = Find(Tree[i], Result);
 		}
-
+		Tree.clear();
 		return Result;
+	}
+
+	Node* Get_Most_Left(Node* n) {
+		if (n->is(ARRAY_NODE) || n->is(OPERATOR_NODE))
+			return Get_Most_Left(n->Left);
+		return n;
+	}	
+	Node* Get_Most_Left() {
+		if (this->is(ARRAY_NODE) || this->is(OPERATOR_NODE))
+			return this->Left->Get_Most_Left();
+		return this;
 	}
 
 	bool Locate(string name, vector<Node*> list) {

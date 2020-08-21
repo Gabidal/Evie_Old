@@ -419,6 +419,7 @@ void Parser::Array_Pattern(int i)
 		new_member->Name = Input[(size_t)i].Value;
 
 		arr->Left = new_member;
+		arr->Left->Parent = Parent;
 	}
 
 	if (Input[(size_t)i + 1].node->Childs[0] != nullptr)
@@ -431,6 +432,7 @@ void Parser::Array_Pattern(int i)
 		new_member->Name = Input[(size_t)i + 1].Components[0].Value;
 
 		arr->Right = new_member;
+		arr->Right->Parent = Parent;
 	}
 
 	//TODO:

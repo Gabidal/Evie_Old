@@ -119,7 +119,7 @@ void Algebra::Clean(int i)
 		return;
 	if (Input->at(i)->Name != "=")
 		return;
-	if (Parent->Find(Input->at(i)->Left->Name, Parent)->Inlined == false)
+	if (Parent->Find(Input->at(i)->Get_Most_Left()->Name, Input->at(i)->Get_Most_Left()->Get_Right_Parent())->Inlined == false)
 		return;
 
 	//!!! MUST COMBINE THE CALLATION AND THE CLASS FETCHER!!!
@@ -160,11 +160,12 @@ void Algebra::Set_Defining_Value(int i)
 	}
 	Node* Left;
 	if (Input->at(i)->Left->is(ARRAY_NODE)) {
-		Left = Input->at(i)->Left->Left;
+		Left = Input->at(i)->Get_Most_Left();
 	}
 	else
 		Left = Input->at(i)->Left;
 	//give the defining node the current set-val.
+	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
 	Parent->Find(Left->Name, Left->Get_Right_Parent())->Current_Value = right;
 
 	return;
