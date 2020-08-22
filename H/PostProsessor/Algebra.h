@@ -17,6 +17,8 @@ private:
 	Node* Parent;
 	vector<Node*> Linearise(Node* ast, bool Include_Operator);
 
+	void Function_Inliner(Node* c);
+
 	void Set_Defining_Value(int i);
 	void Set_Coefficient_Value(int i);
 

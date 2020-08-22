@@ -49,7 +49,7 @@ void Parser::Definition_Pattern(int i)
 		return;
 	//whats the meaning of this?
 	for (auto c : Get_Inheritting_Components(i))
-		if (c.Value == ".")
+		if (c.Value == "jump")
 			return;
 	//type a
 	vector<string> Inheritted;
@@ -94,6 +94,9 @@ void Parser::Duplicated_Prototype_Handler(int i)
 		return;
 	if (Input[i + inheritted.size() - 1].is(Flags::KEYWORD_COMPONENT))
 		return;
+	for (auto c : Get_Inheritting_Components(i))
+		if (c.Value == "jump")
+			return;
 	//type a
 	vector<string> Inheritted;
 
@@ -135,7 +138,10 @@ void Parser::Object_Pattern(int i)
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 	Input[i].node = new Node(*Parent->Find(Input[i].Value, Parent, true));
-	Input[i].node->Type = OBJECT_NODE;
+	if (Input[i].node->is(OBJECT_DEFINTION_NODE))
+		Input[i].node->Type = OBJECT_NODE;
+	else if (Input[i].node->is(LABEL_NODE))
+		Input[i].node->Type = LABEL_NODE;
 	return;
 }
 
@@ -684,7 +690,7 @@ void Parser::Return_Pattern(int i)
 {
 	if (Input[i].Value != "return")
 		return;
-	bool No_Return_Value = (((size_t)i + 1 > Input.size() - 1) || (Input[i + 1].Value == ";"));
+	bool No_Return_Value = (((size_t)i + 1 > Input.size() - 1) || (Input[(size_t)i + 1].Value == ";"));
 
 	//return a + b
 	//return;
@@ -696,6 +702,76 @@ void Parser::Return_Pattern(int i)
 	}
 	Input[i].node = ret;
 	return;
+}
+
+void Parser::Jump_Pattern(int i)
+{
+	//jump banana
+	if (Input[i].Value != "jump")
+		return;
+	if (Input.size() < (size_t)i + 1)
+		return;
+
+	Node* jmp = new Node(FLOW_NODE);
+	jmp->Name = "jump";
+	
+	Node* label = new Node(LABEL_NODE);
+	label->Name = Input[(size_t)i + 1].Value;
+
+	jmp->Right = label;
+
+	Input[i].node = jmp;
+	Input.erase(Input.begin() + i + 1);
+}
+
+void Parser::Label_Pattern(int i)
+{
+	if (Input[i].node != nullptr)
+		return;
+	//test
+	//..
+	//labels are tricy because they are just one word
+	//so check that it isnt connectd to enythign
+	Node* l = Parent->Find(Input[i].Value, Parent);
+	if (l == nullptr)
+		return;
+	if (!l->is(LABEL_NODE))
+		return;
+	Node* L = new Node(LABEL_NODE);
+	L->Name = Input[i].Value;
+	L->Parent = Parent;
+	
+	Input[i].node = L;
+}
+
+void Parser::Label_Definition(int i)
+{
+	if (i - 1 <= 0)
+		return;
+	if ((size_t)i + 1 > Input.size()-1)
+		return;
+	if (Input[(size_t)i - 1].is(Flags::KEYWORD_COMPONENT))
+		return;	//return label_name
+	if (Input[(size_t)i + 1].is(Flags::TEXT_COMPONENT))
+		return;	//label_name obj_name(int)
+	if (Parent->Find(Input[i].Value, Parent) != nullptr)
+		return;	//label_name(int), label_name = ..
+	if (!Input[i].is(Flags::TEXT_COMPONENT))
+		return;	//only text name allowed
+	if (Input[i].Value == "\n")
+		return;
+	if (Input[i - 1].is(Flags::OPERATOR_COMPONENT))
+		return;
+	//passes: label_name if (..)..
+	//passes: label_name (..)
+	//passes: label_name {..}
+	Node* label = new Node(LABEL_NODE);
+	label->Name = Input[i].Value;
+	label->Parent = Parent;
+
+	Input[i].node = label;
+
+	Parent->Defined.push_back(label);
 }
 
 void Parser::Size_Pattern(int i)
@@ -740,6 +816,7 @@ void Parser::Factory() {
 		//variable/objects definator.
 		Definition_Pattern(i);
 		Duplicated_Prototype_Handler(i);
+		Label_Definition(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
@@ -748,6 +825,7 @@ void Parser::Factory() {
 		If_Pattern(i);
 		Else_Pattern(i);
 		Callation_Pattern(i);
+		Jump_Pattern(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
 		//prepreattor for math operator AST combinator.
@@ -756,6 +834,7 @@ void Parser::Factory() {
 		String_Pattern(i);
 		Number_Pattern(i);
 		Set_Keyword_Prop_To_Imported_Function_Parameter(i);
+		Label_Pattern(i);
 	}
 	//AST operator combinator.
 	Operator_Order();

@@ -91,6 +91,9 @@ func main(int x) {
     else {
     }
 
+    jump label
+    label
+
     #the way to change the pointter value is to manage the offsetter value
     #you dont want to change the initial value of the pointter just add an offsetter when you use it
     if (a[1] == 1){

@@ -63,6 +63,8 @@ void Algebra::Inline_Variables(int i)
 				//set right current coefficient value
 				//n = -1
 				//a = -n
+				//Node* represents the -1 and n on this example
+				//Node* n is same as the -n variable on example
 				d->Current_Value->Coefficient *= n->Coefficient;
 				*n = *d->Current_Value;
 				d->Inlined = true;
@@ -147,6 +149,9 @@ void Algebra::Set_Defining_Value(int i)
 		return;
 	if (Input->at(i)->Name != "=")
 		return;
+	//ignore arrays
+	if (Input->at(i)->Left->is(ARRAY_NODE))
+		return;
 	//remeber if functoin call has do something global/pointter-
 	//dont let this function run on that!
 
@@ -154,19 +159,15 @@ void Algebra::Set_Defining_Value(int i)
 	Node* right = Input->at(i)->Right;
 
 	if (Input->at(i)->Right->is(OPERATOR_NODE)) {
+		//a = 1+2
+		//b = a * 3 --> b = (1+2) *3;		maintain the math order
 		right = new Node(CONTENT_NODE);
 		right->Paranthesis_Type = '(';
 		right->Childs.push_back(Input->at(i)->Right);
 	}
-	Node* Left;
-	if (Input->at(i)->Left->is(ARRAY_NODE)) {
-		Left = Input->at(i)->Get_Most_Left();
-	}
-	else
-		Left = Input->at(i)->Left;
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
-	Parent->Find(Left->Name, Left->Get_Right_Parent())->Current_Value = right;
+	Parent->Find(Input->at(i)->Left->Name, Input->at(i)->Left->Get_Right_Parent())->Current_Value = right;
 
 	return;
 }

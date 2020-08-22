@@ -38,7 +38,10 @@ public:
 	void Member_Pattern(int i);									//Dot operator is in Operator_Pattern()
 	void If_Pattern(int i);										//patternises the condition nodes
 	void Else_Pattern(int i);
-	void Return_Pattern(int i);
+	void Return_Pattern(int i);									//return 1/ return;
+	void Jump_Pattern(int i);									//jump test
+	void Label_Pattern(int i);
+	void Label_Definition(int i);
 	void Size_Pattern(int i);									//if (contidion){..}
 	void Set_Keyword_Prop_To_Imported_Function_Parameter(int i);
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
