@@ -125,13 +125,13 @@ int main(int argc, char* argv[])
 
     MANGLER::Add_ID({ "P",{MANGLER::PREFIX, "ptr"} });
     MANGLER::Add_ID({ "R",{MANGLER::PREFIX, "ref"} });
-    MANGLER::Add_ID({ "c",{MANGLER::PREFIX, "1"} });
-    MANGLER::Add_ID({ "s",{MANGLER::PREFIX, "2"} });
-    MANGLER::Add_ID({ "i",{MANGLER::PREFIX, "4"} });
-    MANGLER::Add_ID({ "f",{MANGLER::PREFIX, "4"} });
-    MANGLER::Add_ID({ "d",{MANGLER::PREFIX, "8"} });
-    MANGLER::Add_ID({ "l",{MANGLER::PREFIX, "8"} });
-    MANGLER::Add_ID({ "x",{MANGLER::PREFIX, "12"} });
+    MANGLER::Add_ID({ "c",{MANGLER::VARIABLE, "1"} });
+    MANGLER::Add_ID({ "s",{MANGLER::VARIABLE, "2"} });
+    MANGLER::Add_ID({ "i",{MANGLER::VARIABLE, "4"} });
+    MANGLER::Add_ID({ "f",{MANGLER::VARIABLE, "4"} });
+    MANGLER::Add_ID({ "d",{MANGLER::VARIABLE, "8"} });
+    MANGLER::Add_ID({ "l",{MANGLER::VARIABLE, "4"} });
+    MANGLER::Add_ID({ "x",{MANGLER::VARIABLE, "8"} });
 
     DOCKER::Set_Default_Translator(TXT::TXT_Analyzer);
     DOCKER::Add_Translator("\x7F" "ELF", ELF::ELF_Analyzer);

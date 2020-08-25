@@ -29,6 +29,6 @@ void ASM::ASM_Analyzer(vector<string>& Output)
 		i = DOCKER::ReplaceAll(i, ":", "");
 	//Syntax_Correcter(Raw_Data);
 	//now make the obj token for YASM
-	DOCKER::Source_File.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
+	DOCKER::Assembly_Source_File.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
 	return;
 }

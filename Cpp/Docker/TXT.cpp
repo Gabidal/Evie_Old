@@ -2,5 +2,13 @@
 
 void TXT::TXT_Analyzer(vector<string>& Output)
 {
-	DOCKER::Append(Output, DOCKER::Get_Header(DOCKER::FileName.back()));
+	ifstream file(DOCKER::Working_Dir + DOCKER::FileName.back()); 
+	file.seekg(0, SEEK_END);
+	long long size = file.tellg();
+	vector<char> Buffer(size); 
+	file.seekg(0, SEEK_SET);
+	file.read(Buffer.data(), size);
+	file.close();
+	Output.push_back(string(Buffer.data()));
+	return;
 }

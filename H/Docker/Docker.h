@@ -18,7 +18,7 @@ using namespace std;
 
 namespace DOCKER {
 	//filename, mangled name
-	 map<string, vector<string>> Output;
+	extern map<string, vector<string>> Output;
 	//vector<pair<Type, Regex string>>
 	//vector<pair<string, string>> Types;
 	//returns the filename of the header file
@@ -32,15 +32,15 @@ namespace DOCKER {
 	//Read section
 	//		function_names, type
 	vector<string> Get_Names_Of(Section area, vector<pair<string, string>> Types);
-	vector<string> Libs;
-	vector<string> Source_File;
-	vector<string> FileName;
-	string Working_Dir = "";
-	vector<string> Priority_Type;
+	extern vector<string> Libs;
+	extern vector<string> Assembly_Source_File;
+	extern vector<string> FileName;
+	extern string Working_Dir;
+	extern vector<string> Priority_Type;
 	//map<ID, function ID>
-	vector<pair<string, void (*)(vector<string>&)>> Translators;
+	extern vector<pair<string, void (*)(vector<string>&)>> Translators;
 
-	void (*Default)(vector<string>&) = nullptr;
+	extern void (*Default)(vector<string>&);
 
 	void Add_Translator(string id, void (*f)(vector<string>&));
 	void Set_Default_Translator(void (*f)(vector<string>&));
@@ -48,10 +48,23 @@ namespace DOCKER {
 	//open the file and look for the identifier of the file header
 	void Start_Analyzer(); 
 	string ReplaceAll(string str, const string& from, const string& to);
-	Section Get_Section_From_String(string& text);
+	Section Get_Section_From_String(string& text); 
 	template<typename T>
-	vector<T>& Append(vector<T>& d, vector<T> s);
+	vector<T>& Append(vector<T>& d, vector<T> s) {
+		for (int i = 0; i < s.size(); i++)
+			d.push_back(s[i]);
+		return d;
+	}
 
+	string Get_File_Extension(string raw) {
+		string Name_No_Extension = "";
+		int i = (int)raw.find_last_of('.');
+		if (i != -1)
+			Name_No_Extension = raw.substr(0, (size_t)i);
+		else
+			Name_No_Extension = raw;
+		return Name_No_Extension;
+	}
 }
 
 class Docker

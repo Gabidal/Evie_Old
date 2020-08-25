@@ -20,7 +20,7 @@ namespace MANGLER {
 	//  alias , real id
 	//       P, ptr
 	//       i, int
-	map<string, pair<int, string>> IDS;
+	extern map<string, pair<int, string>> IDS;
 	void Add_ID(pair<string, pair<int, string>> id);
 }
 

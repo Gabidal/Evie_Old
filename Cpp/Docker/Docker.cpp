@@ -1,5 +1,15 @@
 #include "../../H/Docker/Docker.h"
 
+vector<string> DOCKER::Libs;
+vector<string> DOCKER::Assembly_Source_File;
+vector<string> DOCKER::FileName;
+string DOCKER::Working_Dir = "";
+vector<string> DOCKER::Priority_Type; 
+map<string, vector<string>> DOCKER::Output;
+//map<ID, function ID>
+vector<pair<string, void (*)(vector<string>&)>> DOCKER::Translators;
+void (*DOCKER::Default)(vector<string>&) = nullptr;
+
 void DOCKER::Start_Analyzer()
 {
 	if (Default == nullptr) {
@@ -120,7 +130,7 @@ vector<string> DOCKER::Get_Names_Of(Section area, vector<pair<string, string>> T
 		regex Pattern(i.second);
 		int Previus_Size = Input.size();
 		while (regex_search(Input, matches, Pattern)) {
-			Result.push_back(matches.str());
+			Result.push_back(i.first + matches.str());
 			Input = matches.prefix().str() + matches.suffix().str();
 			if (Previus_Size == Input.size()) {
 				cout << "Error: Regex string " << i.second << " looped infinitely!" << endl;
@@ -149,16 +159,12 @@ string DOCKER::ReplaceAll(string str, const string& from, const string& to) {
 	return str;
 }
 
-template<typename T>
-vector<T>& DOCKER::Append(vector<T>& d, vector<T> s) {
-	for (int i = 0; i < s.size(); i++)
-		d.push_back(s[i]);
-	return d;
-}
+
 
 void DOCKER::Add_Translator(string id, void (*f)(vector<string>&)) {
 	Translators.push_back({ id, f });
 }
+
 void DOCKER::Set_Default_Translator(void (*f)(vector<string>&)) {
 	Default = f;
 }

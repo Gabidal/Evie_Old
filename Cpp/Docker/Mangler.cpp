@@ -1,5 +1,7 @@
 #include "../../H/Docker/Mangler.h"
 
+map<string, pair<int, string>> MANGLER::IDS;
+
 string MANGLER::Un_Mangle(string raw) {
 	string Function = "";
 	vector<string> Parenthesis;
