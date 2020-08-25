@@ -6,12 +6,14 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include "Docker.h"
 #include "../UI/Usr.h"
+#include "Section.h"
 using namespace std;
-extern Usr* sys;
 
 namespace LIB {
 	void Generate_Binary_Symbols(string filename, string WD);
+	void LIB_Analyzer(vector<string>& Output);
 }
 
 #endif

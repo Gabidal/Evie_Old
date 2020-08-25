@@ -87,11 +87,12 @@ func main(int x) {
     b = x * 2 + a
 
     if (a * 2 == a - 1){
+        jump label
     }
     else {
+        jump label
     }
 
-    jump label
     label
 
     #the way to change the pointter value is to manage the offsetter value

@@ -5,6 +5,11 @@
 #include "../Lexer/Component.h"
 #include "../Docker/Docker.h"
 #include "../UI/Usr.h"
+#include "../Docker/ASM.h"
+#include "../Docker/ELF.h"
+#include "../Docker/LIB.h"
+#include "../Docker/TXT.h"
+#include "../Docker/Mangler.h"
 
 #include <vector>
 
@@ -21,6 +26,7 @@ public:
 	bool Calculate(vector<Component>);
 	void Define_Const_Value(int i);
 	void Replace_Const_Name_With_Value(vector<Component> &in);
+	void Syntax_Correcter(vector<string> symbols);
 
 	string Update_Working_Dir(string file_and_dir);
 	vector<string> Included_Files;

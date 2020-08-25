@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include "Section.h"
+#include "Docker.h"
 using namespace std;
 
 namespace ELF {
@@ -15,6 +16,7 @@ namespace ELF {
     Section Find_Section(uint8_t* buffer, string type);
     uint64_t Get_Header_Amount(uint8_t* buffer);
     uint8_t* Get_Section_Names(uint8_t* buffer);
+    void ELF_Analyzer(vector<string>& output);
 }
 
 

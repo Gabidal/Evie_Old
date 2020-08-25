@@ -1,19 +1,19 @@
 #include "../../H/Docker/Docker.h"
-#include "../../H/Nodes/Node.h"
 
-extern Usr* sys;
-extern Node* Global_Scope;
-
-void Docker::Start_Analyzer()
+void DOCKER::Start_Analyzer()
 {
+	if (Default == nullptr) {
+		cout << "Error: The default translator is missing!" << endl;
+		return;
+	}
 	//if everything fails to check out it means,
 	//that it is a txt file and thus call the lexer for that purpose.
 	//function<void()> analyzer = bind(&Docker::TXT_Analyzer, this);//[this]() {TXT_Analyzer(); };
 	//function<void()> analyzer = this->TXT_Analyzer;		//!!!
-	ifstream file(Working_Dir + FileName);
+	ifstream file(Working_Dir + FileName.back());
 	//safe check
 	if (!file.is_open()) {
-		cout << "Error: Unable to open file " << Working_Dir + FileName << endl;
+		cout << "Error: Unable to open file " << Working_Dir + FileName.back() << endl;
 		return;
 	}
 	//read Max_ID size into a buffer
@@ -25,11 +25,11 @@ void Docker::Start_Analyzer()
 	for (auto i : Translators) {
 		if (strncmp(Buffer, i.first.c_str(), i.first.size()) == 0) {
 			Wrong_Type = false;
-			if (Priority_Type == "txt") {
+			if (Priority_Type.back() == "txt") {
 				Wrong_Type = true;
 				continue;
 			}
-			i.second();
+			i.second(Output[FileName.back()]);
 			//sys->Info.Libs.push_back(Working_Dir + FileName);
 			return;
 		}
@@ -38,11 +38,11 @@ void Docker::Start_Analyzer()
 		//cout << "Warning: No specific header file for " << FileName << "." << endl;
 		return;
 	}
-	TXT_Analyzer();
+	Default(Output[FileName.back()]);
 	return;
 }
 
-vector<Component> Docker::Get_Header(string File_Name)
+vector<string> DOCKER::Get_Header(string File_Name)
 {
 	string Name_No_Extension = "";
 	int i = (int)File_Name.find_last_of('.');
@@ -62,29 +62,31 @@ vector<Component> Docker::Get_Header(string File_Name)
 	//now iterate the files with Docker within the Priority type of txt.
 	for (string s : Files) {
 		Docker d(s, Working_Dir, "txt");
-		if (d.Output.size() > 0)
-			return d.Output;
+		if (DOCKER::Output[s].size() > 0)
+			return DOCKER::Output[s];
 	}
-	vector<Component> null;
+	vector<string> null;
 	return null;
 }
 
-void Docker::Separate_Identification_Patterns(vector<Component> Tokens)
+vector<pair<string, string>>  DOCKER::Separate_Identification_Patterns(vector<string> Tokens)
 {
+	vector<pair<string, string>> Types;
 	//try to find operattor that contains rightsided 
 	//string for regexing and left side for type info
 	for (int i = 0; i < Tokens.size(); i++) {
-		if (Tokens.at(i).Value == "=" && (Tokens.at(i + 1).is(Flags::STRING_COMPONENT))) {
-			Types.push_back({ Tokens.at(i - 2).Value, Tokens.at(i + 1).Value.substr(1, Tokens.at(i + 1).Value.size() - 2) });
+		if (Tokens[i] == "=" && Tokens[i + 1][0] == '"') {
+			Types.push_back({ Tokens[i - 2], Tokens[i + 1].substr(1, Tokens[i + 1].size() - 2) });
 			Tokens.erase(Tokens.begin() + i - 2, Tokens.begin() + i + 2);
 			i--;
 		}
 	}
 	//gahther the remaining tokens for parser.
-	Global_Scope->Append(Output, Tokens);
+	DOCKER::Append(Output[FileName.back()], Tokens);
+	return Types;
 }
 
-vector<unsigned char> Docker::Get_Char_Buffer_From_File(string FN, string WD)
+vector<unsigned char> DOCKER::Get_Char_Buffer_From_File(string FN, string WD)
 {
 	ifstream inFile(WD + FN, ios_base::binary);
 	if (!inFile.is_open()) {
@@ -105,20 +107,20 @@ vector<unsigned char> Docker::Get_Char_Buffer_From_File(string FN, string WD)
 }
 
 //		    name, type
-vector<pair<string, string>> Docker::Get_Names_Of(Section area)
+vector<string> DOCKER::Get_Names_Of(Section area, vector<pair<string, string>> Types)
 {
 	for (int i = 0; i < area.size; i++) {
 		if (area.start[i] == '\0')
 			area.start[i] = '?';
 	}
 	string Input((char*)area.start, area.size);
-	vector<pair<string, string>> Result;
+	vector<string> Result;
 	for (auto i : Types) {
 		smatch matches;
 		regex Pattern(i.second);
 		int Previus_Size = Input.size();
 		while (regex_search(Input, matches, Pattern)) {
-			Result.push_back({ matches.str(), i.first });
+			Result.push_back(matches.str());
 			Input = matches.prefix().str() + matches.suffix().str();
 			if (Previus_Size == Input.size()) {
 				cout << "Error: Regex string " << i.second << " looped infinitely!" << endl;
@@ -133,25 +135,12 @@ vector<pair<string, string>> Docker::Get_Names_Of(Section area)
 	return Result;
 }
 
-void Docker::Syntax_Correcter(vector<pair<string, string>> symbols)
-{
-	//import loyal func [name]()()
-	//import generic func [name]()()
-
-	for (auto i : symbols) {
-		if (i.second != "func")
-			Global_Scope->Append(Output, Global_Scope->Append(Lexer::GetComponents("import func " + i.second ), Global_Scope->Un_Mangle(i.first)));
-		else
-			Global_Scope->Append(Output, Global_Scope->Append(Lexer::GetComponents("import " + i.second), Global_Scope->Un_Mangle(i.first)));
-	}
-}
-
-inline Section Get_Section_From_String(string& text)
+Section DOCKER::Get_Section_From_String(string& text)
 {
 	return Section{ (uint8_t*)text.c_str(), text.size() };
 }
 
-string ReplaceAll(string str, const string& from, const string& to) {
+string DOCKER::ReplaceAll(string str, const string& from, const string& to) {
 	size_t start_pos = 0;
 	while ((start_pos = str.find(from, start_pos)) != string::npos) {
 		str.replace(start_pos, from.length(), to);
@@ -160,92 +149,16 @@ string ReplaceAll(string str, const string& from, const string& to) {
 	return str;
 }
 
-void Docker::TXT_Analyzer()
-{
-	Output = Lexer::GetComponentsFromFile(Working_Dir + FileName);
+template<typename T>
+vector<T>& DOCKER::Append(vector<T>& d, vector<T> s) {
+	for (int i = 0; i < s.size(); i++)
+		d.push_back(s[i]);
+	return d;
 }
 
-void Docker::DLL_Analyzer()
-{
+void DOCKER::Add_Translator(string id, void (*f)(vector<string>&)) {
+	Translators.push_back({ id, f });
 }
-
-void Docker::LIB_Analyzer()
-{
-	vector<Component> Header_Data = Get_Header(FileName);
-	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("lib..e");
-	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("general");
-	if (Header_Data.size() < 1)
-		cout << "Error: Docker didn't find Header file for " << FileName << endl;
-	Separate_Identification_Patterns(Header_Data);
-	//write the lib with nm to .TMP.txt file
-	LIB::Generate_Binary_Symbols(FileName, Working_Dir);
-	vector<uint8_t> tmp = Get_Char_Buffer_From_File(".TMP.txt", "");
-	string buffer = string((char*)tmp.data(), tmp.size());
-	//use filtters
-	buffer = ReplaceAll(buffer, "\r\n", "\n");
-	regex filtter("(\\?.*)|(\\ .\\ [0-9]+)|(.+:)|(__.+@.+)");
-	buffer = regex_replace(buffer, filtter, "");
-	regex filtter2("(\\n{2,})");
-	buffer = regex_replace(buffer, filtter2, "\n");
-	Section Function_Section = Get_Section_From_String(buffer);
-	Syntax_Correcter(Get_Names_Of(Function_Section));
-	sys->Info.Libs.push_back(Working_Dir + FileName);
-	return;
-}
-
-void Docker::ELF_Analyzer()
-{
-	vector<Component> Header_Data = Get_Header(FileName);
-	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("elf..e");
-	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("general");
-	if (Header_Data.size() < 1)
-		cout << "Error: Docker didn't find Header file for " << FileName << endl;
-	Separate_Identification_Patterns(Header_Data);
-	//open & read the bin file
-	vector<unsigned char> File_Buffer = Get_Char_Buffer_From_File(FileName, Working_Dir);
-	Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
-	Syntax_Correcter(Get_Names_Of(Function_Section));
-	sys->Info.Libs.push_back(Working_Dir + FileName);
-	return;
-}
-
-void Docker::ASM_Analyzer()
-{
-	//here we will just make an prototype from every label. Parser can analyse witch one is a function, and what is not.
-	//and after that we want to give Evie Core the "use "filename"" without the preprosessor so that Evie Core can implement an
-	//post-prosessing include
-	vector<Component> Header_Data = Get_Header(FileName);
-	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("asm..e");
-	if (Header_Data.size() < 1)
-		Header_Data = Get_Header("general");
-	if (Header_Data.size() < 1)
-		cout << "Error: Docker didn't find Header file for " << FileName << endl;
-	Separate_Identification_Patterns(Header_Data);
-	vector<uint8_t> tmp = Get_Char_Buffer_From_File(FileName, Working_Dir);
-	string buffer = string((char*)tmp.data(), tmp.size());
-	Section Function_Section = Get_Section_From_String(buffer);
-	vector<pair<string, string>> Raw_Data = Get_Names_Of(Function_Section);
-	//delete all the comments that start with ;
-	for (int i = 0; i < Raw_Data.size(); i++) {
-		if (Raw_Data[i].first[0] == ';')
-			Raw_Data.erase(Raw_Data.begin() + i);
-		if (Raw_Data[i].first[0] == ';')
-			i--;
-	}
-	//we need to get rid of : in the asm labels
-	for (auto& i : Raw_Data)
-		i.first = ReplaceAll(i.first, ":", "");
-	Syntax_Correcter(Raw_Data);
-	//now make the obj token for YASM
-	sys->Info.Source_Files.push_back(Working_Dir + FileName);
-	return;
-}
-
-void Docker::OBJ_analyser()
-{
+void DOCKER::Set_Default_Translator(void (*f)(vector<string>&)) {
+	Default = f;
 }

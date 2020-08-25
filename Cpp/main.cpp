@@ -8,6 +8,8 @@
 #include "../H/UI/Producer.h"
 #include "../H/Nodes/Node.h"
 #include "../H/Flags.h"
+#include "../H/Docker/Mangler.h"
+#include "../H/Docker/Docker.h"
 
 #include <sstream>
 #include <iostream>
@@ -120,6 +122,21 @@ int main(int argc, char* argv[])
     string OUTPUT = "";
     
     string start_file = sys->Info.Source_File.c_str();
+
+    MANGLER::Add_ID({ "P",{MANGLER::PREFIX, "ptr"} });
+    MANGLER::Add_ID({ "R",{MANGLER::PREFIX, "ref"} });
+    MANGLER::Add_ID({ "c",{MANGLER::PREFIX, "1"} });
+    MANGLER::Add_ID({ "s",{MANGLER::PREFIX, "2"} });
+    MANGLER::Add_ID({ "i",{MANGLER::PREFIX, "4"} });
+    MANGLER::Add_ID({ "f",{MANGLER::PREFIX, "4"} });
+    MANGLER::Add_ID({ "d",{MANGLER::PREFIX, "8"} });
+    MANGLER::Add_ID({ "l",{MANGLER::PREFIX, "8"} });
+    MANGLER::Add_ID({ "x",{MANGLER::PREFIX, "12"} });
+
+    DOCKER::Set_Default_Translator(TXT::TXT_Analyzer);
+    DOCKER::Add_Translator("\x7F" "ELF", ELF::ELF_Analyzer);
+    DOCKER::Add_Translator("!<arch>", LIB::LIB_Analyzer);
+    DOCKER::Add_Translator(";analyze", ASM::ASM_Analyzer);
 
     //testsweetter
     //Test t;

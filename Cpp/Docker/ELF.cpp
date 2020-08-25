@@ -171,3 +171,21 @@ Section ELF::Find_Section(uint8_t* buffer, string type) {
     cout << "Error: Couldn't find section " << type << endl;
     throw "Yeet";
 }
+
+void ELF::ELF_Analyzer(vector<string>& output)
+{
+    vector<string> Header_Data = DOCKER::Get_Header(DOCKER::FileName.back());
+    if (Header_Data.size() < 1)
+        Header_Data = DOCKER::Get_Header("elf..e");
+    if (Header_Data.size() < 1)
+        Header_Data = DOCKER::Get_Header("general");
+    if (Header_Data.size() < 1)
+        cout << "Error: Docker didn't find Header file for " << DOCKER::FileName.back() << endl;
+    
+    //open & read the bin file
+    vector<unsigned char> File_Buffer = DOCKER::Get_Char_Buffer_From_File(DOCKER::FileName.back(), DOCKER::Working_Dir);
+    Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
+    DOCKER::Append(output, DOCKER::Get_Names_Of(Function_Section, DOCKER::Separate_Identification_Patterns(Header_Data)));
+    DOCKER::Libs.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
+    return;
+}

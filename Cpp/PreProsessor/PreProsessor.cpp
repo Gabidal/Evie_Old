@@ -32,18 +32,37 @@ void PreProsessor::Include(int i)
 			Input.erase(Input.begin() + i);
 			return;
 		}
-
+	/*
+		//Translators.push_back({ "TXT", TXT_Analyzer });
+		//Translators.push_back({ "MZ", bind(&Docker::DLL_Analyzer, this) });
+		//Translators.push_back({ "!<arch>",  bind(&Docker::LIB_Analyzer, this) });
+		//Translators.push_back({ "\x7F" "ELF",  bind(&Docker::ELF_Analyzer, this) });
+		//Translators.push_back({ ";analyze",  bind(&Docker::ASM_Analyzer, this) });
+		//Translators.push_back({ "\x4C" "\x01",  bind(&Docker::OBJ_analyser, this) });
+	*/
 	Docker D(File_Name, Working_Dir);
 
 	Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i);
 
-	Input.insert(Input.begin() + i, D.Output.begin(), D.Output.end());
+	for (auto j : DOCKER::Output) {
+		Syntax_Correcter(j.second);
+	}
 
 	Included_Files.push_back(File_Name);
 
 	Factory();
 	return;
+}
+
+void PreProsessor::Syntax_Correcter(vector<string> symbols)
+{
+	//import loyal func [name]()()
+	//import generic func [name]()()
+	for (auto i : symbols) {
+		vector<Component> func = Lexer::GetComponents("import " + MANGLER::Un_Mangle(i));
+		DOCKER::Append(Input, func);
+	}
 }
 
 void PreProsessor::If(int i)
