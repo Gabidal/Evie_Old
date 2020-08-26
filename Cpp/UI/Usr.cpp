@@ -11,6 +11,7 @@ void Usr::Create_Argument_Stats()
 		Find_Destination_File(i);
 		Find_Source_File(i);
 		Find_OS(i);
+		Find_HOST_OS(i);
 		Find_Architecture(i);
 		Find_Bits_Mode(i);
 		Find_Debug_Type(i);
@@ -42,6 +43,15 @@ void Usr::Find_OS(int &i)
 	if ((i <= Argument_Amount) && strcmp(Input[i], "-os") == 0)
 	{
 		Info.OS = Input[i + 1];
+		i++;
+	}
+}
+
+void Usr::Find_HOST_OS(int& i)
+{
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-host") == 0)
+	{
+		Info.HOST_OS = Input[i + 1];
 		i++;
 	}
 }
@@ -80,6 +90,16 @@ void Usr::Find_Lib(int& i)
 	{
 		string tmp = string(Input[i + 1]);
 		Info.Libs.push_back(tmp.c_str());
+		i++;
+	}
+}
+
+void Usr::Find_Repo_Dir(int& i)
+{
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-repo_dir") == 0)
+	{
+		string tmp = string(Input[i + 1]);
+		Info.Repo_Dir = tmp;
 		i++;
 	}
 }

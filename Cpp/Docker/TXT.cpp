@@ -9,6 +9,6 @@ void TXT::TXT_Analyzer(vector<string>& Output)
 	file.seekg(0, SEEK_SET);
 	file.read(Buffer.data(), size);
 	file.close();
-	Output.push_back(string(Buffer.data()));
+	Output.push_back(string(Buffer.data(), Buffer.size()));
 	return;
 }

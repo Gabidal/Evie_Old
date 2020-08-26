@@ -12,23 +12,18 @@ void (*DOCKER::Default)(vector<string>&) = nullptr;
 
 void DOCKER::Start_Analyzer()
 {
+	//https http ftp ftps 
 	if (Default == nullptr) {
 		cout << "Error: The default translator is missing!" << endl;
 		return;
 	}
-	//if everything fails to check out it means,
-	//that it is a txt file and thus call the lexer for that purpose.
-	//function<void()> analyzer = bind(&Docker::TXT_Analyzer, this);//[this]() {TXT_Analyzer(); };
-	//function<void()> analyzer = this->TXT_Analyzer;		//!!!
-	ifstream file(Working_Dir + FileName.back());
-	//safe check
-	if (!file.is_open()) {
-		cout << "Error: Unable to open file " << Working_Dir + FileName.back() << endl;
-		return;
-	}
-	//read Max_ID size into a buffer
+	
 	char Buffer[16];
-	file.read(Buffer, 16);
+	//read Max_ID size into a buffer
+	for (int i = 0; i < 16; i++) {
+		if (!(i > FileName.back().size()))
+			Buffer[i] = FileName.back().c_str()[i];
+	}
 	//for not overlapping wrong file type into lexer
 	bool Wrong_Type = false;
 	//iterate every map ID in Translators map
@@ -48,7 +43,40 @@ void DOCKER::Start_Analyzer()
 		//cout << "Warning: No specific header file for " << FileName << "." << endl;
 		return;
 	}
-	Default(Output[FileName.back()]);
+	bool Try_Local = true;
+	for (auto i : Output) {
+		if (i.second.size() > 0)
+			Try_Local = false;
+	}
+	if (Try_Local) {
+		FileName.back() = DOCKER::Update_Working_Dir(FileName.back());
+		//if everything fails to check out it means,
+		//that it is a txt file and thus call the lexer for that purpose.
+		ifstream file(Working_Dir + FileName.back());
+		//safe check
+		//read Max_ID size into a buffer
+		file.read(Buffer, 16);
+		//for not overlapping wrong file type into lexer
+		bool Wrong_Type = false;
+		//iterate every map ID in Translators map
+		for (auto i : Translators) {
+			if (strncmp(Buffer, i.first.c_str(), i.first.size()) == 0) {
+				Wrong_Type = false;
+				if (Priority_Type.back() == "txt") {
+					Wrong_Type = true;
+					continue;
+				}
+				i.second(Output[FileName.back()]);
+				//sys->Info.Libs.push_back(Working_Dir + FileName);
+				return;
+			}
+		}
+		if (Wrong_Type) {
+			//cout << "Warning: No specific header file for " << FileName << "." << endl;
+			return;
+		}
+		Default(Output[FileName.back()]);
+	}
 	return;
 }
 
@@ -71,7 +99,7 @@ vector<string> DOCKER::Get_Header(string File_Name)
 	}
 	//now iterate the files with Docker within the Priority type of txt.
 	for (string s : Files) {
-		Docker d(s, Working_Dir, "txt");
+		Docker d(s, "txt");
 		if (DOCKER::Output[s].size() > 0)
 			return DOCKER::Output[s];
 	}
@@ -159,12 +187,42 @@ string DOCKER::ReplaceAll(string str, const string& from, const string& to) {
 	return str;
 }
 
-
-
 void DOCKER::Add_Translator(string id, void (*f)(vector<string>&)) {
 	Translators.push_back({ id, f });
 }
 
 void DOCKER::Set_Default_Translator(void (*f)(vector<string>&)) {
 	Default = f;
+}
+
+string DOCKER::Get_File_Extension(string raw) {
+	string Name_No_Extension = "";
+	int i = (int)raw.find_last_of('.');
+	if (i != -1)
+		Name_No_Extension = raw.substr(0, (size_t)i);
+	else
+		Name_No_Extension = raw;
+	return Name_No_Extension;
+}
+
+string DOCKER::Update_Working_Dir(string File_Name)
+{
+	int i = (int)File_Name.find_last_of('/');
+	if (i != -1)
+	{
+		Working_Dir += File_Name.substr(0, (size_t)i + 1);
+		return File_Name.substr((size_t)i + 1);
+	}
+	return File_Name;
+}
+
+string DOCKER::Update_Working_Dir(string File_Name, string& dir)
+{
+	int i = (int)File_Name.find_last_of('/');
+	if (i != -1)
+	{
+		dir += File_Name.substr(0, (size_t)i + 1);
+		return File_Name.substr((size_t)i + 1);
+	}
+	return File_Name;
 }

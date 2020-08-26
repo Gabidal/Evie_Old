@@ -10,12 +10,14 @@
 #include "../H/Flags.h"
 #include "../H/Docker/Mangler.h"
 #include "../H/Docker/Docker.h"
+#include "../H/Docker/HTTPS.h"
 
 #include <sstream>
 #include <iostream>
 #include <map>
 #include <fstream>
 #include <vector>
+#include <ctime>
 using namespace std;
 
 Usr* sys;
@@ -137,6 +139,7 @@ int main(int argc, char* argv[])
     DOCKER::Add_Translator("\x7F" "ELF", ELF::ELF_Analyzer);
     DOCKER::Add_Translator("!<arch>", LIB::LIB_Analyzer);
     DOCKER::Add_Translator(";analyze", ASM::ASM_Analyzer);
+    DOCKER::Add_Translator("https", HTTPS::HTTPS_Analyser);
 
     //testsweetter
     //Test t;
@@ -148,7 +151,7 @@ int main(int argc, char* argv[])
     vector<Component> Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
 
     PreProsessor preprosessor(Input);
-    preprosessor.Included_Files.push_back(preprosessor.Update_Working_Dir(sys->Info.Source_File.c_str()));
+    preprosessor.Included_Files.push_back(DOCKER::Update_Working_Dir(sys->Info.Source_File.c_str()));
 
     preprosessor.Defined_Constants = 
     {

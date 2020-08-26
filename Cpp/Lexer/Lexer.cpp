@@ -550,6 +550,8 @@ vector<Component> GetComponents(string text, Position anchor)
     vector<Component> components;
     Position position;
 
+    replace(text.begin(), text.end(), '\t', ' ');
+
     while (position.GetAbsolute() < text.size())
     {
         optional<Area> area = GetNextComponent(text, position);

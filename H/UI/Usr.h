@@ -10,17 +10,26 @@ class output{
 public:
 	string Source_File;
 	string Destination_File;
-	string OS = "win32";
+	string OS;
+	string HOST_OS;
 	string Architecture = "x86";
 	vector<string> Libs;
+	string Repo_Dir = "Remote";
 	vector<string> Source_Files;
 	string Format = "exe";
 	string Bits_Mode = "0";
 	string Disable = "";
 	string Debug = "";
 	output() {
-		#ifndef _WIN32
+		#if _WIN32
+			OS = "win32";
+		#else
 			OS = "unix";
+		#endif
+		#if _WIN32
+			HOST_OS = "win32";
+		#else
+			HOST_OS = "unix";
 		#endif
 	}
 	void Fill_Empty_Arguments();
@@ -46,11 +55,13 @@ private:
 	void Create_Argument_Stats();
 	void Find_Source_File(int &i);
 	void Find_Destination_File(int &i);
-	void Find_OS(int &i);
+	void Find_OS(int& i);
+	void Find_HOST_OS(int& i);
 	void Find_Architecture(int &i);
 	void Find_Bits_Mode(int &i);
 	void Find_Format(int &i);
 	void Find_Lib(int& i);
+	void Find_Repo_Dir(int& i);
 	void Find_Debug_Type(int& i);
 
 };
