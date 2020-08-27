@@ -1,5 +1,5 @@
 use "cstd.e"
-use "https://github/Gabidal/Evie/IO/cstd.e"
+use "https://github.com/Gabidal/Evie/IO/cstd.e"
 
 type bar{
     int m = 0
