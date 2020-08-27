@@ -53,9 +53,11 @@ namespace DOCKER {
 		return d;
 	}
 	string Get_File_Extension(string raw);
-	//URL Interface
 	string Update_Working_Dir(string File_Name);
 	string Update_Working_Dir(string File_Name, string& dir);
+	vector<string> Get_File_List(string Dir);
+	vector<string> Chop_Chop(string raw, char skip);
+	string Remove(string raw, char id, int cut);
 }
 
 class Docker

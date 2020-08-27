@@ -226,3 +226,46 @@ string DOCKER::Update_Working_Dir(string File_Name, string& dir)
 	}
 	return File_Name;
 }
+
+vector<string> DOCKER::Get_File_List(string Dir)
+{
+	vector<string> Files;
+	//collect all filenames in the working dir
+	for (auto& p : filesystem::directory_iterator(Dir))
+	{
+		string file_name = p.path().filename().string();
+				Files.push_back(file_name);
+	}
+	return Files;
+}
+
+vector<string> DOCKER::Chop_Chop(string raw, char skip)
+{
+	vector<string> Result;
+	string Current = "";
+	for (auto i : raw) {
+		if (i == skip) {
+			if (Current.size() > 0)
+				Result.push_back(Current);
+			Current = "";
+		}
+		else
+			Current += i;
+	}
+	return Result;
+}
+
+string DOCKER::Remove(string raw, char id, int cut)
+{
+	string Result = "";
+	int current = 0;
+	for (auto i : raw) {
+		if (cut == current)
+			break;
+		if (i == id)
+			current++;
+		Result += i;
+	}
+
+	return Result;
+}

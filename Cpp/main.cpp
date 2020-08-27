@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
         cout << "-arch [x86/arm]\n";
         cout << "-mode [bit mode 32/64]\n";
         cout << "-debug [debug symbol type(dwarf2)]\n";
+        cout << "-repo_dir [folder name]\n";
         cout << endl;
         return -1;
     }
