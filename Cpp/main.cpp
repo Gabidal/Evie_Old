@@ -149,10 +149,12 @@ int main(int argc, char* argv[])
     Global_Scope = new Node(CLASS_NODE);
     Global_Scope->Name = "GLOBAL_SCOPE";
 
-    vector<Component> Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
+    //Docker d(sys->Info.Source_File.c_str());
+    //vector<Component> Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
 
+    vector<Component> Input;
     PreProsessor preprosessor(Input);
-    preprosessor.Included_Files.push_back(DOCKER::Update_Working_Dir(sys->Info.Source_File.c_str()));
+    preprosessor.Include(sys->Info.Source_File.c_str());
 
     preprosessor.Defined_Constants = 
     {

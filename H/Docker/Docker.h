@@ -30,6 +30,8 @@ namespace DOCKER {
 	//map<ID, function ID>
 	extern vector<pair<string, void (*)(vector<string>&)>> Translators;
 	extern void (*Default)(vector<string>&);
+	extern vector<string> Included_Files;
+	extern vector<bool> Is_Local;
 	//vector<pair<Type, Regex string>>
 	//vector<pair<string, string>> Types;
 	//returns the filename of the header file
@@ -58,18 +60,30 @@ namespace DOCKER {
 	vector<string> Get_File_List(string Dir);
 	vector<string> Chop_Chop(string raw, char skip);
 	string Remove(string raw, char id, int cut);
+	bool Is_Folder(string path);
+	bool Is_Same_File(string first, string second);
+	char* Read_Bin_File(string fileName);
 }
 
 class Docker
 {
 public:
 	Docker(string FN, string PT = "") {
+		
+		for (auto i : DOCKER::Included_Files)
+				if (i == FN) {
+					cout << "Warnign: " << FN << " already included!" << endl;
+					return;
+				}
 		DOCKER::FileName.push_back(FN);
 		//DOCKER::FileName.push_back(FN);
 		//DOCKER::Working_Dir = WD;
 		DOCKER::Priority_Type.push_back(PT);
 		//look up table at:https://en.wikipedia.org/wiki/List_of_file_signatures.
 		DOCKER::Start_Analyzer();
+		//for include loop to stop existing!
+		DOCKER::Included_Files.push_back(FN);
+		//cleaner
 		DOCKER::FileName.pop_back();
 		DOCKER::Priority_Type.pop_back();
 	}

@@ -24,23 +24,7 @@ void PreProsessor::Include(int i)
 
 	string File_Name = Input[(size_t)i + 1].Value.substr(1, Input[(size_t)i + 1].Value.size() - 2);
 
-	for (string s : Included_Files)
-		if (File_Name == s)
-		{
-			cout << "Warning: " << Input.at((size_t)i + 1).Value << " is already included." << endl;
-			Input.erase(Input.begin() + i + 1);
-			Input.erase(Input.begin() + i);
-			return;
-		}
-	/*
-		//Translators.push_back({ "TXT", TXT_Analyzer });
-		//Translators.push_back({ "MZ", bind(&Docker::DLL_Analyzer, this) });
-		//Translators.push_back({ "!<arch>",  bind(&Docker::LIB_Analyzer, this) });
-		//Translators.push_back({ "\x7F" "ELF",  bind(&Docker::ELF_Analyzer, this) });
-		//Translators.push_back({ ";analyze",  bind(&Docker::ASM_Analyzer, this) });
-		//Translators.push_back({ "\x4C" "\x01",  bind(&Docker::OBJ_analyser, this) });
-	*/
-	Docker D(File_Name, Working_Dir);
+	Docker D(File_Name);
 
 	Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i);
@@ -48,13 +32,25 @@ void PreProsessor::Include(int i)
 	for (auto j : DOCKER::Output) {
 		Syntax_Correcter(j.second, j.first);
 	}
+	DOCKER::Output.clear();
 
 	DOCKER::Append(sys->Info.Libs, DOCKER::Libs);
 	DOCKER::Append(sys->Info.Source_Files, DOCKER::Assembly_Source_File);
 
-	Included_Files.push_back(File_Name);
-
 	Factory();
+	return;
+}
+
+void PreProsessor::Include(string File_Name) {
+	Docker D(File_Name);
+
+	for (auto j : DOCKER::Output) {
+		Syntax_Correcter(j.second, j.first);
+	}
+	DOCKER::Output.clear();
+
+	DOCKER::Append(sys->Info.Libs, DOCKER::Libs);
+	DOCKER::Append(sys->Info.Source_Files, DOCKER::Assembly_Source_File);
 	return;
 }
 

@@ -22,17 +22,17 @@ public:
 	~PreProsessor(){}
 	void Factory();
 	void Include(int i);
+	void Include(string filename);
 	void If(int i);
 	bool Calculate(vector<Component>);
 	void Define_Const_Value(int i);
 	void Replace_Const_Name_With_Value(vector<Component> &in);
 	void Syntax_Correcter(vector<string> symbols, string type );
 
-	vector<string> Included_Files;
+
 	//std::map<string::const_name, Component::value>
 	map<string, Component> Defined_Constants;
 	vector<Component>& Input;
-	string Working_Dir = "";
 private:
 };
 

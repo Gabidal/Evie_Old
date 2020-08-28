@@ -3,15 +3,18 @@
 vector<string> DOCKER::Libs;
 vector<string> DOCKER::Assembly_Source_File;
 vector<string> DOCKER::FileName;
-string DOCKER::Working_Dir = "";
+string DOCKER::Working_Dir;
 vector<string> DOCKER::Priority_Type; 
 map<string, vector<string>> DOCKER::Output;
 //map<ID, function ID>
 vector<pair<string, void (*)(vector<string>&)>> DOCKER::Translators;
 void (*DOCKER::Default)(vector<string>&) = nullptr;
+vector<string> DOCKER::Included_Files;
+vector<bool> DOCKER::Is_Local;
 
 void DOCKER::Start_Analyzer()
 {
+	Is_Local.push_back(false);
 	//https http ftp ftps 
 	if (Default == nullptr) {
 		cout << "Error: The default translator is missing!" << endl;
@@ -49,6 +52,7 @@ void DOCKER::Start_Analyzer()
 			Try_Local = false;
 	}
 	if (Try_Local) {
+		Is_Local.back() = true;
 		FileName.back() = DOCKER::Update_Working_Dir(FileName.back());
 		//if everything fails to check out it means,
 		//that it is a txt file and thus call the lexer for that purpose.
@@ -252,6 +256,8 @@ vector<string> DOCKER::Chop_Chop(string raw, char skip)
 		else
 			Current += i;
 	}
+	if (Current != "")
+		Result.push_back(Current);
 	return Result;
 }
 
@@ -268,4 +274,52 @@ string DOCKER::Remove(string raw, char id, int cut)
 	}
 
 	return Result;
+}
+
+bool DOCKER::Is_Folder(string path)
+{
+	vector<string> Files;
+	//collect all filenames in the working dir
+	if (filesystem::exists(path)) {
+		if (filesystem::is_directory(path)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool DOCKER::Is_Same_File(string first, string second)
+{
+	string tmp = "";
+	string JustNameF = DOCKER::Update_Working_Dir(first, tmp);
+	string JustNameS = DOCKER::Update_Working_Dir(second, tmp);
+
+	if (JustNameF != JustNameS)
+		return false;
+
+	long long f = filesystem::file_size(first);
+	long long s = filesystem::file_size(second);
+
+	if (f != s)
+		return false;
+
+	char* BufferF = Read_Bin_File(first);
+	char* BufferS = Read_Bin_File(second);
+
+	if (memcmp(BufferF, BufferS, s) != 0)
+		return false;
+
+	return true;
+}
+
+char* DOCKER::Read_Bin_File(string fileName)
+{
+	ifstream file(DOCKER::Working_Dir + DOCKER::FileName.back());
+	file.seekg(0, SEEK_END);
+	long long size = file.tellg();
+	char* Buffer = new char[size];
+	file.seekg(0, SEEK_SET);
+	file.read(Buffer, size);
+	file.close();
+	return Buffer;
 }
