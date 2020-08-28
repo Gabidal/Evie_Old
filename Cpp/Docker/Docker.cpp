@@ -314,12 +314,13 @@ bool DOCKER::Is_Same_File(string first, string second)
 
 char* DOCKER::Read_Bin_File(string fileName)
 {
-	ifstream file(DOCKER::Working_Dir + DOCKER::FileName.back());
+	ifstream file(DOCKER::Working_Dir + fileName, std::ios::binary);
 	file.seekg(0, SEEK_END);
 	long long size = file.tellg();
-	char* Buffer = new char[size];
+	char* Buffer = new char[size+1];
 	file.seekg(0, SEEK_SET);
 	file.read(Buffer, size);
+	Buffer[size] = '\0';
 	file.close();
 	return Buffer;
 }

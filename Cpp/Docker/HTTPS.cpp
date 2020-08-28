@@ -59,6 +59,8 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 	}
 	system(Command.c_str());
 
+
+
 	//now we have the repo, next we need to know if we want to build the whole folder or just get a single file.
 	string Repo_Folder_Dest_Path = Remote_Dir;
 	for (int i = 3; i < Info.size() - 1; i++) {
@@ -66,17 +68,25 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 	}
 	Repo_Folder_Dest_Path += Info.back();
 
-	for (int i = 0; i < DOCKER::Included_Files.size(); i++) {
-		if (DOCKER::Is_Same_File(DOCKER::Working_Dir + DOCKER::Included_Files[i], DOCKER::Working_Dir + Repo_Folder_Dest_Path)) {
-			cout << "Warnign: " << Repo_Folder_Dest_Path << " already included!" << endl;
-			return;
-		}
-	}
+
 
 	if (DOCKER::Is_Folder(Repo_Folder_Dest_Path)) {
 		//here we build it.
 	}
 	else {
+		char* buffer = DOCKER::Read_Bin_File(Repo_Folder_Dest_Path);
+		string str(buffer);
+
+		ofstream file(DOCKER::Working_Dir + Repo_Folder_Dest_Path);
+		file.write(str.c_str(), str.size());
+
+		for (int i = 0; i < DOCKER::Included_Files.size(); i++) {
+			if (DOCKER::Is_Same_File(DOCKER::Working_Dir + DOCKER::Included_Files[i], DOCKER::Working_Dir + Repo_Folder_Dest_Path)) {
+				cout << "Warnign: " << Repo_Folder_Dest_Path << " already included!" << endl;
+				return;
+			}
+		}
+
 		Docker D(Repo_Folder_Dest_Path);
 	}
 

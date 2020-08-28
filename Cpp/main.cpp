@@ -11,6 +11,7 @@
 #include "../H/Docker/Mangler.h"
 #include "../H/Docker/Docker.h"
 #include "../H/Docker/HTTPS.h"
+#include "../H/Docker/OBJ.h"
 
 #include <sstream>
 #include <iostream>
@@ -141,7 +142,8 @@ int main(int argc, char* argv[])
     DOCKER::Add_Translator("!<arch>", LIB::LIB_Analyzer);
     DOCKER::Add_Translator(";analyze", ASM::ASM_Analyzer);
     DOCKER::Add_Translator("https", HTTPS::HTTPS_Analyser);
-
+    //[0] = "L\x1\x6"
+    DOCKER::Add_Translator("L\x1\x6", OBJ::OBJ_Analyser);
     //testsweetter
     //Test t;
     //end of testsweetter

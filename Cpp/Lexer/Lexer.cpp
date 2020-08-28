@@ -551,6 +551,7 @@ vector<Component> GetComponents(string text, Position anchor)
     Position position;
 
     replace(text.begin(), text.end(), '\t', ' ');
+    replace(text.begin(), text.end(), '\r', ' ');
 
     while (position.GetAbsolute() < text.size())
     {
@@ -600,6 +601,7 @@ vector<Component> Lexer::GetComponentsFromFile(string file)
     while (getline(stream, line))
     {
         replace(line.begin(), line.end(), '\t', ' ');
+        replace(text.begin(), text.end(), '\r', ' ');
         text += line + LineEnding;
     }
 

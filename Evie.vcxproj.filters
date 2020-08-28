@@ -66,6 +66,9 @@
     <ClCompile Include="cpp\ui\Usr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\Docker\OBJ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\test.asm">
@@ -146,6 +149,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="io\general.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Docker\OBJ.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

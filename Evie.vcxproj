@@ -110,6 +110,7 @@
     <ClCompile Include="cpp\docker\HTTPS.cpp" />
     <ClCompile Include="cpp\docker\LIB.cpp" />
     <ClCompile Include="cpp\docker\Mangler.cpp" />
+    <ClCompile Include="Cpp\Docker\OBJ.cpp" />
     <ClCompile Include="cpp\docker\TXT.cpp" />
     <ClCompile Include="cpp\lexer\Lexer.cpp" />
     <ClCompile Include="cpp\main.cpp" />
@@ -134,6 +135,7 @@
     <ClInclude Include="h\docker\HTTPS.h" />
     <ClInclude Include="h\docker\LIB.h" />
     <ClInclude Include="h\docker\Mangler.h" />
+    <ClInclude Include="H\Docker\OBJ.h" />
     <ClInclude Include="h\docker\Section.h" />
     <ClInclude Include="h\docker\TXT.h" />
     <ClInclude Include="h\Flags.h" />

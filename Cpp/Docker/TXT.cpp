@@ -2,13 +2,14 @@
 
 void TXT::TXT_Analyzer(vector<string>& Output)
 {
-	ifstream file(DOCKER::Working_Dir + DOCKER::FileName.back()); 
+	ifstream file(DOCKER::Working_Dir + DOCKER::FileName.back(), std::ios::binary);
 	file.seekg(0, SEEK_END);
 	long long size = file.tellg();
-	vector<char> Buffer(size); 
+	char* Buffer = new char[size + 1];
 	file.seekg(0, SEEK_SET);
-	file.read(Buffer.data(), size);
+	file.read(Buffer, size);
+	Buffer[size] = '\0';
 	file.close();
-	Output.push_back(string(Buffer.data(), Buffer.size()));
+	Output.push_back(string(Buffer));
 	return;
 }
