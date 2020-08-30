@@ -102,16 +102,20 @@ int main(int argc, char* argv[])
         cout << "Argument types are: \n";
         cout << "-in [relative path/source file]\n";
         cout << "-out [relative path/output file name]\n";
+        cout << "-os [target operating system (win32/unix)]\n";
+        cout << "-host [the host operating system (win32/unix)]\n";
+        cout << "-arch [output assembly type (x86/arm)]\n";
+        cout << "-lib [relative path/lib name]\n";
+        cout << "-repo_dir [relative path/folder name (for saving git repos there)]\n";
         cout << (string)"-f [\n  supported output file formats are:\n" +
-            "  exe(executable works for unix as well),\n" + 
+            "  exe(executable (works for unix as well)),\n" + 
             "  lib(static lib),\n" +
-            "  dll(dynamic library support is not made yet!)\n" + 
+            "  dll(dynamic library (support is not made yet!))\n" + 
             "]\n";
-        cout << "-os [operating system (win32/unix)]\n";
-        cout << "-arch [x86/arm]\n";
-        cout << "-mode [bit mode 32/64]\n";
-        cout << "-debug [debug symbol type(dwarf2)]\n";
-        cout << "-repo_dir [folder name]\n";
+        cout << "-mode [bit mode for assembly output (32/64)]\n";
+        cout << (string)"-debug [\n supported debug symbol types:\n" +
+            "  dwarf2\n" +
+            "]\n";
         cout << endl;
         return -1;
     }
@@ -137,22 +141,16 @@ int main(int argc, char* argv[])
     MANGLER::Add_ID({ "l",{MANGLER::VARIABLE, "4"} });
     MANGLER::Add_ID({ "x",{MANGLER::VARIABLE, "8"} });
 
+    DOCKER::Slicer = TXT::Unwrap;
     DOCKER::Set_Default_Translator(TXT::TXT_Analyzer);
     DOCKER::Add_Translator("\x7F" "ELF", ELF::ELF_Analyzer);
     DOCKER::Add_Translator("!<arch>", LIB::LIB_Analyzer);
     DOCKER::Add_Translator(";analyze", ASM::ASM_Analyzer);
     DOCKER::Add_Translator("https", HTTPS::HTTPS_Analyser);
-    //[0] = "L\x1\x6"
-    DOCKER::Add_Translator("L\x1\x6", OBJ::OBJ_Analyser);
-    //testsweetter
-    //Test t;
-    //end of testsweetter
+    DOCKER::Add_Translator("L\x1", OBJ::OBJ_Analyser);
 
     Global_Scope = new Node(CLASS_NODE);
     Global_Scope->Name = "GLOBAL_SCOPE";
-
-    //Docker d(sys->Info.Source_File.c_str());
-    //vector<Component> Input = Lexer::GetComponentsFromFile(sys->Info.Source_File.c_str());
 
     vector<Component> Input;
     PreProsessor preprosessor(Input);

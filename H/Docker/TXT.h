@@ -10,6 +10,7 @@ using namespace std;
 
 namespace TXT {
 	void TXT_Analyzer(vector<string>& Output);
+	vector<string> Unwrap(string raw);
 }
 
 #endif

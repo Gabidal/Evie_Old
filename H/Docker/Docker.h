@@ -30,6 +30,7 @@ namespace DOCKER {
 	//map<ID, function ID>
 	extern vector<pair<string, void (*)(vector<string>&)>> Translators;
 	extern void (*Default)(vector<string>&);
+	extern vector<string>(*Slicer)(string);
 	extern vector<string> Included_Files;
 	extern vector<bool> Is_Local;
 	//vector<pair<Type, Regex string>>
@@ -63,6 +64,7 @@ namespace DOCKER {
 	bool Is_Folder(string path);
 	bool Is_Same_File(string first, string second);
 	char* Read_Bin_File(string fileName);
+	
 }
 
 class Docker

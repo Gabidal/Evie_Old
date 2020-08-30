@@ -13,3 +13,12 @@ void TXT::TXT_Analyzer(vector<string>& Output)
 	Output.push_back(string(Buffer));
 	return;
 }
+
+vector<string> TXT::Unwrap(string raw)
+{
+	vector<string> Result;
+	for (auto i : Lexer::GetComponents(raw)) {
+		Result.push_back(i.Value);
+	}
+	return Result;
+}

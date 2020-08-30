@@ -65,8 +65,6 @@ void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename)
 			//if the filenmae doesnt have a file extension this happends.
 		}
 		else if (DOCKER::Get_File_Extension(filename) != "e") {
-			//pure source file
-			//do something
 
 		}
 		

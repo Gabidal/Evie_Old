@@ -81,8 +81,8 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 		file.write(str.c_str(), str.size());
 
 		for (int i = 0; i < DOCKER::Included_Files.size(); i++) {
-			if (DOCKER::Is_Same_File(DOCKER::Working_Dir + DOCKER::Included_Files[i], DOCKER::Working_Dir + Repo_Folder_Dest_Path)) {
-				cout << "Warnign: " << Repo_Folder_Dest_Path << " already included!" << endl;
+			if (DOCKER::Is_Same_File(DOCKER::Included_Files[i], DOCKER::Working_Dir + Repo_Folder_Dest_Path)) {
+				cout << "Warnign: " << Repo_Folder_Dest_Path << " already included from \"" << URL << "\"" << endl;
 				return;
 			}
 		}

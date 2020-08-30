@@ -19,10 +19,10 @@ void ASM::ASM_Analyzer(vector<string>& Output)
 	vector<string> Raw_Data = DOCKER::Get_Names_Of(Function_Section, DOCKER::Separate_Identification_Patterns(Header_Data));
 	//delete all the comments that start with ;
 	for (int i = 0; i < Raw_Data.size(); i++) {
-		if (Raw_Data[i][0] == ';')
+		if (Raw_Data[i].find(';') != -1) {
 			Raw_Data.erase(Raw_Data.begin() + i);
-		if (Raw_Data[i][0] == ';')
 			i--;
+		}
 	}
 	//we need to get rid of : in the asm labels
 	for (auto& i : Raw_Data)
@@ -30,5 +30,7 @@ void ASM::ASM_Analyzer(vector<string>& Output)
 	//Syntax_Correcter(Raw_Data);
 	//now make the obj token for YASM
 	DOCKER::Assembly_Source_File.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
+
+	DOCKER::Append(Output, Raw_Data);
 	return;
 }

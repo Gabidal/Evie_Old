@@ -11,6 +11,7 @@ vector<pair<string, void (*)(vector<string>&)>> DOCKER::Translators;
 void (*DOCKER::Default)(vector<string>&) = nullptr;
 vector<string> DOCKER::Included_Files;
 vector<bool> DOCKER::Is_Local;
+vector<string>(*DOCKER::Slicer)(string);
 
 void DOCKER::Start_Analyzer()
 {
@@ -86,6 +87,7 @@ void DOCKER::Start_Analyzer()
 
 vector<string> DOCKER::Get_Header(string File_Name)
 {
+	vector<string> Result;
 	string Name_No_Extension = "";
 	int i = (int)File_Name.find_last_of('.');
 	if (i != -1)
@@ -104,16 +106,20 @@ vector<string> DOCKER::Get_Header(string File_Name)
 	//now iterate the files with Docker within the Priority type of txt.
 	for (string s : Files) {
 		Docker d(s, "txt");
-		if (DOCKER::Output[s].size() > 0)
-			return DOCKER::Output[s];
+		if (DOCKER::Output[s].size() > 0) {
+			Result = DOCKER::Output[s];
+			DOCKER::Output.erase(s);
+		}
 	}
-	vector<string> null;
-	return null;
+	return Result;
 }
 
-vector<pair<string, string>>  DOCKER::Separate_Identification_Patterns(vector<string> Tokens)
+vector<pair<string, string>>  DOCKER::Separate_Identification_Patterns(vector<string> list)
 {
 	vector<pair<string, string>> Types;
+	vector<string> Tokens;
+	for (auto i : list)
+		DOCKER::Append(Tokens, DOCKER::Slicer(i));
 	//try to find operattor that contains rightsided 
 	//string for regexing and left side for type info
 	for (int i = 0; i < Tokens.size(); i++) {
@@ -162,7 +168,7 @@ vector<string> DOCKER::Get_Names_Of(Section area, vector<pair<string, string>> T
 		regex Pattern(i.second);
 		int Previus_Size = Input.size();
 		while (regex_search(Input, matches, Pattern)) {
-			Result.push_back(i.first + matches.str());
+			Result.push_back(i.first + " " + matches.str());
 			Input = matches.prefix().str() + matches.suffix().str();
 			if (Previus_Size == Input.size()) {
 				cout << "Error: Regex string " << i.second << " looped infinitely!" << endl;
@@ -292,21 +298,22 @@ bool DOCKER::Is_Same_File(string first, string second)
 {
 	string tmp = "";
 	string JustNameF = DOCKER::Update_Working_Dir(first, tmp);
+	char* BufferF = Read_Bin_File(JustNameF);
 	string JustNameS = DOCKER::Update_Working_Dir(second, tmp);
+	char* BufferS = Read_Bin_File(JustNameS);
 
 	if (JustNameF != JustNameS)
 		return false;
 
-	long long f = filesystem::file_size(first);
-	long long s = filesystem::file_size(second);
 
-	if (f != s)
+	string F(BufferF);
+	string S(BufferS);
+
+	if (F.size() != S.size())
 		return false;
 
-	char* BufferF = Read_Bin_File(first);
-	char* BufferS = Read_Bin_File(second);
 
-	if (memcmp(BufferF, BufferS, s) != 0)
+	if (memcmp(BufferF, BufferS, S.size()) != 0)
 		return false;
 
 	return true;
