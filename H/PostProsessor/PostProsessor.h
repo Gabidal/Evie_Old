@@ -39,6 +39,8 @@ public:
 	void Determine_Return_Type(Node* n, Node* closest_type);//as the name implies.
 	void Operator_Type_Definer(Node* n);			//gives the operator its left and the right sided types for more abstract.
 	void Handle_Prototypes(int i);					//here we can redefine the types given to parameters.
+	void Find_Inlining_Space();						//tryes to find where to put the inlined stuff.
+
 
 	Node* Get_Combined(Node* n);
 		

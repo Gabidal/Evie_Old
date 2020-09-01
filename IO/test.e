@@ -1,5 +1,5 @@
 use "cstd.e"
-use "https://github.com/Gabidal/Evie/IO/cstd.e"
+#use "https://github.com/Gabidal/Evie/IO/cstd.e"
 
 type bar{
     int m = 0
@@ -24,6 +24,24 @@ type test{
     foo a
     foo b
     foo c
+}
+
+int Inliner1(int a, int b){
+    if (a < b){
+        return a
+    }
+    return b
+}
+
+int Inliner2(int x, int y){
+    return x + y
+}
+
+int Inliner(){
+    if (Inliner1(1, 2) + Inliner2(3, 4) == 1){
+        return 1
+    }
+    return 0
 }
 
 #return the address of the &this.a.x.m

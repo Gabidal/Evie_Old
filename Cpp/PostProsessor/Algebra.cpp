@@ -39,6 +39,148 @@ vector<Node*> Algebra::Linearise(Node* ast, bool Include_Operator = false)
 	return Result;
 }
 
+void Algebra::Function_Inliner(Node* c, int i)
+{
+	//if (banana(1, 2) + apple(1, 2, 3))
+	if (!c->is(CALL_NODE))
+		return;
+	if (c->is("ptr") != -1)
+		return;
+	//skip recusive functions, simply because theyr ass.
+	for (auto j : Get_all(c->Template_Function, CALL_NODE))
+		if (j->Name == c->Name)
+			return;
+	//TODO: make an exeption to ignore recursive functions!!!
+	//we want to inline the fucniton contentsand make the parameters into a local variables
+	//check if thos callation hasnt yet finded the template function.
+	if (c->Template_Function == nullptr) {
+		cout << "Error: " << c->Name << " doesn't have constructor function." << endl;
+		exit(-1);
+	}
+	//make a result variable that the return always return the value to.
+	vector<Node*> Inlined_Code;
+	Node* Result_Definition = new Node(OBJECT_DEFINTION_NODE);
+	//make a custon name
+	Result_Definition->Name = c->Name;
+	for (auto j : c->Parameters)
+		Result_Definition->Name += "_" + j->Name;
+	Result_Definition->Inheritted = c->Template_Function->Inheritted;
+	Result_Definition->Update_Members_Size();
+	Result_Definition->Parent = c->Parent;
+	//add to later refrenses.
+	Result_Definition->Parent->Defined.push_back(Result_Definition);
+
+	Node* Func = c->Copy_Node(c->Template_Function);
+	//rename all the inside variables
+	for (Node* n : Get_all(Func, OBJECT_NODE))
+		n->Name = "." + n->Name;
+
+	vector<Node*> Set_Val_For_Params;
+	for (int j = 0; j < Func->Parameters.size(); j++) {
+		Node* set = new Node(OPERATOR_NODE);
+		set->Name = "=";
+		//set the left
+		set->Left = Func->Copy_Node(Func->Parameters[j]);
+		set->Left->Type = OBJECT_NODE;
+		//and then right
+		set->Right = c->Copy_Node(c->Parameters[j]);
+		//then push it
+		Set_Val_For_Params.push_back(set);
+	}
+	//set the head
+	c->Append(Inlined_Code, Set_Val_For_Params);
+
+	Node* End_Of_Func = new Node(LABEL_NODE);
+	End_Of_Func->Name = Result_Definition->Name + "_LABEL";
+	c->Parent->Defined.push_back(End_Of_Func);
+
+	//replace all return witha jump and a save the result if it returns enything.
+	for (Node* r : Get_all(Func, FLOW_NODE)) {
+		if (r->Name != "return")
+			continue;
+		Node* Content = new Node(CONTENT_NODE);
+		Content->Paranthesis_Type = '(';
+
+		if (r->Right != nullptr) {
+			Node* Result_N = Result_Definition->Copy_Node(Result_Definition);
+			Result_N->Type = OBJECT_NODE;
+
+			Node* Set = new Node(OPERATOR_NODE);
+			Set->Name = "=";
+			Set->Left = Result_N;
+			Set->Right = r->Right;
+
+			Content->Childs.push_back(Set);
+		}
+
+		Node* Label = new Node(LABEL_NODE);
+		Label->Name = End_Of_Func->Name;
+
+		Node* jmp = new Node(FLOW_NODE);
+		jmp->Name = "jump";
+		jmp->Right = Label;
+
+		Content->Childs.push_back(jmp);
+
+		*r = *Content;
+	}
+	c->Append(Inlined_Code, Func->Childs);
+
+	//now time to transfers
+	c->Parent->Append(c->Parent->Defined, Func->Defined);
+
+	for (int j = 0; j < Inlined_Code.size(); j++)
+		Input->insert(Input->begin() + i + j, Inlined_Code[j]);
+
+	//re make the callation into the result holding variable.
+	*c = *Result_Definition->Copy_Node(Result_Definition);
+	c->Type = OBJECT_NODE;
+
+	return;
+}
+
+vector<Node*> Algebra::Get_all(Node* n, int f)
+{
+	vector<Node*> Result;
+	if (n->Left != nullptr) {
+		vector<Node*> left = Get_all(n->Left, f);
+		Result.insert(Result.end(), left.begin(), left.end());
+	}
+	if (n->Right != nullptr) {
+		vector<Node*> right = Get_all(n->Right, f);
+		Result.insert(Result.end(), right.begin(), right.end());
+	}
+	if (n->Succsessor != nullptr) {
+		vector<Node*> Succsessors = Get_all(n->Succsessor, f);
+		Result.insert(Result.end(), Succsessors.begin(), Succsessors.end());
+	}
+	if (n->Predecessor != nullptr) {
+		vector<Node*> Predecessors = Get_all(n->Predecessor, f);
+		Result.insert(Result.end(), Predecessors.begin(), Predecessors.end());
+	}
+	if (n->Fetcher != nullptr) {
+		vector<Node*> Fetchers = Get_all(n->Fetcher, f);
+		Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+	}
+	for (Node* i : n->Childs) {
+		vector<Node*> childs = Get_all(i, f);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : n->Parameters) {
+		vector<Node*> childs = Get_all(i, f);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : n->Defined) {
+		vector<Node*> childs = Get_all(i, f);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+
+	if (n->is(f))
+		Result.push_back(n);
+
+	return Result;
+}
+
 void Algebra::Inline_Variables(int i)
 {
 	//<summary>

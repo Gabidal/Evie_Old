@@ -140,15 +140,6 @@ void PostProsessor::Function_Callation(Node* n)
 	//</summary>
 	//first try to find if this fucntion is a virtual function
 	Node* defition = Parent->Find(n->Name, Parent);
-	/*if ((defition != nullptr) && defition->is("ptr") != -1) {
-		//now we need to give it the appropriate memory offset-
-		//so the virtual function can actually call itself.
-		n->Memory_Offset = defition->Memory_Offset;
-		n->Size = defition->Size;
-		n->Scaler = defition->Scaler;
-		n->Inheritted = defition->Inheritted;
-		return;
-	}*/
 	//other wise we have normal functions
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
@@ -409,6 +400,11 @@ void PostProsessor::Handle_Prototypes(int i)
 	}
 	//now all types are good to go.
 	//although function calling might get tricky with just types as the parameters.
+}
+
+void PostProsessor::Find_Inlining_Space()
+{
+
 }
 
 Node* PostProsessor::Get_Combined(Node* n)
