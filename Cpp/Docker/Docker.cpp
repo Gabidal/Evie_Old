@@ -176,9 +176,6 @@ vector<string> DOCKER::Get_Names_Of(Section area, vector<pair<string, string>> T
 			}
 			Previus_Size = Input.size();
 		}
-		//if (regex_search(Input, matches, Pattern))
-		//	for (auto j: matches)
-		//		Result.push_back({ j.str(), i.first });
 	}
 	return Result;
 }
@@ -209,7 +206,7 @@ string DOCKER::Get_File_Extension(string raw) {
 	string Name_No_Extension = "";
 	int i = (int)raw.find_last_of('.');
 	if (i != -1)
-		Name_No_Extension = raw.substr(0, (size_t)i);
+		Name_No_Extension = raw.substr(i + 1, raw.size());
 	else
 		Name_No_Extension = raw;
 	return Name_No_Extension;

@@ -48,11 +48,17 @@ namespace DOCKER {
 	//open the file and look for the identifier of the file header
 	void Start_Analyzer(); 
 	string ReplaceAll(string str, const string& from, const string& to);
-	Section Get_Section_From_String(string& text); 
+	Section Get_Section_From_String(string& text);
 	template<typename T>
 	vector<T>& Append(vector<T>& d, vector<T> s) {
 		for (int i = 0; i < s.size(); i++)
 			d.push_back(s[i]);
+		return d;
+	}
+	template<typename T>
+	vector<T>& Append(vector<T>& d, vector<T> s, int i) {
+		for (int j = 0; j < s.size(); j++)
+			d.insert(d.begin() + i + j, s[j]);
 		return d;
 	}
 	string Get_File_Extension(string raw);

@@ -23,6 +23,8 @@ public:
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
 	Node* Parent = nullptr;
+	//funciton inlining features
+	vector<Node*> Header;
 	//Scope features
 	vector<Node*> Defined;
 	vector<Node*> Childs;
@@ -66,7 +68,7 @@ public:
 		return -1;
 	}
 	
-	string Get_Inheritted(string seperator, bool Dirent_Type = false) {
+	string Get_Inheritted(string seperator, bool Dirent_Type = false, bool Skip_Prefixes = false) {
 		if (Dirent_Type) {
 			return Name;
 		}
@@ -84,22 +86,25 @@ public:
 		}
 		else {
 			string result = "";
-			for (int i = 0; i < Inheritted.size() - 1; i++) {
-				result += Inheritted[i] + seperator;
+			for (int i = 0; i < Inheritted.size(); i++) {
+				if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
+					continue;
+				result += seperator + Inheritted[i] ;
 			}
-			return result + Inheritted.back();
+			return result;
 		}
 	}
 
-	string Get_Mangled_Name() {
+	string Get_Mangled_Name(bool Skip_Prefixes = false, bool Skip_Return_Type = false) {
 		//_int_ptr_Z6banana_int_int_short
 		string mname = "";
 		//add the returning type
-		for (auto i : Inheritted)
-			mname += "_" + i;
+		if (!Skip_Return_Type)
+			for (auto i : Inheritted)
+				mname += "_" + i;
 		mname += "_" + Name;
 		for (auto i : Parameters)
-			mname += "__" + i->Get_Inheritted("_", is(PROTOTYPE));
+			mname += "_" + i->Get_Inheritted("_", is(PROTOTYPE), Skip_Prefixes);
 		return mname;
 	}
 
@@ -324,7 +329,7 @@ public:
 			m->Update_Size();
 			Size += m->Size;
 		}
-		if (is("ptr")) {
+		if (is("ptr") != -1) {
 			Scaler = Size;
 			Size = _SYSTEM_BIT_SIZE_;
 		}
@@ -332,8 +337,9 @@ public:
 	}
 
 	void Update_Members_Size() {
-		if (Name != "_SIZE_")
-			Size = 0;
+		if (Name == "_SIZE_")
+			return;
+		Size = 0;
 		//this needs maybe revamping?
 		//decide between this forloop and inheritting the members that we inherit
 		for (string s : Inheritted) {
@@ -391,6 +397,9 @@ public:
 
 		for (int i = 0; i < Result->Parameters.size(); i++)
 			Result->Parameters[i] = Copy_Node(Result->Parameters[i]);
+
+		for (int i = 0; i < Result->Header.size(); i++)
+			Result->Header[i] = Copy_Node(Result->Header[i]);
 
 		Result->Left = Copy_Node(Result->Left);
 		Result->Right = Copy_Node(Result->Right);

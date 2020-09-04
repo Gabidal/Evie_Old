@@ -17,7 +17,7 @@ private:
 	Node* Parent;
 	vector<Node*> Linearise(Node* ast, bool Include_Operator);
 
-	void Function_Inliner(Node* c, int i);
+	void Function_Inliner(Node* c);
 	vector<Node*> Get_all(Node* n, int Flag);
 
 	void Set_Defining_Value(int i);

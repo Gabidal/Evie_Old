@@ -3,6 +3,13 @@
 map<string, pair<int, string>> MANGLER::IDS;
 
 string MANGLER::Un_Mangle(string raw) {
+	//try to find if there are any prefixes and remove them into another string
+	string PreFix;
+	if ((int)raw.find_last_of(' ') >= 0) {
+		int pre_i = (int)raw.find_last_of(' ');
+		PreFix = raw.substr(0, pre_i + 1);
+		raw = raw.substr((size_t)pre_i + 1, raw.size());
+	}
 	string Function = "";
 	vector<string> Parenthesis;
 	string Return_Type = "";
@@ -17,57 +24,63 @@ string MANGLER::Un_Mangle(string raw) {
 		//C++ unmangler
 		//_Z3NEWi3ABC
 		for (int i = 2; i < raw.size(); i++) {
-			Current = "" + raw[i];
+			Current = raw[i];
 			Current_Complex_Name += raw[i];
 			//for char based aliases.
-			if (MANGLER::IDS[Current].first == MANGLER::VARIABLE) {
-				//when a new variable starts appearing we want to push the previus into the function-
-				//parameters string.
-				if (Current_Variable != "") {
-					Parenthesis.push_back(Current_Variable);
-					Current_Variable = "";
+			if (MANGLER::IDS.find(Current) != MANGLER::IDS.end()) {
+				if (MANGLER::IDS.at(Current).first == MANGLER::VARIABLE) {
+					//when a new variable starts appearing we want to push the previus into the function-
+					//parameters string.
+					if (Current_Variable != "") {
+						Parenthesis.push_back(Current_Variable);
+						Current_Variable = "";
+					}
+					Current_Complex_Name = "";
+					if (Current_PreFix != "")
+						Current_Variable = Current_PreFix + " ";
+					Current_Variable += MANGLER::IDS.at(Current).second + " ";
 				}
-				Current_Complex_Name = "";
-				Current_Variable = Current_PreFix + " " + MANGLER::IDS[Current].second + " ";
-			}
-			else if (MANGLER::IDS[Current].first == MANGLER::POSTFIX) {
-				Current_Variable += MANGLER::IDS[Current].second + " ";
-				Current_Complex_Name = "";
-			}
-			else if (MANGLER::IDS[Current].first == MANGLER::PREFIX) {
-				if (Current_Variable != "")
-					Parenthesis.push_back(Current_Variable);
-				Current_PreFix += MANGLER::IDS[Current].second + " ";
-				Current_Complex_Name = "";
-			}
-			//for multi char based aliases.
-			else if (MANGLER::IDS[Current_Complex_Name].first == MANGLER::VARIABLE) {
-				//when a new variable starts appearing we want to push the previus into the function-
-				//parameters string.
-				if (Current_Variable != "") {
-					Parenthesis.push_back(Current_Variable);
-					Current_Variable = "";
+				else if (MANGLER::IDS.at(Current).first == MANGLER::POSTFIX) {
+					Current_Variable += MANGLER::IDS.at(Current).second + " ";
+					Current_Complex_Name = "";
 				}
-				Current = "";
-
-				Current_Variable = Current_PreFix + " " + MANGLER::IDS[Current_Complex_Name].second + " ";
-			}
-			else if (MANGLER::IDS[Current_Complex_Name].first == MANGLER::POSTFIX) {
-
-				Current = "";
-				Current_Variable += MANGLER::IDS[Current_Complex_Name].second + " ";
-			}
-			else if (MANGLER::IDS[Current_Complex_Name].first == MANGLER::PREFIX) {
-				if (Current_Variable != "") {
-					Parenthesis.push_back(Current_Variable);
-					Current_Variable = "";
+				else if (MANGLER::IDS.at(Current).first == MANGLER::PREFIX) {
+					if (Current_Variable != "")
+						Parenthesis.push_back(Current_Variable);
+					Current_PreFix += MANGLER::IDS.at(Current).second + " ";
+					Current_Complex_Name = "";
 				}
-
-				Current = "";
-
-				Current_PreFix += MANGLER::IDS[Current_Complex_Name].second + " ";
 			}
+			else if (MANGLER::IDS.find(Current) != MANGLER::IDS.end()) {
+				//for multi char based aliases.
+				if (MANGLER::IDS.at(Current_Complex_Name).first == MANGLER::VARIABLE) {
+					//when a new variable starts appearing we want to push the previus into the function-
+					//parameters string.
+					if (Current_Variable != "") {
+						Parenthesis.push_back(Current_Variable);
+						Current_Variable = "";
+					}
+					Current = "";
+					if (Current_PreFix != "")
+						Current_Variable = Current_PreFix + " ";
+					Current_Variable += MANGLER::IDS.at(Current_Complex_Name).second + " ";
+				}
+				else if (MANGLER::IDS.at(Current_Complex_Name).first == MANGLER::POSTFIX) {
 
+					Current = "";
+					Current_Variable += MANGLER::IDS.at(Current_Complex_Name).second + " ";
+				}
+				else if (MANGLER::IDS.at(Current_Complex_Name).first == MANGLER::PREFIX) {
+					if (Current_Variable != "") {
+						Parenthesis.push_back(Current_Variable);
+						Current_Variable = "";
+					}
+
+					Current = "";
+
+					Current_PreFix += MANGLER::IDS.at(Current_Complex_Name).second + " ";
+				}
+			}
 			//TODO: add that if the current complex name is bigger than 2(.., current num) then dont do this.
 			else if (((raw[i] >= 48) && (raw[i] <= 57))) {
 				string tmp = "";
@@ -98,6 +111,9 @@ string MANGLER::Un_Mangle(string raw) {
 				}
 				i += size;
 			}
+			if (Current_Variable != "") {
+				Parenthesis.push_back(Current_Variable);
+			}
 		}
 	}
 	//else if (raw[0] == '_' && raw[1] == 'E') {
@@ -108,11 +124,13 @@ string MANGLER::Un_Mangle(string raw) {
 		Function = raw;
 	}
 	string Result = Return_Type + " " + Function + "( ";
-	for (int i = 0; i < Parenthesis.size() - 1; i++) {
+	for (int i = 0; i < ((int)Parenthesis.size()) - 1; i++) {
 		Result += Parenthesis[i] + ", ";
 	}
-	Result += Parenthesis.back() + ")";
-	return Result;
+	if (Parenthesis.size() > 0)
+		Result += Parenthesis.back();
+	Result += ")";
+	return PreFix + Result;
 }
 
 void MANGLER::Add_ID(pair<string, pair<int, string>> id) {

@@ -80,7 +80,7 @@ void Parser::Definition_Pattern(int i)
 	return;
 }
 
-void Parser::Duplicated_Prototype_Handler(int i)
+void Parser::Prototype_Pattern(int i)
 {	
 	//import int ptr banana()
 	vector<Component> inheritted = Get_Inheritting_Components(i);
@@ -815,7 +815,7 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.
 		Definition_Pattern(i);
-		Duplicated_Prototype_Handler(i);
+		Prototype_Pattern(i);
 		Label_Definition(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {

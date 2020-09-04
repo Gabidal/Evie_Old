@@ -22,7 +22,7 @@ public:
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
-	void Duplicated_Prototype_Handler(int i);					//func banan(int), func banana()
+	void Prototype_Pattern(int i);					//func banan(int), func banana()
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int i, vector<string> Operator, int Flag);			//a = b + c * d, a.b.c.d()

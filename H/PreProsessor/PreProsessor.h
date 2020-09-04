@@ -27,7 +27,7 @@ public:
 	bool Calculate(vector<Component>);
 	void Define_Const_Value(int i);
 	void Replace_Const_Name_With_Value(vector<Component> &in);
-	void Syntax_Correcter(vector<string> symbols, string type );
+	void Syntax_Correcter(vector<string> symbols, string type, int i);
 
 
 	//std::map<string::const_name, Component::value>

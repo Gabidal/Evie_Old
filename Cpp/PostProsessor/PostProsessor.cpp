@@ -154,7 +154,7 @@ void PostProsessor::Function_Callation(Node* n)
 	//first ignore the template parameters for now
 	for (auto f : Global_Scope->Defined)
 		if (f->is(FUNCTION_NODE) || f->is(PROTOTYPE))
-			if (f->Get_Mangled_Name() == n->Mangled_Name) {
+			if (f->Get_Mangled_Name(true, f->is(PROTOTYPE)) == n->Get_Mangled_Name(true, f->is(PROTOTYPE))) {
 				n->Template_Function = f;
 				//we dont need to do enything, everything is fine.
 				return;
@@ -199,7 +199,7 @@ void PostProsessor::Function_Callation(Node* n)
 		return;
 
 	if (OgFunc == nullptr) {
-		cout << "Error: Can't find suitable funciton to call with parameters:\n";
+		cout << "Error: Can't find suitable funciton to call " << n->Name << " with parameters:\n";
 		for (int j = 0; j < n->Parameters.size(); j++) {
 			cout << "  " << n->Parameters[j]->Name << "\n";
 		}
@@ -400,11 +400,6 @@ void PostProsessor::Handle_Prototypes(int i)
 	}
 	//now all types are good to go.
 	//although function calling might get tricky with just types as the parameters.
-}
-
-void PostProsessor::Find_Inlining_Space()
-{
-
 }
 
 Node* PostProsessor::Get_Combined(Node* n)

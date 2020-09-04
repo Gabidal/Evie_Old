@@ -30,7 +30,7 @@ void PreProsessor::Include(int i)
 	Input.erase(Input.begin() + i);
 
 	for (auto j : DOCKER::Output) {
-		Syntax_Correcter(j.second, j.first);
+		Syntax_Correcter(j.second, j.first, i);
 	}
 	DOCKER::Output.clear();
 
@@ -45,7 +45,7 @@ void PreProsessor::Include(string File_Name) {
 	Docker D(File_Name);
 
 	for (auto j : DOCKER::Output) {
-		Syntax_Correcter(j.second, j.first);
+		Syntax_Correcter(j.second, j.first, 0);
 	}
 	DOCKER::Output.clear();
 
@@ -54,21 +54,21 @@ void PreProsessor::Include(string File_Name) {
 	return;
 }
 
-void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename)
+void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename, int i)
 {
 	//import loyal func [name]()()
 	//import generic func [name]()()
-	for (auto i : symbols) {
-		vector<Component> content = Lexer::GetComponents(i);
-		//now we need to for trough all the functions and unmangle them all
-		if (filename == DOCKER::Get_File_Extension(filename)) {
-			//if the filenmae doesnt have a file extension this happends.
-		}
-		else if (DOCKER::Get_File_Extension(filename) != "e") {
-
-		}
-		
-		DOCKER::Append(Input, content);
+	vector<Component> content;
+	if (filename == DOCKER::Get_File_Extension(filename)) {
+		//if the filenmae doesnt have a file extension this happends.
+	}
+	else if (DOCKER::Get_File_Extension(filename) != "e") {
+		for (auto j : symbols)
+			DOCKER::Append(Input, Lexer::GetComponents( "import " + MANGLER::Un_Mangle(j)), i);
+	}
+	else {
+		for (auto j : symbols)
+			DOCKER::Append(Input, Lexer::GetComponents(j), i);
 	}
 }
 

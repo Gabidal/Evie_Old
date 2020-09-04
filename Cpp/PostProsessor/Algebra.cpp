@@ -5,6 +5,7 @@ void Algebra::Factory() {
 		Set_Coefficient_Value(i);
 		Set_Defining_Value(i);
 		Inline_Variables(i);
+		Function_Inliner(Input->at(i));
 	}
 	for (int i = 0; i < Input->size(); i++)
 		Clean(i);
@@ -39,7 +40,7 @@ vector<Node*> Algebra::Linearise(Node* ast, bool Include_Operator = false)
 	return Result;
 }
 
-void Algebra::Function_Inliner(Node* c, int i)
+void Algebra::Function_Inliner(Node* c)
 {
 	//if (banana(1, 2) + apple(1, 2, 3))
 	if (!c->is(CALL_NODE))
@@ -129,12 +130,12 @@ void Algebra::Function_Inliner(Node* c, int i)
 	//now time to transfers
 	c->Parent->Append(c->Parent->Defined, Func->Defined);
 
-	for (int j = 0; j < Inlined_Code.size(); j++)
-		Input->insert(Input->begin() + i + j, Inlined_Code[j]);
-
 	//re make the callation into the result holding variable.
 	*c = *Result_Definition->Copy_Node(Result_Definition);
 	c->Type = OBJECT_NODE;
+
+	//the later on this will be unwrapped.
+	c->Header = Inlined_Code;
 
 	return;
 }
@@ -161,6 +162,10 @@ vector<Node*> Algebra::Get_all(Node* n, int f)
 	if (n->Fetcher != nullptr) {
 		vector<Node*> Fetchers = Get_all(n->Fetcher, f);
 		Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+	}
+	for (Node* i : n->Header) {
+		vector<Node*> Headers = Get_all(i, f);
+		Result.insert(Result.end(), Headers.begin(), Headers.end());
 	}
 	for (Node* i : n->Childs) {
 		vector<Node*> childs = Get_all(i, f);
