@@ -86,7 +86,7 @@ func function_pointters(){
 func copy(){
     int a
     int b
-    int c 
+    int c
     memcpy(a, b, 1)
     memcpy(c, b, 1)
 }

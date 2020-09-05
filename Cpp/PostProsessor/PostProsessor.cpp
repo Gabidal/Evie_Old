@@ -14,6 +14,7 @@ void PostProsessor::Factory() {
 		Member_Function(i);
 		Open_Function_For_Prosessing(i);
 		Open_Condition_For_Prosessing(i);
+		Open_Loop_For_Prosessing(i);
 		//Combine_Conditions(i);
 		Combine_Member_Fetching(Input[i]);
 		Algebra_Laucher(i);
@@ -162,9 +163,6 @@ void PostProsessor::Function_Callation(Node* n)
 
 	Node* OgFunc = nullptr;
 
-	//TODO:
-	//make that even the returning type affect the choosing of og-function.
-
 	//if the code gets here it means the og-function has template paramters!
 	for (auto f : Global_Scope->Defined) {
 		if (!f->is(FUNCTION_NODE) && !f->is(PROTOTYPE))
@@ -176,6 +174,8 @@ void PostProsessor::Function_Callation(Node* n)
 		if (f->is(PROTOTYPE))
 			Direct_Type = true;
 		if (f->Parameters.size() != n->Parameters.size())
+			continue;
+		if (f->Get_Inheritted("", false, true) != n->Get_Inheritted("", false, true))
 			continue;
 		for (int p = 0; p < f->Parameters.size(); p++) {
 			if (Direct_Type && f->Parameters[p]->Name == "type")
@@ -240,6 +240,11 @@ void PostProsessor::Function_Callation(Node* n)
 	n->Template_Function = func;
 	func->Mangled_Name = func->Get_Mangled_Name();
 	
+	PostProsessor p(func);
+	p.Input = func->Childs;
+	p.Factory();
+
+
 	//now we want to inject it to global scope to be reached next time.
 	Global_Scope->Childs.push_back(func);
 	Global_Scope->Defined.push_back(func);
@@ -400,6 +405,29 @@ void PostProsessor::Handle_Prototypes(int i)
 	}
 	//now all types are good to go.
 	//although function calling might get tricky with just types as the parameters.
+}
+
+void PostProsessor::Open_Loop_For_Prosessing(int i)
+{
+	if (!Input[i]->is(WHILE_NODE))
+		return;
+
+	//while (a + 1 < a * 2){..}
+	//while (int i = 0, a + i < a * i*2, i++){..}
+	//we dont necessarily need to seperate the condition operator.
+	Algebra Alg(Input[i]);
+	Alg.Input = &Input[i]->Parameters;
+	Alg.Factory();
+
+	//now just prosess the child tokens of while node as well.
+	PostProsessor post(Input[i]);
+	post.Input = Input[i]->Childs;
+
+	//NOTE: this defined sizes might be reduntant!
+	post.Define_Sizes(Input[i]);
+
+	//haha brain go brr
+	post.Factory();
 }
 
 Node* PostProsessor::Get_Combined(Node* n)

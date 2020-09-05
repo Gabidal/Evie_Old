@@ -244,19 +244,23 @@ void Algebra::Reduce_Condition_Operations(Node* n)
 	*/
 
 	vector<Node*> Variables = Linearise(n);
-
+	// a + 1 == a * 2
 	//now go through one side and try to delete one coefficient amount of that variable on both sides.
 	for (Node* v : Variables) {
 		if (v->is(OBJECT_NODE)) {
+			bool Removed_Coefficesnt = false;
 			for (Node* other_v : Variables) {
 				if (other_v == v)
 					//skip same, at end we zero out this!
 					continue;
-				if (other_v->Name == v->Name)
+				if (other_v->Name == v->Name) {
 					other_v->Coefficient -= v->Coefficient;
+					Removed_Coefficesnt = true;
+				}
 			}
 			//zero this variable out here:
-			v->Coefficient -= v->Coefficient;
+			if (Removed_Coefficesnt)
+				v->Coefficient -= v->Coefficient;
 		}
 	}
 
