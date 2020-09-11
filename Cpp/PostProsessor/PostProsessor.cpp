@@ -214,7 +214,7 @@ void PostProsessor::Function_Callation(Node* n)
 	Node* func = nullptr;
 	if (!OgFunc->is(PROTOTYPE)) {
 		//now we want to copy that function again but this time we will put the called parameter types
-		func = OgFunc->Copy_Node(OgFunc);
+		func = OgFunc->Copy_Node(OgFunc, Parent);
 
 		//now we want to through the templates and put on them the right parameter infos
 		for (int p = 0; p < func->Parameters.size(); p++) {
@@ -244,6 +244,7 @@ void PostProsessor::Function_Callation(Node* n)
 	p.Input = func->Childs;
 	p.Factory();
 
+	Update_Used_Object_Info(func);
 
 	//now we want to inject it to global scope to be reached next time.
 	Global_Scope->Childs.push_back(func);
@@ -428,6 +429,16 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 
 	//haha brain go brr
 	post.Factory();
+}
+
+void PostProsessor::Update_Used_Object_Info(Node* n)
+{
+	if (!n->is(FUNCTION_NODE))
+		return;
+	for (auto i : n->Get_all(OBJECT_NODE)) {
+		i->Inheritted = n->Find(i->Name, i->Parent)->Inheritted;
+		i->Update_Members_Size();
+	}
 }
 
 Node* PostProsessor::Get_Combined(Node* n)

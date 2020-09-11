@@ -69,6 +69,12 @@
     <ClCompile Include="Cpp\Docker\OBJ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\BackEnd\BackEnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cpp\BackEnd\IRGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\test.asm">
@@ -152,6 +158,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\Docker\OBJ.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Nodes\IR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Nodes\Token.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\BackEnd\BackEnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\BackEnd\IRGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -71,7 +71,7 @@ void Algebra::Function_Inliner(Node* c)
 	//add to later refrenses.
 	Result_Definition->Parent->Defined.push_back(Result_Definition);
 
-	Node* Func = c->Copy_Node(c->Template_Function);
+	Node* Func = c->Copy_Node(c->Template_Function, c->Parent);
 	//rename all the inside variables
 	for (Node* n : Get_all(Func, OBJECT_NODE))
 		n->Name = "." + n->Name;
@@ -81,10 +81,10 @@ void Algebra::Function_Inliner(Node* c)
 		Node* set = new Node(OPERATOR_NODE);
 		set->Name = "=";
 		//set the left
-		set->Left = Func->Copy_Node(Func->Parameters[j]);
+		set->Left = Func->Copy_Node(Func->Parameters[j], c->Parent);
 		set->Left->Type = OBJECT_NODE;
 		//and then right
-		set->Right = c->Copy_Node(c->Parameters[j]);
+		set->Right = c->Copy_Node(c->Parameters[j], c->Parent);
 		//then push it
 		Set_Val_For_Params.push_back(set);
 	}
@@ -103,7 +103,7 @@ void Algebra::Function_Inliner(Node* c)
 		Content->Paranthesis_Type = '(';
 
 		if (r->Right != nullptr) {
-			Node* Result_N = Result_Definition->Copy_Node(Result_Definition);
+			Node* Result_N = Result_Definition->Copy_Node(Result_Definition, Result_Definition->Parent);
 			Result_N->Type = OBJECT_NODE;
 
 			Node* Set = new Node(OPERATOR_NODE);
@@ -131,7 +131,7 @@ void Algebra::Function_Inliner(Node* c)
 	c->Parent->Append(c->Parent->Defined, Func->Defined);
 
 	//re make the callation into the result holding variable.
-	*c = *Result_Definition->Copy_Node(Result_Definition);
+	*c = *Result_Definition->Copy_Node(Result_Definition, Result_Definition->Parent);
 	c->Type = OBJECT_NODE;
 
 	//the later on this will be unwrapped.

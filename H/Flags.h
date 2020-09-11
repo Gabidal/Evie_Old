@@ -1,6 +1,26 @@
 #ifndef _FLAGS_H_
 #define _FLAGS_H_
 
+namespace TOKEN {
+	constexpr long REGISTER = 1 << 0;
+	constexpr long VOLATILE = 1 << 1;
+	constexpr long NONVOLATILE = 1 << 2;
+	constexpr long RETURNING = 1 << 3;
+	constexpr long PARAMETER = 1 << 4;	//fast call
+
+	constexpr long NUM = 1 << 5;
+	constexpr long DECIMAL = 1 << 6;
+
+	constexpr long MEMORY = 1 << 7;
+
+	constexpr long OPERATOR = 1 << 8;	//any operator
+	constexpr long SCALER = 1 << 9;		//*
+	constexpr long OFFSETTER = 1 << 10;	//+
+
+	constexpr long CONTENT = 1 << 11;	//any childs owner
+	constexpr long LABEL = 1 << 12;
+}
+
 namespace Flags{
 	//the main flags that LEXER uses
 	constexpr long KEYWORD_COMPONENT	 = 1 << 0;

@@ -40,6 +40,7 @@ public:
 	void Operator_Type_Definer(Node* n);			//gives the operator its left and the right sided types for more abstract.
 	void Handle_Prototypes(int i);					//here we can redefine the types given to parameters.
 	void Open_Loop_For_Prosessing(int i);
+	void Update_Used_Object_Info(Node* n);
 
 	Node* Get_Combined(Node* n);
 		

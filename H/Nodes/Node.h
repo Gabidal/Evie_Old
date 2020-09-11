@@ -323,6 +323,7 @@ public:
 			}
 	}
 	
+	//this reqiers that the other local variables inside this object are already having theyre own size!
 	void Update_Size() {
 		for (Node* m : Defined) {
 			//gather member variables
@@ -375,37 +376,44 @@ public:
 		return;
 	}
 
-	Node* Copy_Node(Node* What_Node)
+	Node* Copy_Node(Node* What_Node, Node* p)
 	{
 		if (What_Node == nullptr)
 			return nullptr;
 		//this will only copy the ptrs in list but we want to also copy what those ptr point to.
 		Node* Result = new Node(*What_Node);
+		Result->Parent = p;
 
 		//lets start from defined
 		for (int i = 0; i < Result->Defined.size(); i++)
-			Result->Defined[i] = Copy_Node(Result->Defined[i]);
+			Result->Defined[i] = Copy_Node(Result->Defined[i], Result);
 
 		for (int i = 0; i < Result->Childs.size(); i++)
-			Result->Childs[i] = Copy_Node(Result->Childs[i]);
+			if (Result->is(CONTENT_NODE))
+				Result->Childs[i] = Copy_Node(Result->Childs[i], p);
+			else
+				Result->Childs[i] = Copy_Node(Result->Childs[i], Result);
 
 		for (int i = 0; i < Result->Member_Functions.size(); i++)
-			Result->Member_Functions[i] = Copy_Node(Result->Member_Functions[i]);
+			Result->Member_Functions[i] = Copy_Node(Result->Member_Functions[i], Result);
 
 		for (int i = 0; i < Result->Operator_Overloads.size(); i++)
-			Result->Operator_Overloads[i] = Copy_Node(Result->Operator_Overloads[i]);
+			Result->Operator_Overloads[i] = Copy_Node(Result->Operator_Overloads[i], Result);
 
 		for (int i = 0; i < Result->Parameters.size(); i++)
-			Result->Parameters[i] = Copy_Node(Result->Parameters[i]);
+			if (Result->is(CALL_NODE))
+				Result->Parameters[i] = Copy_Node(Result->Parameters[i], p);
+			else
+				Result->Parameters[i] = Copy_Node(Result->Parameters[i], Result);
 
 		for (int i = 0; i < Result->Header.size(); i++)
-			Result->Header[i] = Copy_Node(Result->Header[i]);
+			Result->Header[i] = Copy_Node(Result->Header[i], p);
 
-		Result->Left = Copy_Node(Result->Left);
-		Result->Right = Copy_Node(Result->Right);
+		Result->Left = Copy_Node(Result->Left, p);
+		Result->Right = Copy_Node(Result->Right, p);
 
-		Result->Succsessor = Copy_Node(Result->Succsessor);
-		Result->Predecessor = Copy_Node(Result->Predecessor);
+		Result->Succsessor = Copy_Node(Result->Succsessor, p);
+		Result->Predecessor = Copy_Node(Result->Predecessor, p);
 
 		//now we have copyed every ptr into a new base to point.
 		return Result;
@@ -445,6 +453,52 @@ public:
 
 	vector<Node*> Has(int f) {
 		return Has(this, f);
+	}
+
+	vector<Node*> Get_all(int f)
+	{
+		vector<Node*> Result;
+		if (Left != nullptr) {
+			vector<Node*> left = Left->Get_all(f);
+			Result.insert(Result.end(), left.begin(), left.end());
+		}
+		if (Right != nullptr) {
+			vector<Node*> right = Right->Get_all(f);
+			Result.insert(Result.end(), right.begin(), right.end());
+		}
+		if (Succsessor != nullptr) {
+			vector<Node*> Succsessors = Succsessor->Get_all(f);
+			Result.insert(Result.end(), Succsessors.begin(), Succsessors.end());
+		}
+		if (Predecessor != nullptr) {
+			vector<Node*> Predecessors = Predecessor->Get_all(f);
+			Result.insert(Result.end(), Predecessors.begin(), Predecessors.end());
+		}
+		if (Fetcher != nullptr) {
+			vector<Node*> Fetchers = Fetcher->Get_all(f);
+			Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+		}
+		for (Node* i : Header) {
+			vector<Node*> Headers = i->Get_all(f);
+			Result.insert(Result.end(), Headers.begin(), Headers.end());
+		}
+		for (Node* i : Childs) {
+			vector<Node*> childs = i->Get_all(f);
+			Result.insert(Result.end(), childs.begin(), childs.end());
+		}
+		for (Node* i : Parameters) {
+			vector<Node*> childs = i->Get_all(f);
+			Result.insert(Result.end(), childs.begin(), childs.end());
+		}
+		for (Node* i : Defined) {
+			vector<Node*> childs = i->Get_all(f);
+			Result.insert(Result.end(), childs.begin(), childs.end());
+		}
+
+		if (is(f))
+			Result.push_back(this);
+
+		return Result;
 	}
 
 	template<typename T>

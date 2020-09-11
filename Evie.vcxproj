@@ -109,6 +109,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cpp\BackEnd\BackEnd.cpp" />
+    <ClCompile Include="Cpp\BackEnd\IRGenerator.cpp" />
     <ClCompile Include="cpp\docker\ASM.cpp" />
     <ClCompile Include="cpp\docker\Docker.cpp" />
     <ClCompile Include="cpp\docker\ELF.cpp" />
@@ -134,6 +136,8 @@
     <None Include="io\win32.asm" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="H\BackEnd\BackEnd.h" />
+    <ClInclude Include="H\BackEnd\IRGenerator.h" />
     <ClInclude Include="h\docker\ASM.h" />
     <ClInclude Include="h\docker\Docker.h" />
     <ClInclude Include="h\docker\ELF.h" />
@@ -147,7 +151,9 @@
     <ClInclude Include="h\lexer\Component.h" />
     <ClInclude Include="h\lexer\Lexer.h" />
     <ClInclude Include="h\lexer\Position.h" />
+    <ClInclude Include="H\Nodes\IR.h" />
     <ClInclude Include="h\nodes\Node.h" />
+    <ClInclude Include="H\Nodes\Token.h" />
     <ClInclude Include="h\parser\Parser.h" />
     <ClInclude Include="h\postprosessor\Algebra.h" />
     <ClInclude Include="h\postprosessor\PostProsessor.h" />
