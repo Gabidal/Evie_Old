@@ -81,7 +81,10 @@ public:
 					return Find(8, Parent)->Get_Inheritted(seperator);
 			}
 			else {
-				return Find(_SYSTEM_BIT_SIZE_, Parent)->Get_Inheritted(seperator);
+				if (atoll(Name.c_str()) > INT_MAX) {
+					return Find(8, Parent)->Get_Inheritted(seperator);
+				}
+				return Find(4, Parent)->Get_Inheritted(seperator);
 			}
 		}
 		else {

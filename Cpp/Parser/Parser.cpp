@@ -623,7 +623,7 @@ void Parser::If_Pattern(int i)
 
 void Parser::Else_Pattern(int i)
 {
-	//here we patternise the alse without a condition
+	//here we patternise the else without a condition
 	if (!Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
 	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);

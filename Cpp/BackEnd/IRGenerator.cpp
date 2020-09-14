@@ -12,7 +12,7 @@ void IRGenerator::Parse_Function(int i)
 
 	//label
 	IR* Label = Make_Label(Input[i]);
-	Output.push_back(Label);
+	Output->push_back(Label);
 
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
@@ -52,10 +52,82 @@ void IRGenerator::Parse_If(int i)
 
 }
 
+void IRGenerator::Parse_Condition(int i)
+{
+	//NOTICE: this must happen after all operator is is created as IR!!!
+	if (!Input[i]->is(CONDITION_OPERATOR_NODE))
+		return;
+	if (!Parent->is(IF_NODE) && !Parent->is(ELSE_IF_NODE)) {
+		// a = b * c < d
+		//...
+		return;
+	}
+	// if (a == 1)
+	//give the right side as left side to IRGenerator
+	IRGenerator g(Parent, { Input[i]->Right, Input[i]->Left }, Output);
+
+	//TODO: check later for the _END addon if conditions even use it :/
+	string Next_Label = Parent->Name + "_END";
+	if (Parent->Succsessor != nullptr)
+		Next_Label = Parent->Succsessor->Name;
+
+	//jmp if not correct
+	Output->push_back(Make_Jump(Get_Inverted_Condition(Input[i]->Name), Next_Label));
+}
+
+void IRGenerator::Un_Wrap_Inline(int i)
+{
+	if (!(Input[i]->Header.size() > 0))
+		return;
+
+	IRGenerator g(Parent, Input[i]->Header, Output);
+}
+
+void IRGenerator::Parse_Operators(int i)
+{
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
+		return;
+
+	//if ()
+
+}
+
+string IRGenerator::Get_Inverted_Condition(string c)
+{
+	if (c == "==")
+		return "!=";
+	else if (c == "!=")
+		return "==";
+	else if (c == "<")
+		return ">";
+	else if (c == ">")
+		return "<";
+	else if (c == "!<")
+		return ">=";
+	else if (c == "!>")
+		return "<=";
+	else if (c == "<=")
+		return ">";
+	else if (c == ">=")
+		return "<";
+	cout << "Error: Undefined Condition type " << c << endl;
+	return "";
+}
+
 IR* IRGenerator::Make_Label(Node* n)
 {
 	Token* label_name = new Token(TOKEN::LABEL, n->Name);
 	IR* label = new IR();
 	label->OPCODE = label_name;
 	return label;
+}
+
+IR* IRGenerator::Make_Jump(string condition, string l)
+{
+	Token* jmp = new Token(TOKEN::FLOW, condition);
+	Token* label = new Token(TOKEN::LABEL, l);
+	IR* op = new IR();
+	op->OPCODE = jmp;
+	op->Arguments.push_back(label);
+	return op;
 }

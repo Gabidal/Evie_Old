@@ -19,6 +19,8 @@ namespace TOKEN {
 
 	constexpr long CONTENT = 1 << 11;	//any childs owner
 	constexpr long LABEL = 1 << 12;
+
+	constexpr long FLOW = 1 << 13; //ret, jmp
 }
 
 namespace Flags{
@@ -45,12 +47,12 @@ enum Node_Type {
 	PROTOTYPE,
 	FLOW_NODE,
 	PTR_NODE,
-	ARRAY_NODE,
 	NUMBER_NODE,
 
-	OPERATOR_NODE,		//idk really know
-	CONDITION_OPERATOR_NODE,
-	BIT_OPERATOR_NODE,
+	OPERATOR_NODE,				//classical operators like +-/*
+	CONDITION_OPERATOR_NODE,	//==, !=, <, >
+	BIT_OPERATOR_NODE,			// &, |, ¤, <<, >>
+	ARRAY_NODE,					//a[1]
 
 	STRING_NODE,
 	CLASS_NODE,

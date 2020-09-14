@@ -110,6 +110,12 @@ func main(int x) {
     if (a * 2 == a - 1){
         jump label
     }
+    else (a == 2) {
+        jump label
+    }
+    else (a == b){
+        jump label
+    }
     else {
         jump label
     }

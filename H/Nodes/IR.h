@@ -10,7 +10,7 @@ class IR {
 public:
 	//[Token:OPC] [Token:arg], [Token:arg], [Token:arg]
 	Token* OPCODE = nullptr;
-	vector<Token> Arguments;
+	vector<Token*> Arguments;
 
 	IR(){}
 };
