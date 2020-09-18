@@ -88,8 +88,36 @@ void IRGenerator::Parse_Operators(int i)
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
 		return;
 
-	//if ()
+	Token* Left = nullptr;
+	Token* Right = nullptr;
 
+	IRGenerator g(Parent, { Input[i]->Right }, Output);
+
+	if (g.Handle != nullptr)
+		Right = g.Handle;
+	else {
+		//create the 
+	}
+	
+	g.Generate({ Input[i]->Left });
+
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else {
+		if (Input[i]->Name == "=") {
+			//storing operator.
+			
+		}
+		else {
+
+		}
+	}
+
+	Token* Opcode = new Token(TOKEN::OPERATOR, Input[i]->Name);
+
+	IR* ir = new IR(Opcode, {Left, Right});
+
+	Output->push_back(ir);
 }
 
 string IRGenerator::Get_Inverted_Condition(string c)

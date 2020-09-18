@@ -13,12 +13,15 @@ using namespace std;
 class IRGenerator {
 public:
 	Node* Parent = nullptr;
+	Token* Handle = nullptr;
+
 	vector<IR*>* Output;
 	vector<Node*> Input;
+
 	IRGenerator(Node* p) : Parent(p) { Output = new vector<IR*>; }
 	IRGenerator(Node* p, vector<Node*> in) : Parent(p), Input(in) { Output = new vector<IR*>; }
 	IRGenerator(Node* p, vector<Node*> in, vector<IR*>* Out) : Parent(p), Input(in), Output(Out) { Factory(); }
-	void Generate(vector<Node*> in) { Input = in; Factory(); }
+	void Generate(vector<Node*> in) { Handle = nullptr; Input = in; Factory(); }
 
 	void Factory();
 	void Parse_Function(int i);

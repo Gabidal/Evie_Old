@@ -18,6 +18,8 @@ private:
 public:
 	Token(long f) : Flags(f) {}
 	Token(long f, string n) : Flags(f), Name(n) {}
+	Token(long f, string n, int s) : Flags(f), Name(n), Size(s) {}
+	Token(long f, string n, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c) {}
 	bool is(int flag){return (Flags & flag) == flag;}
 	bool Any(int flags){return (Flags & flags) != 0;}
 	void add(int flag){this->Flags |= flag;}

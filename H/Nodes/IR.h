@@ -13,6 +13,7 @@ public:
 	vector<Token*> Arguments;
 
 	IR(){}
+	IR(Token* opc, vector<Token*> args) { OPCODE = opc; Arguments = args; }
 };
 
 #endif
