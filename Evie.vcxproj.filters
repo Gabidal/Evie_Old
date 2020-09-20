@@ -75,6 +75,9 @@
     <ClCompile Include="Cpp\BackEnd\IRGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\BackEnd\x86.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\test.asm">
@@ -170,6 +173,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\BackEnd\IRGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\BackEnd\x86.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -96,7 +96,16 @@ void IRGenerator::Parse_Operators(int i)
 	if (g.Handle != nullptr)
 		Right = g.Handle;
 	else {
-		//create the 
+		//create the register
+		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + Input[i]->Right->Name, Input[i]->Right->Size);
+		//create a Token version out of the right side
+		Token* Value = new Token(Input[i]->Right);
+		//create the IR
+		Token* Opc = new Token(TOKEN::OPERATOR, "=");
+		IR* ir = new IR(Opc, { Reg, Value });
+
+		Right = Reg;
+		Output->push_back(ir);
 	}
 	
 	g.Generate({ Input[i]->Left });
@@ -105,11 +114,20 @@ void IRGenerator::Parse_Operators(int i)
 		Left = g.Handle;
 	else {
 		if (Input[i]->Name == "=") {
-			//storing operator.
-			
+			//dont load the value into a register
+			Left = new Token(Input[i]->Left);
 		}
 		else {
+			//create the register
+			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + Input[i]->Left->Name, Input[i]->Left->Size);
+			//create a Token version out of the right side
+			Token* Value = new Token(Input[i]->Left);
+			//create the IR
+			Token* Opc = new Token(TOKEN::OPERATOR, "=");
+			IR* ir = new IR(Opc, { Reg, Value });
 
+			Left = Reg;
+			Output->push_back(ir);
 		}
 	}
 
@@ -117,6 +135,7 @@ void IRGenerator::Parse_Operators(int i)
 
 	IR* ir = new IR(Opcode, {Left, Right});
 
+	Handle = Left;
 	Output->push_back(ir);
 }
 

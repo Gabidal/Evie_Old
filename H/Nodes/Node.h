@@ -504,6 +504,15 @@ public:
 		return Result;
 	}
 
+	bool Is_Decimal() {
+		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
 	template<typename T>
 	vector<T>& Append(vector<T>& d, vector<T> s) {
 		for (int i = 0; i < s.size(); i++)

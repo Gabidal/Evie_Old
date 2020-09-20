@@ -2,11 +2,11 @@
 #define _FLAGS_H_
 
 namespace TOKEN {
-	constexpr long REGISTER = 1 << 0;
+	constexpr long REGISTER = 1 << 0;	//this is for that the selector can select an register if it sees this
 	constexpr long VOLATILE = 1 << 1;
 	constexpr long NONVOLATILE = 1 << 2;
 	constexpr long RETURNING = 1 << 3;
-	constexpr long PARAMETER = 1 << 4;	//fast call
+	constexpr long TMP = 1 << 4;	//fast call
 
 	constexpr long NUM = 1 << 5;
 	constexpr long DECIMAL = 1 << 6;

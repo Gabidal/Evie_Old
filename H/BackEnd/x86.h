@@ -11,7 +11,7 @@ using namespace std;
 #include "../Flags.h"
 
 namespace x86_64_Win {
-	constexpr int SIZE = 8;
+	int SIZE;
 	vector<Token*> Registers;
 
 	vector<Token*> Parameter_Registers;

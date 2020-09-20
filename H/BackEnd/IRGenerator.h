@@ -29,7 +29,7 @@ public:
 	void Parse_Condition(int i);
 	void Un_Wrap_Inline(int i);
 	void Parse_Operators(int i);
-	//TODO: hey gab! use log(x) base 10 for the global inlining label adding rendom char adder.
+	//TODO: hey gab! use log(inlining count) base 10 for the global inlining label adding rendom char adder.
 
 	string Get_Inverted_Condition(string c);
 
