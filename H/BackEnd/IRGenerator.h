@@ -29,12 +29,14 @@ public:
 	void Parse_Condition(int i);
 	void Un_Wrap_Inline(int i);
 	void Parse_Operators(int i);
+	void Parse_Pointers(int i);
 	//TODO: hey gab! use log(inlining count) base 10 for the global inlining label adding rendom char adder.
 
 	string Get_Inverted_Condition(string c);
 
 	IR* Make_Label(Node* n);
 	IR* Make_Jump(string condition, string l);
+	int Get_Amount(string t, Node* n);
 };
 
 #endif

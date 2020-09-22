@@ -91,6 +91,27 @@ func copy(){
     memcpy(c, b, 1)
 }
 
+func pointter_Mess(){
+    int a = 0
+    int ptr b = a
+
+    int ptr c = b
+    #int ptr [int ptr [100]] e
+
+    #gab remember to do the "ptr" comparerer
+    int ptr f = b
+
+    int ptr ptr ptr g = f
+
+    lea reg1, [f]
+    mov [g], reg1
+
+    #int g = f
+    #e[0][1] = 1
+
+    int d = c
+}
+
 func main(int x) {
     test first
 
@@ -147,5 +168,5 @@ func main(int x) {
     first.b.y[first.b.x[0]] = 1
     first.b.z[1][2][3] = 2
 
-    return get(second)
+    return second.get()
 }

@@ -39,6 +39,8 @@ public:
 	bool Any(int flags){return (Flags & flags) != 0;}
 	void add(int flag){this->Flags |= flag;}
 	void remove(int flag){this->Flags ^= (Flags & flag);}
+	int Get_Size() { return Size; }
+	string Get_Name() { return Name; }
 };
 
 #endif

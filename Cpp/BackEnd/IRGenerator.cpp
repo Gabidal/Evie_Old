@@ -87,6 +87,11 @@ void IRGenerator::Parse_Operators(int i)
 {
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
 		return;
+	//If this operator is handling with pointters we cant use general operator handles
+	if (Input[i]->Left->is("ptr"))
+		return;
+	if (Input[i]->Right->is("ptr"))
+		return;
 
 	Token* Left = nullptr;
 	Token* Right = nullptr;
@@ -139,6 +144,75 @@ void IRGenerator::Parse_Operators(int i)
 	Output->push_back(ir);
 }
 
+void IRGenerator::Parse_Pointers(int i)
+{
+	if ((Input[i]->Left->is("ptr") == -1) && Input[i]->Right->is("ptr") == -1)
+		return;
+
+	//int a = 0
+	//int ptr b = a + f - e / g get the address of memory
+	//int ptr c = b pass memory address of a to c
+	//int d = c		load value of a into c
+
+	//if true load the pointing value or move the inside value
+	bool Load_Value = Get_Amount("ptr", Input[i]->Left) < Get_Amount("ptr", Input[i]->Right);
+	bool Point_To_Value = Get_Amount("ptr", Input[i]->Left) > Get_Amount("ptr", Input[i]->Right);
+
+
+	int Pointer_Depth = labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
+
+	Token* Left = nullptr;
+	Token* Right = nullptr;
+	Token* Source = nullptr;
+	
+	IRGenerator g(Parent, { Input[i]->Left }, Output);
+
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else
+		Left = new Token(Input[i]->Left);
+
+	g.Generate({ Input[i]->Right });
+
+	if (g.Handle != nullptr)
+		Source = g.Handle;
+	else
+		Source = new Token(Input[i]->Right);
+
+	if (Load_Value) {
+		int Register_Count = 0;
+		for (int j = 0; j < Pointer_Depth; j++) {
+			//load reg1, right
+			//make an register to load into
+			Right = new Token(TOKEN::REGISTER, "REG_" + to_string(Register_Count++) + Source->Get_Name(), Source->Get_Size());
+
+			Token* Load = new Token(TOKEN::OPERATOR, "load");
+
+			IR* ir = new IR(Load, { Right, Source });
+			Output->push_back(ir);
+
+			Source = Right;
+		}
+	}
+	else if (Point_To_Value) {
+		if (Pointer_Depth > 1) {
+			cout << "Error: Could not get temporary memory allocated for pointter depth more than 1 " << Input[i]->Left->Name << Input[i]->Name << Input[i]->Right->Name << endl;
+			exit(1);
+		}
+		//save reg1, right		
+		//make an register to save right into
+		Right = new Token(TOKEN::REGISTER, "REG_" + Source->Get_Name(), Source->Get_Size());
+		Token* Save = new Token(TOKEN::OPERATOR, "save");
+		IR* ir = new IR(Save, { Right, Source });
+		Output->push_back(ir);
+	}
+	Token* Opc = new Token(TOKEN::OPERATOR, Input[i]->Name);
+	IR* Opcode = new IR(Opc, {Left, Right});
+	Output->push_back(Opcode);
+
+	Handle = Left;
+}
+
 string IRGenerator::Get_Inverted_Condition(string c)
 {
 	if (c == "==")
@@ -177,4 +251,14 @@ IR* IRGenerator::Make_Jump(string condition, string l)
 	op->OPCODE = jmp;
 	op->Arguments.push_back(label);
 	return op;
+}
+
+int IRGenerator::Get_Amount(string t, Node* n)
+{
+	int result = 0;
+	for (string s : n->Inheritted)
+		if (s == t)
+			result++;
+
+	return result;
 }
