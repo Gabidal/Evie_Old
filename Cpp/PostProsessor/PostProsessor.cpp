@@ -276,6 +276,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 				//put the fetcher to the first parameters slot
 				n->Right->Parameters.insert(n->Right->Parameters.begin(), Get_Combined(n->Left));
 			}
+			//x.m[0]
 			else if (n->Right->is(ARRAY_NODE)) {
 				n->Right->Get_Most_Left()->Fetcher = Get_Combined(n->Left);
 				Combine_Member_Fetching(n->Right->Right);

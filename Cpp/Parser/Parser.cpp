@@ -408,7 +408,7 @@ void Parser::Array_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (i + 1 > Input.size() - 1)
+	if ((size_t)i + 1 > Input.size() - 1)
 		return;
 	if (!Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
 		return;

@@ -49,12 +49,13 @@ void IRGenerator::Parse_If(int i)
 
 		current = current->Succsessor;
 	}
-
+	//the end of every conditon to false fall to
+	Output->push_back(Make_Jump("jump", Input[i]->Name + "_END"));
 }
 
 void IRGenerator::Parse_Condition(int i)
 {
-	//NOTICE: this must happen after all operator is is created as IR!!!
+	//NOTICE: this must happen after all operator is created as IR!!!
 	if (!Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
 	if (!Parent->is(IF_NODE) && !Parent->is(ELSE_IF_NODE)) {
@@ -66,7 +67,6 @@ void IRGenerator::Parse_Condition(int i)
 	//give the right side as left side to IRGenerator
 	IRGenerator g(Parent, { Input[i]->Right, Input[i]->Left }, Output);
 
-	//TODO: check later for the _END addon if conditions even use it :/
 	string Next_Label = Parent->Name + "_END";
 	if (Parent->Succsessor != nullptr)
 		Next_Label = Parent->Succsessor->Name;
@@ -211,6 +211,97 @@ void IRGenerator::Parse_Pointers(int i)
 	Output->push_back(Opcode);
 
 	Handle = Left;
+}
+
+void IRGenerator::Parse_Arrays(int i)
+{
+	if (!Input[i]->is(ARRAY_NODE))
+		return;
+
+	Token* Left = nullptr;
+	Token* Right = nullptr;
+
+	//the left side contains the owner from the offsetting happends
+	IRGenerator g(Parent, { Input[i]->Left }, Output);
+
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else {
+		Token* Source = new Token(Input[i]->Left);
+
+		Left = new Token(TOKEN::REGISTER, Input[i]->Left->Name + to_string(rand()), Input[i]->Left->Size);
+
+		Token* opc = new Token(TOKEN::OPERATOR, "move");
+
+		IR* ir = new IR(opc, { Left, Source });
+		Output->push_back(ir);
+	}
+
+	g.Generate({ Input[i]->Right });
+
+	//a[x][y]
+	//the right side can have the [x] inside.
+	if (g.Handle != nullptr)
+		Right = g.Handle;	
+	else {
+		Token* Source = new Token(Input[i]->Right);
+
+		Right = new Token(TOKEN::REGISTER, Input[i]->Right->Name + to_string(rand()), Input[i]->Right->Size);
+
+		Token* opc = new Token(TOKEN::OPERATOR, "move");
+
+		IR* ir = new IR(opc, { Right, Source });
+		Output->push_back(ir);
+	}
+
+	//int a[100][2] //2D array
+	//int ptr b //when the brakets are used after variable name, it moves all the types inheritted into the list members
+	//a[0] = 1
+
+	Token* offset_operator = new Token(TOKEN::OFFSETTER, "+");
+
+	Token* Mem = new Token(TOKEN::MEMORY);
+	Mem->add({ Left, offset_operator, Right });
+																	//TODO: Left->Size maybe?
+	Token* Result = new Token(TOKEN::REGISTER, to_string(rand()), Input[i]->Left->Scaler);
+
+	//TODO: make address passing for this Gab!
+	Token* opc = new Token(TOKEN::OPERATOR, "move");
+
+	IR* ir = new IR(opc, { Result, Mem });
+
+	Output->push_back(ir);
+
+	Handle = Result;
+	
+}
+
+void IRGenerator::Parse_Loops(int i)
+{
+	if (!Input[i]->is(WHILE_NODE))
+		return;
+
+	//condition
+	//loopinglabel:
+	//content
+	//condition again
+	//end
+
+
+	//make the cindition
+	IRGenerator g(Input[i], Input[i]->Parameters, Output);
+
+	//make the looping label
+	Output->push_back(Make_Label(Input[i]));
+
+	//make ir tokens from the code inside the loop
+	g.Generate(Input[i]->Childs);
+
+	//now do the condition again
+	g.Generate(Input[i]->Parameters);
+
+	//now make the _END addon at the end of loop for the false condition to fall
+	Output->push_back(Make_Jump("jump", Input[i]->Name + "_END"));
 }
 
 string IRGenerator::Get_Inverted_Condition(string c)

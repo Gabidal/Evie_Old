@@ -96,18 +96,20 @@ func pointter_Mess(){
     int ptr b = a
 
     int ptr c = b
-    #int ptr [int ptr [100]] e
 
     #gab remember to do the "ptr" comparerer
     int ptr f = b
 
     int ptr ptr ptr g = f
 
-    lea reg1, [f]
-    mov [g], reg1
+    #lea reg1, [f]
+    #mov [g], reg1
 
     #int g = f
     #e[0][1] = 1
+
+    int ptr a
+    int b[100]
 
     int d = c
 }
