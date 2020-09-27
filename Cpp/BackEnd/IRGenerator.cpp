@@ -3,6 +3,22 @@
 
 void IRGenerator::Factory()
 {
+	for (int i = 0; i < Input.size(); i++)
+		Un_Wrap_Inline(i);
+	for (int i = 0; i < Input.size(); i++) {
+		Parse_Function(i);
+		Parse_If(i);
+		Parse_Loops(i);
+	}
+	for (int i = 0; i < Input.size(); i++) {
+		Parse_Arrays(i);
+		Parse_Calls(i);
+		Parse_Condition(i);
+		Parse_Operators(i);
+		Parse_Pointers(i);
+		Parse_PostFixes(i);
+		Parse_PreFixes(i);
+	}
 }
 
 void IRGenerator::Parse_Function(int i)
@@ -17,6 +33,40 @@ void IRGenerator::Parse_Function(int i)
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
 
+	//TODO: Make the return IR here
+}
+
+void IRGenerator::Parse_Calls(int i)
+{
+	if (!Input[i]->is(CALL_NODE))
+		return;
+
+	IRGenerator g(Parent, Output);
+	//do the parameters
+	for (Node* n : Input[i]->Parameters) {
+		g.Generate({ n });
+
+		Token* p;
+		//handle complex instructions
+		if (g.Handle != nullptr)
+			p = g.Handle;
+		else
+			p = new Token(n);
+
+		Token* reg = new Token(TOKEN::PARAMETER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+		Token* opc = new Token(TOKEN::OPERATOR, "move");
+		//make the parameter move
+		IR* ir = new IR(opc, { reg, p });
+		Output->push_back(ir);
+	}
+
+	Token* call = new Token(TOKEN::CALL, Input[i]->Name);
+	IR* ir = new IR(call, {});
+	Output->push_back(ir);
+
+	Token* returningReg = new Token(TOKEN::REGISTER, "RetREG_" + call->Get_Name(), Input[i]->Size);
+
+	Handle = returningReg;
 }
 
 void IRGenerator::Parse_If(int i)
@@ -58,14 +108,54 @@ void IRGenerator::Parse_Condition(int i)
 	//NOTICE: this must happen after all operator is created as IR!!!
 	if (!Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
-	if (!Parent->is(IF_NODE) && !Parent->is(ELSE_IF_NODE)) {
+	if (!Parent->is(IF_NODE) && !Parent->is(ELSE_IF_NODE) && !Parent->is(WHILE_NODE)) {
 		// a = b * c < d
 		//...
 		return;
 	}
 	// if (a == 1)
 	//give the right side as left side to IRGenerator
-	IRGenerator g(Parent, { Input[i]->Right, Input[i]->Left }, Output);
+	IRGenerator g(Parent, { Input[i]->Right }, Output);
+
+	Token* Right = nullptr;
+	Token* Left = nullptr;
+
+	if (g.Handle != nullptr)
+		Right = g.Handle;
+	else {
+		//move to register
+		Token* R = new Token(Input[i]->Right);
+		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
+
+		Token* opc = new Token(TOKEN::OPERATOR, "move");
+
+		IR* ir = new IR(opc, { Reg, R });
+		Output->push_back(ir);
+
+		Right = Reg;
+	}
+
+	g.Generate({ Input[i]->Left});
+
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else {		
+		//move to register
+		Token* L = new Token(Input[i]->Left);
+		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
+
+		Token* opc = new Token(TOKEN::OPERATOR, "move");
+
+		IR* ir = new IR(opc, { Reg, L });
+		Output->push_back(ir);
+
+		Right = Reg;
+	}
+
+	Token* cmp = new Token(TOKEN::OPERATOR, "compare");
+
+	IR* ir = new IR(cmp, { Left, Right });
+	Output->push_back(ir);
 
 	string Next_Label = Parent->Name + "_END";
 	if (Parent->Succsessor != nullptr)
@@ -88,9 +178,9 @@ void IRGenerator::Parse_Operators(int i)
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
 		return;
 	//If this operator is handling with pointters we cant use general operator handles
-	if (Input[i]->Left->is("ptr"))
+	if (Input[i]->Left->is("ptr") != -1)
 		return;
-	if (Input[i]->Right->is("ptr"))
+	if (Input[i]->Right->is("ptr") != -1)
 		return;
 
 	Token* Left = nullptr;
@@ -106,7 +196,7 @@ void IRGenerator::Parse_Operators(int i)
 		//create a Token version out of the right side
 		Token* Value = new Token(Input[i]->Right);
 		//create the IR
-		Token* Opc = new Token(TOKEN::OPERATOR, "=");
+		Token* Opc = new Token(TOKEN::OPERATOR, "move");
 		IR* ir = new IR(Opc, { Reg, Value });
 
 		Right = Reg;
@@ -128,7 +218,7 @@ void IRGenerator::Parse_Operators(int i)
 			//create a Token version out of the right side
 			Token* Value = new Token(Input[i]->Left);
 			//create the IR
-			Token* Opc = new Token(TOKEN::OPERATOR, "=");
+			Token* Opc = new Token(TOKEN::OPERATOR, "move");
 			IR* ir = new IR(Opc, { Reg, Value });
 
 			Left = Reg;
@@ -146,6 +236,8 @@ void IRGenerator::Parse_Operators(int i)
 
 void IRGenerator::Parse_Pointers(int i)
 {
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
+		return;
 	if ((Input[i]->Left->is("ptr") == -1) && Input[i]->Right->is("ptr") == -1)
 		return;
 
@@ -260,10 +352,10 @@ void IRGenerator::Parse_Arrays(int i)
 
 	Token* offset_operator = new Token(TOKEN::OFFSETTER, "+");
 
-	Token* Mem = new Token(TOKEN::MEMORY);
+	Token* Mem = new Token(TOKEN::MEMORY, "memory");
 	Mem->add({ Left, offset_operator, Right });
 																	//TODO: Left->Size maybe?
-	Token* Result = new Token(TOKEN::REGISTER, to_string(rand()), Input[i]->Left->Scaler);
+	Token* Result = new Token(TOKEN::REGISTER, "MEMREG_" + to_string(rand()), Input[i]->Left->Scaler);
 
 	//TODO: make address passing for this Gab!
 	Token* opc = new Token(TOKEN::OPERATOR, "move");
@@ -274,6 +366,69 @@ void IRGenerator::Parse_Arrays(int i)
 
 	Handle = Result;
 	
+}
+
+void IRGenerator::Parse_PreFixes(int i)
+{
+	if (!Input[i]->is(PREFIX_NODE))
+		return;
+
+	//++i
+	IRGenerator g(Parent, { Input[i]->Right }, Output);
+
+	Token* Right = nullptr;
+
+	if (g.Handle != nullptr)
+		Right = g.Handle;
+	else
+		Right = new Token(Input[i]->Right);
+
+	Token* opc = new Token(TOKEN::OPERATOR, "add");
+	Token* num = new Token(TOKEN::NUM, "1");
+
+	IR* ir = new IR(opc, { Right, num });
+	Output->push_back(ir);
+
+	Handle = Right;
+}
+
+void IRGenerator::Parse_PostFixes(int i)
+{
+	if (!Input[i]->is(POSTFIX_NODE))
+		return;
+	//i++
+	IRGenerator g(Parent, { Input[i]->Left }, Output);
+
+	Token* Left = nullptr;
+
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else
+		Left = new Token(Input[i]->Left);
+
+	//make a copy
+	Token* CR = new Token(TOKEN::REGISTER, "CLONEREG_" + Left->Get_Name(), Left->Get_Size());
+	Token* copc = new Token(TOKEN::OPERATOR, "move");
+
+	IR* cir = new IR(copc, { CR, Left });
+	Output->push_back(cir);
+	Handle = CR;
+
+	//add to the original variable
+	Token* num = new Token(TOKEN::NUM, "1");
+
+	Token* add = new Token(TOKEN::OPERATOR, "add");
+
+	IR* ir = new IR(add, { Left, num });
+	Output->push_back(ir);
+}
+
+void IRGenerator::Parse_Jump(int i)
+{
+	if (Input[i]->Name != "jump")
+		return;
+
+	Output->push_back(Make_Jump("jump", Input[i]->Right->Name));
 }
 
 void IRGenerator::Parse_Loops(int i)
@@ -287,9 +442,18 @@ void IRGenerator::Parse_Loops(int i)
 	//condition again
 	//end
 
+	//make the condition
+	vector<Node*> Header;
+	if (Input[i]->Parameters[0]->is(OPERATOR_NODE))
+		Header = { Input[i]->Parameters[0] };
+	Input[i]->Append(Header, Node::Get_all(CONDITION_OPERATOR_NODE, Input[i]->Parameters));
 
-	//make the cindition
-	IRGenerator g(Input[i], Input[i]->Parameters, Output);
+	vector<Node*> Footer = Node::Get_all(POSTFIX_NODE, Input[i]->Parameters);
+	if (Input[i]->Parameters[Input[i]->Parameters.size() - 1]->is(OPERATOR_NODE))
+		Input[i]->Append(Footer, { Input[i]->Parameters[Input[i]->Parameters.size() - 1] });
+	Input[i]->Append(Footer, Node::Get_all(PREFIX_NODE, Input[i]->Parameters));
+
+	IRGenerator g(Input[i], Header, Output);
 
 	//make the looping label
 	Output->push_back(Make_Label(Input[i]));
@@ -297,8 +461,12 @@ void IRGenerator::Parse_Loops(int i)
 	//make ir tokens from the code inside the loop
 	g.Generate(Input[i]->Childs);
 
+	//make the Footter IR
+	g.Generate(Footer);
 	//now do the condition again
-	g.Generate(Input[i]->Parameters);
+	//get the location of the condition
+	vector<Node*> Conditions = Node::Get_all(CONDITION_OPERATOR_NODE, Header);
+	g.Generate(Conditions);
 
 	//now make the _END addon at the end of loop for the false condition to fall
 	Output->push_back(Make_Jump("jump", Input[i]->Name + "_END"));

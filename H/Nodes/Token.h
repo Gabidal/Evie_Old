@@ -22,7 +22,7 @@ public:
 	Token(long f, string n, int s) : Flags(f), Name(n), Size(s) {}
 	Token(long f, string n, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c) {}
 	Token(Node* n) {
-		if (n->is(OBJECT_NODE))
+		if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE))
 			Flags = TOKEN::MEMORY;
 		else if (n->is(NUMBER_NODE)) {
 			if (n->Is_Decimal())

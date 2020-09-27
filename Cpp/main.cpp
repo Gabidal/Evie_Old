@@ -12,6 +12,8 @@
 #include "../H/Docker/Docker.h"
 #include "../H/Docker/HTTPS.h"
 #include "../H/Docker/OBJ.h"
+#include "../H/BackEnd/BackEnd.h"
+#include "../H/BackEnd/IRGenerator.h"
 
 #include <sstream>
 #include <iostream>
@@ -30,7 +32,7 @@ int _SYSTEM_BIT_SIZE_ = 4;
 int main(int argc, char* argv[])
 {
     if (argc == 1) {
-        //this happends when do parameter are given
+        //this happends when no parameter are given
         cout << "Argument types are: \n";
         cout << "-in [relative path/source file]\n";
         cout << "-out [relative path/output file name]\n";
@@ -109,6 +111,9 @@ int main(int argc, char* argv[])
     postprosessor.Components = p.Input;
     postprosessor.Factory();
     Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
+
+    vector<IR*> IRs;
+    IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
 
     ofstream o(sys->Info.Destination_File.c_str());
     o << OUTPUT;//b.Output;

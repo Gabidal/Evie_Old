@@ -6,7 +6,7 @@ namespace TOKEN {
 	constexpr long VOLATILE = 1 << 1;
 	constexpr long NONVOLATILE = 1 << 2;
 	constexpr long RETURNING = 1 << 3;
-	constexpr long TMP = 1 << 4;	//fast call
+	constexpr long PARAMETER = 1 << 4;	//fast call
 
 	constexpr long NUM = 1 << 5;
 	constexpr long DECIMAL = 1 << 6;
@@ -21,6 +21,7 @@ namespace TOKEN {
 	constexpr long LABEL = 1 << 12;
 
 	constexpr long FLOW = 1 << 13; //ret, jmp
+	constexpr long CALL = 1 << 14; // calls
 }
 
 namespace Flags{

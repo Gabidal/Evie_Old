@@ -1,6 +1,7 @@
 #include "../../H/PostProsessor/PostProsessor.h"
 
 extern Node* Global_Scope;
+long long LNumber = 0;
 
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
@@ -113,6 +114,8 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 {
 	if (!Input[i]->is(IF_NODE) && !Input[i]->is(ELSE_IF_NODE))
 		return;
+	//this add the L number to it
+	Input[i]->Name += to_string(LNumber++);
 
 	//here we pass the condition operator into algebra optimizer
 	Algebra a(Input[i]);
@@ -413,6 +416,8 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 {
 	if (!Input[i]->is(WHILE_NODE))
 		return;
+	//this add the L number to it
+	Input[i]->Name += to_string(LNumber++);
 
 	//while (a + 1 < a * 2){..}
 	//while (int i = 0, a + i < a * i*2, i++){..}

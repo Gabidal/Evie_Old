@@ -504,6 +504,14 @@ public:
 		return Result;
 	}
 
+	static vector<Node*> Get_all(int f, vector<Node*> l) {
+		vector<Node*> Result;
+		for (Node* n : l)
+			if (n->is(f))
+				Result.push_back(n);
+		return Result;
+	}
+
 	bool Is_Decimal() {
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 			return true;
