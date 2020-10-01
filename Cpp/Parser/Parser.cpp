@@ -142,6 +142,8 @@ void Parser::Object_Pattern(int i)
 		Input[i].node->Type = OBJECT_NODE;
 	else if (Input[i].node->is(LABEL_NODE))
 		Input[i].node->Type = LABEL_NODE;
+	else if (Input[i].node->is(FUNCTION_NODE)) //this happends for function pointer adress geting prosess
+		Input[i].node->Type = OBJECT_NODE;
 	return;
 }
 

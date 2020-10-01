@@ -1,174 +1,101 @@
 use "cstd.e"
 #use "https://github.com/Gabidal/Evie/IO/cstd.e"
 
-type bar{
-    int m = 0
-    int n = 1
-}
-
-#inherit foo members into baz
-type bar baz{
-    int i = 2
-    int ptr j = 3
-    int k = 4
-}
-
-type foo{
-    baz ptr x
-    baz ptr y
-    baz z
-}
-
-type test{
-    int size
-    foo a
-    foo b
-    foo c
-}
-
-int Inliner1(int a, int b){
-    if (a < b){
-        return a
-    }
-    return b
-}
-
-int Inliner2(int x, int y){
-    return x + y
-}
-
-int Inliner(){
-    if (Inliner1(1, 2) + Inliner2(3, 4) == 1){
-        return 1
-    }
-    return 0
-}
-
-#return the address of the &this.a.x.m
-ptr int get(test ptr this){
-    return this.a.x.m
-}
-
-#return the size as an 32bit reg
-int size(test ptr this){
-    return this.size
-}
-
-int ptr temp(type a, type b){
-    return a
-}
-
-func banana(){
-    func a #(int x) {return 1}
-    return a
-}
-
-func ptr apple(){
-    func ptr a #= new func
-    return a
-}
-
-func function_pointters(){
-    #if the paranthesis arent after the function name the function name return its own address.
-    func normal_reference = banana
-
-    #if the new func is a pointter it has the array offsetting ability.
-    func ptr function_pointter_as_array_handle = banana
-
-    #the function returning type doesnt matter if the function hasnt been called.
-
-    #these same features can be returned.
-    normal_reference = banana()
-
-    function_pointter_as_array_handle = apple()
-}
-
-func copy(){
-    int a
-    int b
-    int c
-    memcpy(a, b, 1)
-    memcpy(c, b, 1)
-}
-
-func pointter_Mess(){
-    int a = 0
-    int ptr b = a
-
-    int ptr c = b
-
-    #gab remember to do the "ptr" comparerer
-    int ptr f = b
-
-    int ptr ptr ptr g = f
-
-    #lea reg1, [f]
-    #mov [g], reg1
-
-    #int g = f
-    #e[0][1] = 1
-
-    int ptr a
-    int b[100]
-
-    int d = c
-}
 
 func main(int x) {
-    test first
+}
 
-    #the post prosessing can put the object fetching the function as first parameter
-    int ptr a = first.get(1, 2) + first.size(1 + 2)
 
-    #list
-    int ptr list = new(100)
+func Algebra(int uknown){
+    #constant optimisation
+    int a = 123
+    int b = 456
+    int c = a + b
 
-    #if the other side of the operator is also an ptr then use the mem of variable a
-    #otherwise load the address of that ptr a points to and do the operator to it
-    a = 1 + 2
-    int b = -a + 2
-    a = x * 2
-    b = x * 2 + a
+    #useless value deletion
+    int d = a + c
+    d = d - c
 
-    if (a * 2 == a - 1){
-        jump label
+    #useless variable deletion
+    int e = a * 2 == a - 1
+}
+
+
+func Normal_F(){
+}
+
+func ptr UnCommon_F(){
+    return Normal_F
+}
+
+func Function_pointters(){
+    func ptr FPtr = Normal_F
+    FPtr = UnCommon_F()
+}
+
+
+func Pointters(int x){
+    int a = x
+
+    #make a pointing address
+    int ptr b = a
+
+    #make a pointing address from a pointing address
+    int ptr ptr c = b
+
+    #load from pointing address
+    int ptr d = c
+
+    #load from pointing address and load from it
+    a = c
+}
+
+func Array(){
+    int a = 0 #int(100)
+    int ptr b = a
+
+    a[2][5] = 123
+    b[1][4] = 456
+}
+
+#inheritance testing
+type foo {
+    int width
+}
+
+foo bar {
+    int height
+}
+
+bar baz {
+    int depth
+}
+
+func Members(){
+    baz a
+    a.width = a.height * a.depth
+}
+
+func Condions(int x, int y, int z){
+    if (x - 2 == y * 2){
+        if (x +1 == z*4){
+        }
     }
-    else (a == 2) {
-        jump label
-    }
-    else (a == b){
-        jump label
+    else (y -2 == z * 3){
+        if (y-3 == x*4){
+        }
     }
     else {
-        jump label
+        if (x + 5 == x - 4){
+        }
     }
+}
 
-    label
-
-    #the way to change the pointter value is to manage the offsetter value
-    #you dont want to change the initial value of the pointter just add an offsetter when you use it
-    if (a[1] == 1){
+func Loops(){
+    int b
+    while (int i = 0; i < 10; i++){
+        int a = 123
+        b = a + + i
     }
-    else (a[2] == 1){
-    }
-
-    #give the content of 'first' to 'second'
-    test second = first
-
-    #the copy of the object into heap
-    test ptr third #= new(first)
-    
-    #the reference of the first object
-    test ptr fourth = first
-
-    #stack list
-    fourth fifth = fourth[123]
-
-    #pointter list
-    fourth ptr fifth = fourth[123] 
-
-    first.b.y[first.b.x[0]] = 1
-    first.b.z[1][2][3] = 2
-
-    return second.get()
+    int c = b * b
 }

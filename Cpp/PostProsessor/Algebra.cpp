@@ -14,7 +14,7 @@ void Algebra::Factory() {
 	for (auto i : *Input)
 		Operate_Coefficient_Constants(i);
 	for (auto i : *Input)
-		Reduce_Condition_Operations(i);
+		Reduce_Operator_Operations(i);
 	for (auto i : *Input)
 		Fix_Coefficient_Into_Real_Operator(i);
 }
@@ -222,26 +222,20 @@ void Algebra::Inline_Variables(int i)
 
 }
 
-void Algebra::Reduce_Condition_Operations(Node* n)
+void Algebra::Reduce_Operator_Operations(Node* n)
 {
-	if (!n->is(CONDITION_OPERATOR_NODE))
+	if (!n->is(OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE))
 		return;
 	//a * 2 < 1 - a
 	//2a -a < a - a + 1
 	//a < 1
+	vector<Node*> tmp_L = { n->Left };
+	Algebra tmp_l(Parent, &tmp_L);
 
-	/*
-	//first optimize with -O1
-	Algebra a(Parent);
-	a.Input = new vector<Node*>();
-	a.Input->push_back(n->Left);
-	a.Factory();
+	vector<Node*> tmp_R = { n->Right };
+	Algebra tmp_r(Parent, &tmp_R);
 
-	//do same to right side
-	a.Input->clear();
-	a.Input->push_back(n->Right);
-	a.Factory();
-	*/
+
 
 	vector<Node*> Variables = Linearise(n);
 	// a + 1 == a * 2
@@ -285,7 +279,8 @@ void Algebra::Clean(int i)
 		Input->insert(Input->begin() + i, Calls.begin(), Calls.end());
 	}
 
-	Clean(i);
+	if (i < Input->size())
+		Clean(i);
 		
 	return;
 }

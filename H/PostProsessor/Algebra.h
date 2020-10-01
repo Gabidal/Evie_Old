@@ -9,8 +9,9 @@ using namespace std;
 
 class Algebra {
 public:
-	Algebra(Node* parent) : Parent(parent) {}
 	vector<Node*>* Input = nullptr;
+	Algebra(Node* parent) : Parent(parent) {}
+	Algebra(Node* parent, vector<Node*>* in) : Input(in), Parent(parent) { Factory(); }
 
 	void Factory();
 private:
@@ -24,7 +25,7 @@ private:
 	void Set_Coefficient_Value(int i);
 
 	void Inline_Variables(int i);
-	void Reduce_Condition_Operations(Node* n);
+	void Reduce_Operator_Operations(Node* n);
 
 	void Clean(int i);
 
