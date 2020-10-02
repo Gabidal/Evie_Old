@@ -22,6 +22,7 @@ public:
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
+	void Constructor_Pattern(int i);
 	void Prototype_Pattern(int i);					//func banan(int), func banana()
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b

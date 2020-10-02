@@ -80,6 +80,28 @@ void Parser::Definition_Pattern(int i)
 	return;
 }
 
+void Parser::Constructor_Pattern(int i)
+{
+	vector<Component> ReturnType = Get_Inheritting_Components(i);
+	if (!(ReturnType.size() > 1))
+		return;
+	if (ReturnType[ReturnType.size() - 1].is(Flags::KEYWORD_COMPONENT))
+		return;	//the last list index is the name and thus cannot be a keyword
+
+	if (!Parent->Find(ReturnType[ReturnType.size() - 1].Value, Parent)->is(CLASS_NODE))
+		return;	//the name must be same as some class name to represent as the constructor of that class
+
+	Node* Constructor = new Node(OBJECT_DEFINTION_NODE);
+	Constructor->Name = ReturnType.back().Value;
+	for (int j = 0; j < ReturnType.size() - 1; j++)
+		Constructor->Inheritted.push_back(ReturnType[j].Value);
+
+	Input[i + Constructor->Inheritted.size() - 1 + 1].node = Constructor;
+
+	Input.erase(Input.begin() + i, Input.begin() + i + Constructor->Inheritted.size());
+	return;
+}
+
 void Parser::Prototype_Pattern(int i)
 {	
 	//import int ptr banana()
@@ -474,14 +496,6 @@ void Parser::Function_Pattern(int i)
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '(')
 		return;
 
-	/*
-	Object_Definition_Node* Function_Definition = nullptr;
-	if ((size_t)i - 1 < Input.size())
-		Function_Definition = (Object_Definition_Node*)Is_Defined(Input[i].Value, Parent);
-	if (Function_Definition == nullptr)
-		cout << "Error: Function definition wasnt found!" << endl;
-	*/
-
 	//first try to get the behavior
 	Node* func = nullptr;
 	if (Input[i].node->Type == OBJECT_DEFINTION_NODE)
@@ -781,19 +795,29 @@ void Parser::Size_Pattern(int i)
 	//size 4
 	if (Input[i].Value != "size")
 		return;
-	if (!Input[(size_t)i + 1].is(Flags::NUMBER_COMPONENT))
+	if (!Parent->is(CLASS_NODE))
+		return;
+	if (i - 1 >= 0)
+		if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT) || Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT))
+			return;
+	if (Input[(size_t)i + 1].Value != "=")
+		return;
+	if (!Input[(size_t)i + 2].is(Flags::NUMBER_COMPONENT))
 		return;
 	Node* size = new Node(OBJECT_DEFINTION_NODE);
 
-	size->Size = atoi((Input[(size_t)i + 1].node)->Name.c_str());
+	size->Size = atoi((Input[(size_t)i + 2].node)->Name.c_str());
 
-	size->Name = "_SIZE_";
-	size->Inheritted.push_back("type");
+	size->Name = "size";
+	size->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
 	size->Parent = Parent;
 
 	Parent->Defined.push_back(size);
 
 	Input[i].node = size;
+
+	Input.erase(Input.begin() + i + 1);
+	Input.erase(Input.begin() + i + 1);
 	return;
 }
 
@@ -817,13 +841,14 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.
 		Definition_Pattern(i);
+		Type_Pattern(i);		//class constructor
+		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
 		Prototype_Pattern(i);
 		Label_Definition(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
 		Function_Pattern(i);
-		Type_Pattern(i);
 		If_Pattern(i);
 		Else_Pattern(i);
 		Callation_Pattern(i);
@@ -838,10 +863,11 @@ void Parser::Factory() {
 		Set_Keyword_Prop_To_Imported_Function_Parameter(i);
 		Label_Pattern(i);
 	}
+	for (int i = 0; i < Input.size(); i++)
+		Size_Pattern(i);
 	//AST operator combinator.
 	Operator_Order();
 	for (int i = 0; i < Input.size(); i++) {
 		Return_Pattern(i);
-		Size_Pattern(i);
 	}
 }

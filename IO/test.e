@@ -51,7 +51,7 @@ func Pointters(int x){
 }
 
 func Array(){
-    int a = 0 #int(100)
+    int ptr a = 0 #int(100)
     int ptr b = a
 
     a[2][5] = 123
@@ -61,6 +61,15 @@ func Array(){
 #inheritance testing
 type foo {
     int width
+}
+
+#making an personal init function
+func foo(foo ptr this, int w){
+    this.width = w
+}
+
+foo ptr foo(int size){
+    foo ptr tmp = alloc(size * foo.size)
 }
 
 foo bar {

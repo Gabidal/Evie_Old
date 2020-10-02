@@ -1,33 +1,31 @@
 use "sys.e"
 
 type int{
-	size 4
+	size = 4
 }
 
 type short{
-	size 2
+	size = 2
 }
 
 type char{
-	size 1
+	size = 1
 }
 
 type float{
-	size 4
-	state decimal
+	size = 4
 }
 
 type double{
-	size 8
-	state decimal
+	size = 8
 }
 
 type long{
-	size 8
+	size = 8
 }
 
 type string{
-	size 1
+	size = 1
 }
 
 #export func main

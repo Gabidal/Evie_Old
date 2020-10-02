@@ -20,6 +20,8 @@ public:
 	Node* Parent = nullptr;
 
 	PostProsessor(Node* p) : Parent(p){}
+	PostProsessor(Node* p, vector<Node*> in) : Parent(p), Input(in) { Factory(); }
+	PostProsessor(Node* p, vector<Component> in) : Parent(p), Components(in) { Factory(); }
 	PostProsessor(){}
 	~PostProsessor(){}
 
@@ -35,8 +37,8 @@ public:
 	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
 	void Combine_Condition(int i);					//combines the ifs and elses
-	void Open_Operator_For_Prosessing(int i);		//opens an operator for callation purposes.
-	void Determine_Return_Type(Node* n, Node* closest_type);//as the name implies.
+	void Determine_Return_Type(int i);				//open the operator and determined the types basen on the left and right side
+													//opens an operator for callation purposes.
 	void Operator_Type_Definer(Node* n);			//gives the operator its left and the right sided types for more abstract.
 	void Handle_Prototypes(int i);					//here we can redefine the types given to parameters.
 	void Open_Loop_For_Prosessing(int i);

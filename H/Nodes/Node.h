@@ -240,6 +240,21 @@ public:
 		if (parent->Parent != nullptr)
 			return Find(name, parent->Parent, Need_Parent_existance);
 		return nullptr;
+	}	
+	
+	Node* Find(string name, Node* parent, int flags ) {
+		if (name == "\n")
+			return nullptr;
+		if (parent == nullptr) {
+			cout << "Critical Error: parent is null!" << endl;
+			return nullptr;
+		}
+		for (Node* i : parent->Defined)
+			if (i->Name == name && i->is(flags))
+				return i;
+		if (parent->Parent != nullptr)
+			return Find(name, parent->Parent, flags);
+		return nullptr;
 	}
 	
 	Node* Find(int size, Node* parent) {
@@ -304,7 +319,7 @@ public:
 				continue;
 			if (s == ".")
 				continue;
-			Node* inheritted = Find(s, Parent);
+			Node* inheritted = Find(s, Parent, CLASS_NODE);
 			for (auto i : inheritted->Defined) {
 				//now insert the inheritted classes members
 				if (Locate(i->Name, Defined) != true)
@@ -341,7 +356,7 @@ public:
 	}
 
 	void Update_Members_Size() {
-		if (Name == "_SIZE_")
+		if (Name == "size" && (is("const") != -1))
 			return;
 		Size = 0;
 		//this needs maybe revamping?
@@ -354,7 +369,7 @@ public:
 					Size += _SYSTEM_BIT_SIZE_;
 				continue;
 			}
-			if (Find(s, Parent)->Defined[0]->Name == "_SIZE_")
+			if (Find(s, Parent)->Defined[0]->Name == "size" && (Find(s, Parent)->Defined[0]->is("const") != -1))
 				//this is a preprossed size, take it!
 				Size += Find(s, Parent, true)->Size;
 				//if this happends we this class will inherit the members of the inheritted.

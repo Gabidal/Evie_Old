@@ -19,7 +19,7 @@ void PostProsessor::Factory() {
 		//Combine_Conditions(i);
 		Combine_Member_Fetching(Input[i]);
 		Algebra_Laucher(i);
-		Open_Operator_For_Prosessing(i);
+		Determine_Return_Type(i);
 		Function_Callation(Input[i]);
 	}
 	for (int i = 0; i < Input.size(); i++)
@@ -271,9 +271,21 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 	//(a.x).m()
 	//(a.x[0]).m()
 	//a[b[c[0]]]
-	//(a.x).m[1][2][3]
+	//foo.size
 	if (n->is(OPERATOR_NODE)) {
 		if (n->Name == ".") {
+			//foo.size
+			if ((n->Right->is("const") != -1) && n->Right->Name == "size") {
+				Node tmp = *n;
+				*n = Node(NUMBER_NODE);
+
+				//get the initial size of the left side class
+				n->Name = to_string(tmp.Left->Size);
+				if (tmp.Left->is("ptr") != -1)
+					n->Name = to_string(tmp.Left->Scaler);
+
+				n->Parent = Parent;
+			}
 			//x.m()
 			if (n->Right->is(CALL_NODE)) {
 				//put the fetcher to the first parameters slot
@@ -335,40 +347,36 @@ void PostProsessor::Combine_Condition(int i)
 	Input.erase(Input.begin() + i + 1, Input.begin() + j);
 }
 
-void PostProsessor::Open_Operator_For_Prosessing(int i)
+void PostProsessor::Determine_Return_Type(int i)
 {
-	if (Input[i]->is(CALL_NODE))
-		Determine_Return_Type(Input[i], nullptr);
-	else if (Input[i]->is(OPERATOR_NODE)) {
-		Determine_Return_Type(Input[i]->Left, Input[i]->Right);
-		Determine_Return_Type(Input[i]->Right, Input[i]->Left);
-	}
-	else if (Input[i]->is(CONTENT_NODE))
-		for (Node* n : Input[i]->Childs)
-			Determine_Return_Type(n, nullptr);
-}
+	if (!Input[i]->is(OPERATOR_NODE))
+		return;
 
-void PostProsessor::Determine_Return_Type(Node* n, Node* closest_type)
-{
-	//int a = banana() + apple()	<-- this local type is 'int'
-	//string a = to_string(banana() + apple() * 1) <--here the local type is what to_string takes as a parameter
-	//an paranthesis can work as a own local space where there can be a local type
-	if (n->is(CALL_NODE)) {
-		//if the closest type is a nullptr it is a void function
-		if (closest_type != nullptr) {
-			n->Inheritted = closest_type->Inheritted;
+	PostProsessor r(Parent, { Input[i]->Right });
+	PostProsessor l(Parent, { Input[i]->Left });
+
+	//try to find a suitable operator overload if there is one
+	for (auto overload : Input[i]->Left->Operator_Overloads) {
+		//the syntax still needs to be done!
+
+		//the operator overloads return type is the same as the operator type for this.
+		Input[i]->Inheritted = overload->Inheritted;
+	}
+
+	//check if the operator overload was used
+	if (Input[i]->Inheritted.size() < 1) {
+		//if no operator overload is used
+		if (Input[i]->Left->Get_Inheritted("") != Input[i]->Right->Get_Inheritted("")) {
+			//this should not be possible!
+			cout << "Error: left side of operator " << Input[i]->Name << ", "
+				<< Input[i]->Left->Get_Inheritted(" ") << " " << Input[i]->Name
+				<< " is not same type as the right side "
+				<< Input[i]->Right->Get_Inheritted(" ") << " " << Input[i]->Right->Name << "." << endl;
 		}
 		else
-			n->Inheritted.push_back("func");	//void
-		Function_Callation(n);
+			//if the left side has same inheritance as right just give left side inherit types to this operator.
+			Input[i]->Inheritted = Input[i]->Left->Inheritted;
 	}
-	if (!n->is(OPERATOR_NODE))
-		return;
-	if (n->Left->is(OPERATOR_NODE) || n->Left->is(CONTENT_NODE))
-		Determine_Return_Type(n->Left, n->Right);
-	if (n->Right->is(OPERATOR_NODE) || n->Right->is(CONTENT_NODE))
-		Determine_Return_Type(n->Right, n->Left);
-
 }
 
 void PostProsessor::Operator_Type_Definer(Node* n)
