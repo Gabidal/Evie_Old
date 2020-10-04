@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
 
     ofstream o(sys->Info.Destination_File.c_str());
-    o << OUTPUT;//b.Output;
+    o << OUTPUT;
     o.close();
 
     Producer pr;

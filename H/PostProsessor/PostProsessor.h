@@ -32,7 +32,8 @@ public:
 	//void Combine_Conditions(int i);					//combines the if and else
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
 	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
-	void Function_Callation(Node* n);					//justifyes the fucntion to call
+	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call
+	void Open_Call_Parameters_For_Prosessing(int i);//open the calls parameters to do postprosessing
 	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.

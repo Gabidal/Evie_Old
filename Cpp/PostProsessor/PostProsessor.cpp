@@ -5,10 +5,13 @@ long long LNumber = 0;
 
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < Parent->Defined.size(); i++) {
 		Type_Definer(i);
-	for (int i = 0; i < Input.size(); i++)
+	}
+	for (int i = 0; i < Parent->Defined.size(); i++) {
+		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Handle_Prototypes(i);
+	}
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
 		Operator_Overload(i);
@@ -20,7 +23,8 @@ void PostProsessor::Factory() {
 		Combine_Member_Fetching(Input[i]);
 		Algebra_Laucher(i);
 		Determine_Return_Type(i);
-		Function_Callation(Input[i]);
+		Open_Call_Parameters_For_Prosessing(i);
+		Find_Call_Owner(Input[i]);
 	}
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
@@ -45,20 +49,17 @@ void PostProsessor::Type_Definer(int i)
 	//<summary>
 	//stack type info
 	//</summary>
-	if (Input[i]->Type != CLASS_NODE)
+	if (Parent->Defined[i]->Type != CLASS_NODE)
 		return;
 
-	//point into the parents defined list not input list
-	Node* type = Parent->Find(Input[i]->Name, Parent, true);
-
 	//combine inheritted memebrs
-	type->Get_Inheritted_Class_Members();
+	Parent->Defined[i]->Get_Inheritted_Class_Members();
 
 	//update members sizes
-	type->Update_Members_Size();
+	Parent->Defined[i]->Update_Members_Size();
 
 	//update the member stack offsets
-	type->Update_Members_Mem_Offset();
+	Parent->Defined[i]->Update_Members_Mem_Offset();
 
 	return;
 }
@@ -133,7 +134,7 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	return;
 }
 
-void PostProsessor::Function_Callation(Node* n)
+void PostProsessor::Find_Call_Owner(Node* n)
 {
 	if (!n->is(CALL_NODE))
 		return;
@@ -198,8 +199,9 @@ void PostProsessor::Function_Callation(Node* n)
 	Next_Function:;
 	}
 
-	if (n->is("ptr") != -1)
-		return;
+	//this can also mean that the function returns an pointter of somesort!!!
+	//if (n->is("ptr") != -1)
+	//	return;
 
 	if (OgFunc == nullptr) {
 		cout << "Error: Can't find suitable funciton to call " << n->Name << " with parameters:\n";
@@ -254,6 +256,15 @@ void PostProsessor::Function_Callation(Node* n)
 	Global_Scope->Defined.push_back(func);
 
 	return;
+}
+
+void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
+{
+	if (!Input[i]->is(CALL_NODE))
+		return;
+
+	//give the post prosessor a way to reach the parameters that might have member fetching/ math
+	PostProsessor p(Parent, Input[i]->Parameters);
 }
 
 void PostProsessor::Algebra_Laucher(int i)
@@ -405,15 +416,15 @@ void PostProsessor::Operator_Type_Definer(Node* n)
 
 void PostProsessor::Handle_Prototypes(int i)
 {
-	if (!Input[i]->is(PROTOTYPE))
+	if (!Parent->Defined[i]->is(PROTOTYPE))
 		return;
 	//import func new (4, ABC)
 	//all numbers need to be redefined by type size.
 	//and all other text is already classes.
 	//pointters are inside the parameter as inheritance.
-	for (int j = 0; j < Input[i]->Parameters.size(); j++) {
-		if (Input[i]->Parameters[j]->is(NUMBER_NODE)) {
-			Input[i]->Parameters[j] = Global_Scope->Find(atoi(Input[i]->Parameters[j]->Name.c_str()), Global_Scope);
+	for (int j = 0; j < Parent->Defined[i]->Parameters.size(); j++) {
+		if (Parent->Defined[i]->Parameters[j]->is(NUMBER_NODE)) {
+			Parent->Defined[i]->Parameters[j] = Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE);
 		}
 	}
 	//now all types are good to go.

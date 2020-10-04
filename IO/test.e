@@ -69,7 +69,7 @@ func foo(foo ptr this, int w){
 }
 
 foo ptr foo(int size){
-    foo ptr tmp = alloc(size * foo.size)
+    foo ptr tmp = new(size * foo.size)
 }
 
 foo bar {

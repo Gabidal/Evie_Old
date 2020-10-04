@@ -18,12 +18,13 @@ public:
 	Node* Parent = nullptr;
 	vector<Component> Input;
 	vector<Component> Get_Inheritting_Components(int i);
-	vector<int> Get_Amount_Of(int i, long Flag);
+	vector<int> Get_Amount_Of(int i, long Flag, bool All_in_Same_Line = true);
+	vector<int> Get_Amount_Of(int i, vector<int> Flags, bool All_in_Same_Line = true);
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
-	void Constructor_Pattern(int i);
-	void Prototype_Pattern(int i);					//func banan(int), func banana()
+	void Constructor_Pattern(int i);							//foo ptr foo(foo ptr){..}
+	void Prototype_Pattern(int i);								//import func new(int)|extern int main()\n
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int i, vector<string> Operator, int Flag);			//a = b + c * d, a.b.c.d()

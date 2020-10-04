@@ -70,21 +70,21 @@ public:
 	
 	string Get_Inheritted(string seperator, bool Dirent_Type = false, bool Skip_Prefixes = false) {
 		if (Dirent_Type) {
-			return Name;
+			return seperator + Name;
 		}
 		else if (is(NUMBER_NODE)) {
 			//1.29348
 			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-					return Find(4, Parent)->Get_Inheritted(seperator);
+					return seperator + Find(4, Parent)->Get_Inheritted(seperator);
 				else 
-					return Find(8, Parent)->Get_Inheritted(seperator);
+					return seperator + Find(8, Parent)->Get_Inheritted(seperator);
 			}
 			else {
 				if (atoll(Name.c_str()) > INT_MAX) {
-					return Find(8, Parent)->Get_Inheritted(seperator);
+					return seperator + Find(8, Parent)->Get_Inheritted(seperator);
 				}
-				return Find(4, Parent)->Get_Inheritted(seperator);
+				return seperator + Find(4, Parent)->Get_Inheritted(seperator);
 			}
 		}
 		else {
@@ -263,6 +263,15 @@ public:
 				return i;
 		if (parent->Parent != nullptr)
 			return Find(size, parent->Parent);
+		return nullptr;
+	}	
+
+	Node* Find(int size, Node* parent, int flags) {
+		for (Node* i : parent->Defined)
+			if (i->is(flags) && (i->Size == size))
+				return i;
+		if (parent->Parent != nullptr)
+			return Find(size, parent->Parent, flags);
 		return nullptr;
 	}
 

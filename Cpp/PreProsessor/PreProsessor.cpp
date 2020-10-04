@@ -64,7 +64,7 @@ void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename, int
 	}
 	else if (DOCKER::Get_File_Extension(filename) != "e") {
 		for (auto j : symbols)
-			DOCKER::Append(Input, Lexer::GetComponents( "import " + MANGLER::Un_Mangle(j)), i);
+			DOCKER::Append(Input, Lexer::GetComponents( "import " + MANGLER::Un_Mangle(j) + "\n"), i);
 	}
 	else {
 		for (auto j : symbols)

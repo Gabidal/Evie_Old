@@ -1,6 +1,6 @@
 #include "../../H/Parser/Parser.h"
 
-vector<int> Parser::Get_Amount_Of(int i, long Flag)
+vector<int> Parser::Get_Amount_Of(int i, long Flag, bool All_in_Same_Line)
 {
 	//<summary>
 	//check from the index to next and counts-
@@ -11,11 +11,38 @@ vector<int> Parser::Get_Amount_Of(int i, long Flag)
 		if (Input[i].is(Flag))
 			Indexes.push_back(i);
 		else
-			if  (Input[i].is(Flags::END_COMPONENT) || 
-				(Input[i].is(Flags::COMMENT_COMPONENT)))
+			if (Input[i].is(Flags::END_COMPONENT) ||
+				(Input[i].is(Flags::COMMENT_COMPONENT))) {
+				if (All_in_Same_Line)
+					break;
 				continue;
+			}
 			else
 				break;
+	}
+	return Indexes;
+}
+
+vector<int> Parser::Get_Amount_Of(int i, vector<int> Flags, bool All_in_Same_Line)
+{
+	vector<int> Indexes;
+	for (; i < Input.size(); i++) {
+		for (auto f : Flags) {
+			if (Input[i].is(f)) {
+				Indexes.push_back(i);
+				goto Success;
+			}
+		}
+		//this happends if there was no correlatoin between the flags and the input at i
+		if (Input[i].is(Flags::END_COMPONENT) ||
+			(Input[i].is(Flags::COMMENT_COMPONENT))) {
+			if (All_in_Same_Line)
+				break;
+			continue;
+		}
+		else
+			break;
+	Success:;
 	}
 	return Indexes;
 }
@@ -35,48 +62,43 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 
 void Parser::Definition_Pattern(int i)
 {
-	//foo ptr a = ...
+	//foo ptr a = ...|bool is(int f) | bool is(string f)
 	//<summary>
 	//list all previusly defined and find the last as an text to define a new object
 	//put that result object into parents defined list and also into-
 	//the INPUT[i + object index] the newly created object
 	//</summary>
-	if (!(Get_Inheritting_Components(i).size() > 0))
+	vector<int> Words = Get_Amount_Of(i, { Flags::KEYWORD_COMPONENT, Flags::TEXT_COMPONENT });
+	//object definition needs atleast one type and one raw text
+	if (Words.size() < 2)
 		return;
-	if (i + Get_Inheritting_Components(i).size() + 1 > Input.size())
+	//the last word must be a raw text not a keyword to be defined as a new object
+	if (Input[Words.back()].is(Flags::KEYWORD_COMPONENT))
 		return;
-	if (!(Input[i + Get_Inheritting_Components(i).size() - 1 + 1].is(Flags::TEXT_COMPONENT)))
-		return;
-	//whats the meaning of this?
-	for (auto c : Get_Inheritting_Components(i))
-		if (c.Value == "jump")
+	//this is because of the syntax of label jumping exmp: "jump somewhere" is same as a variable declaration exmp: "int somename".
+	for (auto j : Words)
+		//import keywords have theyre own function to parse theyr patterns.
+		if (Input[j].Value == "jump")
 			return;
+
 	//type a
 	vector<string> Inheritted;
 
-
-	for (int j = 0; j < Get_Inheritting_Components(i).size(); j++) {
-		if (Input[(size_t)i + j].is(Flags::KEYWORD_COMPONENT)) {
-			Node keyword(KEYWORD_NODE);
-			keyword.Name	= Input[(size_t)i + j].Value;
-			keyword.Parent	= Parent;
-			Inheritted.push_back(keyword.Name);
-		}
-		else {
-			Inheritted.push_back(Input[(size_t)i + j].Value);
-		}
+	//transform the indecies into strings, and the -1 means that we want to skip the last element in the list (the name)
+	for (int j = 0; j < Words.size() -1; j++) {
+		Inheritted.push_back(Input[Words[j]].Value);
 	}
 
 	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE);
 	New_Defined_Object->Inheritted = Inheritted;
-	New_Defined_Object->Name = Input[i + Get_Inheritting_Components(i).size() - 1 + 1].Value;
+	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Parent = Parent;
 	Parent->Defined.push_back(New_Defined_Object);
 
 	//for later AST use
-	Input[i + New_Defined_Object->Inheritted.size() -1 + 1].node = New_Defined_Object;
+	Input[Words.back()].node = New_Defined_Object;
 
-	Input.erase(Input.begin() + i, Input.begin() + i + New_Defined_Object->Inheritted.size());
+	Input.erase(Input.begin() + i, Input.begin() + Words.back());
 	return;
 }
 
@@ -103,46 +125,53 @@ void Parser::Constructor_Pattern(int i)
 }
 
 void Parser::Prototype_Pattern(int i)
-{	
-	//import int ptr banana()
-	vector<Component> inheritted = Get_Inheritting_Components(i);
-	if (inheritted.size() <= 1)
+{
+	//import int ptr banana()| func banana(int, short)\n
+	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT });
+	//Words list must be a at leat two size for the type and for the name to be inside it
+	if (Words.size() < 2)
 		return;
-	if (i + inheritted.size() > Input.size()-1)
+	vector<int> Paranthesis = Get_Amount_Of(Words.back() + 1, Flags::PAREHTHESIS_COMPONENT);
+	if (Paranthesis.size() != 1)
 		return;
-	if (!Input[i + inheritted.size()].is(Flags::PAREHTHESIS_COMPONENT))
+	if (Input[Paranthesis[0]].Value[0] != '(')
 		return;
-	if (Input[i + inheritted.size()].Value[0] != '(')
-		return;
-	if (Input[i + inheritted.size() - 1].is(Flags::KEYWORD_COMPONENT))
-		return;
-	for (auto c : Get_Inheritting_Components(i))
-		if (c.Value == "jump")
+
+	//this is here because the jump can have a function call
+	//label get_jump(int x)
+	//jump get_jump(123);
+	for (auto c : Words)
+		if (Input[c].Value == "jump")
 			return;
+
 	//type a
 	vector<string> Inheritted;
 
-
-	for (int j = 0; j < Get_Inheritting_Components(i).size() -1; j++) {
-		Inheritted.push_back(Input[(size_t)i + j].Value);
+	//skip the last that is the name index.
+	for (int j = 0; j < Words.size() - 1; j++) {
+		Inheritted.push_back(Input[Words[j]].Value);
 	}
 
 	Node* New_Defined_Object = new Node(PROTOTYPE);
 	New_Defined_Object->Inheritted = Inheritted;
-	New_Defined_Object->Name = Input[i + Get_Inheritting_Components(i).size() - 1].Value;
+	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Parent = Parent;
 
-	//for later AST use
-	Input[i + New_Defined_Object->Inheritted.size() - 1 + 1].node = New_Defined_Object;
+	Parser p(Parent);
+	p.Input = Input[Paranthesis[0]].Components;	//give the parameters
+	p.Factory();
 
-	Input.erase(Input.begin() + i, Input.begin() + i + New_Defined_Object->Inheritted.size());
+	for (Component j : p.Input)
+		if (j.node != nullptr)
+			New_Defined_Object->Parameters.push_back(new Node(*j.node));
 
-	//now run the prototype parameters gathering protocall!
-	Callation_Pattern(i);
-
-	New_Defined_Object = Input[i].node;
+	//erase inherittes as well the name as well the pearameters from the input list
+	Input.erase(Input.begin() + Words[0], Input.begin() + i + Paranthesis[0] + 1);
 
 	Parent->Defined.push_back(New_Defined_Object);
+
+	if (i < Input.size())
+		Prototype_Pattern(i);
 
 	return;
 }
@@ -396,21 +425,11 @@ void Parser::Callation_Pattern(int i)
 	if (Input[(size_t)i + 1].Value[0] != '(')
 		return;
 
-	Node* call;
+	Node* call = new Node(CALL_NODE);
+	
+	//give the normal call the inheritance for future operator type determining
+	call->Inheritted = Parent->Find(Input[i].Value, Parent)->Inheritted;
 
-	if (Input[i].node != nullptr) {
-		if (Input[i].node->Inheritted.size() > 0) {
-			//this is how prototypes are made!
-			call = new Node(PROTOTYPE);
-			call->Inheritted = Input[i].node->Inheritted;
-
-			Parent->Find(Input[i].Value, Parent)->Type = PROTOTYPE;
-		}
-		else
-			call = new Node(CALL_NODE);
-	}
-	else
-		call = new Node(CALL_NODE);
 	call->Name = Input[i].Value;
 	call->Parent = Parent;
 
@@ -490,7 +509,7 @@ void Parser::Function_Pattern(int i)
 		return;
 	if (Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
 	if (Parenthesis_Indexes.size() != 2)
 		return;
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '(')
@@ -542,19 +561,22 @@ void Parser::Type_Pattern(int i)
 		return;
 	if (Parent->Find(Input[i].Value, Parent, false) == nullptr)
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
 	if (Parenthesis_Indexes.size() != 1)
 		return;
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '{')
 		return;
 
-
-	//This works because there is only one constructor named by this type class
 	Node* Type = nullptr;
-	if (i < Input.size())
-		Type = Parent->Find(Input[i].Value, Parent, true);
-	if (Type == nullptr)
+	if (Input[i].node != nullptr)
+		//dont worry this has same pointter as the one that is in the Defined list, so this point to it
+		Type = Input[i].node;
+	else
+		Type = Parent->Find(Input[i].Value, Parent, OBJECT_DEFINTION_NODE);
+	if (Type == nullptr) {
 		cout << "Error: Type definition was not found!" << endl;
+		exit(1);
+	}
 	//reset the value
 	Type->Type = CLASS_NODE;
 
@@ -564,9 +586,11 @@ void Parser::Type_Pattern(int i)
 	Type->Childs = p.Input[0].node->Childs;
 	p.Input.clear();
 
-	Input[i].node = Type;
-
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
+	Input.erase(Input.begin() + i);
+
+	if (i < Input.size())
+		Type_Pattern(i);
 
 	return;
 }
@@ -595,7 +619,7 @@ void Parser::If_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
 	if (Parenthesis_Indexes.size() != 2)
 		return;				
 
@@ -642,7 +666,7 @@ void Parser::Else_Pattern(int i)
 	//here we patternise the else without a condition
 	if (!Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT);
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
 	if (Parenthesis_Indexes.size() != 1)
 		return;
 
@@ -830,6 +854,7 @@ void Parser::Set_Keyword_Prop_To_Imported_Function_Parameter(int i)
 	if (Input[i].Components.size() <= 0)
 		return;
 
+	//wtf is this?
 	for (auto n : Input[i].Components) {
 		Input[i].node->Inheritted.push_back(n.Value);
 	}
@@ -839,15 +864,15 @@ void Parser::Set_Keyword_Prop_To_Imported_Function_Parameter(int i)
 
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
-		//variable/objects definator.
+		//variable/objects definator.		
+		Prototype_Pattern(i);	//Definition_pattern stoles this import functions, so this goes first
 		Definition_Pattern(i);
-		Type_Pattern(i);		//class constructor
-		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
-		Prototype_Pattern(i);
 		Label_Definition(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
+		Type_Pattern(i);		//class constructor
+		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
 		Function_Pattern(i);
 		If_Pattern(i);
 		Else_Pattern(i);
