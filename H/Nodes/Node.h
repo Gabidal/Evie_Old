@@ -11,6 +11,9 @@ extern int _SYSTEM_BIT_SIZE_;
 #include "../Lexer/Lexer.h"
 
 using namespace std;
+class Node;
+
+extern Node* Global_Scope;
 
 class Node {
 public:
@@ -68,23 +71,23 @@ public:
 		return -1;
 	}
 	
-	string Get_Inheritted(string seperator, bool Dirent_Type = false, bool Skip_Prefixes = false) {
-		if (Dirent_Type) {
+	string Get_Inheritted(string seperator, bool Dirent_Type = false, bool Skip_Prefixes = false, bool Get_Name = false) {
+		if (Dirent_Type || Get_Name) {
 			return seperator + Name;
 		}
 		else if (is(NUMBER_NODE)) {
 			//1.29348
 			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-					return seperator + Find(4, Parent)->Get_Inheritted(seperator);
+					return seperator + Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 				else 
-					return seperator + Find(8, Parent)->Get_Inheritted(seperator);
+					return seperator + Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 			}
 			else {
 				if (atoll(Name.c_str()) > INT_MAX) {
-					return seperator + Find(8, Parent)->Get_Inheritted(seperator);
+					return seperator + Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 				}
-				return seperator + Find(4, Parent)->Get_Inheritted(seperator);
+				return seperator + Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 			}
 		}
 		else {
@@ -543,6 +546,13 @@ public:
 		else {
 			return false;
 		}
+	}
+
+	int Get_Size() {
+		if (is("ptr") != -1)
+			return Scaler;
+		else
+			return Size;
 	}
 
 	template<typename T>

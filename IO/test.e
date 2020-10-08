@@ -1,7 +1,6 @@
 use "cstd.e"
 #use "https://github.com/Gabidal/Evie/IO/cstd.e"
 
-
 func main(int x) {
 }
 
@@ -104,7 +103,7 @@ func Loops(){
     int b
     while (int i = 0; i < 10; i++){
         int a = 123
-        b = a + + i
+        b = a + i
     }
     int c = b * b
 }

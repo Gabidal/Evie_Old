@@ -598,15 +598,6 @@ void Parser::Type_Pattern(int i)
 void Parser::Member_Pattern(int i)
 {
 	//foo.a = 1
-	//<summary>
-	//
-	//
-	//</summary>
-	//if ((size_t)i + 2 > Input.size() - 1)
-	//	return;
-	//if (Parent->Find(Input[i].Value, Parent) == nullptr)
-	//	return;
-	//use operator token to capture the members int o a AST like tree
 	//IF LEXER ALREADY USES DOT COMPONENT AS OPERATOR THEN WE DONT NEED TO DO ENYTHING HERE :D.
 }
 
@@ -855,9 +846,9 @@ void Parser::Set_Keyword_Prop_To_Imported_Function_Parameter(int i)
 		return;
 
 	//wtf is this?
-	for (auto n : Input[i].Components) {
+	/*for (auto n : Input[i].Components) {
 		Input[i].node->Inheritted.push_back(n.Value);
-	}
+	}*/
 
 
 }

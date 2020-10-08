@@ -18,11 +18,13 @@ string MANGLER::Un_Mangle(string raw) {
 	string Current_Variable = "";
 	string Current_PreFix = "";
 	string Current_Complex_Name = "";
+	string STD = "";
 	vector<string> Current_Parameter_Inheritted;
 	//type ptr new  type
 	if (raw[0] == '_' && raw[1] == 'Z') {
 		//C++ unmangler
 		//_Z3NEWi3ABC
+		STD = "cpp";
 		for (int i = 2; i < raw.size(); i++) {
 			Current = raw[i];
 			Current_Complex_Name += raw[i];
@@ -117,13 +119,16 @@ string MANGLER::Un_Mangle(string raw) {
 		}
 	}
 	//else if (raw[0] == '_' && raw[1] == 'E') {
-
+	//	STD = "evie";
+	//}
+	//else if (raw[0] == '_' && raw[1] == 'V') {
+	//	STD = "vivid";
 	//}
 	else {
 		//this lauches when no call type is identifyed.
 		Function = raw;
 	}
-	string Result = Return_Type + " " + Function + "( ";
+	string Result = Return_Type + " " + STD + " " + Function + "( ";
 	for (int i = 0; i < ((int)Parenthesis.size()) - 1; i++) {
 		Result += Parenthesis[i] + ", ";
 	}

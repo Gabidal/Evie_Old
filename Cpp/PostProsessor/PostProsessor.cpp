@@ -23,6 +23,7 @@ void PostProsessor::Factory() {
 		Combine_Member_Fetching(Input[i]);
 		Algebra_Laucher(i);
 		Determine_Return_Type(i);
+		Determine_Array_Type(i);
 		Open_Call_Parameters_For_Prosessing(i);
 		Find_Call_Owner(Input[i]);
 	}
@@ -278,48 +279,72 @@ void PostProsessor::Algebra_Laucher(int i)
 
 void PostProsessor::Combine_Member_Fetching(Node* n)
 {
-	//(a.x).m
-	//(a.x).m()
-	//(a.x[0]).m()
-	//a[b[c[0]]]
-	//foo.size
-	if (n->is(OPERATOR_NODE)) {
-		if (n->Name == ".") {
-			//foo.size
-			if ((n->Right->is("const") != -1) && n->Right->Name == "size") {
-				Node tmp = *n;
-				*n = Node(NUMBER_NODE);
+	if (n->Name != ".")
+		return;
+	//Remember: Dot is constructed as any normal operator.
+	//((((a.b).c[..]).d()).e) = 123
+	//We have to go first to the most left sided operator.
+	Combine_Member_Fetching(n->Left);
+	//set the left side
+	Node* Left = Get_From_AST(n->Left);
+	//we must also update the current left side to inherit the members from the inherit list
+	Left->Get_Inheritted_Class_Members();
+	Left->Update_Members_Size();
 
-				//get the initial size of the left side class
-				n->Name = to_string(tmp.Left->Size);
-				if (tmp.Left->is("ptr") != -1)
-					n->Name = to_string(tmp.Left->Scaler);
+	//get the left side of the dot operator, this is getted from most left because it can be also an AST.
+	Node* Right = n->Get_Most_Left(n->Right);
 
-				n->Parent = Parent;
-			}
-			//x.m()
-			if (n->Right->is(CALL_NODE)) {
-				//put the fetcher to the first parameters slot
-				n->Right->Parameters.insert(n->Right->Parameters.begin(), Get_Combined(n->Left));
-			}
-			//x.m[0]
-			else if (n->Right->is(ARRAY_NODE)) {
-				n->Right->Get_Most_Left()->Fetcher = Get_Combined(n->Left);
-				Combine_Member_Fetching(n->Right->Right);
-			}
-			else
-				n->Right->Fetcher = Get_Combined(n->Left);
-			*n = *n->Right;
+	if (Right->Name == "size") {
+		Node* n = Right->Find("size", Left);
+		if (n == nullptr) {
+			//this means it is definetly a size get request
+			Right->Name = to_string(Left->Get_Size());
+			Right->Type = NUMBER_NODE;
 		}
-		else {
-			//a = b + x.m()
-			Combine_Member_Fetching(n->Left);
-			Combine_Member_Fetching(n->Right);
+		else if (n->is("const")) {
+			//this also means it is the size request
+			Right->Name = to_string(Left->Get_Size());
+			Right->Type = NUMBER_NODE;
 		}
+		else
+			//load the needed information from the parent
+			*Right = *n->Find(Right->Name, Left);
 	}
+	else
+		//load the needed information from the parent
+		*Right = *n->Find(Right->Name, Left);
+
+	//set the parent as a fechable
+	Right->Fetcher = Left;
+
+	//now remove the current dot operator and replace it with the new fetched member
+	*n = *Right;
+}
+
+Node* PostProsessor::Get_From_AST(Node* n)
+{
+	//((((a.b).c[..]).d()).e) = 123
 	if (n->is(CONTENT_NODE)) {
-		for (auto i : n->Childs)
-			Combine_Member_Fetching(i);
+		//childs can have only one start node for the AST because that is how math just works :/
+		//(a.b + a.c) 
+		//				n is parent because of the local scope
+		PostProsessor p(n, n->Childs);
+		return Get_From_AST(n->Childs[0]);
+	}
+	else if (n->is(OPERATOR_NODE)) {
+		PostProsessor p(Parent, { n });
+		return Get_From_AST(n);	//this call the same funciton again because the structure of the AST might have been changed.
+	}
+	else if (n->is(ARRAY_NODE)) {
+		PostProsessor p(Parent, { n });
+		return n->Get_Most_Left();
+	}
+	else if (n->is(CALL_NODE)) {
+		PostProsessor p(Parent, n->Parameters);	//prosess the parameters.
+		return n;
+	}
+	else  {
+		return n;
 	}
 }
 
@@ -360,11 +385,11 @@ void PostProsessor::Combine_Condition(int i)
 
 void PostProsessor::Determine_Return_Type(int i)
 {
-	if (!Input[i]->is(OPERATOR_NODE))
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
 
-	PostProsessor r(Parent, { Input[i]->Right });
-	PostProsessor l(Parent, { Input[i]->Left });
+
+	PostProsessor r(Parent, vector<Node*>{ Input[i]->Right, Input[i]->Left });
 
 	//try to find a suitable operator overload if there is one
 	for (auto overload : Input[i]->Left->Operator_Overloads) {
@@ -372,22 +397,43 @@ void PostProsessor::Determine_Return_Type(int i)
 
 		//the operator overloads return type is the same as the operator type for this.
 		Input[i]->Inheritted = overload->Inheritted;
+		return;
 	}
 
-	//check if the operator overload was used
-	if (Input[i]->Inheritted.size() < 1) {
-		//if no operator overload is used
-		if (Input[i]->Left->Get_Inheritted("") != Input[i]->Right->Get_Inheritted("")) {
-			//this should not be possible!
-			cout << "Error: left side of operator " << Input[i]->Name << ", "
-				<< Input[i]->Left->Get_Inheritted(" ") << " " << Input[i]->Name
-				<< " is not same type as the right side "
-				<< Input[i]->Right->Get_Inheritted(" ") << " " << Input[i]->Right->Name << "." << endl;
-		}
-		else
-			//if the left side has same inheritance as right just give left side inherit types to this operator.
-			Input[i]->Inheritted = Input[i]->Left->Inheritted;
+	//because cpp doesnt give us return type we need to trust this doesn't go "negev to leg" style.
+	if ((Input[i]->Left->is("cpp") != -1) || (Input[i]->Right->is("cpp") != -1))
+		Input[i]->Inheritted = Input[i]->Left->Inheritted;
+	//if no operator overload is used
+	else if (Input[i]->Left->Get_Inheritted("", false, true) != Input[i]->Right->Get_Inheritted("", false, true)) {
+		//this should not be possible!
+		cout << "Error: left side of operator " << Input[i]->Name << ", "
+			<< Input[i]->Left->Get_Inheritted(" ") << " " << Input[i]->Name
+			<< " is not same type as the right side "
+			<< Input[i]->Right->Get_Inheritted(" ") << " " << Input[i]->Right->Name << "." << endl;
 	}
+	else
+		//if the left side has same inheritance as right just give left side inherit types to this operator.
+		Input[i]->Inheritted = Input[i]->Left->Inheritted;
+}
+
+void PostProsessor::Determine_Array_Type(int i)
+{
+	if (!Input[i]->is(ARRAY_NODE))
+		return;
+
+	PostProsessor r(Parent, vector<Node*>{ Input[i]->Right, Input[i]->Left });
+
+	//Who is gay and does not pay taxes also farts in public 
+	for (auto overload : Input[i]->Left->Operator_Overloads) {
+		//the syntax still needs to be done!
+
+		//the operator overloads return type is the same as the operator type for this.
+		Input[i]->Inheritted = overload->Inheritted;
+		return;
+	}
+
+	//give the type inheritance to this array operator so that the upper function can check the do-ability
+	Input[i]->Inheritted = Input[i]->Left->Inheritted;
 }
 
 void PostProsessor::Operator_Type_Definer(Node* n)
@@ -464,31 +510,6 @@ void PostProsessor::Update_Used_Object_Info(Node* n)
 		i->Inheritted = n->Find(i->Name, i->Parent)->Inheritted;
 		i->Update_Members_Size();
 	}
-}
-
-Node* PostProsessor::Get_Combined(Node* n)
-{
-	Node* Result;
-	//((a.x).m()).b
-	//((a.x[0]).m()).b
-	if (n->is(OPERATOR_NODE)) {
-		if (n->Name == ".") {
-			Result = n->Right;
-			if (n->Right->is(CALL_NODE)) {
-				//put the fetcher to the first parameters slot
-				Result->Parameters.insert(Result->Parameters.begin(), Get_Combined(n->Left));
-			}
-			else
-				Result->Fetcher = Get_Combined(n->Left);
-		}
-	}
-	else if (n->is(CONTENT_NODE)) {
-		Result = n;
-	}
-	else {
-		Result = n;
-	}
-	return Result;
 }
 
 void PostProsessor::Operator_Overload(int i)

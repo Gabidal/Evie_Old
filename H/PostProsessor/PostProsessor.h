@@ -39,13 +39,14 @@ public:
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
 	void Combine_Condition(int i);					//combines the ifs and elses
 	void Determine_Return_Type(int i);				//open the operator and determined the types basen on the left and right side
+	void Determine_Array_Type(int i);				//
 													//opens an operator for callation purposes.
 	void Operator_Type_Definer(Node* n);			//gives the operator its left and the right sided types for more abstract.
 	void Handle_Prototypes(int i);					//here we can redefine the types given to parameters.
 	void Open_Loop_For_Prosessing(int i);
 	void Update_Used_Object_Info(Node* n);
 
-	Node* Get_Combined(Node* n);
+	Node* Get_From_AST(Node* n);
 		
 	void Operator_Overload(int i);					//makes new instance of using different operators
 	void Template_Parameter(int i);					//dynamic parameters
