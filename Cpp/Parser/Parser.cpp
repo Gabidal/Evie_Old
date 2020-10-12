@@ -714,7 +714,7 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&=" }, CONDITION_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" }, OPERATOR_NODE);
+		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" }, ASSIGN_OPERATOR_NODE);
 }
 
 void Parser::Return_Pattern(int i)

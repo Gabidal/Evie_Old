@@ -121,4 +121,39 @@ void x86_64_Win::Init()
 		RSP, ESP, SP,
 		XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6, XMM7, XMM8, XMM9, XMM10, XMM11, XMM12, XMM13, XMM14, XMM15
 	};
+	using namespace TOKEN;
+	Token* Register = new Token(REGISTER);
+	Token* Scalar = new Token(NUM, {
+		new Token(NUM, "1"),
+		new Token(NUM, "2"),
+		new Token(NUM, "4"),
+		new Token(NUM, "8")
+		});	
+	Token* Const = new Token(NUM);
+	Token* BRACKETS = new Token(MEMORY, {
+			{ new Token(REGISTER), 2},
+			{ new Token(SCALER, vector<pair<Token*, Token*>>{
+				{Register, Scalar},
+				{Scalar, Register},
+				{Scalar, Scalar}
+				}), 1},
+			{ new Token(OFFSETTER, vector<pair<Token*, Token*>>{
+				{Register, Register},
+				{Register, Const},
+				{Const, Register},
+				{Const, Const}
+				}), INT32_MAX},
+			{ new Token(DEOFFSETTER, vector<pair<Token*, Token*>>{
+				{Register, Register},
+				{Register, Const},
+				{Const, Register},
+				{Const, Const}
+				}), INT32_MAX}
+		});
+
+
+	//2reg, 1mul, inf*const, inf*operator
+	//*(reg, const) | *(const, const) | *(const, reg)
+	//+-(reg, reg) | +-(reg, const) | +-(const, reg) | +-(const, const)
+
 }

@@ -101,6 +101,10 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 		return;
 	//here we just go trugh the insides of the function
 	//for optimization and other cool stuff :D
+	for (auto j : Input[i]->Parameters)
+		if (j->is("type") != -1)
+			return;
+
 	PostProsessor p(Input[i]);
 	p.Input = Input[i]->Childs;
 
@@ -188,7 +192,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			else if (!Direct_Type && f->Parameters[p]->is("type") != -1)
 				continue;	//just ignore the template parameters for now.
 			//here we will determine if this function is the og-fucntion or not.
-			else if (Direct_Type && (f->Parameters[p]->Name != n->Parameters[p]->Get_Inheritted("")))
+			else if (Direct_Type && (f->Parameters[p]->Name != n->Parameters[p]->Get_Inheritted((string)"")))
 				goto Next_Function;
 			else if (!Direct_Type && f->Parameters[p]->Get_Inheritted("") != n->Parameters[p]->Get_Inheritted("")) {
 				goto Next_Function;
@@ -296,13 +300,8 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 
 	if (Right->Name == "size") {
 		Node* n = Right->Find("size", Left);
-		if (n == nullptr) {
+		if (n == nullptr || n->is("const")) {
 			//this means it is definetly a size get request
-			Right->Name = to_string(Left->Get_Size());
-			Right->Type = NUMBER_NODE;
-		}
-		else if (n->is("const")) {
-			//this also means it is the size request
 			Right->Name = to_string(Left->Get_Size());
 			Right->Type = NUMBER_NODE;
 		}
@@ -385,7 +384,7 @@ void PostProsessor::Combine_Condition(int i)
 
 void PostProsessor::Determine_Return_Type(int i)
 {
-	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 
 
@@ -398,22 +397,29 @@ void PostProsessor::Determine_Return_Type(int i)
 		//the operator overloads return type is the same as the operator type for this.
 		Input[i]->Inheritted = overload->Inheritted;
 		return;
-	}
-
+	}	
 	//because cpp doesnt give us return type we need to trust this doesn't go "negev to leg" style.
 	if ((Input[i]->Left->is("cpp") != -1) || (Input[i]->Right->is("cpp") != -1))
 		Input[i]->Inheritted = Input[i]->Left->Inheritted;
-	//if no operator overload is used
-	else if (Input[i]->Left->Get_Inheritted("", false, true) != Input[i]->Right->Get_Inheritted("", false, true)) {
-		//this should not be possible!
-		cout << "Error: left side of operator " << Input[i]->Name << ", "
-			<< Input[i]->Left->Get_Inheritted(" ") << " " << Input[i]->Name
-			<< " is not same type as the right side "
-			<< Input[i]->Right->Get_Inheritted(" ") << " " << Input[i]->Right->Name << "." << endl;
+
+	int Left_Size = 0;
+	int Right_Size = 0;
+
+	for (auto j : Input[i]->Left->Get_Inheritted(false, true)) {
+		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
+			continue;
+		Left_Size += Parent->Find(j, Parent)->Get_Size();
+	}	
+	for (auto j : Input[i]->Right->Get_Inheritted(false, true)) {
+		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
+			continue;
+		Right_Size += Parent->Find(j, Parent)->Get_Size();
 	}
-	else
-		//if the left side has same inheritance as right just give left side inherit types to this operator.
+
+	if (Left_Size >= Right_Size)
 		Input[i]->Inheritted = Input[i]->Left->Inheritted;
+	else
+		Input[i]->Inheritted = Input[i]->Right->Inheritted;
 }
 
 void PostProsessor::Determine_Array_Type(int i)

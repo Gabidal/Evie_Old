@@ -55,7 +55,7 @@ public:
 	Node* Fetcher = nullptr;
 	//calling features
 	Node* Template_Function = nullptr;
-	string Calling_Convention = "";
+	//calling convension is stored in the inheritted list
 	//function prototype features
 	//the import has the flag to prototyping
 	//and the paramters are Named as the size needed. thx!
@@ -80,7 +80,7 @@ public:
 			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
 					return seperator + Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
-				else 
+				else
 					return seperator + Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 			}
 			else {
@@ -95,9 +95,39 @@ public:
 			for (int i = 0; i < Inheritted.size(); i++) {
 				if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
 					continue;
-				result += seperator + Inheritted[i] ;
+				result += seperator + Inheritted[i];
 			}
 			return result;
+		}
+	}
+	
+	vector<string> Get_Inheritted(bool Dirent_Type = false, bool Skip_Prefixes = false, bool Get_Name = false) {
+		vector<string> Result;
+		if (Dirent_Type || Get_Name) {
+			return { Name };
+		}
+		else if (is(NUMBER_NODE)) {
+			//1.29348
+			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
+				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
+					return Find(4, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
+				else
+					return Find(8, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
+			}
+			else {
+				if (atoll(Name.c_str()) > INT_MAX) {
+					return Find(8, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
+				}
+				return Find(4, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
+			}
+		}
+		else {
+			for (int i = 0; i < Inheritted.size(); i++) {
+				if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
+					continue;
+				Result.push_back(Inheritted[i]);
+			}
+			return Result;
 		}
 	}
 
@@ -110,7 +140,7 @@ public:
 				mname += "_" + i;
 		mname += "_" + Name;
 		for (auto i : Parameters)
-			mname += "_" + i->Get_Inheritted("_", is(PROTOTYPE), Skip_Prefixes);
+			mname += "_" + i->Get_Inheritted((string)"_", is(PROTOTYPE), Skip_Prefixes);
 		return mname;
 	}
 

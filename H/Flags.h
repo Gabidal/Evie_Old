@@ -16,12 +16,19 @@ namespace TOKEN {
 	constexpr long OPERATOR = 1 << 8;	//any operator
 	constexpr long SCALER = 1 << 9;		//*
 	constexpr long OFFSETTER = 1 << 10;	//+
+	constexpr long DEOFFSETTER = 1 << 11;	//+
 
-	constexpr long CONTENT = 1 << 11;	//any childs owner
-	constexpr long LABEL = 1 << 12;
+	constexpr long CONTENT = 1 << 12;	//any childs owner
+	constexpr long LABEL = 1 << 13;
 
-	constexpr long FLOW = 1 << 13; //ret, jmp
-	constexpr long CALL = 1 << 14; // calls
+	constexpr long FLOW = 1 << 14; //ret, jmp
+	constexpr long CALL = 1 << 15; // calls
+
+	//RULES
+	constexpr long ALL_ARGS_SAME_SIZE = 1 << 16;	//this means that all args on the OPCODE must be same size
+	constexpr long OPTIONAL = 1 << 17;
+	constexpr long INF = 1 << 18;
+	constexpr long UN_ORDERED = 1 << 19;
 }
 
 namespace Flags{
@@ -51,6 +58,7 @@ enum Node_Type {
 	NUMBER_NODE,
 
 	OPERATOR_NODE,				//classical operators like +-/*
+	ASSIGN_OPERATOR_NODE,
 	CONDITION_OPERATOR_NODE,	//==, !=, <, >
 	BIT_OPERATOR_NODE,			// &, |, ¤, <<, >>
 	ARRAY_NODE,					//a[1]
