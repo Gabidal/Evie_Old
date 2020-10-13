@@ -130,7 +130,7 @@ void x86_64_Win::Init()
 		new Token(NUM, "8")
 		});	
 	Token* Const = new Token(NUM);
-	Token* BRACKETS = new Token(MEMORY, {
+	Token* Memory = new Token(MEMORY, {
 			{ new Token(REGISTER), 2},
 			{ new Token(SCALER, vector<pair<Token*, Token*>>{
 				{Register, Scalar},
@@ -155,5 +155,47 @@ void x86_64_Win::Init()
 	//2reg, 1mul, inf*const, inf*operator
 	//*(reg, const) | *(const, const) | *(const, reg)
 	//+-(reg, reg) | +-(reg, const) | +-(const, reg) | +-(const, const)
+	
+	IR* MOV = new IR("move", new Token(OPERATOR, "mov"), {
+		{Register, Memory},
+		{Memory, Register},
+		{Register, Register},
+		{Register, Const},
+		{Memory, Const}
+		});
+
+	IR* LEA = new IR("save", new Token(OPERATOR, "lea"), vector<pair<Token*, Token*>>{
+		{Register, Memory}
+		});
+
+	IR* ADD = new IR("add", new Token(OPERATOR, "add"), {
+		{Register, Memory},
+		{Register, Register},
+		{Memory, Register},
+		{Memory, Const},
+		{Register, Const}
+		});
+
+	IR* SUB = new IR("sub", new Token(OPERATOR, "sub"), {
+		{Register, Memory},
+		{Register, Register},
+		{Memory, Register},
+		{Memory, Const},
+		{Register, Const}
+		});
+
+	IR* MUL = new IR("mul", new Token(OPERATOR), vector<IR*>{
+		new IR("move", new Token(OPERATOR, "mov"), vector<Token*>{
+			new Token(REMAINDER),	//mov from register into a remainder like eax
+			Register
+		}),
+		new IR("mul", new Token(OPERATOR, "mul"), {
+			new Token(QUOTIENT)
+		}),
+		new IR("move", new Token(OPERATOR, "mov"), vector<Token*>{
+			Register,
+			new Token(RETURNING)
+		})
+	});
 
 }

@@ -7,28 +7,30 @@ namespace TOKEN {
 	constexpr long NONVOLATILE = 1 << 2;
 	constexpr long RETURNING = 1 << 3;
 	constexpr long PARAMETER = 1 << 4;	//fast call
+	constexpr long REMAINDER = 1 << 5;
+	constexpr long QUOTIENT = 1 << 6;
 
-	constexpr long NUM = 1 << 5;
-	constexpr long DECIMAL = 1 << 6;
+	constexpr long NUM = 1 << 7;
+	constexpr long DECIMAL = 1 << 8;
 
-	constexpr long MEMORY = 1 << 7;
+	constexpr long MEMORY = 1 << 9;
 
-	constexpr long OPERATOR = 1 << 8;	//any operator
-	constexpr long SCALER = 1 << 9;		//*
-	constexpr long OFFSETTER = 1 << 10;	//+
-	constexpr long DEOFFSETTER = 1 << 11;	//+
+	constexpr long OPERATOR = 1 << 10;	//any operator
+	constexpr long SCALER = 1 << 11;		//*
+	constexpr long OFFSETTER = 1 << 12;	//+
+	constexpr long DEOFFSETTER = 1 << 13;	//+
 
-	constexpr long CONTENT = 1 << 12;	//any childs owner
-	constexpr long LABEL = 1 << 13;
+	constexpr long CONTENT = 1 << 14;	//any childs owner
+	constexpr long LABEL = 1 << 15;
 
-	constexpr long FLOW = 1 << 14; //ret, jmp
-	constexpr long CALL = 1 << 15; // calls
+	constexpr long FLOW = 1 << 16; //ret, jmp
+	constexpr long CALL = 1 << 17; // calls
 
 	//RULES
-	constexpr long ALL_ARGS_SAME_SIZE = 1 << 16;	//this means that all args on the OPCODE must be same size
-	constexpr long OPTIONAL = 1 << 17;
-	constexpr long INF = 1 << 18;
-	constexpr long UN_ORDERED = 1 << 19;
+	constexpr long ALL_ARGS_SAME_SIZE = 1 << 18;	//this means that all args on the OPCODE must be same size
+	constexpr long OPTIONAL = 1 << 19;
+	constexpr long INF = 1 << 20;
+	constexpr long UN_ORDERED = 1 << 21;
 }
 
 namespace Flags{
