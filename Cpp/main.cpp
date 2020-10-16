@@ -14,6 +14,7 @@
 #include "../H/Docker/OBJ.h"
 #include "../H/BackEnd/BackEnd.h"
 #include "../H/BackEnd/IRGenerator.h"
+#include "../H/BackEnd/Stack.h"
 
 #include <sstream>
 #include <iostream>
@@ -25,7 +26,10 @@ using namespace std;
 
 Usr* sys;
 Node* Global_Scope;
+Stack* stack;
 int _SYSTEM_BIT_SIZE_ = 4;
+
+string Output = "";
 
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 //Evie.exe -in ~/test.e
@@ -63,8 +67,6 @@ int main(int argc, char* argv[])
     };
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());
-
-    string OUTPUT = "";
     
     string start_file = sys->Info.Source_File.c_str();
 
@@ -118,8 +120,11 @@ int main(int argc, char* argv[])
     vector<IR*> IRs;
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
 
+    stack = new Stack();
+
+
     ofstream o(sys->Info.Destination_File.c_str());
-    o << OUTPUT;
+    o << Output;
     o.close();
 
     Producer pr;

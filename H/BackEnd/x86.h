@@ -17,6 +17,11 @@ namespace x86_64_Win {
 	vector<Token*> Parameter_Registers;
 	vector<IR*> Opcodes;
 
+
+	string Seperator = ",";
+	string Register_Pre_Fix = "";
+	string Number_Pre_Fix = "";
+	string Label_Post_Fix = ":";
 	void Init();
 }
 

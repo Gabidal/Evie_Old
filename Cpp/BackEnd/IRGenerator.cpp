@@ -64,7 +64,7 @@ void IRGenerator::Parse_Calls(int i)
 	IR* ir = new IR(call, {});
 	Output->push_back(ir);
 
-	Token* returningReg = new Token(TOKEN::REGISTER, "RetREG_" + call->Get_Name(), Input[i]->Size);
+	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + call->Get_Name(), Input[i]->Size);
 
 	Handle = returningReg;
 }

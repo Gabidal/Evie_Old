@@ -132,22 +132,22 @@ void x86_64_Win::Init()
 	Token* Const = new Token(NUM);
 	Token* Memory = new Token(MEMORY, {
 			{ new Token(REGISTER), 2},
-			{ new Token(SCALER, vector<pair<Token*, Token*>>{
-				{Register, Scalar},
-				{Scalar, Register},
-				{Scalar, Scalar}
+			{ new Token(SCALER | ALL_ARGS_SAME_SIZE, {
+				{{Register, {1, 8}}, {Scalar, {1, 8}}},
+				{{Scalar, {1, 8}}, {Register, {1, 8}}},
+				{{Scalar, {1, 8}}, {Scalar, {1, 8}}}
 				}), 1},
-			{ new Token(OFFSETTER, vector<pair<Token*, Token*>>{
-				{Register, Register},
-				{Register, Const},
-				{Const, Register},
-				{Const, Const}
+			{ new Token(OFFSETTER | ALL_ARGS_SAME_SIZE, {
+				{{Register, {1, 8}}, {Register, {1, 8}}},
+				{{Register, {1, 8}}, {Const, {1, 8}}},
+				{{Const, {1, 8}}, {Register, {1, 8}}},
+				{{Const, {1, 8}}, {Const, {1, 8}}},
 				}), INT32_MAX},
-			{ new Token(DEOFFSETTER, vector<pair<Token*, Token*>>{
-				{Register, Register},
-				{Register, Const},
-				{Const, Register},
-				{Const, Const}
+			{ new Token(DEOFFSETTER | ALL_ARGS_SAME_SIZE, {
+				{{Register, {1, 8}}, {Register, {1, 8}}},
+				{{Register, {1, 8}}, {Const, {1, 8}}},
+				{{Const, {1, 8}}, {Register, {1, 8}}},
+				{{Const, {1, 8}}, {Const, {1, 8}}},
 				}), INT32_MAX}
 		});
 
@@ -156,46 +156,75 @@ void x86_64_Win::Init()
 	//*(reg, const) | *(const, const) | *(const, reg)
 	//+-(reg, reg) | +-(reg, const) | +-(const, reg) | +-(const, const)
 	
-	IR* MOV = new IR("move", new Token(OPERATOR, "mov"), {
-		{Register, Memory},
-		{Memory, Register},
-		{Register, Register},
-		{Register, Const},
-		{Memory, Const}
+	IR* MOV = new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
-	IR* LEA = new IR("save", new Token(OPERATOR, "lea"), vector<pair<Token*, Token*>>{
-		{Register, Memory}
+	IR* LEA = new IR("save", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
+		{ {Register, { 1, 8 }}, { Memory, {1, 8} } }
 		});
 
-	IR* ADD = new IR("add", new Token(OPERATOR, "add"), {
-		{Register, Memory},
-		{Register, Register},
-		{Memory, Register},
-		{Memory, Const},
-		{Register, Const}
+	IR* ADD = new IR("add", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "add"), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
-	IR* SUB = new IR("sub", new Token(OPERATOR, "sub"), {
-		{Register, Memory},
-		{Register, Register},
-		{Memory, Register},
-		{Memory, Const},
-		{Register, Const}
+	IR* SUB = new IR("sub", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "sub"), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
 	IR* MUL = new IR("mul", new Token(OPERATOR), vector<IR*>{
-		new IR("move", new Token(OPERATOR, "mov"), vector<Token*>{
-			new Token(REMAINDER),	//mov from register into a remainder like eax
-			Register
+		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+			{ {new Token(QUOTIENT), { 1, 8 }}, { Register, {1, 8} } },
+			{ {new Token(QUOTIENT), {1, 8}}, {Const, {1, 8}} },
+			{ {new Token(QUOTIENT), {1, 8}}, {Memory, {1, 8}} },	//mov from register into a remainder like eax the other value for the mul
 		}),
-		new IR("mul", new Token(OPERATOR, "mul"), {
-			new Token(QUOTIENT)
+		new IR("mul", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mul"), {
+			{ {Register, { 1, 8 }}, { nullptr, {0, 0} } },
+			{ {Memory, { 1, 8 }}, { nullptr, {0, 0} } },		//give mul the other value
 		}),
-		new IR("move", new Token(OPERATOR, "mov"), vector<Token*>{
-			Register,
-			new Token(RETURNING)
+		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+			{ {Memory, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } },
+			{ {Register, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } }
 		})
 	});
 
+	IR* DIV = new IR("div", new Token(OPERATOR), vector<IR*>{
+		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+			REMAINDER, new Token(NUM, "0")
+			}), 
+		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+			{ {new Token(QUOTIENT), { 1, 8 }}, { Register, {1, 8} } },
+			{ {new Token(QUOTIENT), {1, 8}}, {Const, {1, 8}} },
+			{ {new Token(QUOTIENT), {1, 8}}, {Memory, {1, 8}} },	//mov from register into a remainder like eax the other value for the mul
+			}),
+		new IR("mul", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mul"), {
+			{ {Register, { 1, 8 }}, { nullptr, {0, 0} } },
+			{ {Memory, { 1, 8 }}, { nullptr, {0, 0} } },		//give mul the other value
+			}),
+		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+			{ {Memory, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } },
+			{ {Register, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } }
+			})
+	});
+
+	Opcodes = {
+		MOV,
+		LEA,
+		ADD,
+		SUB,
+		MUL,
+		DIV
+	};
 }

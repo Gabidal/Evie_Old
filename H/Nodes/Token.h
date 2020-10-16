@@ -17,7 +17,9 @@ private:
 	string Name;
 	vector<Token*> Childs;
 	vector<pair<Token*, int>> Resources;
-	vector<pair<Token*, Token*>> Combinations;
+	vector<pair<pair<Token*, pair<int, int>>, pair<Token*, pair<int, int>>>> Combinations;
+
+	Node* Parent = nullptr;
 public:
 	//for tokens
 	Token(long f) : Flags(f) {}
@@ -34,6 +36,7 @@ public:
 			return;
 		Size = n->Size;
 		Name = n->Name;
+		Parent = n->Parent;
 	}
 	Token(long f, int s) : Flags(f), Size(s) {}
 	Token(long f, string n) : Flags(f), Name(n) {}
@@ -42,7 +45,7 @@ public:
 
 	Token(long f, vector<Token*> c) : Flags(f), Childs(c){}
 	Token(long f, vector<pair<Token*, int>> Res) : Flags(f), Resources(Res) {}
-	Token(long f, vector<pair<Token*, Token*>> comb) : Flags(f), Combinations(comb){}
+	Token(long f, vector<pair<pair<Token*, pair<int, int>>, pair<Token*, pair<int, int>>>> comb) : Flags(f), Combinations(comb){}
 
 	bool is(int flag){return (Flags & flag) == flag;}
 	bool Any(int flags){return (Flags & flags) != 0;}
