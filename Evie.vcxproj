@@ -130,6 +130,7 @@
     <ClCompile Include="cpp\ui\Producer.cpp" />
     <ClCompile Include="cpp\ui\Safe.cpp" />
     <ClCompile Include="cpp\ui\Usr.cpp" />
+    <ClCompile Include="H\BackEnd\IRPostProsessor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="io\test.asm" />
@@ -139,6 +140,8 @@
   <ItemGroup>
     <ClInclude Include="H\BackEnd\BackEnd.h" />
     <ClInclude Include="H\BackEnd\IRGenerator.h" />
+    <ClInclude Include="H\BackEnd\IRPostProsessor.h" />
+    <ClInclude Include="H\BackEnd\Stack.h" />
     <ClInclude Include="H\BackEnd\x86.h" />
     <ClInclude Include="h\docker\ASM.h" />
     <ClInclude Include="h\docker\Docker.h" />
