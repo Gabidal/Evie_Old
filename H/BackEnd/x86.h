@@ -11,18 +11,19 @@ using namespace std;
 #include "../Nodes/IR.h"
 #include "../Flags.h"
 
-namespace x86_64_Win {
-	int SIZE;
+class x86_64_Win {
+public:
+	int size;
 	vector<Token*> Registers;
 	vector<Token*> Parameter_Registers;
 	vector<IR*> Opcodes;
 
 
-	string Seperator = ",";
-	string Register_Pre_Fix = "";
-	string Number_Pre_Fix = "";
-	string Label_Post_Fix = ":";
+	string Seperator;
+	string Register_Pre_Fix;
+	string Number_Pre_Fix;
+	string Label_Post_Fix;
 	void Init();
-}
+};
 
 #endif

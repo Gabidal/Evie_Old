@@ -18,6 +18,7 @@ extern Node* Global_Scope;
 class Node {
 public:
 	Node(int flag) : Type(flag){}
+	Node(string n) : Name(n){}
 	//Node(){}
 	//Normal features
 	string Name = "";

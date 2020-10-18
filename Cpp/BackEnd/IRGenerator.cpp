@@ -27,13 +27,15 @@ void IRGenerator::Parse_Function(int i)
 		return;
 
 	//label
-	IR* Label = Make_Label(Input[i]);
-	Output->push_back(Label);
+	Output->push_back(Make_Label(Input[i]));
 
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
 
 	//TODO: Make the return IR here
+
+	//make the end of funciton like End Proc like label
+	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION), {}));
 }
 
 void IRGenerator::Parse_Calls(int i)

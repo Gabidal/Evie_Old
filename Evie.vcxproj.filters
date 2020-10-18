@@ -78,7 +78,10 @@
     <ClCompile Include="Cpp\BackEnd\x86.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="H\BackEnd\IRPostProsessor.cpp">
+    <ClCompile Include="Cpp\BackEnd\IRPostProsessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cpp\BackEnd\Selector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -181,10 +184,10 @@
     <ClInclude Include="H\BackEnd\x86.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\BackEnd\Stack.h">
+    <ClInclude Include="H\BackEnd\IRPostProsessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\BackEnd\IRPostProsessor.h">
+    <ClInclude Include="H\BackEnd\Selector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

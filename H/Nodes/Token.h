@@ -47,6 +47,11 @@ public:
 	Token(long f, vector<pair<Token*, int>> Res) : Flags(f), Resources(Res) {}
 	Token(long f, vector<pair<pair<Token*, pair<int, int>>, pair<Token*, pair<int, int>>>> comb) : Flags(f), Combinations(comb){}
 
+	Token* Get_Child(int s) {
+		if (this->Size != s)
+			return Childs[0]->Get_Child(s);
+		return nullptr;
+	}
 	bool is(int flag){return (Flags & flag) == flag;}
 	bool Any(int flags){return (Flags & flags) != 0;}
 	void add(int flag){this->Flags |= flag;}
@@ -54,6 +59,8 @@ public:
 	void add(vector<Token*> args) { Childs = args; }
 	int Get_Size() { return Size; }
 	string Get_Name() { return Name; }
+	void Se_Parent(Node* p) { Parent = p; }
+	Node* Get_Parent() { return Parent; }
 };
 
 #endif

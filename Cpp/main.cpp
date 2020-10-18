@@ -14,7 +14,8 @@
 #include "../H/Docker/OBJ.h"
 #include "../H/BackEnd/BackEnd.h"
 #include "../H/BackEnd/IRGenerator.h"
-#include "../H/BackEnd/Stack.h"
+#include "../H/BackEnd/Selector.h"
+#include "../H/BackEnd/x86.h"
 
 #include <sstream>
 #include <iostream>
@@ -26,7 +27,8 @@ using namespace std;
 
 Usr* sys;
 Node* Global_Scope;
-Stack* stack;
+Selector* selector;
+x86_64_Win X86_64_WIN;
 int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output = "";
@@ -119,8 +121,6 @@ int main(int argc, char* argv[])
 
     vector<IR*> IRs;
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
-
-    stack = new Stack();
 
 
     ofstream o(sys->Info.Destination_File.c_str());

@@ -111,6 +111,7 @@
   <ItemGroup>
     <ClCompile Include="Cpp\BackEnd\BackEnd.cpp" />
     <ClCompile Include="Cpp\BackEnd\IRGenerator.cpp" />
+    <ClCompile Include="Cpp\BackEnd\Selector.cpp" />
     <ClCompile Include="Cpp\BackEnd\x86.cpp" />
     <ClCompile Include="cpp\docker\ASM.cpp" />
     <ClCompile Include="cpp\docker\Docker.cpp" />
@@ -130,7 +131,7 @@
     <ClCompile Include="cpp\ui\Producer.cpp" />
     <ClCompile Include="cpp\ui\Safe.cpp" />
     <ClCompile Include="cpp\ui\Usr.cpp" />
-    <ClCompile Include="H\BackEnd\IRPostProsessor.cpp" />
+    <ClCompile Include="Cpp\BackEnd\IRPostProsessor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="io\test.asm" />
@@ -141,7 +142,7 @@
     <ClInclude Include="H\BackEnd\BackEnd.h" />
     <ClInclude Include="H\BackEnd\IRGenerator.h" />
     <ClInclude Include="H\BackEnd\IRPostProsessor.h" />
-    <ClInclude Include="H\BackEnd\Stack.h" />
+    <ClInclude Include="H\BackEnd\Selector.h" />
     <ClInclude Include="H\BackEnd\x86.h" />
     <ClInclude Include="h\docker\ASM.h" />
     <ClInclude Include="h\docker\Docker.h" />

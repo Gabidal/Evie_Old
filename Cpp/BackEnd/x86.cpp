@@ -2,7 +2,12 @@
 
 void x86_64_Win::Init()
 {
-	SIZE = 8;	//64 bit arch
+	size = 8;	//64 bit arch
+
+	Seperator = ",";
+	Register_Pre_Fix = "";
+	Number_Pre_Fix = "";
+	Label_Post_Fix = ":";
 
 	Token* AL = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING, "al", 1, {});
 	Token* AH = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING, "ah", 1, {});

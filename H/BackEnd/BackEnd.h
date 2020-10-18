@@ -5,7 +5,6 @@
 #include "../Nodes/IR.h"
 #include "../Nodes/Token.h"
 
-extern Usr* sys;
 
 #include <vector>
 #include <string>
@@ -19,12 +18,10 @@ private:
 	string Number_Pre_Fix;
 	string Label_Post_Fix;
 
-	vector<Token*> Registers;
-	vector<Token*> Parameter_Registers;
 	vector<IR*> Opcodes;
 
 	vector<IR*> Input;
-	string* Output = nullptr;
+	string* Output;
 
 	void Init();
 	void Factory();
@@ -33,7 +30,7 @@ public:
 		Output = new string("");
 		Init();
 	}
-	BackEnd(vector<IR*> in, string& out) : Input(in), Output(&out) {
+	BackEnd(vector<IR*> in, string* out) : Input(in), Output(out) {
 		Init();
 		Factory();
 	}
