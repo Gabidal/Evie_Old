@@ -21,17 +21,17 @@ void x86_64_Win::Init()
 	Token* EBX = new Token(TOKEN::NONVOLATILE, "ebx", 4, { BX });
 	Token* RBX = new Token(TOKEN::NONVOLATILE, "rbx", 8, { EBX });
 
-	Token* CL = new Token(TOKEN::VOLATILE, "cl", 1, {});
-	Token* CH = new Token(TOKEN::VOLATILE, "ch", 1, {});
-	Token* CX = new Token(TOKEN::VOLATILE, "cx", 2, { CH, CL });
-	Token* ECX = new Token(TOKEN::VOLATILE, "ecx", 4, { CX });
-	Token* RCX = new Token(TOKEN::VOLATILE, "rcx", 8, { ECX});
+	Token* CL = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "cl", 1, {});
+	Token* CH = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "ch", 1, {});
+	Token* CX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "cx", 2, { CH, CL });
+	Token* ECX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "ecx", 4, { CX });
+	Token* RCX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "rcx", 8, { ECX});
 
-	Token* DL = new Token(TOKEN::VOLATILE, "dl", 1, {});
-	Token* DH = new Token(TOKEN::VOLATILE, "dh", 1, {});
-	Token* DX = new Token(TOKEN::VOLATILE, "dx", 2, { DH, DL });
-	Token* EDX = new Token(TOKEN::VOLATILE, "edx", 4, { DX });
-	Token* RDX = new Token(TOKEN::VOLATILE, "rdx", 8, { EDX });
+	Token* DL = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dl", 1, {});
+	Token* DH = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dh", 1, {});
+	Token* DX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dx", 2, { DH, DL });
+	Token* EDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "edx", 4, { DX });
+	Token* RDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "rdx", 8, { EDX });
 
 	Token* DIL = new Token(TOKEN::NONVOLATILE, "dil", 1, {});
 	//Token* DIH = new Token(TOKEN::NONVOLATILE, "dih", 1, {});
@@ -56,10 +56,10 @@ void x86_64_Win::Init()
 	Token* ESP = new Token(TOKEN::NONVOLATILE, "esp", 4, { SP });
 	Token* RSP = new Token(TOKEN::NONVOLATILE, "rsp", 8, { ESP });
 
-	Token* XMM0 = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING, "xmm0", 12, {});
-	Token* XMM1 = new Token(TOKEN::VOLATILE , "xmm1", 12, {});
-	Token* XMM2 = new Token(TOKEN::VOLATILE , "xmm2", 12, {});
-	Token* XMM3 = new Token(TOKEN::VOLATILE , "xmm3", 12, {});
+	Token* XMM0 = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING | TOKEN::PARAMETER, "xmm0", 12, {});
+	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "xmm1", 12, {});
+	Token* XMM2 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "xmm2", 12, {});
+	Token* XMM3 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "xmm3", 12, {});
 	Token* XMM4 = new Token(TOKEN::VOLATILE , "xmm4", 12, {});
 	Token* XMM5 = new Token(TOKEN::VOLATILE , "xmm5", 12, {});
 	Token* XMM6 = new Token(TOKEN::VOLATILE , "xmm6", 12, {});
@@ -73,15 +73,15 @@ void x86_64_Win::Init()
 	Token* XMM14 = new Token(TOKEN::VOLATILE, "xmm14", 12, {});
 	Token* XMM15 = new Token(TOKEN::VOLATILE, "xmm15", 12, {});
 
-	Token* R8B = new Token(TOKEN::VOLATILE, "r8b", 1, {});
-	Token* R8W = new Token(TOKEN::VOLATILE, "r8w", 2, { R8B });
-	Token* R8D = new Token(TOKEN::VOLATILE, "r8d", 4, { R8W });
-	Token* R8 = new Token(TOKEN::VOLATILE , "r8", 8, { R8D });
+	Token* R8B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8b", 1, {});
+	Token* R8W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8w", 2, { R8B });
+	Token* R8D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8d", 4, { R8W });
+	Token* R8 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8", 8, { R8D });
 
-	Token* R9B = new Token(TOKEN::VOLATILE, "r9b", 1, {});
-	Token* R9W = new Token(TOKEN::VOLATILE, "r9w", 2, { R9B });
-	Token* R9D = new Token(TOKEN::VOLATILE, "r9d", 4, { R9W });
-	Token* R9 = new Token(TOKEN::VOLATILE , "r9", 8, { R9D });
+	Token* R9B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9b", 1, {});
+	Token* R9W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9w", 2, { R9B });
+	Token* R9D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9d", 4, { R9W });
+	Token* R9 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9", 8, { R9D });
 
 	Token* R10B = new Token(TOKEN::VOLATILE, "r10b", 1, {});
 	Token* R10W = new Token(TOKEN::VOLATILE, "r10w", 2, { R10B });
@@ -114,7 +114,7 @@ void x86_64_Win::Init()
 	Token* R15 = new Token(TOKEN::NONVOLATILE , "r15", 8, { R15D });
 
 
-	Parameter_Registers = { RCX, RDX, R8, R9 , XMM0, XMM1, XMM2, XMM3 };
+	Parameter_Registers = { RCX, RDX, R8, R9, XMM0, XMM1, XMM2, XMM3 };
 	Registers = { 
 		RAX, EAX, AX, AH, AL,
 		RBX, EBX, BX, BH, BL,

@@ -36,7 +36,7 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 	//now put the newreg where the scalable was.
 	Input->at(i)->Arguments[ArgIndex] = NewReg;
 
-	//now inser the new converter before the operator
+	//now insert the new converter before the operator
 	Input->insert(Input->begin() + i, CONV);
 }
 

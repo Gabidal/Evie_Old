@@ -11,23 +11,41 @@ using namespace std;
 
 class Register_Descriptor {
 public:
-	//int First_Usage_Index = 0;
+	int First_Usage_Index = 0;
 	int Last_Usage_Index = 0;
 
 	string User = "";
 
-	Register_Descriptor(int i, string usr) : Last_Usage_Index(i), User(usr){}
+	Register_Descriptor(int first, int last, string usr) : First_Usage_Index(first), Last_Usage_Index(last), User(usr){}
+};
+
+class Path {
+	//Path is a package class containing critical information about the path of specified value.
+public:
+	vector<int> Intersects_Calls;
+	int Parameter_Place = -1;
+	int Last_Usage = 0;
 };
 
 class Selector {
 private:
 	void Init();
 	vector<pair<Register_Descriptor*, Token*>> Registers;
-	vector<pair<Register_Descriptor*, Token*>> Parameter_Registers;
-
+	vector<vector<Token*>> Parameter_Registers;
+	vector<Token*> Transform(Token* parent);
 
 public:
-	Token* Get_New_Reg(vector<IR*> source, int i, Token* t);
+	Path* Get_Path_Info(vector<IR*> source, int i, Token* t);
+	//											<Wanted Register description, and the register itself> , <the new user description, the user itself>,  IRs, index
+	void Make_Solution_For_Crossed_Register_Usages(pair< Register_Descriptor*, Token*> Current, pair< Register_Descriptor*, Token*> New, vector<IR*>* source, int i);
+
+	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t);
+	Token* Get_Register(Token* t);
+	Token* Get_Register(long F, Register_Descriptor* user);
+	Token* Allocate_Register(vector<IR*>& source, int i, Token* t);
+	void Pair_Up(Token* r, Register_Descriptor* t);
+	void Break_Up(Token* r);
+
 };
 
 #endif

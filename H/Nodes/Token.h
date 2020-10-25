@@ -52,6 +52,7 @@ public:
 			return Childs[0]->Get_Child(s);
 		return nullptr;
 	}
+	vector<Token*> Get_Childs() { return Childs; }
 	bool is(int flag){return (Flags & flag) == flag;}
 	bool Any(int flags){return (Flags & flags) != 0;}
 	void add(int flag){this->Flags |= flag;}
