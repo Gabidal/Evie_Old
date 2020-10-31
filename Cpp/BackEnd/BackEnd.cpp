@@ -3,6 +3,7 @@
 extern Node* Global_Scope;
 extern Usr* sys;
 extern x86_64_Win X86_64_WIN;
+extern Selector* selector;
 
 void BackEnd::Init()
 {
@@ -24,5 +25,17 @@ void BackEnd::Init()
 
 void BackEnd::Factory()
 {
+	for (auto i : Input)
+		Builder(i);
+}
 
+void BackEnd::Builder(IR* i)
+{
+	//leave data handling into other algorithm
+	if (!i->is(TOKEN::OPERATOR))
+		return;
+	//get the needed opcode
+	IR* opc = selector->Get_Opcode(i);
+
+	//set up the parameters
 }

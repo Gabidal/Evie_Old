@@ -4,6 +4,7 @@
 #include "../Flags.h"
 #include "../Nodes/IR.h"
 #include "../Nodes/Token.h"
+#include "../../H/BackEnd/Selector.h"
 
 
 #include <vector>
@@ -17,6 +18,7 @@ private:
 
 	void Scale_To_Same_Size(int i);
 	void Registerize(int i);
+	void Handle_Calls(int i);
 public:
 	IRPostProsessor(vector<IR*>* in) : Input(in) { Factory(); }
 	void Factory();

@@ -19,7 +19,6 @@ func Algebra(int uknown){
     int e = a * 2 == a - 1
 }
 
-
 func Normal_F(){
 }
 

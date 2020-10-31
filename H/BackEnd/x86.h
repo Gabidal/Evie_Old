@@ -17,6 +17,7 @@ public:
 	vector<Token*> Registers;
 	vector<Token*> Parameter_Registers;
 	vector<IR*> Opcodes;
+	vector<Token*> Utility;
 
 
 	string Seperator;

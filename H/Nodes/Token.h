@@ -14,13 +14,15 @@ private:
 	long Flags = 0;
 	int Life_Span = 0;
 	int Size = 0;
-	string Name;
+	string Name = "";
 	vector<Token*> Childs;
 	vector<pair<Token*, int>> Resources;
 	vector<pair<pair<Token*, pair<int, int>>, pair<Token*, pair<int, int>>>> Combinations;
 
 	Node* Parent = nullptr;
 public:
+	vector<Token*> Parameters;	//this contains information about the parameters.
+	string ID = "";
 	//for tokens
 	Token(long f) : Flags(f) {}
 	Token(Node* n) {
@@ -40,11 +42,16 @@ public:
 	}
 	Token(long f, int s) : Flags(f), Size(s) {}
 	Token(long f, string n) : Flags(f), Name(n) {}
+	Token(long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) {}
 	Token(long f, string n, int s) : Flags(f), Name(n), Size(s) {}
 	Token(long f, string n, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c) {}
 
-	Token(long f, vector<Token*> c) : Flags(f), Childs(c){}
+	Token(long f, vector<Token*> c) : Flags(f), Childs(c) {}
+	Token(long f, vector<Token*> c, string id) : Flags(f), Childs(c), Name(id) {}
+
 	Token(long f, vector<pair<Token*, int>> Res) : Flags(f), Resources(Res) {}
+	Token(long f, vector<pair<Token*, int>> Res, string id) : Flags(f), Resources(Res), Name(id) {}
+
 	Token(long f, vector<pair<pair<Token*, pair<int, int>>, pair<Token*, pair<int, int>>>> comb) : Flags(f), Combinations(comb){}
 
 	Token* Get_Child(int s) {
@@ -59,6 +66,7 @@ public:
 	void remove(int flag){this->Flags ^= (Flags & flag);}
 	void add(vector<Token*> args) { Childs = args; }
 	int Get_Size() { return Size; }
+	long Get_Flags() { return Flags; }
 	string Get_Name() { return Name; }
 	void Se_Parent(Node* p) { Parent = p; }
 	Node* Get_Parent() { return Parent; }

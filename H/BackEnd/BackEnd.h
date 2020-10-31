@@ -4,6 +4,7 @@
 #include "../UI/Usr.h"
 #include "../Nodes/IR.h"
 #include "../Nodes/Token.h"
+#include "../../H/BackEnd/Selector.h"
 
 
 #include <vector>
@@ -25,6 +26,7 @@ private:
 
 	void Init();
 	void Factory();
+	void Builder(IR* i);
 public:
 	BackEnd(vector<IR*> in) : Input(in) {
 		Output = new string("");

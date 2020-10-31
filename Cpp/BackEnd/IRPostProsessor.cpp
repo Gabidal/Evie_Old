@@ -1,5 +1,7 @@
 #include "../../H/BackEnd/IRPostProsessor.h"
 
+extern Selector* selector;
+
 void IRPostProsessor::Scale_To_Same_Size(int i)
 {
 	if (!Input->at(i)->is(TOKEN::OPERATOR))
@@ -40,6 +42,33 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 	Input->insert(Input->begin() + i, CONV);
 }
 
+void IRPostProsessor::Registerize(int i)
+{
+	for (auto j : Input->at(i)->Arguments) {
+		if (j->is(TOKEN::REGISTER)) {
+			if (selector->Get_Register(j) == nullptr)
+				if (selector->Get_New_Reg(Input, i, j) == nullptr)
+					selector->Allocate_Register(Input, i, j);
+			j->ID = selector->Get_Register(j)->Get_Name();
+		}
+	}
+}
+
+void IRPostProsessor::Handle_Calls(int i)
+{
+	if (!Input->at(i)->is(TOKEN::CALL))
+		return;
+
+	//handle the given registers
+	//hmm i think the registerizer can handle these too, 
+	//the parameters in OPCODE emeber are just for information for the selector.
+
+}
+
 void IRPostProsessor::Factory()
 {
+	for (int i = 0; i < Input->size(); i++)
+		Scale_To_Same_Size(i);
+	for (int i = 0; i < Input->size(); i++)
+		Registerize(i);
 }

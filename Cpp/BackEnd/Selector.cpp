@@ -14,6 +14,7 @@ void Selector::Init() {
 				for (auto i : X86_64_WIN.Parameter_Registers) {
 					Parameter_Registers.push_back(Transform(i));
 				}
+				Opcodes = X86_64_WIN.Opcodes;
 			}
 		}
 
@@ -46,8 +47,8 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 				Last_Usage = j;
 		if (source[j]->is(TOKEN::CALL)) {
 			Intersects_Calls.push_back(j);
-			for (int k = 0; k < source[j]->Arguments.size(); k++)
-				if (source[j]->Arguments[k]->Get_Name() == t->Get_Name())
+			for (int k = 0; k < source[j]->OPCODE->Parameters.size(); k++)
+				if (source[j]->OPCODE->Parameters[k]->Get_Name() == t->Get_Name())
 					Parameter_Place = k;
 		}
 		if (source[j]->is(TOKEN::END_OF_FUNCTION))
@@ -99,7 +100,7 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descripto
 Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 {
 	Path* p = Get_Path_Info(*source, i, t);
-	if (p->Parameter_Place != -1) {
+	if (p->Parameter_Place != -1 && (p->Parameter_Place <= Parameter_Registers.size())) {
 		//TODO: this can go broke if there is one or more calls before this so the parameter chosen by this is going to be overwritten :(
 		Token* reg = nullptr;
 		for (auto k : Parameter_Registers[p->Parameter_Place])
@@ -186,7 +187,7 @@ Token* Selector::Get_Register(long F, Register_Descriptor* user)
 	return nullptr;
 }
 
-Token* Selector::Allocate_Register(vector<IR*>& source, int i, Token* t)
+Token* Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 {
 	
 }
@@ -207,5 +208,102 @@ void Selector::Break_Up(Token* r)
 			i.first = nullptr;
 			return;
 		}
+}
+
+int Selector::Get_Numerical_Parameter_Register_Count()
+{
+	int result = 0;
+	for (auto i : Parameter_Registers) {
+		if (!i[0]->is(TOKEN::DECIMAL))
+			result++;
+	}
+	return result;
+}
+
+int Selector::Get_Floating_Parameter_Register_Count()
+{
+	int result = 0;
+	for (auto i : Parameter_Registers) {
+		if (i[0]->is(TOKEN::DECIMAL))
+			result++;
+	}
+	return result;
+}
+
+void Selector::PUSH(Node* n)
+{
+	Variable* v = new Variable(n->Name, n->Size);
+	Stack.push_back(v);
+}
+
+void Selector::PUSH(Variable* v)
+{
+	Stack.push_back(v);
+}
+
+void Selector::POP(string id)
+{
+	for (int i = 0; i < Stack.size(); i++)
+		if (Stack[i]->ID == id)
+			Stack.erase(Stack.begin() + i);
+	Update_Stack_Size();
+}
+
+void Selector::POP(int size)
+{
+	reverse(Stack.begin(), Stack.end());
+	for (int i = 0; i < Stack.size(); i++)
+		if ((Stack_Size - Stack[i]->Size) <= (Stack_Size - size))
+			Stack.erase(Stack.begin() + i);
+	reverse(Stack.begin(), Stack.end());
+	Update_Stack_Size();
+}
+
+void Selector::POP()
+{
+	Stack.erase(Stack.end());
+}
+
+int Selector::Update_Stack_Size()
+{
+	//go through the stack variables, then return sum.
+	Stack_Size = 0;
+	for (auto i : Stack)
+		Stack_Size += i->Size;
+	return Stack_Size;
+}
+
+IR* Selector::Get_Opcode(IR* i)
+{
+	vector<int> sizes;
+	//this gives the selector information about the sizes of these arguments
+	for (auto s : i->Arguments)
+		sizes.push_back(s->Get_Size());
+
+	for (auto opc : Opcodes) {
+		if (opc->ID != i->ID)
+			continue;
+		for (auto o : opc->Order) {
+			//check if this order has same amount of arguments as i.
+			if (o.size() != sizes.size())
+				continue;	//this is wrong order
+			for (int j = 0; j < sizes.size(); j++) {
+				if (!(o[j].second.first <= sizes[j] && o[j].second.second >= sizes[j]))
+					goto Wrong;
+			}
+			for (int j = 0; j < sizes.size(); j++) {
+				if (!o[j].first->is(i->Arguments[j]->Get_Flags()))
+					goto Wrong;
+			}
+			return opc;
+		Wrong:;
+		}
+	}
+	cout << "Error: No suitable OPCODE found for " << i->ID << "(";
+	for (auto j : i->Arguments)
+		cout << j->Get_Name() << ", ";
+	cout << ")" << endl;
+	exit(-1);
+	return nullptr;
 }
 

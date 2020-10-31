@@ -1,5 +1,8 @@
 #include "../../H/BackEnd/BackEnd.h"
 #include "..\..\H\BackEnd\IRGenerator.h"
+#include "../../H/BackEnd/Selector.h"
+
+extern Selector* selector;
 
 void IRGenerator::Factory()
 {
@@ -45,6 +48,21 @@ void IRGenerator::Parse_Calls(int i)
 
 	IRGenerator g(Parent, Output);
 	//do the parameters
+	//no ur wrong m8!
+	//the IRPostprosessor takes care of the parameters here (:
+	//nah why dont do it here? :)
+	//ok. (:
+	int Number_Register_Count = 0;
+	int MAX_Number_Register_Count = selector->Get_Numerical_Parameter_Register_Count();
+	int Float_Register_Count = 0;
+	int MAX_Floating_Register_Count = selector->Get_Floating_Parameter_Register_Count();
+
+	//to push everything currectly
+	vector<Token*> Reversable_Pushes;
+
+	//for selector to understand a more abstract picture of the whole parameters.
+	vector<Token*> All_Parameters;
+
 	for (Node* n : Input[i]->Parameters) {
 		g.Generate({ n });
 
@@ -55,15 +73,83 @@ void IRGenerator::Parse_Calls(int i)
 		else
 			p = new Token(n);
 
-		Token* reg = new Token(TOKEN::PARAMETER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
-		Token* opc = new Token(TOKEN::OPERATOR, "move");
-		//make the parameter move
-		IR* ir = new IR(opc, { reg, p });
-		Output->push_back(ir);
+		if (n->Has_Floating_Point_Value) {
+			if (Float_Register_Count <= MAX_Floating_Register_Count) {
+				//use a parameter register
+				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+				Token* opc = new Token(TOKEN::OPERATOR, "move");
+				//make the parameter move
+				IR* ir = new IR(opc, { reg, p });
+				Output->push_back(ir);
+				Float_Register_Count++;
+				All_Parameters.push_back(reg);
+			}
+			else {
+				//use stack
+				//check is n is a complex
+				if (p->is(TOKEN::REGISTER) || p->is(TOKEN::NUM)) {
+					//is complex
+					Reversable_Pushes.push_back(p);
+					All_Parameters.push_back(p);
+				}
+				else if (p->is(TOKEN::MEMORY)) {
+					//is non-complex variable
+					//use a any tmp register
+					Token* reg = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_tmp", p->Get_Size());
+					Token* opc = new Token(TOKEN::OPERATOR, "move");
+					//make the tmp move
+					IR* ir = new IR(opc, { reg, p });
+					Output->push_back(ir);
+					//now give the tmp register to reversible pushbacker
+					Reversable_Pushes.push_back(reg);
+					All_Parameters.push_back(reg);
+				}
+			}
+		}
+		else {
+			if (Number_Register_Count <= MAX_Number_Register_Count) {
+				//use a parameter register
+				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+				Token* opc = new Token(TOKEN::OPERATOR, "move");
+				//make the parameter move
+				IR* ir = new IR(opc, { reg, p });
+				Output->push_back(ir);
+				Number_Register_Count++;
+				All_Parameters.push_back(reg);
+			}
+			else {
+				//use stack
+				//check is n is a complex
+				if (p->is(TOKEN::REGISTER) || p->is(TOKEN::NUM)) {
+					//is complex
+					Reversable_Pushes.push_back(p);
+					All_Parameters.push_back(p);
+				}
+				else if (p->is(TOKEN::MEMORY)) {
+					//is non-complex variable
+					//use a any tmp register
+					Token* reg = new Token(TOKEN::REGISTER, "REG_" + p->Get_Name() + "_tmp", p->Get_Size());
+					Token* opc = new Token(TOKEN::OPERATOR, "move");
+					//make the tmp move
+					IR* ir = new IR(opc, { reg, p });
+					Output->push_back(ir);
+					//now give the tmp register to reversible pushbacker
+					Reversable_Pushes.push_back(reg);
+					All_Parameters.push_back(reg);
+				}
+			}
+		}
 	}
 
-	Token* call = new Token(TOKEN::CALL, Input[i]->Name);
+	reverse(Reversable_Pushes.begin(), Reversable_Pushes.end());
+
+	//now all the push needing parameters are reversed, and ready to go push.
+	for (auto p : Reversable_Pushes)
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "push"), { p }));
+
+	Token* call = new Token(TOKEN::CALL, Input[i]->Name, All_Parameters);
 	IR* ir = new IR(call, {});
+
 	Output->push_back(ir);
 
 	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + call->Get_Name(), Input[i]->Size);

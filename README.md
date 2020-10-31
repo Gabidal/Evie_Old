@@ -139,7 +139,7 @@ Beta 2.1.222 added:
 - ###### Evie now should be able to assist you on right function calling's.
 
 
-Beta 3.0.0 added:
+Beta 2.1.223 added:
 
 - ###### Finally the member support is here!
 
@@ -151,9 +151,10 @@ Beta 3.0.0 added:
 ###### Types are the biggest differences between GAS and Evie.
 #### Syntax:
 ```
-    type [name]()(
-        [feature] [number]
-    )
+    type [name](){
+        [feature] [operator(=)] [number]
+        [type] [name]
+    }
     
     [type_name] [new_defined_object_Name] 
 ```
@@ -163,9 +164,9 @@ Beta 3.0.0 added:
 ###### The functions are nontype.
 #### Syntax:
 ```
-func [name] ([parameter,s])(
+[return type] [name] ([parameter(s)], ..){
     [code]
-)
+}
 ```
 
 
@@ -173,9 +174,9 @@ func [name] ([parameter,s])(
 ###### Notice how the condition does not have else if's nor else's.
 #### Syntax:
 ```
-if ([condition])(
+if ([condition]){
     [code]
-)
+}
 ```
 
 
@@ -183,38 +184,36 @@ if ([condition])(
 ###### It loop's until the condition it is given proves wrong.
 #### Synatx:
 ```
-while ([condition])(
+while ([condition]){
     [code]
-)
+}
+
+while ([set], [condition], [footer]){
+    [code]
+}
 ```
 
 
 ### Multi-file
 #### Syntax:
 ```
-$use "[folder/filename]"
-```
-#### You can also give Evie ASM files like this:
-```
 use "[folder/filename]"
 ```
-###### Note $ missing on the ASM including.
-###### Main reason for that is that preprosessor always starts first and then all the other will be added to it.
-###### Same for including, not putting the $ in front include makes it a post-prosessing token.
+#### You can also give Evie ASM/OBJ/ELF/LIB/URL files!
 
 
 ### Math
 ###### Like other languages.
 #### Syntax:
 ```
-[name] [operator] [name]
+[value] [operator] [value]
 ```
 
 ### Array
 ###### Array's are actually just normal operator's.
 #### Syntax:
 ```
-[name]:[offsetting name]
+[array name][[offsetter]]
 ```
 
 ### Argument's
@@ -226,24 +225,20 @@ use "[folder/filename]"
 ### Preprosessor
 ###### Atm there is only preprosessor conditional if's
 ###### Also the preprosessor gives us some goods: 
-```
-system sys,
-system Info,
+- ###### SOURCE_FILE
+- ###### DESTINATION_FILE
+- ###### OS
+- ###### ARCHITECTURE
+- ###### FORMAT
+- ###### BITS_MODE
+- ###### true
+- ###### false
 
-system Source_File,
-system Destination_File,
-system OS,
-system Architecture,
-system Obj_Type,
-system Bits_Mode,
+###### Use these preprosessor variables like this:
 ```
-
-###### These are some information gathered from the argument's given to Evie.
-#### Syntax:
-```
-$if ([Condition (Use only constant values!!)])(
-    [The code to be injected if the condition is true]
-)
+if (OS == "win32"){
+    [code if the condition yelds true]
+}
 ```
 
 ### Docker
@@ -263,7 +258,18 @@ $if ([Condition (Use only constant values!!)])(
 ###### That string is in REGEX syntax.
 ###### The elf(+lib & dll in future) is given to Docker so that it can find the corresponding header and then sets every function it finds, that has corresponding REGEX string, to the same inheriting features that (std) has.
 
+### Templates
+###### Example:
+```
+use "cstd.e"
+
+func foo(type ptr a, type ptr b, int size){
+    while(int i = 0; i < size; i++){
+        a[i] = b[i]
+    }
+}
+```
+###### Evie will copy the funciton into a new funciton but with the given parameter types.
 
 ### Future of Evie
-###### Atm, just fixes.
-###### Then the FPU support and new type feature: ```[precision] [number of decimal's]```.
+###### Atm, just making the Evie engine 3.0.

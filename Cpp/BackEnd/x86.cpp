@@ -56,22 +56,22 @@ void x86_64_Win::Init()
 	Token* ESP = new Token(TOKEN::NONVOLATILE, "esp", 4, { SP });
 	Token* RSP = new Token(TOKEN::NONVOLATILE, "rsp", 8, { ESP });
 
-	Token* XMM0 = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING | TOKEN::PARAMETER, "xmm0", 12, {});
-	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "xmm1", 12, {});
-	Token* XMM2 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "xmm2", 12, {});
-	Token* XMM3 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "xmm3", 12, {});
-	Token* XMM4 = new Token(TOKEN::VOLATILE , "xmm4", 12, {});
-	Token* XMM5 = new Token(TOKEN::VOLATILE , "xmm5", 12, {});
-	Token* XMM6 = new Token(TOKEN::VOLATILE , "xmm6", 12, {});
-	Token* XMM7 = new Token(TOKEN::VOLATILE , "xmm7", 12, {});
-	Token* XMM8 = new Token(TOKEN::VOLATILE , "xmm8", 12, {});
-	Token* XMM9 = new Token(TOKEN::VOLATILE , "xmm9", 12, {});
-	Token* XMM10 = new Token(TOKEN::VOLATILE, "xm10", 12, {});
-	Token* XMM11 = new Token(TOKEN::VOLATILE, "xmm11", 12, {});
-	Token* XMM12 = new Token(TOKEN::VOLATILE, "xmm12", 12, {});
-	Token* XMM13 = new Token(TOKEN::VOLATILE, "xmm13", 12, {});
-	Token* XMM14 = new Token(TOKEN::VOLATILE, "xmm14", 12, {});
-	Token* XMM15 = new Token(TOKEN::VOLATILE, "xmm15", 12, {});
+	Token* XMM0 = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm0", 12, {});
+	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 12, {});
+	Token* XMM2 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 12, {});
+	Token* XMM3 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 12, {});
+	Token* XMM4 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 12, {});
+	Token* XMM5 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 12, {});
+	Token* XMM6 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 12, {});
+	Token* XMM7 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 12, {});
+	Token* XMM8 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 12, {});
+	Token* XMM9 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 12, {});
+	Token* XMM10 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 12, {});
+	Token* XMM11 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 12, {});
+	Token* XMM12 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 12, {});
+	Token* XMM13 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm13", 12, {});
+	Token* XMM14 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm14", 12, {});
+	Token* XMM15 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm15", 12, {});
 
 	Token* R8B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8b", 1, {});
 	Token* R8W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8w", 2, { R8B });
@@ -133,8 +133,8 @@ void x86_64_Win::Init()
 		new Token(NUM, "2"),
 		new Token(NUM, "4"),
 		new Token(NUM, "8")
-		});	
-	Token* Const = new Token(NUM);
+		}, "scaler");	
+	Token* Const = new Token(NUM, "const");
 	Token* Memory = new Token(MEMORY, {
 			{ new Token(REGISTER), 2},
 			{ new Token(SCALER | ALL_ARGS_SAME_SIZE, {
@@ -154,8 +154,14 @@ void x86_64_Win::Init()
 				{{Const, {1, 8}}, {Register, {1, 8}}},
 				{{Const, {1, 8}}, {Const, {1, 8}}},
 				}), INT32_MAX}
-		});
+		}, "memory");
 
+	Utility = {
+		Register,
+		Scalar,
+		Const,
+		Memory
+	};
 
 	//2reg, 1mul, inf*const, inf*operator
 	//*(reg, const) | *(const, const) | *(const, reg)

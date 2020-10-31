@@ -60,6 +60,8 @@ public:
 	//function prototype features
 	//the import has the flag to prototyping
 	//and the paramters are Named as the size needed. thx!
+	//Float features
+	bool Has_Floating_Point_Value = false;
 
 	bool is(int F) {
 		return Type == F;
