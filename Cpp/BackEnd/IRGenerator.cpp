@@ -28,6 +28,9 @@ void IRGenerator::Parse_Function(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
+	for (auto j : Input[i]->Parameters)
+		if (j->is("type") != -1)
+			return;	//skip template functions.
 
 	//label
 	Output->push_back(Make_Label(Input[i]));
@@ -36,6 +39,7 @@ void IRGenerator::Parse_Function(int i)
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
 
 	//TODO: Make the return IR here
+	Output->push_back(new IR(new Token(TOKEN::FLOW, "return"), {}));
 
 	//make the end of funciton like End Proc like label
 	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION), {}));
@@ -185,10 +189,14 @@ void IRGenerator::Parse_If(int i)
 		//then do childs
 		IRGenerator c(Input[i], Input[i]->Childs, Output);
 
+		//the end of every conditon to false fall to
+		Output->push_back(Make_Jump("jump", Input[i]->Name + "_END"));
+
+		Node* tmp = new Node(Input[i]->Name + "_END");
+		Output->push_back(Make_Label(tmp));
+
 		current = current->Succsessor;
 	}
-	//the end of every conditon to false fall to
-	Output->push_back(Make_Jump("jump", Input[i]->Name + "_END"));
 }
 
 void IRGenerator::Parse_Condition(int i)
@@ -212,7 +220,7 @@ void IRGenerator::Parse_Condition(int i)
 		Right = g.Handle;
 	else {
 		//move to register
-		Token* R = new Token(Input[i]->Right);
+		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
 
 		Token* opc = new Token(TOKEN::OPERATOR, "move");
@@ -229,7 +237,7 @@ void IRGenerator::Parse_Condition(int i)
 		Left = g.Handle;
 	else {		
 		//move to register
-		Token* L = new Token(Input[i]->Left);
+		Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
 
 		Token* opc = new Token(TOKEN::OPERATOR, "move");
@@ -237,7 +245,7 @@ void IRGenerator::Parse_Condition(int i)
 		IR* ir = new IR(opc, { Reg, L });
 		Output->push_back(ir);
 
-		Right = Reg;
+		Left = Reg;
 	}
 
 	Token* cmp = new Token(TOKEN::OPERATOR, "compare");
@@ -263,7 +271,7 @@ void IRGenerator::Un_Wrap_Inline(int i)
 
 void IRGenerator::Parse_Operators(int i)
 {
-	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 	//If this operator is handling with pointters we cant use general operator handles
 	if (Input[i]->Left->is("ptr") != -1)
@@ -279,8 +287,8 @@ void IRGenerator::Parse_Operators(int i)
 	if (g.Handle != nullptr)
 		Right = g.Handle;
 	else {
-		//create the register
-		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + Input[i]->Right->Name, Input[i]->Right->Size);
+		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
+		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
 		//create a Token version out of the right side
 		Token* Value = new Token(Input[i]->Right);
 		//create the IR
@@ -301,8 +309,8 @@ void IRGenerator::Parse_Operators(int i)
 			Left = new Token(Input[i]->Left);
 		}
 		else {
-			//create the register
-			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + Input[i]->Left->Name, Input[i]->Left->Size);
+			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
+			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
 			//create a Token version out of the right side
 			Token* Value = new Token(Input[i]->Left);
 			//create the IR
@@ -409,7 +417,7 @@ void IRGenerator::Parse_Arrays(int i)
 	else {
 		Token* Source = new Token(Input[i]->Left);
 
-		Left = new Token(TOKEN::REGISTER, Input[i]->Left->Name + to_string(rand()), Input[i]->Left->Size);
+		Left = new Token(TOKEN::REGISTER, Input[i]->Left->Name + to_string(rand()), Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent)->Size);
 
 		Token* opc = new Token(TOKEN::OPERATOR, "move");
 
@@ -426,7 +434,7 @@ void IRGenerator::Parse_Arrays(int i)
 	else {
 		Token* Source = new Token(Input[i]->Right);
 
-		Right = new Token(TOKEN::REGISTER, Input[i]->Right->Name + to_string(rand()), Input[i]->Right->Size);
+		Right = new Token(TOKEN::REGISTER, Input[i]->Right->Name + to_string(rand()), Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent)->Size);
 
 		Token* opc = new Token(TOKEN::OPERATOR, "move");
 
@@ -443,7 +451,7 @@ void IRGenerator::Parse_Arrays(int i)
 	Token* Mem = new Token(TOKEN::MEMORY, "memory");
 	Mem->add({ Left, offset_operator, Right });
 																	//TODO: Left->Size maybe?
-	Token* Result = new Token(TOKEN::REGISTER, "MEMREG_" + to_string(rand()), Input[i]->Left->Scaler);
+	Token* Result = new Token(TOKEN::REGISTER, "MEMREG_" + to_string(rand()), Input[i]->Left->Find(Input[i]->Left->Name, Input[i]->Left->Parent)->Scaler);
 
 	//TODO: make address passing for this Gab!
 	Token* opc = new Token(TOKEN::OPERATOR, "move");

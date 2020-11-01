@@ -311,6 +311,23 @@ public:
 		return nullptr;
 	}
 
+	Node* Find(Node* n, Node* p) {
+		if (n->Name == "\n")
+			return nullptr;
+		if (n->is(NUMBER_NODE))
+			return n;
+		if (p == nullptr) {
+			cout << "Critical Error: parent is null!" << endl;
+			return nullptr;
+		}
+		for (Node* i : p->Defined)
+			if (i->Name == n->Name)
+				return i;
+		if (p->Parent != nullptr)
+			return Find(n->Name, p->Parent);
+		return nullptr;
+	}
+
 	Node* Get_Right_Parent() {
 		if (Fetcher != nullptr) {
 			return Get_Final_Fetcher(this , 1);

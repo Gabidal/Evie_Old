@@ -14,10 +14,10 @@ using namespace std;
 
 class BackEnd {
 private:
-	string Seperator;
-	string Register_Pre_Fix;
-	string Number_Pre_Fix;
-	string Label_Post_Fix;
+	string Seperator = "";
+	string Register_Pre_Fix = "";
+	string Number_Pre_Fix = "";
+	string Label_Post_Fix = "";
 
 	vector<IR*> Opcodes;
 
@@ -26,13 +26,18 @@ private:
 
 	void Init();
 	void Factory();
-	void Builder(IR* i);
+	void Operator_Builder(IR* i);
+	void Label_Builder(IR* i);
+	void End_Of_Function_Builder(IR* i);
+
+	string Token_Builder(Token* t);
 public:
 	BackEnd(vector<IR*> in) : Input(in) {
 		Output = new string("");
 		Init();
+		Factory();
 	}
-	BackEnd(vector<IR*> in, string* out) : Input(in), Output(out) {
+	BackEnd(vector<IR*> in, string& out) : Input(in), Output(&out) {
 		Init();
 		Factory();
 	}

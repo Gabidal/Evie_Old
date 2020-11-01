@@ -25,17 +25,53 @@ void BackEnd::Init()
 
 void BackEnd::Factory()
 {
-	for (auto i : Input)
-		Builder(i);
+	for (auto i : Input) {
+		Label_Builder(i);
+		Operator_Builder(i);
+		End_Of_Function_Builder(i);
+	}
 }
 
-void BackEnd::Builder(IR* i)
+void BackEnd::Operator_Builder(IR* i)
 {
 	//leave data handling into other algorithm
-	if (!i->is(TOKEN::OPERATOR))
+	if (!i->is(TOKEN::OPERATOR) && !i->is(TOKEN::FLOW))
 		return;
 	//get the needed opcode
 	IR* opc = selector->Get_Opcode(i);
+	*Output += opc->OPCODE->Get_Name() + " ";
 
 	//set up the parameters
+	for (int p = 0; p < i->Arguments.size(); p++) {
+		*Output += Token_Builder(i->Arguments[p]);
+		if ((size_t)p + 1 < i->Arguments.size()) {
+			*Output += Seperator + " ";
+		}
+	}
+	//set up the next line
+	*Output += "\n";
+}
+
+void BackEnd::Label_Builder(IR* i)
+{
+	if (!i->is(TOKEN::LABEL))
+		return;
+
+	*Output += i->OPCODE->Get_Name() + Label_Post_Fix + "\n";
+}
+
+void BackEnd::End_Of_Function_Builder(IR* i)
+{
+	if (!i->is(TOKEN::END_OF_FUNCTION))
+		return;
+
+	*Output += "\n\n";
+}
+
+string BackEnd::Token_Builder(Token* t)
+{
+	if (t->is(TOKEN::REGISTER))
+		return t->ID;
+	else
+		return t->Get_Name();
 }

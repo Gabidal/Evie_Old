@@ -134,12 +134,13 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 	else
 		Reg_Type |= TOKEN::VOLATILE;
 
-	for (auto r : Registers) {
+	for (auto& r : Registers) {
 		if (r.first == nullptr) {
 			if (r.second->is(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
-					r.first->Last_Usage_Index = p->Last_Usage;
-					r.first->User = t->Get_Name();
+					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
+					//r.first->Last_Usage_Index = p->Last_Usage;
+					//r.first->User = t->Get_Name();
 					return r.second;
 				}
 			}
@@ -165,7 +166,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 Token* Selector::Get_Register(Token* t)
 {
 	for (auto i : Registers)
-		if (i.first->User == t->Get_Name())
+		if ((i.first != nullptr) && i.first->User == t->Get_Name())
 			return i.second;
 	return nullptr;	//need to use Get_New_Reg();
 }
@@ -187,9 +188,10 @@ Token* Selector::Get_Register(long F, Register_Descriptor* user)
 	return nullptr;
 }
 
-Token* Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
+void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 {
-	
+	cout << "Haha get stick bugged!" << endl;
+	exit(-69);
 }
 
 void Selector::Pair_Up(Token* r, Register_Descriptor* t)
@@ -281,7 +283,7 @@ IR* Selector::Get_Opcode(IR* i)
 		sizes.push_back(s->Get_Size());
 
 	for (auto opc : Opcodes) {
-		if (opc->ID != i->ID)
+		if (opc->ID != i->OPCODE->Get_Name())
 			continue;
 		for (auto o : opc->Order) {
 			//check if this order has same amount of arguments as i.
@@ -298,12 +300,16 @@ IR* Selector::Get_Opcode(IR* i)
 			return opc;
 		Wrong:;
 		}
+		if (opc->Order.size() < 1) {
+			if (sizes.size() == 0)
+				return opc;
+		}
 	}
-	cout << "Error: No suitable OPCODE found for " << i->ID << "(";
+	cout << "Error: No suitable OPCODE found for " << i->OPCODE->Get_Name() << "(";
 	for (auto j : i->Arguments)
 		cout << j->Get_Name() << ", ";
 	cout << ")" << endl;
-	exit(-1);
+	throw std::runtime_error("Error");
 	return nullptr;
 }
 

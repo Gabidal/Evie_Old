@@ -155,12 +155,14 @@ void x86_64_Win::Init()
 				{{Const, {1, 8}}, {Const, {1, 8}}},
 				}), INT32_MAX}
 		}, "memory");
+	Token* Label = new Token(LABEL, "label");
 
 	Utility = {
 		Register,
 		Scalar,
 		Const,
-		Memory
+		Memory,
+		Label
 	};
 
 	//2reg, 1mul, inf*const, inf*operator
@@ -175,11 +177,19 @@ void x86_64_Win::Init()
 		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
+	IR* SET = new IR("=", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+			{{Register, {1, 8}}, {Memory, {1, 8}} },
+			{{Memory, {1, 8}}, {Register, {1, 8}} },
+			{{Register, {1, 8}}, {Register, {1, 8}} },
+			{{Register, {1, 8}}, {Const, {1, 8}} },
+			{{Memory, {1, 8}}, {Const, {1, 8}} }
+		});
+
 	IR* LEA = new IR("save", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
 		{ {Register, { 1, 8 }}, { Memory, {1, 8} } }
 		});
 
-	IR* ADD = new IR("add", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "add"), {
+	IR* ADD = new IR("+", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "add"), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
@@ -187,7 +197,7 @@ void x86_64_Win::Init()
 		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
-	IR* SUB = new IR("sub", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "sub"), {
+	IR* SUB = new IR("-", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "sub"), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
@@ -195,7 +205,7 @@ void x86_64_Win::Init()
 		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
-	IR* MUL = new IR("mul", new Token(OPERATOR), vector<IR*>{
+	IR* MUL = new IR("*", new Token(OPERATOR), vector<IR*>{
 		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
 			{ {new Token(QUOTIENT), { 1, 8 }}, { Register, {1, 8} } },
 			{ {new Token(QUOTIENT), {1, 8}}, {Const, {1, 8}} },
@@ -211,7 +221,7 @@ void x86_64_Win::Init()
 		})
 	});
 
-	IR* DIV = new IR("div", new Token(OPERATOR), vector<IR*>{
+	IR* DIV = new IR("/", new Token(OPERATOR), vector<IR*>{
 		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
 			REMAINDER, new Token(NUM, "0")
 			}), 
@@ -230,12 +240,43 @@ void x86_64_Win::Init()
 			})
 	});
 
+	IR* CMP = new IR("compare", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "cmp"), {
+		{{Register, {1, 8}}, {Register, {1, 8}}},
+		{{Register, {1, 8}}, {Memory, {1, 8}}},
+		{{Memory, {1, 8}}, {Register, {1, 8}}},
+		{{Register,  {1, 8}}, {Const, {1, 8}}}
+		});
+
+	IR* JMP = new IR("jump", new Token(FLOW, "jmp"), { {{Label, {0, 0}}} });
+	IR* JE = new IR("==", new Token(FLOW, "je"), { {{Label, {0, 0}}} });
+	IR* JNE = new IR("!=", new Token(FLOW, "jne"), { {{Label, {0, 0}}} });
+	IR* JL = new IR("<", new Token(FLOW, "jl"), { {{Label, {0, 0}}} });
+	IR* JLE = new IR("<=", new Token(FLOW, "jle"), { {{Label, {0, 0}}} });
+	IR* JNL = new IR("!<", new Token(FLOW, "jnl"), { {{Label, {0, 0}}} });
+	IR* JG = new IR(">", new Token(FLOW, "jg"), { {{Label, {0, 0}}} });
+	IR* JGE = new IR(">=", new Token(FLOW, "jge"), { {{Label, {0, 0}}} });
+	IR* JNG = new IR("!>", new Token(FLOW, "jng"), { {{Label, {0, 0}}} });
+
+	IR* RET = new IR("return", new Token(FLOW, "ret"), vector<vector<pair<Token*, pair<int, int>>>>{});
+
 	Opcodes = {
 		MOV,
 		LEA,
 		ADD,
 		SUB,
 		MUL,
-		DIV
+		DIV,
+		CMP,
+		JMP,
+		JE,
+		JNE,
+		JL,
+		JLE,
+		JNL,
+		JG,
+		JGE,
+		JNG,
+		RET,
+		SET
 	};
 }

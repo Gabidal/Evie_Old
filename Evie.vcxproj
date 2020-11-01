@@ -134,7 +134,6 @@
     <ClCompile Include="Cpp\BackEnd\IRPostProsessor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="io\test.asm" />
     <None Include="io\unix.asm" />
     <None Include="io\win32.asm" />
   </ItemGroup>

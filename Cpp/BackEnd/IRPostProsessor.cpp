@@ -44,6 +44,7 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 
 void IRPostProsessor::Registerize(int i)
 {
+	//mov eax, ebx
 	for (auto j : Input->at(i)->Arguments) {
 		if (j->is(TOKEN::REGISTER)) {
 			if (selector->Get_Register(j) == nullptr)

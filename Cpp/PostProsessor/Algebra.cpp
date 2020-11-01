@@ -192,7 +192,7 @@ void Algebra::Inline_Variables(int i)
 	//finds a math equatin and tryes to inline the used variables set Values.
 	//</summary>
 
-	if (!Input->at(i)->is(OPERATOR_NODE))
+	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		return;
 
 	vector<Node*> Linear_Ast;
@@ -224,7 +224,7 @@ void Algebra::Inline_Variables(int i)
 
 void Algebra::Reduce_Operator_Operations(Node* n)
 {
-	if (!n->is(OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE))
+	if (!n->is(OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(ASSIGN_OPERATOR_NODE))
 		return;
 	//a * 2 < 1 - a
 	//2a -a < a - a + 1
@@ -262,7 +262,7 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 
 void Algebra::Clean(int i)
 {
-	if (!Input->at(i)->is(OPERATOR_NODE))
+	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		return;
 	if (Input->at(i)->Name != "=")
 		return;
@@ -291,7 +291,7 @@ void Algebra::Set_Defining_Value(int i)
 	//y = x * 2
 	//x = 12
 	//z = x * 4
-	if (!Input->at(i)->is(OPERATOR_NODE))
+	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		return;
 	if (Input->at(i)->Name != "=")
 		return;
@@ -304,7 +304,7 @@ void Algebra::Set_Defining_Value(int i)
 	//if the right side is a operator wrap it in a parenthesis just because the '-' prefix!!
 	Node* right = Input->at(i)->Right;
 
-	if (Input->at(i)->Right->is(OPERATOR_NODE)) {
+	if (Input->at(i)->Right->is(OPERATOR_NODE) || Input->at(i)->Right->is(ASSIGN_OPERATOR_NODE)) {
 		//a = 1+2
 		//b = a * 3 --> b = (1+2) *3;		maintain the math order
 		right = new Node(CONTENT_NODE);
@@ -322,7 +322,7 @@ void Algebra::Set_Coefficient_Value(int i)
 {
 	//a = x * 2
 	//b = x * 2 + a
-	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE))
+	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		return;
 
 	vector<Node*> linear_ast = Linearise(Input->at(i), true);
@@ -362,11 +362,11 @@ void Algebra::Set_Coefficient_Value(int i)
 void Algebra::Operate_Coefficient_Constants(Node* op)
 {
 	//b = 2x * -2x
-	if (!op->is(OPERATOR_NODE))
+	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE))
 		return;
-	if (op->Left->is(OPERATOR_NODE))
+	if (op->Left->is(OPERATOR_NODE) || op->Left->is(ASSIGN_OPERATOR_NODE))
 		Operate_Coefficient_Constants(op->Left);
-	if (op->Right->is(OPERATOR_NODE))
+	if (op->Right->is(OPERATOR_NODE) || op->Right->is(ASSIGN_OPERATOR_NODE))
 		Operate_Coefficient_Constants(op->Right);
 
 	if (op->Left->Name != op->Right->Name)
@@ -413,9 +413,9 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 
 void Algebra::Operate_Numbers_As_Constants(Node* op)
 {
-	if (!op->is(OPERATOR_NODE))
+	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE))
 		return;
-	if (op->Left->is(OPERATOR_NODE))
+	if (op->Left->is(OPERATOR_NODE) || op->Left->is(ASSIGN_OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Left);
 	else if (op->Left->is(CONTENT_NODE)) {
 		for (Node* i : op->Left->Childs)
@@ -425,7 +425,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			*op->Left = *op->Left->Childs[0];
 		}
 	}
-	if (op->Right->is(OPERATOR_NODE))
+	if (op->Right->is(OPERATOR_NODE) || op->Right->is(ASSIGN_OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Right);
 	else if (op->Right->is(CONTENT_NODE)) {
 		for (Node* i : op->Right->Childs)
@@ -475,7 +475,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 {
 	//here we will fix the coefficient into a real operator as the name yells.
-	if (n->is(OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE)) {
+	if (n->is(OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE) || n->is(ASSIGN_OPERATOR_NODE)) {
 		if (n->Left->Coefficient != 0)
 			Fix_Coefficient_Into_Real_Operator(n->Left);
 		else {

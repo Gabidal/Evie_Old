@@ -14,6 +14,7 @@ private:
 	long Flags = 0;
 	int Life_Span = 0;
 	int Size = 0;
+	bool Has_Floating_Point_Value = false;
 	string Name = "";
 	vector<Token*> Childs;
 	vector<pair<Token*, int>> Resources;
@@ -29,14 +30,26 @@ public:
 		if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE))
 			Flags = TOKEN::MEMORY;
 		else if (n->is(NUMBER_NODE)) {
-			if (n->Is_Decimal())
+			if (n->Is_Decimal()) {
 				Flags = TOKEN::DECIMAL;
-			else
+				Has_Floating_Point_Value = true;
+
+				if (atoll(n->Name.c_str()) > INT32_MAX)
+					n->Size = 8;
+				else
+					n->Size = 4;
+			}
+			else {
 				Flags = TOKEN::NUM;
+				if (atoll(n->Name.c_str()) > INT32_MAX)
+					n->Size = 8;
+				else
+					n->Size = 4;
+			}
 		}
 		else
 			return;
-		Size = n->Size;
+		Size = n->Find(n, n->Parent)->Size;
 		Name = n->Name;
 		Parent = n->Parent;
 	}

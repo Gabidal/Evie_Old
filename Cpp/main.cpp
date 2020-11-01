@@ -16,6 +16,7 @@
 #include "../H/BackEnd/IRGenerator.h"
 #include "../H/BackEnd/Selector.h"
 #include "../H/BackEnd/x86.h"
+#include "../H/BackEnd/IRPostProsessor.h"
 
 #include <sstream>
 #include <iostream>
@@ -119,9 +120,14 @@ int main(int argc, char* argv[])
     postprosessor.Factory();
     Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
 
+    selector = new Selector();
+
     vector<IR*> IRs;
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
 
+    IRPostProsessor IRpost(&IRs);
+
+    BackEnd Back(IRs, Output);
 
     ofstream o(sys->Info.Destination_File.c_str());
     o << Output;

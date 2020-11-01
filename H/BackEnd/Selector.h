@@ -50,6 +50,7 @@ private:
 	//Opcodes
 	vector<IR*> Opcodes;
 public:
+	Selector() { Init(); }
 	Path* Get_Path_Info(vector<IR*> source, int i, Token* t);
 	//REGISTERS:
 	//											<Wanted Register description, and the register itself> , <the new user description, the user itself>,  IRs, index
@@ -57,7 +58,7 @@ public:
 	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t);
 	Token* Get_Register(Token* t);
 	Token* Get_Register(long F, Register_Descriptor* user);
-	Token* Allocate_Register(vector<IR*>* source, int i, Token* t);
+	void Allocate_Register(vector<IR*>* source, int i, Token* t);
 	void Pair_Up(Token* r, Register_Descriptor* t);
 	void Break_Up(Token* r);
 	int Get_Numerical_Parameter_Register_Count();
