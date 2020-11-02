@@ -203,7 +203,7 @@ void Algebra::Inline_Variables(int i)
 		Linear_Ast = Linearise(Input->at(i)->Right);
 
 	for (Node* n : Linear_Ast) {
-		Node* d = Parent->Find(n->Name, Parent);
+		Node* d = Parent->Find(n, Parent);
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
 			if (d->Current_Value != nullptr) {
@@ -291,9 +291,7 @@ void Algebra::Set_Defining_Value(int i)
 	//y = x * 2
 	//x = 12
 	//z = x * 4
-	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
-		return;
-	if (Input->at(i)->Name != "=")
+	if (!Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		return;
 	//ignore arrays
 	if (Input->at(i)->Left->is(ARRAY_NODE))
@@ -304,7 +302,7 @@ void Algebra::Set_Defining_Value(int i)
 	//if the right side is a operator wrap it in a parenthesis just because the '-' prefix!!
 	Node* right = Input->at(i)->Right;
 
-	if (Input->at(i)->Right->is(OPERATOR_NODE) || Input->at(i)->Right->is(ASSIGN_OPERATOR_NODE)) {
+	if (Input->at(i)->Right->is(OPERATOR_NODE)) {
 		//a = 1+2
 		//b = a * 3 --> b = (1+2) *3;		maintain the math order
 		right = new Node(CONTENT_NODE);
@@ -415,7 +413,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 {
 	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE))
 		return;
-	if (op->Left->is(OPERATOR_NODE) || op->Left->is(ASSIGN_OPERATOR_NODE))
+	if (op->Left->is(OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Left);
 	else if (op->Left->is(CONTENT_NODE)) {
 		for (Node* i : op->Left->Childs)
@@ -425,7 +423,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			*op->Left = *op->Left->Childs[0];
 		}
 	}
-	if (op->Right->is(OPERATOR_NODE) || op->Right->is(ASSIGN_OPERATOR_NODE))
+	if (op->Right->is(OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Right);
 	else if (op->Right->is(CONTENT_NODE)) {
 		for (Node* i : op->Right->Childs)

@@ -332,7 +332,7 @@ void IRGenerator::Parse_Operators(int i)
 
 void IRGenerator::Parse_Pointers(int i)
 {
-	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 	if ((Input[i]->Left->is("ptr") == -1) && Input[i]->Right->is("ptr") == -1)
 		return;
@@ -346,6 +346,8 @@ void IRGenerator::Parse_Pointers(int i)
 	bool Load_Value = Get_Amount("ptr", Input[i]->Left) < Get_Amount("ptr", Input[i]->Right);
 	bool Point_To_Value = Get_Amount("ptr", Input[i]->Left) > Get_Amount("ptr", Input[i]->Right);
 
+	//you just cant point into a number so wisely just load the pointing address and give the number to it.
+	bool Load_Left = Input[i]->Right->is(NUMBER_NODE);
 
 	int Pointer_Depth = labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
 
@@ -367,7 +369,10 @@ void IRGenerator::Parse_Pointers(int i)
 	else
 		Source = new Token(Input[i]->Right);
 
-	if (Load_Value) {
+	if (Load_Left) {
+		//do a pointer load here :D
+	}
+	else if (Load_Value) {
 		int Register_Count = 0;
 		for (int j = 0; j < Pointer_Depth; j++) {
 			//load reg1, right

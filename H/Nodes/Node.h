@@ -363,7 +363,7 @@ public:
 		return n;
 	}	
 	Node* Get_Most_Left() {
-		if (this->is(ARRAY_NODE) || this->is(OPERATOR_NODE))
+		if (this->is(ARRAY_NODE) || this->is(OPERATOR_NODE) || this->is(ASSIGN_OPERATOR_NODE))
 			return this->Left->Get_Most_Left();
 		return this;
 	}

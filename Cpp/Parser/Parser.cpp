@@ -251,6 +251,7 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 
 	Node* Operator = new Node(F);
 	Operator->Name = Input[i].Value;
+	Operator->Parent = Parent;
 
 	if (Input[(size_t)i - 1].node != nullptr)
 		Operator->Left = Input[(size_t)i - 1].node;

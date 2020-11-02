@@ -1,7 +1,5 @@
 use "cstd.e"
 
-func main(int x) {
-	if (0 == 0){
-		int a = 1 + 2
-	}
+func main(int ptr x) {
+	x = 1 + 2
 }
