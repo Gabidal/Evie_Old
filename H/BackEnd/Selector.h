@@ -75,6 +75,7 @@ public:
 
 	//OPCODES:
 	IR* Get_Opcode(IR* i);
+	bool Check_Resource_Availability(IR* i, vector<pair<Token*, pair<int, int>>> Order);
 };
 
 #endif

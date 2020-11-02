@@ -169,7 +169,7 @@ void x86_64_Win::Init()
 	//*(reg, const) | *(const, const) | *(const, reg)
 	//+-(reg, reg) | +-(reg, const) | +-(const, reg) | +-(const, const)
 	
-	IR* MOV = new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+	IR* MOV = new IR("move", new Token(OPERATOR, "mov"), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
@@ -177,7 +177,7 @@ void x86_64_Win::Init()
 		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
-	IR* SET = new IR("=", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
+	IR* SET = new IR("=", new Token(OPERATOR, "mov"), {
 			{{Register, {1, 8}}, {Memory, {1, 8}} },
 			{{Memory, {1, 8}}, {Register, {1, 8}} },
 			{{Register, {1, 8}}, {Register, {1, 8}} },

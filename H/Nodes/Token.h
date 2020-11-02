@@ -25,31 +25,28 @@ public:
 	vector<Token*> Parameters;	//this contains information about the parameters.
 	string ID = "";
 	//for tokens
+	Token(const Token& t, long f) { *this = t; Flags = f; }
+	Token(const Token& t, int s) { *this = t; Size = s; }
 	Token(long f) : Flags(f) {}
 	Token(Node* n) {
 		if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE))
 			Flags = TOKEN::MEMORY;
 		else if (n->is(NUMBER_NODE)) {
-			if (n->Is_Decimal()) {
+			if (n->Has_Floating_Point_Value) {
 				Flags = TOKEN::DECIMAL;
 				Has_Floating_Point_Value = true;
 
-				if (atoll(n->Name.c_str()) > INT32_MAX)
-					n->Size = 8;
-				else
-					n->Size = 4;
 			}
 			else {
 				Flags = TOKEN::NUM;
-				if (atoll(n->Name.c_str()) > INT32_MAX)
-					n->Size = 8;
-				else
-					n->Size = 4;
 			}
 		}
 		else
 			return;
-		Size = n->Find(n, n->Parent)->Size;
+		if (n->is("ptr") != -1)
+			Size = n->Find(n, n->Parent)->Scaler;
+		else
+			Size = n->Find(n, n->Parent)->Size;
 		Name = n->Name;
 		Parent = n->Parent;
 	}

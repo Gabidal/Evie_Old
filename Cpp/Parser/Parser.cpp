@@ -78,7 +78,7 @@ void Parser::Definition_Pattern(int i)
 	//this is because of the syntax of label jumping exmp: "jump somewhere" is same as a variable declaration exmp: "int somename".
 	for (auto j : Words)
 		//import keywords have theyre own function to parse theyr patterns.
-		if (Input[j].Value == "jump")
+		if (Input[j].Value == "jump" || Input[j].Value == "return")
 			return;
 
 	//type a
@@ -141,7 +141,7 @@ void Parser::Prototype_Pattern(int i)
 	//label get_jump(int x)
 	//jump get_jump(123);
 	for (auto c : Words)
-		if (Input[c].Value == "jump")
+		if (Input[c].Value == "jump" || Input[c].Value == "return" )
 			return;
 
 	//type a
@@ -300,6 +300,18 @@ void Parser::Number_Pattern(int i)
 	Node* Num = new Node(NUMBER_NODE);
 	Num->Name = Input[i].Value;
 	Num->Parent = Parent;
+
+	for (int j = 0; j < Num->Name.size(); j++)
+		if (Num->Name[j] == '.') {
+			Num->Has_Floating_Point_Value = true;
+			break;
+		}
+
+	if (atoll(Num->Name.c_str()) > INT32_MAX)
+		Num->Size = 8;
+	else
+		Num->Size = 4;
+
 	Input[i].node = Num;
 	return;
 }

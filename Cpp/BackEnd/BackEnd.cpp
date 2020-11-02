@@ -70,8 +70,21 @@ void BackEnd::End_Of_Function_Builder(IR* i)
 
 string BackEnd::Token_Builder(Token* t)
 {
-	if (t->is(TOKEN::REGISTER))
-		return t->ID;
-	else
-		return t->Get_Name();
+	string PreFix = "";
+	string PostFix = "";
+	string Result = "";
+	string Name = "";
+	if (t->is(TOKEN::REGISTER)) {
+			Name = t->ID;
+	}
+	else {
+		Name = t->Get_Name();
+	}
+	if (t->is(TOKEN::MEMORY)) {
+		PreFix += "[";
+		PostFix += "]";
+	}
+
+	Result = PreFix + Name + PostFix;
+	return Result;
 }

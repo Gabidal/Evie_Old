@@ -30,6 +30,7 @@ public:
 	void Parse_If(int i);
 	void Un_Wrap_Inline(int i);
 	void Parse_Loops(int i);
+	void Parse_Return(int i);
 
 	void Parse_Operators(int i);
 	void Parse_Condition(int i);

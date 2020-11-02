@@ -293,8 +293,10 @@ IR* Selector::Get_Opcode(IR* i)
 				if (!(o[j].second.first <= sizes[j] && o[j].second.second >= sizes[j]))
 					goto Wrong;
 			}
+			//if (!Check_Resource_Availability(i, o))
+			//	goto Wrong;
 			for (int j = 0; j < sizes.size(); j++) {
-				if (!o[j].first->is(i->Arguments[j]->Get_Flags()))
+				if (!o[j].first->Any(i->Arguments[j]->Get_Flags()))
 					goto Wrong;
 			}
 			return opc;
@@ -311,5 +313,16 @@ IR* Selector::Get_Opcode(IR* i)
 	cout << ")" << endl;
 	throw std::runtime_error("Error");
 	return nullptr;
+}
+
+bool Selector::Check_Resource_Availability(IR* opc, vector<pair<Token*, pair<int, int>>> Order)
+{
+	int Register_Usage = 0;
+	int Const_Usage = 0;
+	int Scaler_Usage = 0;
+	for (auto i : opc->Arguments) {
+
+	}
+	return false;
 }
 

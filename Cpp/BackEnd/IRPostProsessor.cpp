@@ -7,6 +7,9 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 	if (!Input->at(i)->is(TOKEN::OPERATOR))
 		return;
 
+	if (!selector->Get_Opcode(Input->at(i))->is(TOKEN::ALL_ARGS_SAME_SIZE))
+		return;
+
 	//there IR's are still universal so dont worry about, if there is more than 2 arguments with the operator.
 	//convert always the smaller into the bigger size
 	Token* Scalable = nullptr;

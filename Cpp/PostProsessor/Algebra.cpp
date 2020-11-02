@@ -441,8 +441,15 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 
 	Node* New_Num = new Node(NUMBER_NODE);
 
+	//set sizes
+	if (op->Left->Size < op->Right->Size)
+		New_Num->Size = op->Right->Size;
+	else
+		New_Num->Size = op->Left->Size;
+
 	long left = atoi(op->Left->Name.c_str());
 	long right = atoi(op->Right->Name.c_str());
+
 
 	if (op->Name == "+")
 		New_Num->Name = to_string(left + right);

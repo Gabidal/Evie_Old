@@ -21,6 +21,7 @@ void IRGenerator::Factory()
 		Parse_Pointers(i);
 		Parse_PostFixes(i);
 		Parse_PreFixes(i);
+		Parse_Return(i);
 	}
 }
 
@@ -274,9 +275,8 @@ void IRGenerator::Parse_Operators(int i)
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 	//If this operator is handling with pointters we cant use general operator handles
-	if (Input[i]->Left->is("ptr") != -1)
-		return;
-	if (Input[i]->Right->is("ptr") != -1)
+	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
+	if (Level_Difference != 0)
 		return;
 
 	Token* Left = nullptr;
@@ -332,78 +332,93 @@ void IRGenerator::Parse_Operators(int i)
 
 void IRGenerator::Parse_Pointers(int i)
 {
-	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
-		return;
-	if ((Input[i]->Left->is("ptr") == -1) && Input[i]->Right->is("ptr") == -1)
-		return;
-
 	//int a = 0
 	//int ptr b = a + f - e / g get the address of memory
 	//int ptr c = b pass memory address of a to c
 	//int d = c		load value of a into c
 
-	//if true load the pointing value or move the inside value
-	bool Load_Value = Get_Amount("ptr", Input[i]->Left) < Get_Amount("ptr", Input[i]->Right);
-	bool Point_To_Value = Get_Amount("ptr", Input[i]->Left) > Get_Amount("ptr", Input[i]->Right);
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
+		return;
 
-	//you just cant point into a number so wisely just load the pointing address and give the number to it.
-	bool Load_Left = Input[i]->Right->is(NUMBER_NODE);
+	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
+	if (Level_Difference == 0)
+		return;
 
-	int Pointer_Depth = labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
+	int Left_Level = Get_Amount("ptr", Input[i]->Left);
+	int Right_Level = Get_Amount("ptr", Input[i]->Right);
 
-	Token* Left = nullptr;
+
 	Token* Right = nullptr;
-	Token* Source = nullptr;
+	Token* Left = nullptr;
 	
-	IRGenerator g(Parent, { Input[i]->Left }, Output);
+	//handle complex Right
+	IRGenerator g(Parent, { Input[i]->Right }, Output);
+	if (g.Handle != nullptr)
+		Right = g.Handle;
+	else
+		Right = new Token(Input[i]->Right);
 
+	//handle complex Left
+	g.Generate({ Input[i]->Left });
 	if (g.Handle != nullptr)
 		Left = g.Handle;
 	else
 		Left = new Token(Input[i]->Left);
 
-	g.Generate({ Input[i]->Right });
+	if (Left_Level > Right_Level) {
+		vector<string> Type_Trace = Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Inheritted;
+		reverse(Type_Trace.begin(), Type_Trace.end());
+		//here left has more ptr init check this is assignment
+		if (Input[i]->is(ASSIGN_OPERATOR_NODE) && !Right->is(TOKEN::NUM)) {
+			//save the address of Right into Left
+			Token* reg = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_);
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), new Token(*Right) }));
+			Right = reg;
+		}
+		else {
+			//load the Left to right level
+			Token* l = Left;
+			Token* reg = nullptr;
+			for (int j = 0; j < Level_Difference; j++) {
+				//here we load the pointing val until theyre on same ptr level
+				//get the size of this iteration of type trace from parent
+				int size = _SYSTEM_BIT_SIZE_;
+				//if (j + 1 >= Level_Difference)
+				//	size = Input[i]->Find(Type_Trace[(size_t)j + 1], Input[i]->Parent)->Size;
 
-	if (g.Handle != nullptr)
-		Source = g.Handle;
-	else
-		Source = new Token(Input[i]->Right);
+				reg = new Token(TOKEN::REGISTER | TOKEN::MEMORY, l->Get_Name() + "_REG", size);
+				//																			 , get rid of the memory because this is a load operator not a save.
+				//																							   , readjust the size to be same as the memory addressing
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "move"), { new Token(*reg, TOKEN::REGISTER), new Token(*l, size) }));
 
-	if (Load_Left) {
-		//do a pointer load here :D
-	}
-	else if (Load_Value) {
-		int Register_Count = 0;
-		for (int j = 0; j < Pointer_Depth; j++) {
-			//load reg1, right
-			//make an register to load into
-			Right = new Token(TOKEN::REGISTER, "REG_" + to_string(Register_Count++) + Source->Get_Name(), Source->Get_Size());
-
-			Token* Load = new Token(TOKEN::OPERATOR, "load");
-
-			IR* ir = new IR(Load, { Right, Source });
-			Output->push_back(ir);
-
-			Source = Right;
+				if (j + 1 < Level_Difference)
+					l = reg;
+			}
+			Left = reg;
 		}
 	}
-	else if (Point_To_Value) {
-		if (Pointer_Depth > 1) {
-			cout << "Error: Could not get temporary memory allocated for pointter depth more than 1 " << Input[i]->Left->Name << Input[i]->Name << Input[i]->Right->Name << endl;
-			exit(1);
-		}
-		//save reg1, right		
-		//make an register to save right into
-		Right = new Token(TOKEN::REGISTER, "REG_" + Source->Get_Name(), Source->Get_Size());
-		Token* Save = new Token(TOKEN::OPERATOR, "save");
-		IR* ir = new IR(Save, { Right, Source });
-		Output->push_back(ir);
-	}
-	Token* Opc = new Token(TOKEN::OPERATOR, Input[i]->Name);
-	IR* Opcode = new IR(Opc, {Left, Right});
-	Output->push_back(Opcode);
+	else if (Left_Level < Right_Level) {
+		vector<string> Type_Trace = Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Inheritted;
+		//load the Right to right level
+		Token* r = Right;
+		Token* reg = nullptr;
+		for (int j = 0; j < Level_Difference; j++) {
+			//here we load the pointing val until theyre on same ptr level
+				//get the size of this iteration of type trace from parent
+			int size = _SYSTEM_BIT_SIZE_;
+			if (j + 1 >= Level_Difference)
+				size = Input[i]->Find(Type_Trace[(size_t)j + 1], Input[i]->Parent)->Size;
+			reg = new Token(TOKEN::REGISTER | TOKEN::MEMORY, r->Get_Name() + "_REG", size);	
+			//																			 , get rid of the memory because this is a load operator not a save
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "move"), { new Token(*reg, TOKEN::REGISTER), new Token(*r) }));
 
-	Handle = Left;
+			if (j + 1 < Level_Difference)
+				r = reg;
+		}
+		Right = reg;
+	}
+
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Input[i]->Name), { Left, Right }));
 }
 
 void IRGenerator::Parse_Arrays(int i)
@@ -621,4 +636,27 @@ int IRGenerator::Get_Amount(string t, Node* n)
 			result++;
 
 	return result;
+}
+
+void IRGenerator::Parse_Return(int i) {
+	if (!Input[i]->is(FLOW_NODE))
+		return;
+	if (Input[i]->Name != "return")
+		return;
+
+	IRGenerator g(Parent, { Input[i]->Right }, Output);
+
+	Token* Return_Val = nullptr;
+	if (g.Handle != nullptr)
+		Return_Val = g.Handle;
+	else
+		Return_Val = new Token(Input[i]->Right);
+
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "move"), {
+		new Token(TOKEN::REGISTER | TOKEN::RETURNING, "Returning_REG", Input[i]->Find(Return_Val->Get_Name(), Return_Val->Get_Parent())->Get_Size()),
+		Return_Val }));
+
+	//let the postprosessor to handle stack emptying!
+
+	Output->push_back(new IR(new Token(TOKEN::FLOW, "return"), vector<Token*>{}));
 }
