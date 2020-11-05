@@ -45,17 +45,23 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 	Input->insert(Input->begin() + i, CONV);
 }
 
-void IRPostProsessor::Registerize(int i)
+void IRPostProsessor::Registerize(Token* t, int i)
 {
 	//mov eax, ebx
-	for (auto j : Input->at(i)->Arguments) {
-		if (j->is(TOKEN::REGISTER)) {
-			if (selector->Get_Register(j) == nullptr)
-				if (selector->Get_New_Reg(Input, i, j) == nullptr)
-					selector->Allocate_Register(Input, i, j);
-			j->ID = selector->Get_Register(j)->Get_Name();
-		}
+	if (t->is(TOKEN::REGISTER)) {
+		Give_New_Register(t, i);
 	}
+	else if (t->is(TOKEN::MEMORY) || t->is(TOKEN::CONTENT))
+		for (auto c : t->Childs)
+			Give_New_Register(c, i);
+}
+
+void IRPostProsessor::Give_New_Register(Token* t, int i)
+{
+	if (selector->Get_Register(t) == nullptr)
+		if (selector->Get_New_Reg(Input, i, t) == nullptr)
+			selector->Allocate_Register(Input, i, t);
+	t->ID = selector->Get_Register(t)->Get_Name();
 }
 
 void IRPostProsessor::Handle_Calls(int i)
@@ -74,5 +80,6 @@ void IRPostProsessor::Factory()
 	for (int i = 0; i < Input->size(); i++)
 		Scale_To_Same_Size(i);
 	for (int i = 0; i < Input->size(); i++)
-		Registerize(i);
+		for (auto a : Input->at(i)->Arguments)
+			Registerize(a, i);
 }

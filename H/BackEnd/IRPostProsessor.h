@@ -17,7 +17,8 @@ private:
 	vector<IR*>* Input;
 
 	void Scale_To_Same_Size(int i);
-	void Registerize(int i);
+	void Registerize(Token* t, int i);
+	void Give_New_Register(Token* t, int i);
 	void Handle_Calls(int i);
 public:
 	IRPostProsessor(vector<IR*>* in) : Input(in) { Factory(); }

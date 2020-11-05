@@ -75,14 +75,24 @@ string BackEnd::Token_Builder(Token* t)
 	string Result = "";
 	string Name = "";
 	if (t->is(TOKEN::REGISTER)) {
-			Name = t->ID;
+		Name = t->ID;
 	}
-	else {
+	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL))
 		Name = t->Get_Name();
+	else if (t->is(TOKEN::MEMORY)) {
+		PreFix = "[";
+		for (auto i : t->Childs)
+			Name += Token_Builder(i) + " ";
+		PostFix = "]";
 	}
-	if (t->is(TOKEN::MEMORY)) {
-		PreFix += "[";
-		PostFix += "]";
+	else if (t->is(TOKEN::CONTENT)) {
+		PreFix = "(";
+		for (auto i : t->Childs)
+			Name += Token_Builder(i);
+		PostFix = ")";
+	}
+	else if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::SCALER) || t->is(TOKEN::DEOFFSETTER)) {
+		Name += Token_Builder(t->Left) + " " + t->Get_Name() + " " + Token_Builder(t->Right);
 	}
 
 	Result = PreFix + Name + PostFix;

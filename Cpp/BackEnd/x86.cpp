@@ -185,7 +185,7 @@ void x86_64_Win::Init()
 			{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
-	IR* LEA = new IR("save", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
+	IR* LEA = new IR("evaluate", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
 		{ {Register, { 1, 8 }}, { Memory, {1, 8} } }
 		});
 

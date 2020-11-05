@@ -16,13 +16,21 @@ private:
 	int Size = 0;
 	bool Has_Floating_Point_Value = false;
 	string Name = "";
-	vector<Token*> Childs;
 	vector<pair<Token*, int>> Resources;
-	vector<pair<pair<Token*, pair<int, int>>, pair<Token*, pair<int, int>>>> Combinations;
+	vector<vector<pair<Token*, pair<int, int>>>> Combinations;
 
 	Node* Parent = nullptr;
 public:
+	//for numeric or something elses usable types.
+	vector<Token*> Usable_Types;
+	//for memory
+	vector<Token*> Childs;	//here resides registers, constants, scalers, offsetters.
+	//for call handling
 	vector<Token*> Parameters;	//this contains information about the parameters.
+	//scaler/offsetter
+	Token* Left = nullptr;
+	Token* Right = nullptr;
+
 	string ID = "";
 	//for tokens
 	Token(const Token& t, long f) { *this = t; Flags = f; }
@@ -30,7 +38,7 @@ public:
 	Token(long f) : Flags(f) {}
 	Token(Node* n) {
 		if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE))
-			Flags = TOKEN::MEMORY;
+			Flags = TOKEN::CONTENT;
 		else if (n->is(NUMBER_NODE)) {
 			if (n->Has_Floating_Point_Value) {
 				Flags = TOKEN::DECIMAL;
@@ -57,12 +65,14 @@ public:
 	Token(long f, string n, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c) {}
 
 	Token(long f, vector<Token*> c) : Flags(f), Childs(c) {}
-	Token(long f, vector<Token*> c, string id) : Flags(f), Childs(c), Name(id) {}
+	Token(long f, vector<Token*> c, int s) : Flags(f), Childs(c), Size(s) {}
+	Token(long f, vector<Token*> c, int s, string n) : Flags(f), Childs(c), Size(s), Name(n) {}
+	Token(long f, vector<Token*> ut, string id) : Flags(f), Usable_Types(ut), Name(id) {}
 
 	Token(long f, vector<pair<Token*, int>> Res) : Flags(f), Resources(Res) {}
 	Token(long f, vector<pair<Token*, int>> Res, string id) : Flags(f), Resources(Res), Name(id) {}
 
-	Token(long f, vector<pair<pair<Token*, pair<int, int>>, pair<Token*, pair<int, int>>>> comb) : Flags(f), Combinations(comb){}
+	Token(long f, vector<vector<pair<Token*, pair<int, int>>>> comb) : Flags(f), Combinations(comb){}
 
 	Token* Get_Child(int s) {
 		if (this->Size != s)
@@ -74,10 +84,10 @@ public:
 	bool Any(int flags){return (Flags & flags) != 0;}
 	void add(int flag){this->Flags |= flag;}
 	void remove(int flag){this->Flags ^= (Flags & flag);}
-	void add(vector<Token*> args) { Childs = args; }
 	int Get_Size() { return Size; }
 	long Get_Flags() { return Flags; }
 	string Get_Name() { return Name; }
+	void Set_Name(string n) { Name = n; }
 	void Se_Parent(Node* p) { Parent = p; }
 	Node* Get_Parent() { return Parent; }
 };

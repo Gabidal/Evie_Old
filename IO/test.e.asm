@@ -1,8 +1,7 @@
 main:
-mov rax, [x]
-mov rcx, [rax]
-mov [rcx], 3
-mov eax, [x]
+mov rax, [() ]
+mov [rax ], 3
+mov rax, [() ]
 ret 
 ret 
 
