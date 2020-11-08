@@ -58,6 +58,8 @@ void IRPostProsessor::Registerize(Token* t, int i)
 
 void IRPostProsessor::Give_New_Register(Token* t, int i)
 {
+	if (!t->is(TOKEN::REGISTER))
+		return;
 	if (selector->Get_Register(t) == nullptr)
 		if (selector->Get_New_Reg(Input, i, t) == nullptr)
 			selector->Allocate_Register(Input, i, t);

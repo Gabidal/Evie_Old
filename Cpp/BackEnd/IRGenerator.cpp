@@ -10,15 +10,15 @@ void IRGenerator::Factory()
 		Un_Wrap_Inline(i);
 	for (int i = 0; i < Input.size(); i++) {
 		Parse_Function(i);
-		Parse_If(i);
-		Parse_Loops(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
+		Parse_If(i);
+		Parse_Loops(i);
 		Parse_Arrays(i);
 		Parse_Calls(i);
-		Parse_Condition(i);
 		Parse_Operators(i);
 		Parse_Pointers(i);
+		Parse_Jumps(i);
 		Parse_PostFixes(i);
 		Parse_PreFixes(i);
 		Parse_Return(i);
@@ -200,16 +200,20 @@ void IRGenerator::Parse_If(int i)
 	}
 }
 
-void IRGenerator::Parse_Condition(int i)
+void IRGenerator::Parse_Jumps(int i)
 {
 	//NOTICE: this must happen after all operator is created as IR!!!
 	if (!Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
-	if (!Parent->is(IF_NODE) && !Parent->is(ELSE_IF_NODE) && !Parent->is(WHILE_NODE)) {
+	if (!Parent->is(IF_NODE) && !Parent->is(ELSE_IF_NODE) && !Parent->is(WHILE_NODE))
 		// a = b * c < d
 		//...
 		return;
-	}
+	/*
+	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
+	if (Level_Difference != 0)
+		return;
+
 	// if (a == 1)
 	//give the right side as left side to IRGenerator
 	IRGenerator g(Parent, { Input[i]->Right }, Output);
@@ -222,6 +226,9 @@ void IRGenerator::Parse_Condition(int i)
 	else {
 		//move to register
 		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
+		if (R->is(TOKEN::CONTENT))
+			R = new Token(TOKEN::MEMORY, { R }, _SYSTEM_BIT_SIZE_);
+
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
 
 		Token* opc = new Token(TOKEN::OPERATOR, "move");
@@ -239,6 +246,9 @@ void IRGenerator::Parse_Condition(int i)
 	else {		
 		//move to register
 		Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
+		if (L->is(TOKEN::CONTENT))
+			L = new Token(TOKEN::MEMORY, { L }, _SYSTEM_BIT_SIZE_);
+
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
 
 		Token* opc = new Token(TOKEN::OPERATOR, "move");
@@ -253,7 +263,7 @@ void IRGenerator::Parse_Condition(int i)
 
 	IR* ir = new IR(cmp, { Left, Right });
 	Output->push_back(ir);
-
+	*/
 	string Next_Label = Parent->Name + "_END";
 	if (Parent->Succsessor != nullptr)
 		Next_Label = Parent->Succsessor->Name;
@@ -286,17 +296,21 @@ void IRGenerator::Parse_Operators(int i)
 
 	if (g.Handle != nullptr)
 		Right = g.Handle;
-	else {
+	else if (!Input[i]->Right->is(NUMBER_NODE)) {
 		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
+		if (R->is(TOKEN::CONTENT))
+			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size());
+
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
-		//create a Token version out of the right side
-		Token* Value = new Token(Input[i]->Right);
 		//create the IR
 		Token* Opc = new Token(TOKEN::OPERATOR, "move");
-		IR* ir = new IR(Opc, { Reg, Value });
+		IR* ir = new IR(Opc, { Reg, R });
 
 		Right = Reg;
 		Output->push_back(ir);
+	}
+	else {
+		Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
 	}
 	
 	g.Generate({ Input[i]->Left });
@@ -307,22 +321,31 @@ void IRGenerator::Parse_Operators(int i)
 		if (Input[i]->Name == "=") {
 			//dont load the value into a register
 			Left = new Token(Input[i]->Left);
+			if (Left->is(TOKEN::CONTENT))
+				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Parent)->Get_Size());
 		}
 		else {
 			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
+			if (L->is(TOKEN::CONTENT))
+				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size());
+
 			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
-			//create a Token version out of the right side
-			Token* Value = new Token(Input[i]->Left);
 			//create the IR
 			Token* Opc = new Token(TOKEN::OPERATOR, "move");
-			IR* ir = new IR(Opc, { Reg, Value });
+			IR* ir = new IR(Opc, { Reg, L });
 
 			Left = Reg;
 			Output->push_back(ir);
 		}
 	}
 
-	Token* Opcode = new Token(TOKEN::OPERATOR, Input[i]->Name);
+	string Operator = Input[i]->Name;
+	//this translates the condition operator into a compare operation then the parse_jumps,
+	//will use the condition name to do the correct jump.
+	if (Input[i]->is(CONDITION_OPERATOR_NODE))
+		Operator = "compare";
+
+	Token* Opcode = new Token(TOKEN::OPERATOR, Operator);
 
 	IR* ir = new IR(Opcode, {Left, Right});
 
@@ -378,10 +401,10 @@ void IRGenerator::Parse_Pointers(int i)
 		}
 		else {
 			vector<string> Type_Trace = Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Inheritted;
-			reverse(Type_Trace.begin(), Type_Trace.end());
+			//reverse(Type_Trace.begin(), Type_Trace.end());
 
 			//load the Left to right level
-			//mov reg1, [a]
+			//mov reg1, [(esp+123)]
 			//mov reg2, [reg1]
 			//give Left [reg2]
 			Token* handle = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_, Left->Get_Name());	//start from the pointter 
@@ -389,12 +412,12 @@ void IRGenerator::Parse_Pointers(int i)
 			int Keep_Last_Address = 0;
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 				Keep_Last_Address = 1;
-			for (int j = 0; j < Level_Difference - Keep_Last_Address; j++) {
+			for (int j = 0; j <= Level_Difference - Keep_Last_Address; j++) {
 				int Reg_Size = _SYSTEM_BIT_SIZE_;
 				if (j + 1 >= Level_Difference) {
 					Reg_Size = 0;
 													//	 -j because we need to remove the current ptr to see what is inside it
-					for (int s = 0; s < Type_Trace.size() - j; s++) {
+					for (int s = Type_Trace.size()-1 - j; s >= 0; s--) {
 						//keywords dont have defined in the find list so skip them and put ptr the scaler switch.
 						if (Lexer::GetComponents(Type_Trace[s])[0].is(Flags::KEYWORD_COMPONENT)) {
 							if (Type_Trace[s] == "ptr") {
@@ -426,13 +449,19 @@ void IRGenerator::Parse_Pointers(int i)
 			else
 				Left = Reg;
 		}
+
+		if (Right->is(TOKEN::CONTENT)) {
+			//handle the other side into a usable register
+			Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Get_Size());
+		}
 	}
 	else if (Left_Level < Right_Level) {
+
 		vector<string> Type_Trace = Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Inheritted;
-		reverse(Type_Trace.begin(), Type_Trace.end());
+		//reverse(Type_Trace.begin(), Type_Trace.end());
 
 		//load the Left to right level
-		//mov reg1, [a]
+		//mov reg1, [(esp+123)]
 		//mov reg2, [reg1]
 		//give Left [reg2]
 		Token* handle = new Token(TOKEN::MEMORY, { Right }, _SYSTEM_BIT_SIZE_, Right->Get_Name());	//start from the pointter 
@@ -440,12 +469,12 @@ void IRGenerator::Parse_Pointers(int i)
 		int Keep_Last_Address = 0;
 		if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 			Keep_Last_Address = 1;
-		for (int j = 0; j < Level_Difference - Keep_Last_Address; j++) {
+		for (int j = 0; j <= Level_Difference - Keep_Last_Address; j++) {
 			int Reg_Size = _SYSTEM_BIT_SIZE_;
 			if (j + 1 >= Level_Difference) {
 				Reg_Size = 0;
 				//	 -j because we need to remove the current ptr to see what is inside it
-				for (int s = 0; s < Type_Trace.size() - j; s++) {
+				for (int s = Type_Trace.size() - 1 - j; s >= 0; s--) {
 					//keywords dont have defined in the find list so skip them and put ptr the scaler switch.
 					if (Lexer::GetComponents(Type_Trace[s])[0].is(Flags::KEYWORD_COMPONENT)) {
 						if (Type_Trace[s] == "ptr") {
@@ -476,9 +505,19 @@ void IRGenerator::Parse_Pointers(int i)
 			Right = handle;	//handle already has the 
 		else
 			Right = Reg;
+
+		if (Left->is(TOKEN::CONTENT)) {
+			//handle the other side into a usable register
+			Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Get_Size());
+		}
 	}
 
-	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Input[i]->Name), { Left, Right }));
+	string Operator = Input[i]->Name;
+	//this translates the condition operator into a compare operation then the parse_jumps,
+	//will use the condition name to do the correct jump.
+	if (Input[i]->is(CONDITION_OPERATOR_NODE))
+		Operator = "compare";
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Operator), { Left, Right }));
 }
 
 void IRGenerator::Parse_Arrays(int i)
@@ -561,8 +600,12 @@ void IRGenerator::Parse_PreFixes(int i)
 	else
 		Right = new Token(Input[i]->Right);
 
-	Token* opc = new Token(TOKEN::OPERATOR, "add");
-	Token* num = new Token(TOKEN::NUM, "1");
+	if (Right->is(TOKEN::CONTENT))
+		Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Get_Size());
+
+
+	Token* opc = new Token(TOKEN::OPERATOR, "+");
+	Token* num = new Token(TOKEN::NUM, "1", 4);
 
 	IR* ir = new IR(opc, { Right, num });
 	Output->push_back(ir);
@@ -584,6 +627,10 @@ void IRGenerator::Parse_PostFixes(int i)
 	else
 		Left = new Token(Input[i]->Left);
 
+	if (Left->is(TOKEN::CONTENT))
+		Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Get_Size());
+
+	//i++
 	//make a copy
 	Token* CR = new Token(TOKEN::REGISTER, "CLONEREG_" + Left->Get_Name(), Left->Get_Size());
 	Token* copc = new Token(TOKEN::OPERATOR, "move");
@@ -593,9 +640,9 @@ void IRGenerator::Parse_PostFixes(int i)
 	Handle = CR;
 
 	//add to the original variable
-	Token* num = new Token(TOKEN::NUM, "1");
+	Token* num = new Token(TOKEN::NUM, "1", 4);
 
-	Token* add = new Token(TOKEN::OPERATOR, "add");
+	Token* add = new Token(TOKEN::OPERATOR, "+");
 
 	IR* ir = new IR(add, { Left, num });
 	Output->push_back(ir);
@@ -622,7 +669,7 @@ void IRGenerator::Parse_Loops(int i)
 
 	//make the condition
 	vector<Node*> Header;
-	if (Input[i]->Parameters[0]->is(OPERATOR_NODE))
+	if (Input[i]->Parameters[0]->is(OPERATOR_NODE) || Input[i]->Parameters[0]->is(ASSIGN_OPERATOR_NODE))
 		Header = { Input[i]->Parameters[0] };
 	Input[i]->Append(Header, Node::Get_all(CONDITION_OPERATOR_NODE, Input[i]->Parameters));
 
@@ -647,7 +694,9 @@ void IRGenerator::Parse_Loops(int i)
 	g.Generate(Conditions);
 
 	//now make the _END addon at the end of loop for the false condition to fall
-	Output->push_back(Make_Jump("jump", Input[i]->Name + "_END"));
+	Output->push_back(Make_Jump("jump", Input[i]->Name));
+
+	Output->push_back(new IR(new Token(TOKEN::LABEL, Input[i]->Name + "_END"), {}));
 }
 
 string IRGenerator::Get_Inverted_Condition(string c)

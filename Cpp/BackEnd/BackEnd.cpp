@@ -94,6 +94,8 @@ string BackEnd::Token_Builder(Token* t)
 	else if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::SCALER) || t->is(TOKEN::DEOFFSETTER)) {
 		Name += Token_Builder(t->Left) + " " + t->Get_Name() + " " + Token_Builder(t->Right);
 	}
+	else if (t->is(TOKEN::LABEL))
+		Name = t->Get_Name();
 
 	Result = PreFix + Name + PostFix;
 	return Result;

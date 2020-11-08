@@ -129,24 +129,29 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 	}
 
 	long Reg_Type = 0;
-	if ((p->Intersects_Calls.size() > 0) && p->Intersects_Calls.back() < p->Last_Usage)
+	if (t->is(TOKEN::RETURNING))
+		Reg_Type |= TOKEN::RETURNING;
+	else if (t->is(TOKEN::REMAINDER))
+		Reg_Type |= TOKEN::REMAINDER;
+	else if (t->is(TOKEN::QUOTIENT))
+		Reg_Type |= TOKEN::QUOTIENT;
+	else if ((p->Intersects_Calls.size() > 0) && p->Intersects_Calls.back() < p->Last_Usage)
 		Reg_Type |= TOKEN::NONVOLATILE;
 	else
 		Reg_Type |= TOKEN::VOLATILE;
 
+
 	for (auto& r : Registers) {
 		if (r.first == nullptr) {
-			if (r.second->is(Reg_Type)) {
+			if (r.second->Any(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
-					//r.first->Last_Usage_Index = p->Last_Usage;
-					//r.first->User = t->Get_Name();
 					return r.second;
 				}
 			}
 		}
 		else if (r.first->Last_Usage_Index < i){
-			if (r.second->is(Reg_Type)) {
+			if (r.second->Any(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first->Last_Usage_Index = p->Last_Usage;
 					r.first->User = t->Get_Name();
@@ -190,8 +195,7 @@ Token* Selector::Get_Register(long F, Register_Descriptor* user)
 
 void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 {
-	cout << "Haha get stick bugged!" << endl;
-	exit(-69);
+
 }
 
 void Selector::Pair_Up(Token* r, Register_Descriptor* t)
@@ -309,7 +313,7 @@ IR* Selector::Get_Opcode(IR* i)
 	}
 	cout << "Error: No suitable OPCODE found for " << i->OPCODE->Get_Name() << "(";
 	for (auto j : i->Arguments)
-		cout << j->Get_Name() << ", ";
+		cout << j->Get_Name() << "[" << j->Get_Size() << "]" << ", ";
 	cout << ")" << endl;
 	throw std::runtime_error("Error");
 	return nullptr;

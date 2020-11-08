@@ -9,11 +9,11 @@ void x86_64_Win::Init()
 	Number_Pre_Fix = "";
 	Label_Post_Fix = ":";
 
-	Token* AL = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING, "al", 1, {});
-	Token* AH = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING, "ah", 1, {});
-	Token* AX = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING, "ax", 2, { AH, AL });
-	Token* EAX = new Token(TOKEN::VOLATILE | TOKEN::RETURNING, "eax", 4, { AX });
-	Token* RAX = new Token(TOKEN::VOLATILE | TOKEN::RETURNING, "rax", 8, { EAX });
+	Token* AL = new Token(TOKEN::RETURNING, "al", 1, {});
+	Token* AH = new Token(TOKEN::RETURNING, "ah", 1, {});
+	Token* AX = new Token(TOKEN::RETURNING, "ax", 2, { AH, AL });
+	Token* EAX = new Token(TOKEN::RETURNING, "eax", 4, { AX });
+	Token* RAX = new Token(TOKEN::RETURNING, "rax", 8, { EAX });
 
 	Token* BL = new Token(TOKEN::NONVOLATILE, "bl", 1, {});
 	Token* BH = new Token(TOKEN::NONVOLATILE, "bh", 1, {});
@@ -212,8 +212,8 @@ void x86_64_Win::Init()
 			{ {new Token(QUOTIENT), {1, 8}}, {Memory, {1, 8}} },	//mov from register into a remainder like eax the other value for the mul
 		}),
 		new IR("mul", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mul"), {
-			{ {Register, { 1, 8 }}, { nullptr, {0, 0} } },
-			{ {Memory, { 1, 8 }}, { nullptr, {0, 0} } },		//give mul the other value
+			{ {Register, { 1, 8 }}},
+			{ {Memory, { 1, 8 }}},		//give mul the other value
 		}),
 		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
 			{ {Memory, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } },
@@ -230,9 +230,9 @@ void x86_64_Win::Init()
 			{ {new Token(QUOTIENT), {1, 8}}, {Const, {1, 8}} },
 			{ {new Token(QUOTIENT), {1, 8}}, {Memory, {1, 8}} },	//mov from register into a remainder like eax the other value for the mul
 			}),
-		new IR("mul", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mul"), {
-			{ {Register, { 1, 8 }}, { nullptr, {0, 0} } },
-			{ {Memory, { 1, 8 }}, { nullptr, {0, 0} } },		//give mul the other value
+		new IR("div", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "div"), {
+			{ {Register, { 1, 8 }}},
+			{ {Memory, { 1, 8 }}},		//give mul the other value
 			}),
 		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
 			{ {Memory, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } },

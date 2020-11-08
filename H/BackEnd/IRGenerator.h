@@ -33,7 +33,7 @@ public:
 	void Parse_Return(int i);
 
 	void Parse_Operators(int i);
-	void Parse_Condition(int i);
+	void Parse_Jumps(int i);
 	void Parse_Pointers(int i);
 	void Parse_Arrays(int i);
 	void Parse_PreFixes(int i);
