@@ -32,6 +32,7 @@ namespace TOKEN {
 	constexpr long INF = 1 << 20;
 	constexpr long UN_ORDERED = 1 << 21;
 	constexpr long END_OF_FUNCTION = 1 << 22;
+	constexpr long START_OF_FUNCTION = 1 << 23;
 
 }
 
@@ -70,6 +71,7 @@ enum Node_Type {
 	STRING_NODE,
 	CLASS_NODE,
 	OBJECT_NODE,
+	PARAMETER_NODE,
 	ANY,
 	TEMPLATE_NODE,
 	KEYWORD_NODE,

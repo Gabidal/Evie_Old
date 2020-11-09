@@ -33,6 +33,8 @@ void IRGenerator::Parse_Function(int i)
 		if (j->is("type") != -1)
 			return;	//skip template functions.
 
+	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}));
+
 	//label
 	Output->push_back(Make_Label(Input[i]));
 
@@ -407,6 +409,8 @@ void IRGenerator::Parse_Pointers(int i)
 			//mov reg1, [(esp+123)]
 			//mov reg2, [reg1]
 			//give Left [reg2]
+			//set the Left size into right system bit size
+			Left->Set_Size(_SYSTEM_BIT_SIZE_);
 			Token* handle = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_, Left->Get_Name());	//start from the pointter 
 			Token* Reg = nullptr;
 			int Keep_Last_Address = 0;
@@ -464,6 +468,7 @@ void IRGenerator::Parse_Pointers(int i)
 		//mov reg1, [(esp+123)]
 		//mov reg2, [reg1]
 		//give Left [reg2]
+		Right->Set_Size(_SYSTEM_BIT_SIZE_);
 		Token* handle = new Token(TOKEN::MEMORY, { Right }, _SYSTEM_BIT_SIZE_, Right->Get_Name());	//start from the pointter 
 		Token* Reg = nullptr;
 		int Keep_Last_Address = 0;
@@ -763,13 +768,86 @@ void IRGenerator::Parse_Return(int i) {
 	else
 		Return_Val = new Token(Input[i]->Right);
 
+	Node* p = Input[i]->Right;
+	while (true) {
+		if (p == nullptr)
+			break;
+		if (p->is(FUNCTION_NODE))
+			break;
+		else
+			p = p->Parent;
+	}
+
+	int Level_Difference = (int)labs(Get_Amount("ptr", p) - Get_Amount("ptr", Input[i]->Right));
+	
 	if (Return_Val->is(TOKEN::CONTENT)) {
 		Token* m = new Token(TOKEN::MEMORY, { Return_Val }, _SYSTEM_BIT_SIZE_);
 		Return_Val = m;
 	}
+	else if (Level_Difference != 0) {
+		vector<string> Type_Trace = Input[i]->Find(Return_Val->Get_Name(), Return_Val->Get_Parent())->Inheritted;
+		//reverse(Type_Trace.begin(), Type_Trace.end());
+
+		//load the Left to right level
+		//mov reg1, [(esp+123)]
+		//mov reg2, [reg1]
+		//give Left [reg2]
+		//set the Left size into right system bit size
+		Return_Val->Set_Size(_SYSTEM_BIT_SIZE_);
+		Token* handle = new Token(TOKEN::MEMORY, { Return_Val }, _SYSTEM_BIT_SIZE_, Return_Val->Get_Name());	//start from the pointter 
+		Token* Reg = nullptr;
+		int Keep_Last_Address = 0;
+		if (Input[i]->is(ASSIGN_OPERATOR_NODE))
+			Keep_Last_Address = 1;
+		for (int j = 0; j <= Level_Difference - Keep_Last_Address; j++) {
+			int Reg_Size = _SYSTEM_BIT_SIZE_;
+			if (j + 1 >= Level_Difference) {
+				Reg_Size = 0;
+				//	 -j because we need to remove the current ptr to see what is inside it
+				for (int s = Type_Trace.size() - 1 - j; s >= 0; s--) {
+					//keywords dont have defined in the find list so skip them and put ptr the scaler switch.
+					if (Lexer::GetComponents(Type_Trace[s])[0].is(Flags::KEYWORD_COMPONENT)) {
+						if (Type_Trace[s] == "ptr") {
+							Reg_Size = _SYSTEM_BIT_SIZE_;
+							break;
+						}
+					}
+					else
+						Reg_Size += Input[i]->Find(Type_Trace[s], Parent)->Size;
+				}
+
+			}
+
+			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Reg_Size);
+			//move from handle to reg
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+				new Token(*Reg), new Token(*handle)
+				}));
+
+			//keep the old handle 
+			//if (j + 1 < Level_Difference) {
+			//replace the Original Left, to the new Reg for next loop.
+			handle->Childs.back() = Reg;
+			handle->Set_Name(Reg->Get_Name());
+			//}
+		}
+		if (Input[i]->is(ASSIGN_OPERATOR_NODE))
+			Return_Val = handle;	//handle already has the 
+		else
+			Return_Val = Reg;
+	}
+
+	int Returning_Reg_Size = 0;
+	for (auto j : p->Inheritted) {
+		if (j == "ptr") {
+			Returning_Reg_Size = _SYSTEM_BIT_SIZE_;
+			break;
+		}
+		Returning_Reg_Size += Global_Scope->Find(j, Global_Scope)->Size;
+	}
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "move"), {
-		new Token(TOKEN::REGISTER | TOKEN::RETURNING, "Returning_REG", _SYSTEM_BIT_SIZE_),
+		new Token(TOKEN::REGISTER | TOKEN::RETURNING, "Returning_REG", Returning_Reg_Size),
 		Return_Val }));
 
 	//let the postprosessor to handle stack emptying!

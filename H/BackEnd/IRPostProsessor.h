@@ -20,6 +20,8 @@ private:
 	void Registerize(Token* t, int i);
 	void Give_New_Register(Token* t, int i);
 	void Handle_Calls(int i);
+	void Clean_Selector(int i);
+	void Prepare_Function(int i);
 public:
 	IRPostProsessor(vector<IR*>* in) : Input(in) { Factory(); }
 	void Factory();

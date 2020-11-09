@@ -8,6 +8,7 @@
 
 using namespace std;
 
+
 //memory(handle, operator(offsetter), num(12))
 class Token{
 private:
@@ -21,6 +22,8 @@ private:
 
 	Node* Parent = nullptr;
 public:
+	//for parameters
+	int Parameter_Index = -1;
 	//for numeric or something elses usable types.
 	vector<Token*> Usable_Types;
 	//for memory
@@ -36,28 +39,7 @@ public:
 	Token(const Token& t, long f) { *this = t; Flags = f; }
 	Token(const Token& t, int s) { *this = t; Size = s; }
 	Token(long f) : Flags(f) {}
-	Token(Node* n) {
-		if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE))
-			Flags = TOKEN::CONTENT;
-		else if (n->is(NUMBER_NODE)) {
-			if (n->Has_Floating_Point_Value) {
-				Flags = TOKEN::DECIMAL;
-				Has_Floating_Point_Value = true;
-
-			}
-			else {
-				Flags = TOKEN::NUM;
-			}
-		}
-		else
-			return;
-		if (n->is("ptr") != -1)
-			Size = n->Find(n, n->Parent)->Scaler;
-		else
-			Size = n->Find(n, n->Parent)->Size;
-		Name = n->Name;
-		Parent = n->Parent;
-	}
+	Token(Node* n);
 	Token(long f, int s) : Flags(f), Size(s) {}
 	Token(long f, string n) : Flags(f), Name(n) {}
 	Token(long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) {}
@@ -88,7 +70,8 @@ public:
 	long Get_Flags() { return Flags; }
 	string Get_Name() { return Name; }
 	void Set_Name(string n) { Name = n; }
-	void Se_Parent(Node* p) { Parent = p; }
+	void Set_Parent(Node* p) { Parent = p; }
+	void Set_Size(int s) { Size = s; }
 	Node* Get_Parent() { return Parent; }
 };
 

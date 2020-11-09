@@ -45,7 +45,6 @@ public:
 	void Label_Pattern(int i);
 	void Label_Definition(int i);
 	void Size_Pattern(int i);									//if (contidion){..}
-	void Set_Keyword_Prop_To_Imported_Function_Parameter(int i);
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	//Pattern Users
 	void Operator_Order();

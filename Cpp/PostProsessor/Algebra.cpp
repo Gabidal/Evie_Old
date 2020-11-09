@@ -75,6 +75,8 @@ void Algebra::Function_Inliner(Node* c)
 	//rename all the inside variables
 	for (Node* n : Get_all(Func, OBJECT_NODE))
 		n->Name = "." + n->Name;
+	for (Node* n : Get_all(Func, PARAMETER_NODE))
+		n->Name = "." + n->Name;
 
 	vector<Node*> Set_Val_For_Params;
 	for (int j = 0; j < Func->Parameters.size(); j++) {
@@ -333,7 +335,7 @@ void Algebra::Set_Coefficient_Value(int i)
 	for (int j = 0; j < linear_ast.size(); j++) {
 		if (linear_ast[j]->is(NUMBER_NODE))
 			Coefficient = linear_ast[j];
-		else if (linear_ast[j]->is(OBJECT_NODE))
+		else if (linear_ast[j]->is(OBJECT_NODE) || linear_ast[j]->is(PARAMETER_NODE))
 			Variable = linear_ast[j];
 		else if (linear_ast[j]->Name == "*")
 			Operator = linear_ast[j];
@@ -499,7 +501,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 		}
 	}
 	//only variables are accepted
-	if (!n->is(OBJECT_NODE))
+	if (!n->is(OBJECT_NODE) && !n->is(PARAMETER_NODE))
 		return;
 	if (n->Coefficient == 1)
 		return;
@@ -513,7 +515,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	Coefficient->Name = to_string(n->Coefficient);
 
 	//now clean the coefficient
-	n->Coefficient = 0;
+	n->Coefficient = 1;
 
 	//combine
 	//this is because the override later

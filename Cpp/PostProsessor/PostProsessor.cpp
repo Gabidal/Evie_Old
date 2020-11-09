@@ -516,6 +516,11 @@ void PostProsessor::Update_Used_Object_Info(Node* n)
 		i->Inheritted = n->Find(i->Name, i->Parent)->Inheritted;
 		i->Update_Members_Size();
 	}
+	//do the same for parameters
+	for (auto i : n->Get_all(PARAMETER_NODE)) {
+		i->Inheritted = n->Find(i->Name, i->Parent)->Inheritted;
+		i->Update_Members_Size();
+	}
 }
 
 void PostProsessor::Operator_Overload(int i)

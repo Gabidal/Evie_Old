@@ -58,11 +58,13 @@ public:
 	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t);
 	Token* Get_Register(Token* t);
 	Token* Get_Register(long F, Register_Descriptor* user);
+	Register_Descriptor* Check_If_Smaller_Register_Is_In_Use(Token* r);
 	void Allocate_Register(vector<IR*>* source, int i, Token* t);
 	void Pair_Up(Token* r, Register_Descriptor* t);
 	void Break_Up(Token* r);
 	int Get_Numerical_Parameter_Register_Count();
 	int Get_Floating_Parameter_Register_Count();
+	void Clean_Register_Holders();
 
 	//STACK/HEAP:
 	void PUSH(Node* n);

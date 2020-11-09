@@ -191,6 +191,8 @@ void Parser::Object_Pattern(int i)
 	Input[i].node = new Node(*Parent->Find(Input[i].Value, Parent, true));
 	if (Input[i].node->is(OBJECT_DEFINTION_NODE))
 		Input[i].node->Type = OBJECT_NODE;
+	else if (Input[i].node->is(PARAMETER_NODE))
+		Input[i].node->Type = PARAMETER_NODE;
 	else if (Input[i].node->is(LABEL_NODE))
 		Input[i].node->Type = LABEL_NODE;
 	else if (Input[i].node->is(FUNCTION_NODE)) //this happends for function pointer adress geting prosess
@@ -545,6 +547,11 @@ void Parser::Function_Pattern(int i)
 	Parser p(func);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
+
+	for (auto p : func->Defined) {
+		p->Type = PARAMETER_NODE;
+	}
+
 	func->Parameters = p.Input[0].node->Childs;
 	p.Input.clear();
 
@@ -849,23 +856,6 @@ void Parser::Size_Pattern(int i)
 	return;
 }
 
-void Parser::Set_Keyword_Prop_To_Imported_Function_Parameter(int i)
-{
-	if (Input[i].node == nullptr)
-		return;
-	if (!Input[i].node->is(OBJECT_NODE) && !Input[i].node->is(NUMBER_NODE))
-		return;
-	if (Input[i].Components.size() <= 0)
-		return;
-
-	//wtf is this?
-	/*for (auto n : Input[i].Components) {
-		Input[i].node->Inheritted.push_back(n.Value);
-	}*/
-
-
-}
-
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
@@ -889,7 +879,6 @@ void Parser::Factory() {
 		Parenthesis_Pattern(i);
 		String_Pattern(i);
 		Number_Pattern(i);
-		Set_Keyword_Prop_To_Imported_Function_Parameter(i);
 		Label_Pattern(i);
 	}
 	for (int i = 0; i < Input.size(); i++)

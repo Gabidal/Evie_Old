@@ -21,14 +21,19 @@ void Selector::Init() {
 	}
 }
 
+int L1 = 0;
 vector<Token*> Selector::Transform(Token* parent)
 {
 	vector<Token*> Result;
+	if (L1 == 0)
+		Result.push_back(parent);
+	L1++;
 	for (auto c : parent->Get_Childs()) {
 		Result.push_back(c);
 		vector<Token*> r = Transform(c);
 		Result.insert(Result.end(), r.begin(), r.end());
 	}
+	L1--;
 	return Result;
 }
 
@@ -104,8 +109,10 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		//TODO: this can go broke if there is one or more calls before this so the parameter chosen by this is going to be overwritten :(
 		Token* reg = nullptr;
 		for (auto k : Parameter_Registers[p->Parameter_Place])
-			if (k->Get_Size() == t->Get_Size())
+			if (k->Get_Size() == t->Get_Size()) {
 				reg = k;
+				break;
+			}
 
 
 		for (auto r : Registers) {
@@ -135,15 +142,46 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		Reg_Type |= TOKEN::REMAINDER;
 	else if (t->is(TOKEN::QUOTIENT))
 		Reg_Type |= TOKEN::QUOTIENT;
+	else if (t->is(TOKEN::PARAMETER))
+		Reg_Type |= TOKEN::PARAMETER;
 	else if ((p->Intersects_Calls.size() > 0) && p->Intersects_Calls.back() < p->Last_Usage)
 		Reg_Type |= TOKEN::NONVOLATILE;
 	else
 		Reg_Type |= TOKEN::VOLATILE;
+	if (t->is(TOKEN::DECIMAL))
+		Reg_Type |= TOKEN::DECIMAL;
 
+	if (t->Parameter_Index != -1) {
+		Token* reg = nullptr;
+		for (auto k : Parameter_Registers[t->Parameter_Index])
+			if (k->Get_Size() == t->Get_Size()) {
+				reg = k;
+				break;
+			}
+
+		for (auto& r : Registers) {
+			if (r.second->Get_Name() == reg->Get_Name()) {
+				if (r.first == nullptr) {
+					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
+					return r.second;
+				}
+				else if (r.first->User == t->Get_Name()) {
+					return r.second;
+				}
+				else {
+					return nullptr;
+				}
+			}
+		}
+	}
 
 	for (auto& r : Registers) {
+
 		if (r.first == nullptr) {
-			if (r.second->Any(Reg_Type)) {
+			if (r.second->is(Reg_Type)) {
+				if (Check_If_Smaller_Register_Is_In_Use(r.second) != nullptr)
+					if (Check_If_Smaller_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
+						continue;
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
 					return r.second;
@@ -151,7 +189,10 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 			}
 		}
 		else if (r.first->Last_Usage_Index < i){
-			if (r.second->Any(Reg_Type)) {
+			if (Check_If_Smaller_Register_Is_In_Use(r.second) != nullptr)
+				if (Check_If_Smaller_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
+					continue;
+			if (r.second->is(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first->Last_Usage_Index = p->Last_Usage;
 					r.first->User = t->Get_Name();
@@ -191,6 +232,20 @@ Token* Selector::Get_Register(long F, Register_Descriptor* user)
 	//if this gets here, all non & non-non-volatile register are used already.
 	//use stack
 	return nullptr;
+}
+
+Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
+{
+	for (auto i : Registers) {
+		if (i.second->Get_Name() == r->Get_Name()) {
+			if (i.first != nullptr)
+				return i.first;
+			for (auto j : i.second->Childs) {
+				if (Check_If_Smaller_Register_Is_In_Use(j) != nullptr)
+					return Check_If_Smaller_Register_Is_In_Use(j);
+			}
+		}
+	}
 }
 
 void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
@@ -234,6 +289,13 @@ int Selector::Get_Floating_Parameter_Register_Count()
 			result++;
 	}
 	return result;
+}
+
+void Selector::Clean_Register_Holders()
+{
+	for (auto& r : Registers) {
+		r.first = nullptr;
+	}
 }
 
 void Selector::PUSH(Node* n)

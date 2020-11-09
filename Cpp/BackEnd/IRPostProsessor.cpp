@@ -77,11 +77,33 @@ void IRPostProsessor::Handle_Calls(int i)
 
 }
 
+void IRPostProsessor::Clean_Selector(int i)
+{
+	if (!Input->at(i)->is(TOKEN::END_OF_FUNCTION))
+		return;
+	selector->Clean_Register_Holders();
+}
+
+void IRPostProsessor::Prepare_Function(int i)
+{
+	if (!Input->at(i)->is(TOKEN::START_OF_FUNCTION))
+		return;
+
+	for (auto p : Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Defined) {
+		if (!p->is(PARAMETER_NODE))
+			continue;
+		selector->Get_New_Reg(Input, i, new Token(p));
+	}
+}
+
 void IRPostProsessor::Factory()
 {
 	for (int i = 0; i < Input->size(); i++)
 		Scale_To_Same_Size(i);
-	for (int i = 0; i < Input->size(); i++)
+	for (int i = 0; i < Input->size(); i++) {
+		Prepare_Function(i);
 		for (auto a : Input->at(i)->Arguments)
 			Registerize(a, i);
+		Clean_Selector(i);
+	}
 }

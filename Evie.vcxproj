@@ -123,6 +123,7 @@
     <ClCompile Include="cpp\docker\TXT.cpp" />
     <ClCompile Include="cpp\lexer\Lexer.cpp" />
     <ClCompile Include="cpp\main.cpp" />
+    <ClCompile Include="Cpp\Nodes\Token.cpp" />
     <ClCompile Include="cpp\parser\Parser.cpp" />
     <ClCompile Include="cpp\postprosessor\Algebra.cpp" />
     <ClCompile Include="cpp\postprosessor\PostProsessor.cpp" />
