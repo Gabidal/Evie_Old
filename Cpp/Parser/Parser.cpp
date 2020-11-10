@@ -644,7 +644,7 @@ void Parser::If_Pattern(int i)
 	else if (Input[i].Value == "while")
 		con = new Node(WHILE_NODE);
 	else if (Input[i].Value == "else")
-		con = new Node(ELSE_NODE);		//this works for only else if because it requers 2 paranthesis
+		con = new Node(ELSE_IF_NODE);		//this works for only else if because it requers 2 paranthesis
 	else
 		return;
 

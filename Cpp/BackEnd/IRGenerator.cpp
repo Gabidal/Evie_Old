@@ -183,23 +183,44 @@ void IRGenerator::Parse_If(int i)
 	//..
 	//L3:
 	//do parameters
-	Node* current = Input[i];
-	while (true) {
-		if (current == nullptr)
-			break;
-		//do an subfunction that can handle coditions and gets the label data for the condition data from the Parent given.
-		IRGenerator p(Input[i], Input[i]->Parameters, Output);
-		//then do childs
-		IRGenerator c(Input[i], Input[i]->Childs, Output);
+	Loop_Elses(Input[i]);
+}
 
-		//the end of every conditon to false fall to
-		Output->push_back(Make_Jump("jump", Input[i]->Name + "_END"));
+void IRGenerator::Loop_Elses(Node* e)
+{
 
-		Node* tmp = new Node(Input[i]->Name + "_END");
+	//the if/else label
+	Node* tmp = new Node(e->Name);
+	Output->push_back(Make_Label(tmp));
+
+	//do an subfunction that can handle coditions and gets the label data for the condition data from the Parent given.
+	IRGenerator p(e, e->Parameters, Output);
+	//then do childs
+	IRGenerator c(e, e->Childs, Output);
+
+	if (e->Succsessor != nullptr) {
+		//get the last successor name
+		Node* s = e->Succsessor;
+		while (true) {
+			if (s->Succsessor == nullptr)
+				break;	//s is now last
+			s = s->Succsessor;
+		}
+		//the end of every conditon to true fall to
+		Output->push_back(Make_Jump("jump", s->Name + "_END"));
+
+		//skip the last end jump if the condition is not met
+		Node* tmp = new Node(e->Name + "_END");
 		Output->push_back(Make_Label(tmp));
 
-		current = current->Succsessor;
+		//now construct the successor
+		Loop_Elses(e->Succsessor);
 	}
+	else {
+		Node* tmp = new Node(e->Name + "_END");
+		Output->push_back(Make_Label(tmp));
+	}
+
 }
 
 void IRGenerator::Parse_Jumps(int i)

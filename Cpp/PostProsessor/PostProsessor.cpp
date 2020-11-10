@@ -118,15 +118,17 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 void PostProsessor::Open_Condition_For_Prosessing(int i)
 {
-	if (!Input[i]->is(IF_NODE) && !Input[i]->is(ELSE_IF_NODE))
+	if (!Input[i]->is(IF_NODE) && !Input[i]->is(ELSE_IF_NODE) && !Input[i]->is(ELSE_NODE))
 		return;
 	//this add the L number to it
 	Input[i]->Name += to_string(LNumber++);
 
-	//here we pass the condition operator into algebra optimizer
-	Algebra a(Input[i]);
-	a.Input = &Input[i]->Parameters;
-	a.Factory();
+	if (!Input[i]->is(ELSE_NODE)) {
+		//here we pass the condition operator into algebra optimizer
+		Algebra a(Input[i]);
+		a.Input = &Input[i]->Parameters;
+		a.Factory();
+	}
 
 	//here we now postprosess also the insides of the condition
 	PostProsessor p(Input[i]);

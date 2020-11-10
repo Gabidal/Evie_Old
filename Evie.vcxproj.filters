@@ -95,6 +95,10 @@
     <None Include="io\win32.asm">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="IO\test.e.asm">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="IO\test.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">
