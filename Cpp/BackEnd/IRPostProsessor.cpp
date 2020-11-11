@@ -53,7 +53,11 @@ void IRPostProsessor::Registerize(Token* t, int i)
 	}
 	else if (t->is(TOKEN::MEMORY) || t->is(TOKEN::CONTENT))
 		for (auto c : t->Childs)
-			Give_New_Register(c, i);
+			Registerize(c, i);
+	else if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::DEOFFSETTER) || t->is(TOKEN::SCALER)) {
+		Registerize(t->Left, i);
+		Registerize(t->Right, i);
+	}
 }
 
 void IRPostProsessor::Give_New_Register(Token* t, int i)

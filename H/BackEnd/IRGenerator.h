@@ -22,7 +22,7 @@ public:
 	IRGenerator(Node* p, vector<Node*> in) : Parent(p), Input(in) { Output = new vector<IR*>; }
 	IRGenerator(Node* p, vector<Node*> in, vector<IR*>* Out) : Parent(p), Input(in), Output(Out) { Factory(); }
 	IRGenerator(Node* p, vector<IR*>* Out) : Parent(p), Output(Out){}
-	void Generate(vector<Node*> in) { Handle = nullptr; Input = in; Factory(); }
+	void Generate(vector<Node*> in, bool set_insert_mode = false) { Handle = nullptr; Input = in; Is_In_Left_Side_Of_Operator = set_insert_mode; Factory(); }
 
 	void Factory();
 	void Parse_Function(int i);
@@ -46,9 +46,14 @@ public:
 	//a new variable and saves the result once and then uses it those other times
 	string Get_Inverted_Condition(string c);
 
+	//p is the pointter ,			, -x unwrap | +x wrap
+	Token* Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing = false);
+
 	IR* Make_Label(Node* n);
 	IR* Make_Jump(string condition, string l);
 	int Get_Amount(string t, Node* n);
+private:
+	bool Is_In_Left_Side_Of_Operator = false;
 };
 
 #endif

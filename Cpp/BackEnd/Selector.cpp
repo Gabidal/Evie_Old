@@ -21,6 +21,22 @@ void Selector::Init() {
 	}
 }
 
+bool Selector::Find(string n, Token* ast)
+{
+	if (ast->Get_Name() == n)
+		return true;
+	if (ast->is(TOKEN::CONTENT) || ast->is(TOKEN::MEMORY))
+		for (auto i : ast->Childs)
+			return Find(n, i);
+	if (ast->is(TOKEN::OFFSETTER) || ast->is(TOKEN::DEOFFSETTER) || ast->is(TOKEN::SCALER)) {
+		if (Find(n, ast->Left))
+			return true;
+		if (Find(n, ast->Right))
+			return true;
+	}
+	return false;
+}
+
 int L1 = 0;
 vector<Token*> Selector::Transform(Token* parent)
 {
@@ -28,7 +44,7 @@ vector<Token*> Selector::Transform(Token* parent)
 	if (L1 == 0)
 		Result.push_back(parent);
 	L1++;
-	for (auto c : parent->Get_Childs()) {
+	for (auto c : *parent->Get_Childs()) {
 		Result.push_back(c);
 		vector<Token*> r = Transform(c);
 		Result.insert(Result.end(), r.begin(), r.end());
@@ -45,11 +61,12 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 	int Parameter_Place = -1;
 	int Last_Usage = i;
 	for (int j = i; j < source.size(); j++) {
-		for (auto k : source[j]->Arguments)
+		for (auto k : source[j]->Arguments) {
 			//TODO: Cheking names wont work on duplicated local varibles inside a condition like scopes.
-			if (k->Get_Name() == t->Get_Name())
+			if (Find(t->Get_Name(), k))
 				//check if this is the same variable...
 				Last_Usage = j;
+		}
 		if (source[j]->is(TOKEN::CALL)) {
 			Intersects_Calls.push_back(j);
 			for (int k = 0; k < source[j]->OPCODE->Parameters.size(); k++)
@@ -182,6 +199,9 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 				if (Check_If_Smaller_Register_Is_In_Use(r.second) != nullptr)
 					if (Check_If_Smaller_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
 						continue;
+				if (Check_If_Larger_Register_Is_In_Use(r.second) != nullptr)
+					if (Check_If_Larger_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
+						continue;
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
 					return r.second;
@@ -191,6 +211,9 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		else if (r.first->Last_Usage_Index < i){
 			if (Check_If_Smaller_Register_Is_In_Use(r.second) != nullptr)
 				if (Check_If_Smaller_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
+					continue;
+			if (Check_If_Larger_Register_Is_In_Use(r.second) != nullptr)
+				if (Check_If_Larger_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
 					continue;
 			if (r.second->is(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
@@ -212,8 +235,20 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 Token* Selector::Get_Register(Token* t)
 {
 	for (auto i : Registers)
-		if ((i.first != nullptr) && i.first->User == t->Get_Name())
-			return i.second;
+		if ((i.first != nullptr) && i.first->User == t->Get_Name()) {
+			if (i.second->Get_Size() == t->Get_Size())
+				return i.second;
+			/*
+			else {
+				if (i.second->Get_Size() < t->Get_Size()) {
+					for (auto j : Registers)
+						if (i.second->Holder->Get_Name() == j.second->Get_Name()) {
+							j.first = new Register_Descriptor(*i.first);
+							return j.second;
+						}
+				}
+			}*/
+		}
 	return nullptr;	//need to use Get_New_Reg();
 }
 
@@ -244,6 +279,20 @@ Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 				if (Check_If_Smaller_Register_Is_In_Use(j) != nullptr)
 					return Check_If_Smaller_Register_Is_In_Use(j);
 			}
+			return nullptr;
+		}
+	}
+}
+
+Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
+{
+	for (auto i : Registers) {
+		if (i.second->Get_Name() == r->Get_Name()) {
+			if (i.first != nullptr)
+				return i.first;
+			if (r->Holder == nullptr)
+				return nullptr;
+			return Check_If_Smaller_Register_Is_In_Use(r->Holder);
 		}
 	}
 }

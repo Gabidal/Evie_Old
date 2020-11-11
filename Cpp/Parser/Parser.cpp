@@ -474,6 +474,7 @@ void Parser::Array_Pattern(int i)
 		return;
 
 	Node* arr = new Node(ARRAY_NODE);
+	arr->Parent = Parent;
 
 	if (Input[(size_t)i].node != nullptr)
 		arr->Left = Input[(size_t)i].node;
@@ -486,7 +487,11 @@ void Parser::Array_Pattern(int i)
 		arr->Left->Parent = Parent;
 	}
 
-	if (Input[(size_t)i + 1].node->Childs[0] != nullptr)
+	if (Input[i + 1].node->Childs.size() > 1) {
+		arr->Right = new Node(CONTENT_NODE);
+		arr->Right->Childs = Input[i + 1].node->Childs;
+	}
+	else if (Input[(size_t)i + 1].node->Childs[0] != nullptr)
 		arr->Right = Input[(size_t)i + 1].node->Childs[0];
 	else {
 		//test.a.m //these a.m are in different localscope.

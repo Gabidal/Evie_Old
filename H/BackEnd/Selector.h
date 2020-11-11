@@ -37,6 +37,8 @@ public:
 class Selector {
 private:
 	void Init();
+	//tools
+	bool Find(string n, Token* ast);
 	//registers
 	vector<pair<Register_Descriptor*, Token*>> Registers;
 	vector<vector<Token*>> Parameter_Registers;
@@ -59,6 +61,7 @@ public:
 	Token* Get_Register(Token* t);
 	Token* Get_Register(long F, Register_Descriptor* user);
 	Register_Descriptor* Check_If_Smaller_Register_Is_In_Use(Token* r);
+	Register_Descriptor* Check_If_Larger_Register_Is_In_Use(Token* r);
 	void Allocate_Register(vector<IR*>* source, int i, Token* t);
 	void Pair_Up(Token* r, Register_Descriptor* t);
 	void Break_Up(Token* r);

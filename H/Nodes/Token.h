@@ -22,6 +22,8 @@ private:
 
 	Node* Parent = nullptr;
 public:
+	//for register parents
+	Token* Holder = nullptr;
 	//for parameters
 	int Parameter_Index = -1;
 	//for numeric or something elses usable types.
@@ -44,8 +46,14 @@ public:
 	Token(long f, string n) : Flags(f), Name(n) {}
 	Token(long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) {}
 	Token(long f, string n, int s) : Flags(f), Name(n), Size(s) {}
-	Token(long f, string n, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c) {}
-
+	Token(long f, string n, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c) {
+		if (!is(TOKEN::REGISTER) && !is(TOKEN::VOLATILE) && !is(TOKEN::NONVOLATILE) && !is(TOKEN::RETURNING))
+			return;
+		for (auto i : Childs) {
+			i->Holder = this;
+		}
+	}
+	
 	Token(long f, vector<Token*> c) : Flags(f), Childs(c) {}
 	Token(long f, vector<Token*> c, int s) : Flags(f), Childs(c), Size(s) {}
 	Token(long f, vector<Token*> c, int s, string n) : Flags(f), Childs(c), Size(s), Name(n) {}
@@ -61,7 +69,7 @@ public:
 			return Childs[0]->Get_Child(s);
 		return nullptr;
 	}
-	vector<Token*> Get_Childs() { return Childs; }
+	vector<Token*>* Get_Childs() { return &Childs; }
 	bool is(int flag){return (Flags & flag) == flag;}
 	bool Any(int flags){return (Flags & flags) != 0;}
 	void add(int flag){this->Flags |= flag;}
