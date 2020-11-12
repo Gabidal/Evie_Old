@@ -1,5 +1,7 @@
 use "cstd.e"
 
-int main(int ptr ptr x, int ptr a) {
-	return x[a[2], 1]
+func main(int ptr dest, int ptr source, int s) {
+	while (int i = 0; i < s; i++){
+		dest[i] = source[i]
+	}
 }

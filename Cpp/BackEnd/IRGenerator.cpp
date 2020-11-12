@@ -508,20 +508,30 @@ void IRGenerator::Parse_Arrays(int i)
 					Scale += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
 			}
 
-			int Next_Size = 0;
+			int Next_Register_Size = 0;
 			if (Is_In_Left_Side_Of_Operator)
-				Next_Size = _SYSTEM_BIT_SIZE_;
+				Next_Register_Size = _SYSTEM_BIT_SIZE_;
 			else
 				for (int tmp = Type_Trace.size() - 2 - o; tmp >= 0; tmp--) {
 					if (Type_Trace[tmp] == "ptr") {
-						Next_Size = _SYSTEM_BIT_SIZE_;
+						Next_Register_Size = _SYSTEM_BIT_SIZE_;
 						break;
 					}
 					else
-						Next_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+						Next_Register_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
 				}
 
-			reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Next_Size);
+			int Next_Scaler_Size = 0;
+			for (int tmp = Type_Trace.size() - 2 - o; tmp >= 0; tmp--) {
+				if (Type_Trace[tmp] == "ptr") {
+					Next_Scaler_Size = _SYSTEM_BIT_SIZE_;
+					break;
+				}
+				else
+					Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+			}
+
+			reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Next_Register_Size);
 
 			//parse through the Right childs for something complex.
 			g.Generate({ Input[i]->Right->Childs[o] });
@@ -555,13 +565,13 @@ void IRGenerator::Parse_Arrays(int i)
 
 			Token* Scaler = new Token(TOKEN::SCALER, "*");
 			Scaler->Left = Offsetter;
-			Scaler->Right = new Token(TOKEN::NUM, to_string(Next_Size));
+			Scaler->Right = new Token(TOKEN::NUM, to_string(Next_Scaler_Size));
 
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Size) }));
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
 		
 			handle->Get_Childs()->back() = reg;
 			handle->Set_Name(reg->Get_Name());
-			handle->Set_Size(Next_Size);
+			handle->Set_Size(Next_Register_Size);
 		}
 
 		//calculate the resulting size
@@ -606,20 +616,30 @@ void IRGenerator::Parse_Arrays(int i)
 				Scale += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
 		}
 
-		int Next_Size = 0;
+		int Next_Register_Size = 0;
 		if (Is_In_Left_Side_Of_Operator)
-			Next_Size = _SYSTEM_BIT_SIZE_;
+			Next_Register_Size = _SYSTEM_BIT_SIZE_;
 		else
 			for (int tmp = Type_Trace.size() - 2; tmp >= 0; tmp--) {
 				if (Type_Trace[tmp] == "ptr") {
-					Next_Size = _SYSTEM_BIT_SIZE_;
+					Next_Register_Size = _SYSTEM_BIT_SIZE_;
 					break;
 				}
 				else
-					Next_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+					Next_Register_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
 			}
 
-		reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Next_Size);
+		int Next_Scaler_Size = 0;
+		for (int tmp = Type_Trace.size() - 2; tmp >= 0; tmp--) {
+			if (Type_Trace[tmp] == "ptr") {
+				Next_Scaler_Size = _SYSTEM_BIT_SIZE_;
+				break;
+			}
+			else
+				Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+		}
+
+		reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Next_Register_Size);
 
 		//parse through the Right childs for something complex.
 		g.Generate({ Input[i]->Right });
@@ -649,13 +669,13 @@ void IRGenerator::Parse_Arrays(int i)
 
 		Token* Scaler = new Token(TOKEN::SCALER, "*");
 		Scaler->Left = Offsetter;
-		Scaler->Right = new Token(TOKEN::NUM, to_string(Next_Size));
+		Scaler->Right = new Token(TOKEN::NUM, to_string(Next_Scaler_Size));
 
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Size) }));
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
 
 		handle->Get_Childs()->back() = reg;
 		handle->Set_Name(reg->Get_Name());
-		handle->Set_Size(Next_Size);
+		handle->Set_Size(Next_Register_Size);
 
 		//calculate the resulting size
 		int Reg_Size = 0;
