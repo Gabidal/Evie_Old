@@ -125,8 +125,8 @@
     <ClCompile Include="cpp\main.cpp" />
     <ClCompile Include="Cpp\Nodes\Token.cpp" />
     <ClCompile Include="cpp\parser\Parser.cpp" />
-    <ClCompile Include="cpp\postprosessor\Algebra.cpp" />
-    <ClCompile Include="cpp\postprosessor\PostProsessor.cpp" />
+    <ClCompile Include="Cpp\Parser\Algebra.cpp" />
+    <ClCompile Include="Cpp\Parser\PostProsessor.cpp" />
     <ClCompile Include="cpp\preprosessor\PreProsessor.cpp" />
     <ClCompile Include="cpp\test\Test.cpp" />
     <ClCompile Include="cpp\ui\Producer.cpp" />
@@ -163,8 +163,8 @@
     <ClInclude Include="h\nodes\Node.h" />
     <ClInclude Include="H\Nodes\Token.h" />
     <ClInclude Include="h\parser\Parser.h" />
-    <ClInclude Include="h\postprosessor\Algebra.h" />
-    <ClInclude Include="h\postprosessor\PostProsessor.h" />
+    <ClInclude Include="H\Parser\Algebra.h" />
+    <ClInclude Include="H\Parser\PostProsessor.h" />
     <ClInclude Include="h\preprosessor\PreProsessor.h" />
     <ClInclude Include="h\test\Test.h" />
     <ClInclude Include="h\ui\Producer.h" />

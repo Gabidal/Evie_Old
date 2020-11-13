@@ -1,4 +1,4 @@
-#include "../../H/PostProsessor/Algebra.h"
+#include "../../H/Parser/Algebra.h"
 
 void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {

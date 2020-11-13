@@ -567,7 +567,11 @@ void IRGenerator::Parse_Arrays(int i)
 			Scaler->Left = Offsetter;
 			Scaler->Right = new Token(TOKEN::NUM, to_string(Next_Scaler_Size));
 
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
+			string Load_Type = "=";
+			if (Is_In_Left_Side_Of_Operator && o+1 >= Input[i]->Right->Childs.size())
+				Load_Type = "evaluate";	//this happends when it is the last load and it is left side of a assign
+
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
 		
 			handle->Get_Childs()->back() = reg;
 			handle->Set_Name(reg->Get_Name());
@@ -671,7 +675,11 @@ void IRGenerator::Parse_Arrays(int i)
 		Scaler->Left = Offsetter;
 		Scaler->Right = new Token(TOKEN::NUM, to_string(Next_Scaler_Size));
 
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
+		string Load_Type = "=";
+		if (Is_In_Left_Side_Of_Operator)
+			Load_Type = "evaluate";	//this happends when it is the last load and it is left side of a assign
+
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
 
 		handle->Get_Childs()->back() = reg;
 		handle->Set_Name(reg->Get_Name());
@@ -801,6 +809,8 @@ void IRGenerator::Parse_Loops(int i)
 	//make the looping label
 	Output->push_back(Make_Label(Input[i]));
 
+	int start_Index = Output->size();
+
 	//make ir tokens from the code inside the loop
 	g.Generate(Input[i]->Childs);
 
@@ -815,6 +825,9 @@ void IRGenerator::Parse_Loops(int i)
 	Output->push_back(Make_Jump("jump", Input[i]->Name));
 
 	Output->push_back(new IR(new Token(TOKEN::LABEL, Input[i]->Name + "_END"), {}));
+
+	//make here IR that states that every variable that is extern to this while define list must last the same end.
+	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables(Output->size(), start_Index, Input[i])));
 }
 
 string IRGenerator::Get_Inverted_Condition(string c)
@@ -837,6 +850,76 @@ string IRGenerator::Get_Inverted_Condition(string c)
 		return "<";
 	cout << "Error: Undefined Condition type " << c << endl;
 	return "";
+}
+
+vector<Token*> IRGenerator::Get_All_Extern_Variables(int end_index, int start_index, Node* scope)
+{
+	vector<Token*> Result;
+	for (int i = start_index; i < end_index; i++) {
+		for (auto a : Output->at(i)->Arguments) {
+			if (Find(TOKEN::CONTENT, a).size() > 0) {
+				for (auto f : Find(TOKEN::CONTENT, a)) {
+					bool is_extern = true;
+					for (auto d : scope->Defined) {
+						if (f->Get_Name() == d->Name) {
+							is_extern = false;
+						}
+					}
+					if (is_extern)
+						Result.push_back(f);
+				}
+			}
+			if (Find(TOKEN::PARAMETER, a).size() > 0) {
+				for (auto f : Find(TOKEN::PARAMETER, a)) {
+					bool is_extern = true;
+					for (auto d : scope->Defined) {
+						if (f->Get_Name() == d->Name) {
+							is_extern = false;
+						}
+					}
+					if (is_extern)
+						Result.push_back(f);
+				}
+			}
+		}
+	}
+	return Result;
+}
+
+vector<Token*> IRGenerator::Find(string n, Token* t)
+{
+	vector<Token*> Result;
+	if (t->Get_Name() == n)
+		Result.push_back(t);
+	if (t->is(TOKEN::CONTENT) || t->is(TOKEN::MEMORY))
+		for (auto i : t->Childs)
+			if (Find(n, i).size() > 0)
+				Global_Scope->Append(Result, Find(n, i));
+	if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::DEOFFSETTER) || t->is(TOKEN::SCALER)) {
+		if (Find(n, t->Left).size() > 0)
+			Global_Scope->Append(Result, Find(n, t->Left));
+		else if (Find(n, t->Right).size() > 0)
+			Global_Scope->Append(Result, Find(n, t->Right));
+	}
+	return Result;
+}
+
+vector<Token*> IRGenerator::Find(long n, Token* t)
+{
+	vector<Token*> Result;
+	if (t->is(n))
+		Result.push_back(t);
+	if (t->is(TOKEN::CONTENT) || t->is(TOKEN::MEMORY))
+		for (auto i : t->Childs)
+			if (Find(n, i).size() > 0)
+				Global_Scope->Append(Result, Find(n, i));
+	if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::DEOFFSETTER) || t->is(TOKEN::SCALER)) {
+		if (Find(n, t->Left).size() > 0)
+			Global_Scope->Append(Result, Find(n, t->Left));
+		if (Find(n, t->Right).size() > 0)
+			Global_Scope->Append(Result, Find(n, t->Right));
+	}
+	return Result;
 }
 
 Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing)

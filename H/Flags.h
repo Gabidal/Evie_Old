@@ -33,6 +33,7 @@ namespace TOKEN {
 	constexpr long UN_ORDERED = 1 << 21;
 	constexpr long END_OF_FUNCTION = 1 << 22;
 	constexpr long START_OF_FUNCTION = 1 << 23;
+	constexpr long END_OF_LOOP = 1 << 24;
 
 }
 

@@ -2,12 +2,11 @@ main:
 mov [() ], 0
 jg while0_END
 while0:
-mov r8, [() ]
-mov r8d, [rdx + r8 * 4 ]
-mov r8, [() ]
-mov rdx, [rcx + r8 * 4 ]
-mov [rdx ], r8d
-mov ecx, [() ]
+mov r9d, [rdx + r8 * 4 ]
+mov r10, [() ]
+lea r11, [rcx + r10 * 4 ]
+mov [r11 ], r9d
+mov r9d, [() ]
 add [() ], 1
 jg while0_END
 jmp while0

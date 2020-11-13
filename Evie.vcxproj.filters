@@ -45,12 +45,6 @@
     <ClCompile Include="cpp\parser\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\postprosessor\Algebra.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cpp\postprosessor\PostProsessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cpp\preprosessor\PreProsessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,6 +79,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Cpp\Nodes\Token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cpp\Parser\Algebra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cpp\Parser\PostProsessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -143,12 +143,6 @@
     <ClInclude Include="h\parser\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="h\postprosessor\Algebra.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="h\postprosessor\PostProsessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="h\preprosessor\PreProsessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -192,6 +186,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\BackEnd\Selector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Parser\Algebra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Parser\PostProsessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

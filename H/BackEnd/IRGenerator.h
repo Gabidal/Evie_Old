@@ -45,6 +45,9 @@ public:
 	//TODO: make a repeating optimizer thet makes 
 	//a new variable and saves the result once and then uses it those other times
 	string Get_Inverted_Condition(string c);
+	vector<Token*> Get_All_Extern_Variables(int end_index, int start_index, Node* scope);
+	vector<Token*> Find(string n, Token* t);
+	vector<Token*> Find(long n, Token* t);
 
 	//p is the pointter ,			, -x unwrap | +x wrap
 	Token* Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing = false);
