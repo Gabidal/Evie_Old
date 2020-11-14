@@ -43,7 +43,7 @@ private:
 	vector<pair<Register_Descriptor*, Token*>> Registers;
 	vector<vector<Token*>> Parameter_Registers;
 	vector<Token*> Transform(Token* parent);
-
+	
 	//stack
 	Node* Parent = nullptr;
 	vector<Variable*> Stack;
@@ -75,6 +75,8 @@ public:
 	void POP(string id);
 	void POP(int size);
 	void POP();
+	void DeAllocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent);
+	void Allocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent);
 	int Update_Stack_Size();
 
 

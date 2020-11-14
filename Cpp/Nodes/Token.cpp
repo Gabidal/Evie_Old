@@ -5,7 +5,7 @@ extern Selector* selector;
 
 Token::Token(Node* n) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE))
-		Flags = TOKEN::CONTENT;
+		Flags = TOKEN::REGISTER;
 	else if (n->is(NUMBER_NODE)) {
 		if (n->Has_Floating_Point_Value) {
 			Flags = TOKEN::DECIMAL;

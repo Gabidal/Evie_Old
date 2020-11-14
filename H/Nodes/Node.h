@@ -38,6 +38,7 @@ public:
 	vector<Node*> Parameters;
 	string Mangled_Name = "";
 	//operator features
+	Node* Holder = nullptr;
 	Node* Left = nullptr;
 	Node* Right = nullptr;
 	//pointter features

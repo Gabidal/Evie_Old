@@ -281,6 +281,10 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 	if (Input[i].Value == "-")
 		Operator->Right->Coefficient *= -1;
 
+	//give the left and right operators the right holder information
+	Operator->Left->Holder = Operator;
+	Operator->Right->Holder = Operator;
+
 	Input[i].node = Operator;
 	Input.erase(Input.begin() + i + 1);
 	Input.erase(Input.begin() + i - 1);

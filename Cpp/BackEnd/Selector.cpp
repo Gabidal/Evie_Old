@@ -234,20 +234,24 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 
 Token* Selector::Get_Register(Token* t)
 {
-	for (auto i : Registers)
+	for (auto& i : Registers)
+		if ((i.first != nullptr) && i.first->User == t->Get_Name())
+			if (i.second->Get_Size() == t->Get_Size())
+				return i.second;
+
+	for (auto& i : Registers)
 		if ((i.first != nullptr) && i.first->User == t->Get_Name()) {
 			if (i.second->Get_Size() == t->Get_Size())
 				return i.second;
-			/*
 			else {
 				if (i.second->Get_Size() < t->Get_Size()) {
-					for (auto j : Registers)
+					for (auto& j : Registers)
 						if (i.second->Holder->Get_Name() == j.second->Get_Name()) {
 							j.first = new Register_Descriptor(*i.first);
 							return j.second;
 						}
 				}
-			}*/
+			}
 		}
 	return nullptr;	//need to use Get_New_Reg();
 }
@@ -299,7 +303,7 @@ Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 
 void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 {
-
+	cout << "allocation needed!" << endl;
 }
 
 void Selector::Pair_Up(Token* r, Register_Descriptor* t)
@@ -379,6 +383,20 @@ void Selector::POP(int size)
 void Selector::POP()
 {
 	Stack.erase(Stack.end());
+}
+
+void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent)
+{
+	//add rsp, 123 * 16
+	//if used call in scope use stack.size() % 16 = 0;
+
+}
+
+void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent)
+{
+	//sub rsp, 123 * 16
+	//if used call in scope use stack.size() % 16 = 0;
+	
 }
 
 int Selector::Update_Stack_Size()

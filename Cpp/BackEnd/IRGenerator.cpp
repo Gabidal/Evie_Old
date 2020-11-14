@@ -305,7 +305,7 @@ void IRGenerator::Un_Wrap_Inline(int i)
 
 void IRGenerator::Parse_Operators(int i)
 {
-	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
+	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
 	//If this operator is handling with pointters we cant use general operator handles
 	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
@@ -319,7 +319,7 @@ void IRGenerator::Parse_Operators(int i)
 
 	if (g.Handle != nullptr)
 		Right = g.Handle;
-	else if (!Input[i]->Right->is(NUMBER_NODE)) {
+	else if (!Input[i]->Right->is(NUMBER_NODE) && !Input[i]->Right->is(PARAMETER_NODE)) {
 		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
 		if (R->is(TOKEN::CONTENT))
 			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size());
@@ -333,7 +333,8 @@ void IRGenerator::Parse_Operators(int i)
 		Output->push_back(ir);
 	}
 	else {
-		Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
+		Right = new Token(Input[i]->Right);
+		//Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
 	}
 	
 	g.Generate({ Input[i]->Left }, Input[i]->is(ASSIGN_OPERATOR_NODE));
@@ -346,8 +347,10 @@ void IRGenerator::Parse_Operators(int i)
 			Left = new Token(Input[i]->Left);
 			if (Left->is(TOKEN::CONTENT))
 				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Parent)->Get_Size());
+			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
+			//	Left = Left; //:D no need to do enything
 		}
-		else {
+		else if (!Input[i]->Left->is(NUMBER_NODE) && !Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE)){
 			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
 			if (L->is(TOKEN::CONTENT))
 				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size());
@@ -359,6 +362,9 @@ void IRGenerator::Parse_Operators(int i)
 
 			Left = Reg;
 			Output->push_back(ir);
+		}
+		else {
+			Left = new Token(Input[i]->Left);
 		}
 	}
 
@@ -758,12 +764,14 @@ void IRGenerator::Parse_PostFixes(int i)
 
 	//i++
 	//make a copy
-	Token* CR = new Token(TOKEN::REGISTER, "CLONEREG_" + Left->Get_Name(), Left->Get_Size());
-	Token* copc = new Token(TOKEN::OPERATOR, "move");
+	if (Input[i]->Holder != nullptr) {
+		Token* CR = new Token(TOKEN::REGISTER, "CLONEREG_" + Left->Get_Name(), Left->Get_Size());
+		Token* copc = new Token(TOKEN::OPERATOR, "move");
 
-	IR* cir = new IR(copc, { CR, Left });
-	Output->push_back(cir);
-	Handle = CR;
+		IR* cir = new IR(copc, { CR, Left });
+		Output->push_back(cir);
+		Handle = CR;
+	}
 
 	//add to the original variable
 	Token* num = new Token(TOKEN::NUM, "1", 4);
@@ -772,6 +780,8 @@ void IRGenerator::Parse_PostFixes(int i)
 
 	IR* ir = new IR(add, { Left, num });
 	Output->push_back(ir);
+	if (Input[i]->Holder != nullptr)
+		Handle = Left;
 }
 
 void IRGenerator::Parse_Jump(int i)
