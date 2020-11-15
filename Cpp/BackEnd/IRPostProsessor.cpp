@@ -85,6 +85,37 @@ void IRPostProsessor::Clean_Selector(int i)
 {
 	if (!Input->at(i)->is(TOKEN::END_OF_FUNCTION))
 		return;
+	//get the start of function index
+	int Start_Of_Function = 0;
+	for (int j = i; j > 0; j--)
+		if (Input->at(j)->is(TOKEN::START_OF_FUNCTION)) {
+			Start_Of_Function = j;
+			break;
+		}
+	Start_Of_Function += 2; //Skip the label
+	//now we know what non-volatiles are in use
+	int Push_Amount = 0;
+	for (auto r : selector->Get_Register_Type(TOKEN::NONVOLATILE)) {
+		if (r.first == nullptr)
+			continue;
+		Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
+		reg->ID = reg->Get_Name();
+		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }));
+		Push_Amount++;
+	}
+	//now do same but for the end of funciton
+	for (int j = i+Push_Amount; j > Start_Of_Function; j--) {
+		if (Input->at(j)->OPCODE->Get_Name() != "return")
+			continue;
+		for (auto r : selector->Get_Register_Type(TOKEN::NONVOLATILE)) {
+			if (r.first == nullptr)
+				continue;
+			Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
+			reg->ID = reg->Get_Name();
+			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
+		}
+	}
+
 	selector->Clean_Register_Holders();
 }
 

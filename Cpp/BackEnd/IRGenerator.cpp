@@ -307,6 +307,8 @@ void IRGenerator::Parse_Operators(int i)
 {
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
+
+	Update_Operator(Input[i]);
 	//If this operator is handling with pointters we cant use general operator handles
 	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
 	if (Level_Difference != 0)
@@ -392,11 +394,11 @@ void IRGenerator::Parse_Pointers(int i)
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 
+	Update_Operator(Input[i]);
+
 	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
 	if (Level_Difference == 0)
 		return;
-
-
 
 	Token* Right = nullptr;
 	Token* Left = nullptr;
@@ -415,10 +417,12 @@ void IRGenerator::Parse_Pointers(int i)
 	else
 		Left = new Token(Input[i]->Left);
 
+	Update_Operator(Input[i]);
+
 	int Left_Level = Get_Amount("ptr", Input[i]->Left);
 	int Right_Level = Get_Amount("ptr", Input[i]->Right);
 
-	if (Left == Right) {
+	if (Left_Level == Right_Level) {
 		//this means some part was apointer but also a array so it is no more because its unwrapped already.
 		Parse_Operators(i);
 		return;
@@ -790,6 +794,18 @@ void IRGenerator::Parse_Jump(int i)
 		return;
 
 	Output->push_back(Make_Jump("jump", Input[i]->Right->Name));
+}
+
+void IRGenerator::Update_Operator(Node* n)
+{
+	if (n == nullptr)
+		return;
+	if (!n->is(OPERATOR_NODE) && !n->is(ASSIGN_OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(BIT_OPERATOR_NODE))
+		return;
+	Update_Operator(n->Left);
+	Update_Operator(n->Right);
+
+	n->Inheritted = n->Left->Inheritted;
 }
 
 void IRGenerator::Parse_Loops(int i)

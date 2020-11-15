@@ -41,6 +41,8 @@ public:
 	void Parse_PostFixes(int i);
 
 	void Parse_Jump(int i);
+
+	void Update_Operator(Node*n);
 	//TODO: hey gab! use log(inlining count) base 10 for the global inlining label adding rendom char adder.
 	//TODO: make a repeating optimizer thet makes 
 	//a new variable and saves the result once and then uses it those other times

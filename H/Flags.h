@@ -9,31 +9,32 @@ namespace TOKEN {
 	constexpr long PARAMETER = 1 << 4;	//fast call
 	constexpr long REMAINDER = 1 << 5;
 	constexpr long QUOTIENT = 1 << 6;
+	constexpr long STACK_POINTTER = 1 << 7;
 
-	constexpr long NUM = 1 << 7;
-	constexpr long DECIMAL = 1 << 8;
+	constexpr long NUM = 1 << 8;
+	constexpr long DECIMAL = 1 << 9;
 
-	constexpr long MEMORY = 1 << 9;
+	constexpr long MEMORY = 1 << 10;
 
-	constexpr long OPERATOR = 1 << 10;	//any operator
-	constexpr long SCALER = 1 << 11;		//*
-	constexpr long OFFSETTER = 1 << 12;	//+
-	constexpr long DEOFFSETTER = 1 << 13;	//+
+	constexpr long OPERATOR = 1 << 11;	//any operator
+	constexpr long SCALER = 1 << 12;		//*
+	constexpr long OFFSETTER = 1 << 13;	//+
+	constexpr long DEOFFSETTER = 1 << 14;	//+
 
-	constexpr long CONTENT = 1 << 14;	//any childs owner
-	constexpr long LABEL = 1 << 15;
+	constexpr long CONTENT = 1 << 15;	//any childs owner
+	constexpr long LABEL = 1 << 16;
 
-	constexpr long FLOW = 1 << 16; //ret, jmp
-	constexpr long CALL = 1 << 17; // calls
+	constexpr long FLOW = 1 << 17; //ret, jmp
+	constexpr long CALL = 1 << 18; // calls
 
 	//RULES
-	constexpr long ALL_ARGS_SAME_SIZE = 1 << 18;	//this means that all args on the OPCODE must be same size
-	constexpr long OPTIONAL = 1 << 19;
-	constexpr long INF = 1 << 20;
-	constexpr long UN_ORDERED = 1 << 21;
-	constexpr long END_OF_FUNCTION = 1 << 22;
-	constexpr long START_OF_FUNCTION = 1 << 23;
-	constexpr long END_OF_LOOP = 1 << 24;
+	constexpr long ALL_ARGS_SAME_SIZE = 1 << 19;	//this means that all args on the OPCODE must be same size
+	constexpr long OPTIONAL = 1 << 20;
+	constexpr long INF = 1 << 21;
+	constexpr long UN_ORDERED = 1 << 22;
+	constexpr long END_OF_FUNCTION = 1 << 23;
+	constexpr long START_OF_FUNCTION = 1 << 24;
+	constexpr long END_OF_LOOP = 1 << 25;
 
 }
 

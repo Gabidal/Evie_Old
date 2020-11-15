@@ -53,6 +53,7 @@ public:
 			i->Holder = this;
 		}
 	}
+	Token(long f, string n, Token* L, Token* R) : Flags(f), Name(n), Left(L), Right(R){}
 	
 	Token(long f, vector<Token*> c) : Flags(f), Childs(c) {}
 	Token(long f, vector<Token*> c, int s) : Flags(f), Childs(c), Size(s) {}
@@ -81,6 +82,13 @@ public:
 	void Set_Parent(Node* p) { Parent = p; }
 	void Set_Size(int s) { Size = s; }
 	Node* Get_Parent() { return Parent; }
+	Token* Get_Size_Parent(int s, Token* t) {
+		if (t->Get_Size() == s)
+			return t;
+		if (t->Holder != nullptr)
+			return Get_Size_Parent(s, t->Holder);
+		return nullptr;
+	}
 };
 
 #endif

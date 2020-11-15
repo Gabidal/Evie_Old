@@ -51,10 +51,10 @@ void x86_64_Win::Init()
 	Token* EBP = new Token(TOKEN::NONVOLATILE, "ebp", 4, { BP });
 	Token* RBP = new Token(TOKEN::NONVOLATILE, "rbp", 8, { EBP });
 
-	Token* SPL = new Token(TOKEN::NONVOLATILE, "spl", 1, {});
-	Token* SP = new Token(TOKEN::NONVOLATILE, "sp", 2, { SPL });
-	Token* ESP = new Token(TOKEN::NONVOLATILE, "esp", 4, { SP });
-	Token* RSP = new Token(TOKEN::NONVOLATILE, "rsp", 8, { ESP });
+	Token* SPL = new Token(TOKEN::STACK_POINTTER, "spl", 1, {});
+	Token* SP = new Token(TOKEN::STACK_POINTTER, "sp", 2, { SPL });
+	Token* ESP = new Token(TOKEN::STACK_POINTTER, "esp", 4, { SP });
+	Token* RSP = new Token(TOKEN::STACK_POINTTER, "rsp", 8, { ESP });
 
 	Token* XMM0 = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm0", 12, {});
 	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 12, {});
@@ -135,7 +135,7 @@ void x86_64_Win::Init()
 		R15, R15B, R15D, R15W,
 	};
 	using namespace TOKEN;
-	Token* Register = new Token(REGISTER);
+	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER);
 	Token* Scalar = new Token(NUM, {
 		new Token(NUM, "1"),
 		new Token(NUM, "2"),
@@ -267,6 +267,16 @@ void x86_64_Win::Init()
 
 	IR* RET = new IR("return", new Token(FLOW, "ret"), vector<vector<pair<Token*, pair<int, int>>>>{});
 
+	IR* PUSH = new IR("push", new Token(OPERATOR, "push"), {
+	{{Memory, {2, 8}}},
+	{{Register, {2, 8}}},
+	{{Const, {1, 4}}},
+		}); 
+	IR* POP = new IR("pop", new Token(OPERATOR, "pop"), {
+	{{Memory, {2, 8}}},
+	{{Register, {2, 8}}},
+			});
+
 	Opcodes = {
 		MOV,
 		LEA,
@@ -285,6 +295,8 @@ void x86_64_Win::Init()
 		JGE,
 		JNG,
 		RET,
-		SET
+		SET,
+		PUSH,
+		POP
 	};
 }

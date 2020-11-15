@@ -74,7 +74,7 @@ string BackEnd::Token_Builder(Token* t)
 	string PostFix = "";
 	string Result = "";
 	string Name = "";
-	if (t->is(TOKEN::REGISTER)) {
+	if (t->is(TOKEN::REGISTER) || t->is(TOKEN::NONVOLATILE) || t->is(TOKEN::RETURNING) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::REMAINDER)) {
 		Name = t->ID;
 	}
 	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL))

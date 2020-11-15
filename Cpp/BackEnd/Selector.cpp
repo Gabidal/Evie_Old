@@ -303,6 +303,20 @@ Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 
 void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 {
+	//move some register into a non-volatile register
+	//if all the non-volatile registers are already occupied then use stack
+	//we have Save/Load commads for them (:
+	Path* p = Get_Path_Info(*source, i, t);
+	for (auto& r : Registers) {
+		if (!r.second->is(TOKEN::NONVOLATILE))
+			continue;
+		if (r.second->Get_Size() != t->Get_Size())
+			continue;
+		if (r.first == nullptr) {
+			r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
+			return;
+		}
+	}
 	cout << "allocation needed!" << endl;
 }
 
@@ -351,52 +365,66 @@ void Selector::Clean_Register_Holders()
 	}
 }
 
-void Selector::PUSH(Node* n)
+vector<pair<Register_Descriptor*, Token*>> Selector::Get_Register_Type(long f)
 {
-	Variable* v = new Variable(n->Name, n->Size);
-	Stack.push_back(v);
+	vector<pair<Register_Descriptor*, Token*>> Result;
+	for (auto& i : Registers) {
+		if (i.second->is(f))
+			Result.push_back(i);
+	}
+	return Result;
 }
 
-void Selector::PUSH(Variable* v)
+void Selector::Save(Token* id, Token* t, vector<IR*>* list, int i)
 {
-	Stack.push_back(v);
+	//try to look if the t is has already a stack address
+	int Offset = 0;
+	for (auto v : Stack) {
+		if (v->Get_Name() == id->Get_Name()) {
+			list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {
+				new Token(TOKEN::MEMORY, {new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Offset), _SYSTEM_BIT_SIZE_))}),
+				t
+				}));
+		}
+		Offset += v->Get_Size();
+	}
+	//if not then push it to stack
+	Stack.push_back(id);
+	//now so the same thing
+	Save(id, t, list, i);
 }
 
-void Selector::POP(string id)
+Token* Selector::Load(string id, vector<IR*>* list, int i)
 {
-	for (int i = 0; i < Stack.size(); i++)
-		if (Stack[i]->ID == id)
-			Stack.erase(Stack.begin() + i);
-	Update_Stack_Size();
+	Token* Result = new Token(TOKEN::REGISTER, id + "_REG");
+	int Offset = 0;
+	for (auto v : Stack) {
+		if (v->Get_Name() == id) {
+			Result->Set_Size(v->Get_Size());
+			list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {
+				new Token(TOKEN::MEMORY, {new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Offset), _SYSTEM_BIT_SIZE_))}),
+				Result
+				}));
+		}
+		Offset += v->Get_Size();
+	}
+	return Result;
 }
 
-void Selector::POP(int size)
-{
-	reverse(Stack.begin(), Stack.end());
-	for (int i = 0; i < Stack.size(); i++)
-		if ((Stack_Size - Stack[i]->Size) <= (Stack_Size - size))
-			Stack.erase(Stack.begin() + i);
-	reverse(Stack.begin(), Stack.end());
-	Update_Stack_Size();
-}
-
-void Selector::POP()
-{
-	Stack.erase(Stack.end());
-}
-
-void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent)
+void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//add rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-
+	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }));
+	Stack_Size -= Amount;
 }
 
-void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent)
+void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//sub rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	
+	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "-"), { new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }));
+	Stack_Size += Amount;
 }
 
 int Selector::Update_Stack_Size()
@@ -404,7 +432,7 @@ int Selector::Update_Stack_Size()
 	//go through the stack variables, then return sum.
 	Stack_Size = 0;
 	for (auto i : Stack)
-		Stack_Size += i->Size;
+		Stack_Size += i->Get_Size();
 	return Stack_Size;
 }
 

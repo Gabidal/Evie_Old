@@ -2,6 +2,7 @@
 #define _SELECTOR_H_
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "../Nodes/IR.h"
 #include "../Nodes/Token.h"
@@ -27,13 +28,6 @@ public:
 	int Last_Usage = 0;
 };
 
-class Variable {
-public:
-	string ID;
-	int Size;
-	Variable(string id, int s) : ID(id), Size(s){}
-};
-
 class Selector {
 private:
 	void Init();
@@ -46,7 +40,7 @@ private:
 	
 	//stack
 	Node* Parent = nullptr;
-	vector<Variable*> Stack;
+	vector<Token*> Stack;
 	int Stack_Size = 0;
 
 	//Opcodes
@@ -68,15 +62,13 @@ public:
 	int Get_Numerical_Parameter_Register_Count();
 	int Get_Floating_Parameter_Register_Count();
 	void Clean_Register_Holders();
+	vector<pair<Register_Descriptor*, Token*>> Get_Register_Type(long f);
 
 	//STACK/HEAP:
-	void PUSH(Node* n);
-	void PUSH(Variable* v);
-	void POP(string id);
-	void POP(int size);
-	void POP();
-	void DeAllocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent);
-	void Allocate_Stack(int Amount, vector<IR*>* list, int i, Node* Parent);
+	void Save(Token* id, Token* v, vector<IR*>* list, int i);
+	Token* Load(string id, vector<IR*>* list, int i);
+	void DeAllocate_Stack(int Amount, vector<IR*>* list, int i);
+	void Allocate_Stack(int Amount, vector<IR*>* list, int i);
 	int Update_Stack_Size();
 
 
