@@ -1,9 +1,9 @@
 use "cstd.e"
 
 int main() {
-	return apple(2)
+	return apple(1, 2, 3, 4, 5, 6)
 }
 
-int apple(int x){
-	return x + 1
+int apple(int a, int b, int c, int d, int e, int f){
+	return a + b + c + d + e + f
 }

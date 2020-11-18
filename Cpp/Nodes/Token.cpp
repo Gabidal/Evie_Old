@@ -26,7 +26,7 @@ Token::Token(Node* n) {
 		for (int i = 0; i < n->Parent->Parameters.size(); i++) {
 			if (n->Parent->Parameters[i]->Name == n->Name) {
 				if (n->Parent->Parameters[i]->Has_Floating_Point_Value) {
-					if (Current_Float_Register_Count <= Max_Floating_Registers) {
+					if (Current_Float_Register_Count < Max_Floating_Registers) {
 						Flags = TOKEN::REGISTER | TOKEN::DECIMAL | TOKEN::PARAMETER;
 						Parameter_Index = i;
 					}
@@ -35,7 +35,7 @@ Token::Token(Node* n) {
 					break;
 				}
 				else {
-					if (Current_Integer_Register_Count <= Max_Integer_Registers) {
+					if (Current_Integer_Register_Count < Max_Integer_Registers) {
 						Flags = TOKEN::REGISTER | TOKEN::PARAMETER;
 						Parameter_Index = i;
 					}

@@ -127,7 +127,9 @@ void IRPostProsessor::Prepare_Function(int i)
 	for (auto p : Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Defined) {
 		if (!p->is(PARAMETER_NODE))
 			continue;
-		selector->Get_New_Reg(Input, i, new Token(p));
+		Token* tmp = new Token(p);
+		if (tmp->is(TOKEN::REGISTER))
+			selector->Get_New_Reg(Input, i, new Token(p));
 	}
 }
 

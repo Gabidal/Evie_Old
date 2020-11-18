@@ -82,7 +82,7 @@ void IRGenerator::Parse_Calls(int i)
 			p = new Token(n);
 
 		if (n->Has_Floating_Point_Value) {
-			if (Float_Register_Count <= MAX_Floating_Register_Count) {
+			if (Float_Register_Count < MAX_Floating_Register_Count) {
 				//use a parameter register
 				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
 				reg->Parameter_Index = Parameter_Place;
@@ -116,7 +116,7 @@ void IRGenerator::Parse_Calls(int i)
 			}
 		}
 		else {
-			if (Number_Register_Count <= MAX_Number_Register_Count) {
+			if (Number_Register_Count < MAX_Number_Register_Count) {
 				//use a parameter register
 				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
 				reg->Parameter_Index = Parameter_Place;
@@ -324,14 +324,52 @@ void IRGenerator::Parse_Operators(int i)
 	Token* Left = nullptr;
 	Token* Right = nullptr;
 
-	IRGenerator g(Parent, { Input[i]->Right }, Output);
+	IRGenerator g(Parent, { Input[i]->Left }, Output, Input[i]->is(ASSIGN_OPERATOR_NODE));
+
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else {
+		if (Input[i]->Name == "=") {
+			//dont load the value into a register
+			Left = new Token(Input[i]->Left);
+			if (Left->is(TOKEN::CONTENT))
+				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Parent)->Get_Size());
+			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
+			//	Left = Left; //:D no need to do enything
+		}
+		else if (!Input[i]->Left->is(NUMBER_NODE) && !Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE)) {
+			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
+			if (L->is(TOKEN::CONTENT))
+				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size(), L->Get_Name());
+
+			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
+			//create the IR
+			Token* Opc = new Token(TOKEN::OPERATOR, "move");
+			IR* ir = new IR(Opc, { Reg, L });
+
+			Left = Reg;
+			Output->push_back(ir);
+		}
+		else {
+			Left = new Token(Input[i]->Left);
+		}
+	}
+
+	g.Generate({ Input[i]->Right });
+
+	bool Is_Parameter_Register = false;
+	if (Input[i]->Right->is(PARAMETER_NODE)) {
+		//check if the parameter is held in a register or not
+		if (Token(Input[i]->Right).is(TOKEN::REGISTER))
+			Is_Parameter_Register = true;
+	}
 
 	if (g.Handle != nullptr)
 		Right = g.Handle;
-	else if (!Input[i]->Right->is(NUMBER_NODE) && !Input[i]->Right->is(PARAMETER_NODE)) {
+	else if (!Input[i]->Right->is(NUMBER_NODE) && !Is_Parameter_Register) {
 		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
 		if (R->is(TOKEN::CONTENT))
-			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size());
+			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size(), R->Get_Name());
 
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
 		//create the IR
@@ -346,36 +384,7 @@ void IRGenerator::Parse_Operators(int i)
 		//Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
 	}
 	
-	g.Generate({ Input[i]->Left }, Input[i]->is(ASSIGN_OPERATOR_NODE));
 
-	if (g.Handle != nullptr)
-		Left = g.Handle;
-	else {
-		if (Input[i]->Name == "=") {
-			//dont load the value into a register
-			Left = new Token(Input[i]->Left);
-			if (Left->is(TOKEN::CONTENT))
-				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Parent)->Get_Size());
-			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
-			//	Left = Left; //:D no need to do enything
-		}
-		else if (!Input[i]->Left->is(NUMBER_NODE) && !Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE)){
-			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
-			if (L->is(TOKEN::CONTENT))
-				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size());
-
-			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
-			//create the IR
-			Token* Opc = new Token(TOKEN::OPERATOR, "move");
-			IR* ir = new IR(Opc, { Reg, L });
-
-			Left = Reg;
-			Output->push_back(ir);
-		}
-		else {
-			Left = new Token(Input[i]->Left);
-		}
-	}
 
 	string Operator = Input[i]->Name;
 	//this translates the condition operator into a compare operation then the parse_jumps,
