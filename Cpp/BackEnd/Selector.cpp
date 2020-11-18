@@ -125,22 +125,20 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 	if (p->Parameter_Place != -1 && (p->Parameter_Place <= Parameter_Registers.size())) {
 		//TODO: this can go broke if there is one or more calls before this so the parameter chosen by this is going to be overwritten :(
 		Token* reg = nullptr;
-		for (auto k : Parameter_Registers[p->Parameter_Place])
+		for (auto& k : Parameter_Registers[p->Parameter_Place])
 			if (k->Get_Size() == t->Get_Size()) {
 				reg = k;
 				break;
 			}
 
 
-		for (auto r : Registers) {
+		for (auto& r : Registers) {
 			if (r.second->Get_Name() != reg->Get_Name())
 				//skip until we get into the right register
 				continue;
 			if (r.first == nullptr) {
 				//no current owner
-				r.first->First_Usage_Index = i;
-				r.first->Last_Usage_Index = p->Last_Usage;
-				r.first->User = t->Get_Name();
+				r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
 				return r.second;
 			}
 			else if (r.first->Last_Usage_Index > p->Last_Usage){
@@ -196,25 +194,29 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 
 		if (r.first == nullptr) {
 			if (r.second->is(Reg_Type)) {
-				if (Check_If_Smaller_Register_Is_In_Use(r.second) != nullptr)
-					if (Check_If_Smaller_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
-						continue;
-				if (Check_If_Larger_Register_Is_In_Use(r.second) != nullptr)
-					if (Check_If_Larger_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
-						continue;
+				for (auto s : *r.second->Get_Childs())
+					if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
+						if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index >= i)
+							continue;
+				if (r.second->Holder != nullptr)
+					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
+						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index >= i)
+							continue;
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
 					return r.second;
 				}
 			}
 		}
-		else if (r.first->Last_Usage_Index < i){
-			if (Check_If_Smaller_Register_Is_In_Use(r.second) != nullptr)
-				if (Check_If_Smaller_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
-					continue;
-			if (Check_If_Larger_Register_Is_In_Use(r.second) != nullptr)
-				if (Check_If_Larger_Register_Is_In_Use(r.second)->Last_Usage_Index >= i)
-					continue;
+		else if (r.first->Last_Usage_Index <= i){
+			for (auto s : *r.second->Get_Childs())
+				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
+					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index >= i)
+						continue;
+			if (r.second->Holder != nullptr)
+				if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
+					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index >= i)
+						continue;
 			if (r.second->is(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first->Last_Usage_Index = p->Last_Usage;

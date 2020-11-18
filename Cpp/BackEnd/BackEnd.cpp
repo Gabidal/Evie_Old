@@ -29,6 +29,7 @@ void BackEnd::Factory()
 		Label_Builder(i);
 		Operator_Builder(i);
 		End_Of_Function_Builder(i);
+		Call_Builder(i);
 	}
 }
 
@@ -66,6 +67,17 @@ void BackEnd::End_Of_Function_Builder(IR* i)
 		return;
 
 	*Output += "\n\n";
+}
+
+void BackEnd::Call_Builder(IR* i)
+{
+	if (!i->is(TOKEN::CALL))
+		return;
+
+	IR* call_opc = selector->Get_Opcode(i);
+	*Output += call_opc->OPCODE->Get_Name();
+
+	*Output += " " + Token_Builder(i->Arguments[0]) + "\n";
 }
 
 string BackEnd::Token_Builder(Token* t)

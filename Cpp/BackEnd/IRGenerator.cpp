@@ -70,6 +70,7 @@ void IRGenerator::Parse_Calls(int i)
 	//for selector to understand a more abstract picture of the whole parameters.
 	vector<Token*> All_Parameters;
 
+	int Parameter_Place = 0;
 	for (Node* n : Input[i]->Parameters) {
 		g.Generate({ n });
 
@@ -84,6 +85,7 @@ void IRGenerator::Parse_Calls(int i)
 			if (Float_Register_Count <= MAX_Floating_Register_Count) {
 				//use a parameter register
 				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+				reg->Parameter_Index = Parameter_Place;
 				Token* opc = new Token(TOKEN::OPERATOR, "move");
 				//make the parameter move
 				IR* ir = new IR(opc, { reg, p });
@@ -117,6 +119,7 @@ void IRGenerator::Parse_Calls(int i)
 			if (Number_Register_Count <= MAX_Number_Register_Count) {
 				//use a parameter register
 				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+				reg->Parameter_Index = Parameter_Place;
 				Token* opc = new Token(TOKEN::OPERATOR, "move");
 				//make the parameter move
 				IR* ir = new IR(opc, { reg, p });
@@ -146,6 +149,7 @@ void IRGenerator::Parse_Calls(int i)
 				}
 			}
 		}
+		Parameter_Place++;
 	}
 
 	reverse(Reversable_Pushes.begin(), Reversable_Pushes.end());
@@ -154,12 +158,15 @@ void IRGenerator::Parse_Calls(int i)
 	for (auto p : Reversable_Pushes)
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "push"), { p }));
 
-	Token* call = new Token(TOKEN::CALL, Input[i]->Name, All_Parameters);
-	IR* ir = new IR(call, {});
+	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
+	IR* ir = new IR(call, {new Token(TOKEN::LABEL, Input[i]->Name)});
 
 	Output->push_back(ir);
 
-	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + call->Get_Name(), Input[i]->Size);
+	Node* tmp = Global_Scope->Find(Input[i], Global_Scope);
+	tmp->Update_Func_Size();
+
+	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + call->Get_Name(), tmp->Size);
 
 	Handle = returningReg;
 }
@@ -1140,7 +1147,16 @@ void IRGenerator::Parse_Return(int i) {
 			Returning_Reg_Size = _SYSTEM_BIT_SIZE_;
 			break;
 		}
+		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
+			continue; //skip keywords
 		Returning_Reg_Size += Global_Scope->Find(j, Global_Scope)->Size;
+	}
+
+	if ((Input[i]->Right != nullptr) && (Returning_Reg_Size == 0)) {
+		cout << "Error: You are trying to return value inside a void function, not good.\n";
+		cout << "Solution: Your return value size seems to be: '" << Return_Val->Get_Size() * 8 << "' so ";
+		cout << "try using '" << Global_Scope->Find(Return_Val->Get_Size(), Global_Scope)->Name << "' as your function return type." << endl;
+		throw::exception("\nReturn error.\n");
 	}
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "move"), {

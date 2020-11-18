@@ -83,15 +83,15 @@ public:
 			//1.29348
 			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-					return seperator + Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
+					return Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 				else
-					return seperator + Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
+					return Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 			}
 			else {
 				if (atoll(Name.c_str()) > INT_MAX) {
-					return seperator + Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
+					return Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 				}
-				return seperator + Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
+				return Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
 			}
 		}
 		else {
@@ -416,6 +416,20 @@ public:
 			Size = _SYSTEM_BIT_SIZE_;
 		}
 		return;
+	}
+
+	void Update_Func_Size() {
+		Size = 0;
+		for (string s : Inheritted) {
+			//there is no inheritable type that doesnt have enything init.
+			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT)) {
+				if (s == "func")
+					//this is for function pointters.
+					Size += _SYSTEM_BIT_SIZE_;
+				continue;
+			}
+			Size += Find(s, Parent, true)->Size;
+		}
 	}
 
 	void Update_Members_Size() {

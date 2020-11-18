@@ -42,6 +42,7 @@ vector<Node*> Algebra::Linearise(Node* ast, bool Include_Operator = false)
 
 void Algebra::Function_Inliner(Node* c)
 {
+	return;//TURN OFF
 	//if (banana(1, 2) + apple(1, 2, 3))
 	if (!c->is(CALL_NODE))
 		return;
