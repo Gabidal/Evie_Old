@@ -9,7 +9,7 @@ void BackEnd::Init()
 {
 	if (sys->Info.Architecture == "x86") {
 		if (sys->Info.Bits_Mode == "8") {
-			if (sys->Info.OS == "win32") {
+			if (sys->Info.OS == "win") {
 				X86_64_WIN.Init();
 				Seperator = X86_64_WIN.Seperator;
 				Register_Pre_Fix = X86_64_WIN.Register_Pre_Fix;
@@ -80,7 +80,7 @@ void BackEnd::Call_Builder(IR* i)
 	*Output += " " + Token_Builder(i->Arguments[0]) + "\n";
 }
 
-string BackEnd::Token_Builder(Token* t)
+string BackEnd::Token_Builder(Token* t, bool Inside_Content)
 {
 	string PreFix = "";
 	string PostFix = "";
@@ -89,22 +89,29 @@ string BackEnd::Token_Builder(Token* t)
 	if (t->is(TOKEN::REGISTER) || t->is(TOKEN::NONVOLATILE) || t->is(TOKEN::RETURNING) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::REMAINDER)) {
 		Name = t->ID;
 	}
-	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL))
-		Name = t->Get_Name();
+	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL)) {
+		if (Inside_Content)
+			Name =  t->Get_Name();
+		else
+			Name = selector->Get_Size_Identifier(t->Get_Size()) + " " + t->Get_Name();
+	}
 	else if (t->is(TOKEN::MEMORY)) {
-		PreFix = "[";
+		if (Inside_Content)
+			PreFix = t->Get_Name();
+		else
+			PreFix = selector->Get_Size_Identifier(t->Get_Size()) + " [";
 		for (auto i : t->Childs)
-			Name += Token_Builder(i) + " ";
+			Name += Token_Builder(i, true) + " ";
 		PostFix = "]";
 	}
 	else if (t->is(TOKEN::CONTENT)) {
 		PreFix = "(";
 		for (auto i : t->Childs)
-			Name += Token_Builder(i);
+			Name += Token_Builder(i, true);
 		PostFix = ")";
 	}
 	else if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::SCALER) || t->is(TOKEN::DEOFFSETTER)) {
-		Name += Token_Builder(t->Left) + " " + t->Get_Name() + " " + Token_Builder(t->Right);
+		Name += Token_Builder(t->Left, true) + " " + t->Get_Name() + " " + Token_Builder(t->Right, true);
 	}
 	else if (t->is(TOKEN::LABEL))
 		Name = t->Get_Name();

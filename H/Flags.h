@@ -35,6 +35,8 @@ namespace TOKEN {
 	constexpr long END_OF_FUNCTION = 1 << 23;
 	constexpr long START_OF_FUNCTION = 1 << 24;
 	constexpr long END_OF_LOOP = 1 << 25;
+	constexpr long NEEDS_SIZE_IDENTIFIER = 1 << 26;
+	constexpr long SIZE_INDENTIFIER = 1 << 27;
 
 }
 

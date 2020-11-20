@@ -22,12 +22,12 @@ public:
 	string Debug = "";
 	output() {
 		#if _WIN32
-			OS = "win32";
+			OS = "win";
 		#else
 			OS = "unix";
 		#endif
 		#if _WIN32
-			HOST_OS = "win32";
+			HOST_OS = "win";
 		#else
 			HOST_OS = "unix";
 		#endif

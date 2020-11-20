@@ -31,7 +31,7 @@ private:
 	void End_Of_Function_Builder(IR* i);
 	void Call_Builder(IR* i);
 
-	string Token_Builder(Token* t);
+	string Token_Builder(Token* t, bool Inside_Content = false);
 public:
 	BackEnd(vector<IR*> in) : Input(in) {
 		Output = new string("");

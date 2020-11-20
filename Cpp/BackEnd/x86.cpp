@@ -173,6 +173,18 @@ void x86_64_Win::Init()
 		Label
 	};
 
+	Token* BYTE = new Token(SIZE_INDENTIFIER, "byte", 1);
+	Token* WORD = new Token(SIZE_INDENTIFIER, "word", 2);
+	Token* DWORD = new Token(SIZE_INDENTIFIER, "dword", 4);
+	Token* QWORD = new Token(SIZE_INDENTIFIER, "qword", 8);
+
+	Size_Identifiers = {
+		BYTE,
+		WORD,
+		DWORD,
+		QWORD
+	};
+
 	//2reg, 1mul, inf*const, inf*operator
 	//*(reg, const) | *(const, const) | *(const, reg)
 	//+-(reg, reg) | +-(reg, const) | +-(const, reg) | +-(const, const)

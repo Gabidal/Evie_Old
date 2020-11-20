@@ -42,7 +42,7 @@ void Producer::Assembly_Other_Source_Files()
 
 string Producer::Get_Linker_Type()
 {
-    if (OS == "win32")
+    if (OS == "win")
     {
         return "Linkers\\GoLink.exe /console ";
     }
@@ -55,7 +55,7 @@ string Producer::Get_Linker_Type()
 
 string Producer::Get_Assembler()
 {
-    if (OS == "win32")
+    if (OS == "win")
     {
         return "Assemblers\\yasm_win.exe ";
     }
@@ -77,15 +77,15 @@ string Producer::Get_Debug()
 
 string Producer::Get_Type()
 {
-    if (OS == "win32")
+    if (OS == "win")
     {
-        return " -f " + OS;
+        return " -f win" + Size;
     }
     else if (OS == "unix")
     {
         if (Type == "exe")
         {
-            return " -f " + (string)"elf32 ";
+            return " -f " + (string)"elf" + Size + " " ;
         }
         else
         {
@@ -111,7 +111,7 @@ string Producer::Get_Assembly_Dest_Marker()
 
 string Producer::Get_Linker_Debug_Type()
 {
-    if (OS == "win32")
+    if (OS == "win")
     {
         if (Type != "")
         {
@@ -145,7 +145,7 @@ string Producer::Get_Assembler_Output()
 
 string Producer::Get_Linker_Input()
 {
-    if (OS == "win32")
+    if (OS == "win")
     {
         return Output_File + Get_Assembly_Dest_Marker();
     }
@@ -158,7 +158,7 @@ string Producer::Get_Linker_Input()
 
 string Producer::Get_Added_Libs()
 {
-    if (OS == "win32")
+    if (OS == "win")
     {
         string r = "";
         for (auto i : Libs)
@@ -181,7 +181,7 @@ string Producer::Get_Added_Libs()
 
 string Producer::Get_Entry()
 {
-    if (OS == "win32")
+    if (OS == "win")
     {
         if (Type == "exe")
         {
@@ -204,7 +204,7 @@ string Producer::Get_Template()
 {
     if (Find(Libs, "OpenGL32.lib") || Find(Libs, "OpenGL32.Lib"))
     {
-        if (OS == "win32")
+        if (OS == "win")
         {
             return "link \"glfw3.lib\" \"OpenGL32.lib\" \"kernel32.lib\" \"user32.lib\" \"gdi32.lib\" \"shell32.lib\" /DEBUG /SUBSYSTEM:CONSOLE /NOLOGO " + Output_File + ".obj /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\um\\x86\" OpenGL32.lib /entry:main /out:\"" + Output_File +".exe\" /libpath:\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.25.28610\\lib\\x86\" vcruntime.lib /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\ucrt\\x86\" /libpath:\"" + Produce_Working_Dir + "\" ucrt.lib";
         }
@@ -259,7 +259,7 @@ string Producer::Get_All(vector<string> in)
 }
 
 string Producer::Get_Linker_Output(){
-    if (OS == "win32"){
+    if (OS == "win"){
         return "";
     }
     else if (OS == "unix"){

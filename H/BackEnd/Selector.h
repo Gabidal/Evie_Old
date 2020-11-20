@@ -46,6 +46,7 @@ private:
 
 	//Opcodes
 	vector<IR*> Opcodes;
+	vector<Token*> Size_Identifiers;
 public:
 	Selector() { Init(); }
 	Path* Get_Path_Info(vector<IR*> source, int i, Token* t);
@@ -77,6 +78,7 @@ public:
 	//OPCODES:
 	IR* Get_Opcode(IR* i);
 	bool Check_Resource_Availability(IR* i, vector<pair<Token*, pair<int, int>>> Order);
+	string Get_Size_Identifier(int s);
 };
 
 #endif

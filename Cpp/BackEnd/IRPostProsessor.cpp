@@ -10,6 +10,11 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 	if (!selector->Get_Opcode(Input->at(i))->is(TOKEN::ALL_ARGS_SAME_SIZE))
 		return;
 
+	//numbers seem to be exeptions to this particular rule...
+	for (auto j : Input->at(i)->Arguments)
+		if (j->is(TOKEN::NUM))
+			return;
+
 	//there IR's are still universal so dont worry about, if there is more than 2 arguments with the operator.
 	//convert always the smaller into the bigger size
 	Token* Scalable = nullptr;
@@ -75,9 +80,7 @@ void IRPostProsessor::Handle_Calls(int i)
 	if (!Input->at(i)->is(TOKEN::CALL))
 		return;
 
-	//handle the given registers
-	//hmm i think the registerizer can handle these too, 
-	//the parameters in OPCODE emeber are just for information for the selector.
+	
 
 }
 

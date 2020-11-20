@@ -7,7 +7,7 @@ extern x86_64_Win X86_64_WIN;
 void Selector::Init() {
 	if (sys->Info.Architecture == "x86") {
 		if (sys->Info.Bits_Mode == "8") {
-			if (sys->Info.OS == "win32") {
+			if (sys->Info.OS == "win") {
 				X86_64_WIN.Init();
 				for (auto i : X86_64_WIN.Registers)
 					Registers.push_back({ nullptr, i });
@@ -15,6 +15,7 @@ void Selector::Init() {
 					Parameter_Registers.push_back(Transform(i));
 				}
 				Opcodes = X86_64_WIN.Opcodes;
+				Size_Identifiers = X86_64_WIN.Size_Identifiers;
 			}
 		}
 
@@ -423,7 +424,7 @@ void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//add rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }));
+	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK",  _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), 4) }));
 }
 
 void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
@@ -497,5 +498,15 @@ bool Selector::Check_Resource_Availability(IR* opc, vector<pair<Token*, pair<int
 
 	}
 	return false;
+}
+
+string Selector::Get_Size_Identifier(int s)
+{
+	for (auto i : Size_Identifiers) {
+		if (i->Get_Size() == s)
+			return i->Get_Name();
+	}
+	cout << "Error: Size identifier for size of '" << to_string(s) << "' wasnt found!" << endl;
+	throw::exception("Error!");
 }
 

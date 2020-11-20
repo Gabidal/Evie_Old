@@ -163,6 +163,13 @@ void IRGenerator::Parse_Calls(int i)
 
 	Output->push_back(ir);
 
+	int De_Allocate_Size = 0;
+	for (auto j : Reversable_Pushes) {
+		De_Allocate_Size += j->Get_Size();
+	}
+
+	selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
+
 	Node* tmp = Global_Scope->Find(Input[i], Global_Scope);
 	tmp->Update_Size_By_Inheritted();
 
