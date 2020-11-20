@@ -6,7 +6,8 @@ mov r9d, 4
 push 6
 push 5
 call apple
-mov eax, eax
+mov ecx, eax
+mov eax, ecx
 ret 
 ret 
 
@@ -15,9 +16,9 @@ apple:
 add ecx, edx
 add ecx, r8d
 add ecx, r9d
-mov edx, [() ]
+mov edx, [(rsp + 8) ]
 add ecx, edx
-mov edx, [() ]
+mov edx, [(rsp + 12) ]
 add ecx, edx
 mov eax, ecx
 ret 

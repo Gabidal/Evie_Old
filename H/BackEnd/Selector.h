@@ -42,6 +42,7 @@ private:
 	Node* Parent = nullptr;
 	vector<Token*> Stack;
 	int Stack_Size = 0;
+	int Start_Offset = 0;
 
 	//Opcodes
 	vector<IR*> Opcodes;
@@ -70,7 +71,8 @@ public:
 	void DeAllocate_Stack(int Amount, vector<IR*>* list, int i);
 	void Allocate_Stack(int Amount, vector<IR*>* list, int i);
 	int Update_Stack_Size();
-
+	void Set_Stack_Start_Value(int v) { Start_Offset = v; }
+	void Clean_Stack();
 
 	//OPCODES:
 	IR* Get_Opcode(IR* i);

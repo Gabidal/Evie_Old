@@ -164,7 +164,7 @@ void IRGenerator::Parse_Calls(int i)
 	Output->push_back(ir);
 
 	Node* tmp = Global_Scope->Find(Input[i], Global_Scope);
-	tmp->Update_Func_Size();
+	tmp->Update_Size_By_Inheritted();
 
 	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + call->Get_Name(), tmp->Size);
 

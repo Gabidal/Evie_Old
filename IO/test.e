@@ -1,7 +1,8 @@
 use "cstd.e"
 
 int main() {
-	return apple(1, 2, 3, 4, 5, 6)
+	int a = apple(1, 2, 3, 4, 5, 6)
+	return a
 }
 
 int apple(int a, int b, int c, int d, int e, int f){

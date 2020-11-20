@@ -22,6 +22,8 @@ private:
 	void Handle_Calls(int i);
 	void Clean_Selector(int i);
 	void Prepare_Function(int i);
+
+	void Handle_Stack_Usages(Token* t);
 public:
 	IRPostProsessor(vector<IR*>* in) : Input(in) { Factory(); }
 	void Factory();

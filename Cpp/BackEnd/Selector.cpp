@@ -149,7 +149,6 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 			}
 		}
 	}
-
 	long Reg_Type = 0;
 	if (t->is(TOKEN::RETURNING))
 		Reg_Type |= TOKEN::RETURNING;
@@ -159,12 +158,18 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		Reg_Type |= TOKEN::QUOTIENT;
 	else if (t->is(TOKEN::PARAMETER))
 		Reg_Type |= TOKEN::PARAMETER;
+	else if (t->is(TOKEN::STACK_POINTTER))
+		Reg_Type |= TOKEN::STACK_POINTTER;
 	else if ((p->Intersects_Calls.size() > 0) && p->Intersects_Calls.back() < p->Last_Usage)
 		Reg_Type |= TOKEN::NONVOLATILE;
 	else
 		Reg_Type |= TOKEN::VOLATILE;
 	if (t->is(TOKEN::DECIMAL))
 		Reg_Type |= TOKEN::DECIMAL;
+	//because there is usually only one register for those purposes we need to enable same typed register usage
+	//example: mov eax, eax, if we are returning a call value the value resides in a eax, and the return value in eax.
+	//optimizer will remove these errors later on.
+	bool Single_Register_Type = t->is(TOKEN::RETURNING) || t->is(TOKEN::REMAINDER) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::STACK_POINTTER);
 
 	if (t->Parameter_Index != -1) {
 		Token* reg = nullptr;
@@ -196,27 +201,27 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 			if (r.second->is(Reg_Type)) {
 				for (auto s : *r.second->Get_Childs())
 					if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
-						if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index >= i)
-							continue;
+						if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index + Single_Register_Type > i)
+							goto Wrong;
 				if (r.second->Holder != nullptr)
 					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
-						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index >= i)
-							continue;
+						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index + Single_Register_Type > i)
+							goto Wrong;
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
 					return r.second;
 				}
 			}
 		}
-		else if (r.first->Last_Usage_Index <= i){
+		else if (r.first->Last_Usage_Index < i + Single_Register_Type){
 			for (auto s : *r.second->Get_Childs())
 				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
-					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index >= i)
-						continue;
+					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index + Single_Register_Type > i)
+						goto Wrong;
 			if (r.second->Holder != nullptr)
 				if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
-					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index >= i)
-						continue;
+					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index + Single_Register_Type > i)
+						goto Wrong;
 			if (r.second->is(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first->Last_Usage_Index = p->Last_Usage;
@@ -229,6 +234,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		else if (r.first->User == t->Get_Name()) {
 			return r.second;
 		}
+	Wrong:;
 	}
 	//if the code gets here, then return nullptr to indicate that we need to release some registers
 	return nullptr;
@@ -418,7 +424,6 @@ void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 	//add rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
 	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }));
-	Stack_Size -= Amount;
 }
 
 void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
@@ -426,7 +431,6 @@ void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
 	//sub rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
 	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "-"), { new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }));
-	Stack_Size += Amount;
 }
 
 int Selector::Update_Stack_Size()
@@ -435,7 +439,13 @@ int Selector::Update_Stack_Size()
 	Stack_Size = 0;
 	for (auto i : Stack)
 		Stack_Size += i->Get_Size();
-	return Stack_Size;
+	return Stack_Size + Start_Offset;
+}
+
+void Selector::Clean_Stack()
+{
+	Stack.clear();
+	Start_Offset = 0;
 }
 
 IR* Selector::Get_Opcode(IR* i)

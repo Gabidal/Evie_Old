@@ -104,6 +104,7 @@ void IRPostProsessor::Clean_Selector(int i)
 		Push_Amount++;
 	}
 	//now do same but for the end of funciton
+	selector->Set_Stack_Start_Value(0);
 	for (int j = i+Push_Amount; j > Start_Of_Function; j--) {
 		if (Input->at(j)->OPCODE->Get_Name() != "return")
 			continue;
@@ -113,16 +114,20 @@ void IRPostProsessor::Clean_Selector(int i)
 			Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
 			reg->ID = reg->Get_Name();
 			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
+
+			selector->DeAllocate_Stack(selector->Update_Stack_Size(), Input, j);
 		}
 	}
-
 	selector->Clean_Register_Holders();
+	selector->Clean_Stack();
 }
 
 void IRPostProsessor::Prepare_Function(int i)
 {
 	if (!Input->at(i)->is(TOKEN::START_OF_FUNCTION))
 		return;
+
+	selector->Set_Stack_Start_Value(_SYSTEM_BIT_SIZE_);
 
 	for (auto p : Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Defined) {
 		if (!p->is(PARAMETER_NODE))
@@ -133,14 +138,40 @@ void IRPostProsessor::Prepare_Function(int i)
 	}
 }
 
+void IRPostProsessor::Handle_Stack_Usages(Token* t)
+{
+	if (t->is(TOKEN::MEMORY))
+		for (auto i : t->Childs)
+			Handle_Stack_Usages(i);
+	if (!t->is(TOKEN::CONTENT))
+		return;
+
+	//first update the stack offset.
+	Node* Function = Global_Scope->Find(t->Get_Parent()->Name, t->Get_Parent(), FUNCTION_NODE);
+	Function->Update_Defined_Stack_Offsets();
+
+	Node* Variable = Function->Find(t->Get_Name());
+	if (Variable->is(PARAMETER_NODE)) {
+		//use offsetter
+		t->Childs.push_back(new Token(TOKEN::OFFSETTER, "+",
+			new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_),
+			new Token(TOKEN::NUM, to_string(Variable->Memory_Offset + selector->Update_Stack_Size()))));
+	}
+	else {
+		//use deoffsetter
+	}
+}
+
 void IRPostProsessor::Factory()
 {
 	for (int i = 0; i < Input->size(); i++)
 		Scale_To_Same_Size(i);
 	for (int i = 0; i < Input->size(); i++) {
 		Prepare_Function(i);
-		for (auto a : Input->at(i)->Arguments)
+		for (auto a : Input->at(i)->Arguments) {
+			Handle_Stack_Usages(a);
 			Registerize(a, i);
+		}
 		Clean_Selector(i);
 	}
 }

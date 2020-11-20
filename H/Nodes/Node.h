@@ -329,6 +329,10 @@ public:
 		return nullptr;
 	}
 
+	Node* Find(string n) {
+		return Find(n, this);
+	}
+
 	Node* Get_Right_Parent() {
 		if (Fetcher != nullptr) {
 			return Get_Final_Fetcher(this , 1);
@@ -418,12 +422,12 @@ public:
 		return;
 	}
 
-	void Update_Func_Size() {
+	void Update_Size_By_Inheritted() {
 		Size = 0;
 		for (string s : Inheritted) {
 			//there is no inheritable type that doesnt have enything init.
 			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT)) {
-				if (s == "func")
+				if (s == "ptr")
 					//this is for function pointters.
 					Size += _SYSTEM_BIT_SIZE_;
 				continue;
@@ -470,6 +474,8 @@ public:
 		}
 		return;
 	}
+
+	void Update_Defined_Stack_Offsets();
 
 	Node* Copy_Node(Node* What_Node, Node* p)
 	{
