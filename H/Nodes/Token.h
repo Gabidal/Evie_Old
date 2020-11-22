@@ -22,6 +22,8 @@ private:
 
 	Node* Parent = nullptr;
 public:
+	//for return
+	bool Is_Initted = false;
 	//for register parents
 	Token* Holder = nullptr;
 	//for parameters

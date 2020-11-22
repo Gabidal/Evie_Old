@@ -34,6 +34,8 @@ public:
 	vector<Node*> Childs;
 	vector<Node*> Member_Functions;
 	vector<Node*> Operator_Overloads;
+	int Call_Space_Start_Address = 0;
+	int Max_Allocation_Space = 0;
 	//function features
 	vector<Node*> Parameters;
 	string Mangled_Name = "";
@@ -331,6 +333,15 @@ public:
 
 	Node* Find(string n) {
 		return Find(n, this);
+	}
+
+	Node* Get_Parent_As(long F, Node* Parent) {
+		if (Parent->is(F))
+			return Parent;
+		if (Parent->Parent != nullptr)
+			return Get_Parent_As(F, Parent->Parent);
+		cout << "Parent NULL!!" << endl;
+		throw::exception("ERROR!");
 	}
 
 	Node* Get_Right_Parent() {

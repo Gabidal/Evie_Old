@@ -42,7 +42,9 @@ void IRGenerator::Parse_Function(int i)
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
 
 	//TODO: Make the return IR here
-	Output->push_back(new IR(new Token(TOKEN::FLOW, "return"), {}));
+	Token* ret = new Token(TOKEN::FLOW, "return");
+	ret->Set_Parent(Global_Scope->Find(Input[i]->Name));
+	Output->push_back(new IR(ret, {}));
 
 	//make the end of funciton like End Proc like label
 	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION), {}));
@@ -152,23 +154,40 @@ void IRGenerator::Parse_Calls(int i)
 		Parameter_Place++;
 	}
 
-	reverse(Reversable_Pushes.begin(), Reversable_Pushes.end());
+	//reverse(Reversable_Pushes.begin(), Reversable_Pushes.end());
 
-	//now all the push needing parameters are reversed, and ready to go push.
-	for (auto p : Reversable_Pushes)
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "push"), { p }));
+	Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, Input[i]);
+
+	int allocation = 0;
+	for (auto p : Reversable_Pushes) {
+		allocation += p->Get_Size();
+	}
+
+	if (Parent->Max_Allocation_Space < allocation)
+		Parent->Max_Allocation_Space = allocation;
+
+	int Stack_Offset = 0;
+	for (auto p : Reversable_Pushes) {
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+			new Token(TOKEN::MEMORY, {
+				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset)))
+				}, p->Get_Size(), p->Get_Name()),
+			p
+			}));
+		Stack_Offset += p->Get_Size();
+	}
 
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
-	IR* ir = new IR(call, {new Token(TOKEN::LABEL, Input[i]->Name)});
+	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Input[i]->Name) });
 
 	Output->push_back(ir);
 
-	int De_Allocate_Size = 0;
-	for (auto j : Reversable_Pushes) {
-		De_Allocate_Size += j->Get_Size();
-	}
+	//int De_Allocate_Size = 0;
+	//for (auto j : Reversable_Pushes) {
+	//	De_Allocate_Size += j->Get_Size();
+	//}
 
-	selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
+	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
 
 	Node* tmp = Global_Scope->Find(Input[i], Global_Scope);
 	tmp->Update_Size_By_Inheritted();
@@ -1180,6 +1199,7 @@ void IRGenerator::Parse_Return(int i) {
 		Return_Val }));
 
 	//let the postprosessor to handle stack emptying!
-
-	Output->push_back(new IR(new Token(TOKEN::FLOW, "return"), vector<Token*>{}));
+	Token* ret = new Token(TOKEN::FLOW, "return");
+	ret->Set_Parent(Parent);
+	Output->push_back(new IR(ret, vector<Token*>{}));
 }

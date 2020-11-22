@@ -79,8 +79,7 @@ void IRPostProsessor::Handle_Calls(int i)
 {
 	if (!Input->at(i)->is(TOKEN::CALL))
 		return;
-
-	
+	//now all the push needing parameters are reversed, and ready to go push.
 
 }
 
@@ -88,6 +87,9 @@ void IRPostProsessor::Clean_Selector(int i)
 {
 	if (!Input->at(i)->is(TOKEN::END_OF_FUNCTION))
 		return;
+	if (Input->at(i)->OPCODE->Is_Initted)
+		return;
+	Input->at(i)->OPCODE->Is_Initted = true;
 	//get the start of function index
 	int Start_Of_Function = 0;
 	for (int j = i; j > 0; j--)
@@ -108,17 +110,24 @@ void IRPostProsessor::Clean_Selector(int i)
 	}
 	//now do same but for the end of funciton
 	selector->Set_Stack_Start_Value(0);
-	for (int j = i+Push_Amount; j > Start_Of_Function; j--) {
+	for (int j = i + Push_Amount; j > Start_Of_Function; j -= 1) {
 		if (Input->at(j)->OPCODE->Get_Name() != "return")
 			continue;
+		Token* ret = Input->at(j)->OPCODE;
 		for (auto r : selector->Get_Register_Type(TOKEN::NONVOLATILE)) {
 			if (r.first == nullptr)
 				continue;
 			Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
 			reg->ID = reg->Get_Name();
-			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
 
-			selector->DeAllocate_Stack(selector->Update_Stack_Size(), Input, j);
+
+			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
+		}
+		Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, ret->Get_Parent());
+		if (Parent->Max_Allocation_Space > 0) {
+			selector->DeAllocate_Stack(Parent->Max_Allocation_Space + selector->Update_Stack_Size(), Input, j);
+			for (auto k : Input->at(j)->Arguments)
+				Registerize(k, j);
 		}
 	}
 	selector->Clean_Register_Holders();
@@ -131,6 +140,7 @@ void IRPostProsessor::Prepare_Function(int i)
 		return;
 
 	selector->Set_Stack_Start_Value(_SYSTEM_BIT_SIZE_);
+	//selector->Allocate_Stack(Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space, Input, i + 1);
 
 	for (auto p : Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Defined) {
 		if (!p->is(PARAMETER_NODE))
@@ -139,6 +149,20 @@ void IRPostProsessor::Prepare_Function(int i)
 		if (tmp->is(TOKEN::REGISTER))
 			selector->Get_New_Reg(Input, i, new Token(p));
 	}
+}
+
+void IRPostProsessor::Handle_Labels(int i)
+{
+	if (!Input->at(i)->is(TOKEN::LABEL))
+		return;
+
+	if (!Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->is(FUNCTION_NODE))
+		return;
+
+	if (Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space == 0)
+		return;
+
+	selector->Allocate_Stack(Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space, Input, i + 1);
 }
 
 void IRPostProsessor::Handle_Stack_Usages(Token* t)
@@ -171,6 +195,7 @@ void IRPostProsessor::Factory()
 		Scale_To_Same_Size(i);
 	for (int i = 0; i < Input->size(); i++) {
 		Prepare_Function(i);
+		Handle_Labels(i);
 		for (auto a : Input->at(i)->Arguments) {
 			Handle_Stack_Usages(a);
 			Registerize(a, i);
