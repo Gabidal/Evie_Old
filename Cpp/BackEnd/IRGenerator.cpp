@@ -350,12 +350,12 @@ void IRGenerator::Parse_Operators(int i)
 	Token* Left = nullptr;
 	Token* Right = nullptr;
 
-	IRGenerator g(Parent, { Input[i]->Left }, Output, Input[i]->is(ASSIGN_OPERATOR_NODE));
+	IRGenerator g(Parent, { Input[i]->Left }, Output, Input[i]->is(ASSIGN_OPERATOR_NODE) || Is_In_Left_Side_Of_Operator);
 
 	if (g.Handle != nullptr)
 		Left = g.Handle;
 	else {
-		if (Input[i]->Name == "=") {
+		if (Input[i]->Name == "=" || Is_In_Left_Side_Of_Operator) {
 			//dont load the value into a register
 			Left = new Token(Input[i]->Left);
 			if (Left->is(TOKEN::CONTENT))
@@ -363,7 +363,7 @@ void IRGenerator::Parse_Operators(int i)
 			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
 			//	Left = Left; //:D no need to do enything
 		}
-		else if (!Input[i]->Left->is(NUMBER_NODE) && !Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE)) {
+		else if ((!Input[i]->Left->is(NUMBER_NODE) || Is_In_Left_Side_Of_Operator) && !Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE)) {
 			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
 			if (L->is(TOKEN::CONTENT))
 				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size(), L->Get_Name());
@@ -383,16 +383,16 @@ void IRGenerator::Parse_Operators(int i)
 
 	g.Generate({ Input[i]->Right });
 
-	bool Is_Parameter_Register = false;
+	/*bool Is_Parameter_Register = false;
 	if (Input[i]->Right->is(PARAMETER_NODE)) {
 		//check if the parameter is held in a register or not
 		if (Token(Input[i]->Right).is(TOKEN::REGISTER))
 			Is_Parameter_Register = true;
-	}
+	}*/
 
 	if (g.Handle != nullptr)
 		Right = g.Handle;
-	else if (!Input[i]->Right->is(NUMBER_NODE) && !Is_Parameter_Register) {
+	else if (!Input[i]->Right->is(NUMBER_NODE) && !Token(Input[i]->Right).is(TOKEN::REGISTER) && !Left->is(TOKEN::REGISTER)){//!Is_Parameter_Register) {
 		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
 		if (R->is(TOKEN::CONTENT))
 			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size(), R->Get_Name());
@@ -407,6 +407,8 @@ void IRGenerator::Parse_Operators(int i)
 	}
 	else {
 		Right = new Token(Input[i]->Right);
+		if (Right->is(TOKEN::CONTENT))
+			Right = new Token(TOKEN::MEMORY, { Right }, Left->Get_Size() ,Right->Get_Name());
 		//Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
 	}
 	
@@ -1092,7 +1094,7 @@ void IRGenerator::Parse_Return(int i) {
 	if (Input[i]->Name != "return")
 		return;
 
-	IRGenerator g(Parent, { Input[i]->Right }, Output);
+	IRGenerator g(Parent, { Input[i]->Right }, Output, true);
 
 	Token* Return_Val = nullptr;
 	if (g.Handle != nullptr)

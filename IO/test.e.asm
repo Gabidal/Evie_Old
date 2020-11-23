@@ -18,10 +18,8 @@ mov dword [rsp + 4 ], dword 6
 mov dword [rsp + 8 ], dword 7
 call banana
 mov ecx, eax
-mov edx, ebx
-mov ebp, ecx
-add edx, ebp
-mov eax, edx
+add ebx, ecx
+mov eax, ebx
 add rsp, dword 12
 pop rbx
 ret 
@@ -34,12 +32,9 @@ banana:
 add ecx, edx
 add ecx, r8d
 add ecx, r9d
-mov edx, dword [(rsp + 8) ]
-add ecx, edx
-mov edx, dword [(rsp + 12) ]
-add ecx, edx
-mov edx, dword [(rsp + 16) ]
-add ecx, edx
+add ecx, dword [(rsp + 8) ]
+add ecx, dword [(rsp + 12) ]
+add ecx, dword [(rsp + 16) ]
 mov eax, ecx
 ret 
 ret 
@@ -49,10 +44,8 @@ apple:
 add ecx, edx
 add ecx, r8d
 add ecx, r9d
-mov edx, dword [(rsp + 8) ]
-add ecx, edx
-mov edx, dword [(rsp + 12) ]
-add ecx, edx
+add ecx, dword [(rsp + 8) ]
+add ecx, dword [(rsp + 12) ]
 mov eax, ecx
 ret 
 ret 

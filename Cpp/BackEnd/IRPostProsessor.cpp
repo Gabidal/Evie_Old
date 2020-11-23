@@ -156,10 +156,14 @@ void IRPostProsessor::Handle_Labels(int i)
 	if (!Input->at(i)->is(TOKEN::LABEL))
 		return;
 
-	if (!Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->is(FUNCTION_NODE))
+	Node* Parent = Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope);
+	if (Parent == nullptr)
 		return;
 
-	if (Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space == 0)
+	if (!Parent->is(FUNCTION_NODE))
+		return;
+
+	if (Parent->Max_Allocation_Space == 0)
 		return;
 
 	selector->Allocate_Stack(Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space, Input, i + 1);
