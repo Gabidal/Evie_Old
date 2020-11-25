@@ -363,7 +363,7 @@ void IRGenerator::Parse_Operators(int i)
 			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
 			//	Left = Left; //:D no need to do enything
 		}
-		else if ((!Input[i]->Left->is(NUMBER_NODE) || Is_In_Left_Side_Of_Operator) && !Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE)) {
+		else if (Is_In_Left_Side_Of_Operator || (!Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))) {
 			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
 			if (L->is(TOKEN::CONTENT))
 				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size(), L->Get_Name());

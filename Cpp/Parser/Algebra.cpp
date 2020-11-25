@@ -233,10 +233,10 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 	//2a -a < a - a + 1
 	//a < 1
 	vector<Node*> tmp_L = { n->Left };
-	Algebra tmp_l(Parent, &tmp_L);
+	//Algebra tmp_l(Parent, &tmp_L);
 
 	vector<Node*> tmp_R = { n->Right };
-	Algebra tmp_r(Parent, &tmp_R);
+	//Algebra tmp_r(Parent, &tmp_R);
 
 
 
@@ -367,7 +367,7 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 		return;
 	if (op->Left->is(OPERATOR_NODE) || op->Left->is(ASSIGN_OPERATOR_NODE))
 		Operate_Coefficient_Constants(op->Left);
-	if (op->Right->is(OPERATOR_NODE) || op->Right->is(ASSIGN_OPERATOR_NODE))
+	if (op->Right->is(OPERATOR_NODE))
 		Operate_Coefficient_Constants(op->Right);
 
 	if (op->Left->Name != op->Right->Name)

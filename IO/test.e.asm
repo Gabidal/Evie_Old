@@ -1,51 +1,17 @@
-main:
-push rbx
-sub rsp, dword 12
-mov ecx, dword 1
-mov edx, dword 2
-mov r8d, dword 3
-mov r9d, dword 4
-mov dword [rsp + 0 ], dword 5
-mov dword [rsp + 4 ], dword 6
-call apple
-mov ebx, eax
-mov ecx, dword 1
-mov edx, dword 2
-mov r8d, dword 3
-mov r9d, dword 4
-mov dword [rsp + 0 ], dword 5
-mov dword [rsp + 4 ], dword 6
-mov dword [rsp + 8 ], dword 7
-call banana
-mov ecx, eax
-add ebx, ecx
-mov eax, ebx
-add rsp, dword 12
-pop rbx
+linkage_1:
+mov edx, dword 1
+add edx, ecx
+mov ecx, edx
+add edx, ecx
+mov eax, edx
 ret 
-add rsp, dword 12
-pop rbx
 ret 
 
 
-banana:
+linkage_2:
+mov edx, ecx
+mov edx, dword 1
 add ecx, edx
-add ecx, r8d
-add ecx, r9d
-add ecx, dword [(rsp + 8) ]
-add ecx, dword [(rsp + 12) ]
-add ecx, dword [(rsp + 16) ]
-mov eax, ecx
-ret 
-ret 
-
-
-apple:
-add ecx, edx
-add ecx, r8d
-add ecx, r9d
-add ecx, dword [(rsp + 8) ]
-add ecx, dword [(rsp + 12) ]
 mov eax, ecx
 ret 
 ret 
