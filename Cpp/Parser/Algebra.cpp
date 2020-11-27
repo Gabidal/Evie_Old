@@ -215,11 +215,13 @@ void Algebra::Inline_Variables(int i)
 				//a = -n
 				//Node* represents the -1 and n on this example
 				//Node* n is same as the -n variable on example
-				d->Current_Value->Coefficient *= n->Coefficient;
-				*n = *d->Current_Value;
-				d->Inlined = true;
-				//maybe this is useless:
-				n->Inlined = false;
+				if (d->Current_Value->Expiring_Index >= i) {
+					d->Current_Value->Var->Coefficient *= n->Coefficient;
+					*n = *d->Current_Value->Var;
+					d->Inlined = true;
+					//maybe this is useless:
+					n->Inlined = false;
+				}
 			}
 	}
 
@@ -314,7 +316,8 @@ void Algebra::Set_Defining_Value(int i)
 	}
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
-	Parent->Find(Input->at(i)->Left->Name, Input->at(i)->Left->Get_Right_Parent())->Current_Value = right;
+	Variable_Descriptor* description = new Variable_Descriptor(Input->at(i)->Left->Name, right, i, *Input);
+	Parent->Find(Input->at(i)->Left->Name, Input->at(i)->Left->Get_Right_Parent())->Current_Value = description;
 
 	return;
 }

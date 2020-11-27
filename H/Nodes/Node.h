@@ -15,6 +15,14 @@ class Node;
 
 extern Node* Global_Scope;
 
+class Variable_Descriptor {
+public:
+	int Define_Index = 0;
+	int Expiring_Index = 0;
+	Node* Var = nullptr;
+	Variable_Descriptor(string name, Node* v, int i, vector<Node*> source);
+};
+
 class Node {
 public:
 	Node(int flag) : Type(flag){}
@@ -53,7 +61,7 @@ public:
 	//algebra optimizer features
 	int Order = 0;
 	int Coefficient = 1;
-	Node* Current_Value = nullptr;
+	Variable_Descriptor* Current_Value = nullptr;
 	bool Inlined = false;
 	//fetching features
 	Node* Fetcher = nullptr;

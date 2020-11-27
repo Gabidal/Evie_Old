@@ -7,6 +7,8 @@
 
 using namespace std;
 
+
+
 class Algebra {
 public:
 	vector<Node*>* Input = nullptr;

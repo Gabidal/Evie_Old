@@ -23,3 +23,30 @@ void Node::Update_Defined_Stack_Offsets()
 		}
 	}
 }
+
+Variable_Descriptor::Variable_Descriptor(string name, Node* v, int i, vector<Node*> source) {
+	Define_Index = i;
+	Var = v;
+	for (int j = i+1; j < source.size(); j++) {
+		if (source[j]->is(ASSIGN_OPERATOR_NODE))
+			if (source[j]->Left->Name == name) {
+				Expiring_Index = j;
+				break;
+			}
+		if (source[j]->is(CALL_NODE)) {
+			for (int p = 0; p < source[j]->Parameters.size(); p++) {
+				if (source[j]->Parameters[p]->Name == name)
+					if (source[j]->Template_Function != nullptr) {
+						if (source[j]->Template_Function->Parameters[p]->is("ptr") != -1) {
+							Expiring_Index = j;
+							goto Skip;
+						}
+					}
+					else
+						cout << "Warning: " << source[i]->Name << " has no template function!" << endl;
+			}
+		}
+		Expiring_Index = j;
+	}
+Skip:;
+}
