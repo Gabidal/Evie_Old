@@ -20,7 +20,7 @@ public:
 	int Define_Index = 0;
 	int Expiring_Index = 0;
 	Node* Var = nullptr;
-	Variable_Descriptor(string name, Node* v, int i, vector<Node*> source);
+	Variable_Descriptor(Node* v, int i, vector<Node*> source);
 };
 
 class Node {

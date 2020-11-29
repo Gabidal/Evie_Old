@@ -8,6 +8,7 @@
 using namespace std;
 
 
+vector<Node*> Linearise(Node* ast, bool Include_Operator);
 
 class Algebra {
 public:
@@ -18,7 +19,6 @@ public:
 	void Factory();
 private:
 	Node* Parent;
-	vector<Node*> Linearise(Node* ast, bool Include_Operator);
 
 	void Function_Inliner(Node* c);
 	vector<Node*> Get_all(Node* n, int Flag);

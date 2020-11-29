@@ -19,10 +19,10 @@ void Algebra::Factory() {
 		Fix_Coefficient_Into_Real_Operator(i);
 }
 
-vector<Node*> Algebra::Linearise(Node* ast, bool Include_Operator = false)
+vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
 {
 	vector<Node*> Result;
-	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE)) {
+	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE)) {
 		vector<Node*> left = Linearise(ast->Left, Include_Operator);
 		Result.insert(Result.end(), left.begin(), left.end());
 
@@ -32,8 +32,14 @@ vector<Node*> Algebra::Linearise(Node* ast, bool Include_Operator = false)
 		vector<Node*> right = Linearise(ast->Right, Include_Operator);
 		Result.insert(Result.end(), right.begin(), right.end());
 	}
-	else if (ast->is(CONTENT_NODE))
-		Result.insert(Result.end(), ast->Childs.begin(), ast->Childs.end());
+	else if (ast->is(CONTENT_NODE)) {
+		vector<Node*> childs;
+		for (auto c : ast->Childs) {
+			vector<Node*> tmp = Linearise(c, Include_Operator);
+			childs.insert(childs.end(), tmp.begin(), tmp.end());
+		}
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
 	else
 		Result.push_back(ast);
 
@@ -215,7 +221,7 @@ void Algebra::Inline_Variables(int i)
 				//a = -n
 				//Node* represents the -1 and n on this example
 				//Node* n is same as the -n variable on example
-				if (d->Current_Value->Expiring_Index >= i) {
+				if (d->Current_Value->Expiring_Index > i) {
 					d->Current_Value->Var->Coefficient *= n->Coefficient;
 					*n = *d->Current_Value->Var;
 					d->Inlined = true;
@@ -316,7 +322,7 @@ void Algebra::Set_Defining_Value(int i)
 	}
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
-	Variable_Descriptor* description = new Variable_Descriptor(Input->at(i)->Left->Name, right, i, *Input);
+	Variable_Descriptor* description = new Variable_Descriptor(right, i, *Input);
 	Parent->Find(Input->at(i)->Left->Name, Input->at(i)->Left->Get_Right_Parent())->Current_Value = description;
 
 	return;

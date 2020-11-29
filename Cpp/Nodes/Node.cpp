@@ -2,6 +2,7 @@
 #include "../../H/Nodes/Token.h"
 #include <vector>
 #include <string>
+#include "../../H/Parser/Algebra.h"
 
 using namespace std;
 
@@ -24,29 +25,33 @@ void Node::Update_Defined_Stack_Offsets()
 	}
 }
 
-Variable_Descriptor::Variable_Descriptor(string name, Node* v, int i, vector<Node*> source) {
+Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 	Define_Index = i;
 	Var = v;
-	for (int j = i+1; j < source.size(); j++) {
-		if (source[j]->is(ASSIGN_OPERATOR_NODE))
-			if (source[j]->Left->Name == name) {
-				Expiring_Index = j;
-				break;
-			}
-		if (source[j]->is(CALL_NODE)) {
-			for (int p = 0; p < source[j]->Parameters.size(); p++) {
-				if (source[j]->Parameters[p]->Name == name)
-					if (source[j]->Template_Function != nullptr) {
-						if (source[j]->Template_Function->Parameters[p]->is("ptr") != -1) {
-							Expiring_Index = j;
-							goto Skip;
-						}
-					}
-					else
-						cout << "Warning: " << source[i]->Name << " has no template function!" << endl;
+
+	vector<Node*> Linear_Ast = Linearise(v, false);
+	//for complex inlinings
+	for (int n = i; n < source.size(); n++) {
+		if (source[n]->is(ASSIGN_OPERATOR_NODE)) {
+			for (auto c : Linear_Ast) {
+				if (source[n]->Left->Name == c->Name) {
+					Expiring_Index = n;
+					goto Stop;
+				}
 			}
 		}
-		Expiring_Index = j;
+		if (source[n]->is(CALL_NODE)) {
+			for (auto c : Linear_Ast) {
+				for (auto p : source[n]->Template_Function->Parameters) {
+					if (p->is("ptr") != -1)
+						if (p->Name == c->Name) {
+							Expiring_Index = n;
+							goto Stop;
+						}
+				}
+			}
+		}
+		Expiring_Index = n;
 	}
-Skip:;
+Stop:;
 }

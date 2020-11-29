@@ -13,3 +13,8 @@ int linkage_2(int b) {
     a = 1
     return b + a
 }
+
+int main(){
+    int a = linkage_1(1)
+    return a
+}
