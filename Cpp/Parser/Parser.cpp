@@ -387,6 +387,8 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 		if (Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
 			return;		//++ (..)
 	}
+	if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT))
+		return; // b = ++<a>
 
 	bool op_Pass = false;
 	for (string s : Postfix)

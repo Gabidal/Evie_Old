@@ -25,12 +25,12 @@ mov edx, dword 0
 cmp edx, dword 3
 jg while0_END
 while0:
-mov r8d, edx ;a = i
-mov r9d, edx ;i = i
-add r9d, dword 1 ;b = i + 1
-mov ecx, r9d ; save b
-add edx, dword 1 ;i++
-cmp edx, dword 3 ;i < 3
+mov r8d, edx
+mov r9d, edx
+add r9d, dword 1
+mov ecx, r9d
+add edx, dword 1
+cmp edx, dword 3
 jg while0_END
 jmp while0
 while0_END:
