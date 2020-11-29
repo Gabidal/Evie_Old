@@ -14,6 +14,25 @@ int linkage_2(int b) {
     return b + a
 }
 
+int linkage_3(int b) {
+    int a = b    
+    int i = 0
+
+    int c = b
+    int d = c
+    int e = a
+
+    int j = i
+
+    while (i < 3) {
+        a = i
+        b = i + 1
+        i++
+    }
+
+    return a + b
+}
+
 int main(){
     int a = linkage_1(1)
     return a

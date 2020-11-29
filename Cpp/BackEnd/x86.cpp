@@ -46,10 +46,10 @@ void x86_64_Win::Init()
 	Token* RSI = new Token(TOKEN::NONVOLATILE, "rsi", 8, { ESI });
 
 
-	Token* BPL = new Token(TOKEN::VOLATILE, "bpl", 1, {});
-	Token* BP = new Token(TOKEN::VOLATILE, "bp", 2, { BPL });
-	Token* EBP = new Token(TOKEN::VOLATILE, "ebp", 4, { BP });
-	Token* RBP = new Token(TOKEN::VOLATILE, "rbp", 8, { EBP });
+	Token* BPL = new Token(TOKEN::NONVOLATILE, "bpl", 1, {});
+	Token* BP = new Token(TOKEN::NONVOLATILE, "bp", 2, { BPL });
+	Token* EBP = new Token(TOKEN::NONVOLATILE, "ebp", 4, { BP });
+	Token* RBP = new Token(TOKEN::NONVOLATILE, "rbp", 8, { EBP });
 
 	Token* SPL = new Token(TOKEN::STACK_POINTTER, "spl", 1, {});
 	Token* SP = new Token(TOKEN::STACK_POINTTER, "sp", 2, { SPL });
