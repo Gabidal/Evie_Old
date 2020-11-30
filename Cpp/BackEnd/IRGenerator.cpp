@@ -16,6 +16,7 @@ void IRGenerator::Factory()
 		Parse_Loops(i);
 		Parse_Arrays(i);
 		Parse_Calls(i);
+		Parse_Parenthesis(i);
 		Parse_Operators(i);
 		Parse_Pointers(i);
 		Parse_Jumps(i);
@@ -352,8 +353,12 @@ void IRGenerator::Parse_Operators(int i)
 
 	IRGenerator g(Parent, { Input[i]->Left }, Output, Input[i]->is(ASSIGN_OPERATOR_NODE) || Is_In_Left_Side_Of_Operator);
 
-	if (g.Handle != nullptr)
+	vector<IR*> tmp;
+	IRGenerator g2(Parent, { Input[i]->Right }, &tmp);
+
+	if (g.Handle != nullptr) {
 		Left = g.Handle;
+	}
 	else {
 		if (Input[i]->Name == "=" || Is_In_Left_Side_Of_Operator) {
 			//dont load the value into a register
@@ -381,7 +386,12 @@ void IRGenerator::Parse_Operators(int i)
 		}
 	}
 
-	g.Generate({ Input[i]->Right });
+	if (g2.Handle != nullptr && g2.Handle->Get_Name() == Left->Get_Name()) {
+		//save left into other reg
+		Token* r = new Token(TOKEN::REGISTER, Left->Get_Name() + "_tmp", Left->Get_Size());
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Left }));
+		Left = r;
+	}
 
 	/*bool Is_Parameter_Register = false;
 	if (Input[i]->Right->is(PARAMETER_NODE)) {
@@ -390,8 +400,10 @@ void IRGenerator::Parse_Operators(int i)
 			Is_Parameter_Register = true;
 	}*/
 
-	if (g.Handle != nullptr)
-		Right = g.Handle;
+	if (g2.Handle != nullptr) {
+		Right = g2.Handle;
+		Output->insert(Output->end(), tmp.begin(), tmp.end());
+	}
 	else if (!Input[i]->Right->is(NUMBER_NODE) && !Token(Input[i]->Right).is(TOKEN::REGISTER) && !Left->is(TOKEN::REGISTER)){//!Is_Parameter_Register) {
 		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
 		if (R->is(TOKEN::CONTENT))
@@ -828,7 +840,7 @@ void IRGenerator::Parse_PostFixes(int i)
 
 	IR* ir = new IR(add, { Left, num });
 	Output->push_back(ir);
-	if (Input[i]->Holder != nullptr)
+	if (Input[i]->Holder == nullptr)
 		Handle = Left;
 }
 
@@ -838,6 +850,34 @@ void IRGenerator::Parse_Jump(int i)
 		return;
 
 	Output->push_back(Make_Jump("jump", Input[i]->Right->Name));
+}
+
+void IRGenerator::Parse_Parenthesis(int i)
+{
+	if (!Input[i]->is(CONTENT_NODE))
+		return;
+	if (Input[i]->Paranthesis_Type != '(')
+		return;
+
+	//b++ + (b++ + 1)
+	IRGenerator g(Parent, Input[i]->Childs, Output);
+
+	if (g.Handle != nullptr)
+		Handle = g.Handle;
+	else {
+		//mov the variable into a reg.
+		Token* C = new Token(Input[i]->Find(Input[i]->Childs[0], Input[i]->Childs[0]->Parent));
+		if (C->is(TOKEN::CONTENT))
+			C = new Token(TOKEN::MEMORY, { C }, C->Get_Size(), C->Get_Name());
+
+		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + C->Get_Name(), C->Get_Size());
+		//create the IR
+		Token* Opc = new Token(TOKEN::OPERATOR, "move");
+		IR* ir = new IR(Opc, { Reg, C });
+
+		Handle = Reg;
+		Output->push_back(ir);
+	}
 }
 
 void IRGenerator::Update_Operator(Node* n)

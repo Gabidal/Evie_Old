@@ -3,9 +3,7 @@ type int{
 }
 
 int linkage_1(int b) {
-    int a = b
-    b = 1 + a
-    return a + b
+    return b + (b + 1)
 }
 
 int linkage_2(int b) {

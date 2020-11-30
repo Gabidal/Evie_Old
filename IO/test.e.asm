@@ -1,8 +1,6 @@
 linkage_1:
 mov edx, ecx
-mov r8d, dword 1
-add r8d, edx
-mov ecx, r8d
+add ecx, dword 1
 add edx, ecx
 mov eax, edx
 ret 
