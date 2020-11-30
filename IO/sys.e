@@ -1,4 +1,4 @@
-if (OS == "win32"){
+if (OS == "win"){
 	use "win32.asm"
 }
 

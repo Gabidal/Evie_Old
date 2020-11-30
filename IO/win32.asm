@@ -1,61 +1,72 @@
 ;analyze
 section .text
 
-extern _GetStdHandle@4
-extern _WriteConsoleA@20
-extern _ReadConsoleA@20
+extern GetStdHandle
+extern WriteFile
+extern ReadConsoleA
 
-global sys_print
-sys_print:
+; rcx: Address
+; rdx: Length
+global _Z14internal_printPci
+_Z14internal_printPci:
+push rbx
+push rsi
 
-; esp+16 =  len
-; esp+12 = buf
-; esp+8 = return
-; esp+4 = 0
-; esp = written
+; Required spill area, 1 x 64 bit parameter and lpNumberOfCharsWritten for WriteFile (aligned)
+sub rsp, 56
 
-push -11 ; STD_OUTPUT_HANDLE
-call _GetStdHandle@4
+mov rbx, rcx ; Address
+mov rsi, rdx ; Length
 
-push 0 ; lpReserved
-push written ; lpNumberOfCharsWritten
-push dword [esp+16] ; nNumberOfCharsToWrite 
-push dword [esp+16] ; lpBuffer
-push eax ; hConsoleOutput 
-call _WriteConsoleA@20
+mov rcx, -11 ; STD_OUTPUT_HANDLE
+call GetStdHandle
 
+mov rcx, rax ; hConsoleOutput
+mov rdx, rbx ; lpBuffer
+mov r8, rsi ; nNumberOfCharsToWrite
+lea r9, [rsp+40] ; lpNumberOfCharsWritten
+mov qword [rsp+32], 0 ; lpReserved (Stack memory should be zeroes?)
+
+call WriteFile
+
+; Required spill area, 1 x 64 bit parameter and lpNumberOfCharsWritten for WriteFile (aligned)
+add rsp, 56
+
+pop rsi
+pop rbx
 ret
 
-; ebp+8: length
-; ebp+4: buffer
-global sys_read
-sys_read:
+; rcx: Buffer
+; rdx: Length
+global _Z13internal_readPci
+_Z13internal_readPci:
+push rbx
+push rsi
 
-push -10 ; STD_INPUT_HANDLE
-call _GetStdHandle@4
+; Required spill area and 2 x 64 bit parameters for ReadConsole (aligned)
+sub rsp, 56
 
-; lpNumberOfCharsRead
-sub esp, 4
-mov ebx, esp
+mov rbx, rcx ; Buffer
+mov rsi, rdx ; Length
 
-push 0 ; pInputControl
-push ebx ; lpNumberOfCharsRead
-push dword [esp+20] ; nNumberOfCharsToRead
-push dword [esp+20] ; lpBuffer
-push eax ; hConsoleInput
-call _ReadConsoleA@20
+mov rcx, -10 ; STD_INPUT_HANDLE
 
-; lpNumberOfCharsRead
-mov eax, [esp]
-add esp, 4
+call GetStdHandle
+
+mov rcx, rax ; hConsoleOutput
+mov rdx, rbx ; lpBuffer
+mov r8, rsi ; nNumberOfCharsToRead
+lea r9, [rsp+32] ; lpNumberOfCharsRead
+mov qword [rsp+40], 0 ; pInputControl (Stack memory should be zeroes?)
+
+call ReadConsoleA
+
+; Remove spill area and 2 x 64 bit parameters for ReadConsole
+add rsp, 56
+
+pop rsi
+pop rbx
 ret
-
-;test the normal laber analyzer
-global new
-	new:
-	
-global _Z3newi
-	_Z3newi:
 
 ;int ptr banana(int, apple ptr)
 ;_E stands for Evie
@@ -65,6 +76,3 @@ global _Z3newi
 ;second is the func name
 ;rest are the parameters
 _EP3int6banana3intP5appleF3int4pear3int5floatE:
-
-section .data
-written dd 0

@@ -161,6 +161,7 @@ void Parser::Prototype_Pattern(int i)
 	p.Input = Input[Paranthesis[0]].Components;	//give the parameters
 	p.Factory();
 
+	//how are you supposed to know if the parameter is a ptr?
 	for (Component j : p.Input)
 		if (j.node != nullptr)
 			New_Defined_Object->Parameters.push_back(new Node(*j.node));

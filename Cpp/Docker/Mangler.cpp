@@ -36,6 +36,7 @@ string MANGLER::Un_Mangle(string raw) {
 					if (Current_Variable != "") {
 						Parenthesis.push_back(Current_Variable);
 						Current_Variable = "";
+						Current_PreFix = "";
 					}
 					Current_Complex_Name = "";
 					if (Current_PreFix != "")
@@ -95,7 +96,7 @@ string MANGLER::Un_Mangle(string raw) {
 				}
 				int size = atoi(tmp.c_str());
 				string name = "";
-				for (int j = i + tmp.size(); (j < (size + i + 1)) && j < raw.size(); j++) {
+				for (int j = i + tmp.size(); (j < (size + i + tmp.size())) && j < raw.size(); j++) {
 					name += (char)raw[j];
 				}
 				if (Func_Name) {
@@ -111,11 +112,11 @@ string MANGLER::Un_Mangle(string raw) {
 
 					Current_Variable = Current_PreFix + " " + name;
 				}
-				i += size;
+				i += size + tmp.size() - 1;
 			}
-			if (Current_Variable != "") {
-				Parenthesis.push_back(Current_Variable);
-			}
+		}
+		if (Current_Variable != "") {
+			Parenthesis.push_back(Current_Variable);
 		}
 	}
 	//else if (raw[0] == '_' && raw[1] == 'E') {
