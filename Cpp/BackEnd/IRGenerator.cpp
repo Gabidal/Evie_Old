@@ -37,7 +37,10 @@ void IRGenerator::Parse_Function(int i)
 	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}));
 
 	//label
-	Output->push_back(Make_Label(Input[i], true));
+	bool Use_Mangling = false;
+	if (Input[i]->is("export") != -1)
+		Use_Mangling = true;
+	Output->push_back(Make_Label(Input[i], Use_Mangling));
 
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
@@ -57,6 +60,8 @@ void IRGenerator::Parse_Calls(int i)
 		return;
 
 	if (Input[i]->Template_Function->is(IMPORT))
+		Global_Scope->Header.push_back(Input[i]->Template_Function);
+	if (Input[i]->Template_Function->is("export") != -1)
 		Global_Scope->Header.push_back(Input[i]->Template_Function);
 
 	IRGenerator g(Parent, Output);
@@ -182,7 +187,10 @@ void IRGenerator::Parse_Calls(int i)
 	}
 
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
-	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Input[i]->Get_Mangled_Name()) });
+	string Call_Name = Input[i]->Name;
+	if (Input[i]->Template_Function->is("export") != -1 || Input[i]->Template_Function->is(IMPORT))
+		Call_Name = Input[i]->Template_Function->Get_Mangled_Name();
+	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Call_Name) });
 
 	Output->push_back(ir);
 

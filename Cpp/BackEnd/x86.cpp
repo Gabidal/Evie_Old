@@ -295,6 +295,9 @@ void x86_64_Win::Init()
 
 	IR* GLOBAL = new IR("global", new Token(TOKEN::GLOBAL_LABEL, "global"), {
 		{{Label, {0, 0}}}
+		}); 
+	IR* EXTERN = new IR("extern", new Token(TOKEN::GLOBAL_LABEL, "extern"), {
+		{{Label, {0, 0}}}
 			});
 
 	Opcodes = {
@@ -319,6 +322,7 @@ void x86_64_Win::Init()
 		PUSH,
 		POP,
 		CALL,
-		GLOBAL
+		GLOBAL,
+		EXTERN
 	};
 }

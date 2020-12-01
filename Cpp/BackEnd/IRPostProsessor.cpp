@@ -80,7 +80,11 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 void IRPostProsessor::Handle_Global_Labels()
 {
 	for (auto i : Global_Scope->Header) {
-		Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL, i->Get_Mangled_Name()) }));
+		if (i->is(IMPORT))
+			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "extern"), { new Token(TOKEN::LABEL, i->Get_Mangled_Name()) }));
+		else
+			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL, i->Get_Mangled_Name()) }));
+
 	}
 	
 }
