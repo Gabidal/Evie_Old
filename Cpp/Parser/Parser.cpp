@@ -126,7 +126,7 @@ void Parser::Constructor_Pattern(int i)
 
 void Parser::Prototype_Pattern(int i)
 {
-	//import int ptr banana()| func banana(int, short)\n
+	//func banana(int, short)\n
 	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT });
 	//Words list must be a at leat two size for the type and for the name to be inside it
 	if (Words.size() < 2)
@@ -141,7 +141,7 @@ void Parser::Prototype_Pattern(int i)
 	//label get_jump(int x)
 	//jump get_jump(123);
 	for (auto c : Words)
-		if (Input[c].Value == "jump" || Input[c].Value == "return" )
+		if (Input[c].Value == "jump" || Input[c].Value == "return" || Input[c].Value == "import")
 			return;
 
 	//type a
@@ -173,6 +173,90 @@ void Parser::Prototype_Pattern(int i)
 
 	if (i < Input.size())
 		Prototype_Pattern(i);
+
+	return;
+}
+
+void Parser::Import_Pattern(int i)
+{
+	//func banana(int, short)\n
+	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT });
+	//Words list must be a at leat two size for the type and for the name to be inside it
+	if (Words.size() < 2)
+		return;
+	vector<int> Paranthesis = Get_Amount_Of(Words.back() + 1, Flags::PAREHTHESIS_COMPONENT);
+	if (Paranthesis.size() != 1)
+		return;
+	if (Input[Paranthesis[0]].Value[0] != '(')
+		return;
+
+	bool Has_Import_Keyword = false;
+	for (auto c : Words)
+		if (Input[c].Value == "import")
+			Has_Import_Keyword = true;
+
+	if (!Has_Import_Keyword)
+		return;
+
+	//type a
+	vector<string> Inheritted;
+
+	//skip the last that is the name index.
+	for (int j = 0; j < Words.size() - 1; j++) {
+		Inheritted.push_back(Input[Words[j]].Value);
+	}
+
+	Node* New_Defined_Object = new Node(IMPORT);
+	New_Defined_Object->Inheritted = Inheritted;
+	New_Defined_Object->Name = Input[Words.back()].Value;
+	New_Defined_Object->Parent = Parent;
+
+	vector<Component> Types;
+	for (auto j : Input[Paranthesis[0]].Components) {
+		if (j.Value == ",") {
+			Node* p;
+			if (Types.back().is(Flags::NUMBER_COMPONENT))
+				p = new Node(NUMBER_NODE);
+			else
+				p = new Node(OBJECT_DEFINTION_NODE);
+
+			p->Name = Types.back().Value;
+			p->Parent = New_Defined_Object;
+			Types.pop_back();
+			for (auto k : Types)
+				p->Inheritted.push_back(k.Value);
+
+			New_Defined_Object->Parameters.push_back(p);
+			Types.clear();
+		}
+		else {
+			Types.push_back(j);
+		}
+	}
+	if (Types.size() > 0) {
+		//for the last parameter
+		Node* p;
+		if (Types.back().is(Flags::NUMBER_COMPONENT))
+			p = new Node(NUMBER_NODE);
+		else
+			p = new Node(OBJECT_DEFINTION_NODE);
+
+		p->Name = Types.back().Value;
+		p->Parent = New_Defined_Object;
+		Types.pop_back();
+		for (auto k : Types)
+			p->Inheritted.push_back(k.Value);
+
+		New_Defined_Object->Parameters.push_back(p);
+	}
+
+	//erase inherittes as well the name as well the pearameters from the input list
+	Input.erase(Input.begin() + Words[0], Input.begin() + i + Paranthesis[0] + 1);
+
+	Parent->Defined.push_back(New_Defined_Object);
+
+	if (i < Input.size())
+		Import_Pattern(i);
 
 	return;
 }
@@ -872,6 +956,7 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
 		Prototype_Pattern(i);	//Definition_pattern stoles this import functions, so this goes first
+		Import_Pattern(i);
 		Definition_Pattern(i);
 		Label_Definition(i);
 	}

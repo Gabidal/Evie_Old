@@ -24,7 +24,8 @@ public:
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
 	void Constructor_Pattern(int i);							//foo ptr foo(foo ptr){..}
-	void Prototype_Pattern(int i);								//import func new(int)|extern int main()\n
+	void Prototype_Pattern(int i);								//int main()\n
+	void Import_Pattern(int i);									//import func new(int amount)\n
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int i, vector<string> Operator, int Flag);			//a = b + c * d, a.b.c.d()

@@ -38,6 +38,7 @@ namespace TOKEN {
 	constexpr long NEEDS_SIZE_IDENTIFIER = 1 << 26;
 	constexpr long SIZE_INDENTIFIER = 1 << 27;
 
+	constexpr long GLOBAL_LABEL = 1 << 28;
 }
 
 namespace Flags{
@@ -62,6 +63,7 @@ enum Node_Type {
 	FUNCTION_NODE,
 	CALL_NODE,
 	PROTOTYPE,
+	IMPORT,
 	FLOW_NODE,
 	PTR_NODE,
 	NUMBER_NODE,

@@ -291,7 +291,11 @@ void x86_64_Win::Init()
 
 	IR* CALL = new IR("call", new Token(TOKEN::CALL, "call"), {
 		{{Label, {0, 0}}}
-		});
+		});	
+
+	IR* GLOBAL = new IR("global", new Token(TOKEN::GLOBAL_LABEL, "global"), {
+		{{Label, {0, 0}}}
+			});
 
 	Opcodes = {
 		MOV,
@@ -314,6 +318,7 @@ void x86_64_Win::Init()
 		SET,
 		PUSH,
 		POP,
-		CALL
+		CALL,
+		GLOBAL
 	};
 }

@@ -30,6 +30,7 @@ private:
 	void Label_Builder(IR* i);
 	void End_Of_Function_Builder(IR* i);
 	void Call_Builder(IR* i);
+	void Global_Builder(IR* i);
 
 	string Token_Builder(Token* t, bool Inside_Content = false);
 public:

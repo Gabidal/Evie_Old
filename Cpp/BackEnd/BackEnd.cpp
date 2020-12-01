@@ -27,6 +27,7 @@ void BackEnd::Factory()
 {
 	for (auto i : Input) {
 		Label_Builder(i);
+		Global_Builder(i);
 		Operator_Builder(i);
 		End_Of_Function_Builder(i);
 		Call_Builder(i);
@@ -76,6 +77,17 @@ void BackEnd::Call_Builder(IR* i)
 
 	IR* call_opc = selector->Get_Opcode(i);
 	*Output += call_opc->OPCODE->Get_Name();
+
+	*Output += " " + Token_Builder(i->Arguments[0]) + "\n";
+}
+
+void BackEnd::Global_Builder(IR* i)
+{
+	if (!i->is(TOKEN::GLOBAL_LABEL))
+		return;
+
+	IR* glob = selector->Get_Opcode(i);
+	*Output += glob->OPCODE->Get_Name();
 
 	*Output += " " + Token_Builder(i->Arguments[0]) + "\n";
 }

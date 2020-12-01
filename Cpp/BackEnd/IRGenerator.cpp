@@ -37,7 +37,7 @@ void IRGenerator::Parse_Function(int i)
 	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}));
 
 	//label
-	Output->push_back(Make_Label(Input[i]));
+	Output->push_back(Make_Label(Input[i], true));
 
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
@@ -55,6 +55,9 @@ void IRGenerator::Parse_Calls(int i)
 {
 	if (!Input[i]->is(CALL_NODE))
 		return;
+
+	if (Input[i]->Template_Function->is(IMPORT))
+		Global_Scope->Header.push_back(Input[i]->Template_Function);
 
 	IRGenerator g(Parent, Output);
 	//do the parameters
@@ -179,7 +182,7 @@ void IRGenerator::Parse_Calls(int i)
 	}
 
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
-	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Input[i]->Name) });
+	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Input[i]->Get_Mangled_Name()) });
 
 	Output->push_back(ir);
 
@@ -225,7 +228,7 @@ void IRGenerator::Loop_Elses(Node* e)
 
 	//the if/else label
 	Node* tmp = new Node(e->Name);
-	Output->push_back(Make_Label(tmp));
+	Output->push_back(Make_Label(tmp, false));
 
 	//do an subfunction that can handle coditions and gets the label data for the condition data from the Parent given.
 	IRGenerator p(e, e->Parameters, Output);
@@ -245,14 +248,14 @@ void IRGenerator::Loop_Elses(Node* e)
 
 		//skip the last end jump if the condition is not met
 		Node* tmp = new Node(e->Name + "_END");
-		Output->push_back(Make_Label(tmp));
+		Output->push_back(Make_Label(tmp, false));
 
 		//now construct the successor
 		Loop_Elses(e->Succsessor);
 	}
 	else {
 		Node* tmp = new Node(e->Name + "_END");
-		Output->push_back(Make_Label(tmp));
+		Output->push_back(Make_Label(tmp, false));
 	}
 
 }
@@ -917,7 +920,7 @@ void IRGenerator::Parse_Loops(int i)
 	IRGenerator g(Input[i], Header, Output);
 
 	//make the looping label
-	Output->push_back(Make_Label(Input[i]));
+	Output->push_back(Make_Label(Input[i], false));
 
 	int start_Index = Output->size();
 
@@ -1098,11 +1101,15 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), Right_Mem }));
 		return reg;
 	}
+	return p;
 }
 
-IR* IRGenerator::Make_Label(Node* n)
+IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 {
-	Token* label_name = new Token(TOKEN::LABEL, n->Name);
+	string name = n->Name;
+	if (Mangle)
+		name = n->Get_Mangled_Name();
+	Token* label_name = new Token(TOKEN::LABEL, name);
 	IR* label = new IR();
 	label->OPCODE = label_name;
 	return label;

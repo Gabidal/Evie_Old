@@ -55,7 +55,7 @@ public:
 	//p is the pointter ,			, -x unwrap | +x wrap
 	Token* Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing = false);
 
-	IR* Make_Label(Node* n);
+	IR* Make_Label(Node* n, bool Mangle);
 	IR* Make_Jump(string condition, string l);
 	int Get_Amount(string t, Node* n);
 private:

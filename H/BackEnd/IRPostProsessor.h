@@ -19,7 +19,7 @@ private:
 	void Scale_To_Same_Size(int i);
 	void Registerize(Token* t, int i);
 	void Give_New_Register(Token* t, int i);
-	void Handle_Calls(int i);
+	void Handle_Global_Labels();
 	void Clean_Selector(int i);
 	void Prepare_Function(int i);
 	void Handle_Labels(int i);

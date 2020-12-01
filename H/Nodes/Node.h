@@ -154,7 +154,7 @@ public:
 				mname += "_" + i;
 		mname += "_" + Name;
 		for (auto i : Parameters)
-			mname += "_" + i->Get_Inheritted((string)"_", is(PROTOTYPE), Skip_Prefixes);
+			mname += "_" + i->Get_Inheritted((string)"_", is(IMPORT), Skip_Prefixes);
 		return mname;
 	}
 

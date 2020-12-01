@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
     DOCKER::Add_Translator(";analyze", ASM::ASM_Analyzer);
     DOCKER::Add_Translator("https", HTTPS::HTTPS_Analyser);
     DOCKER::Add_Translator("L\x1", OBJ::OBJ_Analyser);
+    DOCKER::Add_Translator("\x64\x86\x01", OBJ::OBJ_Analyser);
 
     Global_Scope = new Node(CLASS_NODE);
     Global_Scope->Name = "GLOBAL_SCOPE";

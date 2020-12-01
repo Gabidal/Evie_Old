@@ -1,6 +1,8 @@
 #include "../../H/BackEnd/IRPostProsessor.h"
+#include "../../H/Nodes/Node.h"
 
 extern Selector* selector;
+extern Node* Global_Scope;
 
 void IRPostProsessor::Scale_To_Same_Size(int i)
 {
@@ -75,12 +77,12 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 	t->ID = selector->Get_Register(t)->Get_Name();
 }
 
-void IRPostProsessor::Handle_Calls(int i)
+void IRPostProsessor::Handle_Global_Labels()
 {
-	if (!Input->at(i)->is(TOKEN::CALL))
-		return;
-	//now all the push needing parameters are reversed, and ready to go push.
-
+	for (auto i : Global_Scope->Header) {
+		Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL, i->Get_Mangled_Name()) }));
+	}
+	
 }
 
 void IRPostProsessor::Clean_Selector(int i)
@@ -195,6 +197,7 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 
 void IRPostProsessor::Factory()
 {
+	Handle_Global_Labels();
 	for (int i = 0; i < Input->size(); i++)
 		Scale_To_Same_Size(i);
 	for (int i = 0; i < Input->size(); i++) {

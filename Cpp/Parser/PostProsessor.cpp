@@ -165,8 +165,8 @@ void PostProsessor::Find_Call_Owner(Node* n)
 
 	//first ignore the template parameters for now
 	for (auto f : Global_Scope->Defined)
-		if (f->is(FUNCTION_NODE) || f->is(PROTOTYPE))
-			if (f->Get_Mangled_Name(true, f->is(PROTOTYPE)) == n->Get_Mangled_Name(true, f->is(PROTOTYPE))) {
+		if (f->is(FUNCTION_NODE) || f->is(PROTOTYPE) || f->is(IMPORT))
+			if (f->Get_Mangled_Name(true, f->is(IMPORT)) == n->Get_Mangled_Name(true, f->is(IMPORT))) {
 				n->Template_Function = f;
 				//we dont need to do enything, everything is fine.
 				return;
@@ -470,15 +470,17 @@ void PostProsessor::Operator_Type_Definer(Node* n)
 
 void PostProsessor::Handle_Prototypes(int i)
 {
-	if (!Parent->Defined[i]->is(PROTOTYPE))
+	if (!Parent->Defined[i]->is(IMPORT))
 		return;
 	//import func new (4, ABC)
 	//all numbers need to be redefined by type size.
 	//and all other text is already classes.
 	//pointters are inside the parameter as inheritance.
 	for (int j = 0; j < Parent->Defined[i]->Parameters.size(); j++) {
+		vector<string> Inheritted = Parent->Defined[i]->Parameters[j]->Inheritted;
 		if (Parent->Defined[i]->Parameters[j]->is(NUMBER_NODE)) {
 			Parent->Defined[i]->Parameters[j] = Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE);
+			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
 	}
 	//now all types are good to go.
