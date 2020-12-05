@@ -32,6 +32,7 @@ public:
 	string Name = "";
 	int Type = 0;
 	int Size = 0;
+	bool Requires_Address = false;	//for optimisation pusrposes.
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
 	Node* Parent = nullptr;

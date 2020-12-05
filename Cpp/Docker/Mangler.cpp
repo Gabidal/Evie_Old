@@ -1,4 +1,7 @@
 #include "../../H/Docker/Mangler.h"
+#include "../../H/Nodes/Node.h"
+#include <iomanip>
+#include <sstream>
 
 map<string, pair<int, string>> MANGLER::IDS;
 
@@ -137,6 +140,157 @@ string MANGLER::Un_Mangle(string raw) {
 		Result += Parenthesis.back();
 	Result += ")";
 	return PreFix + Result;
+}
+
+vector<string> Classes;
+
+string MANGLER::Mangle(Node* raw)
+{
+	string Result = "";
+
+	if (raw->is("cpp") != -1) {
+		//if the function call uses the C standard.
+		//_import_func_cpp_internal_print__char__int to
+		//_Z14internal_printPci
+		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
+			Classes.clear();
+			Result = "_Z";
+			if (raw->Parent->is(CLASS_NODE) && raw->Parent->Name != "GLOBAL_SCOPE")
+				Result += "n" + raw->Parent->Name.size() + raw->Parent->Name;
+			Result += to_string(raw->Name.size()) + raw->Name;
+			if (raw->Parent->is(CLASS_NODE) && raw->Parent->Name != "GLOBAL_SCOPE")
+				Result += "E";
+			if (raw->Parameters.size() < 1)
+				Result += "v";
+			for (auto i : raw->Parameters) {
+				Result += Mangle(i);
+			}
+		}
+		else if (raw->is(CLASS_NODE)) {
+			string p = "";
+			string r;
+			if (raw->is("ptr") != -1) {
+				for (auto i : raw->Inheritted) {
+					if (i == "ptr")
+						p += "P";
+				}
+				r = p + r;
+			}
+			if (Is_Base_Type(raw)) {
+				return p + string(raw->Name.data(), 1);
+			}
+			else {
+				if (Find(raw->Name) != -1) {
+					stringstream stream;
+					stream << hex << Find(raw->Name);
+					r = "S" + string(stream.str()) + "_";
+				}
+				else
+					r = to_string(raw->Name.size()) + raw->Name;
+				return r;
+			}
+		}
+		else if (raw->is(OBJECT_DEFINTION_NODE) || raw->is(OBJECT_NODE)) {
+			int I = 0;
+			string p = "";
+			if (raw->is("ptr") != -1) {
+				for (auto i : raw->Inheritted) {
+					if (i == "ptr")
+						p += "P";
+				}
+			}
+			for (auto i : raw->Inheritted) {
+				if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+					I++;
+				if (I > 1) {
+					//PcIic = char int char ptr a
+					//Evie engine 3.0.0 cannot export multi inheritted variables yet.
+					//TODO: Make that happen.
+					throw::exception("Exporting multi inheritted variables is not yet supported.");
+				}
+			}
+			if (Is_Template(raw)) {
+				//uugabuuga?
+			}
+			else if (Is_Based_On_Base_Type(raw)) {
+				//int a;
+				string Type = "";
+				for (auto i : raw->Inheritted)
+					if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+						Type = i;
+				Result = p + string(Type.data(), 1);
+			}
+			else {
+				//banana a;
+				string Type = "";
+				for (auto i : raw->Inheritted)
+					if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+						Type = i;
+				Result = p + to_string(Type.size()) + Type;
+			}
+		}
+		
+	}
+	else if (raw->is("vivid") != -1) {
+		//if the function call uses the V standard.
+	}
+	else if (raw->is("evie") != -1){
+		//if the function call uses the Evie standard.
+	}
+	else {
+		//generic name labels for normal .
+		Result = raw->Name.size();
+	}
+	return Result;
+}
+
+bool MANGLER::Is_Base_Type(Node* n)
+{
+	bool Result = true;
+	for (auto i : n->Childs) {
+		if (i->Name == "size" && i->is("const") != -1)
+			continue;
+		Result = false;	//because base types do not have any other member other than the Size.
+	}
+	for (auto i : n->Inheritted) {
+		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+			continue;
+		Result = false;	//because base types do not inherit other classes, only features.
+	}
+	return Result;
+}
+
+bool MANGLER::Is_Based_On_Base_Type(Node* n)
+{
+	bool Result = true;
+	//int a;
+	for (auto i : n->Inheritted) {
+		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+			continue;
+		if (!Is_Base_Type(n->Find(i, n->Parent)))
+			Result = false;
+	}
+	return Result;
+}
+
+bool MANGLER::Is_Template(Node* n)
+{
+	bool Result = true;
+	for (auto i : n->Inheritted)
+		if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT)) {
+			Result = false;
+			break;
+		}
+	return Result;
+}
+
+int MANGLER::Find(string s)
+{
+	for (int i = 0; i < Classes.size(); i++)
+		if (Classes[i] == s)
+			return i;
+	Classes.push_back(s);
+	return -1;
 }
 
 void MANGLER::Add_ID(pair<string, pair<int, string>> id) {

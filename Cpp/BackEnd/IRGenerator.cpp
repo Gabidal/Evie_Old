@@ -1,6 +1,7 @@
 #include "../../H/BackEnd/BackEnd.h"
 #include "..\..\H\BackEnd\IRGenerator.h"
 #include "../../H/BackEnd/Selector.h"
+#include "../../H/Docker/Mangler.h"
 
 extern Selector* selector;
 
@@ -90,7 +91,11 @@ void IRGenerator::Parse_Calls(int i)
 		if (g.Handle != nullptr)
 			p = g.Handle;
 		else
-			p = new Token(n);
+			p = new Token(n);	
+
+		int Level_Difference = Get_Amount("ptr", n) - Get_Amount("ptr", Input[i]->Template_Function->Parameters[Parameter_Place]);
+		if (Level_Difference != 0)
+			p = g.Operate_Pointter(p, Level_Difference);
 
 		if (n->Has_Floating_Point_Value) {
 			if (Float_Register_Count < MAX_Floating_Register_Count) {
@@ -189,7 +194,7 @@ void IRGenerator::Parse_Calls(int i)
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
 	string Call_Name = Input[i]->Name;
 	if (Input[i]->Template_Function->is("export") != -1 || Input[i]->Template_Function->is(IMPORT))
-		Call_Name = Input[i]->Template_Function->Get_Mangled_Name();
+		Call_Name = MANGLER::Mangle(Input[i]->Template_Function);
 	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Call_Name) });
 
 	Output->push_back(ir);
@@ -430,6 +435,8 @@ void IRGenerator::Parse_Operators(int i)
 	}
 	else {
 		Right = new Token(Input[i]->Right);
+		if (Right->is(TOKEN::NUM))
+			Right->Set_Size(Left->Get_Size());
 		if (Right->is(TOKEN::CONTENT))
 			Right = new Token(TOKEN::MEMORY, { Right }, Left->Get_Size() ,Right->Get_Name());
 		//Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
@@ -1048,7 +1055,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 	if (p->is(TOKEN::CONTENT)) {
 		p = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_);
 	}
-	else if (Difference > 0) {	//this p is more pointter that the other
+	if (Difference > 0) {	//this p is more pointter that the other
 		vector<string> Type_Trace = Global_Scope->Find(p->Get_Name(), p->Get_Parent())->Inheritted;
 		//reverse(Type_Trace.begin(), Type_Trace.end());
 
@@ -1100,11 +1107,15 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			Reg->Set_Size(_SYSTEM_BIT_SIZE_);
 		return Reg;
 	}
-	else if (Difference < 0) {
+	if (Difference < 0) {
 		//save the address of Right into Left
 		Token* reg = new Token(TOKEN::REGISTER, p->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_);
 
-		Token* Right_Mem = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());
+		Token* Right_Mem;
+		if (!p->is(TOKEN::MEMORY))
+			Right_Mem = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());
+		else
+			Right_Mem = p;
 
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), Right_Mem }));
 		return reg;
@@ -1116,7 +1127,7 @@ IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 {
 	string name = n->Name;
 	if (Mangle)
-		name = n->Get_Mangled_Name();
+		name = MANGLER::Mangle(n);
 	Token* label_name = new Token(TOKEN::LABEL, name);
 	IR* label = new IR();
 	label->OPCODE = label_name;

@@ -4,8 +4,12 @@
 extern Selector* selector;
 
 Token::Token(Node* n) {
-	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE))
-		Flags = TOKEN::REGISTER;
+	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
+		if (n->Find(n, n->Parent)->Requires_Address)
+			Flags = TOKEN::CONTENT;
+		else
+			Flags = TOKEN::REGISTER;
+	}
 	else if (n->is(NUMBER_NODE)) {
 		if (n->Has_Floating_Point_Value) {
 			Flags = TOKEN::DECIMAL;

@@ -8,8 +8,6 @@ extern ReadConsoleA
 ; rcx: Address
 ; rdx: Length
 global _Z14internal_printPci
-global _import_func_cpp_internal_print__char__int
-_import_func_cpp_internal_print__char__int:
 _Z14internal_printPci:
 push rbx
 push rsi

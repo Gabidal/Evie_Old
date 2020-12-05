@@ -1,10 +1,11 @@
-extern _import_func_cpp_internal_print__char__int
+extern _Z14internal_printPci
 main:
 push rbx
-mov qword [rcx ], dword 2
+mov byte [() ], byte 2
+lea rcx, qword [() ]
 mov rbx, rcx
 mov edx, dword 1
-call _import_func_cpp_internal_print__char__int
+call _Z14internal_printPci
 mov eax, dword 0
 pop rbx
 ret 

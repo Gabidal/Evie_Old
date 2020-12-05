@@ -1,27 +1,27 @@
 use "sys.e"
 
 
-type int{
+type cpp int{
 	size = 4
 }
 
-type short{
+type cpp short{
 	size = 2
 }
 
-type char{
+type cpp char{
 	size = 1
 }
 
-type float{
+type cpp float{
 	size = 4
 }
 
-type double{
+type cpp double{
 	size = 8
 }
 
-type long{
+type cpp long{
 	size = 8
 }
 
@@ -29,12 +29,9 @@ type string{
 	size = 1
 }
 
-#export func main
-
 func memcpy(type ptr dest, type ptr source, int Size){
     while (int i = 0, i < Size, i++){
         dest[i] = source[i];
     }
     return;
 }
-#test

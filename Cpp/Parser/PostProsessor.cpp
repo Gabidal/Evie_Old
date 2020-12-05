@@ -10,7 +10,7 @@ void PostProsessor::Factory() {
 	}
 	for (int i = 0; i < Parent->Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
-		Handle_Prototypes(i);
+		Handle_Imports(i);
 	}
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
@@ -112,6 +112,9 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 	p.Define_Sizes(Input[i]);
 
 	p.Factory();
+
+	for (auto& i : Input[i]->Defined)
+		Analyze_Variable_Address_Pointing(i);
 
 	return;
 }
@@ -468,7 +471,7 @@ void PostProsessor::Operator_Type_Definer(Node* n)
 	return;
 }
 
-void PostProsessor::Handle_Prototypes(int i)
+void PostProsessor::Handle_Imports(int i)
 {
 	if (!Parent->Defined[i]->is(IMPORT))
 		return;
@@ -479,7 +482,7 @@ void PostProsessor::Handle_Prototypes(int i)
 	for (int j = 0; j < Parent->Defined[i]->Parameters.size(); j++) {
 		vector<string> Inheritted = Parent->Defined[i]->Parameters[j]->Inheritted;
 		if (Parent->Defined[i]->Parameters[j]->is(NUMBER_NODE)) {
-			Parent->Defined[i]->Parameters[j] = Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE);
+			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE);
 			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
 	}
@@ -538,4 +541,46 @@ void PostProsessor::Template_Parameter(int i)
 
 void PostProsessor::Templates(int i)
 {
+}
+
+void PostProsessor::Analyze_Variable_Address_Pointing(Node* n)
+{
+	if (!n->is(OBJECT_DEFINTION_NODE) && !n->is(OBJECT_NODE))
+		return;
+
+	//if a variable is pointed to via a pointter or a function parameter address loader, use stack.
+	//Other than that use registers.
+
+	for (auto i : n->Parent->Childs) {
+		if (i->is(ASSIGN_OPERATOR_NODE)) {
+			if (i->Right->Get_Most_Left()->Name == n->Name) {
+				int Left = Get_Amount("ptr", i->Left);
+				int Right = Get_Amount("ptr", i->Right->Get_Most_Left());
+				if (Left > Right)
+					//Left is going to load right address.
+					n->Requires_Address = true;
+			}
+		}
+		else if (i->is(CALL_NODE)) {
+			for (int j = 0; j < i->Parameters.size(); j++) {
+				if (i->Parameters[j]->Name == n->Name) {
+					int Left = Get_Amount("ptr", i->Template_Function->Parameters[j]);
+					int Right = Get_Amount("ptr", i->Parameters[j]);
+					if (Left > Right)
+						//parameter is going to load right address.
+						n->Requires_Address = true;
+				}
+			}
+		}
+	}
+}
+
+int PostProsessor::Get_Amount(string t, Node* n)
+{
+	int result = 0;
+	for (string s : n->Inheritted)
+		if (s == t)
+			result++;
+
+	return result;
 }

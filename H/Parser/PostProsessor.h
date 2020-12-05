@@ -42,7 +42,7 @@ public:
 	void Determine_Array_Type(int i);				//
 													//opens an operator for callation purposes.
 	void Operator_Type_Definer(Node* n);			//gives the operator its left and the right sided types for more abstract.
-	void Handle_Prototypes(int i);					//here we can redefine the types given to parameters.
+	void Handle_Imports(int i);					//here we can redefine the types given to parameters.
 	void Open_Loop_For_Prosessing(int i);
 	void Update_Used_Object_Info(Node* n);
 
@@ -51,6 +51,9 @@ public:
 	void Operator_Overload(int i);					//makes new instance of using different operators
 	void Template_Parameter(int i);					//dynamic parameters
 	void Templates(int i);
+
+	void Analyze_Variable_Address_Pointing(Node* n);
+	int Get_Amount(string t, Node* n);
 private:
 };
 

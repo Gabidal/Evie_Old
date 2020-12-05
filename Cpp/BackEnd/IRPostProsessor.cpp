@@ -1,5 +1,6 @@
 #include "../../H/BackEnd/IRPostProsessor.h"
 #include "../../H/Nodes/Node.h"
+#include "../../H/Docker/Mangler.h"
 
 extern Selector* selector;
 extern Node* Global_Scope;
@@ -81,9 +82,9 @@ void IRPostProsessor::Handle_Global_Labels()
 {
 	for (auto i : Global_Scope->Header) {
 		if (i->is(IMPORT))
-			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "extern"), { new Token(TOKEN::LABEL, i->Get_Mangled_Name()) }));
+			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "extern"), { new Token(TOKEN::LABEL, MANGLER::Mangle(i)) }));
 		else
-			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL, i->Get_Mangled_Name()) }));
+			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL,  MANGLER::Mangle(i)) }));
 
 	}
 	
