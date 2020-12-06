@@ -21,6 +21,11 @@ void Node::Update_Defined_Stack_Offsets()
 		}
 		else if (i->is(OBJECT_NODE) || i->is(OBJECT_DEFINTION_NODE)) {
 			//every local variable is defined default as a value in a register.
+			if (i->Requires_Address) {
+				i->Memory_Offset = Local_Offset;
+				i->Update_Size_By_Inheritted();
+				Local_Offset += i->Get_Size();
+			}
 		}
 	}
 }

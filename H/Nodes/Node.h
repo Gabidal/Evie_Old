@@ -44,7 +44,10 @@ public:
 	vector<Node*> Member_Functions;
 	vector<Node*> Operator_Overloads;
 	int Call_Space_Start_Address = 0;
+	//for maximus parametrus usagus.
 	int Max_Allocation_Space = 0;
+	//for local variables.
+	int Local_Allocation_Soace = 0;
 	//function features
 	vector<Node*> Parameters;
 	string Mangled_Name = "";

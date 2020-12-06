@@ -59,16 +59,23 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 	//try to find if this t* is used in future
 	//also check if it intersects cllations
 	vector<int> Intersects_Calls;
+	//int Crossed_Call = -1;
 	int Parameter_Place = -1;
 	int Last_Usage = i;
 	for (int j = i; j < source.size(); j++) {
 		for (auto k : source[j]->Arguments) {
 			//TODO: Cheking names wont work on duplicated local varibles inside a condition like scopes.
-			if (Find(t->Get_Name(), k))
+			if (Find(t->Get_Name(), k)) {
 				//check if this is the same variable...
 				Last_Usage = j;
+				//if (Crossed_Call != -1) {
+					//Intersects_Calls.push_back(Crossed_Call);
+					//Crossed_Call = -1;
+				//}
+			}
 		}
 		if (source[j]->is(TOKEN::CALL)) {
+			//Crossed_Call = j;
 			Intersects_Calls.push_back(j);
 			for (int k = 0; k < source[j]->OPCODE->Parameters.size(); k++)
 				if (source[j]->OPCODE->Parameters[k]->Get_Name() == t->Get_Name())
@@ -196,6 +203,12 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		}
 	}
 
+	for (auto j : p->Intersects_Calls) {
+		for (auto a : source->at(j)->OPCODE->Parameters) {
+			Get_New_Reg(source, j, a);
+		}
+	}
+
 	for (auto& r : Registers) {
 
 		if (r.first == nullptr) {
@@ -271,9 +284,7 @@ Token* Selector::Get_Register(long F, Register_Descriptor* user)
 		if (!i.second->is(F))
 			continue;
 		if (i.first == nullptr || (i.first->Last_Usage_Index <= user->First_Usage_Index)) {
-			i.first->First_Usage_Index = user->First_Usage_Index;
-			i.first->Last_Usage_Index = user->Last_Usage_Index;
-			i.first->User = user->User;
+			i.first = new Register_Descriptor(user->First_Usage_Index, user->Last_Usage_Index, user->User);
 			return i.second;
 		}
 	}

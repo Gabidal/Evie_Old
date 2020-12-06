@@ -154,7 +154,7 @@ void IRGenerator::Parse_Calls(int i)
 				else if (p->is(TOKEN::MEMORY)) {
 					//is non-complex variable
 					//use a any tmp register
-					Token* reg = new Token(TOKEN::REGISTER, "REG_" + p->Get_Name() + "_tmp", p->Get_Size());
+					Token* reg = new Token(TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
 					Token* opc = new Token(TOKEN::OPERATOR, "move");
 					//make the tmp move
 					IR* ir = new IR(opc, { reg, p });
@@ -184,7 +184,7 @@ void IRGenerator::Parse_Calls(int i)
 	for (auto p : Reversable_Pushes) {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 			new Token(TOKEN::MEMORY, {
-				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset)))
+				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + Parent->Local_Allocation_Soace)))
 				}, p->Get_Size(), p->Get_Name()),
 			p
 			}));

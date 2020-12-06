@@ -1,15 +1,16 @@
 extern _Z14internal_printPci
 main:
-push rbx
-mov byte [() ], byte 2
-lea rcx, qword [() ]
-mov rbx, rcx
-mov edx, dword 1
+sub rsp, dword 1
+mov r8d, dword 1
+mov byte [rsp ], byte 2
+lea r9, qword [rsp ]
+mov rcx, r9
+mov edx, r8d
 call _Z14internal_printPci
 mov eax, dword 0
-pop rbx
+add rsp, dword 1
 ret 
-pop rbx
+add rsp, dword 1
 ret 
 
 

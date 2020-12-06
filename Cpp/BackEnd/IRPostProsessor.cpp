@@ -131,8 +131,8 @@ void IRPostProsessor::Clean_Selector(int i)
 			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
 		}
 		Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, ret->Get_Parent());
-		if (Parent->Max_Allocation_Space > 0) {
-			selector->DeAllocate_Stack(Parent->Max_Allocation_Space + selector->Update_Stack_Size(), Input, j);
+		if (Parent->Max_Allocation_Space + Parent->Local_Allocation_Soace > 0) {
+			selector->DeAllocate_Stack(Parent->Max_Allocation_Space + selector->Update_Stack_Size() + Parent->Local_Allocation_Soace, Input, j);
 			for (auto k : Input->at(j)->Arguments)
 				Registerize(k, j);
 		}
@@ -170,16 +170,16 @@ void IRPostProsessor::Handle_Labels(int i)
 	if (!Parent->is(FUNCTION_NODE))
 		return;
 
-	if (Parent->Max_Allocation_Space == 0)
+	if (Parent->Max_Allocation_Space + Parent->Local_Allocation_Soace == 0)
 		return;
-
-	selector->Allocate_Stack(Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space, Input, i + 1);
+	Node* parent = Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope);
+	selector->Allocate_Stack(parent->Max_Allocation_Space + parent->Local_Allocation_Soace, Input, i + 1);
 }
 
 void IRPostProsessor::Handle_Stack_Usages(Token* t)
 {
 	if (t->is(TOKEN::MEMORY))
-		for (auto i : t->Childs)
+		for (auto& i : t->Childs)
 			Handle_Stack_Usages(i);
 	if (!t->is(TOKEN::CONTENT))
 		return;
@@ -188,16 +188,15 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 	Node* Function = Global_Scope->Find(t->Get_Parent()->Name, t->Get_Parent(), FUNCTION_NODE);
 	Function->Update_Defined_Stack_Offsets();
 
-	Node* Variable = Function->Find(t->Get_Name());
-	if (Variable->is(PARAMETER_NODE)) {
-		//use offsetter
-		t->Childs.push_back(new Token(TOKEN::OFFSETTER, "+",
-			new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_),
-			new Token(TOKEN::NUM, to_string(Variable->Memory_Offset + selector->Update_Stack_Size()))));
-	}
-	else {
-		//use deoffsetter
-	}
+	Node* og = Function->Find(t->Get_Name());
+	//Maybe we need to add the parameters addresses here?
+	if (og->Memory_Offset > 0)
+		*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(og->Memory_Offset)));
+	else if (og->Memory_Offset == 0)
+		*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
+	else if (og->Memory_Offset < 0)
+		*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(og->Memory_Offset)));
+
 }
 
 void IRPostProsessor::Factory()

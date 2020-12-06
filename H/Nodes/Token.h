@@ -17,6 +17,7 @@ private:
 	int Size = 0;
 	bool Has_Floating_Point_Value = false;
 	string Name = "";
+	string OG = "";	//REG_a_Parameter og is a
 	vector<pair<Token*, int>> Resources;
 	vector<vector<pair<Token*, pair<int, int>>>> Combinations;
 
@@ -56,6 +57,17 @@ public:
 		}
 	}
 	Token(long f, string n, Token* L, Token* R) : Flags(f), Name(n), Left(L), Right(R){}
+
+	Token(long f, string n, string o) : Flags(f), Name(n), OG(o) {}
+	Token(long f, string n, string o, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param), OG(o) {}
+	Token(long f, string n, string o, int s) : Flags(f), Name(n), Size(s), OG(o) {}
+	Token(long f, string n, string o, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c), OG(o) {
+		if (!is(TOKEN::REGISTER) && !is(TOKEN::VOLATILE) && !is(TOKEN::NONVOLATILE) && !is(TOKEN::RETURNING))
+			return;
+		for (auto i : Childs) {
+			i->Holder = this;
+		}
+	}
 	
 	Token(long f, vector<Token*> c) : Flags(f), Childs(c) {}
 	Token(long f, vector<Token*> c, int s) : Flags(f), Childs(c), Size(s) {}
@@ -79,7 +91,7 @@ public:
 	void remove(int flag){this->Flags ^= (Flags & flag);}
 	int Get_Size() { return Size; }
 	long Get_Flags() { return Flags; }
-	string Get_Name() { return Name; }
+	string Get_Name() { if (this->is(TOKEN::MEMORY))return Childs[0]->Name; return Name; }
 	void Set_Name(string n) { Name = n; }
 	void Set_Parent(Node* p) { Parent = p; }
 	void Set_Size(int s) { Size = s; }
