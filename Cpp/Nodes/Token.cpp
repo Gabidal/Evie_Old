@@ -5,7 +5,9 @@ extern Selector* selector;
 
 Token::Token(Node* n) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
-		if (n->Find(n, n->Parent)->Requires_Address)
+		if (n->Find(n, n->Parent)->Parent->Name == "GLOBAL_SCOPE")
+			Flags = TOKEN::GLOBAL_VARIABLE;
+		else if (n->Find(n, n->Parent)->Requires_Address)
 			Flags = TOKEN::CONTENT;
 		else
 			Flags = TOKEN::REGISTER;
@@ -14,7 +16,6 @@ Token::Token(Node* n) {
 		if (n->Has_Floating_Point_Value) {
 			Flags = TOKEN::DECIMAL;
 			Has_Floating_Point_Value = true;
-
 		}
 		else {
 			Flags = TOKEN::NUM;
@@ -54,9 +55,16 @@ Token::Token(Node* n) {
 				Current_Integer_Register_Count++;
 		}
 	}
+	else if (n->is(STRING_NODE))
+		Flags = TOKEN::STRING;
+	else if (n->is(LABEL_NODE)) {
+		Flags = TOKEN::LABEL;
+		n->Size = _SYSTEM_BIT_SIZE_;//for giving the address
+	}
 	else
 		return;
-		Size = n->Find(n, n->Parent)->Size;
+	n->Find(n, n->Parent)->Update_Size_By_Inheritted();
+	Size = n->Find(n, n->Parent)->Size;
 	Name = n->Name;
 	Parent = n->Parent;
 }

@@ -26,9 +26,13 @@ void PostProsessor::Factory() {
 		Determine_Array_Type(i);
 		Open_Call_Parameters_For_Prosessing(i);
 		Find_Call_Owner(Input[i]);
+		Analyze_Global_Variable_Changes(i);
+		Change_Local_Strings_To_Global_Pointters(i);
 	}
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
+	for (int i = 0; i < Input.size(); i++)
+		Move_Global_Varibles_To_Header(i);
 }
 
 void PostProsessor::Transform_Component_Into_Node()
@@ -588,4 +592,95 @@ int PostProsessor::Get_Amount(string t, Node* n)
 			result++;
 
 	return result;
+}
+
+void PostProsessor::Analyze_Global_Variable_Changes(int i)
+{
+	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
+		return;
+
+	//check if the parent is global scope.
+	if (Input[i]->Left->Parent->Name != "GLOBAL_SCOPE")
+		return;
+
+	Node* og = Parent->Find(Input[i]->Left->Name);
+
+	if (Parent->Name == "GLOBAL_SCOPE") {
+		//We are in global scope area.
+		if (!Input[i]->Right->Get_Most_Left()->is(NUMBER_NODE) && !Input[i]->Right->Get_Most_Left()->is(STRING_NODE)) {
+			Node* Right = Parent->Find(Input[i]->Right->Get_Most_Left()->Name);
+			if (Right->is("const") == -1)
+				if (og->is("const") != -1) {
+					og->Inheritted.erase(og->Inheritted.begin() + og->is("const"));
+				}
+		}
+	}
+	else {
+		//we are in a fucntion of some sort.
+		//if this is the case the global variable cannot be a constant anymore.
+		if (og->is("const") != -1) {
+			og->Inheritted.erase(og->Inheritted.begin() + og->is("const"));
+		}
+	}
+}
+
+void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
+{
+	if (!Input[i]->is(STRING_NODE))
+		return;
+	if (Parent->Name == "GLOBAL_SCOPE")
+		return;
+	//a = "123" to a = S0
+	int Current_S_Count = 0;
+	for (auto c : Global_Scope->Defined) {
+		if (!c->is(LABEL_NODE))
+			continue;
+		Current_S_Count++;
+		if (c->String == Input[i]->Name) {
+			*Input[i] = *c;
+			if (Input[i]->is("ptr") == -1)
+				Input[i]->Inheritted.push_back("ptr");
+			return;
+		}
+	}
+	//if there is no string Sx make a new one.
+	Node* s = new Node(LABEL_NODE);
+	s->String = Input[i]->Name;
+	s->Name = "S" + to_string(Current_S_Count);
+	s->Inheritted = { Global_Scope->Find(1, Global_Scope, CLASS_NODE)->Name };
+	if (s->is("ptr") == -1)
+		s->Inheritted.push_back("ptr");
+	s->Parent = Global_Scope;
+
+	Node* init = new Node(ASSIGN_OPERATOR_NODE);
+	init->Name = "=";
+	init->Parent = Global_Scope;
+
+	Node* value = new Node(STRING_NODE);
+	value->Name = s->String;
+	value->Parent = Global_Scope;
+
+	init->Left = s;
+	init->Right = value;
+
+	Global_Scope->Header.push_back(init);
+	Global_Scope->Defined.push_back(s);
+
+	Change_Local_Strings_To_Global_Pointters(i);
+}
+
+void PostProsessor::Move_Global_Varibles_To_Header(int i)
+{
+	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
+		return;
+	if (Parent->Name != "GLOBAL_SCOPE")
+		return;
+
+	Parent->Find(Input[i]->Left->Name)->Type = OBJECT_NODE;
+
+	Global_Scope->Header.push_back(Input[i]);
+
+	Input.erase(Input.begin() + i);
+
+	Move_Global_Varibles_To_Header(i);
 }

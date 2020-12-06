@@ -163,14 +163,16 @@ void x86_64_Win::Init()
 				{{Const, {1, 8}}, {Const, {1, 8}}},
 				}), INT32_MAX}
 		}, "memory");
-	Token* Label = new Token(LABEL, "label");
+	Token* Label = new Token(LABEL | GLOBAL_VARIABLE, "label");
+	Token* Data = new Token(NUM | STRING);
 
 	Utility = {
 		Register,
 		Scalar,
 		Const,
 		Memory,
-		Label
+		Label,
+		Data
 	};
 
 	Token* BYTE = new Token(SIZE_INDENTIFIER, "byte", 1);
@@ -191,6 +193,7 @@ void x86_64_Win::Init()
 	
 	IR* MOV = new IR("move", new Token(OPERATOR, "mov"), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Register, {1, 8}}, {Label, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}} },
@@ -198,11 +201,12 @@ void x86_64_Win::Init()
 		});
 
 	IR* SET = new IR("=", new Token(OPERATOR, "mov"), {
-			{{Register, {1, 8}}, {Memory, {1, 8}} },
-			{{Memory, {1, 8}}, {Register, {1, 8}} },
-			{{Register, {1, 8}}, {Register, {1, 8}} },
-			{{Register, {1, 8}}, {Const, {1, 8}} },
-			{{Memory, {1, 8}}, {Const, {1, 8}} }
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Register, {1, 8}}, {Label, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
 	IR* LEA = new IR("evaluate", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
@@ -300,6 +304,19 @@ void x86_64_Win::Init()
 		{{Label, {0, 0}}}
 			});
 
+	IR* DB = new IR("init", new Token(TOKEN::SET_DATA, "db"), {
+		{{Data, {1, 1}}}
+		}); 
+	IR* DW = new IR("init", new Token(TOKEN::SET_DATA, "dw"), {
+		{{Data, {2, 2}}}
+			});
+	IR* DD = new IR("init", new Token(TOKEN::SET_DATA, "dd"), {
+		{{Data, {4, 4}}}
+		});
+	IR* DQ = new IR("init", new Token(TOKEN::SET_DATA, "dq"), {
+		{{Data, {8, 8}}}
+		});
+
 	Opcodes = {
 		MOV,
 		LEA,
@@ -323,6 +340,10 @@ void x86_64_Win::Init()
 		POP,
 		CALL,
 		GLOBAL,
-		EXTERN
+		EXTERN,
+		DB,
+		DW,
+		DD,
+		DQ
 	};
 }

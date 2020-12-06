@@ -54,6 +54,11 @@ public:
 
 	void Analyze_Variable_Address_Pointing(Node* n);
 	int Get_Amount(string t, Node* n);
+
+	void Analyze_Global_Variable_Changes(int i);
+	void Change_Local_Strings_To_Global_Pointters(int i);
+
+	void Move_Global_Varibles_To_Header(int i);
 private:
 };
 

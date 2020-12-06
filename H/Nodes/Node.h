@@ -30,6 +30,8 @@ public:
 	//Node(){}
 	//Normal features
 	string Name = "";
+	//for string or char lists
+	string String = "";
 	int Type = 0;
 	int Size = 0;
 	bool Requires_Address = false;	//for optimisation pusrposes.
@@ -329,7 +331,7 @@ public:
 	Node* Find(Node* n, Node* p) {
 		if (n->Name == "\n")
 			return nullptr;
-		if (n->is(NUMBER_NODE))
+		if (n->is(NUMBER_NODE) || n->is(STRING_NODE) || n->is(LABEL_NODE))
 			return n;
 		if (p == nullptr) {
 			cout << "Critical Error: parent is null!" << endl;
@@ -450,9 +452,12 @@ public:
 		for (string s : Inheritted) {
 			//there is no inheritable type that doesnt have enything init.
 			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT)) {
-				if (s == "ptr")
+				if (s == "ptr") {
 					//this is for function pointters.
-					Size += _SYSTEM_BIT_SIZE_;
+					//Size = _SYSTEM_BIT_SIZE_;
+					Scaler = Size;
+					Size = _SYSTEM_BIT_SIZE_;
+				}
 				continue;
 			}
 			Size += Find(s, Parent, true)->Size;

@@ -1,16 +1,15 @@
 extern _Z14internal_printPci
+a:
+dd 12
+S0:
+dq "Hello World!"
 main:
-sub rsp, dword 1
-mov r8d, dword 1
-mov byte [rsp ], byte 2
-lea r9, qword [rsp ]
-mov rcx, r9
-mov edx, r8d
+mov r8, S0
+mov rcx, r8
+mov edx, dword[a]
 call _Z14internal_printPci
 mov eax, dword 0
-add rsp, dword 1
 ret 
-add rsp, dword 1
 ret 
 
 

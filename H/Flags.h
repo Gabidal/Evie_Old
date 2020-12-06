@@ -2,43 +2,46 @@
 #define _FLAGS_H_
 
 namespace TOKEN {
-	constexpr long REGISTER = 1 << 0;	//this is for that the selector can select an register if it sees this
-	constexpr long VOLATILE = 1 << 1;
-	constexpr long NONVOLATILE = 1 << 2;
-	constexpr long RETURNING = 1 << 3;
-	constexpr long PARAMETER = 1 << 4;	//fast call
-	constexpr long REMAINDER = 1 << 5;
-	constexpr long QUOTIENT = 1 << 6;
-	constexpr long STACK_POINTTER = 1 << 7;
+	constexpr long long REGISTER = 1 << 0;	//this is for that the selector can select an register if it sees this
+	constexpr long long VOLATILE = 1 << 1;
+	constexpr long long NONVOLATILE = 1 << 2;
+	constexpr long long RETURNING = 1 << 3;
+	constexpr long long PARAMETER = 1 << 4;	//fast call
+	constexpr long long REMAINDER = 1 << 5;
+	constexpr long long QUOTIENT = 1 << 6;
+	constexpr long long STACK_POINTTER = 1 << 7;
 
-	constexpr long NUM = 1 << 8;
-	constexpr long DECIMAL = 1 << 9;
+	constexpr long long NUM = 1 << 8;
+	constexpr long long DECIMAL = 1 << 9;
 
-	constexpr long MEMORY = 1 << 10;
+	constexpr long long MEMORY = 1 << 10;
 
-	constexpr long OPERATOR = 1 << 11;	//any operator
-	constexpr long SCALER = 1 << 12;		//*
-	constexpr long OFFSETTER = 1 << 13;	//+
-	constexpr long DEOFFSETTER = 1 << 14;	//+
+	constexpr long long OPERATOR = 1 << 11;	//any operator
+	constexpr long long SCALER = 1 << 12;		//*
+	constexpr long long OFFSETTER = 1 << 13;	//+
+	constexpr long long DEOFFSETTER = 1 << 14;	//+
 
-	constexpr long CONTENT = 1 << 15;	//any childs owner
-	constexpr long LABEL = 1 << 16;
+	constexpr long long CONTENT = 1 << 15;	//any childs owner
+	constexpr long long LABEL = 1 << 16;
 
-	constexpr long FLOW = 1 << 17; //ret, jmp
-	constexpr long CALL = 1 << 18; // calls
+	constexpr long long FLOW = 1 << 17; //ret, jmp
+	constexpr long long CALL = 1 << 18; // calls
 
 	//RULES
-	constexpr long ALL_ARGS_SAME_SIZE = 1 << 19;	//this means that all args on the OPCODE must be same size
-	constexpr long OPTIONAL = 1 << 20;
-	constexpr long INF = 1 << 21;
-	constexpr long UN_ORDERED = 1 << 22;
-	constexpr long END_OF_FUNCTION = 1 << 23;
-	constexpr long START_OF_FUNCTION = 1 << 24;
-	constexpr long END_OF_LOOP = 1 << 25;
-	constexpr long NEEDS_SIZE_IDENTIFIER = 1 << 26;
-	constexpr long SIZE_INDENTIFIER = 1 << 27;
+	constexpr long long ALL_ARGS_SAME_SIZE = 1 << 19;	//this means that all args on the OPCODE must be same size
+	constexpr long long OPTIONAL = 1 << 20;
+	constexpr long long INF = 1 << 21;
+	constexpr long long UN_ORDERED = 1 << 22;
+	constexpr long long END_OF_FUNCTION = 1 << 23;
+	constexpr long long START_OF_FUNCTION = 1 << 24;
+	constexpr long long END_OF_LOOP = 1 << 25;
+	constexpr long long NEEDS_SIZE_IDENTIFIER = 1 << 26;
+	constexpr long long SIZE_INDENTIFIER = 1 << 27;
 
-	constexpr long GLOBAL_LABEL = 1 << 28;
+	constexpr long long GLOBAL_LABEL = 1 << 28;
+	constexpr long long SET_DATA = 1 << 29;
+	constexpr long long GLOBAL_VARIABLE = 1 << 30;
+	constexpr long long STRING = (long long)1 << 31;
 }
 
 namespace Flags{
@@ -64,6 +67,7 @@ enum Node_Type {
 	CALL_NODE,
 	PROTOTYPE,
 	IMPORT,
+	EXPORT,
 	FLOW_NODE,
 	PTR_NODE,
 	NUMBER_NODE,

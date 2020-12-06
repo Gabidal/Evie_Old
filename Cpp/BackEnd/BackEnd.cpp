@@ -37,7 +37,7 @@ void BackEnd::Factory()
 void BackEnd::Operator_Builder(IR* i)
 {
 	//leave data handling into other algorithm
-	if (!i->is(TOKEN::OPERATOR) && !i->is(TOKEN::FLOW))
+	if (!i->is(TOKEN::OPERATOR) && !i->is(TOKEN::FLOW) && !i->is(TOKEN::SET_DATA))
 		return;
 	//get the needed opcode
 	IR* opc = selector->Get_Opcode(i);
@@ -45,7 +45,7 @@ void BackEnd::Operator_Builder(IR* i)
 
 	//set up the parameters
 	for (int p = 0; p < i->Arguments.size(); p++) {
-		*Output += Token_Builder(i->Arguments[p]);
+		*Output += Token_Builder(i->Arguments[p], i->is(TOKEN::SET_DATA));
 		if ((size_t)p + 1 < i->Arguments.size()) {
 			*Output += Seperator + " ";
 		}
@@ -103,10 +103,14 @@ string BackEnd::Token_Builder(Token* t, bool Inside_Content)
 	}
 	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL)) {
 		if (Inside_Content)
-			Name =  t->Get_Name();
+			Name = t->Get_Name();
 		else
 			Name = selector->Get_Size_Identifier(t->Get_Size()) + " " + t->Get_Name();
 	}
+	else if (t->is(TOKEN::STRING))
+		Name = t->Get_Name();
+	else if (t->is(TOKEN::GLOBAL_VARIABLE))
+		Name = selector->Get_Size_Identifier(t->Get_Size()) + "[" + t->Get_Name() + "]";
 	else if (t->is(TOKEN::MEMORY)) {
 		if (Inside_Content)
 			PreFix = t->Get_Name();

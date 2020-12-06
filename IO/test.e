@@ -1,8 +1,9 @@
 use "cstd.e"
 
+int a = 12
+
 int main(){
-    int a = 1
-    char banana = 2
-    internal_print(banana, a)
+    char ptr b = "Hello World!"
+    internal_print(b, a)
     return 0
 }

@@ -91,6 +91,7 @@ void Parser::Definition_Pattern(int i)
 
 	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE);
 	New_Defined_Object->Inheritted = Inheritted;
+
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Parent = Parent;
 	Parent->Defined.push_back(New_Defined_Object);
@@ -362,9 +363,13 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 		Operator->Right = new_member;
 	}
 
-	//this is for advanced only!!
+	//this is for algebra only!!
 	if (Input[i].Value == "-")
 		Operator->Right->Coefficient *= -1;
+
+	if (Operator->Name == "=")
+		if (Parent->Name == "GLOBAL_SCOPE")
+			Parent->Find(Operator->Left->Name)->Inheritted.push_back("const");
 
 	//give the left and right operators the right holder information
 	Operator->Left->Holder = Operator;

@@ -25,6 +25,8 @@ void IRGenerator::Factory()
 		Parse_PreFixes(i);
 		Parse_Return(i);
 	}
+	for (auto i : Parent->Header)
+		Parse_Global_Variables(i);
 }
 
 void IRGenerator::Parse_Function(int i)
@@ -357,6 +359,8 @@ void IRGenerator::Parse_Operators(int i)
 {
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
+	if (Parent->Name == "GLOBAL_SCOPE")
+		return;
 
 	Update_Operator(Input[i]);
 	//If this operator is handling with pointters we cant use general operator handles
@@ -467,6 +471,8 @@ void IRGenerator::Parse_Pointers(int i)
 
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
+	if (Parent->Name == "GLOBAL_SCOPE")
+		return;
 
 	Update_Operator(Input[i]);
 
@@ -545,6 +551,8 @@ void IRGenerator::Parse_Pointers(int i)
 void IRGenerator::Parse_Arrays(int i)
 {
 	if (!Input[i]->is(ARRAY_NODE))
+		return;
+	if (Parent->Name == "GLOBAL_SCOPE")
 		return;
 
 	Token* Left = nullptr;
@@ -910,6 +918,24 @@ void IRGenerator::Update_Operator(Node* n)
 	n->Inheritted = n->Left->Inheritted;
 }
 
+void IRGenerator::Parse_Global_Variables(Node* n)
+{
+	if (Parent->Name != "GLOBAL_SCOPE")
+		return;
+
+	if (!n->is(ASSIGN_OPERATOR_NODE))
+		return;
+
+	Output->insert(Output->begin(), Make_Label(n->Left, false));
+
+	Parent->Find(n->Left->Name)->Update_Size_By_Inheritted();
+	Token* value = new Token(n->Right);
+	value->Set_Size(Parent->Find(n->Left->Name)->Size);
+	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, "init"), { value }));
+	if (n->Left->is(STRING_NODE))
+		Output->insert(Output->begin() + 2, new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}));
+}
+
 void IRGenerator::Parse_Loops(int i)
 {
 	if (!Input[i]->is(WHILE_NODE))
@@ -1254,6 +1280,9 @@ void IRGenerator::Parse_Return(int i) {
 			continue; //skip keywords
 		Returning_Reg_Size += Global_Scope->Find(j, Global_Scope)->Size;
 	}
+
+	if (Return_Val->is(TOKEN::NUM))
+		Return_Val->Set_Size(Returning_Reg_Size);
 
 	if ((Input[i]->Right != nullptr) && (Returning_Reg_Size == 0)) {
 		cout << "Error: You are trying to return value inside a void function, not good.\n";
