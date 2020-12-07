@@ -659,6 +659,7 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 	Node* value = new Node(STRING_NODE);
 	value->Name = s->String;
 	value->Parent = Global_Scope;
+	value->Size = 1;	//byte
 
 	init->Left = s;
 	init->Right = value;

@@ -930,9 +930,9 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 
 	Parent->Find(n->Left->Name)->Update_Size_By_Inheritted();
 	Token* value = new Token(n->Right);
-	value->Set_Size(Parent->Find(n->Left->Name)->Size);
+	value->Set_Size(Parent->Find(n->Left->Name)->Get_Size());
 	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, "init"), { value }));
-	if (n->Left->is(STRING_NODE))
+	if (value->is(TOKEN::STRING))
 		Output->insert(Output->begin() + 2, new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}));
 }
 

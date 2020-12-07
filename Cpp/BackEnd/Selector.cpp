@@ -316,7 +316,7 @@ Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 				return i.first;
 			if (r->Holder == nullptr)
 				return nullptr;
-			return Check_If_Smaller_Register_Is_In_Use(r->Holder);
+			return Check_If_Larger_Register_Is_In_Use(r->Holder);
 		}
 	}
 }
