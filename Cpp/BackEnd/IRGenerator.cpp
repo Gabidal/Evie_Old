@@ -207,11 +207,9 @@ void IRGenerator::Parse_Calls(int i)
 	//}
 
 	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
+	Input[i]->Update_Size_By_Inheritted();
 
-	Node* tmp = Global_Scope->Find(Input[i], Global_Scope);
-	tmp->Update_Size_By_Inheritted();
-
-	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + call->Get_Name(), tmp->Size);
+	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + call->Get_Name(), Input[i]->Size);
 
 	Handle = returningReg;
 }

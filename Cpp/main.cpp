@@ -83,6 +83,9 @@ int main(int argc, char* argv[])
     MANGLER::Add_ID({ "l",{MANGLER::VARIABLE, "4"} });
     MANGLER::Add_ID({ "x",{MANGLER::VARIABLE, "8"} });
 
+    //temporary
+    MANGLER::Add_ID({ "t",{MANGLER::VARIABLE, "type"} });
+
     DOCKER::Slicer = TXT::Unwrap;
     DOCKER::Set_Default_Translator(TXT::TXT_Analyzer);
     DOCKER::Add_Translator("\x7F" "ELF", ELF::ELF_Analyzer);

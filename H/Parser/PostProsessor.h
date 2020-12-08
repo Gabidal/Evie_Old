@@ -59,6 +59,8 @@ public:
 	void Change_Local_Strings_To_Global_Pointters(int i);
 
 	void Move_Global_Varibles_To_Header(int i);
+
+	bool Check_If_Template_Function_Is_Right_One(Node* t, Node* c);
 private:
 };
 

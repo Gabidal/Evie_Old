@@ -211,6 +211,7 @@ string MANGLER::Mangle(Node* raw)
 			}
 			if (Is_Template(raw)) {
 				//uugabuuga?
+				Result = p + "t";
 			}
 			else if (Is_Based_On_Base_Type(raw)) {
 				//int a;
@@ -239,7 +240,7 @@ string MANGLER::Mangle(Node* raw)
 	}
 	else {
 		//generic name labels for normal .
-		Result = raw->Name.size();
+		Result = raw->Name;
 	}
 	return Result;
 }

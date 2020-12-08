@@ -178,6 +178,7 @@ void Parser::Prototype_Pattern(int i)
 	return;
 }
 
+int arg_count = 0;
 void Parser::Import_Pattern(int i)
 {
 	//func banana(int, short)\n
@@ -221,9 +222,17 @@ void Parser::Import_Pattern(int i)
 			else
 				p = new Node(OBJECT_DEFINTION_NODE);
 
-			p->Name = Types.back().Value;
+			if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
+				p->Name = "ARG" + to_string(arg_count++);
+				p->Is_Template_Object = true;
+				if (p->is("cpp") == -1)
+					p->Inheritted.push_back("cpp");
+			}
+			else {
+				p->Name = Types.back().Value;
+				Types.pop_back();
+			}
 			p->Parent = New_Defined_Object;
-			Types.pop_back();
 			for (auto k : Types)
 				p->Inheritted.push_back(k.Value);
 
@@ -236,15 +245,23 @@ void Parser::Import_Pattern(int i)
 	}
 	if (Types.size() > 0) {
 		//for the last parameter
-		Node* p;
+		Node* p = nullptr;
 		if (Types.back().is(Flags::NUMBER_COMPONENT))
 			p = new Node(NUMBER_NODE);
 		else
 			p = new Node(OBJECT_DEFINTION_NODE);
 
-		p->Name = Types.back().Value;
+		if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
+			p->Name = "ARG" + to_string(arg_count++);
+			p->Is_Template_Object = true;
+			if (p->is("cpp") == -1)
+				p->Inheritted.push_back("cpp");
+		}
+		else {
+			p->Name = Types.back().Value;
+			Types.pop_back();
+		}
 		p->Parent = New_Defined_Object;
-		Types.pop_back();
 		for (auto k : Types)
 			p->Inheritted.push_back(k.Value);
 
@@ -252,7 +269,7 @@ void Parser::Import_Pattern(int i)
 	}
 
 	//erase inherittes as well the name as well the pearameters from the input list
-	Input.erase(Input.begin() + Words[0], Input.begin() + i + Paranthesis[0] + 1);
+	Input.erase(Input.begin() + Words[0], Input.begin() + Paranthesis[0] + 1);
 
 	Parent->Defined.push_back(New_Defined_Object);
 

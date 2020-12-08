@@ -79,6 +79,8 @@ public:
 	//and the paramters are Named as the size needed. thx!
 	//Float features
 	bool Has_Floating_Point_Value = false;
+	//Template object features.
+	bool Is_Template_Object = false;
 
 	bool is(int F) {
 		return Type == F;
@@ -448,6 +450,8 @@ public:
 	}
 
 	void Update_Size_By_Inheritted() {
+		if (this->is(NUMBER_NODE))
+			return;
 		Size = 0;
 		for (string s : Inheritted) {
 			//there is no inheritable type that doesnt have enything init.

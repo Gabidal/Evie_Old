@@ -1,4 +1,5 @@
 #include "../../H/Parser/PostProsessor.h"
+#include "../../H/Docker/Mangler.h"
 
 extern Node* Global_Scope;
 long long LNumber = 0;
@@ -163,33 +164,54 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
 
-	//first make a mangled name outof the caller
-	n->Mangled_Name = n->Get_Mangled_Name();
-
+	Node* OgFunc = nullptr;
 	//also the returning type of this callation is not made,
 	//we can determine it by the operations other side objects type.
 	//if the 
 
 	//first ignore the template parameters for now
-	for (auto f : Global_Scope->Defined)
-		if (f->is(FUNCTION_NODE) || f->is(PROTOTYPE) || f->is(IMPORT))
-			if (f->Get_Mangled_Name(true, f->is(IMPORT)) == n->Get_Mangled_Name(true, f->is(IMPORT))) {
-				n->Template_Function = f;
-				//we dont need to do enything, everything is fine.
-				return;
+	for (int f = 0; f < Global_Scope->Defined.size(); f++) {
+		if (Global_Scope->Defined[f]->Name != n->Name)
+			continue;
+		//check for template return types.
+		if (!Check_If_Template_Function_Is_Right_One(Global_Scope->Defined[f], n))
+			continue;
+		int g_i = 0;
+		bool Has_Template_Parameters = false;
+		for (auto g : Global_Scope->Defined[f]->Parameters) {
+			if (g->Is_Template_Object) {
+				Has_Template_Parameters = true;
+				if (!Check_If_Template_Function_Is_Right_One(g, n->Parameters[g_i]))
+					goto Wrong_Template_Function;
+				else
+					continue;
 			}
+			else if (g->Get_Inheritted(Global_Scope->Defined[f]->is(IMPORT), true, false) == n->Parameters[g_i]->Get_Inheritted(n->is(IMPORT), true, false))
+				continue;
+			else
+				goto Wrong_Template_Function;
 
-	Node* OgFunc = nullptr;
-
+			g_i++;
+		}
+		if (Has_Template_Parameters && !Global_Scope->Defined[f]->is(IMPORT)) {
+			OgFunc = Global_Scope->Defined[f];
+			goto Non_Imported_Template_Function_Usage;
+		}
+		n->Template_Function = Global_Scope->Defined[f];
+		return;
+		Wrong_Template_Function:;
+	}
+	Non_Imported_Template_Function_Usage:;
 	//if the code gets here it means the og-function has template paramters!
-	for (auto f : Global_Scope->Defined) {
-		if (!f->is(FUNCTION_NODE) && !f->is(PROTOTYPE))
+	//and its not external fucntion.
+	/*for (auto f : Global_Scope->Defined) {
+		if (!f->is(FUNCTION_NODE) && !f->is(PROTOTYPE) && !f->is(IMPORT))
 			continue;
 		if (n->is("ptr") == -1)
 			if (f->Name != n->Name)
 				continue;
 		bool Direct_Type = false;
-		if (f->is(PROTOTYPE))
+		if (f->is(IMPORT))
 			Direct_Type = true;
 		if (f->Parameters.size() != n->Parameters.size())
 			continue;
@@ -211,7 +233,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		OgFunc = f;
 		break;
 	Next_Function:;
-	}
+	}*/
 
 	//this can also mean that the function returns an pointter of somesort!!!
 	//if (n->is("ptr") != -1)
@@ -396,8 +418,20 @@ void PostProsessor::Determine_Return_Type(int i)
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 
+	if (Input[i]->Right->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Right)) {
+		PostProsessor l(Parent, vector<Node*>{Input[i]->Left });
+		Input[i]->Right->Inheritted = Input[i]->Left->Inheritted;
+		PostProsessor r(Parent, vector<Node*>{ Input[i]->Right});
+	}
+	else if (Input[i]->Left->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Left)) {
+		PostProsessor r(Parent, vector<Node*>{ Input[i]->Right});
+		Input[i]->Left->Inheritted = Input[i]->Right->Inheritted;
+		PostProsessor l(Parent, vector<Node*>{Input[i]->Left });
+	}
+	else {
+		PostProsessor r(Parent, vector<Node*>{ Input[i]->Right, Input[i]->Left });
+	}
 
-	PostProsessor r(Parent, vector<Node*>{ Input[i]->Right, Input[i]->Left });
 
 	//try to find a suitable operator overload if there is one
 	for (auto overload : Input[i]->Left->Operator_Overloads) {
@@ -407,9 +441,6 @@ void PostProsessor::Determine_Return_Type(int i)
 		Input[i]->Inheritted = overload->Inheritted;
 		return;
 	}	
-	//because cpp doesnt give us return type we need to trust this doesn't go "negev to leg" style.
-	if ((Input[i]->Left->is("cpp") != -1) || (Input[i]->Right->is("cpp") != -1))
-		Input[i]->Inheritted = Input[i]->Left->Inheritted;
 
 	int Left_Size = 0;
 	int Right_Size = 0;
@@ -487,6 +518,12 @@ void PostProsessor::Handle_Imports(int i)
 		vector<string> Inheritted = Parent->Defined[i]->Parameters[j]->Inheritted;
 		if (Parent->Defined[i]->Parameters[j]->is(NUMBER_NODE)) {
 			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE);
+			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
+		}
+		else if (Parent->Defined[i]->Parameters[j]->is(OBJECT_DEFINTION_NODE)) {
+			if ((Parent->Defined[i]->Parameters[j]->Name == "type") || Parent->Defined[i]->Parameters[j]->is("type") != -1)
+				continue;
+			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(Parent->Defined[i]->Parameters[j]->Name, Global_Scope, CLASS_NODE);
 			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
 	}
@@ -684,4 +721,29 @@ void PostProsessor::Move_Global_Varibles_To_Header(int i)
 	Input.erase(Input.begin() + i);
 
 	Move_Global_Varibles_To_Header(i);
+}
+
+bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
+{
+	//t = template
+	//c = call
+	//how many times we can skip a type
+	int Type_Amount = Get_Amount("type", t);
+
+	for (auto i : c->Inheritted) {
+		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT)) {
+			if (t->is(i) == -1) {
+				return false;	//teplate function must contain same keywords.
+			}
+		}
+		else if (t->is(i) == -1) {
+			if (Type_Amount > 0) {
+				Type_Amount--;
+				continue;
+			}
+			else
+				return false;
+		}
+	}
+	return true;
 }
