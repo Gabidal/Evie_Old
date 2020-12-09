@@ -1,4 +1,6 @@
 #include "../../H/Parser/Parser.h"
+//this is for unamed parameters.
+int arg_count = 0;
 
 vector<int> Parser::Get_Amount_Of(int i, long Flag, bool All_in_Same_Line)
 {
@@ -158,14 +160,54 @@ void Parser::Prototype_Pattern(int i)
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Parent = Parent;
 
-	Parser p(Parent);
-	p.Input = Input[Paranthesis[0]].Components;	//give the parameters
-	p.Factory();
+	vector<Component> Types;
+	for (auto j : Input[Paranthesis[0]].Components) {
+		if (j.Value == ",") {
+			Node* p = new Node(OBJECT_DEFINTION_NODE);
 
-	//how are you supposed to know if the parameter is a ptr?
-	for (Component j : p.Input)
-		if (j.node != nullptr)
-			New_Defined_Object->Parameters.push_back(new Node(*j.node));
+			if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
+				p->Name = "ARG" + to_string(arg_count++);
+				p->Is_Template_Object = true;
+			}
+			else {
+				p->Name = Types.back().Value;
+				Types.pop_back();
+			}
+			p->Parent = New_Defined_Object;
+			for (auto k : Types)
+				p->Inheritted.push_back(k.Value);
+
+			if (p->is("type") != -1)
+				p->Is_Template_Object = true;
+
+			New_Defined_Object->Parameters.push_back(p);
+			Types.clear();
+		}
+		else {
+			Types.push_back(j);
+		}
+	}
+	if (Types.size() > 0) {
+		//for the last parameter
+		Node* p = new Node(OBJECT_DEFINTION_NODE);
+
+		if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
+			p->Name = "ARG" + to_string(arg_count++);
+			p->Is_Template_Object = true;
+		}
+		else {
+			p->Name = Types.back().Value;
+			Types.pop_back();
+		}
+		p->Parent = New_Defined_Object;
+		for (auto k : Types)
+			p->Inheritted.push_back(k.Value);
+
+		if (p->is("type") != -1)
+			p->Is_Template_Object = true;
+
+		New_Defined_Object->Parameters.push_back(p);
+	}
 
 	//erase inherittes as well the name as well the pearameters from the input list
 	Input.erase(Input.begin() + Words[0], Input.begin() + i + Paranthesis[0] + 1);
@@ -178,7 +220,6 @@ void Parser::Prototype_Pattern(int i)
 	return;
 }
 
-int arg_count = 0;
 void Parser::Import_Pattern(int i)
 {
 	//func banana(int, short)\n
@@ -225,8 +266,6 @@ void Parser::Import_Pattern(int i)
 			if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 				p->Name = "ARG" + to_string(arg_count++);
 				p->Is_Template_Object = true;
-				if (p->is("cpp") == -1)
-					p->Inheritted.push_back("cpp");
 			}
 			else {
 				p->Name = Types.back().Value;
@@ -235,6 +274,9 @@ void Parser::Import_Pattern(int i)
 			p->Parent = New_Defined_Object;
 			for (auto k : Types)
 				p->Inheritted.push_back(k.Value);
+
+			if (p->is("type") != -1)
+				p->Is_Template_Object = true;
 
 			New_Defined_Object->Parameters.push_back(p);
 			Types.clear();
@@ -254,8 +296,6 @@ void Parser::Import_Pattern(int i)
 		if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 			p->Name = "ARG" + to_string(arg_count++);
 			p->Is_Template_Object = true;
-			if (p->is("cpp") == -1)
-				p->Inheritted.push_back("cpp");
 		}
 		else {
 			p->Name = Types.back().Value;
@@ -264,6 +304,9 @@ void Parser::Import_Pattern(int i)
 		p->Parent = New_Defined_Object;
 		for (auto k : Types)
 			p->Inheritted.push_back(k.Value);
+
+		if (p->is("type") != -1)
+			p->Is_Template_Object = true;
 
 		New_Defined_Object->Parameters.push_back(p);
 	}
@@ -666,8 +709,10 @@ void Parser::Function_Pattern(int i)
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
 
-	for (auto p : func->Defined) {
+	for (auto& p : func->Defined) {
 		p->Type = PARAMETER_NODE;
+		if (p->is("type") != -1)
+			p->Is_Template_Object = true;
 	}
 
 	func->Parameters = p.Input[0].node->Childs;

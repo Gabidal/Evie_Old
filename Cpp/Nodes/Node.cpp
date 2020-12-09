@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "../../H/Parser/Algebra.h"
+#include "../../H/Docker/Mangler.h"
 
 using namespace std;
 
@@ -59,4 +60,64 @@ Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 		Expiring_Index = n;
 	}
 Stop:;
+}
+
+vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name) {
+	vector<string> Result;
+	if (MANGLER::Is_Base_Type(this) || Get_Name) {
+		return { Name };
+	}
+	else if (is(NUMBER_NODE)) {
+		//1.29348
+		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
+			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
+				return Find(4, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+			else
+				return Find(8, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+		}
+		else {
+			if (atoll(Name.c_str()) > INT_MAX) {
+				return Find(8, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+			}
+			return Find(4, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+		}
+	}
+	else {
+		for (int i = 0; i < Inheritted.size(); i++) {
+			if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
+				continue;
+			Result.push_back(Inheritted[i]);
+		}
+		return Result;
+	}
+}
+
+string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name) {
+	if (MANGLER::Is_Base_Type(this) || Get_Name) {
+		return seperator + Name;
+	}
+	else if (is(NUMBER_NODE)) {
+		//1.29348
+		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
+			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
+				return Find(4, Global_Scope)->Get_Inheritted(seperator, Skip_Prefixes, true);
+			else
+				return Find(8, Global_Scope)->Get_Inheritted(seperator,  Skip_Prefixes, true);
+		}
+		else {
+			if (atoll(Name.c_str()) > INT_MAX) {
+				return Find(8, Global_Scope)->Get_Inheritted(seperator, Skip_Prefixes, true);
+			}
+			return Find(4, Global_Scope)->Get_Inheritted(seperator, Skip_Prefixes, true);
+		}
+	}
+	else {
+		string result = "";
+		for (int i = 0; i < Inheritted.size(); i++) {
+			if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
+				continue;
+			result += seperator + Inheritted[i];
+		}
+		return result;
+	}
 }

@@ -148,7 +148,7 @@ string MANGLER::Mangle(Node* raw)
 {
 	string Result = "";
 
-	if (raw->is("cpp") != -1) {
+	if ((raw->is("cpp") != -1) || (raw->Parent->is("cpp") != -1)) {
 		//if the function call uses the C standard.
 		//_import_func_cpp_internal_print__char__int to
 		//_Z14internal_printPci
@@ -232,10 +232,10 @@ string MANGLER::Mangle(Node* raw)
 		}
 		
 	}
-	else if (raw->is("vivid") != -1) {
+	else if ((raw->is("vivid") != -1) || (raw->Parent->is("vivid") != -1)) {
 		//if the function call uses the V standard.
 	}
-	else if (raw->is("evie") != -1){
+	else if ((raw->is("evie") != -1) || (raw->Parent->is("evie") != -1)){
 		//if the function call uses the Evie standard.
 	}
 	else {
@@ -247,6 +247,8 @@ string MANGLER::Mangle(Node* raw)
 
 bool MANGLER::Is_Base_Type(Node* n)
 {
+	if (n->is(NUMBER_NODE))
+		return false;
 	bool Result = true;
 	for (auto i : n->Childs) {
 		if (i->Name == "size" && i->is("const") != -1)

@@ -93,65 +93,9 @@ public:
 		return -1;
 	}
 	
-	string Get_Inheritted(string seperator, bool Dirent_Type = false, bool Skip_Prefixes = false, bool Get_Name = false) {
-		if (Dirent_Type || Get_Name) {
-			return seperator + Name;
-		}
-		else if (is(NUMBER_NODE)) {
-			//1.29348
-			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
-				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-					return Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
-				else
-					return Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
-			}
-			else {
-				if (atoll(Name.c_str()) > INT_MAX) {
-					return Find(8, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
-				}
-				return Find(4, Global_Scope)->Get_Inheritted(seperator, Dirent_Type, Skip_Prefixes, true);
-			}
-		}
-		else {
-			string result = "";
-			for (int i = 0; i < Inheritted.size(); i++) {
-				if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
-					continue;
-				result += seperator + Inheritted[i];
-			}
-			return result;
-		}
-	}
+	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false);
 	
-	vector<string> Get_Inheritted(bool Dirent_Type = false, bool Skip_Prefixes = false, bool Get_Name = false) {
-		vector<string> Result;
-		if (Dirent_Type || Get_Name) {
-			return { Name };
-		}
-		else if (is(NUMBER_NODE)) {
-			//1.29348
-			if (find(Name.begin(), Name.end(), '.') != Name.end()) {
-				if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-					return Find(4, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
-				else
-					return Find(8, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
-			}
-			else {
-				if (atoll(Name.c_str()) > INT_MAX) {
-					return Find(8, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
-				}
-				return Find(4, Global_Scope)->Get_Inheritted(Dirent_Type, Skip_Prefixes, true);
-			}
-		}
-		else {
-			for (int i = 0; i < Inheritted.size(); i++) {
-				if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
-					continue;
-				Result.push_back(Inheritted[i]);
-			}
-			return Result;
-		}
-	}
+	vector<string> Get_Inheritted(bool Skip_Prefixes = false, bool Get_Name = false);
 
 	string Get_Mangled_Name(bool Skip_Prefixes = false, bool Skip_Return_Type = false) {
 		//_int_ptr_Z6banana_int_int_short

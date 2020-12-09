@@ -186,7 +186,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 				else
 					continue;
 			}
-			else if (g->Get_Inheritted(Global_Scope->Defined[f]->is(IMPORT), true, false) == n->Parameters[g_i]->Get_Inheritted(n->is(IMPORT), true, false))
+			else if (g->Get_Inheritted("_", true, false) == n->Parameters[g_i]->Get_Inheritted("_", true, false))
 				continue;
 			else
 				goto Wrong_Template_Function;
@@ -520,6 +520,8 @@ void PostProsessor::Handle_Imports(int i)
 			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE);
 			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
+		else if (!MANGLER::Is_Base_Type(Parent->Defined[i]->Parameters[j]))
+			continue;
 		else if (Parent->Defined[i]->Parameters[j]->is(OBJECT_DEFINTION_NODE)) {
 			if ((Parent->Defined[i]->Parameters[j]->Name == "type") || Parent->Defined[i]->Parameters[j]->is("type") != -1)
 				continue;

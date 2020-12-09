@@ -29,8 +29,8 @@ type string{
 	size = 1
 }
 
-import type ptr cpp allocate(int)
-import func cpp deallocate(cpp type ptr, int)
+import type ptr cpp allocate(int size)
+#import func cpp deallocate(cpp type ptr, int)
 
 func memcpy(type ptr dest, type ptr source, int Size){
     while (int i = 0, i < Size, i++){
