@@ -21,7 +21,7 @@ namespace DOCKER {
 	extern map<string, vector<string>> Output;
 	//Read section
 	//		function_names, type
-	vector<string> Get_Names_Of(Section area, vector<pair<string, string>> Types);
+	vector<pair<string, string>> Get_Names_Of(string tmp, vector<pair<string, string>> Types);
 	extern vector<string> Libs;
 	extern vector<string> Assembly_Source_File;
 	extern vector<string> FileName;		//this can contain also the url name
@@ -61,6 +61,7 @@ namespace DOCKER {
 			d.insert(d.begin() + i + j, s[j]);
 		return d;
 	}
+	vector<string>& Append(vector<string>& d, vector<pair<string, string>> s);
 	string Get_File_Extension(string raw);
 	string Update_Working_Dir(string File_Name);
 	string Update_Working_Dir(string File_Name, string& dir);

@@ -185,7 +185,12 @@ void ELF::ELF_Analyzer(vector<string>& output)
     //open & read the bin file
     vector<unsigned char> File_Buffer = DOCKER::Get_Char_Buffer_From_File(DOCKER::FileName.back(), DOCKER::Working_Dir);
     Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
-    DOCKER::Append(output, DOCKER::Get_Names_Of(Function_Section, DOCKER::Separate_Identification_Patterns(Header_Data)));
+    for (int i = 0; i < Function_Section.size; i++) {
+        if (Function_Section.start[i] == '\0')
+            Function_Section.start[i] = '?';
+    }
+    string Tmp = string((char*)Function_Section.start, Function_Section.size);
+    DOCKER::Append(output, DOCKER::Get_Names_Of(Tmp, DOCKER::Separate_Identification_Patterns(Header_Data)));
     DOCKER::Libs.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
     return;
 }

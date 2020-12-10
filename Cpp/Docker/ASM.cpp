@@ -15,22 +15,19 @@ void ASM::ASM_Analyzer(vector<string>& Output)
 	//DOCKER::Separate_Identification_Patterns(Header_Data);
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(DOCKER::FileName.back(), DOCKER::Working_Dir);
 	string buffer = string((char*)tmp.data(), tmp.size());
-	Section Function_Section = DOCKER::Get_Section_From_String(buffer);
-	vector<string> Raw_Data = DOCKER::Get_Names_Of(Function_Section, DOCKER::Separate_Identification_Patterns(Header_Data));
-	//delete all the comments that start with ;
-	for (int i = 0; i < Raw_Data.size(); i++) {
-		if (Raw_Data[i].find(';') != -1) {
-			Raw_Data.erase(Raw_Data.begin() + i);
-			i--;
-		}
+	Section Function_Section = DOCKER::Get_Section_From_String(buffer); 
+
+	string Tmp = string((char*)Function_Section.start, Function_Section.size);
+	auto Types = DOCKER::Separate_Identification_Patterns(Header_Data);
+	vector<pair<string, string>> Raw_Data = DOCKER::Get_Names_Of(Tmp, Types);
+	for (auto& i : Raw_Data) {
+		if (i.second.find("global ") != -1)
+			i.second.erase(i.second.find("global "), 7);
 	}
-	//we need to get rid of : in the asm labels
-	for (auto& i : Raw_Data)
-		i = DOCKER::ReplaceAll(i, ":", "");
+	DOCKER::Append(Output, Raw_Data);
+	//
 	//Syntax_Correcter(Raw_Data);
 	//now make the obj token for YASM
 	DOCKER::Assembly_Source_File.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
-
-	DOCKER::Append(Output, Raw_Data);
 	return;
 }

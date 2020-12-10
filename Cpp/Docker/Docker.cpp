@@ -155,20 +155,15 @@ vector<unsigned char> DOCKER::Get_Char_Buffer_From_File(string FN, string WD)
 }
 
 //		    name, type
-vector<string> DOCKER::Get_Names_Of(Section area, vector<pair<string, string>> Types)
+vector<pair<string, string>> DOCKER::Get_Names_Of(string Input, vector<pair<string, string>> Types)
 {
-	for (int i = 0; i < area.size; i++) {
-		if (area.start[i] == '\0')
-			area.start[i] = '?';
-	}
-	string Input((char*)area.start, area.size);
-	vector<string> Result;
+	vector<pair<string, string>> Result;
 	for (auto i : Types) {
 		smatch matches;
 		regex Pattern(i.second);
 		int Previus_Size = Input.size();
 		while (regex_search(Input, matches, Pattern)) {
-			Result.push_back(i.first + " " + matches.str());
+			Result.push_back({ i.first, matches.str() });
 			Input = matches.prefix().str() + matches.suffix().str();
 			if (Previus_Size == Input.size()) {
 				cout << "Error: Regex string " << i.second << " looped infinitely!" << endl;
@@ -327,4 +322,12 @@ char* DOCKER::Read_Bin_File(string fileName)
 	Buffer[size] = '\0';
 	file.close();
 	return Buffer;
+}
+
+vector<string>& DOCKER::Append(vector<string>& d, vector<pair<string, string>> s) {
+	for (int i = 0; i < s.size(); i++) {
+		string r = s[i].first + " " + s[i].second;
+		d.push_back(r);
+	}
+	return d;
 }

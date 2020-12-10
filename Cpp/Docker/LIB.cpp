@@ -36,7 +36,12 @@ void LIB::LIB_Analyzer(vector<string>& Output)
 	regex filtter2("(\\n{2,})");
 	buffer = regex_replace(buffer, filtter2, "\n");
 	Section Function_Section = DOCKER::Get_Section_From_String(buffer);
-	DOCKER::Append(Output, DOCKER::Get_Names_Of(Function_Section, DOCKER::Separate_Identification_Patterns(Header_Data)));
+	for (int i = 0; i < Function_Section.size; i++) {
+		if (Function_Section.start[i] == '\0')
+			Function_Section.start[i] = '?';
+	}
+	string Tmp = string((char*)Function_Section.start, Function_Section.size);
+	DOCKER::Append(Output, DOCKER::Get_Names_Of(Tmp, DOCKER::Separate_Identification_Patterns(Header_Data)));
 	DOCKER::Libs.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
 	return;
 }

@@ -1,7 +1,11 @@
 use "cstd.e"
 
+type Cat{
+    int Speed
+    int Attack
+    int Defence
+}
+
 int main(){
-    int ptr a = allocate(4)
-    deallocate(a, 4)
     return 0
 }
