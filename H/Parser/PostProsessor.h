@@ -61,6 +61,9 @@ public:
 	void Move_Global_Varibles_To_Header(int i);
 
 	bool Check_If_Template_Function_Is_Right_One(Node* t, Node* c);
+
+	vector<Node*> Linearise(Node*);
+	string To_String(Node*);
 private:
 };
 

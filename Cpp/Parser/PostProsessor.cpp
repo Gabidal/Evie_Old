@@ -1,5 +1,7 @@
 #include "../../H/Parser/PostProsessor.h"
 #include "../../H/Docker/Mangler.h"
+#include "../../H/Parser/Parser.h"
+#include "../../H/Lexer/Lexer.h"
 
 extern Node* Global_Scope;
 long long LNumber = 0;
@@ -66,6 +68,40 @@ void PostProsessor::Type_Definer(int i)
 
 	//update the member stack offsets
 	Parent->Defined[i]->Update_Members_Mem_Offset();
+
+	//make a default constructor.
+	//insert the constructor into global scopes funciton list.
+	string Constructor = "func " + Parent->Defined[i]->Name + "(" + Parent->Defined[i]->Name + " ptr this){\n";
+	
+	for (auto c : Parent->Defined[i]->Childs) {
+		//insert this. infront of every member
+		for (auto linear_n : Linearise(c)) {
+			if (linear_n->is(NUMBER_NODE) || linear_n->is(CALL_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1))
+				continue;
+			Node* define = c->Find(linear_n, Parent->Defined[i]);
+			if (define->is(OBJECT_DEFINTION_NODE) || define->is(OBJECT_NODE)) {
+				Node* Dot = new Node(OPERATOR_NODE);
+				Dot->Name = ".";
+
+				Dot->Left = new Node(OBJECT_NODE);
+				Dot->Left->Name = "this";
+
+				Dot->Right = new Node(*linear_n);
+				
+				*linear_n = *Dot;
+			}
+		}
+		//transform this c into string format.
+		Constructor += To_String(c) + "\n";
+	}
+
+	Constructor += "\n}";
+
+	Parser p(Global_Scope);
+	p.Input = Lexer::GetComponents(Constructor);
+	p.Factory();
+
+
 
 	return;
 }
@@ -173,6 +209,8 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	for (int f = 0; f < Global_Scope->Defined.size(); f++) {
 		if (Global_Scope->Defined[f]->Name != n->Name)
 			continue;
+		if (Global_Scope->Defined[f]->is(CLASS_NODE))
+			continue;	//this is for constructors
 		//check for template return types.
 		if (!Check_If_Template_Function_Is_Right_One(Global_Scope->Defined[f], n))
 			continue;
@@ -748,4 +786,63 @@ bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
 		}
 	}
 	return true;
+}
+
+vector<Node*> PostProsessor::Linearise(Node* ast)
+{
+	vector<Node*> Result;
+	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE) || ast->is(ARRAY_NODE)) {
+		vector<Node*> left = Linearise(ast->Left);
+		Result.insert(Result.end(), left.begin(), left.end());
+
+		vector<Node*> right = Linearise(ast->Right);
+		Result.insert(Result.end(), right.begin(), right.end());
+	}
+	else if (ast->is(CONTENT_NODE)) {
+		vector<Node*> childs;
+		for (auto c : ast->Childs) {
+			vector<Node*> tmp = Linearise(c);
+			childs.insert(childs.end(), tmp.begin(), tmp.end());
+		}
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	else
+		Result.push_back(ast);
+
+	return Result;
+
+}
+
+string PostProsessor::To_String(Node* n)
+{
+	string Result = "";
+	if (n->is("const") != -1)
+		return "";
+	if (n->is(OBJECT_NODE))
+		return n->Name;
+	else if (n->is(OBJECT_DEFINTION_NODE)) {
+		for (auto i : n->Inheritted)
+			Result += i;
+		Result += n->Name;
+	}
+	else if (n->is(CONTENT_NODE)) {
+		Result += "(";
+		for (auto c : n->Childs)
+			Result += To_String(c);
+		Result += ")";
+	}
+	else if (n->is(OPERATOR_NODE)) {
+		Result += To_String(n->Left);
+		Result += n->Name;
+		Result += To_String(n->Right);
+	}
+	else if (n->is(ARRAY_NODE))
+		Result += To_String(n->Left) + "[" + To_String(n->Right) + "]";
+	else if (n->is(CALL_NODE)) {
+		Result += n->Name + "(";
+		for (auto p : n->Parameters)
+			Result += To_String(p) + ", ";
+		Result += ")";
+	}
+	return Result;
 }

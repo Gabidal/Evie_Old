@@ -1,9 +1,9 @@
 use "cstd.e"
 
 type Cat{
-    int Speed
-    int Attack
-    int Defence
+    int Speed = 12
+    int Attack = 23
+    int Defence = 34
 }
 
 int main(){
