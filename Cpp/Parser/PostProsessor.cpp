@@ -71,37 +71,46 @@ void PostProsessor::Type_Definer(int i)
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
-	string Constructor = "func " + Parent->Defined[i]->Name + "(" + Parent->Defined[i]->Name + " ptr this){\n";
-	
+	Node* Function = new Node(FUNCTION_NODE);
+	Function->Name = Parent->Defined[i]->Name;
+	Function->Inheritted = { Parent->Defined[i]->Name, "ptr" };
+	Function->Parent = Global_Scope;
+
+	Node* This = new Node(PARAMETER_NODE);
+	This->Inheritted = {Parent->Defined[i]->Name, "ptr"};
+	This->Name = "this";
+	This->Defined = Parent->Defined[i]->Defined;
+	This->Parent = Function;
+
+	Function->Parameters.push_back(This);
+	Function->Defined.push_back(This);
+
 	for (auto c : Parent->Defined[i]->Childs) {
+		if (c->is("const") != -1)
+			continue;
+		Node* c_copy = c->Copy_Node(c, Function);
 		//insert this. infront of every member
-		for (auto linear_n : Linearise(c)) {
+		for (auto& linear_n : Linearise(c_copy)) {
 			if (linear_n->is(NUMBER_NODE) || linear_n->is(CALL_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1))
 				continue;
 			Node* define = c->Find(linear_n, Parent->Defined[i]);
 			if (define->is(OBJECT_DEFINTION_NODE) || define->is(OBJECT_NODE)) {
 				Node* Dot = new Node(OPERATOR_NODE);
 				Dot->Name = ".";
+				Dot->Parent = linear_n->Parent;
 
-				Dot->Left = new Node(OBJECT_NODE);
-				Dot->Left->Name = "this";
+				Dot->Left = new Node(*This);
 
 				Dot->Right = new Node(*linear_n);
 				
 				*linear_n = *Dot;
 			}
 		}
-		//transform this c into string format.
-		Constructor += To_String(c) + "\n";
+		Function->Childs.push_back(c_copy);
 	}
 
-	Constructor += "\n}";
-
-	Parser p(Global_Scope);
-	p.Input = Lexer::GetComponents(Constructor);
-	p.Factory();
-
-
+	Global_Scope->Defined.push_back(Function);
+	Global_Scope->Childs.push_back(Function);
 
 	return;
 }
@@ -203,7 +212,38 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	Node* OgFunc = nullptr;
 	//also the returning type of this callation is not made,
 	//we can determine it by the operations other side objects type.
-	//if the 
+	//this prosess is made for operator in Determine_Return_Type().
+	//but it wont work if the call is inside another call
+	if (n->Holder->is(CALL_NODE)) {
+		int Parameter_Index = 0;
+		for (auto p : n->Holder->Parameters)
+			if (p == n)//check the pointer address
+				break;
+			else
+				Parameter_Index++;
+		//the holder callation does not have template function.
+		//this posible to make only this way:
+		//if there are only one funciton named as the holder,
+		//if not the this function return type must NOT be a Base type.
+		if (MANGLER::Is_Based_On_Base_Type(n)) {
+			//this happends when the n return a template type.
+			//there can be only one template function.
+			vector<int> callation;
+			for (int c = 0; c < Global_Scope->Defined.size(); c++) {
+				if (Global_Scope->Defined[c]->is(FUNCTION_NODE) && (Global_Scope->Defined[c]->Name == n->Holder->Name)) {
+					if (Global_Scope->Defined[c]->Parameters.size() == n->Holder->Parameters.size())
+						callation.push_back(c);
+				}
+			}
+			if (callation.size() > 1){
+				cout << "Error: Cannot decide, " << n->Holder->Name << " has too many similar overloads.\n";
+				cout << "Solution: Please cast " << n->Name << " into desired type.\n" << endl;
+				throw::exception("Error!");
+			}
+			n->Inheritted = Global_Scope->Defined[callation[0]]->Parameters[Parameter_Index]->Inheritted;
+		}
+
+	}
 
 	//first ignore the template parameters for now
 	for (int f = 0; f < Global_Scope->Defined.size(); f++) {
@@ -354,39 +394,45 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 {
 	if (n->Name != ".")
 		return;
-	//Remember: Dot is constructed as any normal operator.
-	//((((a.b).c[..]).d()).e) = 123
-	//We have to go first to the most left sided operator.
-	Combine_Member_Fetching(n->Left);
-	//set the left side
-	Node* Left = Get_From_AST(n->Left);
-	//we must also update the current left side to inherit the members from the inherit list
-	Left->Get_Inheritted_Class_Members();
-	Left->Update_Members_Size();
+	if (n->Right->is(CALL_NODE)) {
+		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
+		*n = *n->Right;
+	}
+	else {
+		//Remember: Dot is constructed as any normal operator.
+		//((((a.b).c[..]).d()).e) = 123
+		//We have to go first to the most left sided operator.
+		Combine_Member_Fetching(n->Left);
+		//set the left side
+		Node* Left = Get_From_AST(n->Left);
+		//we must also update the current left side to inherit the members from the inherit list
+		Left->Get_Inheritted_Class_Members();
+		Left->Update_Members_Size();
 
-	//get the left side of the dot operator, this is getted from most left because it can be also an AST.
-	Node* Right = n->Get_Most_Left(n->Right);
+		//get the left side of the dot operator, this is getted from most left because it can be also an AST.
+		Node* Right = n->Get_Most_Left(n->Right);
 
-	if (Right->Name == "size") {
-		Node* n = Right->Find("size", Left);
-		if (n == nullptr || n->is("const")) {
-			//this means it is definetly a size get request
-			Right->Name = to_string(Left->Get_Size());
-			Right->Type = NUMBER_NODE;
+		if (Right->Name == "size") {
+			Node* n = Right->Find("size", Left);
+			if (n == nullptr || n->is("const")) {
+				//this means it is definetly a size get request
+				Right->Name = to_string(Left->Get_Size());
+				Right->Type = NUMBER_NODE;
+			}
+			else
+				//load the needed information from the parent
+				*Right = *n->Find(Right->Name, Left);
 		}
 		else
 			//load the needed information from the parent
 			*Right = *n->Find(Right->Name, Left);
+
+		//set the parent as a fechable
+		Right->Fetcher = Left;
+
+		//now remove the current dot operator and replace it with the new fetched member
+		*n = *Right;
 	}
-	else
-		//load the needed information from the parent
-		*Right = *n->Find(Right->Name, Left);
-
-	//set the parent as a fechable
-	Right->Fetcher = Left;
-
-	//now remove the current dot operator and replace it with the new fetched member
-	*n = *Right;
 }
 
 Node* PostProsessor::Get_From_AST(Node* n)
@@ -811,38 +857,4 @@ vector<Node*> PostProsessor::Linearise(Node* ast)
 
 	return Result;
 
-}
-
-string PostProsessor::To_String(Node* n)
-{
-	string Result = "";
-	if (n->is("const") != -1)
-		return "";
-	if (n->is(OBJECT_NODE))
-		return n->Name;
-	else if (n->is(OBJECT_DEFINTION_NODE)) {
-		for (auto i : n->Inheritted)
-			Result += i;
-		Result += n->Name;
-	}
-	else if (n->is(CONTENT_NODE)) {
-		Result += "(";
-		for (auto c : n->Childs)
-			Result += To_String(c);
-		Result += ")";
-	}
-	else if (n->is(OPERATOR_NODE)) {
-		Result += To_String(n->Left);
-		Result += n->Name;
-		Result += To_String(n->Right);
-	}
-	else if (n->is(ARRAY_NODE))
-		Result += To_String(n->Left) + "[" + To_String(n->Right) + "]";
-	else if (n->is(CALL_NODE)) {
-		Result += n->Name + "(";
-		for (auto p : n->Parameters)
-			Result += To_String(p) + ", ";
-		Result += ")";
-	}
-	return Result;
 }

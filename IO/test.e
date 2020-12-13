@@ -6,6 +6,12 @@ type Cat{
     int Defence = 34
 }
 
+#int Get_Speed(Cat ptr){
+    #return 1
+#}
+
 int main(){
+    Cat ptr c = Cat(allocate(4))
+    #c.Get_Speed()
     return 0
 }

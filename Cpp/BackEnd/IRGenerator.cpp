@@ -16,6 +16,7 @@ void IRGenerator::Factory()
 		Parse_If(i);
 		Parse_Loops(i);
 		Parse_Arrays(i);
+		Parse_Member_Fetch(Input[i]);
 		Parse_Calls(i);
 		Parse_Parenthesis(i);
 		Parse_Operators(i);
@@ -50,7 +51,7 @@ void IRGenerator::Parse_Function(int i)
 
 	//TODO: Make the return IR here
 	Token* ret = new Token(TOKEN::FLOW, "return");
-	ret->Set_Parent(Global_Scope->Find(Input[i]->Name));
+	ret->Set_Parent(Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE));
 	Output->push_back(new IR(ret, {}));
 
 	//make the end of funciton like End Proc like label
@@ -359,6 +360,8 @@ void IRGenerator::Parse_Operators(int i)
 		return;
 	if (Parent->Name == "GLOBAL_SCOPE")
 		return;
+	if (Input[i]->Name == ".")
+		return;
 
 	Update_Operator(Input[i]);
 	//If this operator is handling with pointters we cant use general operator handles
@@ -470,6 +473,8 @@ void IRGenerator::Parse_Pointers(int i)
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 	if (Parent->Name == "GLOBAL_SCOPE")
+		return;
+	if (Input[i]->Name == ".")
 		return;
 
 	Update_Operator(Input[i]);
@@ -932,6 +937,46 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, "init"), { value }));
 	if (value->is(TOKEN::STRING))
 		Output->insert(Output->begin() + 2, new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}));
+}
+
+void IRGenerator::Parse_Member_Fetch(Node* n)
+{
+	if (!n->is(OPERATOR_NODE))
+		return;
+	if (n->Name != ".")
+		return;
+
+	Token* Left;
+	IRGenerator g(n->Parent, { n->Left }, Output);
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else
+		Left = new Token(n->Left);
+
+
+	//remember to load object if it is a ptr.
+	//mov handle, [esp+class_offset+member_offset]
+	if (n->Left->is("ptr") != -1) {
+		if (Left->Get_Name() == n->Left->Name) {
+			//id this happends the Left tokens has not been loaded from pointters yet.
+			int Ptr_Depth = Get_Amount("ptr", n->Left);
+			Left = Operate_Pointter(Left, Ptr_Depth -1, true);
+		}
+	}
+	//make the member offset
+	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Left->Find(n->Right->Name)->Memory_Offset));
+
+	Token* Member_Offsetter = new Token(TOKEN::OFFSETTER, "+");
+	Member_Offsetter->Left = Left;
+	Member_Offsetter->Right = Member_Offset;
+
+	Member_Offsetter = new Token(TOKEN::MEMORY, { Member_Offsetter }, n->Left->Find(n->Right->Name)->Size, n->Left->Name + n->Right->Name);
+
+	Token* Handle_Register = new Token(TOKEN::REGISTER, "REG_" + n->Right->Name, n->Left->Find(n->Right->Name)->Size);
+
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Handle_Register, Member_Offsetter }));
+
+	Handle = Handle_Register;
 }
 
 void IRGenerator::Parse_Loops(int i)

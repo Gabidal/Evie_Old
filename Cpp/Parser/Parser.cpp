@@ -597,17 +597,22 @@ void Parser::Callation_Pattern(int i)
 		return;
 
 	Node* call = new Node(CALL_NODE);
-	
+
 	//give the normal call the inheritance for future operator type determining
 	call->Inheritted = Parent->Find(Input[i].Value, Parent)->Inheritted;
 
 	call->Name = Input[i].Value;
 	call->Parent = Parent;
 
-	//initialize the parenthesis that contains the parameters
-	Parenthesis_Pattern(i + 1);
+	if (Parent->is(CALL_NODE))
+		call->Holder = Parent;
 
-	call->Parameters = Input[(size_t)i + 1].node->Childs;
+	//initialize the parenthesis that contains the parameters
+	Parser p(call);
+	p.Input = {Input[(size_t)i + 1]};
+	p.Factory();
+
+	call->Parameters = p.Input.back().node->Childs;
 	Input[i].node = call;
 
 	Input.erase(Input.begin() + i + 1);
