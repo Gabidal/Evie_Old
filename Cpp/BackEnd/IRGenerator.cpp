@@ -37,14 +37,13 @@ void IRGenerator::Parse_Function(int i)
 	for (auto j : Input[i]->Parameters)
 		if (j->is("type") != -1)
 			return;	//skip template functions.
+	if ((Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE)->Calling_Count == 0) && Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE)->is("export") == -1)
+		return;
 
 	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}));
 
 	//label
-	bool Use_Mangling = false;
-	if (Input[i]->is("export") != -1)
-		Use_Mangling = true;
-	Output->push_back(Make_Label(Input[i], Use_Mangling));
+	Output->push_back(Make_Label(Input[i], true));
 
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
@@ -195,9 +194,7 @@ void IRGenerator::Parse_Calls(int i)
 	}
 
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
-	string Call_Name = Input[i]->Name;
-	if (Input[i]->Template_Function->is("export") != -1 || Input[i]->Template_Function->is(IMPORT))
-		Call_Name = MANGLER::Mangle(Input[i]->Template_Function);
+	string Call_Name = MANGLER::Mangle(Input[i]->Template_Function);
 	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Call_Name) });
 
 	Output->push_back(ir);
@@ -962,6 +959,9 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 			int Ptr_Depth = Get_Amount("ptr", n->Left);
 			Left = Operate_Pointter(Left, Ptr_Depth -1, true);
 		}
+		for (int i = 0; i < n->Inheritted.size(); i++)
+			if (n->Left->Inheritted[i] == "ptr")
+				n->Left->Inheritted.erase(n->Left->Inheritted.begin() + i);
 	}
 	//make the member offset
 	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Left->Find(n->Right->Name)->Memory_Offset));
@@ -972,11 +972,11 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 
 	Member_Offsetter = new Token(TOKEN::MEMORY, { Member_Offsetter }, n->Left->Find(n->Right->Name)->Size, n->Left->Name + n->Right->Name);
 
-	Token* Handle_Register = new Token(TOKEN::REGISTER, "REG_" + n->Right->Name, n->Left->Find(n->Right->Name)->Size);
 
-	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Handle_Register, Member_Offsetter }));
+	//Token* Handle_Register = new Token(TOKEN::REGISTER, "REG_" + n->Right->Name, n->Left->Find(n->Right->Name)->Size);
+	//Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Handle_Register, Member_Offsetter }));
 
-	Handle = Handle_Register;
+	Handle = Member_Offsetter;
 }
 
 void IRGenerator::Parse_Loops(int i)

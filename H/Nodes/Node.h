@@ -73,6 +73,7 @@ public:
 	Node* Fetcher = nullptr;
 	//calling features
 	Node* Template_Function = nullptr;
+	int Calling_Count = 0;
 	//calling convension is stored in the inheritted list
 	//function prototype features
 	//the import has the flag to prototyping
@@ -530,6 +531,13 @@ public:
 
 	vector<Node*> Has(int f) {
 		return Has(this, f);
+	}
+
+	int Has(vector<string> s) {
+		for (int i = 0; i < s.size(); i++)
+			if (is(s[i]) != -1)
+				return is(s[i]);
+		return -1;
 	}
 
 	vector<Node*> Get_all(int f)

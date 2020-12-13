@@ -190,7 +190,7 @@ string MANGLER::Mangle(Node* raw)
 				return r;
 			}
 		}
-		else if (raw->is(OBJECT_DEFINTION_NODE) || raw->is(OBJECT_NODE)) {
+		else if (raw->is(OBJECT_DEFINTION_NODE) || raw->is(OBJECT_NODE) || raw->is(PARAMETER_NODE)) {
 			int I = 0;
 			string p = "";
 			if (raw->is("ptr") != -1) {

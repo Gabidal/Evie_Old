@@ -85,6 +85,11 @@ void PostProsessor::Type_Definer(int i)
 	Function->Parameters.push_back(This);
 	Function->Defined.push_back(This);
 
+	Node* p = Parent->Defined[i];
+	if (p->Has({ "cpp", "evie", "vivid" }) != -1)
+		Function->Inheritted.push_back(p->Inheritted[p->Has({ "cpp", "evie", "vivid" })]);
+
+
 	for (auto c : Parent->Defined[i]->Childs) {
 		if (c->is("const") != -1)
 			continue;
@@ -276,6 +281,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			goto Non_Imported_Template_Function_Usage;
 		}
 		n->Template_Function = Global_Scope->Defined[f];
+		n->Template_Function->Calling_Count++;
 		return;
 		Wrong_Template_Function:;
 	}
