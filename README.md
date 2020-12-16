@@ -272,4 +272,4 @@ func foo(type ptr a, type ptr b, int size){
 ###### Evie will copy the funciton into a new funciton but with the given parameter types.
 
 ### Future of Evie
-###### Atm, just making the Evie engine 3.0.
+###### Atm, just making the Evie engine 3.0. 
