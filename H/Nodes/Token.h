@@ -103,6 +103,26 @@ public:
 			return Get_Size_Parent(s, t->Holder);
 		return nullptr;
 	}
+	vector<Token*> Get_Connected_Registers(Token* r) {
+		vector<Token*> Result;
+		Token* tmp_parent = r->Holder;
+		while (tmp_parent != nullptr) {
+			Result.push_back(tmp_parent);
+			tmp_parent = tmp_parent->Holder;
+		}
+		vector<Token*> tmp = Get_All_Childs(r);
+		Result.insert(Result.end(), tmp.begin(), tmp.end());
+		return Result;
+	}
+	vector<Token*> Get_All_Childs(Token* r) {
+		vector<Token*> Result;
+		Result.push_back(r);
+		for (auto i : r->Childs) {
+			vector<Token*> tmp = Get_All_Childs(i);
+			Result.insert(Result.end(), tmp.begin(), tmp.end());
+		}
+		return Result;
+	}
 };
 
 #endif

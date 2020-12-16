@@ -14,7 +14,6 @@ ret
 
 _Z4mainv:
 push rbx
-push rbx
 mov ecx, dword 4
 call _Z8allocatei
 mov rcx, rax
@@ -25,9 +24,7 @@ call Get_Speed
 mov ecx, ebx
 mov eax, dword 0
 pop rbx
-pop rbx
 ret 
-pop rbx
 pop rbx
 ret 
 

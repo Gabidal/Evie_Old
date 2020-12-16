@@ -106,25 +106,34 @@ void IRPostProsessor::Clean_Selector(int i)
 		}
 	Start_Of_Function += 2; //Skip the label
 	//now we know what non-volatiles are in use
-	int Push_Amount = 0;
+	vector<Token*> Push_Amount;
 	for (auto r : selector->Get_Register_Type(TOKEN::NONVOLATILE)) {
 		if (r.first == nullptr)
 			continue;
+
+		//if the same nonvolatile is in other size used
+		for (auto p : Push_Amount) {
+			for (auto s : p->Get_Connected_Registers(p)) {
+				if (s->Get_Name() == r.second->Get_Name()) {
+					goto Already_Pushed;
+				}
+			}
+		}
+
 		Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
 		reg->ID = reg->Get_Name();
 		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }));
-		Push_Amount++;
+		Push_Amount.push_back(r.second);
+	Already_Pushed:;
 	}
 	//now do same but for the end of funciton
 	selector->Set_Stack_Start_Value(0);
-	for (int j = i + Push_Amount; j > Start_Of_Function; j -= 1) {
+	for (int j = i + Push_Amount.size(); j > Start_Of_Function; j -= 1) {
 		if (Input->at(j)->OPCODE->Get_Name() != "return")
 			continue;
 		Token* ret = Input->at(j)->OPCODE;
-		for (auto r : selector->Get_Register_Type(TOKEN::NONVOLATILE)) {
-			if (r.first == nullptr)
-				continue;
-			Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
+		for (auto r : Push_Amount) {
+			Token* reg = new Token(*r->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r));
 			reg->ID = reg->Get_Name();
 
 
