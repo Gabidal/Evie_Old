@@ -6,12 +6,12 @@ type cpp Cat{
     int Defence = 34
 }
 
-#int Get_Speed(Cat ptr){
-    #return 1
-#}
+int Get_Speed(Cat ptr x){
+    return 1
+}
 
 int cpp export main(){
     Cat ptr c = Cat(allocate(4))
-    #c.Get_Speed()
+    int a = c.Get_Speed()
     return 0
 }

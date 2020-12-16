@@ -402,6 +402,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		return;
 	if (n->Right->is(CALL_NODE)) {
 		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
+		n->Right->Holder = n->Holder;
 		*n = *n->Right;
 	}
 	else {
