@@ -964,13 +964,13 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 				n->Left->Inheritted.erase(n->Left->Inheritted.begin() + i);
 	}
 	//make the member offset
-	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Left->Find(n->Right->Name)->Memory_Offset));
+	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Find(n->Left, n->Parent)->Find(n->Right->Name)->Memory_Offset));
 
 	Token* Member_Offsetter = new Token(TOKEN::OFFSETTER, "+");
 	Member_Offsetter->Left = Left;
 	Member_Offsetter->Right = Member_Offset;
 
-	Member_Offsetter = new Token(TOKEN::MEMORY, { Member_Offsetter }, n->Left->Find(n->Right->Name)->Size, n->Left->Name + n->Right->Name);
+	Member_Offsetter = new Token(TOKEN::MEMORY, { Member_Offsetter }, n->Find(n->Left, n->Parent)->Find(n->Right->Name)->Size, n->Left->Name + n->Right->Name);
 
 
 	//Token* Handle_Register = new Token(TOKEN::REGISTER, "REG_" + n->Right->Name, n->Left->Find(n->Right->Name)->Size);

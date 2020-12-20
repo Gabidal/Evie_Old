@@ -114,6 +114,12 @@ void PostProsessor::Type_Definer(int i)
 		Function->Childs.push_back(c_copy);
 	}
 
+	//make the return of this pointter
+	Node* ret = new Node(FLOW_NODE);
+	ret->Name = "return";
+	ret->Right = new Node(*This);
+	Function->Childs.push_back(ret);
+
 	Global_Scope->Defined.push_back(Function);
 	Global_Scope->Childs.push_back(Function);
 
@@ -391,6 +397,7 @@ void PostProsessor::Algebra_Laucher(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
+	return;
 	Algebra a(Input[i]);
 	a.Input = &Input[i]->Childs;
 	a.Factory();
@@ -536,12 +543,12 @@ void PostProsessor::Determine_Return_Type(int i)
 	int Left_Size = 0;
 	int Right_Size = 0;
 
-	for (auto j : Input[i]->Left->Get_Inheritted(false, true)) {
+	for (auto j : Input[i]->Left->Get_Inheritted(false, false)) {
 		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
 		Left_Size += Parent->Find(j, Parent)->Get_Size();
 	}	
-	for (auto j : Input[i]->Right->Get_Inheritted(false, true)) {
+	for (auto j : Input[i]->Right->Get_Inheritted(false, false)) {
 		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
 		Right_Size += Parent->Find(j, Parent)->Get_Size();

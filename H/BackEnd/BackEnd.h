@@ -33,6 +33,7 @@ private:
 	void Global_Builder(IR* i);
 
 	string Token_Builder(Token* t, bool Inside_Content = false);
+	vector<int> Get_Args_Indexes(IR* i);
 public:
 	BackEnd(vector<IR*> in) : Input(in) {
 		Output = new string("");

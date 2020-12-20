@@ -25,6 +25,7 @@ private:
 	void Handle_Labels(int i);
 
 	void Handle_Stack_Usages(Token* t);
+	void Parse_Complex(IR* ir, int i);
 public:
 	IRPostProsessor(vector<IR*>* in) : Input(in) { Factory(); }
 	void Factory();

@@ -1,5 +1,6 @@
 #include "../../H/BackEnd/x86.h"
 
+
 void x86_64_Win::Init()
 {
 	size = 8;	//64 bit arch
@@ -9,11 +10,11 @@ void x86_64_Win::Init()
 	Number_Pre_Fix = "";
 	Label_Post_Fix = ":";
 
-	Token* AL = new Token(TOKEN::RETURNING, "al", 1, {});
+	Token* AL = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "al", 1, {});
 	Token* AH = new Token(TOKEN::RETURNING, "ah", 1, {});
-	Token* AX = new Token(TOKEN::RETURNING, "ax", 2, { AH, AL });
-	Token* EAX = new Token(TOKEN::RETURNING, "eax", 4, { AX });
-	Token* RAX = new Token(TOKEN::RETURNING, "rax", 8, { EAX });
+	Token* AX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "ax", 2, { AH, AL });
+	Token* EAX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "eax", 4, { AX });
+	Token* RAX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "rax", 8, { EAX });
 
 	Token* BL = new Token(TOKEN::NONVOLATILE, "bl", 1, {});
 	Token* BH = new Token(TOKEN::NONVOLATILE, "bh", 1, {});
@@ -29,9 +30,9 @@ void x86_64_Win::Init()
 
 	Token* DL = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dl", 1, {});
 	Token* DH = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dh", 1, {});
-	Token* DX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dx", 2, { DH, DL });
-	Token* EDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "edx", 4, { DX });
-	Token* RDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "rdx", 8, { EDX });
+	Token* DX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::REMAINDER, "dx", 2, { DH, DL });
+	Token* EDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::REMAINDER, "edx", 4, { DX });
+	Token* RDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::REMAINDER, "rdx", 8, { EDX });
 
 	Token* DIL = new Token(TOKEN::NONVOLATILE, "dil", 1, {});
 	//Token* DIH = new Token(TOKEN::NONVOLATILE, "dih", 1, {});
@@ -209,6 +210,10 @@ void x86_64_Win::Init()
 		{{Memory, {1, 8}}, {Const, {1, 8}} }
 		});
 
+	IR* XOR = new IR("¤", new Token(OPERATOR, "xor"), {
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+	});
+
 	IR* LEA = new IR("evaluate", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
 		{ {Register, { 1, 8 }}, { Memory, {1, 8} } }
 		});
@@ -227,42 +232,93 @@ void x86_64_Win::Init()
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}} },
 		{{Memory, {1, 8}}, {Const, {1, 8}} }
-		});
+		});	
 
-	IR* MUL = new IR("*", new Token(OPERATOR), vector<IR*>{
-		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
-			{ {new Token(QUOTIENT), { 1, 8 }}, { Register, {1, 8} } },
-			{ {new Token(QUOTIENT), {1, 8}}, {Const, {1, 8}} },
-			{ {new Token(QUOTIENT), {1, 8}}, {Memory, {1, 8}} },	//mov from register into a remainder like eax the other value for the mul
-		}),
-		new IR("mul", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mul"), {
-			{ {Register, { 1, 8 }}},
-			{ {Memory, { 1, 8 }}},		//give mul the other value
-		}),
-		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
-			{ {Memory, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } },
-			{ {Register, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } }
-		})
-	});
+	IR* MUL = new IR("mul", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mul"), {
+		{{Register, {1, 8}}},
+		{{Memory, {1, 8}}},
+		});	
 
-	IR* DIV = new IR("/", new Token(OPERATOR), vector<IR*>{
-		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
-			REMAINDER, new Token(NUM, "0")
-			}), 
-		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
-			{ {new Token(QUOTIENT), { 1, 8 }}, { Register, {1, 8} } },
-			{ {new Token(QUOTIENT), {1, 8}}, {Const, {1, 8}} },
-			{ {new Token(QUOTIENT), {1, 8}}, {Memory, {1, 8}} },	//mov from register into a remainder like eax the other value for the mul
-			}),
-		new IR("div", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "div"), {
-			{ {Register, { 1, 8 }}},
-			{ {Memory, { 1, 8 }}},		//give mul the other value
-			}),
-		new IR("move", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
-			{ {Memory, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } },
-			{ {Register, { 1, 8 }}, { new Token(QUOTIENT), {1, 8} } }
-			})
-	});
+	IR* DIV = new IR("div", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "div"), {
+		{{Register, {1, 8}}},
+		{{Memory, {1, 8}}},
+			});
+	
+	IR* C_MUL = new IR("*", new Token(OPERATOR), {
+		//accepted arguments
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Const, {1, 8}}, {Register, {1, 8}} },
+		{{Const, {1, 8}}, {Memory, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} },
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* eax = nullptr;
+			Token* mul = nullptr;
+			if (args[0]->is(NUM)) {
+				eax = args[0];
+				mul = args[1];
+			}
+			else if (args[1]->is(NUM)) {
+				eax = args[1];
+				mul = args[0];
+			}
+			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT", eax->Get_Size());
+			if (mul->is(NUM)) {
+				//you cant give mul a num as a arg so move it to a register.
+				Token* tmp = mul;
+				mul = new Token(REGISTER, mul->Get_Name() + "_REG", mul->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }));
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }));
+			Result.push_back(new IR(new Token(OPERATOR, "mul"), { mul }));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }));
+			return Result;
+		}
+	);
+
+	IR* C_DIV = new IR("/", new Token(OPERATOR), {
+		//accepted arguments
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Const, {1, 8}}, {Register, {1, 8}} },
+		{{Const, {1, 8}}, {Memory, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} },
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* eax = nullptr;
+			Token* mul = nullptr;
+			if (args[0]->is(NUM)) {
+				eax = args[0];
+				mul = args[1];
+			}
+			else if (args[1]->is(NUM)) {
+				eax = args[1];
+				mul = args[0];
+			}
+			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT", eax->Get_Size());
+			Token* Remainder = new Token(REMAINDER | REGISTER, eax->Get_Name() + "_REMAINDER", eax->Get_Size());
+			if (mul->is(NUM)) {
+				//you cant give mul a num as a arg so move it to a register.
+				Token* tmp = mul;
+				mul = new Token(REGISTER, mul->Get_Name() + "_REG", mul->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }));
+			}
+			//\u00a4
+			Result.push_back(new IR(new Token(OPERATOR, "¤"), { Remainder, Remainder }));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }));
+			Result.push_back(new IR(new Token(OPERATOR, "div"), { mul }));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }));
+			return Result;
+		}
+	);
 
 	IR* CMP = new IR("compare", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "cmp"), {
 		{{Register, {1, 8}}, {Register, {1, 8}}},
@@ -323,8 +379,11 @@ void x86_64_Win::Init()
 		ADD,
 		SUB,
 		MUL,
+		C_MUL,
 		DIV,
+		C_DIV,
 		CMP,
+		XOR,
 		JMP,
 		JE,
 		JNE,

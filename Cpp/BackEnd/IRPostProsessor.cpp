@@ -208,11 +208,24 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 
 }
 
+void IRPostProsessor::Parse_Complex(IR* ir, int i)
+{
+	if (!ir->is(TOKEN::OPERATOR))
+		return;
+	if (selector->Get_Opcode(ir)->Complex != nullptr) {
+		vector<IR*> r = selector->Get_Opcode(ir)->Complex(ir->Arguments);
+		Input->erase(Input->begin() + i);
+		Input->insert(Input->begin() + i, r.begin(), r.end());
+	}
+}
+
 void IRPostProsessor::Factory()
 {
 	Handle_Global_Labels();
 	for (int i = 0; i < Input->size(); i++)
 		Scale_To_Same_Size(i);
+	for (int i = 0; i < Input->size(); i++)
+		Parse_Complex(Input->at(i), i);
 	for (int i = 0; i < Input->size(); i++) {
 		Prepare_Function(i);
 		Handle_Labels(i);
