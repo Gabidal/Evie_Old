@@ -1,16 +1,15 @@
 _Z4mainv:
-push rbx
 mov ecx, dword 1
 mov edx, ecx
-xor ebx, ebx
-mov eax, dword 2
-div edx
+mov eax, edx
+mul ecx
 mov edx, eax
+mov r8d, edx
+mov edx, ecx
+xor edx, dword 2
 mov ecx, edx
 mov eax, ecx
-pop rbx
 ret 
-pop rbx
 ret 
 
 

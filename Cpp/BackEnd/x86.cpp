@@ -211,7 +211,12 @@ void x86_64_Win::Init()
 		});
 
 	IR* XOR = new IR("¤", new Token(OPERATOR, "xor"), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Register, {1, 8}}, {Label, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} }
 	});
 
 	IR* LEA = new IR("evaluate", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
@@ -266,6 +271,10 @@ void x86_64_Win::Init()
 				eax = args[1];
 				mul = args[0];
 			}
+			else {
+				eax = args[0];
+				mul = args[1];
+			}
 			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT", eax->Get_Size());
 			if (mul->is(NUM)) {
 				//you cant give mul a num as a arg so move it to a register.
@@ -302,6 +311,10 @@ void x86_64_Win::Init()
 			else if (args[1]->is(NUM)) {
 				eax = args[1];
 				mul = args[0];
+			}
+			else {
+				eax = args[0];
+				mul = args[1];
 			}
 			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT", eax->Get_Size());
 			Token* Remainder = new Token(REMAINDER | REGISTER, eax->Get_Name() + "_REMAINDER", eax->Get_Size());

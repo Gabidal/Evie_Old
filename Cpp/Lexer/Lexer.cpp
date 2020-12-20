@@ -14,6 +14,7 @@
 #include <fstream>
 
 constexpr char LineEnding = '\n';
+constexpr char xor = '\xa4';
 
 
 char Lexer::SingleLineCommentIdentifier = 0;
@@ -82,7 +83,7 @@ string GetError(const Position &position, const char *message)
 
 bool IsOperator(char c)
 {
-    return ((c >= 33 && c <= 47) || (c >= 58 && c <= 64) || c == '^' || c == '|') && c != Lexer::SingleLineCommentIdentifier && c != Lexer::StringIdentifier;
+    return ((c >= 33 && c <= 47) || (c >= 58 && c <= 64) || c == '^' || c == '|' || c == xor) && c != Lexer::SingleLineCommentIdentifier && c != Lexer::StringIdentifier ;
 }
 
 bool IsDigit(char c)
