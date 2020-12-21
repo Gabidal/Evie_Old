@@ -1,14 +1,9 @@
 _Z4mainv:
 mov ecx, dword 1
+mov ecx, dword 1
+xor ecx, dword 2
 mov edx, ecx
 mov eax, edx
-mul ecx
-mov edx, eax
-mov r8d, edx
-mov edx, ecx
-xor edx, dword 2
-mov ecx, edx
-mov eax, ecx
 ret 
 ret 
 

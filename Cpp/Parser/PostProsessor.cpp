@@ -5,6 +5,7 @@
 
 extern Node* Global_Scope;
 long long LNumber = 0;
+extern bool Optimized;
 
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
@@ -397,10 +398,15 @@ void PostProsessor::Algebra_Laucher(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
-	return;
-	Algebra a(Input[i]);
-	a.Input = &Input[i]->Childs;
-	a.Factory();
+
+	while (true) {
+		Algebra a(Input[i]);
+		a.Input = &Input[i]->Childs;
+		a.Factory();
+		if (!Optimized)
+			break;
+		Optimized = false;
+	}
 }
 
 void PostProsessor::Combine_Member_Fetching(Node* n)

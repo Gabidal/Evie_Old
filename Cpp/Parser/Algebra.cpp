@@ -1,5 +1,7 @@
 #include "../../H/Parser/Algebra.h"
 
+bool Optimized = false;
+
 void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
 		Set_Coefficient_Value(i);
@@ -8,7 +10,7 @@ void Algebra::Factory() {
 		Function_Inliner(Input->at(i));
 	}
 	for (int i = 0; i < Input->size(); i++)
-		Clean(i);
+		Clean_Inlined(i);
 	for (auto i : *Input)
 		Operate_Numbers_As_Constants(i);
 	for (auto i : *Input)
@@ -17,6 +19,7 @@ void Algebra::Factory() {
 		Reduce_Operator_Operations(i);
 	for (auto i : *Input)
 		Fix_Coefficient_Into_Real_Operator(i);
+	Clean_Unused();
 }
 
 vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
@@ -39,6 +42,9 @@ vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
 			childs.insert(childs.end(), tmp.begin(), tmp.end());
 		}
 		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	else if (ast->Name == "return") {
+		Result.push_back(ast->Right);
 	}
 	else
 		Result.push_back(ast);
@@ -146,6 +152,8 @@ void Algebra::Function_Inliner(Node* c)
 	//the later on this will be unwrapped.
 	c->Header = Inlined_Code;
 
+	Optimized = true;
+
 	return;
 }
 
@@ -227,6 +235,7 @@ void Algebra::Inline_Variables(int i)
 					d->Inlined = true;
 					//maybe this is useless:
 					n->Inlined = false;
+					Optimized = true;
 				}
 			}
 	}
@@ -240,38 +249,32 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 	//a * 2 < 1 - a
 	//2a -a < a - a + 1
 	//a < 1
-	vector<Node*> tmp_L = { n->Left };
-	//Algebra tmp_l(Parent, &tmp_L);
-
-	vector<Node*> tmp_R = { n->Right };
-	//Algebra tmp_r(Parent, &tmp_R);
-
-
 
 	vector<Node*> Variables = Linearise(n);
 	// a + 1 == a * 2
 	//now go through one side and try to delete one coefficient amount of that variable on both sides.
 	for (Node* v : Variables) {
-		if (v->is(OBJECT_NODE)) {
-			bool Removed_Coefficesnt = false;
+		if (v->is(OBJECT_NODE) || v->is(OBJECT_DEFINTION_NODE)) {
+			bool Removed_Coefficient = false;
 			for (Node* other_v : Variables) {
 				if (other_v == v)
 					//skip same, at end we zero out this!
 					continue;
 				if (other_v->Name == v->Name) {
 					other_v->Coefficient -= v->Coefficient;
-					Removed_Coefficesnt = true;
+					Removed_Coefficient = true;
+					Optimized = true;
 				}
 			}
 			//zero this variable out here:
-			if (Removed_Coefficesnt)
+			if (Removed_Coefficient)
 				v->Coefficient -= v->Coefficient;
 		}
 	}
 
 }
 
-void Algebra::Clean(int i)
+void Algebra::Clean_Inlined(int i)
 {
 	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		return;
@@ -282,6 +285,7 @@ void Algebra::Clean(int i)
 
 	//!!! MUST COMBINE THE CALLATION AND THE CLASS FETCHER!!!
 	vector<Node*> Calls = Input->at(i)->Has(CALL_NODE);
+	Optimized = true;
 
 	Input->erase(Input->begin() + i);
 
@@ -291,7 +295,7 @@ void Algebra::Clean(int i)
 	}
 
 	if (i < Input->size())
-		Clean(i);
+		Clean_Inlined(i);
 		
 	return;
 }
@@ -345,7 +349,7 @@ void Algebra::Set_Coefficient_Value(int i)
 	for (int j = 0; j < linear_ast.size(); j++) {
 		if (linear_ast[j]->is(NUMBER_NODE))
 			Coefficient = linear_ast[j];
-		else if (linear_ast[j]->is(OBJECT_NODE) || linear_ast[j]->is(PARAMETER_NODE))
+		else if (linear_ast[j]->is(OBJECT_NODE) || linear_ast[j]->is(PARAMETER_NODE) || linear_ast[j]->is(OBJECT_DEFINTION_NODE))
 			Variable = linear_ast[j];
 		else if (linear_ast[j]->Name == "*")
 			Operator = linear_ast[j];
@@ -366,7 +370,71 @@ void Algebra::Set_Coefficient_Value(int i)
 	//now apply the coefficient to the variable
 	Variable->Coefficient = atoi(Coefficient->Name.c_str());
 
+	Optimized = true;
+
 	*Operator = *Variable;
+}
+
+void Algebra::Clean_Unused()
+{
+	for (int d = 0; d < Parent->Defined.size(); d++) {
+		if (Parent->Defined[d]->is("ptr") != -1)
+			if (Parent->Defined[d]->is(PARAMETER_NODE))
+				continue;
+		if (Parent->Defined[d]->is("const") != -1)
+			continue;
+		//update the calling count.
+		Parent->Defined[d]->Calling_Count = 0;
+		for (int i = 0; i < Input->size(); i++) {
+			if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(BIT_OPERATOR_NODE)) {
+				if (Input->at(i)->Name == "return") {
+					vector<Node*> tmp = Linearise({ Input->at(i)->Right });
+					for (int j = 0; j < tmp.size(); j++)
+						if (Parent->Defined[d]->Name == tmp[j]->Name) {
+							if ((size_t)j + 1 < tmp.size()) {
+								if (!tmp[(size_t)j + 1]->is(ASSIGN_OPERATOR_NODE))
+									Parent->Defined[d]->Calling_Count++;
+							}
+							else
+								Parent->Defined[d]->Calling_Count++;
+						}
+				}
+			}
+			vector<Node*> linear = Linearise(Input->at(i), true);
+			for (int l = 0; l < linear.size(); l++) {
+				if (Parent->Defined[d]->Name == linear[l]->Name) {
+					if ((size_t)l + 1 < linear.size()) {
+						if (!linear[(size_t)l + 1]->is(ASSIGN_OPERATOR_NODE))
+							Parent->Defined[d]->Calling_Count++;
+					}
+					else
+						Parent->Defined[d]->Calling_Count++;
+				}
+			}
+		}
+	}
+	for (int d = 0; d < Parent->Defined.size(); d++) {
+		if (Parent->Defined[d]->is("ptr") != -1)
+			if (Parent->Defined[d]->is(PARAMETER_NODE))
+				continue;
+		if (Parent->Defined[d]->is("const") != -1)
+			continue;
+		for (int i = 0; i < Input->size(); i++) {
+			if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(BIT_OPERATOR_NODE))
+				continue;
+			vector<Node*> linear = Linearise(Input->at(i), false);
+			for (int l = 0; l < linear.size(); l++) {
+				if (Parent->Defined[d]->Name == linear[l]->Name) {
+					if (Parent->Defined[d]->Calling_Count < 1) {
+						Input->erase(Input->begin() + i--);
+						Parent->Defined.erase(Parent->Defined.begin() + d);
+						Optimized = true;
+						break;
+					}
+				}
+			}
+		}
+	}
 }
 
 void Algebra::Operate_Coefficient_Constants(Node* op)
@@ -418,6 +486,8 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 		num->Name = "0";
 		*op = *num;
 	}
+
+	Optimized = true;
 
 }
 
@@ -487,6 +557,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 		New_Num->Name = to_string(pow(left, right));
 
 	*op = *New_Num;
+	Optimized = true;
 }
 
 void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
@@ -535,6 +606,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	New_Operator->Right = Coefficient;
 
 	*n = *New_Operator;
+	Optimized = true;
 
 	return;
 }

@@ -29,7 +29,8 @@ private:
 	void Inline_Variables(int i);
 	void Reduce_Operator_Operations(Node* n);
 
-	void Clean(int i);
+	void Clean_Inlined(int i);
+	void Clean_Unused();
 
 	void Operate_Coefficient_Constants(Node* op);
 	void Operate_Numbers_As_Constants(Node* op);
