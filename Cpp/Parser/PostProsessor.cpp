@@ -400,9 +400,7 @@ void PostProsessor::Algebra_Laucher(int i)
 		return;
 
 	while (true) {
-		Algebra a(Input[i]);
-		a.Input = &Input[i]->Childs;
-		a.Factory();
+		Algebra a(Input[i], &Input[i]->Childs);
 		if (!Optimized)
 			break;
 		Optimized = false;

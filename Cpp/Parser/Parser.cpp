@@ -917,6 +917,7 @@ void Parser::Return_Pattern(int i)
 	//return;
 	Node* ret = new Node(FLOW_NODE);
 	ret->Name = "return";
+	ret->Parent = Parent;
 	if (!No_Return_Value) {
 		ret->Right = Input[(size_t)i + 1].node;
 		Input.erase(Input.begin() + i + 1);

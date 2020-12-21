@@ -22,6 +22,8 @@ private:
 
 	void Function_Inliner(Node* c);
 	vector<Node*> Get_all(Node* n, int Flag);
+	void Prosess_Return(Node* n);
+	void Prosess_Paranthesis(Node* n);
 
 	void Set_Defining_Value(int i);
 	void Set_Coefficient_Value(int i);

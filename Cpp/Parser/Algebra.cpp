@@ -8,6 +8,8 @@ void Algebra::Factory() {
 		Set_Defining_Value(i);
 		Inline_Variables(i);
 		Function_Inliner(Input->at(i));
+		Prosess_Return(Input->at(i));
+		Prosess_Paranthesis(Input->at(i));
 	}
 	for (int i = 0; i < Input->size(); i++)
 		Clean_Inlined(i);
@@ -203,21 +205,45 @@ vector<Node*> Algebra::Get_all(Node* n, int f)
 	return Result;
 }
 
+void Algebra::Prosess_Return(Node* n)
+{
+	if (n->Name != "return")
+		return;
+	if (n->Right == nullptr)
+		return;
+	vector<Node*> tmp = { n->Right };
+	Algebra a(n, &tmp);
+	n->Right = tmp.back();
+}
+
+void Algebra::Prosess_Paranthesis(Node* n)
+{
+	if (!n->is(CONTENT_NODE))
+		return;
+	Algebra a(n, &n->Childs);
+}
+
 void Algebra::Inline_Variables(int i)
 {
 	//<summary>
 	//finds a math equatin and tryes to inline the used variables set Values.
 	//</summary>
 
-	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
-		return;
-
 	vector<Node*> Linear_Ast;
+	if (Input->at(i)->is(OPERATOR_NODE) || Input->at(i)->is(ASSIGN_OPERATOR_NODE) || Input->at(i)->is(BIT_OPERATOR_NODE)) {
+		if (Input->at(i)->Name != "=")
+			Linear_Ast = Linearise(Input->at(i));
+		else
+			Linear_Ast = Linearise(Input->at(i)->Right);
+	}
+	else if (Input->at(i)->Name == "return") {
+		if (Input->at(i)->Right != nullptr)
+			Linear_Ast = Linearise(Input->at(i)->Right);
+	}
+	else {
+		return;
+	}
 
-	if (Input->at(i)->Name != "=")
-		Linear_Ast = Linearise(Input->at(i));
-	else
-		Linear_Ast = Linearise(Input->at(i)->Right);
 
 	for (Node* n : Linear_Ast) {
 		Node* d = Parent->Find(n, Parent);
@@ -229,7 +255,7 @@ void Algebra::Inline_Variables(int i)
 				//a = -n
 				//Node* represents the -1 and n on this example
 				//Node* n is same as the -n variable on example
-				if (d->Current_Value->Expiring_Index > i) {
+				if (d->Current_Value->Expiring_Index >= i) {
 					d->Current_Value->Var->Coefficient *= n->Coefficient;
 					*n = *d->Current_Value->Var;
 					d->Inlined = true;
@@ -317,12 +343,13 @@ void Algebra::Set_Defining_Value(int i)
 	//if the right side is a operator wrap it in a parenthesis just because the '-' prefix!!
 	Node* right = Input->at(i)->Right;
 
-	if (Input->at(i)->Right->is(OPERATOR_NODE)) {
+	if (Input->at(i)->Right->is(OPERATOR_NODE) || Input->at(i)->Right->is(CONDITION_OPERATOR_NODE) || Input->at(i)->Right->is(BIT_OPERATOR_NODE)) {
 		//a = 1+2
 		//b = a * 3 --> b = (1+2) *3;		maintain the math order
 		right = new Node(CONTENT_NODE);
 		right->Paranthesis_Type = '(';
 		right->Childs.push_back(Input->at(i)->Right);
+		right->Parent = Input->at(i);
 	}
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
@@ -388,6 +415,8 @@ void Algebra::Clean_Unused()
 		for (int i = 0; i < Input->size(); i++) {
 			if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(BIT_OPERATOR_NODE)) {
 				if (Input->at(i)->Name == "return") {
+					if (Input->at(i)->Right == nullptr)	//void return
+						continue;
 					vector<Node*> tmp = Linearise({ Input->at(i)->Right });
 					for (int j = 0; j < tmp.size(); j++)
 						if (Parent->Defined[d]->Name == tmp[j]->Name) {
@@ -399,6 +428,22 @@ void Algebra::Clean_Unused()
 								Parent->Defined[d]->Calling_Count++;
 						}
 				}
+				else if (Input->at(i)->Childs.size() > 0) {
+					for (auto c : Input->at(i)->Childs) {
+						vector<Node*> tmp = Linearise(c);
+						for (int j = 0; j < tmp.size(); j++)
+							if (Parent->Defined[d]->Name == tmp[j]->Name) {
+								if ((size_t)j + 1 < tmp.size()) {
+									if (!tmp[(size_t)j + 1]->is(ASSIGN_OPERATOR_NODE))
+										Parent->Defined[d]->Calling_Count++;
+								}
+								else
+									Parent->Defined[d]->Calling_Count++;
+							}
+					}
+				}
+				else
+					continue;
 			}
 			vector<Node*> linear = Linearise(Input->at(i), true);
 			for (int l = 0; l < linear.size(); l++) {
@@ -493,9 +538,9 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 
 void Algebra::Operate_Numbers_As_Constants(Node* op)
 {
-	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE))
-		return;
-	if (op->Left->is(OPERATOR_NODE))
+	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE) && !op->is(CONDITION_OPERATOR_NODE))
+			return;
+	if (op->Left->is(OPERATOR_NODE) || op->Left->is(BIT_OPERATOR_NODE) || op->Left->is(CONDITION_OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Left);
 	else if (op->Left->is(CONTENT_NODE)) {
 		for (Node* i : op->Left->Childs)
@@ -505,7 +550,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			*op->Left = *op->Left->Childs[0];
 		}
 	}
-	if (op->Right->is(OPERATOR_NODE))
+	if (op->Right->is(OPERATOR_NODE) || op->Right->is(BIT_OPERATOR_NODE) || op->Right->is(CONDITION_OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Right);
 	else if (op->Right->is(CONTENT_NODE)) {
 		for (Node* i : op->Right->Childs)
