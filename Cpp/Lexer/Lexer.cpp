@@ -174,9 +174,9 @@ bool IsPartOf(Type previous, Type current, char previous_symbol, char current_sy
 
 Position SkipSpaces(const string &text, Position &position)
 {
-    while (position.GetAbsolute() < text.size())
+    while (position.GetLocal() < text.size())
     {
-        char c = text[position.GetAbsolute()];
+        char c = text[position.GetLocal()];
 
         if (c != ' ')
         {
@@ -195,14 +195,14 @@ Position SkipParenthesis(const string &text, const Position &start)
 {
     Position position = start.Clone();
 
-    char opening = text[position.GetAbsolute()];
+    char opening = text[position.GetLocal()];
     char closing = GetParenthesisClosing(opening);
 
     int count = 0;
 
-    while (position.GetAbsolute() < text.size())
+    while (position.GetLocal() < text.size())
     {
-        char c = text[position.GetAbsolute()];
+        char c = text[position.GetLocal()];
 
         if (c == LineEnding)
         {
@@ -233,33 +233,33 @@ Position SkipParenthesis(const string &text, const Position &start)
 
 Position SkipComment(const string &text, const Position &start)
 {
-    int i = text.find(LineEnding, start.GetAbsolute());
+    int i = text.find(LineEnding, start.GetLocal());
 
     if (i != -1)
     {
-        int length = i - start.GetAbsolute();
-        return Position(start.GetLine(), start.GetCharacter() + length, i).NextLine();
+        int length = i - start.GetLocal();
+        return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, i).NextLine();
     }
     else
     {
-        int length = text.size() - start.GetAbsolute();
-        return Position(start.GetLine(), start.GetCharacter() + length, text.size());
+        int length = text.size() - start.GetLocal();
+        return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, text.size());
     }
 }
 
 Position SkipString(const string &text, const Position &start)
 {
-    int i = text.find(Lexer::StringIdentifier, start.GetAbsolute() + 1);
-    int j = text.find(LineEnding, start.GetAbsolute() + 1);
+    int i = text.find(Lexer::StringIdentifier, start.GetLocal() + 1);
+    int j = text.find(LineEnding, start.GetLocal() + 1);
 
     if (i == -1 || j != -1 && j < i)
     {
         throw runtime_error(GetError(start, "Couldn't find the end of the string").c_str());
     }
 
-    int length = i - start.GetAbsolute();
+    int length = i + 1 - start.GetLocal();
 
-    return Position(start.GetLine(), start.GetCharacter() + length, i + 1);
+    return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, i + 1);
 }
 
 optional<Area> GetNextComponent(const string &text, Position start)
@@ -268,14 +268,14 @@ optional<Area> GetNextComponent(const string &text, Position start)
     Position position = SkipSpaces(text, start);
 
     // Verify there's text to iterate
-    if (position.GetAbsolute() == text.size())
+    if (position.GetLocal() == text.size())
     {
         return nullopt;
     }
 
     Area area;
     area.Start = position.Clone();
-    area.Type = GetType(text[position.GetAbsolute()]);
+    area.Type = GetType(text[position.GetLocal()]);
 
     switch (area.Type)
     {
@@ -283,14 +283,14 @@ optional<Area> GetNextComponent(const string &text, Position start)
     case Type::COMMENT:
     {
         area.End = SkipComment(text, area.Start);
-        area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+        area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
         return area;
     }
 
     case Type::PARENTHESIS:
     {
         area.End = SkipParenthesis(text, area.Start);
-        area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+        area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
         return area;
     }
 
@@ -304,7 +304,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
     case Type::STRING:
     {
         area.End = SkipString(text, area.Start);
-        area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+        area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
         return area;
     }
 
@@ -313,9 +313,9 @@ optional<Area> GetNextComponent(const string &text, Position start)
     }
 
     // Possible types are now: TEXT, NUMBER, OPERATOR
-    while (position.GetAbsolute() < text.size())
+    while (position.GetLocal() < text.size())
     {
-        char current_symbol = text[position.GetAbsolute()];
+        char current_symbol = text[position.GetLocal()];
 
         if (IsParenthesis(current_symbol))
         {
@@ -329,7 +329,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
         }
 
         Type type = GetType(current_symbol);
-        char previous_symbol = position.GetAbsolute() == 0 ? (char)0 : text[position.GetAbsolute() - 1];
+        char previous_symbol = position.GetLocal() == 0 ? (char)0 : text[position.GetLocal() - 1];
 
         if (!IsPartOf(area.Type, type, previous_symbol, current_symbol))
         {
@@ -340,7 +340,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
     }
 
     area.End = position;
-    area.Text = text.substr(area.Start.GetAbsolute(), area.End.GetAbsolute() - area.Start.GetAbsolute());
+    area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
 
     return area;
 }
@@ -507,15 +507,17 @@ Component CreateNumberComponent(string text, const Position& position)
     }
 }
 
+vector<Component> GetComponents(string text, Position anc);
+
 Component CreateParenthesisComponent(string text, const Position& position)
 {
     Component component(text, Flags::PAREHTHESIS_COMPONENT);
-    component.Components = Lexer::GetComponents(text.substr(1, text.size() - 2));
+    component.Components = GetComponents(text.substr(1, text.size() - 2), position);
 
     return component;
 }
 
-Component ParseComponent(const Area& area, Position& anchor)
+Component ParseComponent(const Area& area)
 {
     switch (area.Type)
     {
@@ -526,7 +528,7 @@ Component ParseComponent(const Area& area, Position& anchor)
     case Type::OPERATOR:
         return Component(area.Text, Flags::OPERATOR_COMPONENT);
     case Type::PARENTHESIS:
-        return CreateParenthesisComponent(area.Text, anchor += area.Start);
+        return CreateParenthesisComponent(area.Text, area.Start);
     case Type::END:
         return Component("\n", Flags::END_COMPONENT);
     case Type::STRING:
@@ -535,12 +537,11 @@ Component ParseComponent(const Area& area, Position& anchor)
         return Component(area.Text, Flags::COMMENT_COMPONENT);
     default:
     {
-        anchor += area.Start;
 
         stringstream message;
         message << "Unrecognized token '" << area.Text << "'";
 
-        throw runtime_error(GetError(anchor += area.Start, message.str().c_str()).c_str());
+        throw runtime_error(GetError(area.Start, message.str().c_str()).c_str());
     }
 
     }
@@ -549,12 +550,12 @@ Component ParseComponent(const Area& area, Position& anchor)
 vector<Component> GetComponents(string text, Position anchor)
 {
     vector<Component> components;
-    Position position;
+    Position position(anchor.GetLine(), anchor.GetCharacter(), 0, anchor.GetAbsolute());
 
     replace(text.begin(), text.end(), '\t', ' ');
     replace(text.begin(), text.end(), '\r', ' ');
 
-    while (position.GetAbsolute() < text.size())
+    while (position.GetLocal() < text.size())
     {
         optional<Area> area = GetNextComponent(text, position);
 
@@ -563,8 +564,8 @@ vector<Component> GetComponents(string text, Position anchor)
             break;
         }
 
-        Component component = ParseComponent(area.value(), anchor);
-        component.Location = (anchor += area->Start);
+        Component component = ParseComponent(area.value());
+        component.Location = area->Start;
         if (!component.is(Flags::COMMENT_COMPONENT))
             components.push_back(component);
 
