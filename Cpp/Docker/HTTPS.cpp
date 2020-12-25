@@ -1,5 +1,6 @@
 #include "../../H/Docker/HTTPS.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/UI/Safe.h"
 
 extern Usr* sys;
 
@@ -36,7 +37,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 	}
 
 	if (Repo_Folder == false) {
-		cout << "Error: folder " << DOCKER::Working_Dir << Remote_Dir << " does not exist!" << endl;
+		Report(Observation(ERROR, "folder " + DOCKER::Working_Dir + Remote_Dir + " does not exist!", Position()));
 		exit(1);
 	}
 

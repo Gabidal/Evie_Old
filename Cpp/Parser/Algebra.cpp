@@ -1,4 +1,5 @@
 #include "../../H/Parser/Algebra.h"
+#include "../../H/UI/Safe.h"
 
 bool Optimized = false;
 
@@ -70,12 +71,12 @@ void Algebra::Function_Inliner(Node* c)
 	//we want to inline the fucniton contentsand make the parameters into a local variables
 	//check if thos callation hasnt yet finded the template function.
 	if (c->Template_Function == nullptr) {
-		cout << "Error: " << c->Name << " doesn't have constructor function." << endl;
-		exit(-1);
+		Report(Observation(ERROR, c->Name +" doesn't have constructor function.", *c->Location));
+		throw::exception("ERROR");
 	}
 	//make a result variable that the return always return the value to.
 	vector<Node*> Inlined_Code;
-	Node* Result_Definition = new Node(OBJECT_DEFINTION_NODE);
+	Node* Result_Definition = new Node(OBJECT_DEFINTION_NODE, c->Location);
 	//make a custon name
 	Result_Definition->Name = c->Name;
 	for (auto j : c->Parameters)
@@ -95,7 +96,7 @@ void Algebra::Function_Inliner(Node* c)
 
 	vector<Node*> Set_Val_For_Params;
 	for (int j = 0; j < Func->Parameters.size(); j++) {
-		Node* set = new Node(OPERATOR_NODE);
+		Node* set = new Node(OPERATOR_NODE, Func->Parameters[j]->Location);
 		set->Name = "=";
 		//set the left
 		set->Left = Func->Copy_Node(Func->Parameters[j], c->Parent);
@@ -108,7 +109,7 @@ void Algebra::Function_Inliner(Node* c)
 	//set the head
 	c->Append(Inlined_Code, Set_Val_For_Params);
 
-	Node* End_Of_Func = new Node(LABEL_NODE);
+	Node* End_Of_Func = new Node(LABEL_NODE, c->Location);
 	End_Of_Func->Name = Result_Definition->Name + "_LABEL";
 	c->Parent->Defined.push_back(End_Of_Func);
 
@@ -116,14 +117,14 @@ void Algebra::Function_Inliner(Node* c)
 	for (Node* r : Get_all(Func, FLOW_NODE)) {
 		if (r->Name != "return")
 			continue;
-		Node* Content = new Node(CONTENT_NODE);
+		Node* Content = new Node(CONTENT_NODE, r->Location);
 		Content->Paranthesis_Type = '(';
 
 		if (r->Right != nullptr) {
 			Node* Result_N = Result_Definition->Copy_Node(Result_Definition, Result_Definition->Parent);
 			Result_N->Type = OBJECT_NODE;
 
-			Node* Set = new Node(OPERATOR_NODE);
+			Node* Set = new Node(OPERATOR_NODE, r->Location);
 			Set->Name = "=";
 			Set->Left = Result_N;
 			Set->Right = r->Right;
@@ -131,10 +132,10 @@ void Algebra::Function_Inliner(Node* c)
 			Content->Childs.push_back(Set);
 		}
 
-		Node* Label = new Node(LABEL_NODE);
+		Node* Label = new Node(LABEL_NODE, r->Location);
 		Label->Name = End_Of_Func->Name;
 
-		Node* jmp = new Node(FLOW_NODE);
+		Node* jmp = new Node(FLOW_NODE, r->Location);
 		jmp->Name = "jump";
 		jmp->Right = Label;
 
@@ -346,7 +347,7 @@ void Algebra::Set_Defining_Value(int i)
 	if (Input->at(i)->Right->is(OPERATOR_NODE) || Input->at(i)->Right->is(CONDITION_OPERATOR_NODE) || Input->at(i)->Right->is(BIT_OPERATOR_NODE)) {
 		//a = 1+2
 		//b = a * 3 --> b = (1+2) *3;		maintain the math order
-		right = new Node(CONTENT_NODE);
+		right = new Node(CONTENT_NODE, right->Location);
 		right->Paranthesis_Type = '(';
 		right->Childs.push_back(Input->at(i)->Right);
 		right->Parent = Input->at(i);
@@ -527,7 +528,7 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 	*op = *New_Num;
 
 	if (op->Coefficient == 0) {
-		Node* num = new Node(NUMBER_NODE);
+		Node* num = new Node(NUMBER_NODE, op->Location);
 		num->Name = "0";
 		*op = *num;
 	}
@@ -566,7 +567,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 	if (!op->Right->is(NUMBER_NODE))
 		return;
 
-	Node* New_Num = new Node(NUMBER_NODE);
+	Node* New_Num = new Node(NUMBER_NODE, op->Location);
 
 	//set sizes
 	if (op->Left->Size < op->Right->Size)
@@ -633,11 +634,11 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 		return;
 
 	//make operator that is going to hold the new coefficient and the variable
-	Node* New_Operator = new Node(OPERATOR_NODE);
+	Node* New_Operator = new Node(OPERATOR_NODE, n->Location);
 	New_Operator->Name = "*";
 
 	//making the coefficient into a real number token
-	Node* Coefficient = new Node(NUMBER_NODE);
+	Node* Coefficient = new Node(NUMBER_NODE, n->Location);
 	Coefficient->Name = to_string(n->Coefficient);
 
 	//now clean the coefficient
@@ -645,7 +646,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 
 	//combine
 	//this is because the override later
-	New_Operator->Left = new Node(OBJECT_NODE);
+	New_Operator->Left = new Node(OBJECT_NODE, n->Location);
 
 	*New_Operator->Left = *n;
 	New_Operator->Right = Coefficient;

@@ -9,6 +9,7 @@ extern int _SYSTEM_BIT_SIZE_;
 #include <regex>
 
 #include "../Lexer/Lexer.h"
+#include "../Lexer/Position.h"
 
 using namespace std;
 class Node;
@@ -25,10 +26,11 @@ public:
 
 class Node {
 public:
-	Node(int flag) : Type(flag){}
-	Node(string n) : Name(n){}
+	Node(int flag, Position* p) : Type(flag), Location(p){}
+	Node(string n, Position* p) : Name(n), Location(p) {}
 	//Node(){}
 	//Normal features
+	Position* Location = nullptr;
 	string Name = "";
 	//for string or char lists
 	string String = "";
@@ -227,35 +229,9 @@ public:
 		return Result;
 	}
 	
-	Node* Find(string name, Node* parent, bool Need_Parent_existance = true) {
-		if (name == "\n")
-			return nullptr;
-		if (parent == nullptr && Need_Parent_existance) {
-			cout << "Critical Error: parent is null!" << endl;
-			return nullptr;
-		}
-		for (Node* i : parent->Defined)
-			if (i->Name == name)
-				return i;
-		if (parent->Parent != nullptr)
-			return Find(name, parent->Parent, Need_Parent_existance);
-		return nullptr;
-	}	
+	Node* Find(string name, Node* parent, bool Need_Parent_existance = true);
 	
-	Node* Find(string name, Node* parent, int flags ) {
-		if (name == "\n")
-			return nullptr;
-		if (parent == nullptr) {
-			cout << "Critical Error: parent is null!" << endl;
-			return nullptr;
-		}
-		for (Node* i : parent->Defined)
-			if (i->Name == name && i->is(flags))
-				return i;
-		if (parent->Parent != nullptr)
-			return Find(name, parent->Parent, flags);
-		return nullptr;
-	}
+	Node* Find(string name, Node* parent, int flags);
 	
 	Node* Find(int size, Node* parent) {
 		for (Node* i : parent->Defined)
@@ -275,35 +251,13 @@ public:
 		return nullptr;
 	}
 
-	Node* Find(Node* n, Node* p) {
-		if (n->Name == "\n")
-			return nullptr;
-		if (n->is(NUMBER_NODE) || n->is(STRING_NODE) || n->is(LABEL_NODE))
-			return n;
-		if (p == nullptr) {
-			cout << "Critical Error: parent is null!" << endl;
-			return nullptr;
-		}
-		for (Node* i : p->Defined)
-			if (i->Name == n->Name)
-				return i;
-		if (p->Parent != nullptr)
-			return Find(n->Name, p->Parent);
-		return nullptr;
-	}
+	Node* Find(Node* n, Node* p);
 
 	Node* Find(string n) {
 		return Find(n, this);
 	}
 
-	Node* Get_Parent_As(long F, Node* Parent) {
-		if (Parent->is(F))
-			return Parent;
-		if (Parent->Parent != nullptr)
-			return Get_Parent_As(F, Parent->Parent);
-		cout << "Parent NULL!!" << endl;
-		throw::exception("ERROR!");
-	}
+	Node* Get_Parent_As(long F, Node* Parent);
 
 	Node* Get_Right_Parent() {
 		if (Fetcher != nullptr) {

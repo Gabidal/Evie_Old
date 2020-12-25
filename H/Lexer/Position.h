@@ -19,6 +19,10 @@ public:
         return Line;
     }
 
+    const char* GetFilePath() const {
+        return File_Name;
+    }
+
     int GetCharacter() const
     {
         return Character;

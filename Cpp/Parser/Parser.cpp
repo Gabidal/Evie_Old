@@ -1,4 +1,5 @@
 #include "../../H/Parser/Parser.h"
+#include "../../H/UI/Safe.h"
 //this is for unamed parameters.
 int arg_count = 0;
 
@@ -91,7 +92,7 @@ void Parser::Definition_Pattern(int i)
 		Inheritted.push_back(Input[Words[j]].Value);
 	}
 
-	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE);
+	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE, new Position(Input[Words[0]].Location));
 	New_Defined_Object->Inheritted = Inheritted;
 
 	New_Defined_Object->Name = Input[Words.back()].Value;
@@ -116,7 +117,7 @@ void Parser::Constructor_Pattern(int i)
 	if (!Parent->Find(ReturnType[ReturnType.size() - 1].Value, Parent)->is(CLASS_NODE))
 		return;	//the name must be same as some class name to represent as the constructor of that class
 
-	Node* Constructor = new Node(OBJECT_DEFINTION_NODE);
+	Node* Constructor = new Node(OBJECT_DEFINTION_NODE, new Position(ReturnType.back().Location));
 	Constructor->Name = ReturnType.back().Value;
 	for (int j = 0; j < ReturnType.size() - 1; j++)
 		Constructor->Inheritted.push_back(ReturnType[j].Value);
@@ -155,7 +156,7 @@ void Parser::Prototype_Pattern(int i)
 		Inheritted.push_back(Input[Words[j]].Value);
 	}
 
-	Node* New_Defined_Object = new Node(PROTOTYPE);
+	Node* New_Defined_Object = new Node(PROTOTYPE, new Position(Input[Words.back()].Location));
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Parent = Parent;
@@ -163,7 +164,7 @@ void Parser::Prototype_Pattern(int i)
 	vector<Component> Types;
 	for (auto j : Input[Paranthesis[0]].Components) {
 		if (j.Value == ",") {
-			Node* p = new Node(OBJECT_DEFINTION_NODE);
+			Node* p = new Node(OBJECT_DEFINTION_NODE, &j.Location);
 
 			if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 				p->Name = "ARG" + to_string(arg_count++);
@@ -189,7 +190,7 @@ void Parser::Prototype_Pattern(int i)
 	}
 	if (Types.size() > 0) {
 		//for the last parameter
-		Node* p = new Node(OBJECT_DEFINTION_NODE);
+		Node* p = new Node(OBJECT_DEFINTION_NODE, &Types.back().Location);
 
 		if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 			p->Name = "ARG" + to_string(arg_count++);
@@ -249,7 +250,7 @@ void Parser::Import_Pattern(int i)
 		Inheritted.push_back(Input[Words[j]].Value);
 	}
 
-	Node* New_Defined_Object = new Node(IMPORT);
+	Node* New_Defined_Object = new Node(IMPORT, new Position(Input[Words.back()].Location));
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Parent = Parent;
@@ -259,9 +260,9 @@ void Parser::Import_Pattern(int i)
 		if (j.Value == ",") {
 			Node* p;
 			if (Types.back().is(Flags::NUMBER_COMPONENT))
-				p = new Node(NUMBER_NODE);
+				p = new Node(NUMBER_NODE, &j.Location);
 			else
-				p = new Node(OBJECT_DEFINTION_NODE);
+				p = new Node(OBJECT_DEFINTION_NODE, &j.Location);
 
 			if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 				p->Name = "ARG" + to_string(arg_count++);
@@ -289,9 +290,9 @@ void Parser::Import_Pattern(int i)
 		//for the last parameter
 		Node* p = nullptr;
 		if (Types.back().is(Flags::NUMBER_COMPONENT))
-			p = new Node(NUMBER_NODE);
+			p = new Node(NUMBER_NODE, &Types.back().Location);
 		else
-			p = new Node(OBJECT_DEFINTION_NODE);
+			p = new Node(OBJECT_DEFINTION_NODE, &Types.back().Location);
 
 		if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 			p->Name = "ARG" + to_string(arg_count++);
@@ -356,7 +357,7 @@ void Parser::Parenthesis_Pattern(int i)
 	if (!Input[i].is(Flags::PAREHTHESIS_COMPONENT))
 		return;
 	//create an content Node and output will be in the same input.
-	Node* Paranthesis = new Node(CONTENT_NODE);
+	Node* Paranthesis = new Node(CONTENT_NODE, new Position(Input[i].Location));
 	Paranthesis->Parent = Parent;
 	
 	Parser TMP_Parser(Parent);
@@ -397,7 +398,7 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 	if (!op_Pass)
 		return;
 
-	Node* Operator = new Node(F);
+	Node* Operator = new Node(F, new Position(Input[i].Location));
 	Operator->Name = Input[i].Value;
 	Operator->Parent = Parent;
 
@@ -405,7 +406,7 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 		Operator->Left = Input[(size_t)i - 1].node;
 	else {
 		//Dont worry about function calls
-		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
 		new_member->Name = Input[(size_t)i - 1].Value;
 
 		Operator->Left = new_member;
@@ -417,7 +418,7 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 		//test.a.m //these a.m are in different localscope.
 		//the right side does not need to be determined as well the left.
 		//Dont worry about function calls
-		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
 		new_member->Name = Input[(size_t)i + 1].Value;
 
 		Operator->Right = new_member;
@@ -453,7 +454,7 @@ void Parser::Number_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::NUMBER_COMPONENT))
 		return;
-	Node* Num = new Node(NUMBER_NODE);
+	Node* Num = new Node(NUMBER_NODE, new Position(Input[i].Location));
 	Num->Name = Input[i].Value;
 	Num->Parent = Parent;
 
@@ -479,7 +480,7 @@ void Parser::String_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::STRING_COMPONENT))
 		return;
-	Node* String = new Node(STRING_NODE);
+	Node* String = new Node(STRING_NODE, new Position(Input[i].Location));
 	String->Name = Input[i].Value;
 	Input[i].node = String;
 	return;
@@ -508,7 +509,7 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 			op_Pass = true;
 	if (!op_Pass)
 		return;
-	Node* PreFix = new Node(PREFIX_NODE);
+	Node* PreFix = new Node(PREFIX_NODE, new Position(Input[i].Location));
 	//name
 	PreFix->Name = Input[i].Value;
 	//for more complex casting
@@ -547,7 +548,7 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 	if (!op_Pass)
 		return;
 
-	Node* post = new Node(POSTFIX_NODE);
+	Node* post = new Node(POSTFIX_NODE, new Position(Input[i].Location));
 	post->Name = Input[i].Value;
 	
 	//set the node to postfix as left
@@ -596,7 +597,7 @@ void Parser::Callation_Pattern(int i)
 	if (Input[(size_t)i + 1].Value[0] != '(')
 		return;
 
-	Node* call = new Node(CALL_NODE);
+	Node* call = new Node(CALL_NODE, new Position(Input[i].Location));
 
 	//give the normal call the inheritance for future operator type determining
 	call->Inheritted = Parent->Find(Input[i].Value, Parent)->Inheritted;
@@ -634,14 +635,14 @@ void Parser::Array_Pattern(int i)
 	if (Input[(size_t)i + 1].node->Paranthesis_Type != '[')
 		return;
 
-	Node* arr = new Node(ARRAY_NODE);
+	Node* arr = new Node(ARRAY_NODE, new Position(Input[i].Location));
 	arr->Parent = Parent;
 
 	if (Input[(size_t)i].node != nullptr)
 		arr->Left = Input[(size_t)i].node;
 	else {
 		//Dont worry about function calls
-		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
 		new_member->Name = Input[(size_t)i].Value;
 
 		arr->Left = new_member;
@@ -649,7 +650,7 @@ void Parser::Array_Pattern(int i)
 	}
 
 	if (Input[i + 1].node->Childs.size() > 1) {
-		arr->Right = new Node(CONTENT_NODE);
+		arr->Right = new Node(CONTENT_NODE, new Position(Input[i+1].Location));
 		arr->Right->Childs = Input[i + 1].node->Childs;
 	}
 	else if (Input[(size_t)i + 1].node->Childs[0] != nullptr)
@@ -658,7 +659,7 @@ void Parser::Array_Pattern(int i)
 		//test.a.m //these a.m are in different localscope.
 		//the right side does not need to be determined as well the left.
 		//Dont worry about function calls
-		Node* new_member = new Node(OBJECT_DEFINTION_NODE);
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i+1].Location));
 		new_member->Name = Input[(size_t)i + 1].Components[0].Value;
 
 		arr->Right = new_member;
@@ -703,7 +704,7 @@ void Parser::Function_Pattern(int i)
 	else
 		func = Parent->Find(Input[i].Value, Parent, true);
 	if (func == nullptr)
-		cout << "Error: Parser didnt find " << Input[i].node->Name << " constructor!" << endl;
+		Report(Observation(ERROR, "Parser didnt find " + Input[i].node->Name + " constructor!", Input[i].Location));
 	//override the object definition node flag
 	func->Type = FUNCTION_NODE;
 	//set the other values
@@ -762,8 +763,7 @@ void Parser::Type_Pattern(int i)
 	else
 		Type = Parent->Find(Input[i].Value, Parent, OBJECT_DEFINTION_NODE);
 	if (Type == nullptr) {
-		cout << "Error: Type definition was not found!" << endl;
-		exit(1);
+		Report(Observation(ERROR, "Type definition was not found!", Input[i].Location));
 	}
 	//reset the value
 	Type->Type = CLASS_NODE;
@@ -808,11 +808,11 @@ void Parser::If_Pattern(int i)
 	//while (..){..}	//loop
 	Node* con;
 	if (Input[i].Value == "if")
-		con = new Node(IF_NODE);
+		con = new Node(IF_NODE, new Position(Input[i].Location));
 	else if (Input[i].Value == "while")
-		con = new Node(WHILE_NODE);
+		con = new Node(WHILE_NODE, new Position(Input[i].Location));
 	else if (Input[i].Value == "else")
-		con = new Node(ELSE_IF_NODE);		//this works for only else if because it requers 2 paranthesis
+		con = new Node(ELSE_IF_NODE, new Position(Input[i].Location));		//this works for only else if because it requers 2 paranthesis
 	else
 		return;
 
@@ -852,7 +852,7 @@ void Parser::Else_Pattern(int i)
 	if (Input[i].Value != "else")
 		return;
 
-	Node* Else = new Node(ELSE_NODE);
+	Node* Else = new Node(ELSE_NODE, new Position(Input[i].Location));
 
 	Parser p(Else);
 	Else->Name = Input[i].Value;
@@ -915,7 +915,7 @@ void Parser::Return_Pattern(int i)
 
 	//return a + b
 	//return;
-	Node* ret = new Node(FLOW_NODE);
+	Node* ret = new Node(FLOW_NODE, new Position(Input[i].Location));
 	ret->Name = "return";
 	ret->Parent = Parent;
 	if (!No_Return_Value) {
@@ -934,10 +934,10 @@ void Parser::Jump_Pattern(int i)
 	if (Input.size() < (size_t)i + 1)
 		return;
 
-	Node* jmp = new Node(FLOW_NODE);
+	Node* jmp = new Node(FLOW_NODE, new Position(Input[i].Location));
 	jmp->Name = "jump";
 	
-	Node* label = new Node(LABEL_NODE);
+	Node* label = new Node(LABEL_NODE, new Position(Input[i].Location));
 	label->Name = Input[(size_t)i + 1].Value;
 
 	jmp->Right = label;
@@ -959,7 +959,7 @@ void Parser::Label_Pattern(int i)
 		return;
 	if (!l->is(LABEL_NODE))
 		return;
-	Node* L = new Node(LABEL_NODE);
+	Node* L = new Node(LABEL_NODE, new Position(Input[i].Location));
 	L->Name = Input[i].Value;
 	L->Parent = Parent;
 	
@@ -987,7 +987,7 @@ void Parser::Label_Definition(int i)
 	//passes: label_name if (..)..
 	//passes: label_name (..)
 	//passes: label_name {..}
-	Node* label = new Node(LABEL_NODE);
+	Node* label = new Node(LABEL_NODE, new Position(Input[i].Location));
 	label->Name = Input[i].Value;
 	label->Parent = Parent;
 
@@ -1010,7 +1010,7 @@ void Parser::Size_Pattern(int i)
 		return;
 	if (!Input[(size_t)i + 2].is(Flags::NUMBER_COMPONENT))
 		return;
-	Node* size = new Node(OBJECT_DEFINTION_NODE);
+	Node* size = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
 
 	size->Size = atoi((Input[(size_t)i + 2].node)->Name.c_str());
 

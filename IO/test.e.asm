@@ -1,6 +1,5 @@
 _Z4mainv:
-mov ecx, dword 6
-mov eax, ecx
+mov eax, dword 0
 ret 
 ret 
 

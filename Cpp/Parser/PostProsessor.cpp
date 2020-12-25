@@ -2,6 +2,7 @@
 #include "../../H/Docker/Mangler.h"
 #include "../../H/Parser/Parser.h"
 #include "../../H/Lexer/Lexer.h"
+#include "../../H/UI/Safe.h"
 
 extern Node* Global_Scope;
 long long LNumber = 0;
@@ -72,12 +73,12 @@ void PostProsessor::Type_Definer(int i)
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
-	Node* Function = new Node(FUNCTION_NODE);
+	Node* Function = new Node(FUNCTION_NODE, Parent->Defined[i]->Location);
 	Function->Name = Parent->Defined[i]->Name;
 	Function->Inheritted = { Parent->Defined[i]->Name, "ptr" };
 	Function->Parent = Global_Scope;
 
-	Node* This = new Node(PARAMETER_NODE);
+	Node* This = new Node(PARAMETER_NODE, Parent->Defined[i]->Location);
 	This->Inheritted = {Parent->Defined[i]->Name, "ptr"};
 	This->Name = "this";
 	This->Defined = Parent->Defined[i]->Defined;
@@ -101,7 +102,7 @@ void PostProsessor::Type_Definer(int i)
 				continue;
 			Node* define = c->Find(linear_n, Parent->Defined[i]);
 			if (define->is(OBJECT_DEFINTION_NODE) || define->is(OBJECT_NODE)) {
-				Node* Dot = new Node(OPERATOR_NODE);
+				Node* Dot = new Node(OPERATOR_NODE, Parent->Defined[i]->Location);
 				Dot->Name = ".";
 				Dot->Parent = linear_n->Parent;
 
@@ -116,7 +117,7 @@ void PostProsessor::Type_Definer(int i)
 	}
 
 	//make the return of this pointter
-	Node* ret = new Node(FLOW_NODE);
+	Node* ret = new Node(FLOW_NODE, Parent->Defined[i]->Location);
 	ret->Name = "return";
 	ret->Right = new Node(*This);
 	Function->Childs.push_back(ret);
@@ -248,8 +249,10 @@ void PostProsessor::Find_Call_Owner(Node* n)
 				}
 			}
 			if (callation.size() > 1){
-				cout << "Error: Cannot decide, " << n->Holder->Name << " has too many similar overloads.\n";
-				cout << "Solution: Please cast " << n->Name << " into desired type.\n" << endl;
+				Report({
+					Observation(ERROR, "Cannot decide, " + n->Holder->Name + " has too many similar overloads.", *n->Holder->Location),
+					Observation(SOLUTION, "Solution: Please cast " + n->Name + " into desired type.", *n->Location)
+					});
 				throw::exception("Error!");
 			}
 			n->Inheritted = Global_Scope->Defined[callation[0]]->Parameters[Parameter_Index]->Inheritted;
@@ -331,17 +334,20 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//	return;
 
 	if (OgFunc == nullptr) {
-		cout << "Error: Can't find suitable funciton to call " << n->Name << " with parameters:\n";
+		string s = "";
 		for (int j = 0; j < n->Parameters.size(); j++) {
-			cout << "  " << n->Parameters[j]->Name << "\n";
+			s += "  " + n->Parameters[j]->Name + "\n";
 		}
-		cout << endl;
+		Report(Observation(ERROR, "Can't find suitable funciton to call " + n->Name + " with parameters:" + s, *n->Location));
+		throw::exception("Error!");
 	}
 
 	if (OgFunc->is(PROTOTYPE))
 		for (auto j : OgFunc->Parameters)
-			if (j->Name == "type")		//REMEBER THE DIRECT TYPING!!	
-				cout << "Error: Can't copy a foreingh function " << OgFunc->Name << "." << endl;
+			if (j->Name == "type") {		//REMEBER THE DIRECT TYPING!!	
+				Report(Observation(ERROR, "Can't copy a foreingh function " + OgFunc->Name + ".", *OgFunc->Location));
+				throw::exception("Error!");
+			}
 
 	Node* func = nullptr;
 	if (!OgFunc->is(PROTOTYPE)) {
@@ -785,7 +791,7 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 		}
 	}
 	//if there is no string Sx make a new one.
-	Node* s = new Node(LABEL_NODE);
+	Node* s = new Node(LABEL_NODE, Input[i]->Location);
 	s->String = Input[i]->Name;
 	s->Name = "S" + to_string(Current_S_Count);
 	s->Inheritted = { Global_Scope->Find(1, Global_Scope, CLASS_NODE)->Name };
@@ -793,11 +799,11 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 		s->Inheritted.push_back("ptr");
 	s->Parent = Global_Scope;
 
-	Node* init = new Node(ASSIGN_OPERATOR_NODE);
+	Node* init = new Node(ASSIGN_OPERATOR_NODE, Input[i]->Location);
 	init->Name = "=";
 	init->Parent = Global_Scope;
 
-	Node* value = new Node(STRING_NODE);
+	Node* value = new Node(STRING_NODE, Input[i]->Location);
 	value->Name = s->String;
 	value->Parent = Global_Scope;
 	value->Size = 1;	//byte

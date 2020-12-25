@@ -1,4 +1,5 @@
 #include "../../H/Docker/Docker.h"
+#include "../../H/UI/Safe.h"
 
 vector<string> DOCKER::Libs;
 vector<string> DOCKER::Assembly_Source_File;
@@ -18,7 +19,7 @@ void DOCKER::Start_Analyzer()
 	Is_Local.push_back(false);
 	//https http ftp ftps 
 	if (Default == nullptr) {
-		cout << "Error: The default translator is missing!" << endl;
+		Report(Observation(ERROR, "The default translator is missing!", Position()));
 		return;
 	}
 	
@@ -138,7 +139,7 @@ vector<unsigned char> DOCKER::Get_Char_Buffer_From_File(string FN, string WD)
 {
 	ifstream inFile(WD + FN, ios_base::binary);
 	if (!inFile.is_open()) {
-		cout << "Error: Cannot open file!" << endl;
+		Report(Observation(ERROR, "Cannot open file!", Position()));
 		return vector<unsigned char>();
 	}
 	inFile.seekg(0, ios_base::end);
@@ -166,7 +167,7 @@ vector<pair<string, string>> DOCKER::Get_Names_Of(string Input, vector<pair<stri
 			Result.push_back({ i.first, matches.str() });
 			Input = matches.prefix().str() + matches.suffix().str();
 			if (Previus_Size == Input.size()) {
-				cout << "Error: Regex string " << i.second << " looped infinitely!" << endl;
+				Report(Observation(ERROR, "Regex string " + i.second + " looped infinitely!", Position()));
 				break;
 			}
 			Previus_Size = Input.size();

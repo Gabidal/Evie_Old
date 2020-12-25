@@ -4,6 +4,7 @@
 #include <string>
 #include "../../H/Parser/Algebra.h"
 #include "../../H/Docker/Mangler.h"
+#include "../../H/UI/Safe.h"
 
 using namespace std;
 
@@ -120,4 +121,63 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name)
 		}
 		return result;
 	}
+}
+
+Node* Node::Get_Parent_As(long F, Node* Parent) {
+	if (Parent->is(F))
+		return Parent;
+	if (Parent->Parent != nullptr)
+		return Get_Parent_As(F, Parent->Parent);
+	Report(Observation(ERROR, "Parent NULL!!", *Location));
+	throw::exception("ERROR!");
+}
+
+Node* Node::Find(Node* n, Node* p) {
+	if (n->Name == "\n")
+		return nullptr;
+	if (n->is(NUMBER_NODE) || n->is(STRING_NODE) || n->is(LABEL_NODE))
+		return n;
+	if (p == nullptr) {
+		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
+		throw::exception("ERROR!");
+		return nullptr;
+	}
+	for (Node* i : p->Defined)
+		if (i->Name == n->Name)
+			return i;
+	if (p->Parent != nullptr)
+		return Find(n->Name, p->Parent);
+	return nullptr;
+}
+
+Node* Node::Find(string name, Node* parent, int flags) {
+	if (name == "\n")
+		return nullptr;
+	if (parent == nullptr) {
+		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
+		throw::exception("ERROR!");
+		return nullptr;
+	}
+	for (Node* i : parent->Defined)
+		if (i->Name == name && i->is(flags))
+			return i;
+	if (parent->Parent != nullptr)
+		return Find(name, parent->Parent, flags);
+	return nullptr;
+}
+
+Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
+	if (name == "\n")
+		return nullptr;
+	if (parent == nullptr && Need_Parent_existance) {
+		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
+		throw::exception("ERROR!");
+		return nullptr;
+	}
+	for (Node* i : parent->Defined)
+		if (i->Name == name)
+			return i;
+	if (parent->Parent != nullptr)
+		return Find(name, parent->Parent, Need_Parent_existance);
+	return nullptr;
 }

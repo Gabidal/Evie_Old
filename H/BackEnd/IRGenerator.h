@@ -51,7 +51,7 @@ public:
 	//TODO: hey gab! use log(inlining count) base 10 for the global inlining label adding rendom char adder.
 	//TODO: make a repeating optimizer thet makes 
 	//a new variable and saves the result once and then uses it those other times
-	string Get_Inverted_Condition(string c);
+	string Get_Inverted_Condition(string c, Position* p);
 	vector<Token*> Get_All_Extern_Variables(int end_index, int start_index, Node* scope);
 	vector<Token*> Find(string n, Token* t);
 	vector<Token*> Find(long n, Token* t);

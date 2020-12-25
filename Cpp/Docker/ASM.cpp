@@ -1,4 +1,5 @@
 #include "../../H/Docker/ASM.h"
+#include "../../H/UI/Safe.h"
 
 void ASM::ASM_Analyzer(vector<string>& Output)
 {
@@ -11,7 +12,7 @@ void ASM::ASM_Analyzer(vector<string>& Output)
 	if (Header_Data.size() < 1)
 		Header_Data = DOCKER::Get_Header("general");
 	if (Header_Data.size() < 1)
-		cout << "Error: Docker didn't find Header file for " << DOCKER::FileName.back() << endl;
+		Report(Observation(ERROR, "Docker didn't find Header file for " + DOCKER::FileName.back(), Position()));
 	//DOCKER::Separate_Identification_Patterns(Header_Data);
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(DOCKER::FileName.back(), DOCKER::Working_Dir);
 	string buffer = string((char*)tmp.data(), tmp.size());

@@ -1,5 +1,6 @@
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/UI/Safe.h"
 
 extern Usr* sys;
 extern x86_64_Win X86_64_WIN;
@@ -492,10 +493,11 @@ IR* Selector::Get_Opcode(IR* i)
 				return opc;
 		}
 	}
-	cout << "Error: No suitable OPCODE found for " << i->OPCODE->Get_Name() << "(";
+	string args = "(";
 	for (auto j : i->Arguments)
-		cout << j->Get_Name() << "[" << j->Get_Size() << "]" << ", ";
-	cout << ")" << endl;
+		args += j->Get_Name() + "[" + to_string(j->Get_Size()) + "]" + ", ";
+	args += ")";
+	Report(Observation(ERROR, "No suitable OPCODE found for " + i->OPCODE->Get_Name() + args, Position()));
 	throw std::runtime_error("Error");
 	return nullptr;
 }
@@ -517,7 +519,7 @@ string Selector::Get_Size_Identifier(int s)
 		if (i->Get_Size() == s)
 			return i->Get_Name();
 	}
-	cout << "Error: Size identifier for size of '" << to_string(s) << "' wasnt found!" << endl;
+	Report(Observation(ERROR, "Size identifier for size of '" + to_string(s) + "' wasnt found!", Position()));
 	throw::exception("Error!");
 }
 

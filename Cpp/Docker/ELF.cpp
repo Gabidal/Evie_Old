@@ -1,4 +1,5 @@
 #include "../../H/Docker/ELF.h"
+#include "../../H/UI/Safe.h"
 
 // Returns true if the ELF-file is 32-bit, otherwise false
 bool ELF::Get_Bits_Size(uint8_t* buffer)
@@ -168,7 +169,7 @@ Section ELF::Find_Section(uint8_t* buffer, string type) {
             }
         }
     }
-    cout << "Error: Couldn't find section " << type << endl;
+    Report(Observation(ERROR, "Couldn't find section " + type, Position()));
     throw "Yeet";
 }
 
@@ -180,7 +181,7 @@ void ELF::ELF_Analyzer(vector<string>& output)
     if (Header_Data.size() < 1)
         Header_Data = DOCKER::Get_Header("general");
     if (Header_Data.size() < 1)
-        cout << "Error: Docker didn't find Header file for " << DOCKER::FileName.back() << endl;
+        Report(Observation(ERROR, "Docker didn't find Header file for " + DOCKER::FileName.back(), Position()));
     
     //open & read the bin file
     vector<unsigned char> File_Buffer = DOCKER::Get_Char_Buffer_From_File(DOCKER::FileName.back(), DOCKER::Working_Dir);

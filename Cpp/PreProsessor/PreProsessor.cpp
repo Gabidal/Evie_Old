@@ -60,7 +60,7 @@ void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename, int
 	//import loyal func [name]()()
 	//import generic func [name]()()
 	vector<Component> content;
-	FileName = new string(filename);
+	FileName = new string(DOCKER::Working_Dir + filename);
 	if (filename == DOCKER::Get_File_Extension(filename)) {
 		//if the filenmae doesnt have a file extension this happends.
 	}

@@ -2,6 +2,7 @@
 #include "..\..\H\BackEnd\IRGenerator.h"
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Docker/Mangler.h"
+#include "../../H/UI/Safe.h"
 
 extern Selector* selector;
 
@@ -238,7 +239,7 @@ void IRGenerator::Loop_Elses(Node* e)
 {
 
 	//the if/else label
-	Node* tmp = new Node(e->Name);
+	Node* tmp = new Node(e->Name, e->Location);
 	Output->push_back(Make_Label(tmp, false));
 
 	//do an subfunction that can handle coditions and gets the label data for the condition data from the Parent given.
@@ -258,14 +259,14 @@ void IRGenerator::Loop_Elses(Node* e)
 		Output->push_back(Make_Jump("jump", s->Name + "_END"));
 
 		//skip the last end jump if the condition is not met
-		Node* tmp = new Node(e->Name + "_END");
+		Node* tmp = new Node(e->Name + "_END", e->Location);
 		Output->push_back(Make_Label(tmp, false));
 
 		//now construct the successor
 		Loop_Elses(e->Succsessor);
 	}
 	else {
-		Node* tmp = new Node(e->Name + "_END");
+		Node* tmp = new Node(e->Name + "_END", e->Location);
 		Output->push_back(Make_Label(tmp, false));
 	}
 
@@ -340,7 +341,7 @@ void IRGenerator::Parse_Jumps(int i)
 		Next_Label = Parent->Succsessor->Name;
 
 	//jmp if not correct
-	Output->push_back(Make_Jump(Get_Inverted_Condition(Input[i]->Name), Next_Label));
+	Output->push_back(Make_Jump(Get_Inverted_Condition(Input[i]->Name, Input[i]->Location), Next_Label));
 }
 
 void IRGenerator::Un_Wrap_Inline(int i)
@@ -1027,7 +1028,7 @@ void IRGenerator::Parse_Loops(int i)
 	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables(Output->size(), start_Index, Input[i])));
 }
 
-string IRGenerator::Get_Inverted_Condition(string c)
+string IRGenerator::Get_Inverted_Condition(string c, Position* p)
 {
 	if (c == "==")
 		return "!=";
@@ -1045,7 +1046,7 @@ string IRGenerator::Get_Inverted_Condition(string c)
 		return ">";
 	else if (c == ">=")
 		return "<";
-	cout << "Error: Undefined Condition type " << c << endl;
+	Report(Observation(ERROR, "Undefined Condition type " + c, *p));
 	return "";
 }
 
@@ -1324,13 +1325,15 @@ void IRGenerator::Parse_Return(int i) {
 		Returning_Reg_Size += Global_Scope->Find(j, Global_Scope)->Size;
 	}
 
-	if (Return_Val->is(TOKEN::NUM))
+	if (Return_Val->is(TOKEN::NUM) && Returning_Reg_Size != 0)
 		Return_Val->Set_Size(Returning_Reg_Size);
 
 	if ((Input[i]->Right != nullptr) && (Returning_Reg_Size == 0)) {
-		cout << "Error: You are trying to return value inside a void function, not good.\n";
-		cout << "Solution: Your return value size seems to be: '" << Return_Val->Get_Size() * 8 << "' so ";
-		cout << "try using '" << Global_Scope->Find(Return_Val->Get_Size(), Global_Scope)->Name << "' as your function return type." << endl;
+		Report({
+			Observation(ERROR, "You are trying to return value inside a void function, not good.", *Input[i]->Right->Location),
+			Observation(SOLUTION, "Your return value size seems to be : '" + to_string(Return_Val->Get_Size() * 8) + "' so ", *Input[i]->Right->Location),
+			Observation(SOLUTION, "try using '" + Global_Scope->Find(Return_Val->Get_Size(), Global_Scope)->Name + "' as your function return type.", *Input[i]->Right->Location)
+			});
 		throw::exception("\nReturn error.\n");
 	}
 

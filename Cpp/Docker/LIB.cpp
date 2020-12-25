@@ -1,4 +1,5 @@
 #include "../../H/Docker/LIB.h"
+#include "../../H/UI/Safe.h"
 
 extern Usr* sys;
 
@@ -23,7 +24,7 @@ void LIB::LIB_Analyzer(vector<string>& Output)
 	if (Header_Data.size() < 1)
 		Header_Data = DOCKER::Get_Header("general");
 	if (Header_Data.size() < 1)
-		cout << "Error: Docker didn't find Header file for " << DOCKER::FileName.back() << endl;
+		Report(Observation(ERROR,  "Docker didn't find Header file for " + DOCKER::FileName.back(), Position()));
 	
 	//write the lib with nm to .TMP.txt file
 	LIB::Generate_Binary_Symbols(DOCKER::FileName.back(), DOCKER::Working_Dir);

@@ -12,6 +12,7 @@
 #include <optional>
 #include <algorithm>
 #include <fstream>
+#include "../../H/UI/Safe.h"
 
 constexpr char LineEnding = '\n';
 constexpr char xor = '\xa4';
@@ -53,7 +54,7 @@ bool Exists(const vector<T> &source, const T &value)
     return find(source.begin(), source.end(), value) != source.end();
 }
 
-char GetParenthesisClosing(char opening)
+char GetParenthesisClosing(char opening, Position p)
 {
     if (opening == '(')
     {
@@ -68,17 +69,9 @@ char GetParenthesisClosing(char opening)
         return '}';
     }
 
-    stringstream error;
-    error << "Unrecognized parenthesis opening '" << opening << "'";
+    Report(Observation(ERROR, "Unrecognized parenthesis opening '" + opening + (string)"'", p));
 
-    throw runtime_error(error.str().c_str());
-}
-
-string GetError(const Position &position, const char *message)
-{
-    stringstream error;
-    error << "Line: " << position.GetFriendlyLine() << ", Character: " << position.GetFriendlyCharacter() << " | " << message;
-    return error.str();
+    throw::exception("ERROR");
 }
 
 bool IsOperator(char c)
@@ -196,7 +189,7 @@ Position SkipParenthesis(const string &text, const Position &start)
     Position position = start.Clone();
 
     char opening = text[position.GetLocal()];
-    char closing = GetParenthesisClosing(opening);
+    char closing = GetParenthesisClosing(opening, start);
 
     int count = 0;
 
@@ -228,7 +221,7 @@ Position SkipParenthesis(const string &text, const Position &start)
         }
     }
 
-    throw runtime_error(GetError(start, "Couldn't find closing parenthesis").c_str());
+    Report(Observation(ERROR, "Couldn't find closing parenthesis", start));
 }
 
 Position SkipComment(const string &text, const Position &start)
@@ -254,7 +247,7 @@ Position SkipString(const string &text, const Position &start)
 
     if (i == -1 || j != -1 && j < i)
     {
-        throw runtime_error(GetError(start, "Couldn't find the end of the string").c_str());
+        Report(Observation(ERROR, "Couldn't find the end of the string", start));
     }
 
     int length = i + 1 - start.GetLocal();
@@ -322,7 +315,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
             // There cannot be number and content tokens side by side 1(
             if (area.Type == Type::NUMBER)
             {
-                throw runtime_error(GetError(position, "Missing operator between number and parenthesis").c_str());
+                Report(Observation(ERROR, "Missing operator between number and parenthesis", position));
             }
 
             break;
@@ -406,7 +399,7 @@ string GetNumberPart(string text)
     return text.substr(0, end);
 }
 
-int GetExponent(const string& text)
+int GetExponent(const string& text, Position p)
 {
     int exponent_start = text.find(Lexer::ExponentSeparator);
 
@@ -423,10 +416,9 @@ int GetExponent(const string& text)
         // Ensure that there's the exponent value
         if (index == text.size())
         {
-            stringstream message;
-            message << "Invalid number exponent '" << text << "'";
+            Report(Observation(ERROR,  "Invalid number exponent '" + text + "'", p));
 
-            throw runtime_error(message.str().c_str());
+            throw::exception("ERROR");
         }
 
         // Skip the potential exponent sign
@@ -437,10 +429,9 @@ int GetExponent(const string& text)
             // Ensure that there's the exponent value
             if (index == text.size())
             {
-                stringstream message;
-                message << "Invalid number exponent '" << text << "'";
+                Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
 
-                throw runtime_error(message.str().c_str());
+                throw::exception("ERROR");
             }
         }
 
@@ -455,10 +446,9 @@ int GetExponent(const string& text)
         }
         else
         {
-            stringstream message;
-            message << "Invalid number exponent '" << text << "'";
+            Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
 
-            throw runtime_error(message.str().c_str());
+            throw::exception("ERROR");
         }
     }
 }
@@ -470,7 +460,7 @@ bool IsDecimal(string text)
 
 Component CreateNumberComponent(string text, const Position& position)
 {
-    int exponent = GetExponent(text);
+    int exponent = GetExponent(text, position);
     string number_part = GetNumberPart(text);
 
     if (IsDecimal(text))
@@ -483,10 +473,10 @@ Component CreateNumberComponent(string text, const Position& position)
         }
         else
         {
-            stringstream message;
-            message << "Invalid decimal number '" << text << "'";
+            string s = "Invalid decimal number '" + text + "'";
+            Report(Observation(ERROR, s, position));
 
-            throw runtime_error(GetError(position, message.str().c_str()).c_str());
+            throw::exception("ERROR");
         }
     }
     else
@@ -499,10 +489,10 @@ Component CreateNumberComponent(string text, const Position& position)
         }
         else
         {
-            stringstream message;
-            message << "Invalid integer number '" << text << "'";
+            string s = "Invalid integer number '" + text + "'";
 
-            throw runtime_error(GetError(position, message.str().c_str()).c_str());
+            Report(Observation(ERROR, s, position)); 
+            throw::exception("ERROR");
         }
     }
 }
@@ -537,11 +527,10 @@ Component ParseComponent(const Area& area)
         return Component(area.Text, Flags::COMMENT_COMPONENT);
     default:
     {
+        string s = "Unrecognized token '" + area.Text + "'";
 
-        stringstream message;
-        message << "Unrecognized token '" << area.Text << "'";
-
-        throw runtime_error(GetError(area.Start, message.str().c_str()).c_str());
+        Report(Observation(ERROR, s, area.Start));
+        throw::exception("ERROR");
     }
 
     }
@@ -584,7 +573,7 @@ vector<Component> Lexer::GetComponentsFromFile(string file)
 {
     if (Lexer::SingleLineCommentIdentifier == 0 || Lexer::StringIdentifier == 0 || Lexer::DecimalSeparator == 0 || Lexer::ExponentSeparator == 0)
     {
-        throw runtime_error("Please configure all the identifiers and separators needed by the lexer");
+        Report(Observation(ERROR, "Please configure all the identifiers and separators needed by the lexer", Position()));
     }
 
     ifstream stream(file);
@@ -592,9 +581,9 @@ vector<Component> Lexer::GetComponentsFromFile(string file)
     if (!stream.is_open())
     {
         stringstream message;
-        message << "Couldn't find or open file '" << file << "'";
+        Report(Observation(ERROR, "Couldn't find or open file '" + file + "'", Position()));
 
-        throw runtime_error(message.str().c_str());
+        throw::exception("ERROR");
     }
 
     string text;

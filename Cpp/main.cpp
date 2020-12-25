@@ -95,12 +95,12 @@ int main(int argc, char* argv[])
     DOCKER::Add_Translator("L\x1", OBJ::OBJ_Analyser);
     DOCKER::Add_Translator("\x64\x86\x01", OBJ::OBJ_Analyser);
 
-    Global_Scope = new Node(CLASS_NODE);
-    Global_Scope->Name = "GLOBAL_SCOPE";
-
     vector<Component> Input;
     PreProsessor preprosessor(Input);
     preprosessor.Include(sys->Info.Source_File.c_str());
+
+    Global_Scope = new Node(CLASS_NODE, new Position());
+    Global_Scope->Name = "GLOBAL_SCOPE";
 
     preprosessor.Defined_Constants = 
     {
