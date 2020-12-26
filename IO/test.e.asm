@@ -1,5 +1,7 @@
-_Z4mainv:
-mov ah, byte 0
+.intel_syntax noprefix
+.global main
+main:
+mov ah, byte ptr 0
 ret 
 ret 
 

@@ -40,6 +40,7 @@ private:
 	string Get_Linker_Output();
 	string Get_Added_Libs();
 	string Get_Entry();
+	string Get_System_Paths();
 	string Link();
 	string Get_Template();
 	bool Find(vector<string> in, string f);

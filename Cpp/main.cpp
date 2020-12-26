@@ -32,7 +32,7 @@ Selector* selector;
 x86_64_Win X86_64_WIN;
 int _SYSTEM_BIT_SIZE_ = 4;
 
-string Output = "";
+string Output = ".intel_syntax noprefix\n";
 
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 //Evie.exe -in ~/test.e
@@ -90,10 +90,11 @@ int main(int argc, char* argv[])
     DOCKER::Set_Default_Translator(TXT::TXT_Analyzer);
     DOCKER::Add_Translator("\x7F" "ELF", ELF::ELF_Analyzer);
     DOCKER::Add_Translator("!<arch>", LIB::LIB_Analyzer);
-    DOCKER::Add_Translator(";analyze", ASM::ASM_Analyzer);
+    DOCKER::Add_Translator("#analyze", ASM::ASM_Analyzer);
     DOCKER::Add_Translator("https", HTTPS::HTTPS_Analyser);
     DOCKER::Add_Translator("L\x1", OBJ::OBJ_Analyser);
-    DOCKER::Add_Translator("\x64\x86\x01", OBJ::OBJ_Analyser);
+    DOCKER::Add_Translator("\x64\x86", OBJ::OBJ_Analyser);
+    DOCKER::Add_Translator("\x32\x86", OBJ::OBJ_Analyser);
 
     vector<Component> Input;
     PreProsessor preprosessor(Input);

@@ -1,33 +1,6 @@
 #include "../../H/UI/Producer.h"
 string Produce_Working_Dir = "";
 
-/*
-    if (sys->Info.OS == "win32" && (sys->Info.Architecture == "x86"))
-    {
-        //target windows
-        stringstream output;
-        output << "..\\Cpp\\Assemblers\\yasm_win.exe -g dwarf2 -f win32 -o " << sys->Info.Destination_File << ".obj " << sys->Info.Destination_File;
-
-        system(output.str().c_str());
-        output = stringstream();
-
-        output << "..\\Cpp\\Linkers\\GoLink.exe " << "/console " << "/debug coff " << "/entry main " << sys->Info.Destination_File << ".obj " << "kernel32.dll ";
-
-        system(output.str().c_str());
-    }
-    else if (sys->Info.OS == "unix" && (sys->Info.Architecture == "x86"))
-    {
-        stringstream output;
-
-        output << "yasm -g dwarf2 -f elf32 -o " << sys->Info.Destination_File + ".o " << sys->Info.Destination_File;
-
-        system(output.str().c_str());
-        output = stringstream();
-
-        output << "ld -m elf_i386 -o " << sys->Info.Destination_File + ".this_is_the_runnable " << sys->Info.Destination_File + ".o ";
-    }
-*/
-
 void Producer::Assembly_Other_Source_Files()
 {
     stringstream output;
@@ -44,7 +17,7 @@ string Producer::Get_Linker_Type()
 {
     if (OS == "win")
     {
-        return "Linkers\\GoLink.exe /console ";
+        return "Linkers\\ld.exe ";
     }
     else if (OS == "unix")
     {
@@ -57,7 +30,7 @@ string Producer::Get_Assembler()
 {
     if (OS == "win")
     {
-        return "Assemblers\\yasm_win.exe ";
+        return "Assemblers\\as.exe ";
     }
     else if (OS == "unix")
     {
@@ -77,22 +50,7 @@ string Producer::Get_Debug()
 
 string Producer::Get_Type()
 {
-    if (OS == "win")
-    {
-        return " -f win" + Size;
-    }
-    else if (OS == "unix")
-    {
-        if (Type == "exe")
-        {
-            return " -f " + (string)"elf" + Size + " " ;
-        }
-        else
-        {
-            return " -f " + Type;
-        }
-    }
-    return "";
+    return " --" + Size + " ";
 }
 
 string Producer::Get_File_Name()
@@ -111,29 +69,14 @@ string Producer::Get_Assembly_Dest_Marker()
 
 string Producer::Get_Linker_Debug_Type()
 {
-    if (OS == "win")
-    {
-        if (Type != "")
-        {
-            return "/debug coff ";
-        }
-        else
-        {
-            return "";
-        }
-    }
-    else if (OS == "unix")
-    {
-        return "";
-    }
     return "";
 }
 
 string Producer::Get_Linker_aarch()
 {
-    if (OS == "unix")
+    if (Size == "32")
     {
-        return " -m elf_i386 ";
+        return " -m elf32-i386 ";
     }
     return "";
 }
@@ -145,15 +88,7 @@ string Producer::Get_Assembler_Output()
 
 string Producer::Get_Linker_Input()
 {
-    if (OS == "win")
-    {
-        return Output_File + Get_Assembly_Dest_Marker();
-    }
-    else if (OS == "unix")
-    {
-        return  Output_File + Get_Assembly_Dest_Marker();
-    }
-    return "";
+   return  Output_File + Get_Assembly_Dest_Marker();
 }
 
 string Producer::Get_Added_Libs()
@@ -165,7 +100,7 @@ string Producer::Get_Added_Libs()
         {
             r += i + " ";
         }
-        return r + " kernel32.dll";
+        return r + " -l kernel32";
     }
     else if (OS == "unix")
     {
@@ -181,18 +116,37 @@ string Producer::Get_Added_Libs()
 
 string Producer::Get_Entry()
 {
-    if (OS == "win")
-    {
-        if (Type == "exe")
-        {
-            return "/entry main ";
+    return " -e main ";
+}
+
+string Producer::Get_System_Paths()
+{
+    char Seperator = ';';
+    if (OS == "unix")
+        Seperator = ':';
+
+    string Result = "";
+    char* Path = getenv("Path");
+    string List = string(Path);
+
+    vector<string> Paths;
+    string tmp = "";
+    for (auto i : List) {
+        if (i == '\\')
+            i = '/';
+        if (i == Seperator) {
+            if (tmp == "")
+                continue;
+            Paths.push_back(tmp);
+            tmp = "";
         }
+        else
+            tmp += i;
     }
-    else if (OS == "unix")
-    {
-        return "-e main";
-    }
-    return "";
+    for (auto i : Paths)
+        Result += " -L \"" + i + "\"";
+
+    return Result;
 }
 
 string Producer::Link()
@@ -206,7 +160,7 @@ string Producer::Get_Template()
     {
         if (OS == "win")
         {
-            return "link \"glfw3.lib\" \"OpenGL32.lib\" \"kernel32.lib\" \"user32.lib\" \"gdi32.lib\" \"shell32.lib\" /DEBUG /SUBSYSTEM:CONSOLE /NOLOGO " + Output_File + ".obj /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\um\\x86\" OpenGL32.lib /entry:main /out:\"" + Output_File +".exe\" /libpath:\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.25.28610\\lib\\x86\" vcruntime.lib /libpath:\"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\ucrt\\x86\" /libpath:\"" + Produce_Working_Dir + "\" ucrt.lib";
+            return "ld -l \"glfw3\" \"OpenGL32\" \"kernel32\" \"user32\" \"gdi32\" \"shell32\" " + Output_File + ".obj -L \"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\um\\x86\" -e main -o \"" + Output_File +".exe\" -L \"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.25.28610\\lib\\x86\" -l vcruntime -L \"C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.18362.0\\ucrt\\x86\" -L \"" + Produce_Working_Dir + "\" -l ucrt";
         }
         else
         {
@@ -260,10 +214,14 @@ string Producer::Get_All(vector<string> in)
 
 string Producer::Get_Linker_Output(){
     if (OS == "win"){
-        return "";
+        if (Type == "exe")
+            return " -o " + Output_File + ".exe ";
+        else if (Type == "dll")
+            return "--shared -o" + Output_File + ".dll ";
     }
     else if (OS == "unix"){
-        return "-o" + Output_File + ".ThisIsTotallyExecutable";
+        if (Type == "exe")
+            return "-o" + Output_File + ".ThisIsTotallyExecutable ";
     }
     return "";
 }
@@ -277,7 +235,7 @@ void Producer::Assemble_Command()
     output = stringstream();
     if (Get_Template() == "")
     {
-        output << Get_Linker_Type() << Get_Linker_aarch() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Linker_Output() << Get_Added_Libs();// << " /mix";
+        output << Get_Linker_Type() << Get_Linker_aarch() << Get_Linker_Debug_Type() << Get_Entry() << Get_Linker_Input() << Get_Linker_Output() << Get_Added_Libs() << Get_System_Paths();// << " /mix";
     }
     else
     {

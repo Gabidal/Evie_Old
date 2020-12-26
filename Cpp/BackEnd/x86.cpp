@@ -176,10 +176,10 @@ void x86_64_Win::Init()
 		Data
 	};
 
-	Token* BYTE = new Token(SIZE_INDENTIFIER, "byte", 1);
-	Token* WORD = new Token(SIZE_INDENTIFIER, "word", 2);
-	Token* DWORD = new Token(SIZE_INDENTIFIER, "dword", 4);
-	Token* QWORD = new Token(SIZE_INDENTIFIER, "qword", 8);
+	Token* BYTE = new Token(SIZE_INDENTIFIER, "byte ptr", 1);
+	Token* WORD = new Token(SIZE_INDENTIFIER, "word ptr", 2);
+	Token* DWORD = new Token(SIZE_INDENTIFIER, "dword ptr", 4);
+	Token* QWORD = new Token(SIZE_INDENTIFIER, "qword ptr", 8);
 
 	Size_Identifiers = {
 		BYTE,
@@ -366,23 +366,23 @@ void x86_64_Win::Init()
 		{{Label, {0, 0}}}
 		});	
 
-	IR* GLOBAL = new IR("global", new Token(TOKEN::GLOBAL_LABEL, "global"), {
+	IR* GLOBAL = new IR("global", new Token(TOKEN::GLOBAL_LABEL, ".global"), {
 		{{Label, {0, 0}}}
 		}); 
-	IR* EXTERN = new IR("extern", new Token(TOKEN::GLOBAL_LABEL, "extern"), {
+	IR* EXTERN = new IR("extern", new Token(TOKEN::GLOBAL_LABEL, ".extern"), {
 		{{Label, {0, 0}}}
 			});
 
-	IR* DB = new IR("init", new Token(TOKEN::SET_DATA, "db"), {
+	IR* DB = new IR("init", new Token(TOKEN::SET_DATA, ".byte"), {
 		{{Data, {1, 1}}}
 		}); 
-	IR* DW = new IR("init", new Token(TOKEN::SET_DATA, "dw"), {
+	IR* DW = new IR("init", new Token(TOKEN::SET_DATA, ".word"), {
 		{{Data, {2, 2}}}
 			});
-	IR* DD = new IR("init", new Token(TOKEN::SET_DATA, "dd"), {
+	IR* DD = new IR("init", new Token(TOKEN::SET_DATA, ".long"), {
 		{{Data, {4, 4}}}
 		});
-	IR* DQ = new IR("init", new Token(TOKEN::SET_DATA, "dq"), {
+	IR* DQ = new IR("init", new Token(TOKEN::SET_DATA, ".quad"), {
 		{{Data, {8, 8}}}
 		});
 

@@ -33,6 +33,10 @@ void IRGenerator::Factory()
 
 void IRGenerator::Parse_Function(int i)
 {
+	if (Input[i]->is(IMPORT)) {
+		if (Input[i]->is(IMPORT))
+			Global_Scope->Header.push_back(Input[i]);
+	}
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
 	for (auto j : Input[i]->Parameters)
@@ -40,6 +44,9 @@ void IRGenerator::Parse_Function(int i)
 			return;	//skip template functions.
 	if ((Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE)->Calling_Count == 0) && Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE)->is("export") == -1)
 		return;
+
+	if (Input[i]->is("export") != -1)
+		Global_Scope->Header.push_back(Input[i]);
 
 	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}));
 
@@ -63,10 +70,6 @@ void IRGenerator::Parse_Calls(int i)
 	if (!Input[i]->is(CALL_NODE))
 		return;
 
-	if (Input[i]->Template_Function->is(IMPORT))
-		Global_Scope->Header.push_back(Input[i]->Template_Function);
-	if (Input[i]->Template_Function->is("export") != -1)
-		Global_Scope->Header.push_back(Input[i]->Template_Function);
 
 	IRGenerator g(Parent, Output);
 	//do the parameters
