@@ -62,6 +62,8 @@ public:
 
 	bool Check_If_Template_Function_Is_Right_One(Node* t, Node* c);
 
+	void Open_Safe(vector<Node*> n);
+
 	vector<Node*> Linearise(Node*);
 	string To_String(Node*);
 private:

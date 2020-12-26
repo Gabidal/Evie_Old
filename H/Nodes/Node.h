@@ -96,7 +96,7 @@ public:
 		return -1;
 	}
 	
-	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false);
+	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false, bool skip_keywords = false);
 	
 	vector<string> Get_Inheritted(bool Skip_Prefixes = false, bool Get_Name = false);
 

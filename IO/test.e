@@ -1,6 +1,6 @@
 use "cstd.e"
 
-int cpp export main(){
-    int b = 0
+char cpp export main(){
+    char b = 0
     return b
 }

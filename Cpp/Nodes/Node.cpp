@@ -93,7 +93,7 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name) {
 	}
 }
 
-string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name) {
+string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name, bool skip_keywords) {
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
 		return seperator + Name;
 	}
@@ -116,6 +116,8 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name)
 		string result = "";
 		for (int i = 0; i < Inheritted.size(); i++) {
 			if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
+				continue;
+			else if (skip_keywords && Lexer::GetComponents(Inheritted[i])[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
 			result += seperator + Inheritted[i];
 		}

@@ -1,5 +1,5 @@
 _Z4mainv:
-mov eax, dword 0
+mov ah, byte 0
 ret 
 ret 
 

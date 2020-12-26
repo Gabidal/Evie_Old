@@ -26,7 +26,6 @@ void PostProsessor::Factory() {
 		Open_Loop_For_Prosessing(i);
 		//Combine_Conditions(i);
 		Combine_Member_Fetching(Input[i]);
-		Algebra_Laucher(i);
 		Determine_Return_Type(i);
 		Determine_Array_Type(i);
 		Open_Call_Parameters_For_Prosessing(i);
@@ -34,10 +33,13 @@ void PostProsessor::Factory() {
 		Analyze_Global_Variable_Changes(i);
 		Change_Local_Strings_To_Global_Pointters(i);
 	}
+	Open_Safe(Input);
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
 	for (int i = 0; i < Input.size(); i++)
 		Move_Global_Varibles_To_Header(i);
+	for (int i = 0; i < Input.size(); i++)
+		Algebra_Laucher(i);
 }
 
 void PostProsessor::Transform_Component_Into_Node()
@@ -881,4 +883,9 @@ vector<Node*> PostProsessor::Linearise(Node* ast)
 
 	return Result;
 
+}
+
+void PostProsessor::Open_Safe(vector<Node*> n)
+{
+	Safe s(n);
 }

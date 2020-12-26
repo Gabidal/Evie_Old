@@ -37,5 +37,6 @@ public:
 	Safe(vector<Node*> i) : Input(i) { Factory(); }
 private:
 	void Factory();
+	void Check_Return_Validity(Node* n);
 	vector<Node*> Input;
 };
