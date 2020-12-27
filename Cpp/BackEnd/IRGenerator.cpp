@@ -1129,7 +1129,7 @@ vector<Token*> IRGenerator::Find(long n, Token* t)
 Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing)
 {
 	if (p->is(TOKEN::CONTENT)) {
-		p = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_);
+		p = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());
 	}
 	if (Difference > 0) {	//this p is more pointter that the other
 		vector<string> Type_Trace = Global_Scope->Find(p->Get_Name(), p->Get_Parent())->Inheritted;
@@ -1254,7 +1254,7 @@ void IRGenerator::Parse_Return(int i) {
 			p = p->Parent;
 	}
 
-	int Level_Difference = (int)labs(Get_Amount("ptr", p) - Get_Amount("ptr", Input[i]->Right));
+	int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
 	if (Level_Difference != 0) {
 		Return_Val = Operate_Pointter(Return_Val, Level_Difference);
 	}

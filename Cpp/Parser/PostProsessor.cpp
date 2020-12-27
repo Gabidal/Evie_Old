@@ -183,8 +183,12 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 	p.Factory();
 
-	for (auto& i : Input[i]->Defined)
-		Analyze_Variable_Address_Pointing(i);
+	for (auto& v : Input[i]->Defined)
+		for (auto j : Input[i]->Childs) {
+			Analyze_Variable_Address_Pointing(v, j);
+			if (v->Requires_Address)
+				break;
+		}
 
 	return;
 }
@@ -411,7 +415,7 @@ void PostProsessor::Algebra_Laucher(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
-
+	return;
 	while (true) {
 		Algebra a(Input[i], &Input[i]->Childs);
 		if (!Optimized)
@@ -701,40 +705,63 @@ void PostProsessor::Templates(int i)
 {
 }
 
-void PostProsessor::Analyze_Variable_Address_Pointing(Node* n)
+void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 {
-	if (!n->is(OBJECT_DEFINTION_NODE) && !n->is(OBJECT_NODE))
+	if (!v->is(OBJECT_DEFINTION_NODE) && !v->is(OBJECT_NODE))
 		return;
 
 	//if a variable is pointed to via a pointter or a function parameter address loader, use stack.
 	//Other than that use registers.
+	if (n->is(ASSIGN_OPERATOR_NODE) || n->is(OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE) || n->is(BIT_OPERATOR_NODE)) {
+		Analyze_Variable_Address_Pointing(v, n->Left);
+		if (v->Requires_Address)
+			return;
+		Analyze_Variable_Address_Pointing(v, n->Right);
+		if (v->Requires_Address)
+			return;
 
-	for (auto i : n->Parent->Childs) {
-		if (i->is(ASSIGN_OPERATOR_NODE)) {
-			if (i->Right->Get_Most_Left()->Name == n->Name) {
-				int Left = Get_Amount("ptr", i->Left);
-				int Right = Get_Amount("ptr", i->Right->Get_Most_Left());
-				if (Left > Right)
-					//Left is going to load right address.
-					n->Requires_Address = true;
-			}
+		int Right_ptr = Get_Amount("ptr", n->Right);
+		int Left_ptr = Get_Amount("ptr", n->Left);
+		//TODO!! need better contex idea for what is the result be as ptr amount?!!
+		if (Right_ptr > Left_ptr && n->Left->Name == v->Name) {
+			v->Requires_Address = true;
 		}
-		else if (i->is(CALL_NODE)) {
-			for (int j = 0; j < i->Parameters.size(); j++) {
-				if (i->Parameters[j]->Name == n->Name) {
-					int Left = Get_Amount("ptr", i->Template_Function->Parameters[j]);
-					int Right = Get_Amount("ptr", i->Parameters[j]);
-					if (Left > Right)
-						//parameter is going to load right address.
-						n->Requires_Address = true;
-				}
-			}
+		if (Left_ptr > Right_ptr && n->Right->Name == v->Name) {
+			v->Requires_Address = true;
 		}
 	}
+	else if (n->is(CONTENT_NODE))
+		for (auto i : n->Childs) {
+			Analyze_Variable_Address_Pointing(v, i);
+			if (v->Requires_Address)
+				return;
+		}
+	else if (n->is(CALL_NODE)) {
+		vector<int> v_index;
+		for (int i = 0; i < n->Parameters.size(); i++)
+			if (n->Parameters[i]->Name == v->Name)
+				v_index.push_back(i);
+		for (auto i : v_index) {
+			int Template_ptr = Get_Amount("ptr", n->Template_Function->Parameters[i]);
+			int V_ptr = Get_Amount("ptr", v);
+			if (Template_ptr > V_ptr)
+				v->Requires_Address = true;
+		}
+	}
+	else if (n->Name == "return") {
+		Analyze_Variable_Address_Pointing(v, n->Right);
+		if (v->Requires_Address)
+			return;
+		Node* func = n->Get_Parent_As(FUNCTION_NODE, n);
+		int Func_ptr = Get_Amount("ptr", func);
+		int V_ptr = Get_Amount("ptr", v);
+		if (Func_ptr > V_ptr)
+			v->Requires_Address = true;
+	}
 
-	if (n->Requires_Address) {
-		n->Memory_Offset = n->Parent->Local_Allocation_Soace;
-		n->Parent->Local_Allocation_Soace += n->Get_Size();
+	if (v->Requires_Address) {
+		v->Memory_Offset = v->Parent->Local_Allocation_Soace;
+		v->Parent->Local_Allocation_Soace += v->Get_Size();
 	}
 }
 

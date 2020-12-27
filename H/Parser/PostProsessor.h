@@ -52,7 +52,7 @@ public:
 	void Template_Parameter(int i);					//dynamic parameters
 	void Templates(int i);
 
-	void Analyze_Variable_Address_Pointing(Node* n);
+	void Analyze_Variable_Address_Pointing(Node* v, Node* n);
 	int Get_Amount(string t, Node* n);
 
 	void Analyze_Global_Variable_Changes(int i);
