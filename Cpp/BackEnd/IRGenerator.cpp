@@ -408,7 +408,7 @@ void IRGenerator::Parse_Operators(int i)
 		}
 	}
 
-	if (g2.Handle != nullptr && g2.Handle->Get_Name() == Left->Get_Name()) {
+	if ((g2.Handle != nullptr) && g2.Handle->Get_Name() == Left->Get_Name()) {
 		//save left into other reg
 		Token* r = new Token(TOKEN::REGISTER, Left->Get_Name() + "_tmp", Left->Get_Size());
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Left }));
@@ -537,7 +537,7 @@ void IRGenerator::Parse_Pointers(int i)
 		}
 	}
 	else if (Left_Level < Right_Level) {
-		Right = Operate_Pointter(Right, Level_Difference);
+		Right = Operate_Pointter(Right, Level_Difference, false, Input[i]->Right->Inheritted);
 		if (Left->is(TOKEN::CONTENT)) {
 				//handle the other side into a usable register
 				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Get_Size());
@@ -945,45 +945,40 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 
 void IRGenerator::Parse_Member_Fetch(Node* n)
 {
-	if (!n->is(OPERATOR_NODE))
-		return;
-	if (n->Name != ".")
+	if (n->Fetcher == nullptr)
 		return;
 
-	Token* Left;
-	IRGenerator g(n->Parent, { n->Left }, Output);
+	Token* Fecher;
+	IRGenerator g(n->Parent, { n->Fetcher }, Output);
 	if (g.Handle != nullptr)
-		Left = g.Handle;
+		Fecher = g.Handle;
 	else
-		Left = new Token(n->Left);
+		Fecher = new Token(n->Fetcher);
 
 
 	//remember to load object if it is a ptr.
 	//mov handle, [esp+class_offset+member_offset]
-	if (n->Left->is("ptr") != -1) {
-		if (Left->Get_Name() == n->Left->Name) {
-			//id this happends the Left tokens has not been loaded from pointters yet.
-			int Ptr_Depth = Get_Amount("ptr", n->Left);
-			Left = Operate_Pointter(Left, Ptr_Depth -1, true);
-		}
-		for (int i = 0; i < n->Inheritted.size(); i++)
-			if (n->Left->Inheritted[i] == "ptr")
-				n->Left->Inheritted.erase(n->Left->Inheritted.begin() + i);
-	}
+	
 	//make the member offset
-	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Find(n->Left, n->Parent)->Find(n->Right->Name)->Memory_Offset));
+	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Find(n->Fetcher, n->Fetcher->Parent)->Find(n->Name)->Memory_Offset));
 
 	Token* Member_Offsetter = new Token(TOKEN::OFFSETTER, "+");
-	Member_Offsetter->Left = Left;
+	Member_Offsetter->Left = Fecher;
 	Member_Offsetter->Right = Member_Offset;
 
-	Member_Offsetter = new Token(TOKEN::MEMORY, { Member_Offsetter }, n->Find(n->Left, n->Parent)->Find(n->Right->Name)->Size, n->Left->Name + n->Right->Name);
+	Member_Offsetter = new Token(TOKEN::MEMORY, { Member_Offsetter }, n->Find(n->Fetcher, n->Fetcher->Parent)->Find(n->Name)->Size, n->Fetcher->Name + "_" + n->Name);
 
+	if (Is_In_Left_Side_Of_Operator) {
+		Handle = Member_Offsetter;
+		return;
+	}
+	
+	//if not then load this into register
+	Token* r = new Token(TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG", n->Get_Size());
 
-	//Token* Handle_Register = new Token(TOKEN::REGISTER, "REG_" + n->Right->Name, n->Left->Find(n->Right->Name)->Size);
-	//Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Handle_Register, Member_Offsetter }));
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }));
 
-	Handle = Member_Offsetter;
+	Handle = r;
 }
 
 void IRGenerator::Parse_Loops(int i)
@@ -1126,13 +1121,15 @@ vector<Token*> IRGenerator::Find(long n, Token* t)
 	return Result;
 }
 
-Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing)
+Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing, vector<string> Types)
 {
 	if (p->is(TOKEN::CONTENT)) {
 		p = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());
 	}
 	if (Difference > 0) {	//this p is more pointter that the other
-		vector<string> Type_Trace = Global_Scope->Find(p->Get_Name(), p->Get_Parent())->Inheritted;
+		vector<string> Type_Trace = Types;
+		if (Types.size() == 0)
+			Type_Trace = Global_Scope->Find(p->Get_Name(), p->Get_Parent())->Inheritted;
 		//reverse(Type_Trace.begin(), Type_Trace.end());
 
 		//load the Left to right level
@@ -1143,7 +1140,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 		p->Set_Size(_SYSTEM_BIT_SIZE_);
 		Token* handle = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());	//start from the pointter 
 		Token* Reg = nullptr;
-		for (int j = 0; j <= Difference; j++) {
+		for (int j = 0; j <= Difference - !Needed_At_Addressing; j++) {
 			int Reg_Size = _SYSTEM_BIT_SIZE_;
 			if (j + 1 >= Difference) {
 				Reg_Size = 0;

@@ -127,7 +127,10 @@ void PostProsessor::Type_Definer(int i)
 	Node* ret = new Node(FLOW_NODE, Parent->Defined[i]->Location);
 	ret->Name = "return";
 	ret->Right = new Node(*This);
+	ret->Parent = Function;
 	Function->Childs.push_back(ret);
+
+	PostProsessor P(Function, Function->Childs);
 
 	Global_Scope->Defined.push_back(Function);
 	Global_Scope->Childs.push_back(Function);
@@ -238,7 +241,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//we can determine it by the operations other side objects type.
 	//this prosess is made for operator in Determine_Return_Type().
 	//but it wont work if the call is inside another call
-	if (n->Holder->is(CALL_NODE)) {
+	if (n->Holder != nullptr && n->Holder->is(CALL_NODE)) {
 		int Parameter_Index = 0;
 		for (auto p : n->Holder->Parameters)
 			if (p == n)//check the pointer address
@@ -303,6 +306,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		}
 		n->Template_Function = Global_Scope->Defined[f];
 		n->Template_Function->Calling_Count++;
+		n->Inheritted = n->Template_Function->Inheritted;
 		return;
 		Wrong_Template_Function:;
 	}
@@ -874,6 +878,11 @@ bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
 	//how many times we can skip a type
 	int Type_Amount = Get_Amount("type", t);
 
+	if (c->is("type") != -1) {
+		//this means this funciton call is in template usage or this is a void calling convension.
+		return true;
+	}
+
 	for (auto i : c->Inheritted) {
 		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT)) {
 			if (t->is(i) == -1) {
@@ -937,7 +946,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		if (n->Right->Childs.size() > 1)
 			Pointter_UnWrapping_Count = n->Right->Childs.size();
 
-		for (auto i : n->Parent->Find(n->Left->Name)->Inheritted) {
+		for (auto i : n->Left->Parent->Find(n->Left->Name)->Inheritted) {
 			if (i == "ptr") {
 				if (Pointter_UnWrapping_Count < 1) {
 					n->Inheritted.push_back(i);
@@ -951,7 +960,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		}
 	}
 	else {
-		n->Inheritted = n->Parent->Find(n->Left->Name)->Inheritted;
+		n->Inheritted = n->Left->Parent->Find(n->Left->Name)->Inheritted;
 	}
 }
 

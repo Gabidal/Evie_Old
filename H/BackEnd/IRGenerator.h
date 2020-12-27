@@ -57,7 +57,7 @@ public:
 	vector<Token*> Find(long n, Token* t);
 
 	//p is the pointter ,			, -x unwrap | +x wrap
-	Token* Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing = false);
+	Token* Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing = false, vector<string> Types = vector<string>());
 
 	IR* Make_Label(Node* n, bool Mangle);
 	IR* Make_Jump(string condition, string l);

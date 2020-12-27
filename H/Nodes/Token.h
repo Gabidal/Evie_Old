@@ -91,7 +91,14 @@ public:
 	void remove(long long flag){this->Flags ^= (Flags & flag);}
 	int Get_Size() { return Size; }
 	long long Get_Flags() { return Flags; }
-	string Get_Name() { if (this->is(TOKEN::MEMORY))return Childs[0]->Name; return Name; }
+	string Get_Name() { 
+		if (this->is(TOKEN::MEMORY))
+			if (Childs[0]->is(TOKEN::OFFSETTER) || Childs[0]->is(TOKEN::DEOFFSETTER))
+				return Childs[0]->Left->Get_Name() + "_" + Childs[0]->Right->Get_Name();
+			else
+				return Childs[0]->Name;
+		return Name;
+	}
 	void Set_Name(string n) { Name = n; }
 	void Set_Parent(Node* p) { Parent = p; }
 	void Set_Size(int s) { Size = s; }
