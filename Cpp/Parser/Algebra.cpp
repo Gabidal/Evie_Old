@@ -28,7 +28,7 @@ void Algebra::Factory() {
 vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
 {
 	vector<Node*> Result;
-	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE)) {
+	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE) || ast->is(ARRAY_NODE)) {
 		vector<Node*> left = Linearise(ast->Left, Include_Operator);
 		Result.insert(Result.end(), left.begin(), left.end());
 

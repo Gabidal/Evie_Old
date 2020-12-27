@@ -376,9 +376,12 @@ void x86_64_Win::Init()
 	IR* DB = new IR("init", new Token(TOKEN::SET_DATA, ".byte"), {
 		{{Data, {1, 1}}}
 		}); 
+	IR* ASCII = new IR("ascii", new Token(TOKEN::SET_DATA, ".ascii"), {
+		{{Data, {1, 1}}}
+		});
 	IR* DW = new IR("init", new Token(TOKEN::SET_DATA, ".word"), {
 		{{Data, {2, 2}}}
-			});
+		});
 	IR* DD = new IR("init", new Token(TOKEN::SET_DATA, ".long"), {
 		{{Data, {4, 4}}}
 		});
@@ -416,6 +419,7 @@ void x86_64_Win::Init()
 		DB,
 		DW,
 		DD,
-		DQ
+		DQ,
+		ASCII
 	};
 }

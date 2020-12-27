@@ -34,6 +34,7 @@ int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output = ".intel_syntax noprefix\n";
 
+
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 //Evie.exe -in ~/test.e
 int main(int argc, char* argv[])
@@ -65,7 +66,7 @@ int main(int argc, char* argv[])
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
     Lexer::Keywords = {
-        "type", "func", "loyal", "export", "import", "use", "if", "while", "else", "ptr", "ref", "cache", "decimal", "jump", /*"size", size is no more a keyword because it can be also a variable name, only special in a class scoope*/ "return", "state", "const",
+        "type", "func", "loyal", "export", "import", "use", "if", "while", "else", "ptr", "ref", "cache", "jump", /*"size", size and deciaml and integer and format is no more a keyword because it can be also a variable name, only special in a class scoope*/ "return", "state", "const",
         "cpp", "evie", "vivid"
     };
     sys = new Usr(argv, argc);
@@ -75,13 +76,13 @@ int main(int argc, char* argv[])
 
     MANGLER::Add_ID({ "P",{MANGLER::PREFIX, "ptr"} });
     MANGLER::Add_ID({ "R",{MANGLER::PREFIX, "ref"} });
-    MANGLER::Add_ID({ "c",{MANGLER::VARIABLE, "1"} });
-    MANGLER::Add_ID({ "s",{MANGLER::VARIABLE, "2"} });
-    MANGLER::Add_ID({ "i",{MANGLER::VARIABLE, "4"} });
-    MANGLER::Add_ID({ "f",{MANGLER::VARIABLE, "4"} });
-    MANGLER::Add_ID({ "d",{MANGLER::VARIABLE, "8"} });
-    MANGLER::Add_ID({ "l",{MANGLER::VARIABLE, "4"} });
-    MANGLER::Add_ID({ "x",{MANGLER::VARIABLE, "8"} });
+    MANGLER::Add_ID({ "c",{MANGLER::VARIABLE, "1 integer"} });
+    MANGLER::Add_ID({ "s",{MANGLER::VARIABLE, "2 integer"} });
+    MANGLER::Add_ID({ "i",{MANGLER::VARIABLE, "4 integer"} });
+    MANGLER::Add_ID({ "f",{MANGLER::VARIABLE, "4 decimal"} });
+    MANGLER::Add_ID({ "d",{MANGLER::VARIABLE, "8 decimal"} });
+    MANGLER::Add_ID({ "l",{MANGLER::VARIABLE, "4 integer"} });
+    MANGLER::Add_ID({ "x",{MANGLER::VARIABLE, "8 integer"} });
 
     //temporary
     MANGLER::Add_ID({ "t",{MANGLER::VARIABLE, "type"} });

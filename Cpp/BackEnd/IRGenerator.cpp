@@ -103,7 +103,7 @@ void IRGenerator::Parse_Calls(int i)
 		if (Level_Difference != 0)
 			p = g.Operate_Pointter(p, Level_Difference);
 
-		if (n->Has_Floating_Point_Value) {
+		if (n->Format == "decimal") {
 			if (Float_Register_Count < MAX_Floating_Register_Count) {
 				//use a parameter register
 				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
@@ -935,7 +935,10 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 	Parent->Find(n->Left->Name)->Update_Size_By_Inheritted();
 	Token* value = new Token(n->Right);
 	value->Set_Size(Parent->Find(n->Left->Name)->Get_Size());
-	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, "init"), { value }));
+	string Init_Type = "init";
+	if (value->is(TOKEN::STRING))
+		Init_Type = "ascii";
+	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }));
 	if (value->is(TOKEN::STRING))
 		Output->insert(Output->begin() + 2, new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}));
 }
@@ -1330,15 +1333,6 @@ void IRGenerator::Parse_Return(int i) {
 
 	if (Return_Val->is(TOKEN::NUM) && Returning_Reg_Size != 0)
 		Return_Val->Set_Size(Returning_Reg_Size);
-
-	if ((Input[i]->Right != nullptr) && (Returning_Reg_Size == 0)) {
-		Report({
-			Observation(ERROR, "You are trying to return value inside a void function, not good.", *Input[i]->Right->Location),
-			Observation(SOLUTION, "Your return value size seems to be : '" + to_string(Return_Val->Get_Size() * 8) + "' so ", *Input[i]->Right->Location),
-			Observation(SOLUTION, "try using '" + Global_Scope->Find(Return_Val->Get_Size(), Global_Scope)->Name + "' as your function return type.", *Input[i]->Right->Location)
-			});
-		throw::exception("\nReturn error.\n");
-	}
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "move"), {
 		new Token(TOKEN::REGISTER | TOKEN::RETURNING, "Returning_REG", Returning_Reg_Size),

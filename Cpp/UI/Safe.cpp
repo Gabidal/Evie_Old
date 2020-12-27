@@ -55,8 +55,9 @@ void Safe::Check_Return_Validity(Node* n)
 		return;
 	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Parent);
 	func->Update_Size_By_Inheritted();
+	n->Right->Update_Size_By_Inheritted();
 	if (n->Right != nullptr) {
-		if (func->Find(n->Right->Name)->Get_Size() == func->Get_Size() && func->Find(n->Right->Name)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true)) {
+		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true)) {
 			return;
 		}
 		else if (func->Get_Size() == 0) {
@@ -67,7 +68,7 @@ void Safe::Check_Return_Validity(Node* n)
 			Report({
 				Observation(ERROR, "Incorrect return type!", *n->Location),
 				Observation(WARNING, n->Right->Name + " does not match " + func->Name + " return type.", *n->Right->Location),
-				Observation(SOLUTION, "Try changing " + n->Right->Name + " type into " + func->Find(func->Get_Size(), func, CLASS_NODE)->Name + " or try casting it." , *n->Right->Location)
+				Observation(SOLUTION, "Try changing " + n->Right->Name + " type into " + func->Find(func->Get_Size(), func, CLASS_NODE, n->Right->Format)->Name + " or try casting it." , *n->Right->Location)
 				});
 			Stop();
 		}

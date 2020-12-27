@@ -13,7 +13,7 @@ Token::Token(Node* n) {
 			Flags = TOKEN::REGISTER;
 	}
 	else if (n->is(NUMBER_NODE)) {
-		if (n->Has_Floating_Point_Value) {
+		if (n->Format == "decimal") {
 			Flags = TOKEN::DECIMAL;
 			Has_Floating_Point_Value = true;
 		}
@@ -30,7 +30,7 @@ Token::Token(Node* n) {
 		//find the curresponding register
 		for (int i = 0; i < n->Parent->Parameters.size(); i++) {
 			if (n->Parent->Parameters[i]->Name == n->Name) {
-				if (n->Parent->Parameters[i]->Has_Floating_Point_Value) {
+				if (n->Parent->Parameters[i]->Format == "decimal") {
 					if (Current_Float_Register_Count < Max_Floating_Registers) {
 						Flags = TOKEN::REGISTER | TOKEN::DECIMAL | TOKEN::PARAMETER;
 						Parameter_Index = i;
@@ -49,7 +49,7 @@ Token::Token(Node* n) {
 					break;
 				}
 			}
-			if (n->Parent->Parameters[i]->Has_Floating_Point_Value)
+			if (n->Parent->Parameters[i]->Format == "decimal")
 				Current_Float_Register_Count++;
 			else
 				Current_Integer_Register_Count++;

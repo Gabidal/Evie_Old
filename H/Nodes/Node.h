@@ -26,7 +26,8 @@ public:
 
 class Node {
 public:
-	Node(int flag, Position* p) : Type(flag), Location(p){}
+	Node(int flag, Position* p) : Type(flag), Location(p) {}
+	Node(int flag, Position* p, string f) : Type(flag), Location(p), Format(f) {}
 	Node(string n, Position* p) : Name(n), Location(p) {}
 	//Node(){}
 	//Normal features
@@ -81,7 +82,7 @@ public:
 	//the import has the flag to prototyping
 	//and the paramters are Named as the size needed. thx!
 	//Float features
-	bool Has_Floating_Point_Value = false;
+	string Format = "integer";	//integer | decimal
 	//Template object features.
 	bool Is_Template_Object = false;
 
@@ -233,21 +234,23 @@ public:
 	
 	Node* Find(string name, Node* parent, int flags);
 	
-	Node* Find(int size, Node* parent) {
+	Node* Find(int size, Node* parent, string f) {
 		for (Node* i : parent->Defined)
 			if (i->Size == size)
-				return i;
+				if (Format == f)
+					return i;
 		if (parent->Parent != nullptr)
-			return Find(size, parent->Parent);
+			return Find(size, parent->Parent, f);
 		return nullptr;
 	}	
 
-	Node* Find(int size, Node* parent, int flags) {
+	Node* Find(int size, Node* parent, int flags, string f) {
 		for (Node* i : parent->Defined)
 			if (i->is(flags) && (i->Size == size))
-				return i;
+				if (i->Format == f)
+					return i;
 		if (parent->Parent != nullptr)
-			return Find(size, parent->Parent, flags);
+			return Find(size, parent->Parent, flags, f);
 		return nullptr;
 	}
 
@@ -569,6 +572,15 @@ public:
 		for (int i = 0; i < s.size(); i++)
 			d.push_back(s[i]);
 		return d;
+	}
+
+	string Get_Format() {
+		for (auto i : Defined) {
+			if (i->Name == "format")
+				if (i->is("const") != -1)
+					return i->Format;
+		}
+		return "integer";
 	}
 };
 

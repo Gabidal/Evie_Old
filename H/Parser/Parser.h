@@ -46,6 +46,7 @@ public:
 	void Label_Pattern(int i);
 	void Label_Definition(int i);
 	void Size_Pattern(int i);									//if (contidion){..}
+	void Format_Pattern(int i);									//format = decimal
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	//Pattern Users
 	void Operator_Order();

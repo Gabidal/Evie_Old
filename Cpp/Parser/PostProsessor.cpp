@@ -32,6 +32,8 @@ void PostProsessor::Factory() {
 		Find_Call_Owner(Input[i]);
 		Analyze_Global_Variable_Changes(i);
 		Change_Local_Strings_To_Global_Pointters(i);
+		Update_Operator_Inheritance(Input[i]);
+		Analyze_Return_Value(Input[i]);
 	}
 	Open_Safe(Input);
 	for (int i = 0; i < Input.size(); i++)
@@ -72,6 +74,9 @@ void PostProsessor::Type_Definer(int i)
 
 	//update the member stack offsets
 	Parent->Defined[i]->Update_Members_Mem_Offset();
+
+	//update format
+	Parent->Defined[i]->Format = Parent->Defined[i]->Get_Format();
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
@@ -627,7 +632,7 @@ void PostProsessor::Handle_Imports(int i)
 	for (int j = 0; j < Parent->Defined[i]->Parameters.size(); j++) {
 		vector<string> Inheritted = Parent->Defined[i]->Parameters[j]->Inheritted;
 		if (Parent->Defined[i]->Parameters[j]->is(NUMBER_NODE)) {
-			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE);
+			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE, Parent->Defined[i]->Parameters[j]->Format);
 			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
 		else if (!MANGLER::Is_Base_Type(Parent->Defined[i]->Parameters[j]))
@@ -796,7 +801,7 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 	Node* s = new Node(LABEL_NODE, Input[i]->Location);
 	s->String = Input[i]->Name;
 	s->Name = "S" + to_string(Current_S_Count);
-	s->Inheritted = { Global_Scope->Find(1, Global_Scope, CLASS_NODE)->Name };
+	s->Inheritted = { Global_Scope->Find(1, Global_Scope, CLASS_NODE, "integer")->Name };
 	if (s->is("ptr") == -1)
 		s->Inheritted.push_back("ptr");
 	s->Parent = Global_Scope;
@@ -888,4 +893,47 @@ vector<Node*> PostProsessor::Linearise(Node* ast)
 void PostProsessor::Open_Safe(vector<Node*> n)
 {
 	Safe s(n);
+}
+
+void PostProsessor::Update_Operator_Inheritance(Node* n)
+{
+	if (!n->is(ASSIGN_OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(OPERATOR_NODE) && !n->is(BIT_OPERATOR_NODE) && !n->is(ARRAY_NODE))
+		return;
+
+	Update_Operator_Inheritance(n->Left);
+	Update_Operator_Inheritance(n->Right);
+
+	//check for operator overrides.
+
+	if (n->is(ARRAY_NODE)) {
+		int Pointter_UnWrapping_Count = 1;	//default
+		if (n->Right->Childs.size() > 1)
+			Pointter_UnWrapping_Count = n->Right->Childs.size();
+
+		for (auto i : n->Parent->Find(n->Left->Name)->Inheritted) {
+			if (i == "ptr") {
+				if (Pointter_UnWrapping_Count < 1) {
+					n->Inheritted.push_back(i);
+					continue;
+				}
+				else
+					Pointter_UnWrapping_Count--;
+			}
+			else
+				n->Inheritted.push_back(i);
+		}
+	}
+	else {
+		n->Inheritted = n->Parent->Find(n->Left->Name)->Inheritted;
+	}
+}
+
+void PostProsessor::Analyze_Return_Value(Node* n)
+{
+	if (n->Name != "return")
+		return;
+	if (n->Right == nullptr)
+		return;
+
+	Update_Operator_Inheritance(n->Right);
 }

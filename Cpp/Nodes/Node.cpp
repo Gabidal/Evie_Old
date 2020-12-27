@@ -72,15 +72,15 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name) {
 		//1.29348
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-				return Find(4, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+				return Find(4, Global_Scope, "decimal")->Get_Inheritted(Skip_Prefixes, true);
 			else
-				return Find(8, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+				return Find(8, Global_Scope, "decimal")->Get_Inheritted(Skip_Prefixes, true);
 		}
 		else {
 			if (atoll(Name.c_str()) > INT_MAX) {
-				return Find(8, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+				return Find(8, Global_Scope, "integer")->Get_Inheritted(Skip_Prefixes, true);
 			}
-			return Find(4, Global_Scope)->Get_Inheritted(Skip_Prefixes, true);
+			return Find(4, Global_Scope, "integer")->Get_Inheritted(Skip_Prefixes, true);
 		}
 	}
 	else {
@@ -101,15 +101,15 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 		//1.29348
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-				return Find(4, Global_Scope)->Get_Inheritted(seperator, Skip_Prefixes, true);
+				return Find(4, Global_Scope, "decimal")->Get_Inheritted(seperator, Skip_Prefixes, true);
 			else
-				return Find(8, Global_Scope)->Get_Inheritted(seperator,  Skip_Prefixes, true);
+				return Find(8, Global_Scope, "decimal")->Get_Inheritted(seperator,  Skip_Prefixes, true);
 		}
 		else {
 			if (atoll(Name.c_str()) > INT_MAX) {
-				return Find(8, Global_Scope)->Get_Inheritted(seperator, Skip_Prefixes, true);
+				return Find(8, Global_Scope, "integer")->Get_Inheritted(seperator, Skip_Prefixes, true);
 			}
-			return Find(4, Global_Scope)->Get_Inheritted(seperator, Skip_Prefixes, true);
+			return Find(4, Global_Scope, "integer")->Get_Inheritted(seperator, Skip_Prefixes, true);
 		}
 	}
 	else {

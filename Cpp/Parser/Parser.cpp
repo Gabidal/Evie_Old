@@ -288,9 +288,16 @@ void Parser::Import_Pattern(int i)
 	}
 	if (Types.size() > 0) {
 		//for the last parameter
+		string Format = "";
+		for (int j = 0; j < Types.size(); j++) {
+			if (Types[j].Value == "decimal" || Types[j].Value == "integer") {
+				Format = Types[j].Value;
+				Types.erase(Types.begin() + j);
+			}
+		}
 		Node* p = nullptr;
 		if (Types.back().is(Flags::NUMBER_COMPONENT))
-			p = new Node(NUMBER_NODE, &Types.back().Location);
+			p = new Node(NUMBER_NODE, &Types.back().Location, Format);
 		else
 			p = new Node(OBJECT_DEFINTION_NODE, &Types.back().Location);
 
@@ -460,7 +467,7 @@ void Parser::Number_Pattern(int i)
 
 	for (int j = 0; j < Num->Name.size(); j++)
 		if (Num->Name[j] == '.') {
-			Num->Has_Floating_Point_Value = true;
+			Num->Format = "decimal";
 			break;
 		}
 
@@ -984,6 +991,8 @@ void Parser::Label_Definition(int i)
 		return;
 	if (Input[i - 1].is(Flags::OPERATOR_COMPONENT))
 		return;
+	if (Input[i].Value == "size" || Input[i].Value == "format")
+		return;
 	//passes: label_name if (..)..
 	//passes: label_name (..)
 	//passes: label_name {..}
@@ -998,7 +1007,7 @@ void Parser::Label_Definition(int i)
 
 void Parser::Size_Pattern(int i)
 {
-	//size 4
+	//size = 4
 	if (Input[i].Value != "size")
 		return;
 	if (!Parent->is(CLASS_NODE))
@@ -1027,6 +1036,38 @@ void Parser::Size_Pattern(int i)
 	return;
 }
 
+void Parser::Format_Pattern(int i)
+{
+	//format = decimal
+	if (Input[i].Value != "format")
+		return;
+	if (!Parent->is(CLASS_NODE))
+		return;
+	if (i - 1 >= 0)
+		if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT) || Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT) || Input[(size_t)i-1].is(Flags::KEYWORD_COMPONENT))
+			return;
+	if (Input[(size_t)i + 1].Value != "=")
+		return;
+	if (!Input[(size_t)i + 2].is(Flags::TEXT_COMPONENT))
+		return;
+	Node* format = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
+
+	format->Format = Input[(size_t)i + 2].Value;
+
+	format->Name = "format";
+	format->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
+	format->Parent = Parent;
+
+	Parent->Defined.push_back(format);
+
+	Input[i].node = format;
+
+	Input.erase(Input.begin() + i + 1);
+	Input.erase(Input.begin() + i + 1);
+	return;
+}
+
+
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
@@ -1053,8 +1094,10 @@ void Parser::Factory() {
 		Number_Pattern(i);
 		Label_Pattern(i);
 	}
-	for (int i = 0; i < Input.size(); i++)
+	for (int i = 0; i < Input.size(); i++) {
 		Size_Pattern(i);
+		Format_Pattern(i);
+	}
 	//AST operator combinator.
 	Operator_Order();
 	for (int i = 0; i < Input.size(); i++) {
