@@ -102,10 +102,10 @@ string BackEnd::Token_Builder(Token* t, bool Inside_Content)
 		Name = t->ID;
 	}
 	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL)) {
-		if (Inside_Content)
+		//if (Inside_Content)
 			Name = t->Get_Name();
-		else
-			Name = selector->Get_Size_Identifier(t->Get_Size()) + " " + t->Get_Name();
+		//else
+		//	Name = selector->Get_Size_Identifier(t->Get_Size()) + " " + t->Get_Name();
 	}
 	else if (t->is(TOKEN::STRING))
 		Name = t->Get_Name();

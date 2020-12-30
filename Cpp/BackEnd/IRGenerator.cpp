@@ -355,6 +355,67 @@ void IRGenerator::Un_Wrap_Inline(int i)
 	IRGenerator g(Parent, Input[i]->Header, Output);
 }
 
+void IRGenerator::Parse_Cloning(int i)
+{
+	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
+		return;
+
+	//object non-ptr x = object y
+	//object non-ptr x = object ptr y
+
+	Token* Right;
+	IRGenerator g(Parent, { Input[i]->Right }, Output);
+	if (g.Handle != nullptr)
+		Right = g.Handle;
+	else 
+		Right = new Token(Input[i]->Right);
+
+	Token* Left;
+	g.Generate({ Input[i]->Left });
+	if (g.Handle != nullptr)
+		Left = g.Handle;
+	else
+		Left = new Token(Input[i]->Left);
+
+	//get the appropriate registers.
+	//			size, count
+	vector<pair<int, int>> Registers;
+
+	int Object_Size = Input[i]->Left->Get_Size();
+	int Register_Size = _SYSTEM_BIT_SIZE_;
+	int Count = 0;
+	while (Object_Size > 0) {
+		Count = Object_Size / Register_Size;
+		if (Count > 0)
+			Registers.push_back({Register_Size, Count});
+		Object_Size -= Count * Register_Size;
+		Register_Size /= 2;		//half the size.
+	}
+
+	int Current_Stack_Offset = 0;
+	for (auto i : Registers) {
+		for (int c = 0; c < i.second; c++) {
+			//x[Current_Offset] = y[Current_Offset]
+
+			//load the right side.
+			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + Right->Get_Name() + to_string(c) + to_string(i.first), i.first);
+			//convert the right side into memory.
+			Token* Offset = new Token(TOKEN::OFFSETTER, "+", Right, new Token(TOKEN::NUM, to_string(Current_Stack_Offset)));
+			Offset = new Token(TOKEN::MEMORY, { Offset }, Reg->Get_Size(), Right->Get_Name() + "_Mem");
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Reg, Offset }));
+
+			//set the Reg into the Left side.
+			Token* Dest = new Token(TOKEN::OFFSETTER, "+", Left, new Token(TOKEN::NUM, to_string(Current_Stack_Offset)));
+			
+			Dest = new Token(TOKEN::MEMORY, { Dest }, Reg->Get_Size(), Left->Get_Name() + "_Mem");
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Dest, Reg }));
+
+			Current_Stack_Offset += Reg->Get_Size();
+		}
+	}
+
+}
+
 void IRGenerator::Parse_Operators(int i)
 {
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
@@ -365,6 +426,12 @@ void IRGenerator::Parse_Operators(int i)
 		return;
 
 	Update_Operator(Input[i]);
+
+	Input[i]->Left->Update_Size_By_Inheritted();
+	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Get_Size() > _SYSTEM_BIT_SIZE_) {
+		Parse_Cloning(i);
+		return;
+	}
 	//If this operator is handling with pointters we cant use general operator handles
 	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
 	if (Level_Difference != 0)
