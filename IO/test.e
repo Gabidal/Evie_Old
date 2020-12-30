@@ -7,7 +7,7 @@ type banana{
 }
 
 banana ptr export main(){
-	banana b
+	banana b = banana(b)
 	banana c
 	c = b
 	return c

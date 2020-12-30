@@ -419,7 +419,6 @@ void PostProsessor::Algebra_Laucher(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
-	return;
 	while (true) {
 		Algebra a(Input[i], &Input[i]->Childs);
 		if (!Optimized)

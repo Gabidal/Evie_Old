@@ -370,6 +370,11 @@ void IRGenerator::Parse_Cloning(int i)
 	else 
 		Right = new Token(Input[i]->Right);
 
+	//check for pointters
+	if (Input[i]->Right->is("ptr") != -1) {								// -1 keep one pointter is there is
+		Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right) -1, true, Input[i]->Right->Inheritted);
+	}
+
 	Token* Left;
 	g.Generate({ Input[i]->Left });
 	if (g.Handle != nullptr)
@@ -546,6 +551,12 @@ void IRGenerator::Parse_Pointers(int i)
 		return;
 
 	Update_Operator(Input[i]);
+
+	Input[i]->Left->Update_Size_By_Inheritted();
+	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Get_Size() > _SYSTEM_BIT_SIZE_) {
+		//this has been already made in cloning objects
+		return;
+	}
 
 	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
 	if (Level_Difference == 0)
