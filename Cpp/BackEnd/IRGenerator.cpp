@@ -1319,15 +1319,7 @@ void IRGenerator::Parse_Return(int i) {
 	else
 		Return_Val = new Token(Input[i]->Right);
 
-	Node* p = Input[i]->Right;
-	while (true) {
-		if (p == nullptr)
-			break;
-		if (p->is(FUNCTION_NODE))
-			break;
-		else
-			p = p->Parent;
-	}
+	Node* p = Input[i]->Get_Parent_As(FUNCTION_NODE, Input[i]);
 
 	int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
 	if (Level_Difference != 0) {

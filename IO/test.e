@@ -12,3 +12,7 @@ banana ptr export main(){
 	c = b
 	return c
 }
+
+int export apple(banana ptr this){
+	return banana(this).x
+}

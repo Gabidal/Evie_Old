@@ -117,6 +117,12 @@ void Parser::Constructor_Pattern(int i)
 	if (!Parent->Find(ReturnType[ReturnType.size() - 1].Value, Parent)->is(CLASS_NODE))
 		return;	//the name must be same as some class name to represent as the constructor of that class
 
+	for (auto j : ReturnType) {
+		if (j.Value == "return" || j.Value == "jump")
+			return;
+	}
+
+
 	Node* Constructor = new Node(OBJECT_DEFINTION_NODE, new Position(ReturnType.back().Location));
 	Constructor->Name = ReturnType.back().Value;
 	for (int j = 0; j < ReturnType.size() - 1; j++)

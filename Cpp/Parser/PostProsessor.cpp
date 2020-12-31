@@ -493,6 +493,10 @@ Node* PostProsessor::Get_From_AST(Node* n)
 	}
 	else if (n->is(CALL_NODE)) {
 		PostProsessor p(Parent, n->Parameters);	//prosess the parameters.
+		//update the return type of the funciton call
+		//if (n->Holder->Name == "return")
+		//	Analyze_Return_Value(n->Holder);
+		Find_Call_Owner(n);
 		return n;
 	}
 	else  {
@@ -970,5 +974,11 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 	if (n->Right == nullptr)
 		return;
 
-	Update_Operator_Inheritance(n->Right);
+	PostProsessor p(n, { n->Right });
+
+	if (n->Right->is(CALL_NODE))
+		//get the parent funciton return type and set it as the 
+		n->Right->Inheritted = n->Get_Parent_As(FUNCTION_NODE, n->Parent)->Inheritted;
+	else
+		Update_Operator_Inheritance(n->Right);
 }

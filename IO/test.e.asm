@@ -1,4 +1,5 @@
 .intel_syntax noprefix
+.global apple
 .global main
 banana:
 mov dword ptr [rcx + 0 ], 1
@@ -18,6 +19,20 @@ mov rax, rax
 add rsp, 24
 ret 
 add rsp, 24
+ret 
+
+
+apple:
+push rdi
+push rbx
+mov rbx, rcx
+call banana
+mov eax, dword ptr [rdi + 0 ]
+pop rdi
+pop rbx
+ret 
+pop rdi
+pop rbx
 ret 
 
 
