@@ -60,7 +60,7 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 	//try to find if this t* is used in future
 	//also check if it intersects cllations
 	vector<int> Intersects_Calls;
-	//int Crossed_Call = -1;
+	int Crossed_Call = -1;
 	int Parameter_Place = -1;
 	int Last_Usage = i;
 	for (int j = i; j < source.size(); j++) {
@@ -69,15 +69,15 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 			if (Find(t->Get_Name(), k)) {
 				//check if this is the same variable...
 				Last_Usage = j;
-				//if (Crossed_Call != -1) {
-					//Intersects_Calls.push_back(Crossed_Call);
-					//Crossed_Call = -1;
-				//}
+				if (Crossed_Call != -1) {
+					Intersects_Calls.push_back(Crossed_Call);
+					Crossed_Call = -1;
+				}
 			}
 		}
 		if (source[j]->is(TOKEN::CALL)) {
-			//Crossed_Call = j;
-			Intersects_Calls.push_back(j);
+			Crossed_Call = j;
+			//Intersects_Calls.push_back(j);
 			for (int k = 0; k < source[j]->OPCODE->Parameters.size(); k++)
 				if (source[j]->OPCODE->Parameters[k]->Get_Name() == t->Get_Name())
 					Parameter_Place = k;
@@ -145,7 +145,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 			if (r.second->Get_Name() != reg->Get_Name())
 				//skip until we get into the right register
 				continue;
-			if (r.first == nullptr) {
+			if (r.first == nullptr || r.first->Last_Usage_Index <= p->Last_Usage) {
 				//no current owner
 				r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
 				return r.second;
@@ -190,11 +190,17 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 
 		for (auto& r : Registers) {
 			if (r.second->Get_Name() == reg->Get_Name()) {
-				if (r.first == nullptr) {
+				if (r.first == nullptr || r.first->Last_Usage_Index <= p->Last_Usage) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
 					return r.second;
 				}
 				else if (r.first->User == t->Get_Name()) {
+					return r.second;
+				}
+				else if (r.first->Last_Usage_Index > p->Last_Usage) {
+					//if the current register user is more superior register user than us, then we need to do a temporary save to stack 
+					Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Register_Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+					//now the wanted register is solutioned :D
 					return r.second;
 				}
 				else {
@@ -216,11 +222,11 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 			if (r.second->is(Reg_Type)) {
 				for (auto s : *r.second->Get_Childs())
 					if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
-						if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index + Single_Register_Type > i)
+						if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)
 							goto Wrong;
 				if (r.second->Holder != nullptr)
 					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
-						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index + Single_Register_Type > i)
+						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i && !Single_Register_Type)
 							goto Wrong;
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
@@ -231,11 +237,11 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		else if (r.first->Last_Usage_Index < i + Single_Register_Type){
 			for (auto s : *r.second->Get_Childs())
 				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
-					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index + Single_Register_Type > i)
+					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)
 						goto Wrong;
 			if (r.second->Holder != nullptr)
 				if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
-					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index + Single_Register_Type > i)
+					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i && !Single_Register_Type)
 						goto Wrong;
 			if (r.second->is(Reg_Type)) {
 				if (r.second->Get_Size() == t->Get_Size()) {
