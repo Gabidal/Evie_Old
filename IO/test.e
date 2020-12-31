@@ -6,6 +6,13 @@ type banana{
 	int z = 3
 }
 
+banana ptr export main(){
+	banana b = banana(b)
+	banana c
+	c = b
+	return c
+}
+
 int export apple(banana ptr this){
-	return this.banana().banana().z
+	return this.banana().banana().x
 }

@@ -234,7 +234,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 				}
 			}
 		}
-		else if (r.first->Last_Usage_Index < i + Single_Register_Type){
+		else if (r.first->Last_Usage_Index <= i + Single_Register_Type){
 			for (auto s : *r.second->Get_Childs())
 				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
 					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)
