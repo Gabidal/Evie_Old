@@ -7,12 +7,17 @@ type banana{
 }
 
 banana ptr export main(){
-	banana b = banana(b)
+	banana b = banana(allocate(b.size))
+	if (b.x == 1){
+		b.y = b.x
+	}
+	else (b.x == b.y){
+		b.y = b.z
+	}
+	else (b.y == b.z){
+		b.z = b.x
+	}
 	banana c
 	c = b
 	return c
-}
-
-int export apple(banana ptr this){
-	return this.banana().banana().x
 }

@@ -819,13 +819,13 @@ void Parser::If_Pattern(int i)
 	//else (){..}		//this works as 'else if'
 	//else {..}			//and this as normal 'else'
 	//while (..){..}	//loop
-	Node* con;
+	Node* con; 
 	if (Input[i].Value == "if")
-		con = new Node(IF_NODE, new Position(Input[i].Location));
-	else if (Input[i].Value == "while")
-		con = new Node(WHILE_NODE, new Position(Input[i].Location));
+		con = new Node(IF_NODE, new Position(Input[i].Location)); 
 	else if (Input[i].Value == "else")
 		con = new Node(ELSE_IF_NODE, new Position(Input[i].Location));		//this works for only else if because it requers 2 paranthesis
+	else if (Input[i].Value == "while")
+		con = new Node(WHILE_NODE, new Position(Input[i].Location));
 	else
 		return;
 

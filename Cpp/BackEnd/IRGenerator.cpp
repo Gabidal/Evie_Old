@@ -87,7 +87,7 @@ void IRGenerator::Parse_Calls(int i)
 
 	//for selector to understand a more abstract picture of the whole parameters.
 	vector<Token*> All_Parameters;
-	string All_Parameters_Names = "";
+	//string All_Parameters_Names = "";
 
 	int Parameter_Place = 0;
 	for (Node* n : Input[i]->Parameters) {
@@ -173,7 +173,7 @@ void IRGenerator::Parse_Calls(int i)
 			}
 		}
 		Parameter_Place++;
-		All_Parameters_Names += All_Parameters.back()->Get_Name();
+		//All_Parameters_Names += All_Parameters.back()->Get_Name();
 	}
 
 	//reverse(Reversable_Pushes.begin(), Reversable_Pushes.end());
@@ -213,7 +213,7 @@ void IRGenerator::Parse_Calls(int i)
 	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
 	Input[i]->Update_Size_By_Inheritted();
 
-	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + Call_Name + All_Parameters_Names, Input[i]->Size);
+	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + Call_Name /* + All_Parameters_Names*/, Input[i]->Size);
 
 	Handle = returningReg;
 }
@@ -1027,6 +1027,8 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 {
 	if (n->Fetcher == nullptr)
 		return;
+	if (n->is(NUMBER_NODE))
+		return;	//x.size
 
 	Token* Fecher;
 	IRGenerator g(n->Parent, { n->Fetcher }, Output);

@@ -186,6 +186,8 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 	p.Factory();
 
+	Input[i]->Childs = p.Input;
+
 	for (auto& v : Input[i]->Defined)
 		for (auto j : Input[i]->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
@@ -203,20 +205,15 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	//this add the L number to it
 	Input[i]->Name += to_string(LNumber++);
 
+	//preprare the local variables
+	Define_Sizes(Input[i]);
+
 	if (!Input[i]->is(ELSE_NODE)) {
-		//here we pass the condition operator into algebra optimizer
-		Algebra a(Input[i]);
-		a.Input = &Input[i]->Parameters;
-		a.Factory();
+		PostProsessor p(Input[i], Input[i]->Parameters);
 	}
 
 	//here we now postprosess also the insides of the condition
-	PostProsessor p(Input[i]);
-	p.Input = Input[i]->Childs;
-
-	//preprare the local variables
-	p.Define_Sizes(Input[i]);
-	p.Factory();
+	PostProsessor p(Input[i], Input[i]->Childs);
 
 	return;
 }
@@ -289,6 +286,12 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			if (g->Is_Template_Object) {
 				Has_Template_Parameters = true;
 				if (!Check_If_Template_Function_Is_Right_One(g, n->Parameters[g_i]))
+					goto Wrong_Template_Function;
+				else
+					continue;
+			}
+			else if (n->Parameters[g_i]->is("type") != -1) {
+				if (!Check_If_Template_Function_Is_Right_One(n->Parameters[g_i], g))
 					goto Wrong_Template_Function;
 				else
 					continue;
@@ -455,7 +458,11 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 			if (n == nullptr || n->is("const")) {
 				//this means it is definetly a size get request
 				Right->Name = to_string(Left->Get_Size());
-				Right->Type = NUMBER_NODE;
+				Right->Type = NUMBER_NODE;	
+				if (atoll(Right->Name.c_str()) > INT32_MAX)
+					Right->Size = 8;
+				else
+					Right->Size = 4;
 			}
 			else
 				//load the needed information from the parent
