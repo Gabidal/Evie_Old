@@ -5,6 +5,7 @@
 #include "../../H/UI/Safe.h"
 
 extern Selector* selector;
+unsigned long long Reg_Random_ID_Addon = 0;
 
 void IRGenerator::Factory()
 {
@@ -52,6 +53,8 @@ void IRGenerator::Parse_Function(int i)
 
 	//label
 	Output->push_back(Make_Label(Input[i], true));
+
+	Reg_Random_ID_Addon = 0;
 
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
@@ -107,7 +110,7 @@ void IRGenerator::Parse_Calls(int i)
 		if (n->Format == "decimal") {
 			if (Float_Register_Count < MAX_Floating_Register_Count) {
 				//use a parameter register
-				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 				reg->Parameter_Index = Parameter_Place;
 				Token* opc = new Token(TOKEN::OPERATOR, "move");
 				//make the parameter move
@@ -127,7 +130,7 @@ void IRGenerator::Parse_Calls(int i)
 				else if (p->is(TOKEN::MEMORY)) {
 					//is non-complex variable
 					//use a any tmp register
-					Token* reg = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_tmp", p->Get_Size());
+					Token* reg = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 					Token* opc = new Token(TOKEN::OPERATOR, "move");
 					//make the tmp move
 					IR* ir = new IR(opc, { reg, p });
@@ -141,7 +144,7 @@ void IRGenerator::Parse_Calls(int i)
 		else {
 			if (Number_Register_Count < MAX_Number_Register_Count) {
 				//use a parameter register
-				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 				reg->Parameter_Index = Parameter_Place;
 				Token* opc = new Token(TOKEN::OPERATOR, "move");
 				//make the parameter move
@@ -161,7 +164,7 @@ void IRGenerator::Parse_Calls(int i)
 				else if (p->is(TOKEN::MEMORY)) {
 					//is non-complex variable
 					//use a any tmp register
-					Token* reg = new Token(TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter", p->Get_Size());
+					Token* reg = new Token(TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 					Token* opc = new Token(TOKEN::OPERATOR, "move");
 					//make the tmp move
 					IR* ir = new IR(opc, { reg, p });
@@ -213,7 +216,7 @@ void IRGenerator::Parse_Calls(int i)
 	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
 	Input[i]->Update_Size_By_Inheritted();
 
-	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + Call_Name /* + All_Parameters_Names*/, Input[i]->Size);
+	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + Call_Name + to_string(rand()) /* + All_Parameters_Names*/, Input[i]->Size);
 
 	Handle = returningReg;
 }
@@ -595,7 +598,7 @@ void IRGenerator::Parse_Pointers(int i)
 		//here left has more ptr init check this is assignment
 		if (Input[i]->is(ASSIGN_OPERATOR_NODE) && !Right->is(TOKEN::NUM) && !Input[i]->Right->is(OPERATOR_NODE)) {
 			//save the address of Right into Left
-			Token* reg = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_);
+			Token* reg = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 
 			Token* Right_Mem = new Token(TOKEN::MEMORY, { Right }, _SYSTEM_BIT_SIZE_, Right->Get_Name());
 
@@ -707,7 +710,7 @@ void IRGenerator::Parse_Arrays(int i)
 					Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
 			}
 
-			reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Next_Register_Size);
+			reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Next_Register_Size);
 
 			//parse through the Right childs for something complex.
 			g.Generate({ Input[i]->Right->Childs[o] });
@@ -723,10 +726,10 @@ void IRGenerator::Parse_Arrays(int i)
 			else if (Right->is(TOKEN::CONTENT)) {
 				//load variable into a register
 				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
-					new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_),
+					new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_),
 					new Token(TOKEN::MEMORY, {Right}, _SYSTEM_BIT_SIZE_, Right->Get_Name())
 					}));
-				Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_);
+				Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 			}
 
 			//if this is not the last register it must be _SYSTEM_BIT_SIZE:d
@@ -819,7 +822,7 @@ void IRGenerator::Parse_Arrays(int i)
 				Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
 		}
 
-		reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Next_Register_Size);
+		reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Next_Register_Size);
 
 		//parse through the Right childs for something complex.
 		g.Generate({ Input[i]->Right });
@@ -835,10 +838,10 @@ void IRGenerator::Parse_Arrays(int i)
 		else if (Right->is(TOKEN::CONTENT)) {
 			//load variable into a register
 			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
-				new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_),
+				new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_),
 				new Token(TOKEN::MEMORY, {Right}, _SYSTEM_BIT_SIZE_, Right->Get_Name())
 				}));
-			Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_);
+			Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 		}
 		if (Right->is(TOKEN::REGISTER))
 			Right->Set_Size(_SYSTEM_BIT_SIZE_);
@@ -1056,7 +1059,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	}
 	
 	//if not then load this into register
-	Token* r = new Token(TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG", n->Get_Size());
+	Token* r = new Token(TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), n->Get_Size());
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }));
 
@@ -1244,7 +1247,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			int Needed_Size = Reg_Size;
 			if (Needed_At_Addressing)
 				Needed_Size = _SYSTEM_BIT_SIZE_;
-			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Needed_Size);
+			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Needed_Size);
 
 			//move from handle to reg
 			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
@@ -1264,7 +1267,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 	}
 	if (Difference < 0) {
 		//save the address of Right into Left
-		Token* reg = new Token(TOKEN::REGISTER, p->Get_Name() + "_REG", _SYSTEM_BIT_SIZE_);
+		Token* reg = new Token(TOKEN::REGISTER, p->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 
 		Token* Right_Mem;
 		if (!p->is(TOKEN::MEMORY))

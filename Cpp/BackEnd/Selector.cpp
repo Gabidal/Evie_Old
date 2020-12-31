@@ -105,7 +105,7 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descripto
 	call banana(a)
 	*/
 	//get a new non-volatile register to use
-	Token* non_volatile = Get_Register(TOKEN::NONVOLATILE, New.first);
+	Token* non_volatile = Get_Register(TOKEN::NONVOLATILE, New.first, i, New.second);
 	if (non_volatile == nullptr) {
 		//if this happends then all registers are in use and we need to use stack
 	}
@@ -126,6 +126,8 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descripto
 
 	//break the old connection between the register and the user
 	Break_Up(Current.second);
+
+	Pair_Up(Current.second, New.first);
 }
 
 Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
@@ -169,7 +171,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		Reg_Type |= TOKEN::PARAMETER;
 	else if (t->is(TOKEN::STACK_POINTTER))
 		Reg_Type |= TOKEN::STACK_POINTTER;
-	else if ((p->Intersects_Calls.size() > 0) && p->Intersects_Calls.back() < p->Last_Usage)
+	else if ((p->Intersects_Calls.size() > 0))
 		Reg_Type |= TOKEN::NONVOLATILE;
 	else
 		Reg_Type |= TOKEN::VOLATILE;
@@ -210,11 +212,11 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		}
 	}
 
-	for (auto j : p->Intersects_Calls) {
-		for (auto a : source->at(j)->OPCODE->Parameters) {
-			Get_New_Reg(source, j, a);
-		}
-	}
+	//for (auto j : p->Intersects_Calls) {
+	//	for (auto a : source->at(j)->OPCODE->Parameters) {
+	//		Get_New_Reg(source, j, a);
+	//	}
+	//}
 
 	for (auto& r : Registers) {
 
@@ -285,15 +287,44 @@ Token* Selector::Get_Register(Token* t)
 	return nullptr;	//need to use Get_New_Reg();
 }
 
-Token* Selector::Get_Register(long F, Register_Descriptor* user)
+Token* Selector::Get_Register(long F, Register_Descriptor* user, int i, Token* t)
 {
-	for (auto i : Registers) {
-		if (!i.second->is(F))
+	bool Single_Register_Type = F == TOKEN::RETURNING || F == TOKEN::REMAINDER || F == TOKEN::QUOTIENT || F == TOKEN::STACK_POINTTER;
+
+	for (auto& r : Registers) {
+		if (!r.second->is(F))
 			continue;
-		if (i.first == nullptr || (i.first->Last_Usage_Index <= user->First_Usage_Index)) {
-			i.first = new Register_Descriptor(user->First_Usage_Index, user->Last_Usage_Index, user->User);
-			return i.second;
+		if (r.second->Get_Size() != t->Get_Size())
+			continue;
+		if (r.first == nullptr) {
+			for (auto s : *r.second->Get_Childs())
+				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
+					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)
+						goto Wrong;
+			if (r.second->Holder != nullptr)
+				if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
+					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i && !Single_Register_Type)
+						goto Wrong;
+			r.first = user;
+			return r.second;
 		}
+		else if (r.first->Last_Usage_Index <= i + Single_Register_Type) {
+			for (auto s : *r.second->Get_Childs())
+				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
+					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)
+						goto Wrong;
+			if (r.second->Holder != nullptr)
+				if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
+					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i && !Single_Register_Type)
+						goto Wrong;
+			r.first = user;
+			return r.second;
+		}
+		//still... checking names is wrong
+		else if (r.first->User == t->Get_Name()) {
+			return r.second;
+		}
+	Wrong:;
 	}
 	//if this gets here, all non & non-non-volatile register are used already.
 	//use stack
@@ -349,7 +380,7 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 
 void Selector::Pair_Up(Token* r, Register_Descriptor* t)
 {
-	for (auto i : Registers)
+	for (auto& i : Registers)
 		if (i.second->Get_Name() == r->Get_Name()) {
 			i.first = t;
 			return;
@@ -358,7 +389,7 @@ void Selector::Pair_Up(Token* r, Register_Descriptor* t)
 
 void Selector::Break_Up(Token* r)
 {
-	for (auto i : Registers)
+	for (auto& i : Registers)
 		if (i.second->Get_Name() == r->Get_Name()) {
 			i.first = nullptr;
 			return;

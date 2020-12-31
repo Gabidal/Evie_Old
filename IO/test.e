@@ -8,6 +8,7 @@ type banana{
 
 banana ptr export main(){
 	banana b = banana(allocate(b.size))
+	b.banana().banana().x = b.banana().banana().y
 	if (b.x == 1){
 		b.y = b.x
 	}

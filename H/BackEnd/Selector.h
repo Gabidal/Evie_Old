@@ -55,7 +55,7 @@ public:
 	void Make_Solution_For_Crossed_Register_Usages(pair< Register_Descriptor*, Token*> Current, pair< Register_Descriptor*, Token*> New, vector<IR*>* source, int i);
 	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t);
 	Token* Get_Register(Token* t);
-	Token* Get_Register(long F, Register_Descriptor* user);
+	Token* Get_Register(long F, Register_Descriptor* user, int i, Token* t);
 	Register_Descriptor* Check_If_Smaller_Register_Is_In_Use(Token* r);
 	Register_Descriptor* Check_If_Larger_Register_Is_In_Use(Token* r);
 	void Allocate_Register(vector<IR*>* source, int i, Token* t);
