@@ -94,7 +94,7 @@ void IRGenerator::Parse_Calls(int i)
 
 	int Parameter_Place = 0;
 	for (Node* n : Input[i]->Parameters) {
-		g.Generate({ n });
+		g.Generate({ n }, true);
 
 		Token* p;
 		//handle complex instructions
@@ -381,11 +381,16 @@ void IRGenerator::Parse_Cloning(int i)
 	}
 
 	Token* Left;
-	g.Generate({ Input[i]->Left });
+	g.Generate({ Input[i]->Left }, true);
 	if (g.Handle != nullptr)
 		Left = g.Handle;
 	else
 		Left = new Token(Input[i]->Left);
+
+	if (Left->is(TOKEN::MEMORY)) {
+		//unwrap the insides from the memory.
+		Left = Left->Childs.back();
+	}
 
 	//get the appropriate registers.
 	//			size, count
@@ -713,7 +718,7 @@ void IRGenerator::Parse_Arrays(int i)
 			reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Next_Register_Size);
 
 			//parse through the Right childs for something complex.
-			g.Generate({ Input[i]->Right->Childs[o] });
+			g.Generate({ Input[i]->Right->Childs[o] }, false);
 
 			if (g.Handle != nullptr)
 				Right = g.Handle;
@@ -825,7 +830,7 @@ void IRGenerator::Parse_Arrays(int i)
 		reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Next_Register_Size);
 
 		//parse through the Right childs for something complex.
-		g.Generate({ Input[i]->Right });
+		g.Generate({ Input[i]->Right }, false);
 
 		if (g.Handle != nullptr)
 			Right = g.Handle;
@@ -1034,12 +1039,15 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;	//x.size
 
 	Token* Fecher;
-	IRGenerator g(n->Parent, { n->Fetcher }, Output);
+	IRGenerator g(n->Parent, { n->Fetcher }, Output, true);
 	if (g.Handle != nullptr)
 		Fecher = g.Handle;
 	else
 		Fecher = new Token(n->Fetcher);
 
+	if (Fecher->is(TOKEN::MEMORY)) {
+		Fecher = Fecher->Childs.back();
+	}
 
 	//remember to load object if it is a ptr.
 	//mov handle, [esp+class_offset+member_offset]
@@ -1096,14 +1104,14 @@ void IRGenerator::Parse_Loops(int i)
 	int start_Index = Output->size();
 
 	//make ir tokens from the code inside the loop
-	g.Generate(Input[i]->Childs);
+	g.Generate(Input[i]->Childs, false);
 
 	//make the Footter IR
-	g.Generate(Footer);
+	g.Generate(Footer, false);
 	//now do the condition again
 	//get the location of the condition
 	vector<Node*> Conditions = Node::Get_all(CONDITION_OPERATOR_NODE, Header);
-	g.Generate(Conditions);
+	g.Generate(Conditions, false);
 
 	//now make the _END addon at the end of loop for the false condition to fall
 	Output->push_back(Make_Jump("jump", Input[i]->Name));
@@ -1274,6 +1282,9 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			Right_Mem = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());
 		else
 			Right_Mem = p;
+
+		if (Right_Mem->Get_Size() != reg->Get_Size())
+			Right_Mem->Set_Size(reg->Get_Size());
 
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), Right_Mem }));
 		return reg;

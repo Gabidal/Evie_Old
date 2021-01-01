@@ -98,30 +98,7 @@ void PostProsessor::Type_Definer(int i)
 	if (p->Has({ "cpp", "evie", "vivid" }) != -1)
 		Function->Inheritted.push_back(p->Inheritted[p->Has({ "cpp", "evie", "vivid" })]);
 
-
-	for (auto c : Parent->Defined[i]->Childs) {
-		if (c->is("const") != -1)
-			continue;
-		Node* c_copy = c->Copy_Node(c, Function);
-		//insert this. infront of every member
-		for (auto& linear_n : Linearise(c_copy)) {
-			if (linear_n->is(NUMBER_NODE) || linear_n->is(CALL_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1))
-				continue;
-			Node* define = c->Find(linear_n, Parent->Defined[i]);
-			if (define->is(OBJECT_DEFINTION_NODE) || define->is(OBJECT_NODE)) {
-				Node* Dot = new Node(OPERATOR_NODE, Parent->Defined[i]->Location);
-				Dot->Name = ".";
-				Dot->Parent = linear_n->Parent;
-
-				Dot->Left = new Node(*This);
-
-				Dot->Right = new Node(*linear_n);
-				
-				*linear_n = *Dot;
-			}
-		}
-		Function->Childs.push_back(c_copy);
-	}
+	Function->Childs = Insert_Dot(Parent->Defined[i]->Childs, Function, This);
 
 	//make the return of this pointter
 	Node* ret = new Node(FLOW_NODE, Parent->Defined[i]->Location);
@@ -136,6 +113,38 @@ void PostProsessor::Type_Definer(int i)
 	Global_Scope->Childs.push_back(Function);
 
 	return;
+}
+
+vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)
+{
+	vector<Node*> Result;
+	for (auto c : Childs) {
+		if (c->is("const") != -1)
+			continue;
+		Node* c_copy = c->Copy_Node(c, Function);
+		//insert this. infront of every member
+		for (auto& linear_n : Linearise(c_copy)) {
+			if (linear_n->is(NUMBER_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1))
+				continue;
+			if (linear_n->is(OBJECT_DEFINTION_NODE) || linear_n->is(OBJECT_NODE)) {
+				Node* define = c->Find(linear_n, Function);
+				Node* Dot = new Node(OPERATOR_NODE, Function->Location);
+				Dot->Name = ".";
+				Dot->Parent = linear_n->Parent;
+
+				Dot->Left = new Node(*This);
+
+				Dot->Right = new Node(*linear_n);
+
+				*linear_n = *Dot;
+			}
+			else if (linear_n->is(CALL_NODE)) {
+				linear_n->Parameters = Insert_Dot(linear_n->Parameters, Function, This);
+			}
+		}
+		Result.push_back(c_copy);
+	}
+	return Result;
 }
 
 void PostProsessor::Member_Function(int i)

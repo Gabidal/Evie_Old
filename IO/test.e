@@ -1,22 +1,29 @@
 use "cstd.e"
 
-type banana{
+type apple{
 	int x = 1
 	int y = 2
 	int z = 3
 }
 
+type banana{
+	int x = 1
+	int y = 2
+	apple a = apple(a)
+}
+
 banana ptr export main(){
 	banana b = banana(allocate(b.size))
 	b.banana().banana().x = b.banana().banana().y
+
 	if (b.x == 1){
 		b.y = b.x
 	}
 	else (b.x == b.y){
-		b.y = b.z
+		b.y = b.a.y
 	}
-	else (b.y == b.z){
-		b.z = b.x
+	else (b.a.x == b.a.x){
+		b.a.x = b.x
 	}
 	banana c
 	c = b

@@ -98,7 +98,7 @@ string BackEnd::Token_Builder(Token* t, bool Inside_Content)
 	string PostFix = "";
 	string Result = "";
 	string Name = "";
-	if (t->is(TOKEN::REGISTER) || t->is(TOKEN::NONVOLATILE) || t->is(TOKEN::RETURNING) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::REMAINDER)) {
+	if (t->is(TOKEN::REGISTER) || t->is(TOKEN::NONVOLATILE) || t->is(TOKEN::RETURNING) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::REMAINDER) || t->is(TOKEN::PARAMETER)) {
 		Name = t->ID;
 	}
 	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL)) {

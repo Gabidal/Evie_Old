@@ -106,13 +106,20 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descripto
 	*/
 	//get a new non-volatile register to use
 	Token* non_volatile = Get_Register(TOKEN::NONVOLATILE, New.first, i, New.second);
+	string non_Name = non_volatile->Get_Name();
+	string Current_Name = Current.second->Get_Name();
 	if (non_volatile == nullptr) {
 		//if this happends then all registers are in use and we need to use stack
 	}
-
+	else {
+		non_volatile = new Token(non_volatile->Get_Flags(), "Non-Volatile" + to_string(rand()), non_volatile->Get_Size());
+		non_volatile->ID = non_Name;
+	}
+	Token* Current_Reg = new Token(Current.second->Get_Flags(), "Current_Volatile" + to_string(rand()), Current.second->Get_Size());
+	Current_Reg->ID = Current_Name;
 	//now we need to give the cuurent user the new non-volatile register.
 	//TODO: Because im a peace of shit and dont know how to implement LIVE register change ill have to make a new move IR
-	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "move"), {non_volatile, Current.second});
+	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "move"), {non_volatile, Current_Reg });
 
 	//insert the mov before the new user starts
 	source->insert(source->begin() + New.first->First_Usage_Index, MOV);
@@ -381,7 +388,7 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 void Selector::Pair_Up(Token* r, Register_Descriptor* t)
 {
 	for (auto& i : Registers)
-		if (i.second->Get_Name() == r->Get_Name()) {
+		if (i.second->Get_Name() == r->Get_Name() || i.second->Get_Name() == r->ID) {
 			i.first = t;
 			return;
 		}
@@ -390,7 +397,7 @@ void Selector::Pair_Up(Token* r, Register_Descriptor* t)
 void Selector::Break_Up(Token* r)
 {
 	for (auto& i : Registers)
-		if (i.second->Get_Name() == r->Get_Name()) {
+		if (i.second->Get_Name() == r->Get_Name() || i.second->Get_Name() == r->ID) {
 			i.first = nullptr;
 			return;
 		}
