@@ -96,6 +96,7 @@ public:
 				return i;
 		return -1;
 	}
+
 	
 	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false, bool skip_keywords = false);
 	
@@ -493,6 +494,13 @@ public:
 	int Has(vector<string> s) {
 		for (int i = 0; i < s.size(); i++)
 			if (is(s[i]) != -1)
+				return is(s[i]);
+		return -1;
+	}
+
+	bool Has(vector<int> s) {
+		for (int i = 0; i < s.size(); i++)
+			if (is(s[i]))
 				return is(s[i]);
 		return -1;
 	}

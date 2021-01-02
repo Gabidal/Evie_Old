@@ -136,6 +136,8 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 
 				Dot->Right = new Node(*linear_n);
 
+				Dot->Holder = linear_n->Holder;
+
 				*linear_n = *Dot;
 			}
 			else if (linear_n->is(CALL_NODE)) {

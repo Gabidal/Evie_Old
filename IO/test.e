@@ -9,7 +9,8 @@ type apple{
 type banana{
 	int x = 1
 	int y = 2
-	apple a = apple(a)
+	apple a
+	apple(a)
 }
 
 banana ptr export main(){
@@ -22,7 +23,7 @@ banana ptr export main(){
 	else (b.x == b.y){
 		b.y = b.a.y
 	}
-	else (b.a.x == b.a.x){
+	else (b.a.x == b.a.y){
 		b.a.x = b.x
 	}
 	banana c

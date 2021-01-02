@@ -17,10 +17,6 @@ lea rdx, qword ptr [rcx + 8 ]
 mov rbx, rcx
 mov rcx, rdx
 call apple
-mov rcx, qword ptr [rax + 0 ]
-mov qword ptr [rbx + 8 + 0 ], rcx
-mov ecx, dword ptr [rax + 8 ]
-mov dword ptr [rbx + 8 + 8 ], ecx
 mov rax, rbx
 pop rbx
 ret 
@@ -61,7 +57,7 @@ jmp else2_END
 else1_END:
 else2:
 mov ecx, dword ptr [rsp + 8 + 0 ]
-mov edx, dword ptr [rsp + 8 + 0 ]
+mov edx, dword ptr [rsp + 8 + 4 ]
 cmp ecx, edx
 jne else2_END
 mov ecx, dword ptr [rsp + 0 ]
