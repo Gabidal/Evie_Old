@@ -130,6 +130,24 @@ public:
 		}
 		return Result;
 	}
+	bool Has(long long F) {
+		if (is(F))
+			return true;
+		for (auto i : Childs)
+			return i->Has(F);
+		if (Left != nullptr && Left->Has(F))
+			return true;
+		if (Right != nullptr && Right->Has(F))
+			return true;
+		return false;
+	}
+	bool Has(vector<long long> F) {
+		for (auto i : F) {
+			if (Has(i))
+				return true;
+		}
+		return false;
+	}
 };
 
 #endif

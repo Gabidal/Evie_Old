@@ -56,6 +56,7 @@ public:
 	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t);
 	Token* Get_Register(Token* t);
 	Token* Get_Register(long F, Register_Descriptor* user, int i, Token* t);
+	int Get_Largest_Register();
 	Register_Descriptor* Check_If_Smaller_Register_Is_In_Use(Token* r);
 	Register_Descriptor* Check_If_Larger_Register_Is_In_Use(Token* r);
 	void Allocate_Register(vector<IR*>* source, int i, Token* t);

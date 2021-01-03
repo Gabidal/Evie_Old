@@ -125,7 +125,7 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 	}
 }
 
-Node* Node::Get_Parent_As(long F, Node* Parent) {
+Node* Node::Get_Parent_As(int F, Node* Parent) {
 	if (Parent->is(F))
 		return Parent;
 	if (Parent->Parent != nullptr)

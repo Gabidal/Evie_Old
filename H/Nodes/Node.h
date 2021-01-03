@@ -261,7 +261,7 @@ public:
 		return Find(n, this);
 	}
 
-	Node* Get_Parent_As(long F, Node* Parent);
+	Node* Get_Parent_As(int F, Node* Parent);
 
 	Node* Get_Right_Parent() {
 		if (Fetcher != nullptr) {
@@ -470,6 +470,11 @@ public:
 			for (Node* i : n->Childs)
 				if (i->is(f))
 					Result.push_back(i);
+		}
+
+		if (n->Fetcher != nullptr) {
+			vector<Node*> fetcher = Has(n->Fetcher, f);
+			Result.insert(Result.end(), fetcher.begin(), fetcher.end());
 		}
 
 

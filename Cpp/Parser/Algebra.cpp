@@ -247,7 +247,9 @@ void Algebra::Inline_Variables(int i)
 
 
 	for (Node* n : Linear_Ast) {
-		Node* d = Parent->Find(n, Parent);
+		if (n->is(CALL_NODE))
+			continue;
+		Node* d = Parent->Find(n->Name, Parent, OBJECT_DEFINTION_NODE);
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
 			if (d->Current_Value != nullptr) {
@@ -338,6 +340,9 @@ void Algebra::Set_Defining_Value(int i)
 	//ignore arrays
 	if (Input->at(i)->Left->is(ARRAY_NODE))
 		return;
+	for (auto i : Linearise(Input->at(i)->Right))
+		if (i->is(CALL_NODE))
+			return;
 	//remeber if functoin call has do something global/pointter-
 	//dont let this function run on that!
 

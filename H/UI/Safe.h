@@ -38,5 +38,6 @@ public:
 private:
 	void Factory();
 	void Check_Return_Validity(Node* n);
+	void Disable_Non_Ptr_Class_Return(Node* n);
 	vector<Node*> Input;
 };

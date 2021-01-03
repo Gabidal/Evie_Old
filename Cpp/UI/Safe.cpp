@@ -1,4 +1,8 @@
 #include "..\..\H\UI\Safe.h"
+#include "../../H/BackEnd/Selector.h"
+#include "../../H/Docker/Mangler.h"
+
+extern Selector* selector;
 
 const string Red = "\x1B[1;31m";
 const string Green = "\x1b[1;32m";
@@ -13,6 +17,7 @@ void Safe::Factory()
 {
 	for (auto i : Input) {
 		Check_Return_Validity(i);
+		Disable_Non_Ptr_Class_Return(i);
 	}
 }
 
@@ -76,5 +81,25 @@ void Safe::Check_Return_Validity(Node* n)
 	else if (func->Get_Size() != 0){
 		Report(Observation(ERROR, "Non-void function needs returning value.", *n->Location));
 		Stop();
+	}
+}
+
+void Safe::Disable_Non_Ptr_Class_Return(Node* n)
+{
+	if (!n->is(FUNCTION_NODE) && !n->is(IMPORT))
+		return;
+	if (n->is("ptr") != -1)
+		return;
+	if (MANGLER::Is_Based_On_Base_Type(n))
+		return;
+
+	n->Update_Size_By_Inheritted();
+
+	if (n->Size > selector->Get_Largest_Register()) {
+		Report({
+			Observation(ERROR, "Return object is bigger than: " + to_string(_SYSTEM_BIT_SIZE_ * 8), *n->Location),
+			Observation(SOLUTION, "Please return the object as a pointter", *n->Location)
+			});
+		throw::exception("ERROR!");
 	}
 }

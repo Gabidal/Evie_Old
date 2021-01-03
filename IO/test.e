@@ -9,12 +9,11 @@ type apple{
 type banana{
 	int x = 1
 	int y = 2
-	apple a
-	apple(a)
+	apple a.apple()
 }
 
 banana ptr export main(){
-	banana b = banana(allocate(b.size))
+	banana ptr b = banana(allocate(b.size))
 	b.banana().banana().x = b.banana().banana().y
 
 	if (b.x == 1){

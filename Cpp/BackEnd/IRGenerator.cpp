@@ -443,7 +443,7 @@ void IRGenerator::Parse_Operators(int i)
 	Update_Operator(Input[i]);
 
 	Input[i]->Left->Update_Size_By_Inheritted();
-	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Get_Size() > _SYSTEM_BIT_SIZE_) {
+	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
 		Parse_Cloning(i);
 		return;
 	}
@@ -490,11 +490,18 @@ void IRGenerator::Parse_Operators(int i)
 		}
 	}
 
-	if ((g2.Handle != nullptr) && g2.Handle->Get_Name() == Left->Get_Name()) {
-		//save left into other reg
-		Token* r = new Token(TOKEN::REGISTER, Left->Get_Name() + "_tmp", Left->Get_Size());
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Left }));
-		Left = r;
+	if (g2.Handle != nullptr && g.Handle != nullptr) {
+		if (g.Handle->Has(TOKEN::RETURNING))
+			if (Input[i]->Right->Has(CALL_NODE).size() > 0) {
+				//save left into other reg
+				string Type = "=";
+				if (Left->is(TOKEN::MEMORY))
+					Type = "evaluate";
+				Token* r = new Token(TOKEN::REGISTER, Left->Get_Name() + "Save from the right side callations" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, Type), { r, new Token(*Left, _SYSTEM_BIT_SIZE_) }));
+				r = new Token(TOKEN::MEMORY, { r }, Left->Get_Size(), Left->Get_Name());
+				Left = r;
+			}
 	}
 
 	/*bool Is_Parameter_Register = false;

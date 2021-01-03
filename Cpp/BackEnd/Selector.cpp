@@ -338,6 +338,15 @@ Token* Selector::Get_Register(long F, Register_Descriptor* user, int i, Token* t
 	return nullptr;
 }
 
+int Selector::Get_Largest_Register()
+{
+	int Result = 0;
+	for (auto i : Registers)
+		if (i.second->Get_Size() > Result)
+			Result = i.second->Get_Size();
+	return Result;
+}
+
 Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 {
 	for (auto i : Registers) {
