@@ -14,7 +14,7 @@ type cpp char{
 }
 
 type cpp float{
-	size = 4
+	size = 8
 }
 
 type cpp double{

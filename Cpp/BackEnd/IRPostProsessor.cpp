@@ -227,9 +227,9 @@ void IRPostProsessor::Factory()
 {
 	Handle_Global_Labels();
 	for (int i = 0; i < Input->size(); i++)
-		Scale_To_Same_Size(i);
-	for (int i = 0; i < Input->size(); i++)
 		Parse_Complex(Input->at(i), i);
+	for (int i = 0; i < Input->size(); i++)
+		Scale_To_Same_Size(i);
 	for (int i = 0; i < Input->size(); i++) {
 		Prepare_Function(i);
 		Handle_Labels(i);

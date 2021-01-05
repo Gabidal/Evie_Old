@@ -1428,8 +1428,13 @@ void IRGenerator::Parse_Return(int i) {
 	if (Return_Val->is(TOKEN::NUM) && Returning_Reg_Size != 0)
 		Return_Val->Set_Size(Returning_Reg_Size);
 
-	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "move"), {
-		new Token(TOKEN::REGISTER | TOKEN::RETURNING, "Returning_REG", Returning_Reg_Size),
+	long long Flag = TOKEN::REGISTER | TOKEN::RETURNING;
+
+	if (Return_Val->is(TOKEN::DECIMAL))
+		Flag |= TOKEN::DECIMAL;
+
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+		new Token(Flag, "Returning_REG", Returning_Reg_Size),
 		Return_Val }));
 
 	//let the postprosessor to handle stack emptying!

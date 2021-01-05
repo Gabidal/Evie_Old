@@ -57,22 +57,56 @@ void x86_64_Win::Init()
 	Token* ESP = new Token(TOKEN::STACK_POINTTER, "esp", 4, { SP });
 	Token* RSP = new Token(TOKEN::STACK_POINTTER, "rsp", 8, { ESP });
 
-	Token* XMM0 = new Token(TOKEN::VOLATILE  | TOKEN::RETURNING | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm0", 12, {});
-	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 12, {});
-	Token* XMM2 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 12, {});
-	Token* XMM3 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 12, {});
-	Token* XMM4 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 12, {});
-	Token* XMM5 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 12, {});
-	Token* XMM6 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 12, {});
-	Token* XMM7 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 12, {});
-	Token* XMM8 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 12, {});
-	Token* XMM9 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 12, {});
-	Token* XMM10 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 12, {});
-	Token* XMM11 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 12, {});
-	Token* XMM12 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 12, {});
-	Token* XMM13 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm13", 12, {});
-	Token* XMM14 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm14", 12, {});
-	Token* XMM15 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm15", 12, {});
+	Token* XMM0D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 4, {});
+	Token* XMM1D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 4, {});
+	Token* XMM2D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 4, {});
+	Token* XMM3D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 4, {});
+	Token* XMM4D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 4, {});
+	Token* XMM5D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 4, {});
+	Token* XMM6D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 4, {});
+	Token* XMM7D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 4, {});
+	Token* XMM8D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 4, {});
+	Token* XMM9D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 4, {});
+	Token* XMM10D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 4, {});
+	Token* XMM11D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 4, {});
+	Token* XMM12D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 4, {});
+	Token* XMM13D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 4, {});
+	Token* XMM14D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 4, {});
+	Token* XMM15D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 4, {});
+
+	Token* XMM0Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 8, {XMM0D});
+	Token* XMM1Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 8, {XMM1D});
+	Token* XMM2Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 8, { XMM2D });
+	Token* XMM3Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 8, { XMM3D });
+	Token* XMM4Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 8, { XMM4D });
+	Token* XMM5Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 8, { XMM5D });
+	Token* XMM6Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 8, { XMM6D });
+	Token* XMM7Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 8, { XMM7D });
+	Token* XMM8Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 8, { XMM8D });
+	Token* XMM9Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 8, { XMM9D });
+	Token* XMM10Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 8, { XMM10D });
+	Token* XMM11Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 8, { XMM11D });
+	Token* XMM12Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 8, { XMM12D });
+	Token* XMM13Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 8, { XMM13D });
+	Token* XMM14Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 8, { XMM14D });
+	Token* XMM15Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 8, { XMM15D });
+
+	Token* XMM0 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 12, { XMM0Q });
+	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 12, { XMM1Q });
+	Token* XMM2 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 12, { XMM2Q });
+	Token* XMM3 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 12, { XMM3Q });
+	Token* XMM4 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 12, { XMM4Q });
+	Token* XMM5 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 12, { XMM5Q });
+	Token* XMM6 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 12, { XMM6Q });
+	Token* XMM7 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 12, { XMM7Q });
+	Token* XMM8 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 12, { XMM8Q });
+	Token* XMM9 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 12, { XMM9Q });
+	Token* XMM10 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 12, { XMM10Q });
+	Token* XMM11 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 12, { XMM11Q });
+	Token* XMM12 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 12, { XMM12Q });
+	Token* XMM13 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 12, { XMM13Q });
+	Token* XMM14 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 12, { XMM14Q });
+	Token* XMM15 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 12, { XMM15Q });
 
 	Token* R8B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8b", 1, {});
 	Token* R8W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8w", 2, { R8B });
@@ -125,6 +159,8 @@ void x86_64_Win::Init()
 		RSI, ESI, SI, SIL,
 		RBP, EBP, BP,
 		RSP, ESP, SP,
+		XMM0D, XMM1D, XMM2D, XMM3D, XMM4D, XMM5D, XMM6D, XMM7D, XMM8D, XMM9D, XMM10D, XMM11D, XMM12D, XMM13D, XMM14D, XMM15D,
+		XMM0Q, XMM1Q, XMM2Q, XMM3Q, XMM4Q, XMM5Q, XMM6Q, XMM7Q, XMM8Q, XMM9Q, XMM10Q, XMM11Q, XMM12Q, XMM13Q, XMM14Q, XMM15Q,
 		XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6, XMM7, XMM8, XMM9, XMM10, XMM11, XMM12, XMM13, XMM14, XMM15,
 		R8, R8B, R8D, R8W,
 		R9, R9B, R9D, R9W,
@@ -137,14 +173,36 @@ void x86_64_Win::Init()
 	};
 	using namespace TOKEN;
 	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER);
+	Token* Register_Float = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | DECIMAL);
 	Token* Scalar = new Token(NUM, {
 		new Token(NUM, "1"),
 		new Token(NUM, "2"),
 		new Token(NUM, "4"),
 		new Token(NUM, "8")
-		}, "scaler");	
+		}, "scaler");
 	Token* Const = new Token(NUM, "const");
+	Token* Decimal = new Token(DECIMAL | NUM, "const");
 	Token* Memory = new Token(MEMORY, {
+			{ new Token(REGISTER), 2},
+			{ new Token(SCALER | ALL_ARGS_SAME_SIZE, {
+				{{Register, {1, 8}}, {Scalar, {1, 8}}},
+				{{Scalar, {1, 8}}, {Register, {1, 8}}},
+				{{Scalar, {1, 8}}, {Scalar, {1, 8}}}
+				}), 1},
+			{ new Token(OFFSETTER | ALL_ARGS_SAME_SIZE, {
+				{{Register, {1, 8}}, {Register, {1, 8}}},
+				{{Register, {1, 8}}, {Const, {1, 8}}},
+				{{Const, {1, 8}}, {Register, {1, 8}}},
+				{{Const, {1, 8}}, {Const, {1, 8}}},
+				}), INT32_MAX},
+			{ new Token(DEOFFSETTER | ALL_ARGS_SAME_SIZE, {
+				{{Register, {1, 8}}, {Register, {1, 8}}},
+				{{Register, {1, 8}}, {Const, {1, 8}}},
+				{{Const, {1, 8}}, {Register, {1, 8}}},
+				{{Const, {1, 8}}, {Const, {1, 8}}},
+				}), INT32_MAX}
+		}, "memory");
+	Token* Memory_Float = new Token(MEMORY | DECIMAL, {
 			{ new Token(REGISTER), 2},
 			{ new Token(SCALER | ALL_ARGS_SAME_SIZE, {
 				{{Register, {1, 8}}, {Scalar, {1, 8}}},
@@ -263,11 +321,7 @@ void x86_64_Win::Init()
 			vector<IR*> Result;
 			Token* eax = nullptr;
 			Token* mul = nullptr;
-			if (args[0]->is(NUM)) {
-				eax = args[0];
-				mul = args[1];
-			}
-			else if (args[1]->is(NUM)) {
+			if (args[1]->is(NUM)) {
 				eax = args[1];
 				mul = args[0];
 			}
@@ -304,11 +358,7 @@ void x86_64_Win::Init()
 			vector<IR*> Result;
 			Token* eax = nullptr;
 			Token* mul = nullptr;
-			if (args[0]->is(NUM)) {
-				eax = args[0];
-				mul = args[1];
-			}
-			else if (args[1]->is(NUM)) {
+			if (args[1]->is(NUM)) {
 				eax = args[1];
 				mul = args[0];
 			}
@@ -329,6 +379,122 @@ void x86_64_Win::Init()
 			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }));
 			Result.push_back(new IR(new Token(OPERATOR, "div"), { mul }));
 			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }));
+			return Result;
+		}
+	);
+
+	IR* MOVQ = new IR("=", new Token(OPERATOR, "movq"), {
+		{{Register_Float, {12, 12}}, {Memory, {8, 8}}},
+		{{Memory, {8, 8}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {12, 12}}, {Register, {8, 8}}},
+		{{Register, {8, 8}}, {Register_Float, {12, 12}}},
+
+		{{Register_Float, {12, 12}}, {Memory_Float, {8, 8}}},
+		{{Memory_Float, {8, 8}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {12, 12}}, {Register_Float, {8, 8}}},
+		{{Register_Float, {8, 8}}, {Register_Float, {12, 12}}},
+	});	
+
+	IR* MOVD = new IR("=", new Token(OPERATOR, "movd"), {
+		{{Register_Float, {12, 12}}, {Memory, {4, 4}}},
+		{{Memory, {4, 4}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {12, 12}}, {Register, {4, 4}}},
+		{{Register, {4, 4}}, {Register_Float, {12, 12}}},
+
+		{{Register_Float, {12, 12}}, {Memory_Float, {4, 4}}},
+		{{Memory_Float, {4, 4}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {12, 12}}, {Register_Float, {4, 4}}},
+		{{Register_Float, {4, 4}}, {Register_Float, {12, 12}}},
+	});
+
+	IR* CONVERTI2F = new IR("convert", new Token(OPERATOR, "cvtsi2ss"), {
+		{{Register_Float, {12, 12}}, {Memory, {4, 4}}},
+		{{Register_Float, {12, 12}}, {Register, {4, 4}}},
+	});
+
+	IR* CONVERTL2F = new IR("convert", new Token(OPERATOR, "cvtsi2sd"), {
+		{{Register_Float, {12, 12}}, {Memory, {8, 8}}},
+		{{Register_Float, {12, 12}}, {Register, {8, 8}}},
+	});
+
+	IR* CONVERTF2D = new IR("convert", new Token(OPERATOR, "cvtss2sd"), {
+		{{Register_Float, {12, 12}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {12, 12}}, {Register_Float, {12, 12}}},
+	});
+
+	IR* F_MOV = new IR("=", new Token(OPERATOR), {
+		//accepted arguments
+		{{Register_Float, {4, 12}}, {Memory, {4, 8}} },
+		{{Memory, {4, 8}}, {Register_Float, {4, 12}} },
+		{{Register_Float, {4, 12}}, {Memory_Float, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Register_Float, {4, 12}} },
+		{{Register_Float, {4, 12}}, {Register_Float, {4, 12}} },
+		{{Register_Float, {4, 12}}, {Const, {4, 8}} },
+		{{Memory, {4, 8}}, {Const, {4, 8}} },
+		{{Register_Float, {4, 12}}, {Decimal, {4, 8}} },
+		{{Memory, {4, 8}}, {Decimal, {4, 8}} },
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+			/*if (args[0]->is(NUM)) {
+				Right = args[0];
+				Left = args[1];
+			}
+			else {
+				Left = args[0];
+				Right = args[1];
+			}*/
+			//transform right side into xmm0
+			if (Right->is(NUM)) {
+				double tmp = atof(Right->Get_Name().c_str());
+				long long Name = *(long long*)&tmp;
+				Token* R = new Token(TOKEN::REGISTER, "REG_" + to_string(Name + rand()), Right->Get_Size());
+				//mov the number into 
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R,
+					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
+					}));
+
+				if (!Left->is(MEMORY)) {
+					Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), 12);
+					Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+						R2, R
+						}));
+					Right = R2;
+				}
+				else
+					Right = R;
+			}
+			else if (Right->is(MEMORY | DECIMAL)) {
+				Token* R = new Token(REGISTER | DECIMAL, "REG_" + Right->Get_Name() + to_string(rand()), 12);
+				Result.push_back(new IR(new Token(OPERATOR, "="), {
+					R, Right
+					}));
+				Right = R;
+			}
+			else if (Right->is(MEMORY)) {
+				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), 12);
+				Result.push_back(new IR(new Token(OPERATOR, "convert"), {
+					R, Right
+					}));
+				Right = R;
+			}
+			else if (!Right->is(DECIMAL) && Right->is(REGISTER)){
+				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), 12);
+				string Type = "convert";
+				if (Right->is(DECIMAL))
+					Type = "=";
+				Result.push_back(new IR(new Token(OPERATOR, Type), { R, Right }));
+				Right = R;
+			}
+
+
+			Result.push_back(new IR(new Token(OPERATOR, "="), {
+				Left, Right
+			}));
+
 			return Result;
 		}
 	);
@@ -420,6 +586,12 @@ void x86_64_Win::Init()
 		DW,
 		DD,
 		DQ,
-		ASCII
+		ASCII,
+		MOVQ,
+		MOVD,
+		CONVERTI2F,
+		CONVERTL2F,
+		CONVERTF2D,
+		F_MOV
 	};
 }

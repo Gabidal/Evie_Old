@@ -535,7 +535,7 @@ IR* Selector::Get_Opcode(IR* i)
 			//if (!Check_Resource_Availability(i, o))
 			//	goto Wrong;
 			for (int j = 0; j < sizes.size(); j++) {
-				if (!o[j].first->Any(i->Arguments[j]->Get_Flags()))
+				if (!o[j].first->is(i->Arguments[j]->Get_Flags()))
 					goto Wrong;
 			}
 			return opc;

@@ -13,12 +13,10 @@ Token::Token(Node* n) {
 			Flags = TOKEN::REGISTER;
 	}
 	else if (n->is(NUMBER_NODE)) {
+		Flags = TOKEN::NUM;
 		if (n->Format == "decimal") {
-			Flags = TOKEN::DECIMAL;
+			Flags |= TOKEN::DECIMAL;
 			Has_Floating_Point_Value = true;
-		}
-		else {
-			Flags = TOKEN::NUM;
 		}
 	}
 	else if (n->is(PARAMETER_NODE)) {
