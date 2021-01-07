@@ -499,6 +499,14 @@ void x86_64_Win::Init()
 		}
 	);
 
+	IR* F_ADD = new IR("+", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "add"), {
+		{{Register_Float, {1, 8}}, {Memory_Float, {1, 8}} },
+		{{Memory_Float, {1, 8}}, {Register_Float, {1, 8}} },
+		{{Register_Float, {1, 8}}, {Register_Float, {1, 8}} },
+		{{Register_Float, {1, 8}}, {Decimal, {1, 8}} },
+		{{Memory_Float, {1, 8}}, {Decimal, {1, 8}} }
+	});
+
 	IR* CMP = new IR("compare", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "cmp"), {
 		{{Register, {1, 8}}, {Register, {1, 8}}},
 		{{Register, {1, 8}}, {Memory, {1, 8}}},

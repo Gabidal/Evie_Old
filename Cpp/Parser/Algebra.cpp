@@ -580,32 +580,62 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 	else
 		New_Num->Size = op->Left->Size;
 
-	long left = atoi(op->Left->Name.c_str());
-	long right = atoi(op->Right->Name.c_str());
+	if (op->Left->Format == "decimal") {
+		long double left = atof(op->Left->Name.c_str());
+		long double right = atof(op->Right->Name.c_str());
 
+		New_Num->Format = "decimal";
 
-	if (op->Name == "+")
-		New_Num->Name = to_string(left + right);
-	else if (op->Name == "-")
-		New_Num->Name = to_string(left - right);
-	else if (op->Name == "*")
-		New_Num->Name = to_string(left * right);
-	else if (op->Name == "/")
-		New_Num->Name = to_string(left / right);
-	else if (op->Name == "<<")
-		New_Num->Name = to_string(left << right);
-	else if (op->Name == ">>")
-		New_Num->Name = to_string(left >> right);
-	else if (op->Name == "&")
-		New_Num->Name = to_string(left & right);
-	else if (op->Name == "|")
-		New_Num->Name = to_string(left | right);
-	else if (op->Name == "¤")
-		New_Num->Name = to_string(left ^ right);
-	else if (op->Name == "%")
-		New_Num->Name = to_string(left % right);
-	else if (op->Name == "^")
-		New_Num->Name = to_string(pow(left, right));
+		if (op->Name == "+")
+			New_Num->Name = to_string(left + right);
+		else if (op->Name == "-")
+			New_Num->Name = to_string(left - right);
+		else if (op->Name == "*")
+			New_Num->Name = to_string(left * right);
+		else if (op->Name == "/")
+			New_Num->Name = to_string(left / right);
+		else if (op->Name == "<<")
+			New_Num->Name = to_string((long long)left << (long long)right);
+		else if (op->Name == ">>")
+			New_Num->Name = to_string((long long)left >> (long long)right);
+		else if (op->Name == "&")
+			New_Num->Name = to_string((long long)left & (long long)right);
+		else if (op->Name == "|")
+			New_Num->Name = to_string((long long)left | (long long)right);
+		else if (op->Name == "¤")
+			New_Num->Name = to_string((long long)left ^ (long long)right);
+		else if (op->Name == "%")
+			New_Num->Name = to_string((long long)left % (long long)right);
+		else if (op->Name == "^")
+			New_Num->Name = to_string(pow(left, right));
+	}
+	else {
+		long left = atoi(op->Left->Name.c_str());
+		long right = atoi(op->Right->Name.c_str());
+
+		if (op->Name == "+")
+			New_Num->Name = to_string(left + right);
+		else if (op->Name == "-")
+			New_Num->Name = to_string(left - right);
+		else if (op->Name == "*")
+			New_Num->Name = to_string(left * right);
+		else if (op->Name == "/")
+			New_Num->Name = to_string(left / right);
+		else if (op->Name == "<<")
+			New_Num->Name = to_string(left << right);
+		else if (op->Name == ">>")
+			New_Num->Name = to_string(left >> right);
+		else if (op->Name == "&")
+			New_Num->Name = to_string(left & right);
+		else if (op->Name == "|")
+			New_Num->Name = to_string(left | right);
+		else if (op->Name == "¤")
+			New_Num->Name = to_string(left ^ right);
+		else if (op->Name == "%")
+			New_Num->Name = to_string(left % right);
+		else if (op->Name == "^")
+			New_Num->Name = to_string(pow(left, right));
+	}
 
 	*op = *New_Num;
 	Optimized = true;
