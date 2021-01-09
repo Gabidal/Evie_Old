@@ -28,7 +28,7 @@ Token::Token(Node* n) {
 		//find the curresponding register
 		for (int i = 0; i < n->Parent->Parameters.size(); i++) {
 			if (n->Parent->Parameters[i]->Name == n->Name) {
-				if (n->Parent->Parameters[i]->Format == "decimal") {
+				if (n->Find(n->Parent->Parameters[i]->Name)->Format == "decimal") {
 					if (Current_Float_Register_Count < Max_Floating_Registers) {
 						Flags = TOKEN::REGISTER | TOKEN::DECIMAL | TOKEN::PARAMETER;
 						Parameter_Index = i;
@@ -47,7 +47,7 @@ Token::Token(Node* n) {
 					break;
 				}
 			}
-			if (n->Parent->Parameters[i]->Format == "decimal")
+			if (n->Find(n->Parent->Parameters[i]->Name)->Format == "decimal")
 				Current_Float_Register_Count++;
 			else
 				Current_Integer_Register_Count++;

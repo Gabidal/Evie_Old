@@ -403,8 +403,6 @@ void Algebra::Set_Coefficient_Value(int i)
 	//now apply the coefficient to the variable
 	Variable->Coefficient = atoi(Coefficient->Name.c_str());
 
-	Optimized = true;
-
 	*Operator = *Variable;
 }
 
@@ -687,7 +685,6 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	New_Operator->Right = Coefficient;
 
 	*n = *New_Operator;
-	Optimized = true;
 
 	return;
 }

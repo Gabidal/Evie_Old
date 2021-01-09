@@ -412,6 +412,23 @@ public:
 
 	void Update_Defined_Stack_Offsets();
 
+	void Update_Format() {
+		if (this->is(NUMBER_NODE))
+			return;
+		Format = "integer";
+		for (string s : Inheritted) {
+			//there is no inheritable type that doesnt have enything init.
+			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
+				continue;
+			Node* t = Find(s, Parent, true);
+			t->Update_Format();
+			if (t->Format == "integer")
+				Format = t->Get_Format();
+			if (t->Format != "integer")
+				Format = t->Format;
+		}
+	}
+
 	Node* Copy_Node(Node* What_Node, Node* p)
 	{
 		if (What_Node == nullptr)

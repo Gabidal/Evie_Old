@@ -121,12 +121,12 @@ int main(int argc, char* argv[])
     p.Input = Input;
     p.Factory();
 
+    selector = new Selector();
+
     PostProsessor postprosessor(Global_Scope);
     postprosessor.Components = p.Input;
     postprosessor.Factory();
     Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
-
-    selector = new Selector();
 
     vector<IR*> IRs;
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);

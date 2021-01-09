@@ -1,7 +1,5 @@
 use "cstd.e"
 
-float export main(){
-	float a = 1.1
-	float b = 1.2
-	return a + b
+float export main(float a, float b){
+	return 1.2 + b - a + 1.3
 }

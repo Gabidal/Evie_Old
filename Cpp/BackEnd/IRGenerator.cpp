@@ -11,6 +11,8 @@ void IRGenerator::Factory()
 {
 	for (int i = 0; i < Input.size(); i++)
 		Un_Wrap_Inline(i);
+	for (int i = 0; i < Input.size(); i++)
+		Switch_To_Correct_Places(Input[i]);
 	for (int i = 0; i < Input.size(); i++) {
 		Parse_Function(i);
 	}
@@ -1081,6 +1083,24 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }));
 
 	Handle = r;
+}
+
+void IRGenerator::Switch_To_Correct_Places(Node* o)
+{
+	if (!o->is(OPERATOR_NODE) && !o->is(ASSIGN_OPERATOR_NODE) && !o->is(CONDITION_OPERATOR_NODE) && !o->is(BIT_OPERATOR_NODE))
+		return;
+
+	if (o->Left->is(OPERATOR_NODE) || o->Left->is(ASSIGN_OPERATOR_NODE) || o->Left->is(CONDITION_OPERATOR_NODE) || o->Left->is(BIT_OPERATOR_NODE))
+		Switch_To_Correct_Places(o->Left);
+	if (o->Right->is(OPERATOR_NODE) || o->Right->is(ASSIGN_OPERATOR_NODE) || o->Right->is(CONDITION_OPERATOR_NODE) || o->Right->is(BIT_OPERATOR_NODE))
+		Switch_To_Correct_Places(o->Right);
+
+	if (o->Left->is(NUMBER_NODE)) {
+		//switch the left side with right side, what could possibly go wrong?
+		Node* tmp = o->Left;
+		o->Left = o->Right;
+		o->Right = tmp;
+	}
 }
 
 void IRGenerator::Parse_Loops(int i)

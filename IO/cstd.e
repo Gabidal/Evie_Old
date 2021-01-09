@@ -15,10 +15,12 @@ type cpp char{
 
 type cpp float{
 	size = 8
+	format = decimal
 }
 
 type cpp double{
 	size = 8
+	format = decimal
 }
 
 type cpp long{

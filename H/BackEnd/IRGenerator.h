@@ -49,6 +49,8 @@ public:
 	void Parse_Global_Variables(Node* n);
 
 	void Parse_Member_Fetch(Node* n);
+
+	void Switch_To_Correct_Places(Node* o);
 	//TODO: hey gab! use log(inlining count) base 10 for the global inlining label adding rendom char adder.
 	//TODO: make a repeating optimizer thet makes 
 	//a new variable and saves the result once and then uses it those other times

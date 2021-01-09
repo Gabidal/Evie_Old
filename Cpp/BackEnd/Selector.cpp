@@ -191,7 +191,12 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 
 	if (t->Parameter_Index != -1) {
 		Token* reg = nullptr;
-		for (auto k : Parameter_Registers[t->Parameter_Index])
+		int Type_Offset = 0;
+		if (t->is(TOKEN::DECIMAL)) {
+			while (!Parameter_Registers[Type_Offset][0]->is(TOKEN::DECIMAL))
+				Type_Offset++;
+		}
+		for (auto k : Parameter_Registers[Type_Offset + t->Parameter_Index])
 			if (k->Get_Size() == t->Get_Size()) {
 				reg = k;
 				break;

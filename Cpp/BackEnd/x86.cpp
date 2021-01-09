@@ -172,8 +172,8 @@ void x86_64_Win::Init()
 		R15, R15B, R15D, R15W,
 	};
 	using namespace TOKEN;
-	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER);
-	Token* Register_Float = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | DECIMAL);
+	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER | PARAMETER);
+	Token* Register_Float = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | DECIMAL | PARAMETER);
 	Token* Scalar = new Token(NUM, {
 		new Token(NUM, "1"),
 		new Token(NUM, "2"),
@@ -393,6 +393,8 @@ void x86_64_Win::Init()
 		{{Memory_Float, {8, 8}}, {Register_Float, {12, 12}}},
 		{{Register_Float, {12, 12}}, {Register_Float, {8, 8}}},
 		{{Register_Float, {8, 8}}, {Register_Float, {12, 12}}},
+
+		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}}},
 	});	
 
 	IR* MOVD = new IR("=", new Token(OPERATOR, "movd"), {
@@ -405,6 +407,8 @@ void x86_64_Win::Init()
 		{{Memory_Float, {4, 4}}, {Register_Float, {12, 12}}},
 		{{Register_Float, {12, 12}}, {Register_Float, {4, 4}}},
 		{{Register_Float, {4, 4}}, {Register_Float, {12, 12}}},
+
+		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
 	});
 
 	IR* CONVERTI2F = new IR("convert", new Token(OPERATOR, "cvtsi2ss"), {
@@ -499,12 +503,252 @@ void x86_64_Win::Init()
 		}
 	);
 
-	IR* F_ADD = new IR("+", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "add"), {
-		{{Register_Float, {1, 8}}, {Memory_Float, {1, 8}} },
-		{{Memory_Float, {1, 8}}, {Register_Float, {1, 8}} },
-		{{Register_Float, {1, 8}}, {Register_Float, {1, 8}} },
-		{{Register_Float, {1, 8}}, {Decimal, {1, 8}} },
-		{{Memory_Float, {1, 8}}, {Decimal, {1, 8}} }
+	IR* F_ADD = new IR("+", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
+		//accepted arguments		
+		{{Register_Float, {4, 8}}, {Memory_Float, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{ {Decimal, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Decimal, {4, 8}}, {Memory_Float, {4, 8}} }
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+			if (Right->is(NUM)) {
+				double tmp = atof(Right->Get_Name().c_str());
+				long long Name = *(long long*)&tmp;
+				Token* R = new Token(TOKEN::REGISTER, "REG_" + to_string(Name + rand()), Right->Get_Size());
+				//mov the number into 
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R,
+					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
+					}));
+
+				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R2, R
+				}));
+				Right = R2;
+			}
+			if (Left->is(MEMORY)) {
+				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					L, Left
+				}));
+				Left = L;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "addF"), {
+				Left, Right
+				}));
+
+			return Result;
+		}
+	);
+
+	IR* F_SUB = new IR("-", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
+		//accepted arguments		
+		{{Register_Float, {4, 8}}, {Memory_Float, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{ {Decimal, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Decimal, {4, 8}}, {Memory_Float, {4, 8}} }
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+			if (Right->is(NUM)) {
+				double tmp = atof(Right->Get_Name().c_str());
+				long long Name = *(long long*)&tmp;
+				Token* R = new Token(TOKEN::REGISTER, "REG_" + to_string(Name + rand()), Right->Get_Size());
+				//mov the number into 
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R,
+					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
+					}));
+
+				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R2, R
+					}));
+				Right = R2;
+			}
+			if (Left->is(MEMORY)) {
+				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					L, Left
+					}));
+				Left = L;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "subF"), {
+				Left, Right
+				}));
+
+			return Result;
+		}
+	);
+
+	IR* F_MUL = new IR("*", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
+		//accepted arguments		
+		{{Register_Float, {4, 8}}, {Memory_Float, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{ {Decimal, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Decimal, {4, 8}}, {Memory_Float, {4, 8}} }
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+			if (Right->is(NUM)) {
+				double tmp = atof(Right->Get_Name().c_str());
+				long long Name = *(long long*)&tmp;
+				Token* R = new Token(TOKEN::REGISTER, "REG_" + to_string(Name + rand()), Right->Get_Size());
+				//mov the number into 
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R,
+					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
+					}));
+
+				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R2, R
+					}));
+				Right = R2;
+			}
+			if (Left->is(MEMORY)) {
+				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					L, Left
+					}));
+				Left = L;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "mulF"), {
+				Left, Right
+				}));
+
+			return Result;
+		}
+	);
+
+	IR* F_DIV = new IR("/", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
+		//accepted arguments		
+		{{Register_Float, {4, 8}}, {Memory_Float, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Register_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{{Memory_Float, {4, 8}}, {Decimal, {4, 8}} },
+		{ {Decimal, {4, 8}}, {Register_Float, {4, 8}} },
+		{{Decimal, {4, 8}}, {Memory_Float, {4, 8}} }
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+			if (Right->is(NUM)) {
+				double tmp = atof(Right->Get_Name().c_str());
+				long long Name = *(long long*)&tmp;
+				Token* R = new Token(TOKEN::REGISTER, "REG_" + to_string(Name + rand()), Right->Get_Size());
+				//mov the number into 
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R,
+					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
+					}));
+
+				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					R2, R
+					}));
+				Right = R2;
+			}
+			if (Left->is(MEMORY)) {
+				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
+				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+					L, Left
+					}));
+				Left = L;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "divF"), {
+				Left, Right
+				}));
+
+			return Result;
+		}
+	);
+
+	IR* F_ADDSS = new IR("addF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "addss"), {
+		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Decimal, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Decimal, {4, 4}} }
+	});
+
+	IR* F_ADDSD = new IR("addF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "addsd"), {
+		{{Register_Float, {8, 8}}, {Memory_Float, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Decimal, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Decimal, {8, 8}} }
+	});
+
+	IR* F_SUBSS = new IR("subF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "subss"), {
+		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Decimal, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Decimal, {4, 4}} }
+	});
+
+	IR* F_SUBSD = new IR("subF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "subsd"), {
+		{{Register_Float, {8, 8}}, {Memory_Float, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Decimal, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Decimal, {8, 8}} }
+	});
+
+	IR* F_MULSS = new IR("mulF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mulss"), {
+		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Decimal, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Decimal, {4, 4}} }
+	});
+
+	IR* F_MULSD = new IR("mulF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mulsd"), {
+		{{Register_Float, {8, 8}}, {Memory_Float, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Decimal, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Decimal, {8, 8}} }
+	});
+
+	IR* F_DIVSS = new IR("divF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "divss"), {
+		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}} },
+		{{Register_Float, {4, 4}}, {Decimal, {4, 4}} },
+		{{Memory_Float, {4, 4}}, {Decimal, {4, 4}} }
+	});
+
+	IR* F_DIVSD = new IR("divF", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "divsd"), {
+		{{Register_Float, {8, 8}}, {Memory_Float, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}} },
+		{{Register_Float, {8, 8}}, {Decimal, {8, 8}} },
+		{{Memory_Float, {8, 8}}, {Decimal, {8, 8}} }
 	});
 
 	IR* CMP = new IR("compare", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "cmp"), {
@@ -600,6 +844,18 @@ void x86_64_Win::Init()
 		CONVERTI2F,
 		CONVERTL2F,
 		CONVERTF2D,
-		F_MOV
+		F_MOV,
+		F_ADD,
+		F_ADDSS,
+		F_ADDSD,
+		F_SUB,
+		F_SUBSS,
+		F_SUBSD,
+		F_MUL,
+		F_DIV,
+		F_MULSS,
+		F_MULSD,
+		F_DIVSS,
+		F_DIVSD
 	};
 }

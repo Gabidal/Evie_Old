@@ -199,6 +199,8 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 	Input[i]->Childs = p.Input;
 
+	Input[i]->Update_Format();
+
 	for (auto& v : Input[i]->Defined)
 		for (auto j : Input[i]->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
@@ -528,6 +530,7 @@ void PostProsessor::Define_Sizes(Node* p)
 	for (Node* d : p->Defined) {
 		d->Update_Members_Size();
 		d->Update_Members_Mem_Offset();
+		d->Update_Format();
 	}
 }
 
@@ -981,7 +984,17 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		}
 	}
 	else {
-		n->Inheritted = n->Left->Parent->Find(n->Left->Name)->Inheritted;
+		if (n->Left->is(OPERATOR_NODE) || n->Left->is(ASSIGN_OPERATOR_NODE) || n->Left->is(CONDITION_OPERATOR_NODE) || n->Left->is(BIT_OPERATOR_NODE))
+			n->Inheritted = n->Left->Inheritted;
+		else if (!n->Left->is(NUMBER_NODE))
+			n->Inheritted = n->Left->Parent->Find(n->Left, n->Left->Parent)->Inheritted;
+		else {
+			if (n->Right->is(OPERATOR_NODE) || n->Right->is(ASSIGN_OPERATOR_NODE) || n->Right->is(CONDITION_OPERATOR_NODE) || n->Right->is(BIT_OPERATOR_NODE))
+				n->Inheritted = n->Right->Inheritted;
+			else
+				//both cannot be numbers, because otherwise algebra would have optimized it away.
+				n->Inheritted = n->Right->Parent->Find(n->Right, n->Right->Parent)->Inheritted;
+		}
 	}
 }
 
