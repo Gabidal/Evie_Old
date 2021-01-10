@@ -1,6 +1,7 @@
 #include "..\..\H\UI\Safe.h"
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Docker/Mangler.h"
+#include "../../H/Test/Test.h"
 
 extern Selector* selector;
 
@@ -52,6 +53,21 @@ void Report(vector<Observation> o)
 {
 	for (auto i : o)
 		i.Report();
+}
+
+void Report(long type, Lexer_Expectation expectation, string source, vector<Component> result) {
+	if (type == SUCCESS) {
+		cout << source << Green << " OK " << Reset << endl;
+	}
+	else if (type == FAIL) {
+		cout << source << Red << " FAILED!" << Reset << "\n";
+		int s = (int)expectation.Expecations.size();
+		if (result.size() < expectation.Expecations.size())
+			s = (int)result.size();
+		for (int i = 0; i < s; i++) {
+			cout << "Expected: " << expectation.Get_Name(i) << " got " << expectation.Get_Name(result[i]);
+		}
+	}
 }
 
 void Safe::Check_Return_Validity(Node* n)

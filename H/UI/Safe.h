@@ -10,7 +10,9 @@ enum MSG_Type {
 	NORMAL,
 	ERROR,
 	WARNING,
-	SOLUTION
+	SOLUTION,
+	FAIL,
+	SUCCESS
 };
 
 class Observation {
@@ -29,8 +31,12 @@ private:
 	string Msg = "";
 };
 
+class Lexer_Expectation;
+class Components;
+
 void Report(Observation o);
 void Report(vector<Observation> o);
+void Report(long type, Lexer_Expectation expectation, string source, vector<Component> result);
 
 class Safe {
 public:

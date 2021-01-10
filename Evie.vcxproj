@@ -130,6 +130,7 @@
     <ClCompile Include="cpp\docker\Mangler.cpp" />
     <ClCompile Include="Cpp\Docker\OBJ.cpp" />
     <ClCompile Include="cpp\docker\TXT.cpp" />
+    <ClCompile Include="Cpp\Lexer\Component.cpp" />
     <ClCompile Include="cpp\lexer\Lexer.cpp" />
     <ClCompile Include="Cpp\Lexer\Position.cpp" />
     <ClCompile Include="cpp\main.cpp" />
