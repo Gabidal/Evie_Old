@@ -63,7 +63,8 @@ void DOCKER::Start_Analyzer()
 		//read Max_ID size into a buffer
 		file.read(Buffer, 16);
 		//for not overlapping wrong file type into lexer
-		bool Wrong_Type = false;
+
+		Wrong_Type = false;
 		//iterate every map ID in Translators map
 		for (auto i : Translators) {
 			if (strncmp(Buffer, i.first.c_str(), i.first.size()) == 0) {
@@ -124,8 +125,8 @@ vector<pair<string, string>>  DOCKER::Separate_Identification_Patterns(vector<st
 	//try to find operattor that contains rightsided 
 	//string for regexing and left side for type info
 	for (int i = 0; i < Tokens.size(); i++) {
-		if (Tokens[i] == "=" && Tokens[i + 1][0] == '"') {
-			Types.push_back({ Tokens[i - 2], Tokens[i + 1].substr(1, Tokens[i + 1].size() - 2) });
+		if (Tokens[i] == "=" && Tokens[(size_t)i + 1][0] == '"') {
+			Types.push_back({ Tokens[(size_t)i - 2], Tokens[(size_t)i + 1].substr(1, Tokens[(size_t)i + 1].size() - 2) });
 			Tokens.erase(Tokens.begin() + i - 2, Tokens.begin() + i + 2);
 			i--;
 		}
@@ -162,15 +163,15 @@ vector<pair<string, string>> DOCKER::Get_Names_Of(string Input, vector<pair<stri
 	for (auto i : Types) {
 		smatch matches;
 		regex Pattern(i.second);
-		int Previus_Size = Input.size();
+		int Previus_Size = (int)Input.size();
 		while (regex_search(Input, matches, Pattern)) {
 			Result.push_back({ i.first, matches.str() });
 			Input = matches.prefix().str() + matches.suffix().str();
-			if (Previus_Size == Input.size()) {
+			if (Previus_Size == (int)Input.size()) {
 				Report(Observation(ERROR, "Regex string " + i.second + " looped infinitely!", Position()));
 				break;
 			}
-			Previus_Size = Input.size();
+			Previus_Size = (int)Input.size();
 		}
 	}
 	return Result;
@@ -202,7 +203,7 @@ string DOCKER::Get_File_Extension(string raw) {
 	string Name_No_Extension = "";
 	int i = (int)raw.find_last_of('.');
 	if (i != -1)
-		Name_No_Extension = raw.substr(i + 1, raw.size());
+		Name_No_Extension = raw.substr((size_t)i + 1, raw.size());
 	else
 		Name_No_Extension = raw;
 	return Name_No_Extension;

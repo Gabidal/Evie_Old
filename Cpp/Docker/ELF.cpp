@@ -21,7 +21,7 @@ uint8_t* ELF::Get_Section_Names(uint8_t* buffer) {
     bool BIT_SIZE = Get_Bits_Size(buffer);
     uint16_t Index = Get_Bits_Size(buffer) ? reinterpret_cast<elf32_hdr*>(buffer)->e_shstrndx : reinterpret_cast<elf64_hdr*>(buffer)->e_shstrndx;
     uint64_t Current_Section_Header = Get_Section_Header_Offset(buffer);
-    uint64_t Header_Count = Get_Header_Amount(buffer);
+    //uint64_t Header_Count = Get_Header_Amount(buffer);
     vector<string> Names;
 
     if (BIT_SIZE) {
@@ -99,8 +99,8 @@ uint8_t* ELF::Get_Section_Names(uint8_t* buffer) {
 
         return reinterpret_cast<uint8_t*>(&buffer[Section_Header.sh_offset]);
 
-        string type = "";
-        /*for (int i = 0; i < Section_Header.sh_size; i++)
+        /*string type = "";
+        for (int i = 0; i < Section_Header.sh_size; i++)
         {
             if (position[i] == 0) {
                 Names.push_back(type);
@@ -118,8 +118,8 @@ uint8_t* ELF::Get_Section_Names(uint8_t* buffer) {
 
         return reinterpret_cast<uint8_t*>(&buffer[Section_Header.sh_offset]);
 
-        string type = "";
-        /*for (int i = 0; i < Section_Header.sh_size; i++)
+        /*string type = "";
+        for (int i = 0; i < Section_Header.sh_size; i++)
         {
             if (position[i] == 0) {
                 Names.push_back(type);

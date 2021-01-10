@@ -127,7 +127,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 			if (linear_n->is(NUMBER_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1))
 				continue;
 			if (linear_n->is(OBJECT_DEFINTION_NODE) || linear_n->is(OBJECT_NODE)) {
-				Node* define = c->Find(linear_n, Function);
+				//Node* define = c->Find(linear_n, Function);
 				Node* Dot = new Node(OPERATOR_NODE, Function->Location);
 				Dot->Name = ".";
 				Dot->Parent = linear_n->Parent;
@@ -241,7 +241,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//this function tryes to find the function to call
 	//</summary>
 	//first try to find if this fucntion is a virtual function
-	Node* defition = Parent->Find(n->Name, Parent);
+	//Node* defition = Parent->Find(n->Name, Parent);
 	//other wise we have normal functions
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
@@ -293,9 +293,10 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		//check for template return types.
 		if (!Check_If_Template_Function_Is_Right_One(Global_Scope->Defined[f], n))
 			continue;
-		int g_i = 0;
+		int g_i = -1;
 		bool Has_Template_Parameters = false;
 		for (auto g : Global_Scope->Defined[f]->Parameters) {
+			g_i++;
 			if (g->Is_Template_Object) {
 				Has_Template_Parameters = true;
 				if (!Check_If_Template_Function_Is_Right_One(g, n->Parameters[g_i]))
@@ -314,7 +315,6 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			else
 				goto Wrong_Template_Function;
 
-			g_i++;
 		}
 		if (Has_Template_Parameters && !Global_Scope->Defined[f]->is(IMPORT)) {
 			OgFunc = Global_Scope->Defined[f];
@@ -467,8 +467,8 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		Node* Right = n->Get_Most_Left(n->Right);
 
 		if (Right->Name == "size") {
-			Node* n = Right->Find("size", Left);
-			if (n == nullptr || n->is("const")) {
+			Node* num = Right->Find("size", Left);
+			if (num == nullptr || num->is("const")) {
 				//this means it is definetly a size get request
 				Right->Name = to_string(Left->Get_Size());
 				Right->Type = NUMBER_NODE;	
@@ -581,7 +581,7 @@ void PostProsessor::Determine_Return_Type(int i)
 
 
 	//try to find a suitable operator overload if there is one
-	for (auto overload : Input[i]->Left->Operator_Overloads) {
+	for (auto& overload : Input[i]->Left->Operator_Overloads) {
 		//the syntax still needs to be done!
 
 		//the operator overloads return type is the same as the operator type for this.
@@ -617,7 +617,7 @@ void PostProsessor::Determine_Array_Type(int i)
 	PostProsessor r(Parent, vector<Node*>{ Input[i]->Right, Input[i]->Left });
 
 	//Who is gay and does not pay taxes also farts in public 
-	for (auto overload : Input[i]->Left->Operator_Overloads) {
+	for (auto& overload : Input[i]->Left->Operator_Overloads) {
 		//the syntax still needs to be done!
 
 		//the operator overloads return type is the same as the operator type for this.
@@ -968,7 +968,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 	if (n->is(ARRAY_NODE)) {
 		int Pointter_UnWrapping_Count = 1;	//default
 		if (n->Right->Childs.size() > 1)
-			Pointter_UnWrapping_Count = n->Right->Childs.size();
+			Pointter_UnWrapping_Count = (int)n->Right->Childs.size();
 
 		for (auto i : n->Left->Parent->Find(n->Left->Name)->Inheritted) {
 			if (i == "ptr") {

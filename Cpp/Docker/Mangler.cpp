@@ -10,7 +10,7 @@ string MANGLER::Un_Mangle(string raw) {
 	string PreFix;
 	if ((int)raw.find_last_of(' ') >= 0) {
 		int pre_i = (int)raw.find_last_of(' ');
-		PreFix = raw.substr(0, pre_i + 1);
+		PreFix = raw.substr(0, (size_t)pre_i + 1);
 		raw = raw.substr((size_t)pre_i + 1, raw.size());
 	}
 	string Function = "";
@@ -99,7 +99,7 @@ string MANGLER::Un_Mangle(string raw) {
 				}
 				int size = atoi(tmp.c_str());
 				string name = "";
-				for (int j = i + tmp.size(); (j < (size + i + tmp.size())) && j < raw.size(); j++) {
+				for (int j = i + (int)tmp.size(); (j < (size + i + (int)tmp.size())) && j < (int)raw.size(); j++) {
 					name += (char)raw[j];
 				}
 				if (Func_Name) {
@@ -115,7 +115,7 @@ string MANGLER::Un_Mangle(string raw) {
 
 					Current_Variable = Current_PreFix + " " + name;
 				}
-				i += size + tmp.size() - 1;
+				i += size + (int)tmp.size() - 1;
 			}
 		}
 		if (Current_Variable != "") {

@@ -107,7 +107,7 @@ public:
 		string mname = "";
 		//add the returning type
 		if (!Skip_Return_Type)
-			for (auto i : Inheritted)
+			for (auto& i : Inheritted)
 				mname += "_" + i;
 		mname += "_" + Name;
 		for (auto i : Parameters)
@@ -202,7 +202,7 @@ public:
 					}
 					int size = atoi(tmp.c_str());
 					string name = "";
-					for (int j = i + tmp.size(); (j < (size + i + 1)) && j < raw.size(); j++) {
+					for (int j = i + (int)tmp.size(); (j < (size + i + 1)) && j < (int)raw.size(); j++) {
 						name += (char)raw[j];
 					}
 					if (Func_Name) {
@@ -524,7 +524,7 @@ public:
 		for (int i = 0; i < s.size(); i++)
 			if (is(s[i]))
 				return is(s[i]);
-		return -1;
+		return false;
 	}
 
 	vector<Node*> Get_all(int f)

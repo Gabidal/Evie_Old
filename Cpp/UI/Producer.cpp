@@ -126,7 +126,11 @@ string Producer::Get_System_Paths()
         Seperator = ':';
 
     string Result = "";
-    char* Path = getenv("Path");
+    size_t size = 0;
+    char* Path = nullptr;//getenv("Path");
+    if (_dupenv_s(&Path, &size, "Path") != 0 || Path == nullptr) {
+        throw::exception("ERROR!");
+    }
     string List = string(Path);
 
     vector<string> Paths;

@@ -60,7 +60,7 @@ void Algebra::Function_Inliner(Node* c)
 {
 	return;//TURN OFF
 	//if (banana(1, 2) + apple(1, 2, 3))
-	if (!c->is(CALL_NODE))
+	/*if (!c->is(CALL_NODE))
 		return;
 	if (c->is("ptr") != -1)
 		return;
@@ -158,7 +158,7 @@ void Algebra::Function_Inliner(Node* c)
 
 	Optimized = true;
 
-	return;
+	return;*/
 }
 
 vector<Node*> Algebra::Get_all(Node* n, int f)
@@ -341,8 +341,8 @@ void Algebra::Set_Defining_Value(int i)
 	//ignore arrays
 	if (Input->at(i)->Left->is(ARRAY_NODE))
 		return;
-	for (auto i : Linearise(Input->at(i)->Right))
-		if (i->is(CALL_NODE))
+	for (auto j : Linearise(Input->at(i)->Right))
+		if (j->is(CALL_NODE))
 			return;
 	//remeber if functoin call has do something global/pointter-
 	//dont let this function run on that!
@@ -527,7 +527,7 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 	else if (op->Name == "%")
 		New_Num->Coefficient = left % right;
 	else if (op->Name == "^")
-		New_Num->Coefficient = pow(left, right);
+		New_Num->Coefficient = (int)pow(left, right);
 
 	*op = *New_Num;
 
@@ -697,7 +697,7 @@ void Algebra::Combine_Scattered(Node* op) {
 	}
 
 	for (int i = 0; (size_t)i+1 < Number_Indices.size(); i += 2) {
-		*list[Number_Indices[i]] = *Operate_Constants(list[Number_Indices[i]], list[Number_Indices[i + 1]]);
+		*list[Number_Indices[i]] = *Operate_Constants(list[Number_Indices[i]], list[Number_Indices[(size_t)i + 1]]);
 		//now remove the other constant
 		Node* other = Get_Other_Pair(op, list[Number_Indices[(size_t)i + 1]]);
 		*other->Holder = *other;

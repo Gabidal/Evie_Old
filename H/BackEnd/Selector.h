@@ -68,8 +68,8 @@ public:
 	vector<pair<Register_Descriptor*, Token*>> Get_Register_Type(long f);
 
 	//STACK/HEAP:
-	void Save(Token* id, Token* v, vector<IR*>* list, int i);
-	Token* Load(string id, vector<IR*>* list, int i);
+	//void Save(Token* id, Token* v, vector<IR*>* list, int i);
+	//Token* Load(string id, vector<IR*>* list, int i);
 	void DeAllocate_Stack(int Amount, vector<IR*>* list, int i);
 	void Allocate_Stack(int Amount, vector<IR*>* list, int i);
 	int Update_Stack_Size();

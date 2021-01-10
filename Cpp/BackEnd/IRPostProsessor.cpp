@@ -128,7 +128,7 @@ void IRPostProsessor::Clean_Selector(int i)
 	}
 	//now do same but for the end of funciton
 	selector->Set_Stack_Start_Value(0);
-	for (int j = i + Push_Amount.size(); j > Start_Of_Function; j -= 1) {
+	for (int j = i + (int)Push_Amount.size(); j > Start_Of_Function; j -= 1) {
 		if (Input->at(j)->OPCODE->Get_Name() != "return")
 			continue;
 		Token* ret = Input->at(j)->OPCODE;

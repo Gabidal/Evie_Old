@@ -25,8 +25,8 @@ public:
 	void Report();
 private:
 	int Type = NORMAL;
-	string Msg = "";
 	Position Pos;
+	string Msg = "";
 };
 
 void Report(Observation o);

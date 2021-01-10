@@ -28,8 +28,9 @@ bool Selector::Find(string n, Token* ast)
 	if (ast->Get_Name() == n)
 		return true;
 	if (ast->is(TOKEN::CONTENT) || ast->is(TOKEN::MEMORY))
-		for (auto i : ast->Childs)
-			return Find(n, i);
+		for (auto& i : ast->Childs)
+			throw::exception("haha nobnob");
+			//return Find(n, i);
 	if (ast->is(TOKEN::OFFSETTER) || ast->is(TOKEN::DEOFFSETTER) || ast->is(TOKEN::SCALER)) {
 		if (Find(n, ast->Left))
 			return true;
@@ -196,7 +197,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 			while (!Parameter_Registers[Type_Offset][0]->is(TOKEN::DECIMAL))
 				Type_Offset++;
 		}
-		for (auto k : Parameter_Registers[Type_Offset + t->Parameter_Index])
+		for (auto k : Parameter_Registers[(size_t)Type_Offset + t->Parameter_Index])
 			if (k->Get_Size() == t->Get_Size()) {
 				reg = k;
 				break;
@@ -365,6 +366,7 @@ Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 			return nullptr;
 		}
 	}
+	throw::exception("INTERNAL ERROR!");
 }
 
 Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
@@ -378,6 +380,7 @@ Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 			return Check_If_Larger_Register_Is_In_Use(r->Holder);
 		}
 	}
+	throw::exception("INTERNAL ERROR!");
 }
 
 void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
@@ -454,7 +457,7 @@ vector<pair<Register_Descriptor*, Token*>> Selector::Get_Register_Type(long f)
 	return Result;
 }
 
-void Selector::Save(Token* id, Token* t, vector<IR*>* list, int i)
+/*void Selector::Save(Token* id, Token* t, vector<IR*>* list, int i)
 {
 	//try to look if the t is has already a stack address
 	int Offset = 0;
@@ -471,9 +474,9 @@ void Selector::Save(Token* id, Token* t, vector<IR*>* list, int i)
 	Stack.push_back(id);
 	//now so the same thing
 	Save(id, t, list, i);
-}
+}*/
 
-Token* Selector::Load(string id, vector<IR*>* list, int i)
+/*Token* Selector::Load(string id, vector<IR*>* list, int i)
 {
 	Token* Result = new Token(TOKEN::REGISTER, id + "_REG");
 	int Offset = 0;
@@ -488,7 +491,7 @@ Token* Selector::Load(string id, vector<IR*>* list, int i)
 		Offset += v->Get_Size();
 	}
 	return Result;
-}
+}*/
 
 void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {
@@ -565,7 +568,7 @@ bool Selector::Check_Resource_Availability(IR* opc, vector<pair<Token*, pair<int
 	int Register_Usage = 0;
 	int Const_Usage = 0;
 	int Scaler_Usage = 0;
-	for (auto i : opc->Arguments) {
+	for (auto& i : opc->Arguments) {
 
 	}
 	return false;

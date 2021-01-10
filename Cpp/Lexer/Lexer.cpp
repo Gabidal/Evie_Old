@@ -40,7 +40,7 @@ enum class Type
 
 struct Area
 {
-    Type Type;
+    Type Type = Type::UNSPECIFIED;
 
     string Text;
 
@@ -222,11 +222,12 @@ Position SkipParenthesis(const string &text, const Position &start)
     }
 
     Report(Observation(ERROR, "Couldn't find closing parenthesis", start));
+    throw::exception("ERROR!");
 }
 
 Position SkipComment(const string &text, const Position &start)
 {
-    int i = text.find(LineEnding, start.GetLocal());
+    int i = (int)text.find(LineEnding, start.GetLocal());
 
     if (i != -1)
     {
@@ -235,15 +236,15 @@ Position SkipComment(const string &text, const Position &start)
     }
     else
     {
-        int length = text.size() - start.GetLocal();
-        return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, text.size());
+        int length = (int)text.size() - start.GetLocal();
+        return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, (int)text.size());
     }
 }
 
 Position SkipString(const string &text, const Position &start)
 {
-    int i = text.find(Lexer::StringIdentifier, start.GetLocal() + 1);
-    int j = text.find(LineEnding, start.GetLocal() + 1);
+    int i = (int)text.find(Lexer::StringIdentifier, (size_t)start.GetLocal() + 1);
+    int j = (int)text.find(LineEnding, (size_t)start.GetLocal() + 1);
 
     if (i == -1 || j != -1 && j < i)
     {
@@ -276,14 +277,14 @@ optional<Area> GetNextComponent(const string &text, Position start)
     case Type::COMMENT:
     {
         area.End = SkipComment(text, area.Start);
-        area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
+        area.Text = text.substr(area.Start.GetLocal(), (size_t)area.End.GetLocal() - area.Start.GetLocal());
         return area;
     }
 
     case Type::PARENTHESIS:
     {
         area.End = SkipParenthesis(text, area.Start);
-        area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
+        area.Text = text.substr(area.Start.GetLocal(), (size_t)area.End.GetLocal() - area.Start.GetLocal());
         return area;
     }
 
@@ -297,7 +298,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
     case Type::STRING:
     {
         area.End = SkipString(text, area.Start);
-        area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
+        area.Text = text.substr(area.Start.GetLocal(), (size_t)area.End.GetLocal() - area.Start.GetLocal());
         return area;
     }
 
@@ -322,7 +323,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
         }
 
         Type type = GetType(current_symbol);
-        char previous_symbol = position.GetLocal() == 0 ? (char)0 : text[position.GetLocal() - 1];
+        char previous_symbol = position.GetLocal() == 0 ? (char)0 : text[(size_t)position.GetLocal() - 1];
 
         if (!IsPartOf(area.Type, type, previous_symbol, current_symbol))
         {
@@ -333,7 +334,7 @@ optional<Area> GetNextComponent(const string &text, Position start)
     }
 
     area.End = position;
-    area.Text = text.substr(area.Start.GetLocal(), area.End.GetLocal() - area.Start.GetLocal());
+    area.Text = text.substr(area.Start.GetLocal(), (size_t)area.End.GetLocal() - area.Start.GetLocal());
 
     return area;
 }
@@ -401,7 +402,7 @@ string GetNumberPart(string text)
 
 int GetExponent(const string& text, Position p)
 {
-    int exponent_start = text.find(Lexer::ExponentSeparator);
+    int exponent_start = (int)text.find(Lexer::ExponentSeparator);
 
     if (exponent_start == -1)
     {
@@ -422,7 +423,7 @@ int GetExponent(const string& text, Position p)
         }
 
         // Skip the potential exponent sign
-        if (text[index + 1] == '+' || text[index + 1] == '-')
+        if (text[(size_t)index + 1] == '+' || text[(size_t)index + 1] == '-')
         {
             index++;
 

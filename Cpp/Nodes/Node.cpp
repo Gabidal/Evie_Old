@@ -125,11 +125,11 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 	}
 }
 
-Node* Node::Get_Parent_As(int F, Node* Parent) {
-	if (Parent->is(F))
-		return Parent;
-	if (Parent->Parent != nullptr)
-		return Get_Parent_As(F, Parent->Parent);
+Node* Node::Get_Parent_As(int F, Node* parent) {
+	if (parent->is(F))
+		return parent;
+	if (parent->Parent != nullptr)
+		return Get_Parent_As(F, parent->Parent);
 	Report(Observation(ERROR, "Parent NULL!!", *Location));
 	throw::exception("ERROR!");
 }
@@ -142,7 +142,6 @@ Node* Node::Find(Node* n, Node* p) {
 	if (p == nullptr) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
 		throw::exception("ERROR!");
-		return nullptr;
 	}
 	for (Node* i : p->Defined)
 		if (i->Name == n->Name)
@@ -171,7 +170,7 @@ Node* Node::Find(string name, Node* parent, int flags) {
 Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
 	if (name == "\n")
 		return nullptr;
-	if (parent == nullptr && Need_Parent_existance) {
+	if (parent == nullptr /*&& Need_Parent_existance*/) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
 		throw::exception("ERROR!");
 		return nullptr;

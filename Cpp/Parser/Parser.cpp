@@ -662,9 +662,9 @@ void Parser::Array_Pattern(int i)
 		arr->Left->Parent = Parent;
 	}
 
-	if (Input[i + 1].node->Childs.size() > 1) {
-		arr->Right = new Node(CONTENT_NODE, new Position(Input[i+1].Location));
-		arr->Right->Childs = Input[i + 1].node->Childs;
+	if (Input[(size_t)i + 1].node->Childs.size() > 1) {
+		arr->Right = new Node(CONTENT_NODE, new Position(Input[(size_t)i+1].Location));
+		arr->Right->Childs = Input[(size_t)i + 1].node->Childs;
 	}
 	else if (Input[(size_t)i + 1].node->Childs[0] != nullptr)
 		arr->Right = Input[(size_t)i + 1].node->Childs[0];
@@ -672,7 +672,7 @@ void Parser::Array_Pattern(int i)
 		//test.a.m //these a.m are in different localscope.
 		//the right side does not need to be determined as well the left.
 		//Dont worry about function calls
-		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i+1].Location));
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[(size_t)i+1].Location));
 		new_member->Name = Input[(size_t)i + 1].Components[0].Value;
 
 		arr->Right = new_member;
@@ -716,9 +716,11 @@ void Parser::Function_Pattern(int i)
 		func = Input[i].node;
 	else
 		func = Parent->Find(Input[i].Value, Parent, true);
-	if (func == nullptr)
+	if (func == nullptr) {
 		Report(Observation(ERROR, "Parser didnt find " + Input[i].node->Name + " constructor!", Input[i].Location));
-	//override the object definition node flag
+		throw::exception("ERROR!");
+	}
+		//override the object definition node flag
 	func->Type = FUNCTION_NODE;
 	//set the other values
 	func->Name = Input[i].Value;
@@ -728,10 +730,10 @@ void Parser::Function_Pattern(int i)
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
 
-	for (auto& p : func->Defined) {
-		p->Type = PARAMETER_NODE;
-		if (p->is("type") != -1)
-			p->Is_Template_Object = true;
+	for (auto& j : func->Defined) {
+		j->Type = PARAMETER_NODE;
+		if (j->is("type") != -1)
+			j->Is_Template_Object = true;
 	}
 
 	func->Parameters = p.Input[0].node->Childs;
@@ -777,6 +779,7 @@ void Parser::Type_Pattern(int i)
 		Type = Parent->Find(Input[i].Value, Parent, OBJECT_DEFINTION_NODE);
 	if (Type == nullptr) {
 		Report(Observation(ERROR, "Type definition was not found!", Input[i].Location));
+		throw::exception("ERROR!");
 	}
 	//reset the value
 	Type->Type = CLASS_NODE;
@@ -995,7 +998,7 @@ void Parser::Label_Definition(int i)
 		return;	//only text name allowed
 	if (Input[i].Value == "\n")
 		return;
-	if (Input[i - 1].is(Flags::OPERATOR_COMPONENT))
+	if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT))
 		return;
 	if (Input[i].Value == "size" || Input[i].Value == "format")
 		return;

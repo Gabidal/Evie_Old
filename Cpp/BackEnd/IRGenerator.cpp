@@ -183,21 +183,21 @@ void IRGenerator::Parse_Calls(int i)
 
 	//reverse(Reversable_Pushes.begin(), Reversable_Pushes.end());
 
-	Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, Input[i]);
+	Node* parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, Input[i]);
 
 	int allocation = 0;
 	for (auto p : Reversable_Pushes) {
 		allocation += p->Get_Size();
 	}
 
-	if (Parent->Max_Allocation_Space < allocation)
-		Parent->Max_Allocation_Space = allocation;
+	if (parent->Max_Allocation_Space < allocation)
+		parent->Max_Allocation_Space = allocation;
 
 	int Stack_Offset = 0;
 	for (auto p : Reversable_Pushes) {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 			new Token(TOKEN::MEMORY, {
-				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + Parent->Local_Allocation_Soace)))
+				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + parent->Local_Allocation_Soace)))
 				}, p->Get_Size(), p->Get_Name()),
 			p
 			}));
@@ -269,15 +269,15 @@ void IRGenerator::Loop_Elses(Node* e)
 		Output->push_back(Make_Jump("jump", s->Name + "_END"));
 
 		//skip the last end jump if the condition is not met
-		Node* tmp = new Node(e->Name + "_END", e->Location);
-		Output->push_back(Make_Label(tmp, false));
+		Node* tmp2 = new Node(e->Name + "_END", e->Location);
+		Output->push_back(Make_Label(tmp2, false));
 
 		//now construct the successor
 		Loop_Elses(e->Succsessor);
 	}
 	else {
-		Node* tmp = new Node(e->Name + "_END", e->Location);
-		Output->push_back(Make_Label(tmp, false));
+		Node* tmp2 = new Node(e->Name + "_END", e->Location);
+		Output->push_back(Make_Label(tmp2, false));
 	}
 
 }
@@ -410,12 +410,12 @@ void IRGenerator::Parse_Cloning(int i)
 	}
 
 	int Current_Stack_Offset = 0;
-	for (auto i : Registers) {
-		for (int c = 0; c < i.second; c++) {
+	for (auto& j : Registers) {
+		for (int c = 0; c < j.second; c++) {
 			//x[Current_Offset] = y[Current_Offset]
 
 			//load the right side.
-			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + Right->Get_Name() + to_string(c) + to_string(i.first), i.first);
+			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + Right->Get_Name() + to_string(c) + to_string(j.first), j.first);
 			//convert the right side into memory.
 			Token* Offset = new Token(TOKEN::OFFSETTER, "+", Right, new Token(TOKEN::NUM, to_string(Current_Stack_Offset)));
 			Offset = new Token(TOKEN::MEMORY, { Offset }, Reg->Get_Size(), Right->Get_Name() + "_Mem");
@@ -692,7 +692,7 @@ void IRGenerator::Parse_Arrays(int i)
 			
 			int Scale = 0;
 			//calculate the current size and the next size for the scaling.
-			for (int tmp = Type_Trace.size() - 1 - o; tmp >= 0; tmp--) {
+			for (int tmp = (int)Type_Trace.size() - 1 - o; tmp >= 0; tmp--) {
 				if (Type_Trace[tmp] == "ptr") {
 					Scale = _SYSTEM_BIT_SIZE_;
 					break;
@@ -705,7 +705,7 @@ void IRGenerator::Parse_Arrays(int i)
 			if (Is_In_Left_Side_Of_Operator)
 				Next_Register_Size = _SYSTEM_BIT_SIZE_;
 			else
-				for (int tmp = Type_Trace.size() - 2 - o; tmp >= 0; tmp--) {
+				for (int tmp = (int)Type_Trace.size() - 2 - o; tmp >= 0; tmp--) {
 					if (Type_Trace[tmp] == "ptr") {
 						Next_Register_Size = _SYSTEM_BIT_SIZE_;
 						break;
@@ -715,7 +715,7 @@ void IRGenerator::Parse_Arrays(int i)
 				}
 
 			int Next_Scaler_Size = 0;
-			for (int tmp = Type_Trace.size() - 2 - o; tmp >= 0; tmp--) {
+			for (int tmp = (int)Type_Trace.size() - 2 - o; tmp >= 0; tmp--) {
 				if (Type_Trace[tmp] == "ptr") {
 					Next_Scaler_Size = _SYSTEM_BIT_SIZE_;
 					break;
@@ -748,7 +748,7 @@ void IRGenerator::Parse_Arrays(int i)
 
 			//if this is not the last register it must be _SYSTEM_BIT_SIZE:d
 			if (Right->is(TOKEN::REGISTER)) {
-				if (o + 1 < Input[i]->Right->Childs.size())
+				if ((size_t)o + 1 < Input[i]->Right->Childs.size())
 					Right->Set_Size(_SYSTEM_BIT_SIZE_);
 			}
 
@@ -761,7 +761,7 @@ void IRGenerator::Parse_Arrays(int i)
 			Scaler->Right = new Token(TOKEN::NUM, to_string(Next_Scaler_Size));
 
 			string Load_Type = "=";
-			if (Is_In_Left_Side_Of_Operator && o+1 >= Input[i]->Right->Childs.size())
+			if (Is_In_Left_Side_Of_Operator && (size_t)o+1 >= Input[i]->Right->Childs.size())
 				Load_Type = "evaluate";	//this happends when it is the last load and it is left side of a assign
 
 			Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
@@ -773,7 +773,7 @@ void IRGenerator::Parse_Arrays(int i)
 
 		//calculate the resulting size
 		int Reg_Size = 0;
-		for (int tmp = (Type_Trace.size() - Input[i]->Right->Childs.size()) - 1; tmp >= 0; tmp--) {
+		for (int tmp = ((int)Type_Trace.size() - (int)Input[i]->Right->Childs.size()) - 1; tmp >= 0; tmp--) {
 			if (Type_Trace[tmp] == "ptr") {
 				Reg_Size = _SYSTEM_BIT_SIZE_;
 				break;
@@ -783,7 +783,7 @@ void IRGenerator::Parse_Arrays(int i)
 		}
 		//get the remained inhertited types and set them for next to use
 		vector<string> New_Inheritted;
-		for (int tmp = (Type_Trace.size() - Input[i]->Right->Childs.size()) - 1; tmp >= 0; tmp--) {
+		for (int tmp = ((int)Type_Trace.size() - (int)Input[i]->Right->Childs.size()) - 1; tmp >= 0; tmp--) {
 			New_Inheritted.push_back(Type_Trace[tmp]);
 		}
 
@@ -804,7 +804,7 @@ void IRGenerator::Parse_Arrays(int i)
 		Token* reg = nullptr;
 		int Scale = 0;
 		//calculate the current size and the next size for the scaling.
-		for (int tmp = Type_Trace.size() - 1; tmp >= 0; tmp--) {
+		for (int tmp = (int)Type_Trace.size() - 1; tmp >= 0; tmp--) {
 			if (Type_Trace[tmp] == "ptr") {
 				Scale = _SYSTEM_BIT_SIZE_;
 				break;
@@ -817,7 +817,7 @@ void IRGenerator::Parse_Arrays(int i)
 		if (Is_In_Left_Side_Of_Operator)
 			Next_Register_Size = _SYSTEM_BIT_SIZE_;
 		else
-			for (int tmp = Type_Trace.size() - 2; tmp >= 0; tmp--) {
+			for (int tmp = (int)Type_Trace.size() - 2; tmp >= 0; tmp--) {
 				if (Type_Trace[tmp] == "ptr") {
 					Next_Register_Size = _SYSTEM_BIT_SIZE_;
 					break;
@@ -827,7 +827,7 @@ void IRGenerator::Parse_Arrays(int i)
 			}
 
 		int Next_Scaler_Size = 0;
-		for (int tmp = Type_Trace.size() - 2; tmp >= 0; tmp--) {
+		for (int tmp = (int)Type_Trace.size() - 2; tmp >= 0; tmp--) {
 			if (Type_Trace[tmp] == "ptr") {
 				Next_Scaler_Size = _SYSTEM_BIT_SIZE_;
 				break;
@@ -880,7 +880,7 @@ void IRGenerator::Parse_Arrays(int i)
 
 		//calculate the resulting size
 		int Reg_Size = 0;
-		for (int tmp = Type_Trace.size() - 2; tmp >= 0; tmp--) {
+		for (int tmp = (int)Type_Trace.size() - 2; tmp >= 0; tmp--) {
 			if (Type_Trace[tmp] == "ptr") {
 				Reg_Size = _SYSTEM_BIT_SIZE_;
 				break;
@@ -890,7 +890,7 @@ void IRGenerator::Parse_Arrays(int i)
 		}
 		//get the remained inhertited types and set them for next to use
 		vector<string> New_Inheritted;
-		for (int tmp = Type_Trace.size() - 2; tmp >= 0; tmp--) {
+		for (int tmp = (int)Type_Trace.size() - 2; tmp >= 0; tmp--) {
 			New_Inheritted.push_back(Type_Trace[tmp]);
 		}
 
@@ -1046,7 +1046,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;
 	if (n->is(NUMBER_NODE))
 		return;	//x.size
-	if ((!Is_In_Left_Side_Of_Operator && n->Holder == nullptr) || (n->Holder != nullptr && n->Holder->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == -1))
+	if ((!Is_In_Left_Side_Of_Operator && n->Holder == nullptr) || (n->Holder != nullptr && n->Holder->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
 		return;
 
 	Token* Fecher;
@@ -1130,7 +1130,7 @@ void IRGenerator::Parse_Loops(int i)
 	//make the looping label
 	Output->push_back(Make_Label(Input[i], false));
 
-	int start_Index = Output->size();
+	int start_Index = (int)Output->size();
 
 	//make ir tokens from the code inside the loop
 	g.Generate(Input[i]->Childs, false);
@@ -1148,7 +1148,7 @@ void IRGenerator::Parse_Loops(int i)
 	Output->push_back(new IR(new Token(TOKEN::LABEL, Input[i]->Name + "_END"), {}));
 
 	//make here IR that states that every variable that is extern to this while define list must last the same end.
-	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables(Output->size(), start_Index, Input[i])));
+	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables((int)Output->size(), start_Index, Input[i])));
 }
 
 string IRGenerator::Get_Inverted_Condition(string c, Position* p)
@@ -1267,7 +1267,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			if (j + 1 >= Difference) {
 				Reg_Size = 0;
 				//	 -j because we need to remove the current ptr to see what is inside it
-				for (int s = Type_Trace.size() - 1 - j; s >= 0; s--) {
+				for (int s = (int)Type_Trace.size() - 1 - j; s >= 0; s--) {
 					//keywords dont have defined in the find list so skip them and put ptr the scaler switch.
 					if (Lexer::GetComponents(Type_Trace[s])[0].is(Flags::KEYWORD_COMPONENT)) {
 						if (Type_Trace[s] == "ptr") {
@@ -1435,7 +1435,7 @@ void IRGenerator::Parse_Return(int i) {
 	}*/
 
 	int Returning_Reg_Size = 0;
-	for (auto j : p->Inheritted) {
+	for (auto& j : p->Inheritted) {
 		if (j == "ptr") {
 			Returning_Reg_Size = _SYSTEM_BIT_SIZE_;
 			break;

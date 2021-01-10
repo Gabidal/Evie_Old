@@ -11,12 +11,13 @@ class Component
 {
 public:
     string Value;
-    long Flags;
-    Position Location; // LineNumber
     vector<Component> Components; // Tokens
+    Node* node = nullptr;
+    Position Location; // LineNumber
+    long Flags;
     Component(string value, long flags) : Value(value), Flags(flags) {}
     Component(string value, const Position& position, long flags) : Value(value), Location(position), Flags(flags) {}
-    Node* node = nullptr;
+
     bool is(long flag)
     {
         return (Flags & flag) == flag;
