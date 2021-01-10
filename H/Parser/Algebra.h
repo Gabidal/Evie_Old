@@ -38,6 +38,9 @@ private:
 	void Operate_Numbers_As_Constants(Node* op);
 
 	void Fix_Coefficient_Into_Real_Operator(Node* n);
+	Node* Operate_Constants(Node* l, Node* r);
+	void Combine_Scattered(Node* op);
+	Node* Get_Other_Pair(Node* ast, Node* other);
 };
 
 #endif

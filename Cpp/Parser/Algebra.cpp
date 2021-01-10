@@ -11,6 +11,7 @@ void Algebra::Factory() {
 		Function_Inliner(Input->at(i));
 		Prosess_Return(Input->at(i));
 		Prosess_Paranthesis(Input->at(i));
+		Combine_Scattered(Input->at(i));
 	}
 	for (int i = 0; i < Input->size(); i++)
 		Clean_Inlined(i);
@@ -578,7 +579,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 	else
 		New_Num->Size = op->Left->Size;
 
-	if (op->Left->Format == "decimal") {
+	if (op->Left->Format == "decimal" || op->Right->Format == "decimal") {
 		long double left = atof(op->Left->Name.c_str());
 		long double right = atof(op->Right->Name.c_str());
 
@@ -639,6 +640,82 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 	Optimized = true;
 }
 
+Node* Algebra::Operate_Constants(Node* l, Node* r) {
+
+	Node* New_Num = new Node(NUMBER_NODE, l->Location);
+	//set sizes
+	if (l->Size < r->Size)
+		New_Num->Size = r->Size;
+	else
+		New_Num->Size = l->Size;
+
+	if (l->Format == "decimal") {
+		long double left = atof(l->Name.c_str());
+		long double right = atof(r->Name.c_str());
+
+		New_Num->Format = "decimal";
+
+		if (r->Coefficient > 0)
+			New_Num->Name = to_string(left + right);
+		else
+			New_Num->Name = to_string(left - right);
+	}
+	else {
+		long left = atoi(l->Name.c_str());
+		long right = atoi(r->Name.c_str());
+
+		if (r->Coefficient > 0)
+			New_Num->Name = to_string(left + right);
+		else
+			New_Num->Name = to_string(left - right);
+	}
+
+	return New_Num;
+}
+
+void Algebra::Combine_Scattered(Node* op) {
+	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(CONDITION_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE))
+		return;
+
+	vector<Node*> list = Linearise(op, true);
+
+	vector<int> Number_Indices;
+
+	//find and save the indices of constants.
+	for (int i = 0; i < list.size(); i++)
+		if (list[i]->is(NUMBER_NODE))
+			Number_Indices.push_back(i);
+
+	//now check if you can operate those two constants together.
+	for (auto i : Number_Indices) {
+		if (i - 1 > 0 && (list[(size_t)i - 1]->Name != "+" && list[(size_t)i - 1]->Name != "-")) {
+			if ((size_t)i + 1 < list.size() && (list[(size_t)i + 1]->Name != "+" && list[(size_t)i + 1]->Name != "-"))
+				return;
+		}
+		else if ((size_t)i + 1 < list.size() && (list[(size_t)i + 1]->Name != "+" && list[(size_t)i + 1]->Name != "-"))
+			return;	//we break the whole operation because we cant optimise this.
+	}
+
+	for (int i = 0; (size_t)i+1 < Number_Indices.size(); i += 2) {
+		*list[Number_Indices[i]] = *Operate_Constants(list[Number_Indices[i]], list[Number_Indices[i + 1]]);
+		//now remove the other constant
+		Node* other = Get_Other_Pair(op, list[Number_Indices[(size_t)i + 1]]);
+		*other->Holder = *other;
+	}
+}
+
+Node* Algebra::Get_Other_Pair(Node* ast, Node* other) {
+	if (ast->Left == other)
+		return ast->Right;
+	else if (ast->Right == other)
+		return ast->Left;
+	else if (Get_Other_Pair(ast->Left, other) != nullptr)
+		return Get_Other_Pair(ast->Left, other);
+	else if (Get_Other_Pair(ast->Right, other) != nullptr)
+		return Get_Other_Pair(ast->Right, other);
+	return nullptr;
+}
+
 void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 {
 	//here we will fix the coefficient into a real operator as the name yells.
@@ -663,7 +740,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	//only variables are accepted
 	if (!n->is(OBJECT_NODE) && !n->is(PARAMETER_NODE))
 		return;
-	if (n->Coefficient == 1)
+	if (n->Coefficient == 1 || n->Coefficient == -1)
 		return;
 
 	//make operator that is going to hold the new coefficient and the variable
@@ -676,6 +753,9 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 
 	//now clean the coefficient
 	n->Coefficient = 1;
+
+	//transform the negative holder into positive operator
+	n->Holder->Name = "+";
 
 	//combine
 	//this is because the override later
