@@ -1,7 +1,7 @@
 #include "..\..\H\UI\Safe.h"
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Docker/Mangler.h"
-#include "../../H/Test/Test.h"
+#include "../../Tests/H/Test_Lexer.h"
 
 extern Selector* selector;
 
@@ -65,8 +65,10 @@ void Report(long type, Lexer_Expectation expectation, string source, vector<Comp
 		if (result.size() < expectation.Expecations.size())
 			s = (int)result.size();
 		for (int i = 0; i < s; i++) {
-			cout << "Expected: " << expectation.Get_Name(i) << " got " << expectation.Get_Name(result[i]);
+			if (expectation.Get_Name(i) != expectation.Get_Name(result[i]))
+				cout << "Expected " << expectation.Get_Name(i) << " got " << expectation.Get_Name(result[i]) << "\n";
 		}
+		cout << endl;
 	}
 }
 

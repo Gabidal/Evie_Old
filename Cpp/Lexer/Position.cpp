@@ -4,7 +4,7 @@
 
 using namespace std;
 
-string* FileName;
+string* FileName = new string("No File");
 
 Position::Position(int line, int character, int local, int absolute)
 {

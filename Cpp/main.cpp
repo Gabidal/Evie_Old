@@ -4,7 +4,7 @@
 #include "../H/Parser/Parser.h"
 #include "../H/Parser/PostProsessor.h"
 #include "../H/UI/Safe.h"
-#include "../H/Test/Test.h"
+//#include "../H/Test/Test_Lexer.h"
 #include "../H/UI/Producer.h"
 #include "../H/Nodes/Node.h"
 #include "../H/Flags.h"
@@ -24,7 +24,7 @@
 #include <fstream>
 #include <vector>
 #include <ctime>
-using namespace std;
+using namespace std; 
 
 Usr* sys;
 Node* Global_Scope;
@@ -34,7 +34,7 @@ int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output = ".intel_syntax noprefix\n";
 
-
+#ifndef Test
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 //Evie.exe -in ~/test.e
 int main(int argc, char* argv[])
@@ -104,6 +104,8 @@ int main(int argc, char* argv[])
     Global_Scope = new Node(CLASS_NODE, new Position());
     Global_Scope->Name = "GLOBAL_SCOPE";
 
+    selector = new Selector();
+
     preprosessor.Defined_Constants = 
     {
         {"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
@@ -120,8 +122,6 @@ int main(int argc, char* argv[])
     Parser p(Global_Scope);
     p.Input = Input;
     p.Factory();
-
-    selector = new Selector();
 
     PostProsessor postprosessor(Global_Scope);
     postprosessor.Components = p.Input;
@@ -143,3 +143,4 @@ int main(int argc, char* argv[])
     pr.Assemble_Command();
     return 0;
 }
+#endif

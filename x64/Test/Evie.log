@@ -1,0 +1,15 @@
+﻿  Test_Lexer.cpp
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(118): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(119): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(120): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(118,27): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(118,84): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(119,27): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(119,80): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(120,27): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(120,72): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(120,129): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(120,174): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(120,223): warning C4238: nonstandard extension used: class rvalue used as lvalue
+C:\Users\GabenRTX\source\repos\Evie\Tests\Cpp\Test_Lexer.cpp(85): warning C4715: 'Lexer_Test::Check_Assert': not all control paths return a value
+  Evie.vcxproj -> C:\Users\GabenRTX\source\repos\Evie\x64\Test\Evie.exe

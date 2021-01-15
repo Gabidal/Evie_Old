@@ -48,9 +48,6 @@
     <ClCompile Include="cpp\preprosessor\PreProsessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cpp\test\Test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cpp\ui\Producer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -94,6 +91,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Cpp\Lexer\Component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\Cpp\Test_Lexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tests\Unit_Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,9 +158,6 @@
     <ClInclude Include="h\preprosessor\PreProsessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="h\test\Test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="h\ui\Producer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -201,6 +201,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\Parser\PostProsessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tests\H\Test_Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
