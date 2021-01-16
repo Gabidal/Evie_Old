@@ -2,6 +2,7 @@
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../Tests/H/Test_Lexer.h"
+#include "../../Tests/H/Test_Back_End.h"
 
 extern Selector* selector;
 
@@ -55,7 +56,24 @@ void Report(vector<Observation> o)
 		i.Report();
 }
 
-void Report(long type, Lexer_Expectation expectation, string source, vector<Component> result) {
+void Report(long type, Lexer_Expectation_Set expectation, string source, vector<Component> result) {
+	if (type == SUCCESS) {
+		cout << source << Green << " OK " << Reset << endl;
+	}
+	else if (type == FAIL) {
+		cout << source << Red << " FAILED!" << Reset << "\n";
+		int s = (int)expectation.Expecations.size();
+		if (result.size() < expectation.Expecations.size())
+			s = (int)result.size();
+		for (int i = 0; i < s; i++) {
+			if (expectation.Get_Name(i) != expectation.Get_Name(result[i]))
+				cout << "Expected " << expectation.Get_Name(i) << " got " << expectation.Get_Name(result[i]) << "\n";
+		}
+		cout << endl;
+	}
+}
+
+void Report(long type, Back_Expectation_Set expectation, string source, vector<Base*> result) {
 	if (type == SUCCESS) {
 		cout << source << Green << " OK " << Reset << endl;
 	}

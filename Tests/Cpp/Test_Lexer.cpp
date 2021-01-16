@@ -13,7 +13,7 @@ void Lexer_Test::Factory()
 	}
 }
 
-void Lexer_Test::Check_Assert(Lexer_Expectation expectation, string s)
+void Lexer_Test::Check_Assert(Lexer_Expectation_Set expectation, string s)
 {
 	bool fail = false;
 	vector<Component> C = Run(s);
@@ -28,12 +28,12 @@ void Lexer_Test::Check_Assert(Lexer_Expectation expectation, string s)
 						}
 						//no child was as expected
 						fail = true;
-						Report(FAIL, Lexer_Expectation(expectation.Childs, expectation.Flags | expectation.Childs.begin()->Flags), "\"" + expectation.Get_Name(C_C) + "\" from '" + s + "'", i.Components);
+						Report(FAIL, Lexer_Expectation_Set(expectation.Childs, expectation.F | expectation.Childs.begin()->F), "\"" + expectation.Get_Name(C_C) + "\" from '" + s + "'", i.Components);
 					Child_Ok:;
 					}
 					goto Inside_Ok;
 				}
-				if (Check_Assert(expectation.Flags, i, j)) {
+				if (Check_Assert(expectation.F, i, j)) {
 					goto Found;
 				}
 			}
@@ -49,7 +49,7 @@ Inside_Ok:;
 
 }
 
-bool Lexer_Test::Check_Assert(Lexer_Expectation expectation, Component C, string s)
+bool Lexer_Test::Check_Assert(Lexer_Expectation_Set expectation, Component C, string s)
 {
 	bool fail = false;
 	if (expectation.has(NO_ORDER)) {
@@ -68,7 +68,7 @@ bool Lexer_Test::Check_Assert(Lexer_Expectation expectation, Component C, string
 				if (!fail)
 					goto Inside_Ok;
 			}
-			if (Check_Assert(expectation.Flags, C, j)) {
+			if (Check_Assert(expectation.F, C, j)) {
 				goto Found;
 			}
 		}
@@ -111,13 +111,11 @@ void Lexer_Test::Init()
 		{ {vector<long>{Flags::KEYWORD_COMPONENT, Flags::NUMBER_COMPONENT}}, "return 0"},
 		{ {vector<long>{Flags::TEXT_COMPONENT, Flags::TEXT_COMPONENT}}, "int a"},
 		{ {vector<pair<long, string>>{ {Flags::TEXT_COMPONENT, "a"}, {Flags::OPERATOR_COMPONENT, "+"}, {Flags::NUMBER_COMPONENT, "1"}}}, "a + 1"},
-		{ {vector<long>{Flags::NUMBER_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT}}, "1 + a"},
-		{ {vector<long>{Flags::TEXT_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT}}, "a + a"},
-		{ {vector<long>{Flags::NUMBER_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::NUMBER_COMPONENT}}, "1 + 1"},
+		{ {vector<long>{Flags::NUMBER_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT}}, "1.1 + a"},
 		{ {vector<long>{Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT, Flags::OPERATOR_COMPONENT}}, "++a-- + --a++"},
-		{ {{vector<Base*>{ &Info({Flags::KEYWORD_COMPONENT, "while"}),& Lexer_Expectation({Flags::TEXT_COMPONENT})}}}, "while (int)"},
-		{ {{vector<Base*>{ &Info({Flags::TEXT_COMPONENT, "call"}),& Lexer_Expectation({Flags::TEXT_COMPONENT})}}}, "call(a)"},
-		{ {{vector<Base*>{ &Info({Flags::KEYWORD_COMPONENT, "import"}),& Info({Flags::TEXT_COMPONENT, "function"}),& Lexer_Expectation({Flags::TEXT_COMPONENT}),& Lexer_Expectation({Flags::OPERATOR_COMPONENT}),& Lexer_Expectation({Flags::TEXT_COMPONENT})}}}, "import function(int, 0)"},
+		{ {{vector<Base*>{ &Text_Info({Flags::KEYWORD_COMPONENT, "while"}),& Lexer_Expectation_Set({Flags::TEXT_COMPONENT})}}}, "while (int)"},
+		{ {{vector<Base*>{ &Text_Info({Flags::TEXT_COMPONENT, "call"}),& Lexer_Expectation_Set({Flags::TEXT_COMPONENT})}}}, "call(a)"},
+		{ {{vector<Base*>{ &Text_Info({Flags::KEYWORD_COMPONENT, "import"}),& Text_Info({Flags::TEXT_COMPONENT, "function"}),& Lexer_Expectation_Set({Flags::TEXT_COMPONENT}),& Lexer_Expectation_Set({Flags::OPERATOR_COMPONENT}),& Lexer_Expectation_Set({Flags::NUMBER_COMPONENT})}}}, "import function(int, 0)"},
 
 	};
 }

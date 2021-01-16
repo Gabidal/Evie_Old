@@ -31,12 +31,15 @@ private:
 	string Msg = "";
 };
 
-class Lexer_Expectation;
+class Lexer_Expectation_Set;
 class Components;
+class Back_Expectation_Set;
+class Base;
 
 void Report(Observation o);
 void Report(vector<Observation> o);
-void Report(long type, Lexer_Expectation expectation, string source, vector<Component> result);
+void Report(long type, Lexer_Expectation_Set expectation, string source, vector<Component> result);
+void Report(long type, Back_Expectation_Set expectation, string source, vector<Base*> result);
 
 class Safe {
 public:

@@ -200,6 +200,8 @@
     <ClCompile Include="Cpp\Parser\Algebra.cpp" />
     <ClCompile Include="Cpp\Parser\PostProsessor.cpp" />
     <ClCompile Include="cpp\preprosessor\PreProsessor.cpp" />
+    <ClCompile Include="Tests\Cpp\Base.cpp" />
+    <ClCompile Include="Tests\Cpp\Test_Back_End.cpp" />
     <ClCompile Include="Tests\Unit_Tests.cpp" />
     <ClCompile Include="Tests\Cpp\Test_Lexer.cpp" />
     <ClCompile Include="cpp\ui\Producer.cpp" />
@@ -239,6 +241,8 @@
     <ClInclude Include="H\Parser\Algebra.h" />
     <ClInclude Include="H\Parser\PostProsessor.h" />
     <ClInclude Include="h\preprosessor\PreProsessor.h" />
+    <ClInclude Include="Tests\H\Base.h" />
+    <ClInclude Include="Tests\H\Test_Back_End.h" />
     <ClInclude Include="Tests\H\Test_Lexer.h" />
     <ClInclude Include="h\ui\Producer.h" />
     <ClInclude Include="h\ui\Safe.h" />

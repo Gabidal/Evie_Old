@@ -39,6 +39,16 @@ string Output = ".intel_syntax noprefix\n";
 //Evie.exe -in ~/test.e
 int main(int argc, char* argv[])
 {
+    Build(argc, argv);
+    return 0;
+}
+#endif
+
+
+//Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
+//Evie.exe -in ~/test.e
+int Build(int argc, const char* argv[])
+{
     if (argc == 1) {
         //this happends when no parameter are given
         cout << "Argument types are: \n";
@@ -50,9 +60,9 @@ int main(int argc, char* argv[])
         cout << "-lib [relative path/lib name]\n";
         cout << "-repo_dir [relative path/folder name (for saving git repos there)]\n";
         cout << (string)"-f [\n  supported output file formats are:\n" +
-            "  exe(executable (works for unix as well)),\n" + 
+            "  exe(executable (works for unix as well)),\n" +
             "  lib(static lib),\n" +
-            "  dll(dynamic library (support is not made yet!))\n" + 
+            "  dll(dynamic library (support is not made yet!))\n" +
             "]\n";
         cout << "-mode [bit mode for assembly output (32/64)]\n";
         cout << (string)"-debug [\n supported debug symbol types:\n" +
@@ -71,7 +81,7 @@ int main(int argc, char* argv[])
     };
     sys = new Usr(argv, argc);
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());
-    
+
     string start_file = sys->Info.Source_File.c_str();
 
     MANGLER::Add_ID({ "P",{MANGLER::PREFIX, "ptr"} });
@@ -106,7 +116,7 @@ int main(int argc, char* argv[])
 
     selector = new Selector();
 
-    preprosessor.Defined_Constants = 
+    preprosessor.Defined_Constants =
     {
         {"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
         {"DESTINATION_FILE",    Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
@@ -143,4 +153,3 @@ int main(int argc, char* argv[])
     pr.Assemble_Command();
     return 0;
 }
-#endif

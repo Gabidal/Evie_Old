@@ -39,7 +39,7 @@ class Usr
 {
 public:
 	output Info;
-	Usr(char** in, int count)
+	Usr(const char** in, int count)
 	{
 		Input = in;
 		Argument_Amount = count;
@@ -50,7 +50,7 @@ public:
 	~Usr(){}
 
 private:
-	char** Input;
+	const char** Input;
 	int Argument_Amount;
 	void Create_Argument_Stats();
 	void Find_Source_File(int &i);
