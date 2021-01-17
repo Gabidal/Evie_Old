@@ -38,10 +38,10 @@ public:
 class Numeric_Info : public Base {
 public:
 	long long Val = 0;
-	Numeric_Info(initializer_list<pair<long, long long>> l) : Base(TEXT_INFO, l.begin()->first) {
+	Numeric_Info(initializer_list<pair<long, long long>> l) : Base(NUMERIC_INFO, l.begin()->first) {
 		Val = l.begin()->second;
 	}
-	Numeric_Info(initializer_list<long long> l) : Base(TEXT_INFO, NO_ORDER) {
+	Numeric_Info(initializer_list<long long> l) : Base(NUMERIC_INFO, NO_ORDER) {
 		Val = *l.begin();
 	}
 };

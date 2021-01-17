@@ -3,6 +3,10 @@
 void TXT::TXT_Analyzer(vector<string>& Output)
 {
 	ifstream file(DOCKER::Working_Dir + DOCKER::FileName.back(), std::ios::binary);
+
+	if (!file.is_open()) {
+		throw::exception("FILE NOT FOUND!");
+	}
 	file.seekg(0, SEEK_END);
 	long long size = file.tellg();
 	char* Buffer = new char[size + 1];

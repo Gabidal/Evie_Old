@@ -1,5 +1,9 @@
 use "../../IO/cstd.e"
 
-int Start_Test(){
+export int Start_Test(){
+	return 2
+}
+
+export int main(){
 	return 1
 }

@@ -48,10 +48,11 @@ extern int Build(int argc, const char* argv[]);
 vector<Base*> Back_End_Test::Run(string File)
 {
 	arg_count = 0;
-	const char* argv[] = {"-in" , File.c_str() , "-out" , File.c_str() , ".dll" , " -f" , "dll"};
-	int argc = 6;
+	string output = File + ".asm";
+	const char* argv[] = {"/Tests", "-in" , File.c_str() , "-out" , output.c_str() , "-f" , "dll"};
+	int argc = 7;
 	Build(argc, argv);
-	return { &Numeric_Info{Run_Dll(File + ".dll")} };
+	return { new Numeric_Info{Run_Dll(output + ".dll")} };
 }
 
 void Back_End_Test::Factory()
@@ -103,9 +104,28 @@ bool Back_End_Test::Check_Assert(Back_Expectation_Set expectation, Base* a, stri
 
 bool Back_End_Test::Check_Assert(long F, Base* a, Base* b)
 {
+	if (is(F, NO_NAMES)) {
+		if (a->F == b->F)
+			return true;
+		return false;
+	}
+	else if (a->Type == NUMERIC_INFO) {
+		if (((Numeric_Info&)*a).Val == ((Numeric_Info&)*b).Val)
+			return true;
+		return false;
+	}
+	else if (a->Type == TEXT_INFO) {
+		if (((Text_Info&)*a).Val == ((Text_Info&)*b).Val)
+			return true;
+		return false;
+	}
 	return false;
 }
 
 void Back_End_Test::Init()
 {
+	//what we expect the function to return, file name
+	Tests = {
+		{{2}, "Tests/IO/Math.e"}
+	};
 }

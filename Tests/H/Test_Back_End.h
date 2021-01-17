@@ -13,7 +13,16 @@ public:
 	vector<Base*> Expecations;
 	vector<Back_Expectation_Set> Childs;
 	bool has(long f) { return (F & f) == f; }
-	Back_Expectation_Set() : Base(EXPECTATION, 0) {
+	Back_Expectation_Set(initializer_list<vector<Base*>> l) : Base(EXPECTATION, NO_ORDER) {
+		for (auto& i : *l.begin()) {
+			if (i->Type == EXPECTATION)
+				Childs.push_back((Back_Expectation_Set&)*i);
+			else if (i->Type == TEXT_INFO || i->Type == NUMERIC_INFO)
+				Expecations.push_back(i);
+		}
+	}
+	Back_Expectation_Set(initializer_list<long long> l) : Base(EXPECTATION, NO_ORDER) {
+		Expecations.push_back(new Numeric_Info{ l });
 	}
 	
 	string Get_Name(Base* c) {

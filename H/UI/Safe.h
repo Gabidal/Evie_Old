@@ -36,6 +36,15 @@ class Components;
 class Back_Expectation_Set;
 class Base;
 
+extern const string Red;
+extern const string Green;
+extern const string Yellow;
+extern const string Blue;
+extern const string Magenta;
+extern const string Cyan;
+extern const string White;
+extern const string Reset;
+
 void Report(Observation o);
 void Report(vector<Observation> o);
 void Report(long type, Lexer_Expectation_Set expectation, string source, vector<Component> result);
