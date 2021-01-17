@@ -1158,9 +1158,9 @@ string IRGenerator::Get_Inverted_Condition(string c, Position* p)
 	else if (c == "!=")
 		return "==";
 	else if (c == "<")
-		return ">";
+		return ">=";
 	else if (c == ">")
-		return "<";
+		return "<=";
 	else if (c == "!<")
 		return ">=";
 	else if (c == "!>")

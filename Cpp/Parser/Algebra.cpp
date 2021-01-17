@@ -7,6 +7,7 @@ void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
 		Set_Coefficient_Value(i);
 		Set_Defining_Value(i);
+		Reset_Defining_Value(i);
 		Inline_Variables(i);
 		Function_Inliner(Input->at(i));
 		Prosess_Return(Input->at(i));
@@ -416,6 +417,20 @@ void Algebra::Set_Coefficient_Value(int i)
 	Variable->Coefficient = atoi(Coefficient->Name.c_str());
 
 	*Operator = *Variable;
+}
+
+void Algebra::Reset_Defining_Value(int i)
+{
+	if (!Input->at(i)->is(POSTFIX_NODE) && !Input->at(i)->is(PREFIX_NODE))
+		return;
+
+	Node* Modified = Input->at(i)->Left;
+	if (Input->at(i)->is(PREFIX_NODE))
+		Modified = Input->at(i)->Right;
+
+	//i++ | ++i -> defining val = 0
+
+	Parent->Find(Modified, Modified->Parent)->Current_Value = nullptr;
 }
 
 void Algebra::Clean_Unused()

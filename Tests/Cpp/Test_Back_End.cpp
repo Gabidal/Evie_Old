@@ -3,6 +3,8 @@
 #include "../../H/Nodes/Node.h"
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/Docker/Mangler.h"
+#include "../../H/Docker/Docker.h"
 
 
 #ifdef _WIN32
@@ -42,12 +44,23 @@ extern int _SYSTEM_BIT_SIZE_;
 
 extern string Output;
 extern int arg_count;
+extern map<string, pair<int, string>> MANGLER::IDS;
+extern string DOCKER::Working_Dir;
 
 extern int Build(int argc, const char* argv[]);
 
 vector<Base*> Back_End_Test::Run(string File)
 {
+	MANGLER::IDS.clear();
 	arg_count = 0;
+	DOCKER::Working_Dir = "";
+	DOCKER::Included_Files.clear();
+	DOCKER::Assembly_Source_File.clear();
+	Output = ".intel_syntax noprefix\n";
+	Global_Scope = nullptr;
+	sys = nullptr;
+	selector = nullptr;
+
 	string output = File + ".asm";
 	const char* argv[] = {"/Tests", "-in" , File.c_str() , "-out" , output.c_str() , "-f" , "dll"};
 	int argc = 7;
@@ -126,6 +139,7 @@ void Back_End_Test::Init()
 {
 	//what we expect the function to return, file name
 	Tests = {
-		{{-6}, "Tests/IO/Math.e"}
+		{{-6}, "Tests/IO/Math.e"},
+		{{100}, "Tests/IO/Conditions.e"}
 	};
 }

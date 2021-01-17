@@ -27,6 +27,7 @@ private:
 
 	void Set_Defining_Value(int i);
 	void Set_Coefficient_Value(int i);
+	void Reset_Defining_Value(int i);
 
 	void Inline_Variables(int i);
 	void Reduce_Operator_Operations(Node* n);

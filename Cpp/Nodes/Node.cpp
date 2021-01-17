@@ -39,9 +39,17 @@ Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 	vector<Node*> Linear_Ast = Linearise(v, false);
 	//for complex inlinings
 	for (int n = i; n < source.size(); n++) {
-		if (source[n]->is(ASSIGN_OPERATOR_NODE)) {
+		if (source[n]->is(ASSIGN_OPERATOR_NODE) || source[n]->is(POSTFIX_NODE)) {
 			for (auto c : Linear_Ast) {
 				if (source[n]->Left->Name == c->Name) {
+					Expiring_Index = n;
+					goto Stop;
+				}
+			}
+		}
+		if (source[n]->is(PREFIX_NODE)) {
+			for (auto c : Linear_Ast) {
+				if (source[n]->Right->Name == c->Name) {
 					Expiring_Index = n;
 					goto Stop;
 				}

@@ -214,6 +214,9 @@
     <None Include="IO\test.e.asm" />
     <None Include="io\unix.asm" />
     <None Include="io\win32.asm" />
+    <None Include="Tests\IO\Conditions.e" />
+    <None Include="Tests\IO\Math.e" />
+    <None Include="Tests\IO\Math.e.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="H\BackEnd\BackEnd.h" />
