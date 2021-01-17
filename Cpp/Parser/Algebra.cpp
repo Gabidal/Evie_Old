@@ -43,6 +43,10 @@ vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
 		vector<Node*> childs;
 		for (auto c : ast->Childs) {
 			vector<Node*> tmp = Linearise(c, Include_Operator);
+			//apply the coeeficient of the content holder into the childs.
+			for (auto& i : tmp) {
+				i->Coefficient *= ast->Coefficient;
+			}
 			childs.insert(childs.end(), tmp.begin(), tmp.end());
 		}
 		Result.insert(Result.end(), childs.begin(), childs.end());
@@ -260,7 +264,13 @@ void Algebra::Inline_Variables(int i)
 				//Node* represents the -1 and n on this example
 				//Node* n is same as the -n variable on example
 				if (d->Current_Value->Expiring_Index >= i) {
+					//do unwrap manuever if content is optimized into singlurar content: (1 + 2) -> (3)
+					if (d->Current_Value->Var->is(CONTENT_NODE))
+						if (!d->Current_Value->Var->Childs[0]->is(OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(ASSIGN_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(CONDITION_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(BIT_OPERATOR_NODE))
+							*d->Current_Value->Var = *d->Current_Value->Var->Childs[0];
 					d->Current_Value->Var->Coefficient *= n->Coefficient;
+					d->Current_Value->Var->Holder = n->Holder;
+					d->Current_Value->Var->Parent = n->Parent;
 					*n = *d->Current_Value->Var;
 					d->Inlined = true;
 					//maybe this is useless:
@@ -357,6 +367,7 @@ void Algebra::Set_Defining_Value(int i)
 		right->Paranthesis_Type = '(';
 		right->Childs.push_back(Input->at(i)->Right);
 		right->Parent = Input->at(i);
+		right->Holder = Input->at(i)->Right;
 	}
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
@@ -609,8 +620,8 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			New_Num->Name = to_string(pow(left, right));
 	}
 	else {
-		long left = atoi(op->Left->Name.c_str());
-		long right = atoi(op->Right->Name.c_str());
+		long left = atol(op->Left->Name.c_str());
+		long right = atol(op->Right->Name.c_str());
 
 		if (op->Name == "+")
 			New_Num->Name = to_string(left + right);
@@ -636,6 +647,8 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			New_Num->Name = to_string(pow(left, right));
 	}
 
+	New_Num->Holder = op->Holder;
+	New_Num->Parent = op->Parent;
 	*op = *New_Num;
 	Optimized = true;
 }
@@ -643,6 +656,8 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 Node* Algebra::Operate_Constants(Node* l, Node* r) {
 
 	Node* New_Num = new Node(NUMBER_NODE, l->Location);
+	New_Num->Holder = l->Holder;
+	New_Num->Parent = l->Parent;
 	//set sizes
 	if (l->Size < r->Size)
 		New_Num->Size = r->Size;
@@ -700,7 +715,7 @@ void Algebra::Combine_Scattered(Node* op) {
 		*list[Number_Indices[i]] = *Operate_Constants(list[Number_Indices[i]], list[Number_Indices[(size_t)i + 1]]);
 		//now remove the other constant
 		Node* other = Get_Other_Pair(op, list[Number_Indices[(size_t)i + 1]]);
-		*other->Holder = *other;
+		*other->Holder = *list[Number_Indices[i]];
 	}
 }
 
@@ -709,10 +724,22 @@ Node* Algebra::Get_Other_Pair(Node* ast, Node* other) {
 		return ast->Right;
 	else if (ast->Right == other)
 		return ast->Left;
-	else if (Get_Other_Pair(ast->Left, other) != nullptr)
+	else if (ast->Left != nullptr && Get_Other_Pair(ast->Left, other) != nullptr)
 		return Get_Other_Pair(ast->Left, other);
-	else if (Get_Other_Pair(ast->Right, other) != nullptr)
+	else if (ast->Left != nullptr && Get_Other_Pair(ast->Right, other) != nullptr)
 		return Get_Other_Pair(ast->Right, other);
+	else if (ast->is(CONTENT_NODE)) {
+		if (ast->Childs[0]->is(OPERATOR_NODE) || ast->Childs[0]->is(ASSIGN_OPERATOR_NODE) || ast->Childs[0]->is(CONDITION_OPERATOR_NODE) || ast->Childs[0]->is(BIT_OPERATOR_NODE)) {
+			if (Get_Other_Pair(ast->Childs[0], other) != nullptr)
+				return Get_Other_Pair(ast->Childs[0], other);
+		}
+		else if (ast->Childs[0] == other){
+			if (ast->Holder->Left == ast)
+				return ast->Holder->Right;
+			else if (ast->Holder->Right == ast)
+				return ast->Holder->Left;
+		}
+	}
 	return nullptr;
 }
 

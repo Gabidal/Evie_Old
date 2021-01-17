@@ -2,7 +2,7 @@
 .global main
 .global Start_Test
 Start_Test:
-mov eax, 2
+mov eax, -6
 ret 
 ret 
 

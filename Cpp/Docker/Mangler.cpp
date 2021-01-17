@@ -247,7 +247,7 @@ string MANGLER::Mangle(Node* raw)
 
 bool MANGLER::Is_Base_Type(Node* n)
 {
-	if (n->is(NUMBER_NODE))
+	if (n->is(NUMBER_NODE) || n->is(OPERATOR_NODE))
 		return false;
 	bool Result = true;
 	for (auto i : n->Childs) {
