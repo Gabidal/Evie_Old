@@ -429,6 +429,8 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
 	PostProsessor p(Parent, Input[i]->Parameters);
+	//use optimization into the parameters.
+	Algebra a(Input[i], &Input[i]->Parameters);
 }
 
 void PostProsessor::Algebra_Laucher(int i)
@@ -468,7 +470,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 
 		if (Right->Name == "size") {
 			Node* num = Right->Find("size", Left);
-			if (num == nullptr || num->is("const")) {
+			if (num == nullptr || (num->is("const") != -1)) {
 				//this means it is definetly a size get request
 				Right->Name = to_string(Left->Get_Size());
 				Right->Type = NUMBER_NODE;	
@@ -964,6 +966,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 	Update_Operator_Inheritance(n->Right);
 
 	//check for operator overrides.
+	n->Inheritted.clear();
 
 	if (n->is(ARRAY_NODE)) {
 		int Pointter_UnWrapping_Count = 1;	//default
@@ -984,12 +987,12 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		}
 	}
 	else {
-		if (n->Left->is(OPERATOR_NODE) || n->Left->is(ASSIGN_OPERATOR_NODE) || n->Left->is(CONDITION_OPERATOR_NODE) || n->Left->is(BIT_OPERATOR_NODE))
+		if (n->Left->is(OPERATOR_NODE) || n->Left->is(ASSIGN_OPERATOR_NODE) || n->Left->is(CONDITION_OPERATOR_NODE) || n->Left->is(BIT_OPERATOR_NODE) || n->Left->is(ARRAY_NODE))
 			n->Inheritted = n->Left->Inheritted;
 		else if (!n->Left->is(NUMBER_NODE))
 			n->Inheritted = n->Left->Parent->Find(n->Left, n->Left->Parent)->Inheritted;
 		else {
-			if (n->Right->is(OPERATOR_NODE) || n->Right->is(ASSIGN_OPERATOR_NODE) || n->Right->is(CONDITION_OPERATOR_NODE) || n->Right->is(BIT_OPERATOR_NODE))
+			if (n->Right->is(OPERATOR_NODE) || n->Right->is(ASSIGN_OPERATOR_NODE) || n->Right->is(CONDITION_OPERATOR_NODE) || n->Right->is(BIT_OPERATOR_NODE) || n->Right->is(ARRAY_NODE))
 				n->Inheritted = n->Right->Inheritted;
 			else
 				//both cannot be numbers, because otherwise algebra would have optimized it away.

@@ -29,8 +29,8 @@ bool Selector::Find(string n, Token* ast)
 		return true;
 	if (ast->is(TOKEN::CONTENT) || ast->is(TOKEN::MEMORY))
 		for (auto& i : ast->Childs)
-			throw::exception("haha nobnob");
-			//return Find(n, i);
+			//throw::exception("haha nobnob");
+			return Find(n, i);
 	if (ast->is(TOKEN::OFFSETTER) || ast->is(TOKEN::DEOFFSETTER) || ast->is(TOKEN::SCALER)) {
 		if (Find(n, ast->Left))
 			return true;
@@ -249,7 +249,8 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 				}
 			}
 		}
-		else if (r.first->Last_Usage_Index <= i + Single_Register_Type){
+		//								   <= is wrong because the old user doesnt find the register it belong into.
+		else if (r.first->Last_Usage_Index < i + Single_Register_Type){
 			for (auto s : *r.second->Get_Childs())
 				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
 					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)

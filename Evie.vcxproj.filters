@@ -122,6 +122,10 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="Tests\IO\Conditions.e" />
+    <None Include="Tests\IO\Conditions.e.asm">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="Tests\IO\Array.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">

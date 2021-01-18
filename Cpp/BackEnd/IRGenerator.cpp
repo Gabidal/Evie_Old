@@ -795,7 +795,7 @@ void IRGenerator::Parse_Arrays(int i)
 			Handle = reg;
 	}
 	else {
-		//this is where the 2D array operators are constructed.
+		//this is where the 1D array operators are constructed.
 		vector<string> Type_Trace = Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Inheritted;
 		//reverse(Type_Trace.begin(), Type_Trace.end());
 		//int,[ptr, ptr]
@@ -872,7 +872,7 @@ void IRGenerator::Parse_Arrays(int i)
 		if (Is_In_Left_Side_Of_Operator)
 			Load_Type = "evaluate";	//this happends when it is the last load and it is left side of a assign
 
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size, Left->Get_Name()) }));
 
 		handle->Get_Childs()->back() = reg;
 		handle->Set_Name(reg->Get_Name());
@@ -897,7 +897,7 @@ void IRGenerator::Parse_Arrays(int i)
 		Input[i]->Inheritted = New_Inheritted;
 
 		if (Is_In_Left_Side_Of_Operator)
-			Handle = new Token(TOKEN::MEMORY, { reg }, Reg_Size);
+			Handle = new Token(TOKEN::MEMORY, { reg }, Reg_Size, reg->Get_Name());
 		else
 			Handle = reg;
 	}
