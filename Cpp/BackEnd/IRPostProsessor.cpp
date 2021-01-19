@@ -233,10 +233,12 @@ void IRPostProsessor::Factory()
 	for (int i = 0; i < Input->size(); i++) {
 		Prepare_Function(i);
 		Handle_Labels(i);
+		reverse(Input->at(i)->Arguments.begin(), Input->at(i)->Arguments.end());
 		for (auto a : Input->at(i)->Arguments) {
 			Handle_Stack_Usages(a);
 			Registerize(a, i);
 		}
+		reverse(Input->at(i)->Arguments.begin(), Input->at(i)->Arguments.end());
 		Clean_Selector(i);
 	}
 }
