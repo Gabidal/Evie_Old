@@ -5,25 +5,27 @@ bool Optimized = false;
 
 void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
-		Set_Coefficient_Value(i);
-		Set_Defining_Value(i);
-		Reset_Defining_Value(i);
 		Inline_Variables(i);
+		Set_Coefficient_Value(i);
 		Function_Inliner(Input->at(i));
 		Prosess_Return(Input->at(i));
 		Prosess_Paranthesis(Input->at(i));
 		Combine_Scattered(Input->at(i));
+		Set_Defining_Value(i);
+		Reset_Defining_Value(i);
 	}
 	for (int i = 0; i < Input->size(); i++)
 		Clean_Inlined(i);
-	for (auto i : *Input)
+	for (auto& i : *Input)
 		Operate_Numbers_As_Constants(i);
-	for (auto i : *Input)
-		Operate_Coefficient_Constants(i);
-	for (auto i : *Input)
+	for (auto& i : *Input)
 		Reduce_Operator_Operations(i);
-	for (auto i : *Input)
+	for (auto& i : *Input)
+		Operate_Coefficient_Constants(i);
+	for (auto& i : *Input) {
+		Fix_Order_Into_Real_Operator(i);
 		Fix_Coefficient_Into_Real_Operator(i);
+	}
 	Clean_Unused();
 }
 
@@ -223,6 +225,10 @@ void Algebra::Prosess_Return(Node* n)
 	n->Right = tmp.back();
 }
 
+void Algebra::Prosess_Call_Parameters(Node* n)
+{
+}
+
 void Algebra::Prosess_Paranthesis(Node* n)
 {
 	if (!n->is(CONTENT_NODE))
@@ -243,14 +249,18 @@ void Algebra::Inline_Variables(int i)
 		else
 			Linear_Ast = Linearise(Input->at(i)->Right);
 	}
-	else if (Input->at(i)->Name == "return") {
-		if (Input->at(i)->Right != nullptr)
-			Linear_Ast = Linearise(Input->at(i)->Right);
-	}
 	else {
 		return;
 	}
 
+	for (auto j : Linear_Ast) {
+		if (j->is(CALL_NODE)) {
+			for (auto k : j->Parameters) {
+				vector<Node*> tmp = Linearise(k);
+				Linear_Ast.insert(Linear_Ast.end(), tmp.begin(), tmp.end());
+			}		
+		}
+	}
 
 	for (Node* n : Linear_Ast) {
 		if (n->is(CALL_NODE))
@@ -287,30 +297,67 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 {
 	if (!n->is(OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(ASSIGN_OPERATOR_NODE))
 		return;
-	//a * 2 < 1 - a
-	//2a -a < a - a + 1
-	//a < 1
+	
+	vector<Node*> Variables = Linearise(n);			
+	// 2b^2 + b = b^2 + b
+	// 2b^2 + b - b = b^2
+	// 2b^2 - b^2 = 0
+	// b^2 = 0
 
-	vector<Node*> Variables = Linearise(n);
-	// a + 1 == a * 2
+	// 2b^2 + b < -b^2 - b
+	// 2b^2 + b^2 + b + b < 0
+	// 3b^2 + 2b < 0
+
+	//2b^2 / b < -b^2 * b
+	//2b^2 / b < -b^3 
 	//now go through one side and try to delete one coefficient amount of that variable on both sides.
 	for (Node* v : Variables) {
 		if (v->is(OBJECT_NODE) || v->is(OBJECT_DEFINTION_NODE)) {
-			bool Removed_Coefficient = false;
-			for (Node* other_v : Variables) {
-				if (other_v == v)
-					//skip same, at end we zero out this!
+			if (v->Coefficient == 0)
+				continue;
+			//TODO: make a fucking flag for those Karens that want to crash theyre exe, by dividing by 0.
+			//if (v->Holder->Name == "/")	//stuff can go wrong if the v value is 0
+			//	continue;
+			for (Node* other : Variables) {
+				if (v == other)
 					continue;
-				if (other_v->Name == v->Name) {
-					other_v->Coefficient -= v->Coefficient;
-					Removed_Coefficient = true;
-					Optimized = true;
+				if (v->Name != other->Name)
+					continue;
+				if (other->Coefficient == 0)
+					continue;
+
+				//decide wich one is in wich side
+				Node* l = v;
+				Node* r = other;
+				if (v->Holder->Right == v) {
+					r = v;
+					l = other;
 				}
+				if (v->Holder->Name == "+" || v->Holder->Name == "-") {
+					if (other->Order != v->Order)
+						continue;
+					//here it affects the coefficient of other
+					l->Coefficient -= r->Coefficient;
+					r->Coefficient = 0;
+					goto Next;
+				}
+				/*else if (v->Holder->Name == "*" && l == v->Holder->Left && r == v->Holder->Right) {
+					//here it affects the order of other
+					l->Order += r->Order;
+					l->Coefficient *= r->Coefficient;
+					r->Coefficient = 0;
+					goto Next;
+				}
+				else if (v->Holder->Name == "/" && l == v->Holder->Left && r == v->Holder->Right) {
+					//here it affects the order of other
+					r->Order -= l->Order;
+					r->Coefficient /= l->Coefficient;
+					l->Coefficient = 0;
+					goto Next;
+				}*/
 			}
-			//zero this variable out here:
-			if (Removed_Coefficient)
-				v->Coefficient -= v->Coefficient;
 		}
+	Next:;
 	}
 
 }
@@ -321,7 +368,8 @@ void Algebra::Clean_Inlined(int i)
 		return;
 	if (Input->at(i)->Name != "=")
 		return;
-	if (Parent->Find(Input->at(i)->Get_Most_Left()->Name, Input->at(i)->Get_Most_Left()->Get_Right_Parent())->Inlined == false)
+	Node* l = Input->at(i)->Get_Most_Left();
+	if (Parent->Find(l->Name, l->Get_Most_Left()->Get_Right_Parent())->Inlined == false)
 		return;
 
 	//!!! MUST COMBINE THE CALLATION AND THE CLASS FETCHER!!!
@@ -352,11 +400,12 @@ void Algebra::Set_Defining_Value(int i)
 	//ignore arrays
 	if (Input->at(i)->Left->is(ARRAY_NODE))
 		return;
+
+	//callations hould not be inlined because theyre return value may vary.
 	for (auto j : Linearise(Input->at(i)->Right))
 		if (j->is(CALL_NODE))
 			return;
-	//remeber if functoin call has do something global/pointter-
-	//dont let this function run on that!
+	
 
 	//if the right side is a operator wrap it in a parenthesis just because the '-' prefix!!
 	Node* right = Input->at(i)->Right;
@@ -384,7 +433,7 @@ void Algebra::Set_Coefficient_Value(int i)
 	//b = x * 2 + a
 	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		return;
-
+	//return;	//depricated
 	vector<Node*> linear_ast = Linearise(Input->at(i), true);
 
 	Node* Coefficient = nullptr;
@@ -516,6 +565,7 @@ void Algebra::Clean_Unused()
 void Algebra::Operate_Coefficient_Constants(Node* op)
 {
 	//b = 2x * -2x
+	//return; //depricated
 	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE))
 		return;
 	if (op->Left->is(OPERATOR_NODE) || op->Left->is(ASSIGN_OPERATOR_NODE))
@@ -525,7 +575,8 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 
 	if (op->Left->Name != op->Right->Name)
 		return;
-
+	if (op->Left->Order != op->Right->Order)
+		return;
 
 	Node* New_Num = new Node(*op->Left);
 
@@ -569,25 +620,27 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 
 void Algebra::Operate_Numbers_As_Constants(Node* op)
 {
-	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE) && !op->is(CONDITION_OPERATOR_NODE))
+	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE)) // && !op->is(CONDITION_OPERATOR_NODE))
 			return;
-	if (op->Left->is(OPERATOR_NODE) || op->Left->is(BIT_OPERATOR_NODE) || op->Left->is(CONDITION_OPERATOR_NODE))
+	if (op->Left->is(OPERATOR_NODE) || op->Left->is(BIT_OPERATOR_NODE)) // || op->Left->is(CONDITION_OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Left);
 	else if (op->Left->is(CONTENT_NODE)) {
 		for (Node* i : op->Left->Childs)
 			Operate_Numbers_As_Constants(i);
 		if (op->Left->Childs.size() == 1) {
 			op->Left->Childs[0]->Coefficient *= op->Left->Coefficient;
+			op->Left->Childs[0]->Holder = op->Left->Holder;
 			*op->Left = *op->Left->Childs[0];
 		}
 	}
-	if (op->Right->is(OPERATOR_NODE) || op->Right->is(BIT_OPERATOR_NODE) || op->Right->is(CONDITION_OPERATOR_NODE))
+	if (op->Right->is(OPERATOR_NODE) || op->Right->is(BIT_OPERATOR_NODE)) // || op->Right->is(CONDITION_OPERATOR_NODE))
 		Operate_Numbers_As_Constants(op->Right);
 	else if (op->Right->is(CONTENT_NODE)) {
 		for (Node* i : op->Right->Childs)
 			Operate_Numbers_As_Constants(i);
 		if (op->Left->Childs.size() == 1) {
 			op->Left->Childs[0]->Coefficient *= op->Left->Coefficient;
+			op->Left->Childs[0]->Holder = op->Left->Holder;
 			*op->Left = *op->Left->Childs[0];
 		}
 	}
@@ -717,13 +770,15 @@ void Algebra::Combine_Scattered(Node* op) {
 			Number_Indices.push_back(i);
 
 	//now check if you can operate those two constants together.
-	for (auto i : Number_Indices) {
-		if (i - 1 > 0 && (list[(size_t)i - 1]->Name != "+" && list[(size_t)i - 1]->Name != "-")) {
-			if ((size_t)i + 1 < list.size() && (list[(size_t)i + 1]->Name != "+" && list[(size_t)i + 1]->Name != "-"))
-				return;
+	for (int i = 0; i < Number_Indices.size(); i++) {
+		if (Number_Indices[i] - 1 > 0 && (list[(size_t)Number_Indices[i] - 1]->Name != "+" && list[(size_t)Number_Indices[i] - 1]->Name != "-")) {
+			if ((size_t)Number_Indices[i] + 1 < list.size() && (list[(size_t)Number_Indices[i] + 1]->Name != "+" && list[(size_t)Number_Indices[i] + 1]->Name != "-"))
+				Number_Indices.erase(Number_Indices.begin() + i--);
+			else if ((size_t)Number_Indices[i] + 1 >= list.size())
+				Number_Indices.erase(Number_Indices.begin() + i--);
 		}
-		else if ((size_t)i + 1 < list.size() && (list[(size_t)i + 1]->Name != "+" && list[(size_t)i + 1]->Name != "-"))
-			return;	//we break the whole operation because we cant optimise this.
+		else if ((size_t)Number_Indices[i] + 1 < list.size() && (list[(size_t)Number_Indices[i] + 1]->Name != "+" && list[(size_t)Number_Indices[i] + 1]->Name != "-"))
+			Number_Indices.erase(Number_Indices.begin() + i--);
 	}
 
 	for (int i = 0; (size_t)i+1 < Number_Indices.size(); i += 2) {
@@ -741,7 +796,7 @@ Node* Algebra::Get_Other_Pair(Node* ast, Node* other) {
 		return ast->Left;
 	else if (ast->Left != nullptr && Get_Other_Pair(ast->Left, other) != nullptr)
 		return Get_Other_Pair(ast->Left, other);
-	else if (ast->Left != nullptr && Get_Other_Pair(ast->Right, other) != nullptr)
+	else if (ast->Right != nullptr && Get_Other_Pair(ast->Right, other) != nullptr)
 		return Get_Other_Pair(ast->Right, other);
 	else if (ast->is(CONTENT_NODE)) {
 		if (ast->Childs[0]->is(OPERATOR_NODE) || ast->Childs[0]->is(ASSIGN_OPERATOR_NODE) || ast->Childs[0]->is(CONDITION_OPERATOR_NODE) || ast->Childs[0]->is(BIT_OPERATOR_NODE)) {
@@ -788,16 +843,21 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	//make operator that is going to hold the new coefficient and the variable
 	Node* New_Operator = new Node(OPERATOR_NODE, n->Location);
 	New_Operator->Name = "*";
+	New_Operator->Parent = n->Parent;
+	New_Operator->Holder = n->Holder;
 
 	//making the coefficient into a real number token
 	Node* Coefficient = new Node(NUMBER_NODE, n->Location);
 	Coefficient->Name = to_string(n->Coefficient);
+	Coefficient->Parent = n->Parent;
+	Coefficient->Holder = n->Holder;
 
 	//now clean the coefficient
 	n->Coefficient = 1;
 
 	//transform the negative holder into positive operator
-	n->Holder->Name = "+";
+	if (n->Holder->Name == "-")
+		n->Holder->Name = "+";
 
 	//combine
 	//this is because the override later
@@ -808,5 +868,53 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 
 	*n = *New_Operator;
 
+	return;
+}
+
+void Algebra::Fix_Order_Into_Real_Operator(Node* n)
+{
+	//here we will fix the coefficient into a real operator as the name yells.
+	if (n->is(OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE) || n->is(ASSIGN_OPERATOR_NODE)) {
+		if (n->Left->Order != 0)
+			Fix_Order_Into_Real_Operator(n->Left);
+		else {
+			//this is needed to be cleaned!!
+			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
+			*n = *n->Right;
+			return;
+		}
+		if (n->Right->Order != 0)
+			Fix_Order_Into_Real_Operator(n->Right);
+		else {
+			//this is needed to be cleaned!!
+			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
+			*n = *n->Left;
+			return;
+		}
+	}
+	//only variables are accepted
+	if (!n->is(OBJECT_NODE) && !n->is(PARAMETER_NODE))
+		return;
+	if (n->Order == 1)
+		return;
+
+	int Order = n->Order;
+	n->Order = 1;
+	Node* L = n->Copy_Node(n, n->Parent);
+	for (int i = 0; i < Order; i++) {
+		//(((a * a) * a)...)
+		Node* mul = new Node(OPERATOR_NODE, "*", n->Location);
+		mul->Left = L;
+		mul->Left->Holder = mul;	//give the previus mul this as a holder.
+		mul->Right = n->Copy_Node(n, n->Parent);	//multiply self by self
+		mul->Parent = n->Parent;
+
+		L = mul;
+	}
+
+	//give the last mul the n->holder
+	L->Holder = n->Holder;
+	
+	*n = *L;
 	return;
 }

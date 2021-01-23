@@ -15,6 +15,9 @@ export int Start_Test(){
 		i = 100
 	}
 	return i
+
+	while (1 < 2){}
+	return 0
 }
 
 export int main(){

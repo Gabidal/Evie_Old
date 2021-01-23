@@ -5,10 +5,11 @@ Start_Test:
 mov ecx, 40
 call _Z8allocatei
 mov rcx, rax
-lea rdx, qword ptr [rcx + 1 * 4 ]
-mov dword ptr [rdx ], 1
-lea rcx, qword ptr [rcx + 1 * 4 ]
-mov eax, dword ptr [rcx ]
+lea r8, qword ptr [rcx + 1 * 4 ]
+mov dword ptr [r8 ], 1
+mov ecx, dword ptr [rcx + 1 * 4 ]
+mov ecx, ecx
+mov eax, ecx
 ret 
 ret 
 

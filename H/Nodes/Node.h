@@ -29,6 +29,7 @@ public:
 	Node(int flag, Position* p) : Type(flag), Location(p) {}
 	Node(int flag, Position* p, string f) : Type(flag), Location(p), Format(f) {}
 	Node(string n, Position* p) : Name(n), Location(p) {}
+	Node(int flag, string n, Position* p) : Type(flag), Name(n), Location(p) {}
 	//Node(){}
 	//Normal features
 	Position* Location = nullptr;
@@ -68,7 +69,7 @@ public:
 	Node* Succsessor = nullptr;
 	Node* Predecessor = nullptr;
 	//algebra optimizer features
-	int Order = 0;
+	int Order = 1;
 	int Coefficient = 1;
 	Variable_Descriptor* Current_Value = nullptr;
 	bool Inlined = false;
@@ -467,6 +468,9 @@ public:
 
 		Result->Succsessor = Copy_Node(Result->Succsessor, p);
 		Result->Predecessor = Copy_Node(Result->Predecessor, p);
+
+		//The copying prosess must go downwards not upwards, otherwise it will loop forever!
+		//Result->Holder = Copy_Node(Result->Holder, p);
 
 		//now we have copyed every ptr into a new base to point.
 		return Result;

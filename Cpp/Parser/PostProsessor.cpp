@@ -430,13 +430,14 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
 	PostProsessor p(Parent, Input[i]->Parameters);
 	//use optimization into the parameters.
-	Algebra a(Input[i], &Input[i]->Parameters);
+	Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
 }
 
 void PostProsessor::Algebra_Laucher(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
+	return;
 	while (true) {
 		Algebra a(Input[i], &Input[i]->Childs);
 		if (!Optimized)
@@ -692,9 +693,7 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	//while (a + 1 < a * 2){..}
 	//while (int i = 0, a + i < a * i*2, i++){..}
 	//we dont necessarily need to seperate the condition operator.
-	Algebra Alg(Input[i]);
-	Alg.Input = &Input[i]->Parameters;
-	Alg.Factory();
+	Algebra Alg(Input[i], &Input[i]->Parameters);
 
 	//now just prosess the child tokens of while node as well.
 	PostProsessor post(Input[i]);
@@ -959,6 +958,8 @@ void PostProsessor::Open_Safe(vector<Node*> n)
 
 void PostProsessor::Update_Operator_Inheritance(Node* n)
 {
+	if (n->is(CONTENT_NODE))
+		Update_Operator_Inheritance(n->Childs[0]);
 	if (!n->is(ASSIGN_OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(OPERATOR_NODE) && !n->is(BIT_OPERATOR_NODE) && !n->is(ARRAY_NODE))
 		return;
 
@@ -989,7 +990,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 	else {
 		if (n->Left->is(OPERATOR_NODE) || n->Left->is(ASSIGN_OPERATOR_NODE) || n->Left->is(CONDITION_OPERATOR_NODE) || n->Left->is(BIT_OPERATOR_NODE) || n->Left->is(ARRAY_NODE))
 			n->Inheritted = n->Left->Inheritted;
-		else if (!n->Left->is(NUMBER_NODE))
+		else if (!n->Left->is(NUMBER_NODE) && !n->Left->is(CONTENT_NODE))
 			n->Inheritted = n->Left->Parent->Find(n->Left, n->Left->Parent)->Inheritted;
 		else {
 			if (n->Right->is(OPERATOR_NODE) || n->Right->is(ASSIGN_OPERATOR_NODE) || n->Right->is(CONDITION_OPERATOR_NODE) || n->Right->is(BIT_OPERATOR_NODE) || n->Right->is(ARRAY_NODE))

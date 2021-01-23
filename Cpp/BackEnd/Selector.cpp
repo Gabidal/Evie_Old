@@ -232,16 +232,18 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 	//}
 
 	for (auto& r : Registers) {
-
+		if (r.second->is(TOKEN::DECIMAL))
+			if (!t->is(TOKEN::DECIMAL))
+				continue;
 		if (r.first == nullptr) {
 			if (r.second->is(Reg_Type)) {
 				for (auto s : *r.second->Get_Childs())
 					if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
-						if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)
+						if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i)
 							goto Wrong;
 				if (r.second->Holder != nullptr)
 					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
-						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i && !Single_Register_Type)
+						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i)
 							goto Wrong;
 				if (r.second->Get_Size() == t->Get_Size()) {
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
@@ -251,22 +253,22 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		}
 		//									no need because the arguments are now reversed!
 		//								   <= is wrong because the old user doesnt find the register it belong into.
-		else if (r.first->Last_Usage_Index <= i + Single_Register_Type){
+		else if (r.first->Last_Usage_Index <= i && r.second->is(Reg_Type) && r.second->Get_Size() == t->Get_Size()) {
 			for (auto s : *r.second->Get_Childs())
 				if (Check_If_Smaller_Register_Is_In_Use(s) != nullptr)
-					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i && !Single_Register_Type)
+					if (Check_If_Smaller_Register_Is_In_Use(s)->Last_Usage_Index > i)
 						goto Wrong;
 			if (r.second->Holder != nullptr)
 				if (Check_If_Larger_Register_Is_In_Use(r.second->Holder) != nullptr)
-					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i && !Single_Register_Type)
+					if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i)
 						goto Wrong;
-			if (r.second->is(Reg_Type)) {
-				if (r.second->Get_Size() == t->Get_Size()) {
-					r.first->Last_Usage_Index = p->Last_Usage;
-					r.first->User = t->Get_Name();
-					return r.second;
-				}
-			}
+			r.first->Last_Usage_Index = p->Last_Usage;
+			r.first->User = t->Get_Name();
+			return r.second;
+		}
+		else if (Single_Register_Type && r.second->is(Reg_Type) && r.second->Get_Size() == t->Get_Size()) {
+			Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Register_Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+			return r.second;
 		}
 		//still... checking names is wrong
 		else if (r.first->User == t->Get_Name()) {
@@ -402,6 +404,7 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 		}
 	}
 	cout << "allocation needed!" << endl;
+	throw::exception("INTERNAL ERROR!");
 }
 
 void Selector::Pair_Up(Token* r, Register_Descriptor* t)

@@ -29,6 +29,17 @@ mov ecx, 100
 else3_END:
 mov eax, ecx
 ret 
+mov ecx, 1
+cmp ecx, 2
+jge while4_END
+while4:
+mov ecx, 1
+cmp ecx, 2
+jge while4_END
+jmp while4
+while4_END:
+mov eax, 0
+ret 
 ret 
 
 

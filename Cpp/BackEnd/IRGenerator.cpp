@@ -474,12 +474,12 @@ void IRGenerator::Parse_Operators(int i)
 			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
 			//	Left = Left; //:D no need to do enything
 		}
-		else if (Is_In_Left_Side_Of_Operator || (!Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))) {
+		else if (Is_In_Left_Side_Of_Operator || (!Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) || Input[i]->Left->is(NUMBER_NODE))) {
 			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
 			if (L->is(TOKEN::CONTENT))
 				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size(), L->Get_Name());
 
-			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
+			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name() + to_string(Reg_Random_ID_Addon++), L->Get_Size());
 			//create the IR
 			Token* Opc = new Token(TOKEN::OPERATOR, "move");
 			IR* ir = new IR(Opc, { Reg, L });
@@ -522,7 +522,7 @@ void IRGenerator::Parse_Operators(int i)
 		if (R->is(TOKEN::CONTENT))
 			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size(), R->Get_Name());
 
-		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
+		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name() + to_string(Reg_Random_ID_Addon++), R->Get_Size());
 		//create the IR
 		Token* Opc = new Token(TOKEN::OPERATOR, "move");
 		IR* ir = new IR(Opc, { Reg, R });
@@ -1095,7 +1095,7 @@ void IRGenerator::Switch_To_Correct_Places(Node* o)
 	if (o->Right->is(OPERATOR_NODE) || o->Right->is(ASSIGN_OPERATOR_NODE) || o->Right->is(CONDITION_OPERATOR_NODE) || o->Right->is(BIT_OPERATOR_NODE))
 		Switch_To_Correct_Places(o->Right);
 
-	if (o->Left->is(NUMBER_NODE)) {
+	if (o->Left->is(NUMBER_NODE) && !o->Right->is(NUMBER_NODE)) {
 		//switch the left side with right side, what could possibly go wrong?
 		Node* tmp = o->Left;
 		o->Left = o->Right;

@@ -23,6 +23,7 @@ private:
 	void Function_Inliner(Node* c);
 	vector<Node*> Get_all(Node* n, int Flag);
 	void Prosess_Return(Node* n);
+	void Prosess_Call_Parameters(Node* n);
 	void Prosess_Paranthesis(Node* n);
 
 	void Set_Defining_Value(int i);
@@ -39,6 +40,7 @@ private:
 	void Operate_Numbers_As_Constants(Node* op);
 
 	void Fix_Coefficient_Into_Real_Operator(Node* n);
+	void Fix_Order_Into_Real_Operator(Node* n);
 	Node* Operate_Constants(Node* l, Node* r);
 	void Combine_Scattered(Node* op);
 	Node* Get_Other_Pair(Node* ast, Node* other);

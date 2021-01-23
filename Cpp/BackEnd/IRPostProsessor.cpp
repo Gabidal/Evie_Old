@@ -10,6 +10,9 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 	if (!Input->at(i)->is(TOKEN::OPERATOR))
 		return;
 
+	if (Input->at(i)->Arguments.size() < 2)
+		return;
+
 	if (!selector->Get_Opcode(Input->at(i))->is(TOKEN::ALL_ARGS_SAME_SIZE))
 		return;
 

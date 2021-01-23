@@ -28,11 +28,11 @@ void x86_64_Win::Init()
 	Token* ECX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "ecx", 4, { CX });
 	Token* RCX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "rcx", 8, { ECX});
 
-	Token* DL = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dl", 1, {});
-	Token* DH = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "dh", 1, {});
-	Token* DX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::REMAINDER, "dx", 2, { DH, DL });
-	Token* EDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::REMAINDER, "edx", 4, { DX });
-	Token* RDX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::REMAINDER, "rdx", 8, { EDX });
+	Token* DL = new Token( TOKEN::PARAMETER, "dl", 1, {});
+	Token* DH = new Token( TOKEN::PARAMETER, "dh", 1, {});
+	Token* DX = new Token( TOKEN::PARAMETER  | TOKEN::REMAINDER, "dx", 2, { DH, DL });
+	Token* EDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "edx", 4, { DX });
+	Token* RDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "rdx", 8, { EDX });
 
 	Token* DIL = new Token(TOKEN::NONVOLATILE, "dil", 1, {});
 	//Token* DIH = new Token(TOKEN::NONVOLATILE, "dih", 1, {});
@@ -157,8 +157,8 @@ void x86_64_Win::Init()
 		RDX, EDX, DX, DH, DL,
 		RDI, EDI, DI, DIL,
 		RSI, ESI, SI, SIL,
-		RBP, EBP, BP,
-		RSP, ESP, SP,
+		RBP, EBP, BP, BPL,
+		RSP, ESP, SP, SPL,
 		XMM0D, XMM1D, XMM2D, XMM3D, XMM4D, XMM5D, XMM6D, XMM7D, XMM8D, XMM9D, XMM10D, XMM11D, XMM12D, XMM13D, XMM14D, XMM15D,
 		XMM0Q, XMM1Q, XMM2Q, XMM3Q, XMM4Q, XMM5Q, XMM6Q, XMM7Q, XMM8Q, XMM9Q, XMM10Q, XMM11Q, XMM12Q, XMM13Q, XMM14Q, XMM15Q,
 		XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6, XMM7, XMM8, XMM9, XMM10, XMM11, XMM12, XMM13, XMM14, XMM15,
@@ -329,11 +329,11 @@ void x86_64_Win::Init()
 				eax = args[0];
 				mul = args[1];
 			}
-			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT", eax->Get_Size());
+			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT" + to_string(rand()), eax->Get_Size());
 			if (mul->is(NUM)) {
 				//you cant give mul a num as a arg so move it to a register.
 				Token* tmp = mul;
-				mul = new Token(REGISTER, mul->Get_Name() + "_REG", mul->Get_Size());
+				mul = new Token(REGISTER, mul->Get_Name() + "_REG" + to_string(rand()), mul->Get_Size());
 				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }));
 			}
 
@@ -366,12 +366,12 @@ void x86_64_Win::Init()
 				eax = args[0];
 				mul = args[1];
 			}
-			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT", eax->Get_Size());
-			Token* Remainder = new Token(REMAINDER | REGISTER, eax->Get_Name() + "_REMAINDER", eax->Get_Size());
+			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT" + to_string(rand()), eax->Get_Size());
+			Token* Remainder = new Token(REMAINDER | REGISTER, eax->Get_Name() + "_REMAINDER" + to_string(rand()), eax->Get_Size());
 			if (mul->is(NUM)) {
 				//you cant give mul a num as a arg so move it to a register.
 				Token* tmp = mul;
-				mul = new Token(REGISTER, mul->Get_Name() + "_REG", mul->Get_Size());
+				mul = new Token(REGISTER, mul->Get_Name() + "_REG" + to_string(rand()), mul->Get_Size());
 				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }));
 			}
 			//\u00a4
