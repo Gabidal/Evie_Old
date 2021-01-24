@@ -6,18 +6,19 @@ bool Optimized = false;
 void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
 		Inline_Variables(i);
-		Set_Coefficient_Value(i);
-		Function_Inliner(Input->at(i));
+		//Set_Coefficient_Value(i);
+		//Function_Inliner(Input->at(i));
 		Prosess_Return(Input->at(i));
-		Prosess_Paranthesis(Input->at(i));
+		//Prosess_Paranthesis(Input->at(i));
 		Combine_Scattered(Input->at(i));
 		Set_Defining_Value(i);
 		Reset_Defining_Value(i);
 	}
 	for (int i = 0; i < Input->size(); i++)
-		Clean_Inlined(i);
+		Clean_Inlined(i); 
 	for (auto& i : *Input)
 		Operate_Numbers_As_Constants(i);
+	/*
 	for (auto& i : *Input)
 		Reduce_Operator_Operations(i);
 	for (auto& i : *Input)
@@ -25,7 +26,7 @@ void Algebra::Factory() {
 	for (auto& i : *Input) {
 		Fix_Order_Into_Real_Operator(i);
 		Fix_Coefficient_Into_Real_Operator(i);
-	}
+	}*/
 	Clean_Unused();
 }
 
@@ -627,7 +628,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 	else if (op->Left->is(CONTENT_NODE)) {
 		for (Node* i : op->Left->Childs)
 			Operate_Numbers_As_Constants(i);
-		if (op->Left->Childs.size() == 1) {
+		if (op->Left->Childs.size() == 1 && op->Left->Childs[0]->is(NUMBER_NODE)) {
 			op->Left->Childs[0]->Coefficient *= op->Left->Coefficient;
 			op->Left->Childs[0]->Holder = op->Left->Holder;
 			*op->Left = *op->Left->Childs[0];
@@ -638,10 +639,10 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 	else if (op->Right->is(CONTENT_NODE)) {
 		for (Node* i : op->Right->Childs)
 			Operate_Numbers_As_Constants(i);
-		if (op->Left->Childs.size() == 1) {
-			op->Left->Childs[0]->Coefficient *= op->Left->Coefficient;
-			op->Left->Childs[0]->Holder = op->Left->Holder;
-			*op->Left = *op->Left->Childs[0];
+		if (op->Right->Childs.size() == 1 && op->Right->Childs[0]->is(NUMBER_NODE)) {
+			op->Right->Childs[0]->Coefficient *= op->Right->Coefficient;
+			op->Right->Childs[0]->Holder = op->Right->Holder;
+			*op->Right = *op->Right->Childs[0];
 		}
 	}
 
@@ -722,6 +723,13 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 }
 
 Node* Algebra::Operate_Constants(Node* l, Node* r) {
+
+	Node* tmp;
+	if (r->Holder->Left == r) {
+		tmp = l;
+		l = r;
+		r = tmp;
+	}
 
 	Node* New_Num = new Node(NUMBER_NODE, l->Location);
 	New_Num->Holder = l->Holder;

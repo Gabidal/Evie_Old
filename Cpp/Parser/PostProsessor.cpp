@@ -429,15 +429,20 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
 	PostProsessor p(Parent, Input[i]->Parameters);
+
 	//use optimization into the parameters.
 	Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
+
+	for (auto j : Input[i]->Parameters)
+		if (j->is(OPERATOR_NODE))
+			Update_Operator_Inheritance(j);
 }
 
 void PostProsessor::Algebra_Laucher(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
-	return;
+	
 	while (true) {
 		Algebra a(Input[i], &Input[i]->Childs);
 		if (!Optimized)
@@ -607,9 +612,9 @@ void PostProsessor::Determine_Return_Type(int i)
 	}
 
 	if (Left_Size >= Right_Size)
-		Input[i]->Inheritted = Input[i]->Left->Inheritted;
+		Input[i]->Inheritted = Input[i]->Left->Get_Inheritted(false, false);
 	else
-		Input[i]->Inheritted = Input[i]->Right->Inheritted;
+		Input[i]->Inheritted = Input[i]->Right->Get_Inheritted(false, false);
 }
 
 void PostProsessor::Determine_Array_Type(int i)
@@ -992,6 +997,8 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 			n->Inheritted = n->Left->Inheritted;
 		else if (!n->Left->is(NUMBER_NODE) && !n->Left->is(CONTENT_NODE))
 			n->Inheritted = n->Left->Parent->Find(n->Left, n->Left->Parent)->Inheritted;
+		else if (n->Left->is(NUMBER_NODE))
+			n->Inheritted = n->Left->Get_Inheritted(false, false);
 		else {
 			if (n->Right->is(OPERATOR_NODE) || n->Right->is(ASSIGN_OPERATOR_NODE) || n->Right->is(CONDITION_OPERATOR_NODE) || n->Right->is(BIT_OPERATOR_NODE) || n->Right->is(ARRAY_NODE))
 				n->Inheritted = n->Right->Inheritted;
