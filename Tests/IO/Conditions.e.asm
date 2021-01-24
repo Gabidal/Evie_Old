@@ -6,6 +6,7 @@ mov ecx, 0
 cmp ecx, 100
 jge while0_END
 while0:
+mov r8d, ecx
 add ecx, 1
 cmp ecx, 100
 jge while0_END

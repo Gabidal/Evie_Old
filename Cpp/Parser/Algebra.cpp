@@ -6,7 +6,7 @@ bool Optimized = false;
 void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
 		Inline_Variables(i);
-		//Set_Coefficient_Value(i);
+		Set_Coefficient_Value(i);
 		//Function_Inliner(Input->at(i));
 		Prosess_Return(Input->at(i));
 		//Prosess_Paranthesis(Input->at(i));
@@ -22,11 +22,11 @@ void Algebra::Factory() {
 	for (auto& i : *Input)
 		Reduce_Operator_Operations(i);
 	for (auto& i : *Input)
-		Operate_Coefficient_Constants(i);
+		Operate_Coefficient_Constants(i);*/
 	for (auto& i : *Input) {
-		Fix_Order_Into_Real_Operator(i);
+		//Fix_Order_Into_Real_Operator(i);
 		Fix_Coefficient_Into_Real_Operator(i);
-	}*/
+	}
 	Clean_Unused();
 }
 
@@ -455,18 +455,24 @@ void Algebra::Set_Coefficient_Value(int i)
 			Variable = nullptr;
 			Operator = nullptr;
 		}
-		if ((Coefficient != nullptr) && (Variable != nullptr) && (Operator != nullptr))
-			break;
+		if ((Coefficient != nullptr) && (Variable != nullptr) && (Operator != nullptr)) {
+
+			linear_ast.erase(linear_ast.begin() + j - 2, linear_ast.begin() + j);
+
+			//now apply the coefficient to the variable
+			Variable->Coefficient = atoi(Coefficient->Name.c_str());
+			Variable->Holder = Operator->Holder;
+
+			if (Variable->Holder->Name == "-")
+				Variable->Coefficient *= -1;
+
+			*Operator = *Variable;
+			//for next iteration
+			linear_ast[j - 2] = Variable;
+
+			j -= 2;
+		}
 	}
-
-	//the required nodes where not found thus return. 
-	if ((Coefficient == nullptr) || (Variable == nullptr) || (Operator == nullptr))
-		return;
-
-	//now apply the coefficient to the variable
-	Variable->Coefficient = atoi(Coefficient->Name.c_str());
-
-	*Operator = *Variable;
 }
 
 void Algebra::Reset_Defining_Value(int i)
@@ -841,6 +847,10 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 			*n = *n->Left;
 			return;
 		}
+	}
+	else if (n->is(CONTENT_NODE)) {
+		for (auto j : n->Childs)
+			Fix_Coefficient_Into_Real_Operator(j);
 	}
 	//only variables are accepted
 	if (!n->is(OBJECT_NODE) && !n->is(PARAMETER_NODE))

@@ -23,10 +23,10 @@ mov r8d, eax
 add r8d, 3
 add r8d, ecx
 mov ecx, ecx
-mov eax, 3
+mov eax, -3
 mul ecx
 mov ecx, eax
-sub r8d, ecx
+add r8d, ecx
 mov eax, r8d
 ret 
 ret 

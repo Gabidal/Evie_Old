@@ -378,8 +378,11 @@ void Parser::Parenthesis_Pattern(int i)
 	TMP_Parser.Factory();
 
 	for (Component j : TMP_Parser.Input)
-		if (j.node != nullptr)
+		if (j.node != nullptr) {
+			j.node->Holder = Paranthesis;
+			//j.node->Parent = Paranthesis;
 			Paranthesis->Childs.push_back(new Node(*j.node));
+		}
 
 	Paranthesis->Paranthesis_Type = Input[i].Value[0];
 	Input[i].Components = TMP_Parser.Input;
