@@ -13,16 +13,17 @@ void Algebra::Factory() {
 		Combine_Scattered(Input->at(i));
 		Set_Defining_Value(i);
 		Reset_Defining_Value(i);
+		Un_Wrap_Parenthesis(Input->at(i));
 	}
 	for (int i = 0; i < Input->size(); i++)
 		Clean_Inlined(i); 
 	for (auto& i : *Input)
 		Operate_Numbers_As_Constants(i);
-	/*
-	for (auto& i : *Input)
+	for (auto& i : *Input) {
+		Operate_Coefficient_Constants(i);
+		Operate_Distant_Coefficients(i);
 		Reduce_Operator_Operations(i);
-	for (auto& i : *Input)
-		Operate_Coefficient_Constants(i);*/
+	}
 	for (auto& i : *Input) {
 		//Fix_Order_Into_Real_Operator(i);
 		Fix_Coefficient_Into_Real_Operator(i);
@@ -280,7 +281,7 @@ void Algebra::Inline_Variables(int i)
 					if (d->Current_Value->Var->is(CONTENT_NODE))
 						if (!d->Current_Value->Var->Childs[0]->is(OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(ASSIGN_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(CONDITION_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(BIT_OPERATOR_NODE))
 							*d->Current_Value->Var = *d->Current_Value->Var->Childs[0];
-					d->Current_Value->Var->Coefficient *= n->Coefficient;
+					//d->Current_Value->Var->Coefficient *= n->Coefficient;
 					d->Current_Value->Var->Holder = n->Holder;
 					d->Current_Value->Var->Parent = n->Parent;
 					*n = *d->Current_Value->Var;
@@ -330,7 +331,7 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 				//decide wich one is in wich side
 				Node* l = v;
 				Node* r = other;
-				if (v->Holder->Right == v) {
+				if (v->Holder->Right == v && other->Holder->Left == other) {
 					r = v;
 					l = other;
 				}
@@ -460,11 +461,14 @@ void Algebra::Set_Coefficient_Value(int i)
 			linear_ast.erase(linear_ast.begin() + j - 2, linear_ast.begin() + j);
 
 			//now apply the coefficient to the variable
-			Variable->Coefficient = atoi(Coefficient->Name.c_str());
+			Variable->Coefficient = atoi(Coefficient->Name.c_str()) * Coefficient->Coefficient;
 			Variable->Holder = Operator->Holder;
 
-			if (Variable->Holder->Name == "-")
+			/*if (Variable->Holder->Name == "-") {
 				Variable->Coefficient *= -1;
+				Variable->Holder->Name = "+";
+			}*/
+
 
 			*Operator = *Variable;
 			//for next iteration
@@ -582,36 +586,56 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 
 	if (op->Left->Name != op->Right->Name)
 		return;
-	if (op->Left->Order != op->Right->Order)
+	if (op->Left->Coefficient == 0 || op->Right->Coefficient == 0)
 		return;
 
-	Node* New_Num = new Node(*op->Left);
+	if (op->Name != "*" && op->Name != "/")
+		return;
+
+	Node* New_Num;
 
 	long left = op->Left->Coefficient;
 	long right = op->Right->Coefficient;
 
-	if (op->Name == "+")
-		New_Num->Coefficient = left + right;
-	else if (op->Name == "-")
-		New_Num->Coefficient = left - right;
-	else if (op->Name == "*")
-		New_Num->Coefficient = left * right;
-	else if (op->Name == "/")
-		New_Num->Coefficient = left / right;
-	else if (op->Name == "<<")
-		New_Num->Coefficient = left << right;
-	else if (op->Name == ">>")
-		New_Num->Coefficient = left >> right;
-	else if (op->Name == "&")
-		New_Num->Coefficient = left & right;
-	else if (op->Name == "|")
-		New_Num->Coefficient = left | right;
-	else if (op->Name == "¤")
-		New_Num->Coefficient = left ^ right;
-	else if (op->Name == "%")
-		New_Num->Coefficient = left % right;
-	else if (op->Name == "^")
-		New_Num->Coefficient = (int)pow(left, right);
+	
+	if (op->Name == "/") {
+		//3b / b == 3
+		if (op->Left->Order == op->Right->Order) {
+			long double remainder = left / right;
+			New_Num = new Node(NUMBER_NODE, op->Location);
+
+			if (remainder - (long long)remainder == 0)
+				New_Num->Name = to_string((long long)remainder);
+			else
+				New_Num->Name = to_string(remainder);
+		}
+		else {
+			//3b / b^2 == 3b^-1
+			long double coefficient = left / right;
+			string Name = op->Left->Name;
+			long Order = op->Left->Order - op->Right->Order;
+			New_Num = new Node(OBJECT_NODE, op->Location);
+			New_Num->Name = Name;
+			New_Num->Coefficient = coefficient;
+			New_Num->Order = Order;
+		}
+		New_Num->Holder = op->Holder;
+		New_Num->Parent = op->Parent;
+	}
+	else if (op->Name == "*") {
+		//3b * b == 3b^2
+		//3b * b^2 == 3b^3
+		long double Coefficient = left * right;
+		string Name = op->Left->Name;
+		long Order = op->Left->Order + op->Right->Order;
+		New_Num = new Node(OBJECT_NODE, op->Location);
+		New_Num->Name = Name;
+		New_Num->Coefficient = Coefficient;
+		New_Num->Order = Order;
+		New_Num->Holder = op->Holder;
+		New_Num->Parent = op->Parent;
+	}
+
 
 	*op = *New_Num;
 
@@ -622,6 +646,133 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 	}
 
 	Optimized = true;
+
+}
+
+void Algebra::Operate_Distant_Coefficients(Node* op)
+{
+	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(CONDITION_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE))
+		return;
+
+	vector<Node*> Linear = Linearise(op, true);
+	vector<Node*> Coefficients;
+	Node* Operator = nullptr;
+	for (auto i : Linear) {
+		if (i->is(OPERATOR_NODE))
+			Operator = i;
+		else if (i->is(OBJECT_NODE)) {
+			Coefficients.push_back(i);
+		}
+		else {
+			Operator = nullptr;
+			Coefficients.clear();
+			continue;
+		}
+
+		if (Operator != nullptr && Coefficients.size() == 2) {
+
+			Node* New_Num;
+
+			if (Coefficients[0]->Name != Coefficients[1]->Name) {
+				Operator = nullptr;
+				Coefficients.clear();
+				continue;
+			}
+			//find the other operators that may stuck under the operator override.
+			//(6 + b) - (b * 3)
+			//(6 + b) - 3b
+			//b - 3b --> the 6 has been forgotten
+			Node* Forgotten_Operator = nullptr;
+			bool Forgotten_Operator_is_Left_Side = true;
+			if (Operator->Left == Coefficients[0] && Operator->Right != Coefficients[1])
+				Forgotten_Operator = Operator->Right;
+			else if (Operator->Left != Coefficients[0] && Operator->Right == Coefficients[1]) {
+				Forgotten_Operator_is_Left_Side = false;
+				Forgotten_Operator = Operator->Left;
+			}
+				
+			long left = Coefficients[0]->Coefficient;
+			long right = Coefficients[1]->Coefficient;
+
+			if (Operator->Name == "/") {
+				//3b / b == 3
+				if (Coefficients[0]->Order == Coefficients[1]->Order) {
+					long double remainder = left / right;
+					New_Num = new Node(NUMBER_NODE, Operator->Location);
+
+					if (remainder - (long long)remainder == 0)
+						New_Num->Name = to_string((long long)remainder);
+					else
+						New_Num->Name = to_string(remainder);
+				}
+				else {
+					//3b / b^2 == 3b^-1
+					long double coefficient = left / right;
+					string Name = Coefficients[0]->Name;
+					long Order = Coefficients[0]->Order - Coefficients[1]->Order;
+					New_Num = new Node(OBJECT_NODE, Operator->Location);
+					New_Num->Name = Name;
+					New_Num->Coefficient = coefficient;
+					New_Num->Order = Order;
+				}
+				New_Num->Holder = Operator->Holder;
+				New_Num->Parent = Operator->Parent;
+			}
+			else if (Operator->Name == "*") {
+				//3b * b == 3b^2
+				//3b * b^2 == 3b^3
+				long double Coefficient = left * right;
+				string Name = Coefficients[0]->Name;
+				long Order = Coefficients[0]->Order + Coefficients[1]->Order;
+				New_Num = new Node(OBJECT_NODE, Operator->Location);
+				New_Num->Name = Name;
+				New_Num->Coefficient = Coefficient;
+				New_Num->Order = Order;
+				New_Num->Holder = Operator->Holder;
+				New_Num->Parent = Operator->Parent;
+			}
+			else if (Operator->Name == "+") {
+				if (Coefficients[0]->Order != Coefficients[1]->Order)
+					continue;
+				//here it affects the coefficient of other
+				long long Coefficient = Coefficients[0]->Coefficient + Coefficients[1]->Coefficient;
+				New_Num = new Node(OBJECT_NODE, Operator->Location);
+				New_Num->Name = Coefficients[0]->Name;
+				New_Num->Coefficient = Coefficient;
+				New_Num->Order = Coefficients[0]->Order;
+				New_Num->Holder = Operator->Holder;
+				New_Num->Parent = Operator->Parent;
+			}
+			else if (Operator->Name == "-") {
+				if (Coefficients[0]->Order != Coefficients[1]->Order)
+					continue;
+				//here it affects the coefficient of other				
+				long long Coefficient = Coefficients[0]->Coefficient - Coefficients[1]->Coefficient;
+				New_Num = new Node(OBJECT_NODE, Operator->Location);
+				New_Num->Name = Coefficients[0]->Name;
+				New_Num->Coefficient = Coefficient;
+				New_Num->Order = Coefficients[0]->Order;
+				New_Num->Holder = Operator->Holder;
+				New_Num->Parent = Operator->Parent;
+			}
+
+			if (Forgotten_Operator != nullptr) {
+				Operator->Holder = Forgotten_Operator;
+				if (Forgotten_Operator_is_Left_Side) {
+					//put the operator into forgotten operators Left side
+					Forgotten_Operator->Left = New_Num;
+					New_Num->Holder = Forgotten_Operator;
+				}
+				else {
+					Forgotten_Operator->Right = New_Num;
+					New_Num->Holder = Forgotten_Operator;
+				}
+				*Operator = *Forgotten_Operator;
+			}
+			else
+				*Operator = *New_Num;
+		}
+	}
 
 }
 
@@ -827,6 +978,30 @@ Node* Algebra::Get_Other_Pair(Node* ast, Node* other) {
 	return nullptr;
 }
 
+void Algebra::Un_Wrap_Parenthesis(Node* p)
+{
+	if (p->is(OPERATOR_NODE) || p->is(ASSIGN_OPERATOR_NODE) || p->is(CONDITION_OPERATOR_NODE) || p->is(BIT_OPERATOR_NODE)) {
+		Un_Wrap_Parenthesis(p->Left);
+		Un_Wrap_Parenthesis(p->Right);
+	}
+	else if (p->is(CONTENT_NODE))
+		Un_Wrap_Parenthesis(p->Childs[0]);
+	if (!p->is(CONTENT_NODE))
+		return;
+	if (p->Childs.size() > 1)
+		return;
+	//(b * 3)
+	//(3b)
+	//3b
+	if (!p->is(OPERATOR_NODE) && !p->is(ASSIGN_OPERATOR_NODE) && !p->is(CONDITION_OPERATOR_NODE) && !p->is(BIT_OPERATOR_NODE)) {
+		p->Childs[0]->Holder = p->Holder;
+		p->Childs[0]->Parent = p->Parent;
+		p->Childs[0]->Coefficient *= p->Coefficient;
+		p->Childs[0]->Order *= p->Order;
+		*p = *p->Childs[0];
+	}
+}
+
 void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 {
 	//here we will fix the coefficient into a real operator as the name yells.
@@ -836,6 +1011,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 		else {
 			//this is needed to be cleaned!!
 			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
+			n->Right->Holder = n->Holder;
 			*n = *n->Right;
 			return;
 		}
@@ -844,6 +1020,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 		else {
 			//this is needed to be cleaned!!
 			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
+			n->Left->Holder = n->Holder;
 			*n = *n->Left;
 			return;
 		}
@@ -884,7 +1061,17 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	*New_Operator->Left = *n;
 	New_Operator->Right = Coefficient;
 
-	*n = *New_Operator;
+	Node* Parenthesis = new Node(CONTENT_NODE, n->Location);
+	Parenthesis->Childs.push_back(New_Operator);
+	Parenthesis->Paranthesis_Type = '(';
+
+	Parenthesis->Holder = New_Operator->Holder;
+	Parenthesis->Parent = New_Operator->Parent;
+
+	New_Operator->Holder = Parenthesis;
+	New_Operator->Parent = Parenthesis;
+
+	*n = *Parenthesis;
 
 	return;
 }

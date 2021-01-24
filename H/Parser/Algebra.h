@@ -37,6 +37,7 @@ private:
 	void Clean_Unused();
 
 	void Operate_Coefficient_Constants(Node* op);
+	void Operate_Distant_Coefficients(Node* op);
 	void Operate_Numbers_As_Constants(Node* op);
 
 	void Fix_Coefficient_Into_Real_Operator(Node* n);
@@ -44,6 +45,8 @@ private:
 	Node* Operate_Constants(Node* l, Node* r);
 	void Combine_Scattered(Node* op);
 	Node* Get_Other_Pair(Node* ast, Node* other);
+
+	void Un_Wrap_Parenthesis(Node* p);
 };
 
 #endif

@@ -12,22 +12,12 @@ Start_Test:
 mov ecx, 3
 call sum
 mov ecx, eax
-mov r8d, ecx
-mov eax, 3
-mul r8d
-mov r8d, eax
-xor edx, edx
-mov eax, r8d
-div ecx
-mov r8d, eax
-add r8d, 3
-add r8d, ecx
 mov ecx, ecx
-mov eax, -3
+mov eax, -2
 mul ecx
 mov ecx, eax
-add r8d, ecx
-mov eax, r8d
+add ecx, 6
+mov eax, ecx
 ret 
 ret 
 
