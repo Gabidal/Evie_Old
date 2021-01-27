@@ -10,9 +10,6 @@ export int Start_Test(){
 	int c = b * a
 	int d = c / b
 	return d + a + b - c
-	
-	#int b = sum(3)
-	#return (b * 3) / b + 3 + b - b * 3
 }
 
 export int main(){

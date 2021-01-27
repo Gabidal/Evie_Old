@@ -1454,7 +1454,7 @@ void IRGenerator::Parse_Return(int i) {
 		Flag |= TOKEN::DECIMAL;
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
-		new Token(Flag, "Returning_REG", Returning_Reg_Size),
+		new Token(Flag, "Returning_REG" + to_string(Reg_Random_ID_Addon++), Returning_Reg_Size),
 		Return_Val }));
 
 	//let the postprosessor to handle stack emptying!

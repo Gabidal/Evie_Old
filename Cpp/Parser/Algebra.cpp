@@ -654,6 +654,10 @@ void Algebra::Operate_Distant_Coefficients(Node* op)
 	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(CONDITION_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE))
 		return;
 
+	//((3 / b) - b) -> (3 / (b - b)) -> 3
+	//this function tryes to find next to eachother variables and computes the result
+
+
 	vector<Node*> Linear = Linearise(op, true);
 	vector<Node*> Coefficients;
 	Node* Operator = nullptr;
