@@ -1045,8 +1045,8 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	if (n->Fetcher == nullptr)
 		return;
 	if (n->is(NUMBER_NODE))
-		return;	//x.size
-	if ((!Is_In_Left_Side_Of_Operator && n->Holder == nullptr) || (n->Holder != nullptr && n->Holder->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
+		return;	//x.size										//They're were Holders, both of em actually... srry, i dont know what this does m8!
+	if ((!Is_In_Left_Side_Of_Operator && n->Holder == nullptr) || (n->Parent != nullptr && n->Parent->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
 		return;
 
 	Token* Fecher;

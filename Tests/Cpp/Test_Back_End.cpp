@@ -141,6 +141,7 @@ void Back_End_Test::Init()
 	Tests = {
 		{{-6}, "Tests/IO/Math.e"},
 		{{100}, "Tests/IO/Conditions.e"},
-		{{1}, "Tests/IO/Array.e"}
+		{{1}, "Tests/IO/Array.e"},
+		{{3}, "Tests/IO/Type.e"},
 	};
 }

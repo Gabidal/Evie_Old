@@ -172,7 +172,7 @@ void x86_64_Win::Init()
 		R15, R15B, R15D, R15W,
 	};
 	using namespace TOKEN;
-	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER | PARAMETER);
+	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER | PARAMETER | STACK_POINTTER);
 	Token* Register_Float = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | DECIMAL | PARAMETER);
 	Token* Scalar = new Token(NUM, {
 		new Token(NUM, "1"),

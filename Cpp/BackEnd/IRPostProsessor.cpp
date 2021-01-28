@@ -236,12 +236,13 @@ void IRPostProsessor::Factory()
 	for (int i = 0; i < Input->size(); i++) {
 		Prepare_Function(i);
 		Handle_Labels(i);
-		reverse(Input->at(i)->Arguments.begin(), Input->at(i)->Arguments.end());
-		for (auto a : Input->at(i)->Arguments) {
+		IR* Holder = Input->at(i);
+		reverse(Holder->Arguments.begin(), Holder->Arguments.end());
+		for (auto a : Holder->Arguments) {
 			Handle_Stack_Usages(a);
 			Registerize(a, i);
 		}
-		reverse(Input->at(i)->Arguments.begin(), Input->at(i)->Arguments.end());
+		reverse(Holder->Arguments.begin(), Holder->Arguments.end());
 		Clean_Selector(i);
 	}
 }

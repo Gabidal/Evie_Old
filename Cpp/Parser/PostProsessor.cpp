@@ -78,6 +78,27 @@ void PostProsessor::Type_Definer(int i)
 	//update format
 	Parent->Defined[i]->Format = Parent->Defined[i]->Get_Format();
 
+	//DISABLE default constructor if user has already defined one.
+	for (auto j : Parent->Defined) {
+		if (!j->is(FUNCTION_NODE))
+			continue;
+		if (j->Name != Parent->Defined[i]->Name)
+			continue;
+
+		if (j->is("ptr") == -1)
+			continue;	//constructor must return a ptr
+		if (j->is(Parent->Defined[i]->Name) == -1)
+			continue;	//constructor must return its self typed class type ptr.
+
+		if (j->Parameters.size() != 1)
+			continue;
+		if (j->Parameters[0]->is(Parent->Defined[i]->Name) == -1)
+			continue;
+		if (j->Parameters[0]->is("ptr") == -1)
+			continue;	//constructor must take itself as a ptr.
+		return;	//the user has already defined the default constructor for us.
+	}
+
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
 	Node* Function = new Node(FUNCTION_NODE, Parent->Defined[i]->Location);
