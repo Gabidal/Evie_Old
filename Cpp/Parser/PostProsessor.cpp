@@ -814,8 +814,8 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 	}
 
 	if (v->Requires_Address) {
-		v->Memory_Offset = v->Parent->Local_Allocation_Soace;
-		v->Parent->Local_Allocation_Soace += v->Get_Size();
+		v->Memory_Offset = v->Parent->Local_Allocation_Space;
+		v->Parent->Local_Allocation_Space += v->Get_Size();
 	}
 }
 

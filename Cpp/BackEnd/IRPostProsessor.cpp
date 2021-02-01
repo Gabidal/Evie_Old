@@ -143,8 +143,8 @@ void IRPostProsessor::Clean_Selector(int i)
 			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
 		}
 		Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, ret->Get_Parent());
-		if (Parent->Max_Allocation_Space + Parent->Local_Allocation_Soace > 0) {
-			selector->DeAllocate_Stack(Parent->Max_Allocation_Space + selector->Update_Stack_Size() + Parent->Local_Allocation_Soace, Input, j);
+		if (Parent->Max_Allocation_Space + Parent->Local_Allocation_Space > 0) {
+			selector->DeAllocate_Stack(Parent->Max_Allocation_Space + selector->Update_Stack_Size() + Parent->Local_Allocation_Space, Input, j);
 			for (auto k : Input->at(j)->Arguments)
 				Registerize(k, j);
 		}
@@ -182,10 +182,10 @@ void IRPostProsessor::Handle_Labels(int i)
 	if (!Parent->is(FUNCTION_NODE))
 		return;
 
-	if (Parent->Max_Allocation_Space + Parent->Local_Allocation_Soace == 0)
+	if (Parent->Max_Allocation_Space + Parent->Local_Allocation_Space == 0)
 		return;
 	Node* parent = Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope);
-	selector->Allocate_Stack(parent->Max_Allocation_Space + parent->Local_Allocation_Soace, Input, i + 1);
+	selector->Allocate_Stack(parent->Max_Allocation_Space + parent->Local_Allocation_Space, Input, i + 1);
 }
 
 void IRPostProsessor::Handle_Stack_Usages(Token* t)

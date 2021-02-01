@@ -248,8 +248,11 @@ void Algebra::Inline_Variables(int i)
 	if (Input->at(i)->is(OPERATOR_NODE) || Input->at(i)->is(ASSIGN_OPERATOR_NODE) || Input->at(i)->is(BIT_OPERATOR_NODE)) {
 		if (Input->at(i)->Name != "=")
 			Linear_Ast = Linearise(Input->at(i));
-		else
+		else {
+			if (Input->at(i)->is("ptr") != -1)
+				return;
 			Linear_Ast = Linearise(Input->at(i)->Right);
+		}
 	}
 	else {
 		return;

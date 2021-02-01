@@ -72,6 +72,7 @@ public:
 	Token(long long f, vector<Token*> c) : Flags(f), Childs(c) {}
 	Token(long long f, vector<Token*> c, int s) : Flags(f), Childs(c), Size(s) {}
 	Token(long long f, vector<Token*> c, int s, string n) : Flags(f), Childs(c), Size(s), Name(n) {}
+	Token(long long f, vector<Token*> c, int s, string n, Node* p) : Flags(f), Childs(c), Size(s), Name(n), Parent(p) {}
 	Token(long long f, vector<Token*> ut, string id) : Flags(f), Usable_Types(ut), Name(id) {}
 
 	Token(long long f, vector<pair<Token*, int>> Res) : Flags(f), Resources(Res) {}

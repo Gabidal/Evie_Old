@@ -53,7 +53,7 @@ public:
 	//for maximus parametrus usagus.
 	int Max_Allocation_Space = 0;
 	//for local variables.
-	int Local_Allocation_Soace = 0;
+	int Local_Allocation_Space = 0;
 	//function features
 	vector<Node*> Parameters;
 	string Mangled_Name = "";
@@ -595,10 +595,7 @@ public:
 	}
 
 	int Get_Size() {
-		if (is("ptr") != -1)
-			return Scaler;
-		else
-			return Size;
+		return Size;
 	}
 
 	template<typename T>

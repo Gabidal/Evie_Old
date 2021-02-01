@@ -197,7 +197,7 @@ void IRGenerator::Parse_Calls(int i)
 	for (auto p : Reversable_Pushes) {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 			new Token(TOKEN::MEMORY, {
-				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + parent->Local_Allocation_Soace)))
+				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + parent->Local_Allocation_Space)))
 				}, p->Get_Size(), p->Get_Name()),
 			p
 			}));
@@ -646,6 +646,9 @@ void IRGenerator::Parse_Pointers(int i)
 	//will use the condition name to do the correct jump.
 	if (Input[i]->is(CONDITION_OPERATOR_NODE))
 		Operator = "compare";
+
+	if (Left->is(TOKEN::CONTENT))
+		Left = new Token(TOKEN::MEMORY, { Left }, Left->Get_Size(), Left->Get_Name());
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Operator), { Left, Right }));
 }
 
@@ -1246,7 +1249,7 @@ vector<Token*> IRGenerator::Find(long n, Token* t)
 Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing, vector<string> Types)
 {
 	if (p->is(TOKEN::CONTENT)) {
-		p = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());
+		p = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name(), p->Get_Parent());
 	}
 	if (Difference > 0) {	//this p is more pointter that the other
 		vector<string> Type_Trace = Types;
@@ -1260,14 +1263,19 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 		//give Left [reg2]
 		//set the Left size into right system bit size
 		p->Set_Size(_SYSTEM_BIT_SIZE_);
-		Token* handle = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());	//start from the pointter 
+		Token* handle;
+		if (!p->is(TOKEN::MEMORY))
+			handle = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name());	//start from the pointter 
+		else
+			handle = new Token(*p);
 		Token* Reg = nullptr;
-		for (int j = 0; j <= Difference - !Needed_At_Addressing; j++) {
+		//														  memory uploading needs more unwrapping.
+		for (int j = 0; j <= Difference - !Needed_At_Addressing + p->is(TOKEN::MEMORY); j++) {
 			int Reg_Size = _SYSTEM_BIT_SIZE_;
-			if (j + 1 >= Difference) {
+			if (j + 1 <= Difference + p->is(TOKEN::MEMORY)) {
 				Reg_Size = 0;
 				//	 -j because we need to remove the current ptr to see what is inside it
-				for (int s = (int)Type_Trace.size() - 1 - j; s >= 0; s--) {
+				for (int s = (int)Type_Trace.size() - 1 - j - !p->is(TOKEN::MEMORY); s >= 0; s--) {
 					//keywords dont have defined in the find list so skip them and put ptr the scaler switch.
 					if (Lexer::GetComponents(Type_Trace[s])[0].is(Flags::KEYWORD_COMPONENT)) {
 						if (Type_Trace[s] == "ptr") {
@@ -1282,6 +1290,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			}
 
 			int Needed_Size = Reg_Size;
+			handle->Set_Size(Needed_Size);
 			if (Needed_At_Addressing)
 				Needed_Size = _SYSTEM_BIT_SIZE_;
 			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Needed_Size);

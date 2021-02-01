@@ -101,6 +101,9 @@ void Safe::Check_Return_Validity(Node* n)
 		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true)) {
 			return;
 		}
+		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true)) {
+			return;
+		}
 		else if (func->Get_Size() == 0) {
 			Report(Observation(ERROR, "Cant return value in non-returning funciton.", *n->Location));
 			Stop();
