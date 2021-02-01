@@ -311,21 +311,7 @@ public:
 		return false;
 	}
 	
-	void Get_Inheritted_Class_Members() {
-		for (string s : Inheritted) {
-			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
-				continue;
-			if (s == ".")
-				continue;
-			Node* inheritted = Find(s, Parent, CLASS_NODE);
-			for (auto i : inheritted->Defined) {
-				//now insert the inheritted classes members
-				if (Locate(i->Name, Defined) != true)
-					//if this is already defined no luck trying to re defining the same variable twice :D
-					Defined.push_back(i);
-			}
-		}
-	}	
+	void Get_Inheritted_Class_Members();
 	
 	void Get_Inheritted_Class_Members(string s) {
 			if (s == ".")

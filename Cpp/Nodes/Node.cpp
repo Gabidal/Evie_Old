@@ -190,3 +190,19 @@ Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
 		return Find(name, parent->Parent, Need_Parent_existance);
 	return nullptr;
 }
+
+void Node::Get_Inheritted_Class_Members() {
+	for (string s : Inheritted) {
+		if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
+			continue;
+		if (s == ".")
+			continue;
+		Node* inheritted = Find(s, Parent, CLASS_NODE);
+		for (auto i : inheritted->Defined)
+			for (auto j : this->Defined) {
+				if (j->Name == i->Name)
+					Report(Observation(ERROR, "Overlapping member variable names '" + i->Name + "' and '" + j->Name + "' in '" + this->Parent->Name + ".", *this->Parent->Location));
+			}
+		this->Defined.insert(this->Defined.begin(), inheritted->Defined.begin(), inheritted->Defined.end());
+	}
+}

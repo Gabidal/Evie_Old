@@ -1,10 +1,5 @@
 use "../../IO/cstd.e"
 
-export int main(){
-	Start_Test()
-	return 1
-}
-
 export int Start_Test(){
 	int val = 10
 	int ptr a = val
@@ -17,4 +12,9 @@ export int Start_Test(){
 	int ptr ptr ptr ptr ptr e = d
 	int ptr ptr ptr ptr ptr ptr f = e
 	return f
+}
+
+export int main(){
+	Start_Test()
+	return 1
 }

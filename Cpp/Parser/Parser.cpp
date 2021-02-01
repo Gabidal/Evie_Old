@@ -616,7 +616,15 @@ void Parser::Callation_Pattern(int i)
 	Node* call = new Node(CALL_NODE, new Position(Input[i].Location));
 
 	//give the normal call the inheritance for future operator type determining
-	call->Inheritted = Parent->Find(Input[i].Value, Parent)->Inheritted;
+	Node* Function = nullptr;
+	Function = Parent->Find(Input[i].Value, Parent, FUNCTION_NODE);
+	if (Function == nullptr)
+		Function = Parent->Find(Input[i].Value, Parent, IMPORT);
+	if (Function == nullptr)
+		Function = Parent->Find(Input[i].Value, Parent, EXPORT);
+	if (Function == nullptr)
+		Function = Parent->Find(Input[i].Value, Parent, PROTOTYPE);
+	call->Inheritted = Function->Inheritted;
 
 	call->Name = Input[i].Value;
 	call->Parent = Parent;
@@ -1023,6 +1031,8 @@ void Parser::Size_Pattern(int i)
 	if (Input[i].Value != "size")
 		return;
 	if (!Parent->is(CLASS_NODE))
+		return;
+	if (Input[i].node != nullptr)
 		return;
 	if (i - 1 >= 0)
 		if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT) || Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT))

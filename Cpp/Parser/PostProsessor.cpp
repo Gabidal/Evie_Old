@@ -488,7 +488,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		//set the left side
 		Node* Left = Get_From_AST(n->Left);
 		//we must also update the current left side to inherit the members from the inherit list
-		Left->Get_Inheritted_Class_Members();
+		//Left->Get_Inheritted_Class_Members();
 		Left->Update_Members_Size();
 
 		//get the left side of the dot operator, this is getted from most left because it can be also an AST.

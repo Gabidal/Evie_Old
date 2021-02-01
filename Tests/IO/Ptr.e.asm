@@ -1,13 +1,6 @@
 .intel_syntax noprefix
-.global Start_Test
 .global main
-main:
-call Start_Test
-mov eax, 1
-ret 
-ret 
-
-
+.global Start_Test
 Start_Test:
 sub rsp, 44
 mov dword ptr [rsp ], 10
@@ -38,6 +31,13 @@ mov eax, ecx
 add rsp, 44
 ret 
 add rsp, 44
+ret 
+
+
+main:
+call Start_Test
+mov eax, 1
+ret 
 ret 
 
 
