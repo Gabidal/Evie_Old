@@ -1,7 +1,7 @@
 use "../../IO/cstd.e"
 
 type Fruit{
-	int Type = 0
+	int Type = 5
 }
 
 Fruit Banana{
@@ -10,17 +10,17 @@ Fruit Banana{
 	int size = 6
 }
 
-Banana ptr Banana(Banana ptr this){
-	this.Sugar = 3
-	this.Protein = 4
-	this.size = 7
-	this.Type = 1
-	return this
-}
+#Banana ptr Banana(Banana ptr this){
+#	this.Sugar = 3
+#	this.Protein = 4
+#	this.size = 7
+#	this.Type = 1
+#	return this
+#}
 
 export int Start_Test(){
 	Banana x.Banana()
-	return x.Sugar
+	return x.Type
 }
 
 export int main(){

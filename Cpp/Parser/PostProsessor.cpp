@@ -121,6 +121,11 @@ void PostProsessor::Type_Definer(int i)
 
 	Function->Childs = Insert_Dot(Parent->Defined[i]->Childs, Function, This);
 
+	//call all the inheritted default or overrided constructor calls.
+	vector<Node*> tmp = Dottize_Inheritanse(Parent->Defined[i], This, Function);
+
+	Function->Childs.insert(Function->Childs.end(), tmp.begin(), tmp.end());
+
 	//make the return of this pointter
 	Node* ret = new Node(FLOW_NODE, Parent->Defined[i]->Location);
 	ret->Name = "return";
@@ -166,6 +171,23 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 			}
 		}
 		Result.push_back(c_copy);
+	}
+	return Result;
+}
+
+vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* Funciton)
+{
+	vector<Node*> Result;
+	for (auto i : Class->Inheritted) {
+		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+			continue;
+
+		Node* Call = new Node(CALL_NODE, Class->Location);
+		Call->Parameters.push_back(This->Copy_Node(This, Call));
+		Call->Name = i;
+		Call->Parent = Funciton;
+
+		Result.push_back(Call);
 	}
 	return Result;
 }
@@ -333,9 +355,12 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			}
 			else if (g->Get_Inheritted("_", true, false) == n->Parameters[g_i]->Get_Inheritted("_", true, false))
 				continue;
-			else
+			
+			for (auto g_h : g->Get_Inheritted(true, false)) {
+				if (Find_Castable_Inheritance(n->Parameters[g_i]->Get_Inheritted(true, false), g_h))
+					continue;
 				goto Wrong_Template_Function;
-
+			}
 		}
 		if (Has_Template_Parameters && !Global_Scope->Defined[f]->is(IMPORT)) {
 			OgFunc = Global_Scope->Defined[f];
@@ -380,10 +405,6 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		break;
 	Next_Function:;
 	}*/
-
-	//this can also mean that the function returns an pointter of somesort!!!
-	//if (n->is("ptr") != -1)
-	//	return;
 
 	if (OgFunc == nullptr) {
 		string s = "";
@@ -441,6 +462,17 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	Global_Scope->Defined.push_back(func);
 
 	return;
+}
+
+bool PostProsessor::Find_Castable_Inheritance(vector<string> types, string target)
+{
+	for (auto type : types) {
+		if (type == target)
+			return true;
+		if (Find_Castable_Inheritance(Parent->Find(type, Parent, CLASS_NODE)->Get_Inheritted(true), target))
+			return true;
+	}
+	return false;
 }
 
 void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)

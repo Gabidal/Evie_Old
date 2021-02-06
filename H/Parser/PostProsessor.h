@@ -33,6 +33,7 @@ public:
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
 	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
 	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call
+	bool Find_Castable_Inheritance(vector<string> types, string target);
 	void Open_Call_Parameters_For_Prosessing(int i);//open the calls parameters to do postprosessing
 	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
@@ -70,6 +71,7 @@ public:
 	void Analyze_Return_Value(Node* n);
 
 	vector<Node*> Insert_Dot(vector<Node*> Childs, Node* Function, Node* This);
+	vector<Node*> Dottize_Inheritanse(Node* Class, Node* This, Node* Function);
 private:
 };
 
