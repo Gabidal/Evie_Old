@@ -906,6 +906,8 @@ void Parser::Else_Pattern(int i)
 void Parser::Operator_Order()
 {
 	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "->" }, NODE_CASTER);
+	for (int i = 0; i < Input.size(); i++)
 		Array_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
 		Variable_Negate_Pattern(i);

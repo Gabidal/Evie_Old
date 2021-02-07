@@ -152,10 +152,21 @@ Node* Node::Find(Node* n, Node* p) {
 		throw::exception("ERROR!");
 	}
 	for (Node* i : p->Defined)
-		if (i->Name == n->Name)
+		if (i->Name == n->Name) {
+			if (n->Cast_Type != "") {
+				Node* tmp = i->Copy_Node(i, i->Parent);
+				tmp->Cast_Type = n->Cast_Type;
+				return tmp;
+			}
 			return i;
+		}
 	if (p->Parent != nullptr)
-		return Find(n->Name, p->Parent);
+		if (Find(n->Name, p->Parent) != nullptr)
+			return Find(n->Name, p->Parent);
+	if (p->Cast_Type != "")
+		for (auto i : p->Find(p->Cast_Type, p, CLASS_NODE)->Defined)
+			if (i->Name == n->Name)
+				return i;
 	return nullptr;
 }
 
@@ -171,7 +182,12 @@ Node* Node::Find(string name, Node* parent, int flags) {
 		if (i->Name == name && i->is(flags))
 			return i;
 	if (parent->Parent != nullptr)
-		return Find(name, parent->Parent, flags);
+		if (Find(name, parent->Parent, flags) != nullptr)
+			return Find(name, parent->Parent, flags);
+	if (parent->Cast_Type != "")
+		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
+			if (i->Name == name)
+				return i;
 	return nullptr;
 }
 
@@ -187,7 +203,12 @@ Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
 		if (i->Name == name)
 			return i;
 	if (parent->Parent != nullptr)
-		return Find(name, parent->Parent, Need_Parent_existance);
+		if (Find(name, parent->Parent, Need_Parent_existance) != nullptr)
+			return Find(name, parent->Parent, Need_Parent_existance);
+	if (parent->Cast_Type != "")
+		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
+			if (i->Name == name)
+				return i;
 	return nullptr;
 }
 

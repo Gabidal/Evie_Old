@@ -19,6 +19,7 @@ void PostProsessor::Factory() {
 	}
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
+		Cast(Input[i]);
 		Operator_Overload(i);
 		Member_Function(i);
 		Open_Function_For_Prosessing(i);
@@ -193,6 +194,15 @@ vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* 
 	return Result;
 }
 
+void PostProsessor::Cast(Node* n)
+{
+	if (!n->is(NODE_CASTER))
+		return;
+
+	n->Left->Cast_Type = n->Right->Name;
+	*n = *n->Left;
+}
+
 void PostProsessor::Member_Function(int i)
 {
 	//<summary>
@@ -358,9 +368,16 @@ void PostProsessor::Find_Call_Owner(Node* n)
 				continue;
 			
 			for (auto g_h : g->Get_Inheritted(true, false)) {
+				//banana --> fruit
 				if (Find_Castable_Inheritance(n->Parameters[g_i]->Get_Inheritted(true, false), g_h))
 					continue;
+				//fruit <-- banana
+				for (auto n_h : n->Parameters[g_i]->Get_Inheritted(true, false)) {
+					if (Find_Castable_Inheritance(g->Get_Inheritted(true, false), n_h))
+						goto Right_Type;
+				}
 				goto Wrong_Template_Function;
+			Right_Type:;
 			}
 		}
 		if (Has_Template_Parameters && !Global_Scope->Defined[f]->is(IMPORT)) {
@@ -468,6 +485,8 @@ void PostProsessor::Find_Call_Owner(Node* n)
 bool PostProsessor::Find_Castable_Inheritance(vector<string> types, string target)
 {
 	for (auto type : types) {
+		if (Lexer::GetComponents(type)[0].is(Flags::KEYWORD_COMPONENT))
+			continue;
 		if (type == target)
 			return true;
 		if (Find_Castable_Inheritance(Parent->Find(type, Parent, CLASS_NODE)->Get_Inheritted(true), target))
@@ -517,6 +536,8 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		//Remember: Dot is constructed as any normal operator.
 		//((((a.b).c[..]).d()).e) = 123
 		//We have to go first to the most left sided operator.
+		Cast(n->Left);
+		Cast(n->Right);
 		Combine_Member_Fetching(n->Left);
 		//set the left side
 		Node* Left = Get_From_AST(n->Left);

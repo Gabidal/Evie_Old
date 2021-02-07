@@ -72,6 +72,8 @@ public:
 
 	vector<Node*> Insert_Dot(vector<Node*> Childs, Node* Function, Node* This);
 	vector<Node*> Dottize_Inheritanse(Node* Class, Node* This, Node* Function);
+
+	void Cast(Node* n);
 private:
 };
 

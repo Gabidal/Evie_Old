@@ -16,10 +16,7 @@ Fruit Banana{
 }
 
 int is_Banana(Fruit ptr f){
-	if (f.Type == 5){
-		return 1
-	}
-	return 0
+	return f->Banana.Sugar
 }
 
 export int Start_Test(){

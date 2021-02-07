@@ -77,6 +77,7 @@ enum Node_Type {
 	CONDITION_OPERATOR_NODE,	//==, !=, <, >
 	BIT_OPERATOR_NODE,			// &, |, ¤, <<, >>
 	ARRAY_NODE,					//a[1]
+	NODE_CASTER,				//fruit x->banana.a
 
 	STRING_NODE,
 	CLASS_NODE,

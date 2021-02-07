@@ -86,6 +86,8 @@ public:
 	string Format = "integer";	//integer | decimal
 	//Template object features.
 	bool Is_Template_Object = false;
+	//casting features
+	string Cast_Type = "";
 
 	bool is(int F) {
 		return Type == F;

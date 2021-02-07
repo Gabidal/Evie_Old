@@ -23,14 +23,7 @@ ret
 
 
 is_Banana:
-if0:
-mov ecx, dword ptr [rcx + 0 ]
-cmp ecx, 5
-jne if0_END
-mov eax, 1
-ret 
-if0_END:
-mov eax, 0
+mov eax, dword ptr [rcx + 4 ]
 ret 
 ret 
 
