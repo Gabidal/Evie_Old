@@ -66,8 +66,9 @@ void PostProsessor::Type_Definer(int i)
 	if (Parent->Defined[i]->Type != CLASS_NODE)
 		return;
 
+	//This is done in Parser!!
 	//combine inheritted memebrs
-	Parent->Defined[i]->Get_Inheritted_Class_Members();
+	//Parent->Defined[i]->Get_Inheritted_Class_Members();
 
 	//update members sizes
 	Parent->Defined[i]->Update_Members_Size();
@@ -124,7 +125,7 @@ void PostProsessor::Type_Definer(int i)
 	//call all the inheritted default or overrided constructor calls.
 	vector<Node*> tmp = Dottize_Inheritanse(Parent->Defined[i], This, Function);
 
-	Function->Childs.insert(Function->Childs.end(), tmp.begin(), tmp.end());
+	Function->Childs.insert(Function->Childs.begin(), tmp.begin(), tmp.end());
 
 	//make the return of this pointter
 	Node* ret = new Node(FLOW_NODE, Parent->Defined[i]->Location);

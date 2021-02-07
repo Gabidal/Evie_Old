@@ -1,26 +1,30 @@
 use "../../IO/cstd.e"
 
 type Fruit{
-	int Type = 5
+	int Type = 3
+}
+
+Fruit ptr Fruit(Fruit ptr this){
+	this.Type = 4
 }
 
 Fruit Banana{
 	int Sugar = 1
 	int Protein = 2
 	int size = 6
+	Type = 5
 }
 
-#Banana ptr Banana(Banana ptr this){
-#	this.Sugar = 3
-#	this.Protein = 4
-#	this.size = 7
-#	this.Type = 1
-#	return this
-#}
+int is_Banana(Fruit ptr f){
+	if (f.Type == 5){
+		return 1
+	}
+	return 0
+}
 
 export int Start_Test(){
 	Banana x.Banana()
-	return x.Type
+	return is_Banana(x)
 }
 
 export int main(){

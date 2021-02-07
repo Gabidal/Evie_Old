@@ -797,9 +797,13 @@ void Parser::Type_Pattern(int i)
 	//reset the value
 	Type->Type = CLASS_NODE;
 
+	//combine inheritted memebrs
+	Type->Get_Inheritted_Class_Members();
+
 	Parser p(Type);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
+
 	Type->Childs = p.Input[0].node->Childs;
 	p.Input.clear();
 
@@ -1013,6 +1017,8 @@ void Parser::Label_Definition(int i)
 		return;
 	if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT))
 		return;
+	if (Input[(size_t)i + 1].is(Flags::OPERATOR_COMPONENT))
+		return;
 	if (Input[i].Value == "size" || Input[i].Value == "format")
 		return;
 	//passes: label_name if (..)..
@@ -1090,7 +1096,6 @@ void Parser::Format_Pattern(int i)
 	Input.erase(Input.begin() + i + 1);
 	return;
 }
-
 
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {

@@ -4,41 +4,41 @@
 Start_Test:
 mov ecx, 0
 cmp ecx, 100
-jge while0_END
-while0:
+jge while1_END
+while1:
 mov r8d, ecx
 add ecx, 1
 cmp ecx, 100
-jge while0_END
-jmp while0
-while0_END:
-if1:
-cmp ecx, 100
-jne if1_END
-mov ecx, 10
-if1_END:
+jge while1_END
+jmp while1
+while1_END:
 if2:
 cmp ecx, 100
-jne else3
-mov ecx, 100
-jmp else3_END
+jne if2_END
+mov ecx, 10
 if2_END:
-else3:
-cmp ecx, 10
-jne else3_END
+if3:
+cmp ecx, 100
+jne else4
 mov ecx, 100
-else3_END:
+jmp else4_END
+if3_END:
+else4:
+cmp ecx, 10
+jne else4_END
+mov ecx, 100
+else4_END:
 mov eax, ecx
 ret 
 mov ecx, 1
 cmp ecx, 2
-jge while4_END
-while4:
+jge while5_END
+while5:
 mov ecx, 1
 cmp ecx, 2
-jge while4_END
-jmp while4
-while4_END:
+jge while5_END
+jmp while5
+while5_END:
 mov eax, 0
 ret 
 ret 
