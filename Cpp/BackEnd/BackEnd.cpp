@@ -101,7 +101,7 @@ string BackEnd::Token_Builder(Token* t, bool Inside_Content)
 	if (t->is(TOKEN::REGISTER) || t->is(TOKEN::NONVOLATILE) || t->is(TOKEN::RETURNING) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::REMAINDER) || t->is(TOKEN::PARAMETER)) {
 		Name = t->ID;
 	}
-	else if (t->is(TOKEN::NUM) || t->is(TOKEN::DECIMAL)) {
+	else if (t->is(TOKEN::NUM) || (t->is(TOKEN::DECIMAL) && !t->is(TOKEN::MEMORY))) {
 		//if (Inside_Content)
 			Name = t->Get_Name();
 		//else

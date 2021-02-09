@@ -18,6 +18,8 @@ Token::Token(Node* n) {
 			Flags |= TOKEN::DECIMAL;
 			Has_Floating_Point_Value = true;
 		}
+		if (n->Coefficient == -1)
+			n->Name = "-" + n->Name;
 	}
 	else if (n->is(PARAMETER_NODE)) {
 		//first get the index this paremet is
@@ -63,6 +65,7 @@ Token::Token(Node* n) {
 		return;
 	n->Find(n, n->Parent)->Update_Size_By_Inheritted();
 	Size = n->Find(n, n->Parent)->Size;
+
 	Name = n->Name;
 	Parent = n->Parent;
 }

@@ -17,6 +17,7 @@ void IRGenerator::Factory()
 		Parse_Function(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
+		Parse_Casting(Input[i]);
 		Parse_If(i);
 		Parse_Loops(i);
 		Parse_Arrays(i);
@@ -1047,6 +1048,8 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 {
 	if (n->Fetcher == nullptr)
 		return;
+	if (Handle != nullptr)
+		return;		//the job has already been done
 	if (n->is(NUMBER_NODE))
 		return;	//x.size										//They're were Holders, both of em actually... srry, i dont know what this does m8!
 	if ((!Is_In_Left_Side_Of_Operator && n->Holder == nullptr) || (n->Parent != nullptr && n->Parent->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
@@ -1073,7 +1076,11 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	Member_Offsetter->Left = Fecher;
 	Member_Offsetter->Right = Member_Offset;
 
-	Member_Offsetter = new Token(TOKEN::MEMORY, { Member_Offsetter }, n->Find(n->Fetcher, n->Fetcher->Parent)->Find(n->Name)->Size, n->Fetcher->Name + "_" + n->Name);
+	long long Type = 0;
+	if (n->Format == "decimal")
+		Type = TOKEN::DECIMAL;
+
+	Member_Offsetter = new Token(Type | TOKEN::MEMORY, { Member_Offsetter }, n->Find(n->Fetcher, n->Fetcher->Parent)->Find(n->Name)->Size, n->Fetcher->Name + "_" + n->Name);
 
 	if (Is_In_Left_Side_Of_Operator) {
 		Handle = Member_Offsetter;
@@ -1081,7 +1088,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	}
 	
 	//if not then load this into register
-	Token* r = new Token(TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), n->Get_Size());
+	Token* r = new Token(Type | TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), n->Get_Size());
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }));
 
@@ -1104,6 +1111,51 @@ void IRGenerator::Switch_To_Correct_Places(Node* o)
 		o->Left = o->Right;
 		o->Right = tmp;
 	}
+}
+
+void IRGenerator::Parse_Casting(Node* n)
+{
+	//first check is the n has a casting request, and its format casting, no other!
+	//int a
+	//return a->float
+	if (n->Cast_Type == "")
+		return;
+	n->Update_Format();
+	if (n->Find(n->Cast_Type, n, CLASS_NODE)->Format == n->Format)
+		return;
+
+	//parse calls, arrays etc..
+	string cast_Type = n->Cast_Type;
+	n->Cast_Type = "";
+
+	IRGenerator g(n, { n }, Output);
+	Token* Old_Format = nullptr;
+
+	if (g.Handle != nullptr)
+		Old_Format = g.Handle;
+	else
+		Old_Format = new Token(n);
+
+
+	if (n->is("ptr") != -1) {
+		int amount = 0;
+		for (auto i : n->Inheritted)
+			if (i == "ptr")
+				amount++;
+		Old_Format = Operate_Pointter(Old_Format, amount, true, n->Inheritted);
+	}
+
+	long long Type = 0;
+	if (n->Find(cast_Type, n, CLASS_NODE)->Format == "decimal")
+		Type = TOKEN::DECIMAL;
+
+	Token* r = new Token(Type | TOKEN::REGISTER, "REG_" + n->Name + to_string(Reg_Random_ID_Addon++), n->Find(cast_Type, n, CLASS_NODE)->Get_Size());
+	
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "convert"), {
+		r, Old_Format
+	}));
+
+	Handle = r;
 }
 
 void IRGenerator::Parse_Loops(int i)

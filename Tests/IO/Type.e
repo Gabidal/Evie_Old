@@ -15,8 +15,12 @@ Fruit Banana{
 	Type = 5
 }
 
+int Get_Sugar(Banana ptr b){
+	return b.Sugar
+}
+
 int is_Banana(Fruit ptr f){
-	return f->Banana.Sugar
+	return Get_Sugar(f)
 }
 
 export int Start_Test(){

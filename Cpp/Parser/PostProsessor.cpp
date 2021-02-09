@@ -561,11 +561,11 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 			}
 			else
 				//load the needed information from the parent
-				*Right = *n->Find(Right->Name, Left);
+				*Right = *n->Find(Right, Left);
 		}
 		else
 			//load the needed information from the parent
-			*Right = *n->Find(Right->Name, Left);
+			*Right = *n->Find(Right, Left);
 
 		//set the parent as a fechable
 		Right->Fetcher = Left;

@@ -384,47 +384,57 @@ void x86_64_Win::Init()
 	);
 
 	IR* MOVQ = new IR("=", new Token(OPERATOR, "movq"), {
-		{{Register_Float, {12, 12}}, {Memory, {8, 8}}},
-		{{Memory, {8, 8}}, {Register_Float, {12, 12}}},
-		{{Register_Float, {12, 12}}, {Register, {8, 8}}},
-		{{Register, {8, 8}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {8, 12}}, {Memory, {8, 8}}},
+		{{Memory, {8, 8}}, {Register_Float, {8, 12}}},
+		{{Register_Float, {8, 12}}, {Register, {8, 8}}},
+		{{Register, {8, 8}}, {Register_Float, {8, 12}}},
 
-		{{Register_Float, {12, 12}}, {Memory_Float, {8, 8}}},
-		{{Memory_Float, {8, 8}}, {Register_Float, {12, 12}}},
-		{{Register_Float, {12, 12}}, {Register_Float, {8, 8}}},
-		{{Register_Float, {8, 8}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {8, 12}}, {Memory_Float, {8, 8}}},
+		{{Memory_Float, {8, 8}}, {Register_Float, {8, 12}}},
+		{{Register_Float, {8, 12}}, {Register_Float, {8, 8}}},
+		{{Register_Float, {8, 8}}, {Register_Float, {8, 12}}},
 
 		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}}},
 	});	
 
 	IR* MOVD = new IR("=", new Token(OPERATOR, "movd"), {
-		{{Register_Float, {12, 12}}, {Memory, {4, 4}}},
-		{{Memory, {4, 4}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {4, 4}}, {Memory, {4, 4}}},
+		{{Memory, {4, 4}}, {Register_Float, {4, 4}}},
 		{{Register_Float, {12, 12}}, {Register, {4, 4}}},
-		{{Register, {4, 4}}, {Register_Float, {12, 12}}},
+		{{Register, {4, 4}}, {Register_Float, {4, 4}}},
 
-		{{Register_Float, {12, 12}}, {Memory_Float, {4, 4}}},
-		{{Memory_Float, {4, 4}}, {Register_Float, {12, 12}}},
-		{{Register_Float, {12, 12}}, {Register_Float, {4, 4}}},
-		{{Register_Float, {4, 4}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}}},
+		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}}},
+		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
+		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
 
 		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
 	});
 
 	IR* CONVERTI2F = new IR("convert", new Token(OPERATOR, "cvtsi2ss"), {
-		{{Register_Float, {12, 12}}, {Memory, {4, 4}}},
-		{{Register_Float, {12, 12}}, {Register, {4, 4}}},
+		{{Register_Float, {4, 4}}, {Memory, {4, 4}}},
+		{{Register_Float, {4, 4}}, {Register, {4, 4}}},
 	});
 
 	IR* CONVERTL2F = new IR("convert", new Token(OPERATOR, "cvtsi2sd"), {
-		{{Register_Float, {12, 12}}, {Memory, {8, 8}}},
-		{{Register_Float, {12, 12}}, {Register, {8, 8}}},
+		{{Register_Float, {8, 12}}, {Memory, {8, 8}}},
+		{{Register_Float, {8, 12}}, {Register, {8, 8}}},
 	});
 
 	IR* CONVERTF2D = new IR("convert", new Token(OPERATOR, "cvtss2sd"), {
-		{{Register_Float, {12, 12}}, {Register_Float, {12, 12}}},
-		{{Register_Float, {12, 12}}, {Register_Float, {12, 12}}},
+		{{Register_Float, {4, 4}}, {Register_Float, {8, 12}}},
+		{{Register_Float, {4, 4}}, {Register_Float, {8, 12}}},
 	});
+
+	IR* CONVERTF2I = new IR("convert", new Token(OPERATOR, "cvttss2si"), {
+		{{Register, {4, 8}}, {Register_Float, {4, 4}}},
+		{{Register, {4, 8}}, {Memory_Float, {4, 4}}},
+	});
+
+	IR* CONVERTD2I = new IR("convert", new Token(OPERATOR, "cvttsd2si"), {
+		{{Register, {4, 8}}, {Register_Float, {8, 12}}},
+		{{Register, {4, 8}}, {Memory_Float, {8, 12}}},
+		});
 
 	IR* F_MOV = new IR("=", new Token(OPERATOR), {
 		//accepted arguments
@@ -452,8 +462,15 @@ void x86_64_Win::Init()
 			}*/
 			//transform right side into xmm0
 			if (Right->is(NUM)) {
-				double tmp = atof(Right->Get_Name().c_str());
-				long long Name = *(long long*)&tmp;
+				long long Name;
+				if (Right->Get_Size() == 8) {
+					double tmp = atof(Right->Get_Name().c_str());
+					Name = *(long long*)&tmp;
+				}
+				else {
+					float tmp = atof(Right->Get_Name().c_str());
+					Name = *(long*)&tmp;
+				}
 				Token* R = new Token(TOKEN::REGISTER, "REG_" + to_string(Name + rand()), Right->Get_Size());
 				//mov the number into 
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
@@ -844,6 +861,8 @@ void x86_64_Win::Init()
 		CONVERTI2F,
 		CONVERTL2F,
 		CONVERTF2D,
+		CONVERTF2I,
+		CONVERTD2I,
 		F_MOV,
 		F_ADD,
 		F_ADDSS,

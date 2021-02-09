@@ -14,7 +14,7 @@ type cpp char{
 }
 
 type cpp float{
-	size = 8
+	size = 4
 	format = decimal
 }
 

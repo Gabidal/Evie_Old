@@ -98,12 +98,12 @@ void Safe::Check_Return_Validity(Node* n)
 	func->Update_Size_By_Inheritted();
 	n->Right->Update_Size_By_Inheritted();
 	if (n->Right != nullptr) {
-		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true)) {
+		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
-		}
-		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true)) {
+		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
-		}
+		else if (n->Right->Cast_Type != "" && n->Find(n->Right->Cast_Type, n, CLASS_NODE)->Get_Size() == func->Get_Size() && n->Find(n->Right->Cast_Type, n, CLASS_NODE)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
+			return;
 		else if (func->Get_Size() == 0) {
 			Report(Observation(ERROR, "Cant return value in non-returning funciton.", *n->Location));
 			Stop();

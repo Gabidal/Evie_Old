@@ -51,6 +51,8 @@ public:
 	void Parse_Member_Fetch(Node* n);
 
 	void Switch_To_Correct_Places(Node* o);
+
+	void Parse_Casting(Node* n);
 	//TODO: hey gab! use log(inlining count) base 10 for the global inlining label adding rendom char adder.
 	//TODO: make a repeating optimizer thet makes 
 	//a new variable and saves the result once and then uses it those other times
@@ -65,6 +67,7 @@ public:
 	IR* Make_Label(Node* n, bool Mangle);
 	IR* Make_Jump(string condition, string l);
 	int Get_Amount(string t, Node* n);
+
 private:
 	bool Is_In_Left_Side_Of_Operator = false;
 };

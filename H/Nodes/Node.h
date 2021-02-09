@@ -418,6 +418,8 @@ public:
 		}
 	}
 
+	void Update_Inheritance();
+
 	Node* Copy_Node(Node* What_Node, Node* p)
 	{
 		if (What_Node == nullptr)

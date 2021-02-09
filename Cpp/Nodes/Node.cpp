@@ -227,3 +227,18 @@ void Node::Get_Inheritted_Class_Members() {
 		this->Defined.insert(this->Defined.begin(), inheritted->Defined.begin(), inheritted->Defined.end());
 	}
 }
+
+void Node::Update_Inheritance() {
+	if (Cast_Type != "")
+		return;
+	//save all keyword inheritances.
+	vector<string> Keyword_Inheritance;
+	for (auto i : Inheritted)
+		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+			Keyword_Inheritance.push_back(i);
+	//remove all inheritances
+	Inheritted.clear();
+
+	Inheritted.push_back(Cast_Type);
+	Inheritted.insert(Inheritted.end(), Keyword_Inheritance.begin(), Keyword_Inheritance.end());
+}

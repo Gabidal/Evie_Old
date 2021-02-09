@@ -22,8 +22,16 @@ mov dword ptr [rcx + 0 ], 4
 ret 
 
 
-is_Banana:
+Get_Sugar:
 mov eax, dword ptr [rcx + 4 ]
+ret 
+ret 
+
+
+is_Banana:
+mov rcx, rcx
+call Get_Sugar
+mov eax, eax
 ret 
 ret 
 

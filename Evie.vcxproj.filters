@@ -134,6 +134,7 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="Tests\IO\Ptr.e" />
+    <None Include="Tests\IO\Cast.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">
