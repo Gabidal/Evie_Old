@@ -3,7 +3,7 @@
 
 void ASM::ASM_Analyzer(vector<string>& Output)
 {
-	//here we will just make an prototype from every label. Parser can analyse witch one is a function, and what is not.
+	//here we will just make an prototype from every label. Parser can analyse wich one is a function, and what is not.
 	//and after that we want to give Evie Core the "use "filename"" without the preprosessor so that Evie Core can implement an
 	//post-prosessing include
 	vector<string> Header_Data = DOCKER::Get_Header(DOCKER::FileName.back());

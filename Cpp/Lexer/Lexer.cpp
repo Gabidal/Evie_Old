@@ -558,6 +558,11 @@ vector<Component> GetComponents(string text, Position anchor)
         component.Location = area->Start;
         if (!component.is(Flags::COMMENT_COMPONENT))
             components.push_back(component);
+        else {
+            Component component = Component("\n", Flags::END_COMPONENT);
+            component.Location = area->Start;
+            components.push_back(component);
+        }
 
         position = area->End;
     }

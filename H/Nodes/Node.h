@@ -416,6 +416,10 @@ public:
 			if (t->Format != "integer")
 				Format = t->Format;
 		}
+		for (auto i : Defined) {
+			if (i->Name == "format" && i->is("const") != -1)
+				Format = i->Format;
+		}
 	}
 
 	void Update_Inheritance();

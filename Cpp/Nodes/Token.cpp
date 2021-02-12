@@ -11,6 +11,9 @@ Token::Token(Node* n) {
 			Flags = TOKEN::CONTENT;
 		else
 			Flags = TOKEN::REGISTER;
+
+		if (n->Find(n, n)->Format == "decimal")
+			Flags |= TOKEN::DECIMAL;
 	}
 	else if (n->is(NUMBER_NODE)) {
 		Flags = TOKEN::NUM;

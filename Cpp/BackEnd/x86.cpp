@@ -391,10 +391,7 @@ void x86_64_Win::Init()
 
 		{{Register_Float, {8, 12}}, {Memory_Float, {8, 8}}},
 		{{Memory_Float, {8, 8}}, {Register_Float, {8, 12}}},
-		{{Register_Float, {8, 12}}, {Register_Float, {8, 8}}},
-		{{Register_Float, {8, 8}}, {Register_Float, {8, 12}}},
-
-		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}}},
+		{{Register_Float, {8, 12}}, {Register_Float, {8, 12}}},
 	});	
 
 	IR* MOVD = new IR("=", new Token(OPERATOR, "movd"), {
@@ -405,10 +402,12 @@ void x86_64_Win::Init()
 
 		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}}},
 		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}}},
-		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
-		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
+	});
 
+	IR* MOVSS = new IR("=", new Token(OPERATOR, "movss"), {
 		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
+		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}}},
+		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}}},
 	});
 
 	IR* CONVERTI2F = new IR("convert", new Token(OPERATOR, "cvtsi2ss"), {
@@ -416,14 +415,9 @@ void x86_64_Win::Init()
 		{{Register_Float, {4, 4}}, {Register, {4, 4}}},
 	});
 
-	IR* CONVERTL2F = new IR("convert", new Token(OPERATOR, "cvtsi2sd"), {
-		{{Register_Float, {8, 12}}, {Memory, {8, 8}}},
-		{{Register_Float, {8, 12}}, {Register, {8, 8}}},
-	});
-
-	IR* CONVERTF2D = new IR("convert", new Token(OPERATOR, "cvtss2sd"), {
-		{{Register_Float, {4, 4}}, {Register_Float, {8, 12}}},
-		{{Register_Float, {4, 4}}, {Register_Float, {8, 12}}},
+	IR* CONVERTI2D = new IR("convert", new Token(OPERATOR, "cvtsi2sd"), {
+		{{Register_Float, {8, 12}}, {Memory, {4, 8}}},
+		{{Register_Float, {8, 12}}, {Register, {4, 8}}},
 	});
 
 	IR* CONVERTF2I = new IR("convert", new Token(OPERATOR, "cvttss2si"), {
@@ -435,6 +429,17 @@ void x86_64_Win::Init()
 		{{Register, {4, 8}}, {Register_Float, {8, 12}}},
 		{{Register, {4, 8}}, {Memory_Float, {8, 12}}},
 		});
+
+	IR* CONVERTD2F = new IR("convert", new Token(OPERATOR, "cvtsd2ss"), {
+		{{Register_Float, {4, 4}}, {Register_Float, {8, 12}}},
+		{{Register_Float, {4, 4}}, {Memory_Float, {8, 12}}},
+		});
+
+	IR* CONVERTF2D = new IR("convert", new Token(OPERATOR, "cvtss2sd"), {
+	{{Register_Float, {8, 12}}, {Register_Float, {4, 4}}},
+	{{Register_Float, {8, 12}}, {Register_Float, {4, 4}}},
+	});
+
 
 	IR* F_MOV = new IR("=", new Token(OPERATOR), {
 		//accepted arguments
@@ -508,6 +513,11 @@ void x86_64_Win::Init()
 				if (Right->is(DECIMAL))
 					Type = "=";
 				Result.push_back(new IR(new Token(OPERATOR, Type), { R, Right }));
+				Right = R;
+			}
+			else if (Right->is(DECIMAL) && Left->is(DECIMAL) && Right->Get_Size() != Left->Get_Size()) {
+				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), Left->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "convert"), { R, Right }));
 				Right = R;
 			}
 
@@ -858,11 +868,13 @@ void x86_64_Win::Init()
 		ASCII,
 		MOVQ,
 		MOVD,
+		MOVSS,
 		CONVERTI2F,
-		CONVERTL2F,
+		CONVERTI2D,
 		CONVERTF2D,
 		CONVERTF2I,
 		CONVERTD2I,
+		CONVERTD2F,
 		F_MOV,
 		F_ADD,
 		F_ADDSS,

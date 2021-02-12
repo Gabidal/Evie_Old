@@ -131,6 +131,7 @@ vector<pair<string, string>>  DOCKER::Separate_Identification_Patterns(vector<st
 			i--;
 		}
 	}
+	Tokens.erase(remove_if(Tokens.begin(), Tokens.end(), [](string s) {return s == "\n"; }), Tokens.end());
 	//gahther the remaining tokens for parser.
 	DOCKER::Append(Output[FileName.back()], Tokens);
 	return Types;
