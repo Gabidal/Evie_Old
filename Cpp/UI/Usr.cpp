@@ -17,6 +17,7 @@ void Usr::Create_Argument_Stats()
 		Find_Debug_Type(i);
 		Find_Format(i);
 		Find_Lib(i);
+		Find_VT_API(i);
 	}
 }
 
@@ -110,6 +111,17 @@ void Usr::Find_Debug_Type(int& i)
 	{
 		string tmp = string(Input[i + 1]);
 		Info.Debug = tmp;
+		i++;
+	}
+}
+
+void Usr::Find_VT_API(int& i)
+{
+	string a = string(Input[i]);
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-vt") == 0)
+	{
+		string tmp = string(Input[i + 1]);
+		Info.VT_API = tmp;
 		i++;
 	}
 }

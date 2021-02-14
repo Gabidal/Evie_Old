@@ -20,6 +20,7 @@ public:
 	string Bits_Mode = "0";
 	string Disable = "";
 	string Debug = "";
+	string VT_API = "";
 	output() {
 		#if _WIN32
 			OS = "win";
@@ -63,7 +64,7 @@ private:
 	void Find_Lib(int& i);
 	void Find_Repo_Dir(int& i);
 	void Find_Debug_Type(int& i);
-
+	void Find_VT_API(int& i);
 };
 
 

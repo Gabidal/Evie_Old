@@ -36,6 +36,8 @@ void Observation::Report()
 		Head = Yellow + "Warning" + Reset + ": ";
 	else if (Type == SOLUTION)
 		Head = Green + "Solution" + Reset + ": {\n  ";
+	else if (Type == INFO)
+		Head = Green + "Notice" + Reset + ": ";
 
 	if (Pos.GetFilePath() != nullptr)
 		cout << Pos.GetFilePath() << ":" << Pos.GetFriendlyLine() << ":" << Pos.GetFriendlyCharacter() << ": " << Head << Msg << endl;

@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 }
 #endif
 
-
+extern string VT_API;
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 //Evie.exe -in ~/test.e
 int Build(int argc, const char* argv[])
@@ -80,6 +80,8 @@ int Build(int argc, const char* argv[])
         "cpp", "evie", "vivid"
     };
     sys = new Usr(argv, argc);
+    if (VT_API != "")
+        sys->Info.VT_API = VT_API;
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());
 
     string start_file = sys->Info.Source_File.c_str();

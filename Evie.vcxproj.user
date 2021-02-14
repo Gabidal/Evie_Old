@@ -16,7 +16,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
-    <LocalDebuggerCommandArguments>-in IO/test.e </LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-in IO/test.e -vt af12a5a3e00641501ed9aa697f15b71de7eb8a70b3e19b032d88bf9e9d6bec66</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

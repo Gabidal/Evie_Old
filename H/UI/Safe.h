@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#undef ERROR
 
 using namespace std;
 
@@ -11,8 +12,9 @@ enum MSG_Type {
 	ERROR,
 	WARNING,
 	SOLUTION,
+	INFO,
 	FAIL,
-	SUCCESS
+	SUCCESS,
 };
 
 class Observation {

@@ -1,4 +1,9 @@
 #include "../../H/UI/Producer.h"
+#define CURL_STATICLIB
+#include "../../Dependencies/Curl/curl.h"
+#include <regex>
+#include "../../H/Docker/HTTPS.h"
+#include "../../H/UI/Safe.h"
 string Produce_Working_Dir = "";
 
 void Producer::Assembly_Other_Source_Files()
@@ -247,4 +252,120 @@ void Producer::Assemble_Command()
         output << Get_Template();
     }
     system(output.str().c_str());
+
+    CURL* curl;
+    CURLcode res;
+
+    std::string contents;
+    std::ifstream f("file.txt", std::ios::in | std::ios::binary);
+
+    if (f)
+    {
+        f.seekg(0, std::ios::end);
+        contents.resize(f.tellg());
+        f.seekg(0, std::ios::beg);
+        f.read(&contents[0], contents.size());
+        f.close();
+    }
+
+    struct curl_httppost* formpost = NULL;
+    struct curl_httppost* lastptr = NULL;
+    struct curl_slist* headerlist = NULL;
+    static const char buf[] = "Expect:";
+
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    // set up the header
+    curl_formadd(&formpost,
+        &lastptr,
+        CURLFORM_COPYNAME, "cache-control:",
+        CURLFORM_COPYCONTENTS, "no-cache",
+        CURLFORM_END);
+
+    curl_formadd(&formpost,
+        &lastptr,
+        CURLFORM_COPYNAME, "content-type:",
+        CURLFORM_COPYCONTENTS, "multipart/form-data",
+        CURLFORM_END);
+
+    curl_formadd(&formpost, &lastptr,
+        CURLFORM_COPYNAME, "file",  // <--- the (in this case) wanted file-Tag!
+        CURLFORM_BUFFER, "data",
+        CURLFORM_BUFFERPTR, contents.data(),
+        CURLFORM_BUFFERLENGTH, contents.size(),
+        CURLFORM_END);
+
+    curl_formadd(&formpost, &lastptr,
+        CURLFORM_COPYNAME, "apikey",  // <--- the (in this case) wanted file-Tag!
+        CURLFORM_BUFFER, "data",
+        CURLFORM_BUFFERPTR, sys->Info.VT_API.data(),
+        CURLFORM_BUFFERLENGTH, sys->Info.VT_API.size(),
+        CURLFORM_END);
+
+    curl = curl_easy_init();
+
+    headerlist = curl_slist_append(headerlist, buf);
+    CURL* curl_handle;
+     res;
+
+    MemoryStruct chunk;
+    string Resource = "";
+    if (curl) {
+
+        curl_easy_setopt(curl, CURLOPT_URL, "https://www.virustotal.com/vtapi/v2/file/scan");
+        
+        curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+        //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+        res = curl_easy_perform(curl);
+        /* Check for errors */
+        if (res != CURLE_OK)
+            Report(Observation(1, curl_easy_strerror(res), Position()));
+
+        regex expression("\"resource\": \"[a-f0-9]+\"");
+        smatch matches;
+        string Buffer = chunk.memory;
+        if (!regex_search(Buffer, matches, expression)) {
+            Report(Observation(1, "Could not get VT report.", Position()));
+        }
+
+        Resource = matches.str().substr(13, matches.str().size() - 1 - 13);
+
+        curl_easy_cleanup(curl);
+
+
+        curl_formfree(formpost);
+
+        curl_slist_free_all(headerlist);
+    }
+    curl = curl_easy_init();
+    free(chunk.memory);
+    chunk = MemoryStruct();
+
+    curl_easy_setopt(curl, CURLOPT_URL, "https://www.virustotal.com/vtapi/v2/file/report");
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    string Data = "apikey=" + sys->Info.VT_API + "&resource=" + Resource;
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, Data.c_str());
+
+    res = curl_easy_perform(curl);
+    if (res != CURLE_OK)
+        Report(Observation(1, curl_easy_strerror(res), Position()));
+
+    regex expression("\"positives\": [0-9]+");
+    smatch matches;
+    string Buffer = chunk.memory;
+    if (!regex_search(Buffer, matches, expression)) {
+        Report(Observation(2, "Could not get VT report.", Position()));
+    }
+    else {
+        int Positives = atoi(matches.str().substr(12).c_str());
+        if (Positives > 0) {
+            Report(Observation(1, "Dangereous binary detected " + Output_File, Position()));
+        }
+    }
 }

@@ -1,6 +1,8 @@
 #ifndef _FLAGS_H_
 #define _FLAGS_H_
 
+#undef OPTIONAL
+
 namespace TOKEN {
 	constexpr long long REGISTER = 1 << 0;	//this is for that the selector can select an register if it sees this
 	constexpr long long VOLATILE = 1 << 1;
