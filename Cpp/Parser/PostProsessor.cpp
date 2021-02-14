@@ -35,6 +35,7 @@ void PostProsessor::Factory() {
 		Change_Local_Strings_To_Global_Pointters(i);
 		Update_Operator_Inheritance(Input[i]);
 		Analyze_Return_Value(Input[i]);
+		Increase_Calling_Number_For_Function_Address_Givers(Input[i]);
 	}
 	Open_Safe(Input);
 	for (int i = 0; i < Input.size(); i++)
@@ -203,6 +204,28 @@ void PostProsessor::Cast(Node* n)
 	*n = *n->Left;
 }
 
+void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
+{
+	if (!n->is(OBJECT_NODE))
+		return;
+
+	Node* f;
+	if (!n->Find(n->Name, n->Parent, FUNCTION_NODE)) {
+		if (!n->Find(n->Name, n->Parent, IMPORT)) {
+			if (!n->Find(n->Name, n->Parent, PROTOTYPE))
+				return;
+			else
+				f = n->Find(n->Name, n->Parent, PROTOTYPE);
+		}
+		else
+			f = n->Find(n->Name, n->Parent, IMPORT);
+	}
+	else
+		f = n->Find(n->Name, n->Parent, FUNCTION_NODE);
+
+	f->Calling_Count++;
+}
+
 void PostProsessor::Member_Function(int i)
 {
 	//<summary>
@@ -338,14 +361,20 @@ void PostProsessor::Find_Call_Owner(Node* n)
 
 	}
 
+	
+	bool Skip_Name_Checking_For_Func_Ptr = false;
+Try_Again:;
 	//first ignore the template parameters for now
 	for (int f = 0; f < Global_Scope->Defined.size(); f++) {
-		if (Global_Scope->Defined[f]->Name != n->Name)
-			continue;
+		if (!Skip_Name_Checking_For_Func_Ptr)
+			if (Global_Scope->Defined[f]->Name != n->Name)
+				continue;
 		if (Global_Scope->Defined[f]->is(CLASS_NODE))
 			continue;	//this is for constructors
 		//check for template return types.
 		if (!Check_If_Template_Function_Is_Right_One(Global_Scope->Defined[f], n))
+			continue;
+		if (Global_Scope->Defined[f]->Parameters.size() != n->Parameters.size())
 			continue;
 		int g_i = -1;
 		bool Has_Template_Parameters = false;
@@ -384,8 +413,11 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			OgFunc = Global_Scope->Defined[f];
 			goto Non_Imported_Template_Function_Usage;
 		}
+		if (Skip_Name_Checking_For_Func_Ptr)
+			n->Function_Ptr = true;	//this caller is a function pointter.
 		n->Template_Function = Global_Scope->Defined[f];
-		n->Template_Function->Calling_Count++;
+		if (!Skip_Name_Checking_For_Func_Ptr)
+			n->Template_Function->Calling_Count++;
 		n->Inheritted = n->Template_Function->Inheritted;
 		return;
 		Wrong_Template_Function:;
@@ -423,6 +455,11 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		break;
 	Next_Function:;
 	}*/
+	if (OgFunc == nullptr && n->Parent->Find(n, n->Parent)->is("ptr") != -1)
+		if (Skip_Name_Checking_For_Func_Ptr == false) {
+			Skip_Name_Checking_For_Func_Ptr = true;
+			goto Try_Again;
+	}
 
 	if (OgFunc == nullptr) {
 		string s = "";
@@ -515,7 +552,6 @@ void PostProsessor::Algebra_Laucher(int i)
 {
 	if (!Input[i]->is(FUNCTION_NODE))
 		return;
-	return;
 	while (true) {
 		Algebra a(Input[i], &Input[i]->Childs);
 		if (!Optimized)

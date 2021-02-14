@@ -17,8 +17,8 @@ Mid Top{
 func test_all_format_casts(){
 	int i = 1
 
-	float a #= i->float
-	double b #= i->double
+	float a = i->float
+	double b = i->double
 
 	i = a->int
 	i = b->int

@@ -808,8 +808,9 @@ void x86_64_Win::Init()
 			});
 
 	IR* CALL = new IR("call", new Token(TOKEN::CALL, "call"), {
-		{{Label, {0, 0}}}
-		});	
+		{{Label, {0, 0}}},
+		{{Register, {_SYSTEM_BIT_SIZE_, _SYSTEM_BIT_SIZE_}}}
+	});	
 
 	IR* GLOBAL = new IR("global", new Token(TOKEN::GLOBAL_LABEL, ".global"), {
 		{{Label, {0, 0}}}

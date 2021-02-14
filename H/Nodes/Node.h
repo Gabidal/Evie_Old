@@ -78,6 +78,7 @@ public:
 	//calling features
 	Node* Template_Function = nullptr;
 	int Calling_Count = 0;
+	bool Function_Ptr = false;
 	//calling convension is stored in the inheritted list
 	//function prototype features
 	//the import has the flag to prototyping

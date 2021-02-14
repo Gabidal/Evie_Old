@@ -103,14 +103,15 @@ string BackEnd::Token_Builder(Token* t, bool Inside_Content)
 	}
 	else if (t->is(TOKEN::NUM) || (t->is(TOKEN::DECIMAL) && !t->is(TOKEN::MEMORY))) {
 		//if (Inside_Content)
-			Name = t->Get_Name();
+		Name = t->Get_Name();
 		//else
 		//	Name = selector->Get_Size_Identifier(t->Get_Size()) + " " + t->Get_Name();
 	}
 	else if (t->is(TOKEN::STRING))
 		Name = t->Get_Name();
 	else if (t->is(TOKEN::GLOBAL_VARIABLE))
-		Name = selector->Get_Size_Identifier(t->Get_Size()) + "[" + t->Get_Name() + "]";
+		//Name = selector->Get_Size_Identifier(t->Get_Size()) + "[" + t->Get_Name() + "]";
+		Name = t->Get_Name();
 	else if (t->is(TOKEN::MEMORY)) {
 		if (Inside_Content)
 			PreFix = t->Get_Name();

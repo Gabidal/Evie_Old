@@ -74,6 +74,7 @@ public:
 	vector<Node*> Dottize_Inheritanse(Node* Class, Node* This, Node* Function);
 
 	void Cast(Node* n);
+	void Increase_Calling_Number_For_Function_Address_Givers(Node* n);
 private:
 };
 

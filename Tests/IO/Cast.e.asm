@@ -24,15 +24,6 @@ ret
 
 
 test_all_format_casts:
-mov ecx, 1
-cvttss2si r8d, xmm0
-mov ecx, r8d
-cvttsd2si r8d, xmm1
-mov ecx, r8d
-cvtsd2ss xmm1, xmm1
-movss xmm0, xmm1
-cvtss2sd xmm0, xmm0
-movq xmm1, xmm0
 ret 
 
 

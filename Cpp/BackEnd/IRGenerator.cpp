@@ -206,8 +206,14 @@ void IRGenerator::Parse_Calls(int i)
 	}
 
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
-	string Call_Name = MANGLER::Mangle(Input[i]->Template_Function);
-	IR* ir = new IR(call, { new Token(TOKEN::LABEL, Call_Name) });
+	IR* ir;
+	if (!Input[i]->Function_Ptr)
+		ir = new IR(call, { new Token(TOKEN::LABEL, MANGLER::Mangle(Input[i]->Template_Function)) });
+	else {
+		Node* tmp = Input[i];
+		tmp->Type = OBJECT_NODE;
+		ir = new IR(call, { new Token(tmp) });
+	}
 
 	Output->push_back(ir);
 
@@ -219,7 +225,7 @@ void IRGenerator::Parse_Calls(int i)
 	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
 	Input[i]->Update_Size_By_Inheritted();
 
-	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + Call_Name + to_string(rand()) /* + All_Parameters_Names*/, Input[i]->Size);
+	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + to_string(Reg_Random_ID_Addon++) /* + All_Parameters_Names*/, Input[i]->Size);
 
 	Handle = returningReg;
 }
