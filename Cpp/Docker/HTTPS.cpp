@@ -93,57 +93,58 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 
 		curl_handle = curl_easy_init();
 		if (curl_handle) {
-			//use virustotal to check the url
-			curl_easy_setopt(curl_handle, CURLOPT_URL, "https://www.virustotal.com/vtapi/v2/url/scan");
-			curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
-			curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-			curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&chunk);
-			curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-			string Data = "apikey=" + sys->Info.VT_API + "&url=" + (Path + Name);
-			curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, Data.c_str());
-
-			res = curl_easy_perform(curl_handle);
-
-			if (res != CURLE_OK)
-				Report(Observation(1, curl_easy_strerror(res), Position()));
-			else {
-				curl_easy_cleanup(curl_handle);
-				curl_handle = curl_easy_init();
-				free(chunk.memory);
-				chunk = MemoryStruct();
-
-				curl_easy_setopt(curl_handle, CURLOPT_URL, "https://www.virustotal.com/vtapi/v2/url/report");
+			if (sys->Info.VT_API != "") {
+				//use virustotal to check the url
+				curl_easy_setopt(curl_handle, CURLOPT_URL, "https://www.virustotal.com/vtapi/v2/url/scan");
 				curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
 				curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 				curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&chunk);
 				curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-				string Data = "apikey=" + sys->Info.VT_API + "&resource=" + (Path + Name);
+				string Data = "apikey=" + sys->Info.VT_API + "&url=" + (Path + Name);
 				curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, Data.c_str());
 
 				res = curl_easy_perform(curl_handle);
+
 				if (res != CURLE_OK)
 					Report(Observation(1, curl_easy_strerror(res), Position()));
 				else {
-					regex expression("\"positives\": [0-9]+");
-					smatch matches;
-					string Buffer = chunk.memory;
-					if (!regex_search(Buffer, matches, expression)) {
-						Report(Observation(1, "Could not get VT report.", Position()));
-					}
+					curl_easy_cleanup(curl_handle);
+					curl_handle = curl_easy_init();
+					free(chunk.memory);
+					chunk = MemoryStruct();
 
-					int Positives = atoi(matches.str().substr(12).c_str());
-					if (Positives > 0) {
-						Report(Observation(WARNING, "Suspicious URL " + Path + Name, Position()));
+					curl_easy_setopt(curl_handle, CURLOPT_URL, "https://www.virustotal.com/vtapi/v2/url/report");
+					curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+					curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+					curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void*)&chunk);
+					curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+					string Data = "apikey=" + sys->Info.VT_API + "&resource=" + (Path + Name);
+					curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, Data.c_str());
+
+					res = curl_easy_perform(curl_handle);
+					if (res != CURLE_OK)
+						Report(Observation(1, curl_easy_strerror(res), Position()));
+					else {
+						regex expression("\"positives\": [0-9]+");
+						smatch matches;
+						string Buffer = chunk.memory;
+						if (!regex_search(Buffer, matches, expression)) {
+							Report(Observation(1, "Could not get VT report.", Position()));
+						}
+
+						int Positives = atoi(matches.str().substr(12).c_str());
+						if (Positives > 0) {
+							Report(Observation(WARNING, "Suspicious URL " + Path + Name, Position()));
+						}
+						//printf("Size: %lu\n", (unsigned long)chunk.size);
+						//printf("Data: %s\n", chunk.memory);
 					}
-					//printf("Size: %lu\n", (unsigned long)chunk.size);
-					//printf("Data: %s\n", chunk.memory);
 				}
+				curl_easy_cleanup(curl_handle);
+				curl_handle = curl_easy_init();
+				free(chunk.memory);
+				chunk = MemoryStruct();
 			}
-			curl_easy_cleanup(curl_handle);
-			curl_handle = curl_easy_init();
-			free(chunk.memory);
-			chunk = MemoryStruct();
-
 			curl_easy_setopt(curl_handle, CURLOPT_URL, (Path + Name).c_str());
 			curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
 			curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);

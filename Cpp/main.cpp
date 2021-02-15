@@ -4,7 +4,6 @@
 #include "../H/Parser/Parser.h"
 #include "../H/Parser/PostProsessor.h"
 #include "../H/UI/Safe.h"
-//#include "../H/Test/Test_Lexer.h"
 #include "../H/UI/Producer.h"
 #include "../H/Nodes/Node.h"
 #include "../H/Flags.h"
@@ -33,16 +32,6 @@ x86_64_Win X86_64_WIN;
 int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output = ".intel_syntax noprefix\n";
-
-#ifndef Test
-//Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
-//Evie.exe -in ~/test.e
-int main(int argc, char* argv[])
-{
-    Build(argc, argv);
-    return 0;
-}
-#endif
 
 extern string VT_API;
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
@@ -155,3 +144,13 @@ int Build(int argc, const char* argv[])
     pr.Assemble_Command();
     return 0;
 }
+
+#ifndef Test
+//Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
+//Evie.exe -in ~/test.e
+int main(int argc, char* argv[])
+{
+    Build(argc, argv);
+    return 0;
+}
+#endif
