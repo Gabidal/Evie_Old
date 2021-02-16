@@ -25,7 +25,7 @@ namespace DOCKER {
 	extern vector<string> Libs;
 	extern vector<string> Assembly_Source_File;
 	extern vector<string> FileName;		//this can contain also the url name
-	extern string Working_Dir;
+	extern vector<pair<string, string>> Working_Dir;
 	extern vector<string> Priority_Type;
 	//map<ID, function ID>
 	extern vector<pair<string, void (*)(vector<string>&)>> Translators;

@@ -8,6 +8,7 @@ void PreProsessor::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		If(i);
 		Include(i);
+		Detect_Directory_Usage_End(i);
 	}
 	return;
 }
@@ -60,19 +61,32 @@ void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename, int
 	//import loyal func [name]()()
 	//import generic func [name]()()
 	vector<Component> content;
-	FileName = new string(DOCKER::Working_Dir + filename);
+	FileName = new string(DOCKER::Working_Dir.back().second + filename);
+	vector<Component> tmp;
 	if (filename == DOCKER::Get_File_Extension(filename)) {
 		//if the filenmae doesnt have a file extension this happends.
 	}
 	else if (DOCKER::Get_File_Extension(filename) != "e") {
 		for (auto j : symbols)
 			if (j != "\n")
-				DOCKER::Append(Input, Lexer::GetComponents( "import " + MANGLER::Un_Mangle(j) + "\n"), i);
+				DOCKER::Append(tmp, Lexer::GetComponents( "import " + MANGLER::Un_Mangle(j) + "\n"));
 	}
 	else {
 		for (auto j : symbols)
 			if (j != "\n")
-				DOCKER::Append(Input, Lexer::GetComponents(j), i);
+				DOCKER::Append(tmp, Lexer::GetComponents(j));
+	}
+	DOCKER::Append(tmp, { Component(string(*FileName), Flags::END_OF_DIRECTIVE_CHANGING_FILE) });
+	DOCKER::Append(Input, tmp, i);
+}
+
+void PreProsessor::Detect_Directory_Usage_End(int i)
+{
+	if (!Input[i].is(Flags::END_OF_DIRECTIVE_CHANGING_FILE))
+		return;
+	for (auto j : DOCKER::Working_Dir) {
+		if (j.first == Input[i].Value)
+			DOCKER::Working_Dir.pop_back();
 	}
 }
 

@@ -45,7 +45,7 @@ extern int _SYSTEM_BIT_SIZE_;
 extern string Output;
 extern int arg_count;
 extern map<string, pair<int, string>> MANGLER::IDS;
-extern string DOCKER::Working_Dir;
+extern vector<pair<string, string>> DOCKER::Working_Dir;
 
 extern int Build(int argc, const char* argv[]);
 
@@ -53,7 +53,7 @@ vector<Base*> Back_End_Test::Run(string File)
 {
 	MANGLER::IDS.clear();
 	arg_count = 0;
-	DOCKER::Working_Dir = "";
+	DOCKER::Working_Dir.clear();
 	DOCKER::Included_Files.clear();
 	DOCKER::Assembly_Source_File.clear();
 	Output = ".intel_syntax noprefix\n";

@@ -184,7 +184,7 @@ void ELF::ELF_Analyzer(vector<string>& output)
         Report(Observation(ERROR, "Docker didn't find Header file for " + DOCKER::FileName.back(), Position()));
     
     //open & read the bin file
-    vector<unsigned char> File_Buffer = DOCKER::Get_Char_Buffer_From_File(DOCKER::FileName.back(), DOCKER::Working_Dir);
+    vector<unsigned char> File_Buffer = DOCKER::Get_Char_Buffer_From_File(DOCKER::FileName.back(), DOCKER::Working_Dir.back().second);
     Section Function_Section = ELF::Find_Section(File_Buffer.data(), ".dynstr");
     for (int i = 0; i < Function_Section.size; i++) {
         if (Function_Section.start[i] == '\0')
@@ -192,6 +192,6 @@ void ELF::ELF_Analyzer(vector<string>& output)
     }
     string Tmp = string((char*)Function_Section.start, Function_Section.size);
     DOCKER::Append(output, DOCKER::Get_Names_Of(Tmp, DOCKER::Separate_Identification_Patterns(Header_Data)));
-    DOCKER::Libs.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
+    DOCKER::Libs.push_back(DOCKER::Working_Dir.back().second + DOCKER::FileName.back());
     return;
 }

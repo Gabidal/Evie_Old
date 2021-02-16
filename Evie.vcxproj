@@ -98,6 +98,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
     <LibraryPath>C:\Users\GabenRTX\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>C:\Users\GabenRTX\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -156,6 +159,8 @@
     </ClCompile>
     <Link>
       <Profile>false</Profile>
+      <AdditionalDependencies>libcurl.lib;Ws2_32.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">

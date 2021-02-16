@@ -1,4 +1,5 @@
 use "../../IO/cstd.e"
+#use "https://filesamples.com/samples/document/txt/sample1.txt"
 
 export int main(){
 	Start_Test()

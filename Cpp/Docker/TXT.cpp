@@ -2,7 +2,7 @@
 
 void TXT::TXT_Analyzer(vector<string>& Output)
 {
-	ifstream file(DOCKER::Working_Dir + DOCKER::FileName.back(), std::ios::binary);
+	ifstream file(DOCKER::Working_Dir.back().second + DOCKER::FileName.back(), std::ios::binary);
 
 	if (!file.is_open()) {
 		throw::exception("FILE NOT FOUND!");

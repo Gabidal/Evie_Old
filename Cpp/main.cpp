@@ -148,7 +148,7 @@ int Build(int argc, const char* argv[])
 #ifndef Test
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 //Evie.exe -in ~/test.e
-int main(int argc, char* argv[])
+int main(int argc, const char* argv[])
 {
     Build(argc, argv);
     return 0;

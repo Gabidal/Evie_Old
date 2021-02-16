@@ -53,19 +53,19 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 
 	//check if the Remote folder exists
 	bool Repo_Folder = false;
-	for (auto i : DOCKER::Get_File_List(DOCKER::Working_Dir)) {
+	for (auto i : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second)) {
 		if (i == Remote_Dir)
 			Repo_Folder = true;
 	}
 
 	if (Repo_Folder == false) {
-		Report(Observation(ERROR, "folder " + DOCKER::Working_Dir + Remote_Dir + " does not exist!", Position()));
-		exit(1);
+		Report(Observation(WARNING, "folder " + DOCKER::Working_Dir.back().second + Remote_Dir + " does not exist, making a new one.", Position()));
+		system(("mkdir \"" + DOCKER::Working_Dir.back().second + Remote_Dir + "\"").c_str());
 	}
 
 	bool New_Repo = true;
 	//try to see if there is already a git folder for this git repo.
-	for (auto i : DOCKER::Get_File_List(DOCKER::Working_Dir + Remote_Dir)) {
+	for (auto i : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second + Remote_Dir)) {
 		//the i contains the reponame
 		if (i == Info[3]) {
 			New_Repo = false;
@@ -75,10 +75,10 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 	if (Remote_Dir[Remote_Dir.size()] != '/')
 		Remote_Dir += '/';
 
-	string Command = "cd " + DOCKER::Working_Dir + Remote_Dir + Info[3] + Double_Command_Mark + "git pull \"" + URL + "\"";
+	string Command = "cd " + DOCKER::Working_Dir.back().second + Remote_Dir + Info[3] + Double_Command_Mark + "git pull \"" + URL + "\"";
 
 	if (New_Repo) {
-		Command = "cd " + DOCKER::Working_Dir + Remote_Dir + Double_Command_Mark + "git clone \"" + URL + "\"";
+		Command = "cd " + DOCKER::Working_Dir.back().second + Remote_Dir + Double_Command_Mark + "git clone \"" + URL + "\"";
 	}
 	string Repo_Folder_Dest_Path;
 
@@ -157,7 +157,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 				Report(Observation(1, curl_easy_strerror(res), Position()));
 			}
 			else {
-				ofstream o(DOCKER::Working_Dir + Remote_Dir + Name.c_str());
+				ofstream o(DOCKER::Working_Dir.back().second + Remote_Dir + Name.c_str());
 				if (!o.is_open()) {
 					Report(Observation(1, "Could not save contents of " + Name, Position()));
 				}

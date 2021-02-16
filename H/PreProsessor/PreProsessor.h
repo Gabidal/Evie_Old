@@ -28,7 +28,7 @@ public:
 	void Define_Const_Value(int i);
 	void Replace_Const_Name_With_Value(vector<Component> &in);
 	void Syntax_Correcter(vector<string> symbols, string type, int i);
-
+	void Detect_Directory_Usage_End(int i);
 
 	//std::map<string::const_name, Component::value>
 	map<string, Component> Defined_Constants;

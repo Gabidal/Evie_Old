@@ -242,7 +242,7 @@ public:
 	Node* Find(int size, Node* parent, string f) {
 		for (Node* i : parent->Defined)
 			if (i->Size == size)
-				if (Format == f)
+				if (i->Format == f)
 					return i;
 		if (parent->Parent != nullptr)
 			return Find(size, parent->Parent, f);

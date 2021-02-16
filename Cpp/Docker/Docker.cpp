@@ -4,7 +4,8 @@
 vector<string> DOCKER::Libs;
 vector<string> DOCKER::Assembly_Source_File;
 vector<string> DOCKER::FileName;
-string DOCKER::Working_Dir;
+//			Directive changing FileName, directive.
+vector<pair<string, string>> DOCKER::Working_Dir;
 vector<string> DOCKER::Priority_Type; 
 map<string, vector<string>> DOCKER::Output;
 //map<ID, function ID>
@@ -58,7 +59,7 @@ void DOCKER::Start_Analyzer()
 		FileName.back() = DOCKER::Update_Working_Dir(FileName.back());
 		//if everything fails to check out it means,
 		//that it is a txt file and thus call the lexer for that purpose.
-		ifstream file(Working_Dir + FileName.back());
+		ifstream file(Working_Dir.back().second + FileName.back());
 		//safe check
 		//read Max_ID size into a buffer
 		file.read(Buffer, 16);
@@ -98,7 +99,7 @@ vector<string> DOCKER::Get_Header(string File_Name)
 		Name_No_Extension = File_Name;
 	vector<string> Files;
 	//collect all filenames in the working dir
-	for (auto& p : filesystem::directory_iterator(Working_Dir))
+	for (auto& p : filesystem::directory_iterator(Working_Dir.back().second))
 	{
 		string file_name = p.path().filename().string();
 		if (file_name.find(Name_No_Extension) == 0)
@@ -213,9 +214,12 @@ string DOCKER::Get_File_Extension(string raw) {
 string DOCKER::Update_Working_Dir(string File_Name)
 {
 	int i = (int)File_Name.find_last_of('/');
+	string Prevous_Dir = "";
+	if (Working_Dir.size() > 0)
+		Prevous_Dir = Working_Dir.back().second;
 	if (i != -1)
 	{
-		Working_Dir += File_Name.substr(0, (size_t)i + 1);
+		Working_Dir.push_back({Prevous_Dir + File_Name , Prevous_Dir + File_Name.substr(0, (size_t)i + 1) });
 		return File_Name.substr((size_t)i + 1);
 	}
 	return File_Name;
@@ -316,7 +320,7 @@ bool DOCKER::Is_Same_File(string first, string second)
 
 char* DOCKER::Read_Bin_File(string fileName)
 {
-	ifstream file(DOCKER::Working_Dir + fileName, std::ios::binary);
+	ifstream file(DOCKER::Working_Dir.back().second + fileName, std::ios::binary);
 	file.seekg(0, SEEK_END);
 	long long size = file.tellg();
 	char* Buffer = new char[size+1];

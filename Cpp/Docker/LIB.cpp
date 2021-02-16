@@ -27,7 +27,7 @@ void LIB::LIB_Analyzer(vector<string>& Output)
 		Report(Observation(ERROR,  "Docker didn't find Header file for " + DOCKER::FileName.back(), Position()));
 	
 	//write the lib with nm to .TMP.txt file
-	LIB::Generate_Binary_Symbols(DOCKER::FileName.back(), DOCKER::Working_Dir);
+	LIB::Generate_Binary_Symbols(DOCKER::FileName.back(), DOCKER::Working_Dir.back().second);
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(".TMP.txt", "");
 	string buffer = string((char*)tmp.data(), tmp.size());
 	//use filtters
@@ -43,6 +43,6 @@ void LIB::LIB_Analyzer(vector<string>& Output)
 	}
 	string Tmp = string((char*)Function_Section.start, Function_Section.size);
 	DOCKER::Append(Output, DOCKER::Get_Names_Of(Tmp, DOCKER::Separate_Identification_Patterns(Header_Data)));
-	DOCKER::Libs.push_back(DOCKER::Working_Dir + DOCKER::FileName.back());
+	DOCKER::Libs.push_back(DOCKER::Working_Dir.back().second + DOCKER::FileName.back());
 	return;
 }
