@@ -183,9 +183,10 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 
 	bool Need_Make_Build = true;
 	string File_Path = "";
-	for (int i = 3; i < Info.size(); i++) {
-		File_Path += Info[i];
+	for (int i = 3; i < Info.size() - 1; i++) {
+		File_Path += Info[i] + "/";
 	}
+	File_Path += Info[Info.size() - 1];
 
 	string Dir = "";
 	string File = DOCKER::Update_Working_Dir(File_Path, Dir);
@@ -202,10 +203,10 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 			Make = "make";
 		}
 		else {
-			if (system("nmake.exe") != 0) {
+			if (system(".\\Dependencies\\Mingw\\make.exe -v") != 0) {
 				Report(Observation(1, "nmake-utility is needed to be in the same folder or in environment varibles", Position()));
 			}
-			Make = "nmake";
+			Make = ".\\Dependencies\\Mingw\\make.exe";
 		}
 		int error = system((Make + " all").c_str());
 
@@ -219,23 +220,13 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 					All_Argument_Made_It = true;
 
 		if (!All_Argument_Made_It)
-			system((Make + " -B").c_str());
+			if (system((Make + " -B").c_str()) != 0) {
+				Report(Observation(1, "Make-utility build error, please fix the problems first.", Position()));
+			}
 
+		Docker D(DOCKER::Working_Dir.back().second + Remote_Dir + Dir + File);
 	}
 	else {
-		//char* buffer = DOCKER::Read_Bin_File(Repo_Folder_Dest_Path);
-		//string str(buffer);
-
-		//ofstream file(DOCKER::Working_Dir + Repo_Folder_Dest_Path);
-		//file.write(str.c_str(), str.size());
-
-		/*for (int i = 0; i < DOCKER::Included_Files.size(); i++) {
-			if (DOCKER::Is_Same_File(DOCKER::Included_Files[i], DOCKER::Working_Dir + Repo_Folder_Dest_Path)) {
-				cout << "Warnign: " << Repo_Folder_Dest_Path << " already included from \"" << URL << "\"" << endl;
-				return;
-			}
-		}*/
-
 		Docker D(Repo_Folder_Dest_Path);
 	}
 

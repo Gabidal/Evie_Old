@@ -139,7 +139,7 @@ Node* Node::Get_Parent_As(int F, Node* parent) {
 	if (parent->Parent != nullptr)
 		return Get_Parent_As(F, parent->Parent);
 	Report(Observation(ERROR, "Parent NULL!!", *Location));
-	throw::exception("ERROR!");
+	throw::runtime_error("ERROR!");
 }
 
 Node* Node::Find(Node* n, Node* p) {
@@ -149,7 +149,7 @@ Node* Node::Find(Node* n, Node* p) {
 		return n;
 	if (p == nullptr) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
-		throw::exception("ERROR!");
+		throw::runtime_error("ERROR!");
 	}
 	for (Node* i : p->Defined)
 		if (i->Name == n->Name) {
@@ -175,7 +175,7 @@ Node* Node::Find(string name, Node* parent, int flags) {
 		return nullptr;
 	if (parent == nullptr) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
-		throw::exception("ERROR!");
+		throw::runtime_error("ERROR!");
 		return nullptr;
 	}
 	for (Node* i : parent->Defined)
@@ -196,7 +196,7 @@ Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
 		return nullptr;
 	if (parent == nullptr /*&& Need_Parent_existance*/) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
-		throw::exception("ERROR!");
+		throw::runtime_error("ERROR!");
 		return nullptr;
 	}
 	for (Node* i : parent->Defined)

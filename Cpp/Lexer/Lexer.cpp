@@ -71,7 +71,7 @@ char GetParenthesisClosing(char opening, Position p)
 
     Report(Observation(ERROR, "Unrecognized parenthesis opening '" + opening + (string)"'", p));
 
-    throw::exception("ERROR");
+    throw::runtime_error("ERROR");
 }
 
 bool IsOperator(char c)
@@ -222,7 +222,7 @@ Position SkipParenthesis(const string &text, const Position &start)
     }
 
     Report(Observation(ERROR, "Couldn't find closing parenthesis", start));
-    throw::exception("ERROR!");
+    throw::runtime_error("ERROR!");
 }
 
 Position SkipComment(const string &text, const Position &start)
@@ -419,7 +419,7 @@ int GetExponent(const string& text, Position p)
         {
             Report(Observation(ERROR,  "Invalid number exponent '" + text + "'", p));
 
-            throw::exception("ERROR");
+            throw::runtime_error("ERROR");
         }
 
         // Skip the potential exponent sign
@@ -432,7 +432,7 @@ int GetExponent(const string& text, Position p)
             {
                 Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
 
-                throw::exception("ERROR");
+                throw::runtime_error("ERROR");
             }
         }
 
@@ -449,7 +449,7 @@ int GetExponent(const string& text, Position p)
         {
             Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
 
-            throw::exception("ERROR");
+            throw::runtime_error("ERROR");
         }
     }
 }
@@ -477,7 +477,7 @@ Component CreateNumberComponent(string text, const Position& position)
             string s = "Invalid decimal number '" + text + "'";
             Report(Observation(ERROR, s, position));
 
-            throw::exception("ERROR");
+            throw::runtime_error("ERROR");
         }
     }
     else
@@ -493,7 +493,7 @@ Component CreateNumberComponent(string text, const Position& position)
             string s = "Invalid integer number '" + text + "'";
 
             Report(Observation(ERROR, s, position)); 
-            throw::exception("ERROR");
+            throw::runtime_error("ERROR");
         }
     }
 }
@@ -531,7 +531,7 @@ Component ParseComponent(const Area& area)
         string s = "Unrecognized token '" + area.Text + "'";
 
         Report(Observation(ERROR, s, area.Start));
-        throw::exception("ERROR");
+        throw::runtime_error("ERROR");
     }
 
     }
@@ -589,7 +589,7 @@ vector<Component> Lexer::GetComponentsFromFile(string file)
         stringstream message;
         Report(Observation(ERROR, "Couldn't find or open file '" + file + "'", Position()));
 
-        throw::exception("ERROR");
+        throw::runtime_error("ERROR");
     }
 
     string text;

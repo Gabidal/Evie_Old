@@ -82,7 +82,7 @@ void Algebra::Function_Inliner(Node* c)
 	//check if thos callation hasnt yet finded the template function.
 	if (c->Template_Function == nullptr) {
 		Report(Observation(ERROR, c->Name +" doesn't have constructor function.", *c->Location));
-		throw::exception("ERROR");
+		throw::runtime_error("ERROR");
 	}
 	//make a result variable that the return always return the value to.
 	vector<Node*> Inlined_Code;

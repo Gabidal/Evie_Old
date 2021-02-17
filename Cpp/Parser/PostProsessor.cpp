@@ -354,7 +354,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 					Observation(ERROR, "Cannot decide, " + n->Holder->Name + " has too many similar overloads.", *n->Holder->Location),
 					Observation(SOLUTION, "Solution: Please cast " + n->Name + " into desired type.", *n->Location)
 					});
-				throw::exception("Error!");
+				throw::runtime_error("Error!");
 			}
 			n->Inheritted = Global_Scope->Defined[callation[0]]->Parameters[Parameter_Index]->Inheritted;
 		}
@@ -467,14 +467,14 @@ Try_Again:;
 			s += "  " + n->Parameters[j]->Name + "\n";
 		}
 		Report(Observation(ERROR, "Can't find suitable funciton to call " + n->Name + " with parameters:" + s, *n->Location));
-		throw::exception("Error!");
+		throw::runtime_error("Error!");
 	}
 
 	if (OgFunc->is(PROTOTYPE))
 		for (auto j : OgFunc->Parameters)
 			if (j->Name == "type") {		//REMEBER THE DIRECT TYPING!!	
 				Report(Observation(ERROR, "Can't copy a foreingh function " + OgFunc->Name + ".", *OgFunc->Location));
-				throw::exception("Error!");
+				throw::runtime_error("Error!");
 			}
 
 	Node* func = nullptr;

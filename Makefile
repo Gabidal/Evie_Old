@@ -6,4 +6,4 @@ endif
 Additional_Flags += -o Evie -g
 
 all:
-	g++ --std=c++17 $(Additional_Flags) Cpp/*.cpp Cpp/Interpreter/*.cpp Cpp/Selector/*.cpp Cpp/OpC/*.cpp Cpp/UI/*.cpp Cpp/Back/*.cpp Cpp/Lexer/*.cpp Cpp/Linux/*.cpp Cpp/Parser/*.cpp Cpp/Emulator/*.cpp Cpp/Windows/*.cpp Cpp/Architecture/x86/*.cpp Cpp/Architecture/ARM/*.cpp
+	g++ --std=c++17 $(Additional_Flags) -fpermissive Cpp/*.cpp Cpp/BackEnd/*.cpp Cpp/Docker/*.cpp Cpp/Lexer/*.cpp Cpp/Nodes/*.cpp Cpp/Parser/*.cpp Cpp/PreProsessor/*.cpp Cpp/UI/*.cpp Tests/*.cpp Tests/Cpp/*.cpp

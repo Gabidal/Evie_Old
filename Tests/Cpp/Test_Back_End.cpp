@@ -19,11 +19,11 @@ R Call(void* handle, const char* name, T... arguments) {
 int Back_End_Test::Run_Dll(string f) {
 	auto Handle = LoadLibrary(f.c_str());
 	if (Handle == nullptr)
-		throw::exception("INTERNAL ERROR!");
+		throw::runtime_error("INTERNAL ERROR!");
 
 	auto Func = (int(*)())GetProcAddress(Handle, "Start_Test");
 	if (Func == nullptr)
-		throw::exception("INTERNAL ERROR!");
+		throw::runtime_error("INTERNAL ERROR!");
 	return Func();
 }
 

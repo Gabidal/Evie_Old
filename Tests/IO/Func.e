@@ -1,5 +1,5 @@
-#use "../../IO/cstd.e"
-use "https://github.com/Gabidal/Evie/Evie.exe"
+use "../../IO/cstd.e"
+#use "https://github.com/Gabidal/Evie/Evie.exe"
 
 export int main(){
 	Start_Test()

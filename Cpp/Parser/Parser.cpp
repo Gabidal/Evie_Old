@@ -731,7 +731,7 @@ void Parser::Function_Pattern(int i)
 		func = Parent->Find(Input[i].Value, Parent, true);
 	if (func == nullptr) {
 		Report(Observation(ERROR, "Parser didnt find " + Input[i].node->Name + " constructor!", Input[i].Location));
-		throw::exception("ERROR!");
+		throw::runtime_error("ERROR!");
 	}
 		//override the object definition node flag
 	func->Type = FUNCTION_NODE;
@@ -792,7 +792,7 @@ void Parser::Type_Pattern(int i)
 		Type = Parent->Find(Input[i].Value, Parent, OBJECT_DEFINTION_NODE);
 	if (Type == nullptr) {
 		Report(Observation(ERROR, "Type definition was not found!", Input[i].Location));
-		throw::exception("ERROR!");
+		throw::runtime_error("ERROR!");
 	}
 	//reset the value
 	Type->Type = CLASS_NODE;

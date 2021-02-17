@@ -24,7 +24,7 @@ void Safe::Factory()
 }
 
 void Stop() {
-	throw::exception("ERROR!");
+	throw::runtime_error("ERROR!");
 }
 
 void Observation::Report()
@@ -45,6 +45,8 @@ void Observation::Report()
 		cout << Head << Msg << endl;
 	if (Type == SOLUTION)
 		cout << "}" << endl;
+	if (Type == FAIL)
+		throw::runtime_error("ERROR");
 }
 
 void Report(Observation o)
@@ -73,6 +75,8 @@ void Report(long type, Lexer_Expectation_Set expectation, string source, vector<
 		}
 		cout << endl;
 	}
+	if (type == FAIL)
+		throw::runtime_error("ERROR");
 }
 
 void Report(long type, Back_Expectation_Set expectation, string source, vector<Base*> result) {
@@ -90,6 +94,8 @@ void Report(long type, Back_Expectation_Set expectation, string source, vector<B
 		}
 		cout << endl;
 	}
+	if (type == FAIL)
+		throw::runtime_error("ERROR");
 }
 
 void Safe::Check_Return_Validity(Node* n)
@@ -141,6 +147,6 @@ void Safe::Disable_Non_Ptr_Class_Return(Node* n)
 			Observation(ERROR, "Return object is bigger than: " + to_string(_SYSTEM_BIT_SIZE_ * 8), *n->Location),
 			Observation(SOLUTION, "Please return the object as a pointter", *n->Location)
 			});
-		throw::exception("ERROR!");
+		throw::runtime_error("ERROR!");
 	}
 }

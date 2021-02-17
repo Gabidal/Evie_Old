@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "../../H/Lexer/Lexer.h"
+#include <stdexcept>
 
 using namespace std;
 

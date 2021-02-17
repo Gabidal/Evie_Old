@@ -29,7 +29,7 @@ bool Selector::Find(string n, Token* ast)
 		return true;
 	if (ast->is(TOKEN::CONTENT) || ast->is(TOKEN::MEMORY))
 		for (auto& i : ast->Childs)
-			//throw::exception("haha nobnob");
+			//throw::runtime_error("haha nobnob");
 			return Find(n, i);
 	if (ast->is(TOKEN::OFFSETTER) || ast->is(TOKEN::DEOFFSETTER) || ast->is(TOKEN::SCALER)) {
 		if (Find(n, ast->Left))
@@ -370,7 +370,7 @@ Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 			return nullptr;
 		}
 	}
-	throw::exception("INTERNAL ERROR!");
+	throw::runtime_error("INTERNAL ERROR!");
 }
 
 Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
@@ -384,7 +384,7 @@ Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 			return Check_If_Larger_Register_Is_In_Use(r->Holder);
 		}
 	}
-	throw::exception("INTERNAL ERROR!");
+	throw::runtime_error("INTERNAL ERROR!");
 }
 
 void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
@@ -404,7 +404,7 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 		}
 	}
 	cout << "allocation needed!" << endl;
-	throw::exception("INTERNAL ERROR!");
+	throw::runtime_error("INTERNAL ERROR!");
 }
 
 void Selector::Pair_Up(Token* r, Register_Descriptor* t)
@@ -586,6 +586,6 @@ string Selector::Get_Size_Identifier(int s)
 			return i->Get_Name();
 	}
 	Report(Observation(ERROR, "Size identifier for size of '" + to_string(s) + "' wasnt found!", Position()));
-	throw::exception("Error!");
+	throw::runtime_error("Error!");
 }
 

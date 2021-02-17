@@ -206,7 +206,7 @@ string MANGLER::Mangle(Node* raw)
 					//PcIic = char int char ptr a
 					//Evie engine 3.0.0 cannot export multi inheritted variables yet.
 					//TODO: Make that happen.
-					throw::exception("Exporting multi inheritted variables is not yet supported.");
+					throw::runtime_error("Exporting multi inheritted variables is not yet supported.");
 				}
 			}
 			if (Is_Template(raw)) {

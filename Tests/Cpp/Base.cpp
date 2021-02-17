@@ -29,6 +29,6 @@ string Base::Transform(long f) {
 		return "undefined";
 	}
 	else {
-		throw::exception("INTERNAL ERROR!");
+		throw::runtime_error("INTERNAL ERROR!");
 	}
 }
