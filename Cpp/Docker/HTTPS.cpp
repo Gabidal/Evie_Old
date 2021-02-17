@@ -180,8 +180,47 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 		Repo_Folder_Dest_Path += Info.back();
 	}
 
-	if (DOCKER::Is_Folder(Repo_Folder_Dest_Path)) {
-		//here we build it.
+
+	bool Need_Make_Build = true;
+	string File_Path = "";
+	for (int i = 3; i < Info.size(); i++) {
+		File_Path += Info[i];
+	}
+
+	string Dir = "";
+	string File = DOCKER::Update_Working_Dir(File_Path, Dir);
+	for (auto f : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second + Remote_Dir + Dir))
+		if (f == File)
+			Need_Make_Build = false;
+
+	if (DOCKER::Is_Folder(Repo_Folder_Dest_Path) || Need_Make_Build) {
+		//we build it here.
+		string Make = "";
+		if (sys->Info.HOST_OS == "unix") {
+			if (system("which make") != 0)
+				Report(Observation(1, "Is make-utility installed and visible to this program?", Position()));
+			Make = "make";
+		}
+		else {
+			if (system("nmake.exe") != 0) {
+				Report(Observation(1, "nmake-utility is needed to be in the same folder or in environment varibles", Position()));
+			}
+			Make = "nmake";
+		}
+		int error = system((Make + " all").c_str());
+
+		bool All_Argument_Made_It = false;
+		if (error != 0) {
+			Report(Observation(1, to_string(error) + " Could not build with default argument, going into fallback mode.", Position()));
+		}
+		else
+			for (auto f : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second + Remote_Dir + Dir))
+				if (f == File)
+					All_Argument_Made_It = true;
+
+		if (!All_Argument_Made_It)
+			system((Make + " -B").c_str());
+
 	}
 	else {
 		//char* buffer = DOCKER::Read_Bin_File(Repo_Folder_Dest_Path);

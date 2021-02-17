@@ -1,5 +1,5 @@
-use "../../IO/cstd.e"
-#use "https://filesamples.com/samples/document/txt/sample1.txt"
+#use "../../IO/cstd.e"
+use "https://github.com/Gabidal/Evie/Evie.exe"
 
 export int main(){
 	Start_Test()
