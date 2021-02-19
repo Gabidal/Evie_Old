@@ -187,6 +187,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cpp\BackEnd\ARM.cpp" />
     <ClCompile Include="Cpp\BackEnd\BackEnd.cpp" />
     <ClCompile Include="Cpp\BackEnd\IRGenerator.cpp" />
     <ClCompile Include="Cpp\BackEnd\Selector.cpp" />
@@ -237,6 +238,7 @@
     <None Include="Tests\IO\Type.e.asm" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="H\BackEnd\ARM.h" />
     <ClInclude Include="H\BackEnd\BackEnd.h" />
     <ClInclude Include="H\BackEnd\IRGenerator.h" />
     <ClInclude Include="H\BackEnd\IRPostProsessor.h" />

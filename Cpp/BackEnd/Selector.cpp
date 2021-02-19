@@ -4,6 +4,7 @@
 
 extern Usr* sys;
 extern x86_64_Win X86_64_WIN;
+extern ARM_64 _ARM_64;
 
 void Selector::Init() {
 	if (sys->Info.Architecture == "x86") {
@@ -20,6 +21,20 @@ void Selector::Init() {
 			}
 		}
 
+	}
+	else if (sys->Info.Architecture == "arm") {
+		if (sys->Info.Bits_Mode == "8") {
+			if (sys->Info.OS == "win" || sys->Info.OS == "unix") {
+				_ARM_64.Init();
+				for (auto i : _ARM_64.Registers)
+					Registers.push_back({ nullptr, i });
+				for (auto i : _ARM_64.Parameter_Registers) {
+					Parameter_Registers.push_back(Transform(i));
+				}
+				Opcodes = _ARM_64.Opcodes;
+				Size_Identifiers = _ARM_64.Size_Identifiers;
+			}
+		}
 	}
 }
 

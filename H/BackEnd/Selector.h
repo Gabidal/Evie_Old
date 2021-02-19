@@ -6,7 +6,8 @@
 
 #include "../Nodes/IR.h"
 #include "../Nodes/Token.h"
-#include "../BackEnd/x86.h"
+#include "x86.h"
+#include "ARM.h"
 
 using namespace std;
 

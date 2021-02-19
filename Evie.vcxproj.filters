@@ -105,6 +105,9 @@
     <ClCompile Include="Tests\Cpp\Base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\BackEnd\ARM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\unix.asm">
@@ -238,6 +241,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tests\H\Base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\BackEnd\ARM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
