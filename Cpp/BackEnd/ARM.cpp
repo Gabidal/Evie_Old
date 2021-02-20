@@ -233,6 +233,7 @@ void ARM_64::Init() {
 	Token* W29D = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "w29", 4, { W29W });
 	Token* X29 = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "x29", 8, { W29D });
 
+	Token* SP = new Token(TOKEN::STACK_POINTTER, "sp", 8, {});
 
 	Parameter_Registers = { X0, X1, X2, X3, X4, X5, X6, X7 };
 	Registers = {
@@ -265,6 +266,7 @@ void ARM_64::Init() {
 		W27B, W27W, W27D, X27,
 		W28B, W28W, W28D, X28,
 		W29B, W29W, W29D, X29,
+		SP,
 	};
 
 	IR* MOV_ALL = new IR("=", new Token(OPERATOR), {
@@ -355,7 +357,7 @@ void ARM_64::Init() {
 		{{Register, {1, 8}}, {Const, {1, 8}} },
 		{{Memory, {1, 8}}, {Const, {1, 8}} },
 	},
-	[](vector<Token*> args) {
+		[](vector<Token*> args) {
 			vector<IR*> Result;
 			Result.push_back(new IR(new Token(OPERATOR, "lsl"), { args[0], args[0], args[1] }));
 			return Result;
@@ -394,9 +396,180 @@ void ARM_64::Init() {
 		}
 	);
 
+	IR* ADD_LAMBDA = new IR("+", new Token(OPERATOR), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} },
+	},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+
+			if (Right->is(NUM) && atoll(Right->Get_Name().c_str()) > 4095) {	//max 12bit number
+				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+
+				Right = Reg1;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "add"), { Left, Left, Right }));
+
+			return Result;
+		}
+	);
+
+	IR* SUB_LAMBDA = new IR("-", new Token(OPERATOR), {
+	{{Register, {1, 8}}, {Memory, {1, 8}} },
+	{{Memory, {1, 8}}, {Register, {1, 8}} },
+	{{Register, {1, 8}}, {Register, {1, 8}} },
+	{{Register, {1, 8}}, {Const, {1, 8}} },
+	{{Memory, {1, 8}}, {Const, {1, 8}} },
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+
+			if (Right->is(NUM) && atoll(Right->Get_Name().c_str()) > 4095) {	//max 12bit number
+				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+
+				Right = Reg1;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "sub"), { Left, Left, Right }));
+
+			return Result;
+		}
+	);
+
+	IR* ADD = new IR("add", new Token(OPERATOR, "add"), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} },
+	});
+
+	IR* SUB = new IR("sub", new Token(OPERATOR, "sub"), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} },
+	});
+
+	IR* LEA_MEM = new IR("evaluate", new Token(OPERATOR), {
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+	},
+	[](vector<Token*> args) {
+			vector<IR*> Result;
+			//un-wrap memory contents into argument styled listing.
+			string Eval_Type = "add";
+
+			pair<vector<Token*>, bool> tmp = Un_Wrap_Content(args[1]);
+
+			tmp.first.insert(tmp.first.begin(), args[0]);
+
+			if (!tmp.second)
+				Eval_Type = "sub";
+
+			Result.push_back(new IR(new Token(OPERATOR, Eval_Type), tmp.first));
+
+			return Result;
+		}
+	);
+
+	IR* LEA_LABEL = new IR("evaluate", new Token(OPERATOR), {
+		{{Register, {1, 8}}, {Label, {0, 0}} },
+	},
+	[](vector<Token*> args) {
+			vector<IR*> Result;
+
+			//adrp reg1, :got:label
+			//ldr reg1, [reg1, :got_lo12:label]
+
+			Result.push_back(new IR(new Token(OPERATOR, "adrp"), {
+				args[0], new Token(LABEL, ":got:" + args[1]->Get_Name())
+			}));
+
+			Result.push_back(new IR(new Token(OPERATOR, "ldr"), {
+				args[0], new Token(MEMORY, "MEM_" + args[1]->Get_Name(), {new Token(OFFSETTER, ",", Reg1, new Token(LABEL, ":got_lo12:" + args[1]->Get_Name()))})
+			}));
+
+			return Result;
+		}
+	);
+
+	IR* BL = new IR("call", new Token(OPERATOR, "bl"), {
+		{{Label, {0, 0}}},
+		{{Register, {_SYSTEM_BIT_SIZE_, _SYSTEM_BIT_SIZE_}}},
+	});
+
+	IR* CMP = new IR("compare", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "cmp"), {
+		{{Register, {1, 8}}, {Register, {1, 8}}},
+		{{Register, {1, 8}}, {Memory, {1, 8}}},
+		{{Memory, {1, 8}}, {Register, {1, 8}}},
+		{{Register,  {1, 8}}, {Const, {1, 8}}}
+	});
+
+	IR* B = new IR("jump", new Token(FLOW, "b"), { {{Label, {0, 0}}} });
+	IR* BEQ = new IR("==", new Token(FLOW, "b.eq"), { {{Label, {0, 0}}} });
+	IR* BNE = new IR("!=", new Token(FLOW, "b.ne"), { {{Label, {0, 0}}} });
+	IR* BLE = new IR("<", new Token(FLOW, "b.lt"), { {{Label, {0, 0}}} });
+	IR* BLT = new IR("<=", new Token(FLOW, "b.le"), { {{Label, {0, 0}}} });
+	IR* BNL = new IR("!<", new Token(FLOW, "b.ge"), { {{Label, {0, 0}}} });
+	IR* BGE = new IR(">", new Token(FLOW, "b.gt"), { {{Label, {0, 0}}} });
+	IR* BGT = new IR(">=", new Token(FLOW, "b.ge"), { {{Label, {0, 0}}} });
+	IR* BNG = new IR("!>", new Token(FLOW, "b.le"), { {{Label, {0, 0}}} });
+
+	IR* RET = new IR("return", new Token(FLOW, "ret"), {});
+
+
 	Opcodes = {
 		MOV_ALL, MOV, LDR, STR,
 		LSL, LSR, SHIFT_LEFT, SHIFT_RIGHT,
-		ORR, OR
+		ORR, OR,
+		ADD_LAMBDA, ADD, LEA_MEM,
+		SUB_LAMBDA, SUB,
+		BL, B, BEQ, BNE, BLE, BLT, BNL, BGE, BGT, BNG,
+		RET,
 	};
+}
+
+pair<vector<Token*>, bool> ARM_64::Un_Wrap_Content(Token* t)
+{
+	vector<Token*> Result;
+	bool Positive_Offsetter = true;
+
+	if (t->is(TOKEN::MEMORY))
+		for (auto c : t->Childs) {
+			pair<vector<Token*>, bool> tmp = Un_Wrap_Content(c);
+			Result.insert(Result.end(), tmp.first.begin(), tmp.first.end());
+			if (!tmp.second)
+				Positive_Offsetter = false;
+		}
+	else if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::DEOFFSETTER) || t->is(TOKEN::SCALER)) {
+		pair<vector<Token*>, bool> tmp = Un_Wrap_Content(t->Left);
+		Result.insert(Result.end(), tmp.first.begin(), tmp.first.end());
+		if (!tmp.second)
+			Positive_Offsetter = false;
+
+		tmp = Un_Wrap_Content(t->Right);
+		Result.insert(Result.end(), tmp.first.begin(), tmp.first.end());
+		if (!tmp.second)
+			Positive_Offsetter = false;
+	}
+	else {
+		Result.push_back(t);
+	}
+
+	if (t->is(TOKEN::DEOFFSETTER))
+		Positive_Offsetter = false;
+
+	return { Result, Positive_Offsetter };
+
 }

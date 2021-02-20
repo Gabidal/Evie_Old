@@ -25,6 +25,9 @@ public:
 	string Number_Pre_Fix;
 	string Label_Post_Fix;
 	void Init();
+	//					 needs add or sub for the operation.
+	static pair<vector<Token*>, bool> Un_Wrap_Content(Token* t);
+
 };
 
 #endif
