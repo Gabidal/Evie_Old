@@ -93,7 +93,7 @@ void IRPostProsessor::Handle_Global_Labels()
 	
 }
 
-void IRPostProsessor::Clean_Selector(int i)
+void IRPostProsessor::Clean_Selector(int& i)
 {
 	if (!Input->at(i)->is(TOKEN::END_OF_FUNCTION))
 		return;
@@ -110,6 +110,8 @@ void IRPostProsessor::Clean_Selector(int i)
 	Start_Of_Function += 2; //Skip the label
 	//now we know what non-volatiles are in use
 	vector<Token*> Push_Amount;
+	int Additional_Changes = 0;
+	int Return_Amount = 0;
 	for (auto r : selector->Get_Register_Type(TOKEN::NONVOLATILE)) {
 		if (r.first == nullptr)
 			continue;
@@ -126,14 +128,16 @@ void IRPostProsessor::Clean_Selector(int i)
 		Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
 		reg->ID = reg->Get_Name();
 		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }));
-		Push_Amount.push_back(r.second);
+		Additional_Changes += Parse_Complex(Input->at(Start_Of_Function), Start_Of_Function, true);
+		Push_Amount.push_back(reg);
 	Already_Pushed:;
 	}
 	//now do same but for the end of funciton
 	selector->Set_Stack_Start_Value(0);
-	for (int j = i + (int)Push_Amount.size(); j > Start_Of_Function; j -= 1) {
+	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j -= 1) {
 		if (Input->at(j)->OPCODE->Get_Name() != "return")
 			continue;
+		Return_Amount++;
 		Token* ret = Input->at(j)->OPCODE;
 		for (auto r : Push_Amount) {
 			Token* reg = new Token(*r->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r));
@@ -141,6 +145,7 @@ void IRPostProsessor::Clean_Selector(int i)
 
 
 			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
+			Parse_Complex(Input->at(j), j, true);
 		}
 		Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, ret->Get_Parent());
 		if (Parent->Max_Allocation_Space + Parent->Local_Allocation_Space > 0) {
@@ -151,6 +156,8 @@ void IRPostProsessor::Clean_Selector(int i)
 	}
 	selector->Clean_Register_Holders();
 	selector->Clean_Stack();
+	//find the current end of function location.
+	for (; !Input->at(i)->is(TOKEN::END_OF_FUNCTION); i++);
 }
 
 void IRPostProsessor::Prepare_Function(int i)
@@ -215,22 +222,34 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 
 }
 
-void IRPostProsessor::Parse_Complex(IR* ir, int i)
+int IRPostProsessor::Parse_Complex(IR* ir, int i, bool Registry)
 {
 	if (!ir->is(TOKEN::OPERATOR))
-		return;
+		return 0;
 	if (selector->Get_Opcode(ir)->Complex != nullptr) {
 		vector<IR*> r = selector->Get_Opcode(ir)->Complex(ir->Arguments);
+		int Changes = r.size() - 1;
+		if (Registry)
+			for (int opc = 0; opc < r.size(); opc++)
+				for (auto arg : r[opc]->Arguments) {
+					Registerize(arg, i + opc);
+				}
 		Input->erase(Input->begin() + i);
 		Input->insert(Input->begin() + i, r.begin(), r.end());
+		//go through the added complex content and iterate them into complex again, 
+		//this feature is made for recursive complex usage.
+		for (int j = 0; j < r.size(); j++)
+			Changes += Parse_Complex(Input->at(i + j), i + j, Registry);
+		return Changes;
 	}
+	return 0;
 }
 
 void IRPostProsessor::Factory()
 {
 	Handle_Global_Labels();
 	for (int i = 0; i < Input->size(); i++)
-		Parse_Complex(Input->at(i), i);
+		Parse_Complex(Input->at(i), i, false);
 	for (int i = 0; i < Input->size(); i++)
 		Scale_To_Same_Size(i);
 	for (int i = 0; i < Input->size(); i++) {

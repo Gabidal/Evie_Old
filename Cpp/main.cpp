@@ -15,6 +15,7 @@
 #include "../H/BackEnd/IRGenerator.h"
 #include "../H/BackEnd/Selector.h"
 #include "../H/BackEnd/x86.h"
+#include "../H/BackEnd/ARM.h"
 #include "../H/BackEnd/IRPostProsessor.h"
 
 #include <sstream>
@@ -29,6 +30,7 @@ Usr* sys;
 Node* Global_Scope;
 Selector* selector;
 x86_64_Win X86_64_WIN;
+ARM_64 _ARM_64;
 int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output = ".intel_syntax noprefix\n";

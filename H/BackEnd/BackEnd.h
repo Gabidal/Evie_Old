@@ -1,6 +1,7 @@
 #ifndef _BACKEND_H_
 #define _BACKEND_H_
 #include "x86.h"
+#include "ARM.h"
 #include "../UI/Usr.h"
 #include "../Nodes/IR.h"
 #include "../Nodes/Token.h"
@@ -18,8 +19,6 @@ private:
 	string Register_Pre_Fix = "";
 	string Number_Pre_Fix = "";
 	string Label_Post_Fix = "";
-
-	vector<IR*> Opcodes;
 
 	vector<IR*> Input;
 	string* Output;

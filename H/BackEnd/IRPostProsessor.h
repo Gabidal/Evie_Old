@@ -20,12 +20,12 @@ private:
 	void Registerize(Token* t, int i);
 	void Give_New_Register(Token* t, int i);
 	void Handle_Global_Labels();
-	void Clean_Selector(int i);
+	void Clean_Selector(int& i);
 	void Prepare_Function(int i);
 	void Handle_Labels(int i);
 
 	void Handle_Stack_Usages(Token* t);
-	void Parse_Complex(IR* ir, int i);
+	int Parse_Complex(IR* ir, int i, bool Registry);
 public:
 	IRPostProsessor(vector<IR*>* in) : Input(in) { Factory(); }
 	void Factory();

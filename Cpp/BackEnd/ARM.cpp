@@ -71,10 +71,10 @@ void ARM_64::Init() {
 		Data
 	};
 
-	Token* BYTE = new Token(SIZE_INDENTIFIER, "byte ptr", 1);
-	Token* WORD = new Token(SIZE_INDENTIFIER, "word ptr", 2);
-	Token* DWORD = new Token(SIZE_INDENTIFIER, "dword ptr", 4);
-	Token* QWORD = new Token(SIZE_INDENTIFIER, "qword ptr", 8);
+	Token* BYTE = new Token(SIZE_INDENTIFIER, "", 1);
+	Token* WORD = new Token(SIZE_INDENTIFIER, "", 2);
+	Token* DWORD = new Token(SIZE_INDENTIFIER, "", 4);
+	Token* QWORD = new Token(SIZE_INDENTIFIER, "", 8);
 	Size_Identifiers = {
 		BYTE,
 		WORD,
@@ -330,28 +330,31 @@ void ARM_64::Init() {
 		}
 	);
 
-	IR* MOV = new IR("mov", new Token(OPERATOR, "mov"), {
+	IR* MOVE = new IR(*MOV_ALL);
+	MOVE->ID = "move";
+
+	IR* MOV = new IR("mov", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mov"), {
 		{{Register, {1, 8}}, {Const, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 	});
 
-	IR* LDR = new IR("ldr", new Token(OPERATOR, "ldr"), {
+	IR* LDR = new IR("ldr", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "ldr"), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		});
 
-	IR* STR = new IR("str", new Token(OPERATOR, "str"), {
+	IR* STR = new IR("str", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "str"), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		});
 
-	IR* LSL = new IR("lsl", new Token(OPERATOR, "lsl"), {
+	IR* LSL = new IR("lsl", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lsl"), {
 		{{Register, {1, 8}}, {Register, {1, 8}}, { Const, {1, 8}} },
 	});
 
-	IR* LSR = new IR("lsr", new Token(OPERATOR, "lsr"), {
+	IR* LSR = new IR("lsr", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lsr"), {
 		{{Register, {1, 8}}, {Register, {1, 8}}, { Const, {1, 8}} },
 	});
 
-	IR* SHIFT_LEFT = new IR("<<", new Token(OPERATOR), {
+	IR* SHIFT_LEFT = new IR("<<", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}} },
@@ -364,7 +367,7 @@ void ARM_64::Init() {
 		}
 	);
 
-	IR* SHIFT_RIGHT = new IR(">>", new Token(OPERATOR), {
+	IR* SHIFT_RIGHT = new IR(">>", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 	{{Memory, {1, 8}}, {Register, {1, 8}} },
 	{{Register, {1, 8}}, {Register, {1, 8}} },
 	{{Register, {1, 8}}, {Const, {1, 8}} },
@@ -377,13 +380,13 @@ void ARM_64::Init() {
 		}
 	);
 
-	IR* ORR = new IR("orr", new Token(OPERATOR, "orr"), {
+	IR* ORR = new IR("orr", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "orr"), {
 		{{Register, {1, 8}}, {Register, {1, 8}}, { Const, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}}, { Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}}, { Const, {1, 8}} },
 		});
 
-	IR* OR = new IR("|", new Token(OPERATOR), {
+	IR* OR = new IR("|", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}} },
@@ -396,7 +399,7 @@ void ARM_64::Init() {
 		}
 	);
 
-	IR* ADD_LAMBDA = new IR("+", new Token(OPERATOR), {
+	IR* ADD_LAMBDA = new IR("+", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
@@ -421,7 +424,7 @@ void ARM_64::Init() {
 		}
 	);
 
-	IR* SUB_LAMBDA = new IR("-", new Token(OPERATOR), {
+	IR* SUB_LAMBDA = new IR("-", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 	{{Register, {1, 8}}, {Memory, {1, 8}} },
 	{{Memory, {1, 8}}, {Register, {1, 8}} },
 	{{Register, {1, 8}}, {Register, {1, 8}} },
@@ -446,23 +449,86 @@ void ARM_64::Init() {
 		}
 	);
 
-	IR* ADD = new IR("add", new Token(OPERATOR, "add"), {
+	IR* ADD = new IR("add", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "add"), {
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Memory, {1, 8}}, {Const, {1, 8}} },
+	});
+
+	IR* SUB = new IR("sub", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "sub"), {
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Memory, {1, 8}}, {Const, {1, 8}} },
+	});
+
+
+	IR* MUL_LAMBDA = new IR("*", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}} },
 		{{Memory, {1, 8}}, {Const, {1, 8}} },
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
+
+			if (Right->is(NUM)) {
+				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+
+				Right = Reg1;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "mul"), { Left, Left, Right }));
+
+			return Result;
+		}
+	);
+
+	IR* MUL = new IR("mul", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "mul"), {
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Register, {1, 8}} },
 	});
 
-	IR* SUB = new IR("sub", new Token(OPERATOR, "sub"), {
+	IR* DIV_LAMBDA = new IR("/", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}} },
 		{{Memory, {1, 8}}, {Const, {1, 8}} },
-	});
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* Left = args[0];
+			Token* Right = args[1];
 
-	IR* LEA_MEM = new IR("evaluate", new Token(OPERATOR), {
+			if (Right->is(NUM)) {
+				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+
+				Right = Reg1;
+			}
+
+			Result.push_back(new IR(new Token(OPERATOR, "div"), { Left, Left, Right }));
+
+			return Result;
+		}
+	);
+
+	IR* DIV = new IR("div", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "div"), {
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}}, {Register, {1, 8}} },
+		});
+
+	IR* LEA_MEM = new IR("evaluate", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 	},
 	[](vector<Token*> args) {
@@ -483,7 +549,7 @@ void ARM_64::Init() {
 		}
 	);
 
-	IR* LEA_LABEL = new IR("evaluate", new Token(OPERATOR), {
+	IR* LEA_LABEL = new IR("evaluate", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), {
 		{{Register, {1, 8}}, {Label, {0, 0}} },
 	},
 	[](vector<Token*> args) {
@@ -493,18 +559,22 @@ void ARM_64::Init() {
 			//ldr reg1, [reg1, :got_lo12:label]
 
 			Result.push_back(new IR(new Token(OPERATOR, "adrp"), {
-				args[0], new Token(LABEL, ":got:" + args[1]->Get_Name())
+				args[0], new Token(LABEL, ":got:" + args[1]->Get_Name(), 0)
 			}));
 
 			Result.push_back(new IR(new Token(OPERATOR, "ldr"), {
-				args[0], new Token(MEMORY, "MEM_" + args[1]->Get_Name(), {new Token(OFFSETTER, ",", Reg1, new Token(LABEL, ":got_lo12:" + args[1]->Get_Name()))})
+				args[0], new Token(MEMORY, "MEM_" + args[1]->Get_Name(), _SYSTEM_BIT_SIZE_, {new Token(OFFSETTER, ",", args[0], new Token(LABEL, ":got_lo12:" + args[1]->Get_Name(), 0))})
 			}));
 
 			return Result;
 		}
 	);
 
-	IR* BL = new IR("call", new Token(OPERATOR, "bl"), {
+	IR* ADRP = new IR("adrp", new Token(OPERATOR | ALL_ARGS_SAME_SIZE), { {
+		{Register, {1, 8}}, {Label, {0, 0}} },
+	});
+
+	IR* BL = new IR("call", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "bl"), {
 		{{Label, {0, 0}}},
 		{{Register, {_SYSTEM_BIT_SIZE_, _SYSTEM_BIT_SIZE_}}},
 	});
@@ -528,15 +598,69 @@ void ARM_64::Init() {
 
 	IR* RET = new IR("return", new Token(FLOW, "ret"), {});
 
+	IR* GLOBAL = new IR("global", new Token(TOKEN::GLOBAL_LABEL, ".global"), {
+		{{Label, {0, 0}}}
+		});
+	IR* EXTERN = new IR("extern", new Token(TOKEN::GLOBAL_LABEL, ".extern"), {
+		{{Label, {0, 0}}}
+		});
+
+	IR* PUSH = new IR("push", new Token(TOKEN::OPERATOR), 
+		{
+			{{Register, {1, 8}}},
+		}, 
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+
+			Token* Stack = new Token(STACK_POINTTER | REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
+
+			//str args[0], [sp]
+			Result.push_back(new IR(new Token(OPERATOR, "str"), {
+				args[0], new Token(MEMORY,args[0]->Get_Name() + "stack" , args[0]->Get_Size(), {Stack})
+			}));
+
+			//sub sp, sp, args[0].size
+			Result.push_back(new IR(new Token(OPERATOR, "sub"), {
+				Stack, Stack, new Token(NUM, to_string(args[0]->Get_Size()), _SYSTEM_BIT_SIZE_)
+			}));
+
+			return Result;
+		}
+	);
+
+	IR* POP = new IR("pop", new Token(TOKEN::OPERATOR),
+		{
+			{{Register, {1, 8}}},
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+
+			Token* Stack = new Token(STACK_POINTTER | REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
+
+			//ldr args[0], [sp]
+			Result.push_back(new IR(new Token(OPERATOR, "ldr"), {
+				args[0], new Token(MEMORY,args[0]->Get_Name() + "stack" , args[0]->Get_Size(), {Stack})
+				}));
+
+			//add sp, sp, args[0].size
+			Result.push_back(new IR(new Token(OPERATOR, "add"), {
+				Stack, Stack, new Token(NUM, to_string(args[0]->Get_Size()), _SYSTEM_BIT_SIZE_)
+				}));
+
+			return Result;
+		}
+	);
 
 	Opcodes = {
-		MOV_ALL, MOV, LDR, STR,
+		MOV_ALL, MOVE, MOV, LDR, STR,
 		LSL, LSR, SHIFT_LEFT, SHIFT_RIGHT,
 		ORR, OR,
-		ADD_LAMBDA, ADD, LEA_MEM,
+		ADD_LAMBDA, ADD, LEA_MEM, LEA_LABEL, ADRP,
 		SUB_LAMBDA, SUB,
+		MUL, MUL_LAMBDA, DIV, DIV_LAMBDA,
 		BL, B, BEQ, BNE, BLE, BLT, BNL, BGE, BGT, BNG,
-		RET,
+		RET, PUSH, POP,
+		GLOBAL, EXTERN,
 	};
 }
 

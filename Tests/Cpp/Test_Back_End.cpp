@@ -34,6 +34,7 @@ int Back_End_Test::Run_Dll(string f) {
 }
 #endif
 
+bool Use_ARM = false;
 
 
 extern Usr* sys;
@@ -62,14 +63,30 @@ vector<Base*> Back_End_Test::Run(string File)
 	selector = nullptr;
 
 	string output = File + ".asm";
-	const char* argv[] = {"/Tests", "-in" , File.c_str() , "-out" , output.c_str() , "-f" , "dll"};
-	int argc = 7;
+	const char** argv; 
+	int argc;
+	if (Use_ARM) {
+		argv = new const char* [] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm" };
+		argc = 9;
+	}
+	else {
+		argv = new const char* [] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll" };
+		argc = 7;
+	}
+	
 	Build(argc, argv);
 	return { new Numeric_Info{Run_Dll(output + ".dll")} };
 }
 
 void Back_End_Test::Factory()
 {
+	cout << Magenta << "x86_64 tests:" << Reset << endl;
+	Use_ARM = false;
+	for (auto i : Tests) {
+		Check_Assert(i.first, i.second);
+	}
+	cout << Magenta << "\nARMv8_64 tests:" << Reset << endl;
+	Use_ARM = true;
 	for (auto i : Tests) {
 		Check_Assert(i.first, i.second);
 	}
@@ -139,10 +156,10 @@ void Back_End_Test::Init()
 {
 	//what we expect the function to return, file name
 	Tests = {
+		{{-6}, "Tests/IO/Math.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{2}, "Tests/IO/Cast.e"},
 		{{1}, "Tests/IO/Type.e"},
-		{{-6}, "Tests/IO/Math.e"},
 		{{100}, "Tests/IO/Conditions.e"},
 		{{1}, "Tests/IO/Array.e"},
 		{{10}, "Tests/IO/Ptr.e"},
