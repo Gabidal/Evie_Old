@@ -15,8 +15,9 @@ public:
 		Size = to_string(atoi(sys->Info.Bits_Mode.c_str()) * 8);
 		Output_File = sys->Info.Destination_File;
 		Type = sys->Info.Format;
-		aarch = sys->Info.Architecture;
+		arch = sys->Info.Architecture;
 		OS = sys->Info.OS;
+		HOST_OS = sys->Info.HOST_OS;
 		Debug = sys->Info.Debug;
 		Libs = sys->Info.Libs;
 		Source_Files = sys->Info.Source_Files;
@@ -50,8 +51,9 @@ private:
 	string Size;
 	string Output_File;
 	string Type;
-	string aarch;
+	string arch;
 	string OS;
+	string HOST_OS;
 	string Debug;
 	vector<string> Libs;
 	vector<string> Source_Files;;

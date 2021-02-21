@@ -1,7 +1,11 @@
 if (OS == "win"){
-	use "win32.asm"
+	if (ARCHITECTURE == "x86"){
+		use "win32.asm"
+	}
 }
 
 if (OS == "unix"){
-	use "unix.asm"
+	if (ARCHITECTURE == "x86"){
+		use "unix.asm"
+	}
 }

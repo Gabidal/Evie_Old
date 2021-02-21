@@ -22,7 +22,10 @@ string Producer::Get_Linker_Type()
 {
     if (OS == "win")
     {
-        return "Linkers\\ld.exe ";
+        if (arch == "x86")
+            return "Linkers\\x86_ld.exe ";
+        else if (arch == "arm")
+            return "Linkers\\arm_ld.exe ";
     }
     else if (OS == "unix")
     {
@@ -35,7 +38,10 @@ string Producer::Get_Assembler()
 {
     if (OS == "win")
     {
-        return "Assemblers\\as.exe ";
+        if (arch == "x86")
+            return "Assemblers\\x86_as.exe ";
+        else if (arch == "arm")
+            return "Assemblers\\arm_as.exe ";
     }
     else if (OS == "unix")
     {
@@ -55,7 +61,7 @@ string Producer::Get_Debug()
 
 string Producer::Get_Type()
 {
-    return " --" + Size + " ";
+    return "";//" --" + Size + " ";
 }
 
 string Producer::Get_File_Name()
@@ -98,7 +104,7 @@ string Producer::Get_Linker_Input()
 
 string Producer::Get_Added_Libs()
 {
-    if (OS == "win")
+    if (HOST_OS == "win")
     {
         string r = "";
         for (auto i : Libs)
@@ -107,7 +113,7 @@ string Producer::Get_Added_Libs()
         }
         return r + " -l kernel32";
     }
-    else if (OS == "unix")
+    else if (HOST_OS == "unix")
     {
         string r = "";
         for (auto i : Libs)

@@ -1,4 +1,3 @@
-.intel_syntax noprefix
 .global main
 .global Start_Test
 sum:

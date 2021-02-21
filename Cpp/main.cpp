@@ -33,7 +33,7 @@ x86_64_Win X86_64_WIN;
 ARM_64 _ARM_64;
 int _SYSTEM_BIT_SIZE_ = 4;
 
-string Output = ".intel_syntax noprefix\n";
+string Output; 
 
 extern string VT_API;
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
@@ -74,7 +74,8 @@ int Build(int argc, const char* argv[])
     if (VT_API != "")
         sys->Info.VT_API = VT_API;
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());
-
+    if (sys->Info.Architecture == "x86")
+        Output = ".intel_syntax noprefix\n";
     string start_file = sys->Info.Source_File.c_str();
 
     MANGLER::Add_ID({ "P",{MANGLER::PREFIX, "ptr"} });

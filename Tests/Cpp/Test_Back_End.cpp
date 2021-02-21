@@ -24,7 +24,12 @@ int Back_End_Test::Run_Dll(string f) {
 	auto Func = (int(*)())GetProcAddress(Handle, "Start_Test");
 	if (Func == nullptr)
 		throw::runtime_error("INTERNAL ERROR!");
-	return Func();
+
+	int Result = Func();
+
+	FreeLibrary(Handle);
+
+	return Result;
 }
 
 #else 
@@ -57,7 +62,6 @@ vector<Base*> Back_End_Test::Run(string File)
 	DOCKER::Working_Dir.clear();
 	DOCKER::Included_Files.clear();
 	DOCKER::Assembly_Source_File.clear();
-	Output = ".intel_syntax noprefix\n";
 	Global_Scope = nullptr;
 	sys = nullptr;
 	selector = nullptr;
@@ -68,10 +72,12 @@ vector<Base*> Back_End_Test::Run(string File)
 	if (Use_ARM) {
 		argv = new const char* [] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm" };
 		argc = 9;
+		Output = "";
 	}
 	else {
 		argv = new const char* [] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll" };
 		argc = 7;
+		Output = ".intel_syntax noprefix\n";
 	}
 	
 	Build(argc, argv);
