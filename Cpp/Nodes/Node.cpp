@@ -1,10 +1,12 @@
 #include "../../H/Nodes/Node.h"
 #include "../../H/Nodes/Token.h"
-#include <vector>
-#include <string>
 #include "../../H/Parser/Algebra.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Safe.h"
+
+#include <vector>
+#include <string>
+#include <climits>
 
 using namespace std;
 

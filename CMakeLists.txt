@@ -3,24 +3,32 @@ project(Evie)
 
 # Source files:
 FILE(GLOB root Cpp/*.cpp)
-FILE(GLOB ui Cpp/UI/*.cpp)
-FILE(GLOB lexer Cpp/Lexer/*.cpp)
-FILE(GLOB parser Cpp/Parser/*.cpp)
+FILE(GLOB Back_End Cpp/BackEnd/*.cpp)
 FILE(GLOB Docker Cpp/Docker/*.cpp)
-FILE(GLOB TestSweet Cpp/Test/*.cpp)
-FILE(GLOB PreProses Cpp/PreProsessor/*.cpp)
-FILE(GLOB PostProses Cpp/PostProsessor/*.cpp)
+FILE(GLOB Lexer Cpp/Lexer/*.cpp)
+FILE(GLOB Nodes Cpp/Nodes/*.cpp)
+FILE(GLOB Parser Cpp/Parser/*.cpp)
+FILE(GLOB Pre Cpp/PreProsessor/*.cpp)
+FILE(GLOB UI Cpp/UI/*.cpp)
+
+
+FILE(GLOB Suite Tests/*.cpp)
+FILE(GLOB Tests Tests/Cpp/*.cpp)
+
 
 # Add source files
 add_executable(${PROJECT_NAME} 
                 ${root} 
-                ${lexer} 
-                ${parser} 
-                ${Docker}
-                ${TestSweet}
-                ${ui}
-                ${PreProses}
-                ${PostProses}
+                ${Back_End} 
+                ${Docker} 
+                ${Lexer}
+                ${Nodes}
+                ${Parser}
+                ${Pre}
+                ${UI}
+
+                ${Suite}
+                ${Tests}
                 )
                 
 set(CMAKE_CXX_STANDARD 17)

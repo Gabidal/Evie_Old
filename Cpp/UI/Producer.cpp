@@ -1,9 +1,13 @@
+//WHAT EVER YOU THINK, WHAT EVER YOU WANT
+//DONT!! FUCKING CHANGE THE ORDER OF THESE FUCKING HEADER DECLARATIONS YOU NOBNOB.
 #include "../../H/UI/Producer.h"
-#define CURL_STATICLIB
+#define CURL_STATICLIB  
 #include "../../Dependencies/Curl/curl.h"
 #include <regex>
 #include "../../H/Docker/HTTPS.h"
 #include "../../H/UI/Safe.h"
+
+
 string Produce_Working_Dir = "";
 
 void Producer::Assembly_Other_Source_Files()
@@ -137,9 +141,8 @@ string Producer::Get_System_Paths()
         Seperator = ':';
 
     string Result = "";
-    size_t size = 0;
-    char* Path = nullptr;//getenv("Path");
-    if (_dupenv_s(&Path, &size, "Path") != 0 || Path == nullptr) {
+    char* Path = getenv("Path");
+    if (Path == nullptr) {
         throw::runtime_error("ERROR!");
     }
     string List = string(Path);

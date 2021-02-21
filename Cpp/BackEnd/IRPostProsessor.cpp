@@ -116,6 +116,8 @@ void IRPostProsessor::Clean_Selector(int& i)
 		if (r.first == nullptr)
 			continue;
 
+		Token* reg;
+
 		//if the same nonvolatile is in other size used
 		for (auto p : Push_Amount) {
 			for (auto s : p->Get_Connected_Registers(p)) {
@@ -125,7 +127,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 			}
 		}
 
-		Token* reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
+		reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
 		reg->ID = reg->Get_Name();
 		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }));
 		Additional_Changes += Parse_Complex(Input->at(Start_Of_Function), Start_Of_Function, true);

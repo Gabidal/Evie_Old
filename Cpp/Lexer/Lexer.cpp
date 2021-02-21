@@ -12,10 +12,11 @@
 #include <optional>
 #include <algorithm>
 #include <fstream>
+#include <cmath>
 #include "../../H/UI/Safe.h"
 
 constexpr char LineEnding = '\n';
-constexpr char xor = '\xa4';
+constexpr char BITWISE_XOR = '\xa4';
 
 
 char Lexer::SingleLineCommentIdentifier = 0;
@@ -76,7 +77,7 @@ char GetParenthesisClosing(char opening, Position p)
 
 bool IsOperator(char c)
 {
-    return ((c >= 33 && c <= 47) || (c >= 58 && c <= 64) || c == '^' || c == '|' || c == xor) && c != Lexer::SingleLineCommentIdentifier && c != Lexer::StringIdentifier ;
+    return ((c >= 33 && c <= 47) || (c >= 58 && c <= 64) || c == '^' || c == '|' || c == BITWISE_XOR) && c != Lexer::SingleLineCommentIdentifier && c != Lexer::StringIdentifier ;
 }
 
 bool IsDigit(char c)

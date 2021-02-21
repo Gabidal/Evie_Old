@@ -1,4 +1,4 @@
-#include "..\H\Test_Back_End.h"
+#include "../H/Test_Back_End.h"
 #include "../../H/UI/Usr.h"
 #include "../../H/Nodes/Node.h"
 #include "../../H/BackEnd/Selector.h"
@@ -8,7 +8,13 @@
 
 
 #ifdef _WIN32
-#include <Windows.h>
+
+typedef __int64(__stdcall* FARPROC)();
+
+extern "C" FARPROC __stdcall GetProcAddress(void*, const char*);
+extern "C" void*   __stdcall LoadLibraryA  (const char*);
+extern "C" int     __stdcall FreeLibrary   (void*);
+
 template<typename R, typename... T>
 R Call(void* handle, const char* name, T... arguments) {
 	auto f = (R(*)(T...))GetProcAddress(name);
@@ -17,7 +23,7 @@ R Call(void* handle, const char* name, T... arguments) {
 }
 //int a = Call<int>(Handle, "Start_Test", 1, 2, 1.1);
 int Back_End_Test::Run_Dll(string f) {
-	auto Handle = LoadLibrary(f.c_str());
+	auto Handle = LoadLibraryA(f.c_str());
 	if (Handle == nullptr)
 		throw::runtime_error("INTERNAL ERROR!");
 
@@ -70,12 +76,12 @@ vector<Base*> Back_End_Test::Run(string File)
 	const char** argv; 
 	int argc;
 	if (Use_ARM) {
-		argv = new const char* [] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm" };
+		argv = new const char* [9] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm" };
 		argc = 9;
 		Output = "";
 	}
 	else {
-		argv = new const char* [] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll" };
+		argv = new const char* [7] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll" };
 		argc = 7;
 		Output = ".intel_syntax noprefix\n";
 	}

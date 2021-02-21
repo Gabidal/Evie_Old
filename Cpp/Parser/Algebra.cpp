@@ -1,6 +1,8 @@
 #include "../../H/Parser/Algebra.h"
 #include "../../H/UI/Safe.h"
 
+#include <cmath>
+
 bool Optimized = false;
 
 void Algebra::Factory() {

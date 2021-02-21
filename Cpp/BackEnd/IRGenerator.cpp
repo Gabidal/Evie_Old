@@ -1,5 +1,5 @@
 #include "../../H/BackEnd/BackEnd.h"
-#include "..\..\H\BackEnd\IRGenerator.h"
+#include "../../H/BackEnd/IRGenerator.h"
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Safe.h"
