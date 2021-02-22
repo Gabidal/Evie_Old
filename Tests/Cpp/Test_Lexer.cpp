@@ -113,9 +113,9 @@ void Lexer_Test::Init()
 		{ {vector<pair<long, string>>{ {Flags::TEXT_COMPONENT, "a"}, {Flags::OPERATOR_COMPONENT, "+"}, {Flags::NUMBER_COMPONENT, "1"}}}, "a + 1"},
 		{ {vector<long>{Flags::NUMBER_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT}}, "1.1 + a"},
 		{ {vector<long>{Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::OPERATOR_COMPONENT, Flags::TEXT_COMPONENT, Flags::OPERATOR_COMPONENT}}, "++a-- + --a++"},
-		{ {{vector<Base*>{ &Text_Info({Flags::KEYWORD_COMPONENT, "while"}),& Lexer_Expectation_Set({Flags::TEXT_COMPONENT})}}}, "while (int)"},
-		{ {{vector<Base*>{ &Text_Info({Flags::TEXT_COMPONENT, "call"}),& Lexer_Expectation_Set({Flags::TEXT_COMPONENT})}}}, "call(a)"},
-		{ {{vector<Base*>{ &Text_Info({Flags::KEYWORD_COMPONENT, "import"}),& Text_Info({Flags::TEXT_COMPONENT, "function"}),& Lexer_Expectation_Set({Flags::TEXT_COMPONENT}),& Lexer_Expectation_Set({Flags::OPERATOR_COMPONENT}),& Lexer_Expectation_Set({Flags::NUMBER_COMPONENT})}}}, "import function(int, 0)"},
+		{ {{vector<Base*>{ new Text_Info({Flags::KEYWORD_COMPONENT, "while"}),new Lexer_Expectation_Set({Flags::TEXT_COMPONENT})}}}, "while (int)"},
+		{ {{vector<Base*>{ new Text_Info({Flags::TEXT_COMPONENT, "call"}),new Lexer_Expectation_Set({Flags::TEXT_COMPONENT})}}}, "call(a)"},
+		{ {{vector<Base*>{ new Text_Info({Flags::KEYWORD_COMPONENT, "import"}),new Text_Info({Flags::TEXT_COMPONENT, "function"}),new Lexer_Expectation_Set({Flags::TEXT_COMPONENT}),new Lexer_Expectation_Set({Flags::OPERATOR_COMPONENT}),new Lexer_Expectation_Set({Flags::NUMBER_COMPONENT})}}}, "import function(int, 0)"},
 
 	};
 }

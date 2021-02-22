@@ -17,7 +17,7 @@ extern "C" int     __stdcall FreeLibrary   (void*);
 
 template<typename R, typename... T>
 R Call(void* handle, const char* name, T... arguments) {
-	auto f = (R(*)(T...))GetProcAddress(name);
+	auto f = (R(*)(T...))GetProcAddress(handle, name);
 
 	return f(arguments...);
 }

@@ -7,10 +7,10 @@ void TXT::TXT_Analyzer(vector<string>& Output)
 	if (!file.is_open()) {
 		throw::runtime_error("FILE NOT FOUND!");
 	}
-	file.seekg(0, SEEK_END);
+	file.seekg(0, ios_base::end);
 	long long size = file.tellg();
 	char* Buffer = new char[size + 1];
-	file.seekg(0, SEEK_SET);
+	file.seekg(0, ios_base::beg);
 	file.read(Buffer, size);
 	Buffer[size] = '\0';
 	file.close();
