@@ -1,3 +1,4 @@
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/Gabidal/Evie.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Gabidal/Evie/alerts/)
 # Evie- lang
 
 ### Catalog:
