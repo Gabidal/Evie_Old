@@ -2,15 +2,22 @@
 .global main
 .global Start_Test
 Start_Test:
+sub rsp, 8
 mov ecx, 40
 call _Z8allocatei
-mov rcx, rax
-lea r8, qword ptr [rcx + 1 * 4 ]
+mov qword ptr [rsp ], rax
+lea rcx, qword ptr [rsp ]
+mov rcx, rcx
+mov r8, qword ptr [rcx + 0 * 8 ]
+lea r8, qword ptr [r8 + 1 * 4 ]
 mov dword ptr [r8 ], 1
+mov rcx, qword ptr [rcx + 0 * 8 ]
 mov ecx, dword ptr [rcx + 1 * 4 ]
 mov ecx, ecx
 mov eax, ecx
+add rsp, 8
 ret 
+add rsp, 8
 ret 
 
 

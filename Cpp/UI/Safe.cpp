@@ -45,7 +45,7 @@ void Observation::Report()
 		cout << Head << Msg << endl;
 	if (Type == SOLUTION)
 		cout << "}" << endl;
-	if (Type == FAIL)
+	if (Type == FAIL || Type == ERROR)
 		throw::runtime_error("ERROR");
 }
 

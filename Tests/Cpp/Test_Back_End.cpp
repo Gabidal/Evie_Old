@@ -97,11 +97,12 @@ void Back_End_Test::Factory()
 	for (auto i : Tests) {
 		Check_Assert(i.first, i.second);
 	}
+	/*
 	cout << Magenta << "\nARMv8_64 tests:" << Reset << endl;
 	Use_ARM = true;
 	for (auto i : Tests) {
 		Check_Assert(i.first, i.second);
-	}
+	}*/
 }
 
 void Back_End_Test::Check_Assert(Back_Expectation_Set expectation, string s)
@@ -168,12 +169,12 @@ void Back_End_Test::Init()
 {
 	//what we expect the function to return, file name
 	Tests = {
+		{{2}, "Tests/IO/Cast.e"},
+		{{10}, "Tests/IO/Ptr.e"},
+		{{1}, "Tests/IO/Array.e"},
 		{{-6}, "Tests/IO/Math.e"},
 		{{5}, "Tests/IO/Func.e"},
-		{{2}, "Tests/IO/Cast.e"},
 		{{1}, "Tests/IO/Type.e"},
 		{{100}, "Tests/IO/Conditions.e"},
-		{{1}, "Tests/IO/Array.e"},
-		{{10}, "Tests/IO/Ptr.e"},
 	};
 }

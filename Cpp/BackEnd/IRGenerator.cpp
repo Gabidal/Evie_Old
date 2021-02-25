@@ -1127,8 +1127,9 @@ void IRGenerator::Parse_Casting(Node* n)
 	if (n->Cast_Type == "")
 		return;
 	n->Update_Format();
-	if (n->Find(n->Cast_Type, n, CLASS_NODE)->Format == n->Format)
-		return;
+
+	Node* Caster = n->Find(n->Cast_Type, n, CLASS_NODE);
+
 
 	//parse calls, arrays etc..
 	string cast_Type = n->Cast_Type;
@@ -1143,13 +1144,40 @@ void IRGenerator::Parse_Casting(Node* n)
 		Old_Format = new Token(n);
 
 
-	if (n->is("ptr") != -1) {
+	/*if (n->is("ptr") != -1) {
 		int amount = 0;
 		for (auto i : n->Inheritted)
 			if (i == "ptr")
 				amount++;
 		Old_Format = Operate_Pointter(Old_Format, amount, true, n->Inheritted);
+	}*/
+	int Casted_Pointter_Count = Get_Amount("ptr", n);
+	int Caster_Pointter_Count =	Get_Amount("ptr", Caster);
+	
+	if (Casted_Pointter_Count > Caster_Pointter_Count) {
+		//revome exess ptr
+		int Removable_Count = Casted_Pointter_Count - Caster_Pointter_Count;
+
+		//go through all ptr and remove the excess ptr from n inheritance.
+		for (int i = 0; i < n->Inheritted.size(); i++)
+			if (n->Inheritted[i] == "ptr" && Removable_Count-- > 0)
+				n->Inheritted.erase(n->Inheritted.begin() + i);
 	}
+	else if (Casted_Pointter_Count < Caster_Pointter_Count) {
+		int Addable_Pointter_Count = Caster_Pointter_Count- Casted_Pointter_Count;
+		for (int i = 0; i < Addable_Pointter_Count; i++) {
+			n->Inheritted.push_back("ptr");
+		}
+	}
+
+	if (n->is(NUMBER_NODE)) {
+		n->Format = Caster->Format;
+		return;
+	}	
+	
+	//decimal to integer | integer to decimal
+	if (Caster->Format == n->Format)
+		return;
 
 	long long Type = 0;
 	if (n->Find(cast_Type, n, CLASS_NODE)->Format == "decimal")

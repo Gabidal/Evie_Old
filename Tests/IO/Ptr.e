@@ -6,12 +6,15 @@ export int Start_Test(){
 	int ptr ptr b = a
 	return a
 
-	
 	int ptr ptr ptr c = b
 	int ptr ptr ptr ptr d = c
 	int ptr ptr ptr ptr ptr e = d
 	int ptr ptr ptr ptr ptr ptr f = e
 	return f
+	
+	int ptr x = 123->address
+	return x
+
 }
 
 export int main(){

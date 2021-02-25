@@ -343,7 +343,7 @@ public:
 	}
 
 	void Update_Size_By_Inheritted() {
-		if (this->is(NUMBER_NODE))
+		if (is(NUMBER_NODE))
 			return;
 		Size = 0;
 		for (string s : Inheritted) {

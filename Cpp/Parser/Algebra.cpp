@@ -408,6 +408,10 @@ void Algebra::Set_Defining_Value(int i)
 	if (Input->at(i)->Left->is(ARRAY_NODE))
 		return;
 
+	if (Input->at(i)->is(ASSIGN_OPERATOR_NODE))
+		if (Input->at(i)->Left->Parent->Find(Input->at(i)->Left->Name)->is("ptr"))
+			return;
+
 	//callations hould not be inlined because theyre return value may vary.
 	for (auto j : Linearise(Input->at(i)->Right))
 		if (j->is(CALL_NODE))
