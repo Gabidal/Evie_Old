@@ -52,7 +52,8 @@ public:
 
 	void Switch_To_Correct_Places(Node* o);
 
-	void Parse_Casting(Node* n);
+	void Parse_Static_Casting(Node* n);
+	void Parse_Dynamic_Casting(Node* n);
 	//TODO: hey gab! use log(inlining count) base 10 for the global inlining label adding rendom char adder.
 	//TODO: make a repeating optimizer thet makes 
 	//a new variable and saves the result once and then uses it those other times

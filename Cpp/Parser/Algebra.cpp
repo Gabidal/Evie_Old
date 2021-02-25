@@ -287,8 +287,8 @@ void Algebra::Inline_Variables(int i)
 						if (!d->Current_Value->Var->Childs[0]->is(OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(ASSIGN_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(CONDITION_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(BIT_OPERATOR_NODE))
 							*d->Current_Value->Var = *d->Current_Value->Var->Childs[0];
 					//d->Current_Value->Var->Coefficient *= n->Coefficient;
-					d->Current_Value->Var->Holder = n->Holder;
-					d->Current_Value->Var->Parent = n->Parent;
+					d->Current_Value->Var->Context = n->Context;
+					d->Current_Value->Var->Scope = n->Scope;
 					*n = *d->Current_Value->Var;
 					d->Inlined = true;
 					//maybe this is useless:
@@ -336,11 +336,11 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 				//decide wich one is in wich side
 				Node* l = v;
 				Node* r = other;
-				if (v->Holder->Right == v && other->Holder->Left == other) {
+				if (v->Context->Right == v && other->Context->Left == other) {
 					r = v;
 					l = other;
 				}
-				if (v->Holder->Name == "+" || v->Holder->Name == "-") {
+				if (v->Context->Name == "+" || v->Context->Name == "-") {
 					if (other->Order != v->Order)
 						continue;
 					//here it affects the coefficient of other
@@ -409,7 +409,7 @@ void Algebra::Set_Defining_Value(int i)
 		return;
 
 	if (Input->at(i)->is(ASSIGN_OPERATOR_NODE))
-		if (Input->at(i)->Left->Parent->Find(Input->at(i)->Left->Name)->is("ptr"))
+		if (Input->at(i)->Left->Scope->Find(Input->at(i)->Left->Name)->is("ptr"))
 			return;
 
 	//callations hould not be inlined because theyre return value may vary.
@@ -427,8 +427,8 @@ void Algebra::Set_Defining_Value(int i)
 		right = new Node(CONTENT_NODE, right->Location);
 		right->Paranthesis_Type = '(';
 		right->Childs.push_back(Input->at(i)->Right);
-		right->Parent = Input->at(i);
-		right->Holder = Input->at(i)->Right;
+		right->Scope = Input->at(i);
+		right->Context = Input->at(i)->Right;
 	}
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
@@ -471,7 +471,7 @@ void Algebra::Set_Coefficient_Value(int i)
 
 			//now apply the coefficient to the variable
 			Variable->Coefficient = atoi(Coefficient->Name.c_str()) * Coefficient->Coefficient;
-			Variable->Holder = Operator->Holder;
+			Variable->Context = Operator->Context;
 
 			/*if (Variable->Holder->Name == "-") {
 				Variable->Coefficient *= -1;
@@ -499,7 +499,7 @@ void Algebra::Reset_Defining_Value(int i)
 
 	//i++ | ++i -> defining val = 0
 
-	Parent->Find(Modified, Modified->Parent)->Current_Value = nullptr;
+	Parent->Find(Modified, Modified->Scope)->Current_Value = nullptr;
 }
 
 void Algebra::Clean_Unused()
@@ -628,8 +628,8 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 			New_Num->Coefficient = coefficient;
 			New_Num->Order = Order;
 		}
-		New_Num->Holder = op->Holder;
-		New_Num->Parent = op->Parent;
+		New_Num->Context = op->Context;
+		New_Num->Scope = op->Scope;
 	}
 	else if (op->Name == "*") {
 		//3b * b == 3b^2
@@ -641,8 +641,8 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 		New_Num->Name = Name;
 		New_Num->Coefficient = Coefficient;
 		New_Num->Order = Order;
-		New_Num->Holder = op->Holder;
-		New_Num->Parent = op->Parent;
+		New_Num->Context = op->Context;
+		New_Num->Scope = op->Scope;
 	}
 
 
@@ -728,8 +728,8 @@ void Algebra::Operate_Distant_Coefficients(Node* op)
 					New_Num->Coefficient = coefficient;
 					New_Num->Order = Order;
 				}
-				New_Num->Holder = Operator->Holder;
-				New_Num->Parent = Operator->Parent;
+				New_Num->Context = Operator->Context;
+				New_Num->Scope = Operator->Scope;
 			}
 			else if (Operator->Name == "*") {
 				//3b * b == 3b^2
@@ -741,8 +741,8 @@ void Algebra::Operate_Distant_Coefficients(Node* op)
 				New_Num->Name = Name;
 				New_Num->Coefficient = Coefficient;
 				New_Num->Order = Order;
-				New_Num->Holder = Operator->Holder;
-				New_Num->Parent = Operator->Parent;
+				New_Num->Context = Operator->Context;
+				New_Num->Scope = Operator->Scope;
 			}
 			else if (Operator->Name == "+") {
 				if (Coefficients[0]->Order != Coefficients[1]->Order)
@@ -753,8 +753,8 @@ void Algebra::Operate_Distant_Coefficients(Node* op)
 				New_Num->Name = Coefficients[0]->Name;
 				New_Num->Coefficient = Coefficient;
 				New_Num->Order = Coefficients[0]->Order;
-				New_Num->Holder = Operator->Holder;
-				New_Num->Parent = Operator->Parent;
+				New_Num->Context = Operator->Context;
+				New_Num->Scope = Operator->Scope;
 			}
 			else if (Operator->Name == "-") {
 				if (Coefficients[0]->Order != Coefficients[1]->Order)
@@ -765,20 +765,20 @@ void Algebra::Operate_Distant_Coefficients(Node* op)
 				New_Num->Name = Coefficients[0]->Name;
 				New_Num->Coefficient = Coefficient;
 				New_Num->Order = Coefficients[0]->Order;
-				New_Num->Holder = Operator->Holder;
-				New_Num->Parent = Operator->Parent;
+				New_Num->Context = Operator->Context;
+				New_Num->Scope = Operator->Scope;
 			}
 
 			if (Forgotten_Operator != nullptr) {
-				Operator->Holder = Forgotten_Operator;
+				Operator->Context = Forgotten_Operator;
 				if (Forgotten_Operator_is_Left_Side) {
 					//put the operator into forgotten operators Left side
 					Forgotten_Operator->Left = New_Num;
-					New_Num->Holder = Forgotten_Operator;
+					New_Num->Context = Forgotten_Operator;
 				}
 				else {
 					Forgotten_Operator->Right = New_Num;
-					New_Num->Holder = Forgotten_Operator;
+					New_Num->Context = Forgotten_Operator;
 				}
 				*Operator = *Forgotten_Operator;
 			}
@@ -800,7 +800,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			Operate_Numbers_As_Constants(i);
 		if (op->Left->Childs.size() == 1 && op->Left->Childs[0]->is(NUMBER_NODE)) {
 			op->Left->Childs[0]->Coefficient *= op->Left->Coefficient;
-			op->Left->Childs[0]->Holder = op->Left->Holder;
+			op->Left->Childs[0]->Context = op->Left->Context;
 			*op->Left = *op->Left->Childs[0];
 		}
 	}
@@ -811,7 +811,7 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			Operate_Numbers_As_Constants(i);
 		if (op->Right->Childs.size() == 1 && op->Right->Childs[0]->is(NUMBER_NODE)) {
 			op->Right->Childs[0]->Coefficient *= op->Right->Coefficient;
-			op->Right->Childs[0]->Holder = op->Right->Holder;
+			op->Right->Childs[0]->Context = op->Right->Context;
 			*op->Right = *op->Right->Childs[0];
 		}
 	}
@@ -886,8 +886,8 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 			New_Num->Name = to_string(pow(left, right));
 	}
 
-	New_Num->Holder = op->Holder;
-	New_Num->Parent = op->Parent;
+	New_Num->Context = op->Context;
+	New_Num->Scope = op->Scope;
 	*op = *New_Num;
 	Optimized = true;
 }
@@ -895,15 +895,15 @@ void Algebra::Operate_Numbers_As_Constants(Node* op)
 Node* Algebra::Operate_Constants(Node* l, Node* r) {
 
 	Node* tmp;
-	if (r->Holder->Left == r) {
+	if (r->Context->Left == r) {
 		tmp = l;
 		l = r;
 		r = tmp;
 	}
 
 	Node* New_Num = new Node(NUMBER_NODE, l->Location);
-	New_Num->Holder = l->Holder;
-	New_Num->Parent = l->Parent;
+	New_Num->Context = l->Context;
+	New_Num->Scope = l->Scope;
 	//set sizes
 	if (l->Size < r->Size)
 		New_Num->Size = r->Size;
@@ -963,7 +963,7 @@ void Algebra::Combine_Scattered(Node* op) {
 		*list[Number_Indices[i]] = *Operate_Constants(list[Number_Indices[i]], list[Number_Indices[(size_t)i + 1]]);
 		//now remove the other constant
 		Node* other = Get_Other_Pair(op, list[Number_Indices[(size_t)i + 1]]);
-		*other->Holder = *list[Number_Indices[i]];
+		*other->Context = *list[Number_Indices[i]];
 	}
 }
 
@@ -982,10 +982,10 @@ Node* Algebra::Get_Other_Pair(Node* ast, Node* other) {
 				return Get_Other_Pair(ast->Childs[0], other);
 		}
 		else if (ast->Childs[0] == other){
-			if (ast->Holder->Left == ast)
-				return ast->Holder->Right;
-			else if (ast->Holder->Right == ast)
-				return ast->Holder->Left;
+			if (ast->Context->Left == ast)
+				return ast->Context->Right;
+			else if (ast->Context->Right == ast)
+				return ast->Context->Left;
 		}
 	}
 	return nullptr;
@@ -1007,8 +1007,8 @@ void Algebra::Un_Wrap_Parenthesis(Node* p)
 	//(3b)
 	//3b
 	if (!p->is(OPERATOR_NODE) && !p->is(ASSIGN_OPERATOR_NODE) && !p->is(CONDITION_OPERATOR_NODE) && !p->is(BIT_OPERATOR_NODE)) {
-		p->Childs[0]->Holder = p->Holder;
-		p->Childs[0]->Parent = p->Parent;
+		p->Childs[0]->Context = p->Context;
+		p->Childs[0]->Scope = p->Scope;
 		p->Childs[0]->Coefficient *= p->Coefficient;
 		p->Childs[0]->Order *= p->Order;
 		*p = *p->Childs[0];
@@ -1024,7 +1024,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 		else {
 			//this is needed to be cleaned!!
 			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
-			n->Right->Holder = n->Holder;
+			n->Right->Context = n->Context;
 			*n = *n->Right;
 			return;
 		}
@@ -1033,7 +1033,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 		else {
 			//this is needed to be cleaned!!
 			//and remember the ((a <-- this is no more) - 1) <-- so this is -1 after the clean!!
-			n->Left->Holder = n->Holder;
+			n->Left->Context = n->Context;
 			*n = *n->Left;
 			return;
 		}
@@ -1051,21 +1051,21 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	//make operator that is going to hold the new coefficient and the variable
 	Node* New_Operator = new Node(OPERATOR_NODE, n->Location);
 	New_Operator->Name = "*";
-	New_Operator->Parent = n->Parent;
-	New_Operator->Holder = n->Holder;
+	New_Operator->Scope = n->Scope;
+	New_Operator->Context = n->Context;
 
 	//making the coefficient into a real number token
 	Node* Coefficient = new Node(NUMBER_NODE, n->Location);
 	Coefficient->Name = to_string(n->Coefficient);
-	Coefficient->Parent = n->Parent;
-	Coefficient->Holder = n->Holder;
+	Coefficient->Scope = n->Scope;
+	Coefficient->Context = n->Context;
 
 	//now clean the coefficient
 	n->Coefficient = 1;
 
 	//transform the negative holder into positive operator
-	if (n->Holder->Name == "-")
-		n->Holder->Name = "+";
+	if (n->Context->Name == "-")
+		n->Context->Name = "+";
 
 	//combine
 	//this is because the override later
@@ -1078,11 +1078,11 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	Parenthesis->Childs.push_back(New_Operator);
 	Parenthesis->Paranthesis_Type = '(';
 
-	Parenthesis->Holder = New_Operator->Holder;
-	Parenthesis->Parent = New_Operator->Parent;
+	Parenthesis->Context = New_Operator->Context;
+	Parenthesis->Scope = New_Operator->Scope;
 
-	New_Operator->Holder = Parenthesis;
-	New_Operator->Parent = Parenthesis;
+	New_Operator->Context = Parenthesis;
+	New_Operator->Scope = Parenthesis;
 
 	*n = *Parenthesis;
 
@@ -1118,20 +1118,20 @@ void Algebra::Fix_Order_Into_Real_Operator(Node* n)
 
 	int Order = n->Order;
 	n->Order = 1;
-	Node* L = n->Copy_Node(n, n->Parent);
+	Node* L = n->Copy_Node(n, n->Scope);
 	for (int i = 0; i < Order; i++) {
 		//(((a * a) * a)...)
 		Node* mul = new Node(OPERATOR_NODE, "*", n->Location);
 		mul->Left = L;
-		mul->Left->Holder = mul;	//give the previus mul this as a holder.
-		mul->Right = n->Copy_Node(n, n->Parent);	//multiply self by self
-		mul->Parent = n->Parent;
+		mul->Left->Context = mul;	//give the previus mul this as a holder.
+		mul->Right = n->Copy_Node(n, n->Scope);	//multiply self by self
+		mul->Scope = n->Scope;
 
 		L = mul;
 	}
 
 	//give the last mul the n->holder
-	L->Holder = n->Holder;
+	L->Context = n->Context;
 	
 	*n = *L;
 	return;

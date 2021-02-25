@@ -1,5 +1,7 @@
 use "../../IO/cstd.e"
 
+type cpp ptr Static_Cast {}
+
 export int Start_Test(){
 	int val = 10
 	int ptr a = val
@@ -12,9 +14,11 @@ export int Start_Test(){
 	int ptr ptr ptr ptr ptr ptr f = e
 	return f
 	
-	int ptr x = 123->address
-	return x
+	int ptr Normal_Cast_needing_Var = 123->Static_Cast
+	return Normal_Cast_needing_Var
 
+	int ptr ptr Dynamic_needing_Var = 1234->address
+	return Dynamic_needing_Var
 }
 
 export int main(){

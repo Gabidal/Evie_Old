@@ -148,17 +148,17 @@ string MANGLER::Mangle(Node* raw)
 {
 	string Result = "";
 
-	if ((raw->is("cpp") != -1) || (raw->Parent->is("cpp") != -1)) {
+	if ((raw->is("cpp") != -1) || (raw->Scope->is("cpp") != -1)) {
 		//if the function call uses the C standard.
 		//_import_func_cpp_internal_print__char__int to
 		//_Z14internal_printPci
 		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
 			Classes.clear();
 			Result = "_Z";
-			if (raw->Parent->is(CLASS_NODE) && raw->Parent->Name != "GLOBAL_SCOPE")
-				Result += "n" + raw->Parent->Name.size() + raw->Parent->Name;
+			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE")
+				Result += "n" + raw->Scope->Name.size() + raw->Scope->Name;
 			Result += to_string(raw->Name.size()) + raw->Name;
-			if (raw->Parent->is(CLASS_NODE) && raw->Parent->Name != "GLOBAL_SCOPE")
+			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE")
 				Result += "E";
 			if (raw->Parameters.size() < 1)
 				Result += "v";
@@ -232,10 +232,10 @@ string MANGLER::Mangle(Node* raw)
 		}
 		
 	}
-	else if ((raw->is("vivid") != -1) || (raw->Parent->is("vivid") != -1)) {
+	else if ((raw->is("vivid") != -1) || (raw->Scope->is("vivid") != -1)) {
 		//if the function call uses the V standard.
 	}
-	else if ((raw->is("evie") != -1) || (raw->Parent->is("evie") != -1)){
+	else if ((raw->is("evie") != -1) || (raw->Scope->is("evie") != -1)){
 		//if the function call uses the Evie standard.
 	}
 	else {
@@ -270,7 +270,7 @@ bool MANGLER::Is_Based_On_Base_Type(Node* n)
 	for (auto i : n->Inheritted) {
 		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
-		if (!Is_Base_Type(n->Find(i, n->Parent)))
+		if (!Is_Base_Type(n->Find(i, n->Scope)))
 			Result = false;
 	}
 	return Result;

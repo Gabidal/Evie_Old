@@ -1,7 +1,5 @@
 use "sys.e"
 
-type cpp ptr address {}
-
 type cpp int{
 	size = 4
 }

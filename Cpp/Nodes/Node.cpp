@@ -59,7 +59,7 @@ Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 		}
 		if (source[n]->is(CALL_NODE)) {
 			for (auto c : Linear_Ast) {
-				for (auto p : source[n]->Template_Function->Parameters) {
+				for (auto p : source[n]->Function_Implementation->Parameters) {
 					if (p->is("ptr") != -1)
 						if (p->Name == c->Name) {
 							Expiring_Index = n;
@@ -138,8 +138,8 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 Node* Node::Get_Parent_As(int F, Node* parent) {
 	if (parent->is(F))
 		return parent;
-	if (parent->Parent != nullptr)
-		return Get_Parent_As(F, parent->Parent);
+	if (parent->Scope != nullptr)
+		return Get_Parent_As(F, parent->Scope);
 	Report(Observation(ERROR, "Parent NULL!!", *Location));
 	throw::runtime_error("ERROR!");
 }
@@ -156,15 +156,15 @@ Node* Node::Find(Node* n, Node* p) {
 	for (Node* i : p->Defined)
 		if (i->Name == n->Name) {
 			if (n->Cast_Type != "") {
-				Node* tmp = i->Copy_Node(i, i->Parent);
+				Node* tmp = i->Copy_Node(i, i->Scope);
 				tmp->Cast_Type = n->Cast_Type;
 				return tmp;
 			}
 			return i;
 		}
-	if (p->Parent != nullptr)
-		if (Find(n->Name, p->Parent) != nullptr)
-			return Find(n->Name, p->Parent);
+	if (p->Scope != nullptr)
+		if (Find(n->Name, p->Scope) != nullptr)
+			return Find(n->Name, p->Scope);
 	if (p->Cast_Type != "")
 		for (auto i : p->Find(p->Cast_Type, p, CLASS_NODE)->Defined)
 			if (i->Name == n->Name)
@@ -183,9 +183,9 @@ Node* Node::Find(string name, Node* parent, int flags) {
 	for (Node* i : parent->Defined)
 		if (i->Name == name && i->is(flags))
 			return i;
-	if (parent->Parent != nullptr)
-		if (Find(name, parent->Parent, flags) != nullptr)
-			return Find(name, parent->Parent, flags);
+	if (parent->Scope != nullptr)
+		if (Find(name, parent->Scope, flags) != nullptr)
+			return Find(name, parent->Scope, flags);
 	if (parent->Cast_Type != "")
 		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
 			if (i->Name == name)
@@ -204,9 +204,9 @@ Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
 	for (Node* i : parent->Defined)
 		if (i->Name == name)
 			return i;
-	if (parent->Parent != nullptr)
-		if (Find(name, parent->Parent, Need_Parent_existance) != nullptr)
-			return Find(name, parent->Parent, Need_Parent_existance);
+	if (parent->Scope != nullptr)
+		if (Find(name, parent->Scope, Need_Parent_existance) != nullptr)
+			return Find(name, parent->Scope, Need_Parent_existance);
 	if (parent->Cast_Type != "")
 		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
 			if (i->Name == name)
@@ -220,11 +220,11 @@ void Node::Get_Inheritted_Class_Members() {
 			continue;
 		if (s == ".")
 			continue;
-		Node* inheritted = Find(s, Parent, CLASS_NODE);
+		Node* inheritted = Find(s, Scope, CLASS_NODE);
 		for (auto i : inheritted->Defined)
 			for (auto j : this->Defined) {
 				if (j->Name == i->Name)
-					Report(Observation(ERROR, "Overlapping member variable names '" + i->Name + "' and '" + j->Name + "' in '" + this->Parent->Name + ".", *this->Parent->Location));
+					Report(Observation(ERROR, "Overlapping member variable names '" + i->Name + "' and '" + j->Name + "' in '" + this->Scope->Name + ".", *this->Scope->Location));
 			}
 		this->Defined.insert(this->Defined.begin(), inheritted->Defined.begin(), inheritted->Defined.end());
 	}

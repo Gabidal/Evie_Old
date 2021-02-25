@@ -35,6 +35,12 @@ mov ecx, dword ptr [rcx ]
 mov eax, ecx
 add rsp, 44
 ret 
+mov rcx, 1234
+mov rcx, qword ptr [rcx ]
+mov ecx, dword ptr [rcx ]
+mov eax, ecx
+add rsp, 44
+ret 
 add rsp, 44
 ret 
 

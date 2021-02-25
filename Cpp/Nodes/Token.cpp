@@ -5,9 +5,9 @@ extern Selector* selector;
 
 Token::Token(Node* n) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
-		if (n->Find(n, n->Parent)->Parent->Name == "GLOBAL_SCOPE")
+		if (n->Find(n, n->Scope)->Scope->Name == "GLOBAL_SCOPE")
 			Flags = TOKEN::GLOBAL_VARIABLE;
-		else if (n->Find(n, n->Parent)->Requires_Address)
+		else if (n->Find(n, n->Scope)->Requires_Address)
 			Flags = TOKEN::CONTENT;
 		else
 			Flags = TOKEN::REGISTER;
@@ -31,9 +31,9 @@ Token::Token(Node* n) {
 		int Max_Floating_Registers = selector->Get_Floating_Parameter_Register_Count();
 		int Current_Float_Register_Count = 0;
 		//find the curresponding register
-		for (int i = 0; i < n->Parent->Parameters.size(); i++) {
-			if (n->Parent->Parameters[i]->Name == n->Name) {
-				if (n->Find(n->Parent->Parameters[i]->Name)->Format == "decimal") {
+		for (int i = 0; i < n->Scope->Parameters.size(); i++) {
+			if (n->Scope->Parameters[i]->Name == n->Name) {
+				if (n->Find(n->Scope->Parameters[i]->Name)->Format == "decimal") {
 					if (Current_Float_Register_Count < Max_Floating_Registers) {
 						Flags = TOKEN::REGISTER | TOKEN::DECIMAL | TOKEN::PARAMETER;
 						Parameter_Index = i;
@@ -52,7 +52,7 @@ Token::Token(Node* n) {
 					break;
 				}
 			}
-			if (n->Find(n->Parent->Parameters[i]->Name)->Format == "decimal")
+			if (n->Find(n->Scope->Parameters[i]->Name)->Format == "decimal")
 				Current_Float_Register_Count++;
 			else
 				Current_Integer_Register_Count++;
@@ -66,9 +66,9 @@ Token::Token(Node* n) {
 	}
 	else
 		return;
-	n->Find(n, n->Parent)->Update_Size_By_Inheritted();
-	Size = n->Find(n, n->Parent)->Size;
+	n->Find(n, n->Scope)->Update_Size_By_Inheritted();
+	Size = n->Find(n, n->Scope)->Size;
 
 	Name = n->Name;
-	Parent = n->Parent;
+	Parent = n->Scope;
 }

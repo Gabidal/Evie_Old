@@ -41,7 +41,7 @@ public:
 	bool Requires_Address = false;	//for optimisation pusrposes.
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
-	Node* Parent = nullptr;
+	Node* Scope = nullptr;
 	//funciton inlining features
 	vector<Node*> Header;
 	//Scope features
@@ -58,7 +58,7 @@ public:
 	vector<Node*> Parameters;
 	string Mangled_Name = "";
 	//operator features
-	Node* Holder = nullptr;
+	Node* Context = nullptr;
 	Node* Left = nullptr;
 	Node* Right = nullptr;
 	//pointter features
@@ -76,7 +76,7 @@ public:
 	//fetching features
 	Node* Fetcher = nullptr;
 	//calling features
-	Node* Template_Function = nullptr;
+	Node* Function_Implementation = nullptr;
 	int Calling_Count = 0;
 	bool Function_Ptr = false;
 	//calling convension is stored in the inheritted list
@@ -244,8 +244,8 @@ public:
 			if (i->Size == size)
 				if (i->Format == f)
 					return i;
-		if (parent->Parent != nullptr)
-			return Find(size, parent->Parent, f);
+		if (parent->Scope != nullptr)
+			return Find(size, parent->Scope, f);
 		return nullptr;
 	}	
 
@@ -254,8 +254,8 @@ public:
 			if (i->is(flags) && (i->Size == size))
 				if (i->Format == f)
 					return i;
-		if (parent->Parent != nullptr)
-			return Find(size, parent->Parent, flags, f);
+		if (parent->Scope != nullptr)
+			return Find(size, parent->Scope, flags, f);
 		return nullptr;
 	}
 
@@ -272,7 +272,7 @@ public:
 			return Get_Final_Fetcher(this , 1);
 		}
 		else {
-			return Parent;
+			return Scope;
 		}
 	}
 
@@ -287,7 +287,7 @@ public:
 		//now got though the tree and find the right defined in the last that is inside of node* n.
 		reverse(Tree.begin(), Tree.end());
 		//a.x.b.y
-		Node* Result = Find(Tree[0], n->Parent);
+		Node* Result = Find(Tree[0], n->Scope);
 
 		for (int i = 1; i < Tree.size() - offset; i++) {
 			Result = Find(Tree[i], Result);
@@ -297,13 +297,24 @@ public:
 	}
 
 	Node* Get_Most_Left(Node* n) {
-		if (n->is(ARRAY_NODE) || n->is(OPERATOR_NODE))
+		if (n->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE }))
 			return Get_Most_Left(n->Left);
 		return n;
 	}	
 	Node* Get_Most_Left() {
-		if (this->is(ARRAY_NODE) || this->is(OPERATOR_NODE) || this->is(ASSIGN_OPERATOR_NODE))
+		if (this->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE }))
 			return this->Left->Get_Most_Left();
+		return this;
+	}
+
+	Node* Get_Most_Right(Node* n) {
+		if (n->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE }))
+			return Get_Most_Right(n->Right);
+		return n;
+	}
+	Node* Get_Most_Right() {
+		if (this->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE }))
+			return this->Right->Get_Most_Right();
 		return this;
 	}
 
@@ -319,7 +330,7 @@ public:
 	void Get_Inheritted_Class_Members(string s) {
 			if (s == ".")
 				return;
-			Node* inheritted = Find(s, Parent);
+			Node* inheritted = Find(s, Scope);
 			for (auto i : inheritted->Defined) {
 				//now insert the inheritted classes members
 				if (Locate(i->Name, Defined) != true)
@@ -357,7 +368,7 @@ public:
 				}
 				continue;
 			}
-			Size += Find(s, Parent, true)->Size;
+			Size += Find(s, Scope, true)->Size;
 		}
 	}
 
@@ -375,9 +386,9 @@ public:
 					Size += _SYSTEM_BIT_SIZE_;
 				continue;
 			}
-			if (Find(s, Parent)->Defined[0]->Name == "size" && (Find(s, Parent)->Defined[0]->is("const") != -1))
+			if (Find(s, Scope)->Defined[0]->Name == "size" && (Find(s, Scope)->Defined[0]->is("const") != -1))
 				//this is a preprossed size, take it!
-				Size += Find(s, Parent, true)->Size;
+				Size += Find(s, Scope, true)->Size;
 				//if this happends we this class will inherit the members of the inheritted.
 			else
 				//there we handle more complex inheritance instances.
@@ -410,7 +421,7 @@ public:
 			//there is no inheritable type that doesnt have enything init.
 			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
-			Node* t = Find(s, Parent, true);
+			Node* t = Find(s, Scope, true);
 			t->Update_Format();
 			if (t->Format == "integer")
 				Format = t->Get_Format();
@@ -431,7 +442,7 @@ public:
 			return nullptr;
 		//this will only copy the ptrs in list but we want to also copy what those ptr point to.
 		Node* Result = new Node(*What_Node);
-		Result->Parent = p;
+		Result->Scope = p;
 
 		//lets start from defined
 		for (int i = 0; i < Result->Defined.size(); i++)
@@ -607,6 +618,37 @@ public:
 					return i->Format;
 		}
 		return "integer";
+	}
+
+	//Gets other side of operator, or the callation parameter which it goes to.
+	Node* Get_Pair() {
+		if (Context->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE })) {
+			if (Context->Left == this) {
+				if (!Context->Right->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE }))
+					return Context->Right;
+				else
+					return Context->Right->Get_Most_Left();
+			}			
+			else if (Context->Right == this) {
+				if (!Context->Left->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE }))
+					return Context->Left;
+				else
+					return Context->Left->Get_Most_Right();
+			}
+		}
+		else if (Context->is(CALL_NODE)) {
+			//get first the index of paramter this is in the callation
+			int Parameter_Index = 0;
+			for (auto i : Context->Parameters) {
+				if (i == this)
+					break;
+				Parameter_Index++;
+			}
+
+			//return the representive Node from the Function implemetation's paramters
+			return Context->Function_Implementation->Parameters[Parameter_Index];
+		}
+		throw::runtime_error("ERROR!");
 	}
 };
 

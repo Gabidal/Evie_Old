@@ -102,7 +102,7 @@ void Safe::Check_Return_Validity(Node* n)
 {
 	if (n->Name != "return")
 		return;
-	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Parent);
+	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Scope);
 	func->Update_Size_By_Inheritted();
 	n->Right->Update_Size_By_Inheritted();
 	if (n->Right != nullptr) {

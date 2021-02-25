@@ -107,13 +107,13 @@ void PostProsessor::Type_Definer(int i)
 	Node* Function = new Node(FUNCTION_NODE, Parent->Defined[i]->Location);
 	Function->Name = Parent->Defined[i]->Name;
 	Function->Inheritted = { Parent->Defined[i]->Name, "ptr" };
-	Function->Parent = Global_Scope;
+	Function->Scope = Global_Scope;
 
 	Node* This = new Node(PARAMETER_NODE, Parent->Defined[i]->Location);
 	This->Inheritted = {Parent->Defined[i]->Name, "ptr"};
 	This->Name = "this";
 	This->Defined = Parent->Defined[i]->Defined;
-	This->Parent = Function;
+	This->Scope = Function;
 
 	Function->Parameters.push_back(This);
 	Function->Defined.push_back(This);
@@ -133,7 +133,7 @@ void PostProsessor::Type_Definer(int i)
 	Node* ret = new Node(FLOW_NODE, Parent->Defined[i]->Location);
 	ret->Name = "return";
 	ret->Right = new Node(*This);
-	ret->Parent = Function;
+	ret->Scope = Function;
 	Function->Childs.push_back(ret);
 
 	PostProsessor P(Function, Function->Childs);
@@ -159,13 +159,13 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 				//Node* define = c->Find(linear_n, Function);
 				Node* Dot = new Node(OPERATOR_NODE, Function->Location);
 				Dot->Name = ".";
-				Dot->Parent = linear_n->Parent;
+				Dot->Scope = linear_n->Scope;
 
 				Dot->Left = new Node(*This);
 
 				Dot->Right = new Node(*linear_n);
 
-				Dot->Holder = linear_n->Holder;
+				Dot->Context = linear_n->Context;
 
 				*linear_n = *Dot;
 			}
@@ -188,7 +188,7 @@ vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* 
 		Node* Call = new Node(CALL_NODE, Class->Location);
 		Call->Parameters.push_back(This->Copy_Node(This, Call));
 		Call->Name = i;
-		Call->Parent = Funciton;
+		Call->Scope = Funciton;
 
 		Result.push_back(Call);
 	}
@@ -201,6 +201,7 @@ void PostProsessor::Cast(Node* n)
 		return;
 
 	n->Left->Cast_Type = n->Right->Name;
+	n->Left->Context = n->Context;
 	*n = *n->Left;
 }
 
@@ -210,18 +211,18 @@ void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
 		return;
 
 	Node* f;
-	if (!n->Find(n->Name, n->Parent, FUNCTION_NODE)) {
-		if (!n->Find(n->Name, n->Parent, IMPORT)) {
-			if (!n->Find(n->Name, n->Parent, PROTOTYPE))
+	if (!n->Find(n->Name, n->Scope, FUNCTION_NODE)) {
+		if (!n->Find(n->Name, n->Scope, IMPORT)) {
+			if (!n->Find(n->Name, n->Scope, PROTOTYPE))
 				return;
 			else
-				f = n->Find(n->Name, n->Parent, PROTOTYPE);
+				f = n->Find(n->Name, n->Scope, PROTOTYPE);
 		}
 		else
-			f = n->Find(n->Name, n->Parent, IMPORT);
+			f = n->Find(n->Name, n->Scope, IMPORT);
 	}
 	else
-		f = n->Find(n->Name, n->Parent, FUNCTION_NODE);
+		f = n->Find(n->Name, n->Scope, FUNCTION_NODE);
 
 	f->Calling_Count++;
 }
@@ -245,11 +246,11 @@ void PostProsessor::Member_Function(int i)
 		func->Inheritted[
 			(size_t)func->is(".") - 1
 		], 
-		func->Parent
+		func->Scope
 	);
 
 	//for member variables accessing
-	func->Parent = type;
+	func->Scope = type;
 
 	type->Member_Functions.push_back(func);
 
@@ -312,7 +313,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 {
 	if (!n->is(CALL_NODE))
 		return;
-	if (n->Template_Function != nullptr)
+	if (n->Function_Implementation != nullptr)
 		return;
 	//<summary>
 	//this function tryes to find the function to call
@@ -328,9 +329,9 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//we can determine it by the operations other side objects type.
 	//this prosess is made for operator in Determine_Return_Type().
 	//but it wont work if the call is inside another call
-	if (n->Holder != nullptr && n->Holder->is(CALL_NODE)) {
+	if (n->Context != nullptr && n->Context->is(CALL_NODE)) {
 		int Parameter_Index = 0;
-		for (auto p : n->Holder->Parameters)
+		for (auto p : n->Context->Parameters)
 			if (p == n)//check the pointer address
 				break;
 			else
@@ -344,14 +345,14 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			//there can be only one template function.
 			vector<int> callation;
 			for (int c = 0; c < Global_Scope->Defined.size(); c++) {
-				if (Global_Scope->Defined[c]->is(FUNCTION_NODE) && (Global_Scope->Defined[c]->Name == n->Holder->Name)) {
-					if (Global_Scope->Defined[c]->Parameters.size() == n->Holder->Parameters.size())
+				if (Global_Scope->Defined[c]->is(FUNCTION_NODE) && (Global_Scope->Defined[c]->Name == n->Context->Name)) {
+					if (Global_Scope->Defined[c]->Parameters.size() == n->Context->Parameters.size())
 						callation.push_back(c);
 				}
 			}
 			if (callation.size() > 1){
 				Report({
-					Observation(ERROR, "Cannot decide, " + n->Holder->Name + " has too many similar overloads.", *n->Holder->Location),
+					Observation(ERROR, "Cannot decide, " + n->Context->Name + " has too many similar overloads.", *n->Context->Location),
 					Observation(SOLUTION, "Solution: Please cast " + n->Name + " into desired type.", *n->Location)
 					});
 				throw::runtime_error("Error!");
@@ -415,10 +416,10 @@ Try_Again:;
 		}
 		if (Skip_Name_Checking_For_Func_Ptr)
 			n->Function_Ptr = true;	//this caller is a function pointter.
-		n->Template_Function = Global_Scope->Defined[f];
+		n->Function_Implementation = Global_Scope->Defined[f];
 		if (!Skip_Name_Checking_For_Func_Ptr)
-			n->Template_Function->Calling_Count++;
-		n->Inheritted = n->Template_Function->Inheritted;
+			n->Function_Implementation->Calling_Count++;
+		n->Inheritted = n->Function_Implementation->Inheritted;
 		return;
 		Wrong_Template_Function:;
 	}
@@ -455,7 +456,7 @@ Try_Again:;
 		break;
 	Next_Function:;
 	}*/
-	if (OgFunc == nullptr && n->Parent->Find(n, n->Parent)->is("ptr") != -1)
+	if (OgFunc == nullptr && n->Scope->Find(n, n->Scope)->is("ptr") != -1)
 		if (Skip_Name_Checking_For_Func_Ptr == false) {
 			Skip_Name_Checking_For_Func_Ptr = true;
 			goto Try_Again;
@@ -486,7 +487,7 @@ Try_Again:;
 		for (int p = 0; p < func->Parameters.size(); p++) {
 			vector<string> tmp = func->Parameters[p]->Inheritted;
 			//update the parent
-			func->Parameters[p]->Parent = func;
+			func->Parameters[p]->Scope = func;
 
 			func->Parameters[p]->Inheritted = n->Parameters[p]->Inheritted;
 			//now iterate the leftover types like ptr
@@ -503,7 +504,7 @@ Try_Again:;
 	else {
 		func = OgFunc;
 	}
-	n->Template_Function = func;
+	n->Function_Implementation = func;
 	func->Mangled_Name = func->Get_Mangled_Name();
 	
 	PostProsessor p(func);
@@ -566,7 +567,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		return;
 	if (n->Right->is(CALL_NODE)) {
 		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
-		n->Right->Holder = n->Holder;
+		n->Right->Context = n->Context;
 		*n = *n->Right;
 	}
 	else {
@@ -827,12 +828,12 @@ void PostProsessor::Update_Used_Object_Info(Node* n)
 	if (!n->is(FUNCTION_NODE))
 		return;
 	for (auto i : n->Get_all(OBJECT_NODE)) {
-		i->Inheritted = n->Find(i->Name, i->Parent)->Inheritted;
+		i->Inheritted = n->Find(i->Name, i->Scope)->Inheritted;
 		i->Update_Members_Size();
 	}
 	//do the same for parameters
 	for (auto i : n->Get_all(PARAMETER_NODE)) {
-		i->Inheritted = n->Find(i->Name, i->Parent)->Inheritted;
+		i->Inheritted = n->Find(i->Name, i->Scope)->Inheritted;
 		i->Update_Members_Size();
 	}
 }
@@ -887,7 +888,7 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 			if (n->Parameters[i]->Name == v->Name)
 				v_index.push_back(i);
 		for (auto i : v_index) {
-			int Template_ptr = Get_Amount("ptr", n->Template_Function->Parameters[i]);
+			int Template_ptr = Get_Amount("ptr", n->Function_Implementation->Parameters[i]);
 			int V_ptr = Get_Amount("ptr", v);
 			if (Template_ptr > V_ptr)
 				v->Requires_Address = true;
@@ -905,8 +906,8 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 	}
 
 	if (v->Requires_Address) {
-		v->Memory_Offset = v->Parent->Local_Allocation_Space;
-		v->Parent->Local_Allocation_Space += v->Get_Size();
+		v->Memory_Offset = v->Scope->Local_Allocation_Space;
+		v->Scope->Local_Allocation_Space += v->Get_Size();
 	}
 }
 
@@ -926,7 +927,7 @@ void PostProsessor::Analyze_Global_Variable_Changes(int i)
 		return;
 
 	//check if the parent is global scope.
-	if (Input[i]->Left->Parent->Name != "GLOBAL_SCOPE")
+	if (Input[i]->Left->Scope->Name != "GLOBAL_SCOPE")
 		return;
 
 	Node* og = Parent->Find(Input[i]->Left->Name);
@@ -976,15 +977,15 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 	s->Inheritted = { Global_Scope->Find(1, Global_Scope, CLASS_NODE, "integer")->Name };
 	if (s->is("ptr") == -1)
 		s->Inheritted.push_back("ptr");
-	s->Parent = Global_Scope;
+	s->Scope = Global_Scope;
 
 	Node* init = new Node(ASSIGN_OPERATOR_NODE, Input[i]->Location);
 	init->Name = "=";
-	init->Parent = Global_Scope;
+	init->Scope = Global_Scope;
 
 	Node* value = new Node(STRING_NODE, Input[i]->Location);
 	value->Name = s->String;
-	value->Parent = Global_Scope;
+	value->Scope = Global_Scope;
 	value->Size = 1;	//byte
 
 	init->Left = s;
@@ -1090,7 +1091,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		if (n->Right->Childs.size() > 1)
 			Pointter_UnWrapping_Count = (int)n->Right->Childs.size();
 
-		for (auto i : n->Left->Parent->Find(n->Left->Name)->Inheritted) {
+		for (auto i : n->Left->Scope->Find(n->Left->Name)->Inheritted) {
 			if (i == "ptr") {
 				if (Pointter_UnWrapping_Count < 1) {
 					n->Inheritted.push_back(i);
@@ -1107,7 +1108,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		if (n->Left->is(OPERATOR_NODE) || n->Left->is(ASSIGN_OPERATOR_NODE) || n->Left->is(CONDITION_OPERATOR_NODE) || n->Left->is(BIT_OPERATOR_NODE) || n->Left->is(ARRAY_NODE))
 			n->Inheritted = n->Left->Inheritted;
 		else if (!n->Left->is(NUMBER_NODE) && !n->Left->is(CONTENT_NODE))
-			n->Inheritted = n->Left->Parent->Find(n->Left, n->Left->Parent)->Inheritted;
+			n->Inheritted = n->Left->Scope->Find(n->Left, n->Left->Scope)->Inheritted;
 		else if (n->Left->is(NUMBER_NODE))
 			n->Inheritted = n->Left->Get_Inheritted(false, false);
 		else {
@@ -1115,7 +1116,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 				n->Inheritted = n->Right->Inheritted;
 			else
 				//both cannot be numbers, because otherwise algebra would have optimized it away.
-				n->Inheritted = n->Right->Parent->Find(n->Right, n->Right->Parent)->Inheritted;
+				n->Inheritted = n->Right->Scope->Find(n->Right, n->Right->Scope)->Inheritted;
 		}
 	}
 }
@@ -1131,7 +1132,7 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 
 	if (n->Right->is(CALL_NODE))
 		//get the parent funciton return type and set it as the 
-		n->Right->Inheritted = n->Get_Parent_As(FUNCTION_NODE, n->Parent)->Inheritted;
+		n->Right->Inheritted = n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Inheritted;
 	else
 		Update_Operator_Inheritance(n->Right);
 }

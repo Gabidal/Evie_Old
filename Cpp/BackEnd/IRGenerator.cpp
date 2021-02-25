@@ -17,7 +17,8 @@ void IRGenerator::Factory()
 		Parse_Function(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
-		Parse_Casting(Input[i]);
+		Parse_Dynamic_Casting(Input[i]);
+		Parse_Static_Casting(Input[i]);
 		Parse_If(i);
 		Parse_Loops(i);
 		Parse_Arrays(i);
@@ -106,7 +107,7 @@ void IRGenerator::Parse_Calls(int i)
 		else
 			p = new Token(n);	
 
-		int Level_Difference = Get_Amount("ptr", n) - Get_Amount("ptr", Input[i]->Template_Function->Parameters[Parameter_Place]);
+		int Level_Difference = Get_Amount("ptr", n) - Get_Amount("ptr", Input[i]->Function_Implementation->Parameters[Parameter_Place]);
 		if (Level_Difference != 0)
 			p = g.Operate_Pointter(p, Level_Difference);
 
@@ -208,7 +209,7 @@ void IRGenerator::Parse_Calls(int i)
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
 	IR* ir;
 	if (!Input[i]->Function_Ptr)
-		ir = new IR(call, { new Token(TOKEN::LABEL, MANGLER::Mangle(Input[i]->Template_Function)) });
+		ir = new IR(call, { new Token(TOKEN::LABEL, MANGLER::Mangle(Input[i]->Function_Implementation)) });
 	else {
 		Node* tmp = Input[i];
 		tmp->Type = OBJECT_NODE;
@@ -477,12 +478,12 @@ void IRGenerator::Parse_Operators(int i)
 			//dont load the value into a register
 			Left = new Token(Input[i]->Left);
 			if (Left->is(TOKEN::CONTENT))
-				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Parent)->Get_Size());
+				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Get_Size());
 			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
 			//	Left = Left; //:D no need to do enything
 		}
 		else if (Is_In_Left_Side_Of_Operator || (!Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) || Input[i]->Left->is(NUMBER_NODE))) {
-			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
+			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Scope));
 			if (L->is(TOKEN::CONTENT))
 				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size(), L->Get_Name());
 
@@ -525,7 +526,7 @@ void IRGenerator::Parse_Operators(int i)
 		Output->insert(Output->end(), tmp.begin(), tmp.end());
 	}
 	else if (!Input[i]->Right->is(NUMBER_NODE) && !Token(Input[i]->Right).is(TOKEN::REGISTER) && !Left->is(TOKEN::REGISTER)){//!Is_Parameter_Register) {
-		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
+		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Scope));
 		if (R->is(TOKEN::CONTENT))
 			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size(), R->Get_Name());
 
@@ -961,7 +962,7 @@ void IRGenerator::Parse_PostFixes(int i)
 
 	//i++
 	//make a copy
-	if (Input[i]->Holder != nullptr) {
+	if (Input[i]->Context != nullptr) {
 		Token* CR = new Token(TOKEN::REGISTER, "CLONEREG_" + Left->Get_Name(), Left->Get_Size());
 		Token* copc = new Token(TOKEN::OPERATOR, "move");
 
@@ -977,7 +978,7 @@ void IRGenerator::Parse_PostFixes(int i)
 
 	IR* ir = new IR(add, { Left, num });
 	Output->push_back(ir);
-	if (Input[i]->Holder == nullptr)
+	if (Input[i]->Context == nullptr)
 		Handle = Left;
 }
 
@@ -1003,7 +1004,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 		Handle = g.Handle;
 	else {
 		//mov the variable into a reg.
-		Token* C = new Token(Input[i]->Find(Input[i]->Childs[0], Input[i]->Childs[0]->Parent));
+		Token* C = new Token(Input[i]->Find(Input[i]->Childs[0], Input[i]->Childs[0]->Scope));
 		if (C->is(TOKEN::CONTENT))
 			C = new Token(TOKEN::MEMORY, { C }, C->Get_Size(), C->Get_Name());
 
@@ -1058,11 +1059,11 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;		//the job has already been done
 	if (n->is(NUMBER_NODE))
 		return;	//x.size										//They're were Holders, both of em actually... srry, i dont know what this does m8!
-	if ((!Is_In_Left_Side_Of_Operator && n->Holder == nullptr) || (n->Parent != nullptr && n->Parent->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
+	if ((!Is_In_Left_Side_Of_Operator && n->Context == nullptr) || (n->Scope != nullptr && n->Scope->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
 		return;
 
 	Token* Fecher;
-	IRGenerator g(n->Parent, { n->Fetcher }, Output, true);
+	IRGenerator g(n->Scope, { n->Fetcher }, Output, true);
 	if (g.Handle != nullptr)
 		Fecher = g.Handle;
 	else
@@ -1076,7 +1077,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	//mov handle, [esp+class_offset+member_offset]
 	
 	//make the member offset
-	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Find(n->Fetcher, n->Fetcher->Parent)->Find(n->Name)->Memory_Offset));
+	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Find(n->Fetcher, n->Fetcher->Scope)->Find(n->Name)->Memory_Offset));
 
 	Token* Member_Offsetter = new Token(TOKEN::OFFSETTER, "+");
 	Member_Offsetter->Left = Fecher;
@@ -1086,7 +1087,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	if (n->Format == "decimal")
 		Type = TOKEN::DECIMAL;
 
-	Member_Offsetter = new Token(Type | TOKEN::MEMORY, { Member_Offsetter }, n->Find(n->Fetcher, n->Fetcher->Parent)->Find(n->Name)->Size, n->Fetcher->Name + "_" + n->Name);
+	Member_Offsetter = new Token(Type | TOKEN::MEMORY, { Member_Offsetter }, n->Find(n->Fetcher, n->Fetcher->Scope)->Find(n->Name)->Size, n->Fetcher->Name + "_" + n->Name);
 
 	if (Is_In_Left_Side_Of_Operator) {
 		Handle = Member_Offsetter;
@@ -1119,12 +1120,14 @@ void IRGenerator::Switch_To_Correct_Places(Node* o)
 	}
 }
 
-void IRGenerator::Parse_Casting(Node* n)
+void IRGenerator::Parse_Static_Casting(Node* n)
 {
 	//first check is the n has a casting request, and its format casting, no other!
 	//int a
 	//return a->float
 	if (n->Cast_Type == "")
+		return;
+	if (n->Cast_Type == "address")
 		return;
 	n->Update_Format();
 
@@ -1190,6 +1193,36 @@ void IRGenerator::Parse_Casting(Node* n)
 	}));
 
 	Handle = r;
+}
+
+void IRGenerator::Parse_Dynamic_Casting(Node* n)
+{
+	if (n->Cast_Type == "")
+		return;
+	if (n->Cast_Type != "address")
+		return;
+
+	Node* Other = n->Get_Pair();
+
+	int Casted_Pointter_Count = Get_Amount("ptr", n);
+	int Caster_Pointter_Count = Get_Amount("ptr", Other);
+
+	if (Casted_Pointter_Count > Caster_Pointter_Count) {
+		//revome exess ptr
+		int Removable_Count = Casted_Pointter_Count - Caster_Pointter_Count;
+
+		//go through all ptr and remove the excess ptr from n inheritance.
+		for (int i = 0; i < n->Inheritted.size(); i++)
+			if (n->Inheritted[i] == "ptr" && Removable_Count-- > 0)
+				n->Inheritted.erase(n->Inheritted.begin() + i);
+	}
+	else if (Casted_Pointter_Count < Caster_Pointter_Count) {
+		int Addable_Pointter_Count = Caster_Pointter_Count - Casted_Pointter_Count;
+		for (int i = 0; i < Addable_Pointter_Count; i++) {
+			n->Inheritted.push_back("ptr");
+		}
+	}
+	
 }
 
 void IRGenerator::Parse_Loops(int i)

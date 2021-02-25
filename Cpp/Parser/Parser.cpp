@@ -96,7 +96,7 @@ void Parser::Definition_Pattern(int i)
 	New_Defined_Object->Inheritted = Inheritted;
 
 	New_Defined_Object->Name = Input[Words.back()].Value;
-	New_Defined_Object->Parent = Parent;
+	New_Defined_Object->Scope = Parent;
 	Parent->Defined.push_back(New_Defined_Object);
 
 	//for later AST use
@@ -165,7 +165,7 @@ void Parser::Prototype_Pattern(int i)
 	Node* New_Defined_Object = new Node(PROTOTYPE, new Position(Input[Words.back()].Location));
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
-	New_Defined_Object->Parent = Parent;
+	New_Defined_Object->Scope = Parent;
 
 	vector<Component> Types;
 	for (auto j : Input[Paranthesis[0]].Components) {
@@ -180,7 +180,7 @@ void Parser::Prototype_Pattern(int i)
 				p->Name = Types.back().Value;
 				Types.pop_back();
 			}
-			p->Parent = New_Defined_Object;
+			p->Scope = New_Defined_Object;
 			for (auto k : Types)
 				p->Inheritted.push_back(k.Value);
 
@@ -206,7 +206,7 @@ void Parser::Prototype_Pattern(int i)
 			p->Name = Types.back().Value;
 			Types.pop_back();
 		}
-		p->Parent = New_Defined_Object;
+		p->Scope = New_Defined_Object;
 		for (auto k : Types)
 			p->Inheritted.push_back(k.Value);
 
@@ -259,7 +259,7 @@ void Parser::Import_Pattern(int i)
 	Node* New_Defined_Object = new Node(IMPORT, new Position(Input[Words.back()].Location));
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
-	New_Defined_Object->Parent = Parent;
+	New_Defined_Object->Scope = Parent;
 
 	vector<Component> Types;
 	for (auto j : Input[Paranthesis[0]].Components) {
@@ -278,7 +278,7 @@ void Parser::Import_Pattern(int i)
 				p->Name = Types.back().Value;
 				Types.pop_back();
 			}
-			p->Parent = New_Defined_Object;
+			p->Scope = New_Defined_Object;
 			for (auto k : Types)
 				p->Inheritted.push_back(k.Value);
 
@@ -315,7 +315,7 @@ void Parser::Import_Pattern(int i)
 			p->Name = Types.back().Value;
 			Types.pop_back();
 		}
-		p->Parent = New_Defined_Object;
+		p->Scope = New_Defined_Object;
 		for (auto k : Types)
 			p->Inheritted.push_back(k.Value);
 
@@ -371,7 +371,7 @@ void Parser::Parenthesis_Pattern(int i)
 		return;
 	//create an content Node and output will be in the same input.
 	Node* Paranthesis = new Node(CONTENT_NODE, new Position(Input[i].Location));
-	Paranthesis->Parent = Parent;
+	Paranthesis->Scope = Parent;
 	
 	Parser TMP_Parser(Parent);
 	TMP_Parser.Input = Input[i].Components;
@@ -379,7 +379,7 @@ void Parser::Parenthesis_Pattern(int i)
 
 	for (Component j : TMP_Parser.Input)
 		if (j.node != nullptr) {
-			j.node->Holder = Paranthesis;
+			j.node->Context = Paranthesis;
 			//j.node->Parent = Paranthesis;
 			Paranthesis->Childs.push_back(new Node(*j.node));
 		}
@@ -416,7 +416,7 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 
 	Node* Operator = new Node(F, new Position(Input[i].Location));
 	Operator->Name = Input[i].Value;
-	Operator->Parent = Parent;
+	Operator->Scope = Parent;
 
 	if (Input[(size_t)i - 1].node != nullptr)
 		Operator->Left = Input[(size_t)i - 1].node;
@@ -449,8 +449,8 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 			Parent->Find(Operator->Left->Name)->Inheritted.push_back("const");
 
 	//give the left and right operators the right holder information
-	Operator->Left->Holder = Operator;
-	Operator->Right->Holder = Operator;
+	Operator->Left->Context = Operator;
+	Operator->Right->Context = Operator;
 
 	Input[i].node = Operator;
 	Input.erase(Input.begin() + i + 1);
@@ -472,7 +472,7 @@ void Parser::Number_Pattern(int i)
 		return;
 	Node* Num = new Node(NUMBER_NODE, new Position(Input[i].Location));
 	Num->Name = Input[i].Value;
-	Num->Parent = Parent;
+	Num->Scope = Parent;
 
 	for (int j = 0; j < Num->Name.size(); j++)
 		if (Num->Name[j] == '.') {
@@ -629,10 +629,10 @@ void Parser::Callation_Pattern(int i)
 	call->Inheritted = Function->Inheritted;*/
 
 	call->Name = Input[i].Value;
-	call->Parent = Parent;
+	call->Scope = Parent;
 
 	if (Parent->is(CALL_NODE))
-		call->Holder = Parent;
+		call->Context = Parent;
 
 	//initialize the parenthesis that contains the parameters
 	Parser p(call);
@@ -662,7 +662,7 @@ void Parser::Array_Pattern(int i)
 		return;
 
 	Node* arr = new Node(ARRAY_NODE, new Position(Input[i].Location));
-	arr->Parent = Parent;
+	arr->Scope = Parent;
 
 	if (Input[(size_t)i].node != nullptr)
 		arr->Left = Input[(size_t)i].node;
@@ -672,7 +672,7 @@ void Parser::Array_Pattern(int i)
 		new_member->Name = Input[(size_t)i].Value;
 
 		arr->Left = new_member;
-		arr->Left->Parent = Parent;
+		arr->Left->Scope = Parent;
 	}
 
 	if (Input[(size_t)i + 1].node->Childs.size() > 1) {
@@ -689,7 +689,7 @@ void Parser::Array_Pattern(int i)
 		new_member->Name = Input[(size_t)i + 1].Components[0].Value;
 
 		arr->Right = new_member;
-		arr->Right->Parent = Parent;
+		arr->Right->Scope = Parent;
 	}
 
 	//TODO:
@@ -737,7 +737,7 @@ void Parser::Function_Pattern(int i)
 	func->Type = FUNCTION_NODE;
 	//set the other values
 	func->Name = Input[i].Value;
-	func->Parent = Parent;
+	func->Scope = Parent;
 
 	Parser p(func);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
@@ -851,7 +851,7 @@ void Parser::If_Pattern(int i)
 
 	Parser p(con);
 	con->Name = Input[i].Value;
-	con->Parent = Parent;
+	con->Scope = Parent;
 
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
@@ -889,7 +889,7 @@ void Parser::Else_Pattern(int i)
 
 	Parser p(Else);
 	Else->Name = Input[i].Value;
-	Else->Parent = Parent;
+	Else->Scope = Parent;
 
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
@@ -952,7 +952,7 @@ void Parser::Return_Pattern(int i)
 	//return;
 	Node* ret = new Node(FLOW_NODE, new Position(Input[i].Location));
 	ret->Name = "return";
-	ret->Parent = Parent;
+	ret->Scope = Parent;
 	if (!No_Return_Value) {
 		ret->Right = Input[(size_t)i + 1].node;
 		Input.erase(Input.begin() + i + 1);
@@ -996,7 +996,7 @@ void Parser::Label_Pattern(int i)
 		return;
 	Node* L = new Node(LABEL_NODE, new Position(Input[i].Location));
 	L->Name = Input[i].Value;
-	L->Parent = Parent;
+	L->Scope = Parent;
 	
 	Input[i].node = L;
 }
@@ -1028,7 +1028,7 @@ void Parser::Label_Definition(int i)
 	//passes: label_name {..}
 	Node* label = new Node(LABEL_NODE, new Position(Input[i].Location));
 	label->Name = Input[i].Value;
-	label->Parent = Parent;
+	label->Scope = Parent;
 
 	Input[i].node = label;
 
@@ -1057,7 +1057,7 @@ void Parser::Size_Pattern(int i)
 
 	size->Name = "size";
 	size->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
-	size->Parent = Parent;
+	size->Scope = Parent;
 
 	Parent->Defined.push_back(size);
 
@@ -1088,7 +1088,7 @@ void Parser::Format_Pattern(int i)
 
 	format->Name = "format";
 	format->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
-	format->Parent = Parent;
+	format->Scope = Parent;
 
 	Parent->Defined.push_back(format);
 
