@@ -95,8 +95,10 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 			Crossed_Call = j;
 			//Intersects_Calls.push_back(j);
 			for (int k = 0; k < source[j]->OPCODE->Parameters.size(); k++)
-				if (source[j]->OPCODE->Parameters[k]->Get_Name() == t->Get_Name())
+				if (source[j]->OPCODE->Parameters[k]->Get_Name() == t->Get_Name()) {
+					Last_Usage = j;
 					Parameter_Place = k;
+				}
 		}
 		if (source[j]->is(TOKEN::END_OF_FUNCTION))
 			break;
@@ -158,13 +160,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 	Path* p = Get_Path_Info(*source, i, t);
 	if (p->Parameter_Place != -1 && (p->Parameter_Place <= Parameter_Registers.size())) {
 		//TODO: this can go broke if there is one or more calls before this so the parameter chosen by this is going to be overwritten :(
-		Token* reg = nullptr;
-		for (auto& k : Parameter_Registers[p->Parameter_Place])
-			if (k->Get_Size() == t->Get_Size()) {
-				reg = k;
-				break;
-			}
-
+		Token* reg = Get_Right_Parameter_Register(t, p->Parameter_Place);
 
 		for (auto& r : Registers) {
 			if (r.second->Get_Name() != reg->Get_Name())
@@ -293,6 +289,50 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 	}
 	//if the code gets here, then return nullptr to indicate that we need to release some registers
 	return nullptr;
+}
+
+Token* Selector::Get_Right_Parameter_Register(Token* t, int parameter_index)
+{
+	int Offset = 0;
+	if (t->is(TOKEN::DECIMAL))
+		for (auto i : Parameter_Registers) {
+			if (i[0]->is(TOKEN::DECIMAL))
+				break;
+			Offset++;
+		}
+
+	if (sys->Info.OS == "win") {
+		int Location = (size_t)Offset + parameter_index;
+		if (t->is(TOKEN::DECIMAL) && !Previus_Parameter_Type_Decimal)
+			Location += Current_Parameter_Register_Index;
+		else if (!t->is(TOKEN::DECIMAL) && Previus_Parameter_Type_Decimal)
+			Location += Current_Parameter_Register_Index;
+
+		for (auto& k : Parameter_Registers[Location])
+			if (k->Get_Size() == t->Get_Size()) {
+				Current_Parameter_Register_Index++;
+				if (t->is(TOKEN::DECIMAL))
+					Previus_Parameter_Type_Decimal = true;
+				else
+					Previus_Parameter_Type_Decimal = false;
+				return k;
+			}
+	}
+	else if (sys->Info.OS == "unix") {
+		for (auto& k : Parameter_Registers[(size_t)Offset + parameter_index])
+			if (k->Get_Size() == t->Get_Size()) {
+				return k;
+			}
+	}
+	throw::runtime_error("ERROR!");
+}
+
+void Selector::Reset_Parameter_Register_Count(IR* r)
+{
+	if (!r->OPCODE->is(TOKEN::CALL))
+		return;
+	
+	Current_Parameter_Register_Index = 0;
 }
 
 Token* Selector::Get_Register(Token* t)

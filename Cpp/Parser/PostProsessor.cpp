@@ -381,6 +381,7 @@ Try_Again:;
 		bool Has_Template_Parameters = false;
 		for (auto g : Global_Scope->Defined[f]->Parameters) {
 			g_i++;
+
 			if (g->Is_Template_Object) {
 				Has_Template_Parameters = true;
 				if (!Check_If_Template_Function_Is_Right_One(g, n->Parameters[g_i]))
@@ -1130,9 +1131,5 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 
 	PostProsessor p(n, { n->Right });
 
-	if (n->Right->is(CALL_NODE))
-		//get the parent funciton return type and set it as the 
-		n->Right->Inheritted = n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Inheritted;
-	else
-		Update_Operator_Inheritance(n->Right);
+	Update_Operator_Inheritance(n->Right);
 }

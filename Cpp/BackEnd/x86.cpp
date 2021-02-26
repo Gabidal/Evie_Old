@@ -384,30 +384,25 @@ void x86_64_Win::Init()
 	);
 
 	IR* MOVQ = new IR("=", new Token(OPERATOR, "movq"), {
-		{{Register_Float, {8, 12}}, {Memory, {8, 8}}},
-		{{Memory, {8, 8}}, {Register_Float, {8, 12}}},
 		{{Register_Float, {8, 12}}, {Register, {8, 8}}},
-		{{Register, {8, 8}}, {Register_Float, {8, 12}}},
-
-		{{Register_Float, {8, 12}}, {Memory_Float, {8, 8}}},
-		{{Memory_Float, {8, 8}}, {Register_Float, {8, 12}}},
-		{{Register_Float, {8, 12}}, {Register_Float, {8, 12}}},
+		{{Register, {8, 8}}, {Register_Float, {8, 8}}},
 	});	
 
 	IR* MOVD = new IR("=", new Token(OPERATOR, "movd"), {
-		{{Register_Float, {4, 4}}, {Memory, {4, 4}}},
-		{{Memory, {4, 4}}, {Register_Float, {4, 4}}},
-		{{Register_Float, {12, 12}}, {Register, {4, 4}}},
+		{{Register_Float, {4, 4}}, {Register, {4, 4}}},
 		{{Register, {4, 4}}, {Register_Float, {4, 4}}},
-
-		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}}},
-		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}}},
 	});
 
 	IR* MOVSS = new IR("=", new Token(OPERATOR, "movss"), {
 		{{Register_Float, {4, 4}}, {Register_Float, {4, 4}}},
 		{{Register_Float, {4, 4}}, {Memory_Float, {4, 4}}},
 		{{Memory_Float, {4, 4}}, {Register_Float, {4, 4}}},
+	});
+
+	IR* MOVSD = new IR("=", new Token(OPERATOR, "movsd"), {
+		{{Register_Float, {8, 8}}, {Register_Float, {8, 8}}},
+		{{Register_Float, {8, 8}}, {Memory_Float, {8, 8}}},
+		{{Memory_Float, {8, 8}}, {Register_Float, {8, 8}}},
 	});
 
 	IR* CONVERTI2F = new IR("convert", new Token(OPERATOR, "cvtsi2ss"), {
@@ -484,7 +479,7 @@ void x86_64_Win::Init()
 					}));
 
 				if (!Left->is(MEMORY)) {
-					Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), 12);
+					Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Right->Get_Size());
 					Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 						R2, R
 						}));
@@ -494,21 +489,21 @@ void x86_64_Win::Init()
 					Right = R;
 			}
 			else if (Right->is(MEMORY | DECIMAL)) {
-				Token* R = new Token(REGISTER | DECIMAL, "REG_" + Right->Get_Name() + to_string(rand()), 12);
+				Token* R = new Token(REGISTER | DECIMAL, "REG_" + Right->Get_Name() + to_string(rand()), Right->Get_Size());
 				Result.push_back(new IR(new Token(OPERATOR, "="), {
 					R, Right
 					}));
 				Right = R;
 			}
 			else if (Right->is(MEMORY)) {
-				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), 12);
+				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), Right->Get_Size());
 				Result.push_back(new IR(new Token(OPERATOR, "convert"), {
 					R, Right
 					}));
 				Right = R;
 			}
-			else if (!Right->is(DECIMAL) && Right->is(REGISTER)){
-				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), 12);
+			else if (!Right->is(DECIMAL) && Right->is(REGISTER)) {
+				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), Right->Get_Size());
 				string Type = "convert";
 				if (Right->is(DECIMAL))
 					Type = "=";
@@ -520,7 +515,8 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(OPERATOR, "convert"), { R, Right }));
 				Right = R;
 			}
-
+			else
+				return vector<IR*>();
 
 			Result.push_back(new IR(new Token(OPERATOR, "="), {
 				Left, Right
@@ -870,6 +866,7 @@ void x86_64_Win::Init()
 		MOVQ,
 		MOVD,
 		MOVSS,
+		MOVSD,
 		CONVERTI2F,
 		CONVERTI2D,
 		CONVERTF2D,

@@ -38,6 +38,8 @@ private:
 	vector<pair<Register_Descriptor*, Token*>> Registers;
 	vector<vector<Token*>> Parameter_Registers;
 	vector<Token*> Transform(Token* parent);
+	int Current_Parameter_Register_Index = 0;
+	bool Previus_Parameter_Type_Decimal = false;
 	
 	//stack
 	Node* Parent = nullptr;
@@ -55,6 +57,8 @@ public:
 	//											<Wanted Register description, and the register itself> , <the new user description, the user itself>,  IRs, index
 	void Make_Solution_For_Crossed_Register_Usages(pair< Register_Descriptor*, Token*> Current, pair< Register_Descriptor*, Token*> New, vector<IR*>* source, int i);
 	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t);
+	Token* Get_Right_Parameter_Register(Token* t, int parameter_index);
+	void Reset_Parameter_Register_Count(IR* r);
 	Token* Get_Register(Token* t);
 	Token* Get_Register(long F, Register_Descriptor* user, int i, Token* t);
 	int Get_Largest_Register();

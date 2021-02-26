@@ -76,7 +76,8 @@ void IRGenerator::Parse_Calls(int i)
 {
 	if (!Input[i]->is(CALL_NODE))
 		return;
-
+	if (Input[i]->Cast_Type != "")
+		return;
 
 	IRGenerator g(Parent, Output);
 	//do the parameters
@@ -116,7 +117,7 @@ void IRGenerator::Parse_Calls(int i)
 				//use a parameter register
 				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 				reg->Parameter_Index = Parameter_Place;
-				Token* opc = new Token(TOKEN::OPERATOR, "move");
+				Token* opc = new Token(TOKEN::OPERATOR, "=");
 				//make the parameter move
 				IR* ir = new IR(opc, { reg, p });
 				Output->push_back(ir);
@@ -135,7 +136,7 @@ void IRGenerator::Parse_Calls(int i)
 					//is non-complex variable
 					//use a any tmp register
 					Token* reg = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
-					Token* opc = new Token(TOKEN::OPERATOR, "move");
+					Token* opc = new Token(TOKEN::OPERATOR, "=");
 					//make the tmp move
 					IR* ir = new IR(opc, { reg, p });
 					Output->push_back(ir);
@@ -150,7 +151,7 @@ void IRGenerator::Parse_Calls(int i)
 				//use a parameter register
 				Token* reg = new Token(TOKEN::PARAMETER | TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 				reg->Parameter_Index = Parameter_Place;
-				Token* opc = new Token(TOKEN::OPERATOR, "move");
+				Token* opc = new Token(TOKEN::OPERATOR, "=");
 				//make the parameter move
 				IR* ir = new IR(opc, { reg, p });
 				Output->push_back(ir);
@@ -169,7 +170,7 @@ void IRGenerator::Parse_Calls(int i)
 					//is non-complex variable
 					//use a any tmp register
 					Token* reg = new Token(TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
-					Token* opc = new Token(TOKEN::OPERATOR, "move");
+					Token* opc = new Token(TOKEN::OPERATOR, "=");
 					//make the tmp move
 					IR* ir = new IR(opc, { reg, p });
 					Output->push_back(ir);
@@ -225,8 +226,11 @@ void IRGenerator::Parse_Calls(int i)
 
 	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
 	Input[i]->Update_Size_By_Inheritted();
+	long long F = TOKEN::REGISTER | TOKEN::RETURNING;
+	if (Input[i]->Format == "decimal")
+		F |= TOKEN::DECIMAL;
 
-	Token* returningReg = new Token(TOKEN::REGISTER | TOKEN::RETURNING, "RetREG_" + to_string(Reg_Random_ID_Addon++) /* + All_Parameters_Names*/, Input[i]->Size);
+	Token* returningReg = new Token(F, "RetREG_" + to_string(Reg_Random_ID_Addon++) /* + All_Parameters_Names*/, Input[i]->Size);
 
 	Handle = returningReg;
 }
@@ -489,7 +493,7 @@ void IRGenerator::Parse_Operators(int i)
 
 			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name() + to_string(Reg_Random_ID_Addon++), L->Get_Size());
 			//create the IR
-			Token* Opc = new Token(TOKEN::OPERATOR, "move");
+			Token* Opc = new Token(TOKEN::OPERATOR, "=");
 			IR* ir = new IR(Opc, { Reg, L });
 
 			Left = Reg;
@@ -532,7 +536,7 @@ void IRGenerator::Parse_Operators(int i)
 
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name() + to_string(Reg_Random_ID_Addon++), R->Get_Size());
 		//create the IR
-		Token* Opc = new Token(TOKEN::OPERATOR, "move");
+		Token* Opc = new Token(TOKEN::OPERATOR, "=");
 		IR* ir = new IR(Opc, { Reg, R });
 
 		Right = Reg;
@@ -964,7 +968,7 @@ void IRGenerator::Parse_PostFixes(int i)
 	//make a copy
 	if (Input[i]->Context != nullptr) {
 		Token* CR = new Token(TOKEN::REGISTER, "CLONEREG_" + Left->Get_Name(), Left->Get_Size());
-		Token* copc = new Token(TOKEN::OPERATOR, "move");
+		Token* copc = new Token(TOKEN::OPERATOR, "=");
 
 		IR* cir = new IR(copc, { CR, Left });
 		Output->push_back(cir);
@@ -1010,7 +1014,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + C->Get_Name(), C->Get_Size());
 		//create the IR
-		Token* Opc = new Token(TOKEN::OPERATOR, "move");
+		Token* Opc = new Token(TOKEN::OPERATOR, "=");
 		IR* ir = new IR(Opc, { Reg, C });
 
 		Handle = Reg;
@@ -1193,6 +1197,7 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	}));
 
 	Handle = r;
+	n->Cast_Type = cast_Type;
 }
 
 void IRGenerator::Parse_Dynamic_Casting(Node* n)

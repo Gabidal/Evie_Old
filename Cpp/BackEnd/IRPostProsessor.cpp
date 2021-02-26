@@ -230,6 +230,8 @@ int IRPostProsessor::Parse_Complex(IR* ir, int i, bool Registry)
 		return 0;
 	if (selector->Get_Opcode(ir)->Complex != nullptr) {
 		vector<IR*> r = selector->Get_Opcode(ir)->Complex(ir->Arguments);
+		if (r.size() == 0)
+			return 0;
 		int Changes = r.size() - 1;
 		if (Registry)
 			for (int opc = 0; opc < r.size(); opc++)
@@ -255,6 +257,7 @@ void IRPostProsessor::Factory()
 	for (int i = 0; i < Input->size(); i++)
 		Scale_To_Same_Size(i);
 	for (int i = 0; i < Input->size(); i++) {
+		selector->Reset_Parameter_Register_Count(Input->at(i));
 		Prepare_Function(i);
 		Handle_Labels(i);
 		IR* Holder = Input->at(i);

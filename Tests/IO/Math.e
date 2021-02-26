@@ -10,6 +10,12 @@ export int Start_Test(){
 	int c = b * a
 	int d = c / b
 	return d + a + b - c
+
+	return Test_Fpu(1.2, 2.3)->int
+}
+
+float Test_Fpu(float a, float b){
+	return 1.2 + b - a - 1.3
 }
 
 export int main(){

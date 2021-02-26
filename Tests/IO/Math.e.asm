@@ -31,7 +31,26 @@ sub r9d, r8d
 mov eax, r9d
 pop rbx
 ret 
+mov ecx, 1067030938
+movd xmm0, ecx
+movss xmm0, xmm0
+mov ecx, 1075000115
+movd xmm1, ecx
+movss xmm1, xmm1
+call Test_Fpu
+cvttss2si ecx, xmm0
+mov eax, ecx
 pop rbx
+ret 
+pop rbx
+ret 
+
+
+Test_Fpu:
+mov ecx, -1110651699
+movd xmm0, ecx
+movss xmm0, xmm0
+ret 
 ret 
 
 
