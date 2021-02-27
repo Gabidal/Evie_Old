@@ -75,13 +75,14 @@ vector<Base*> Back_End_Test::Run(string File)
 	string output = File + ".asm";
 	const char** argv; 
 	int argc;
+	string Use_Debug = "-d";
 	if (Use_ARM) {
-		argv = new const char* [9] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm" };
+		argv = new const char* [10] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm", Use_Debug.c_str() };
 		argc = 9;
 		Output = "";
 	}
 	else {
-		argv = new const char* [7] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll" };
+		argv = new const char* [8] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", Use_Debug.c_str() };
 		argc = 7;
 		Output = ".intel_syntax noprefix\n";
 	}

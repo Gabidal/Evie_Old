@@ -19,7 +19,7 @@ public:
 	string Format = "exe";
 	string Bits_Mode = "0";
 	string Disable = "";
-	string Debug = "";
+	bool Debug = false;
 	string VT_API = "";
 	output() {
 		#if _WIN32

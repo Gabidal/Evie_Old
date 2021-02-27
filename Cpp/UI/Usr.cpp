@@ -107,10 +107,9 @@ void Usr::Find_Repo_Dir(int& i)
 
 void Usr::Find_Debug_Type(int& i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-debug") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-d") == 0)
 	{
-		string tmp = string(Input[i + 1]);
-		Info.Debug = tmp;
+		Info.Debug = true;
 		i++;
 	}
 }

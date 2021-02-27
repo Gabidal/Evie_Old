@@ -53,7 +53,7 @@ void IRGenerator::Parse_Function(int i)
 	if (Input[i]->is("export") != -1)
 		Global_Scope->Header.push_back(Input[i]);
 
-	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}));
+	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}, Input[i]->Location));
 
 	//label
 	Output->push_back(Make_Label(Input[i], true));
@@ -66,10 +66,10 @@ void IRGenerator::Parse_Function(int i)
 	//TODO: Make the return IR here
 	Token* ret = new Token(TOKEN::FLOW, "return");
 	ret->Set_Parent(Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE));
-	Output->push_back(new IR(ret, {}));
+	Output->push_back(new IR(ret, {}, Input[i]->Location));
 
 	//make the end of funciton like End Proc like label
-	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION), {}));
+	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION), {}, Input[i]->Location));
 }
 
 void IRGenerator::Parse_Calls(int i)
@@ -119,7 +119,7 @@ void IRGenerator::Parse_Calls(int i)
 				reg->Parameter_Index = Parameter_Place;
 				Token* opc = new Token(TOKEN::OPERATOR, "=");
 				//make the parameter move
-				IR* ir = new IR(opc, { reg, p });
+				IR* ir = new IR(opc, { reg, p }, Input[i]->Location);
 				Output->push_back(ir);
 				Float_Register_Count++;
 				All_Parameters.push_back(reg);
@@ -138,7 +138,7 @@ void IRGenerator::Parse_Calls(int i)
 					Token* reg = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 					Token* opc = new Token(TOKEN::OPERATOR, "=");
 					//make the tmp move
-					IR* ir = new IR(opc, { reg, p });
+					IR* ir = new IR(opc, { reg, p }, Input[i]->Location);
 					Output->push_back(ir);
 					//now give the tmp register to reversible pushbacker
 					Reversable_Pushes.push_back(reg);
@@ -153,7 +153,7 @@ void IRGenerator::Parse_Calls(int i)
 				reg->Parameter_Index = Parameter_Place;
 				Token* opc = new Token(TOKEN::OPERATOR, "=");
 				//make the parameter move
-				IR* ir = new IR(opc, { reg, p });
+				IR* ir = new IR(opc, { reg, p }, Input[i]->Location);
 				Output->push_back(ir);
 				Number_Register_Count++;
 				All_Parameters.push_back(reg);
@@ -172,7 +172,7 @@ void IRGenerator::Parse_Calls(int i)
 					Token* reg = new Token(TOKEN::REGISTER, "REG_" + p->Get_Name() + "_Parameter" + to_string(rand()), p->Get_Size());
 					Token* opc = new Token(TOKEN::OPERATOR, "=");
 					//make the tmp move
-					IR* ir = new IR(opc, { reg, p });
+					IR* ir = new IR(opc, { reg, p }, Input[i]->Location);
 					Output->push_back(ir);
 					//now give the tmp register to reversible pushbacker
 					Reversable_Pushes.push_back(reg);
@@ -203,18 +203,18 @@ void IRGenerator::Parse_Calls(int i)
 				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + parent->Local_Allocation_Space)))
 				}, p->Get_Size(), p->Get_Name()),
 			p
-			}));
+			}, Input[i]->Location));
 		Stack_Offset += p->Get_Size();
 	}
 
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
 	IR* ir;
 	if (!Input[i]->Function_Ptr)
-		ir = new IR(call, { new Token(TOKEN::LABEL, MANGLER::Mangle(Input[i]->Function_Implementation)) });
+		ir = new IR(call, { new Token(TOKEN::LABEL, MANGLER::Mangle(Input[i]->Function_Implementation)) }, Input[i]->Location);
 	else {
 		Node* tmp = Input[i];
 		tmp->Type = OBJECT_NODE;
-		ir = new IR(call, { new Token(tmp) });
+		ir = new IR(call, { new Token(tmp) }, Input[i]->Location);
 	}
 
 	Output->push_back(ir);
@@ -431,13 +431,13 @@ void IRGenerator::Parse_Cloning(int i)
 			//convert the right side into memory.
 			Token* Offset = new Token(TOKEN::OFFSETTER, "+", Right, new Token(TOKEN::NUM, to_string(Current_Stack_Offset)));
 			Offset = new Token(TOKEN::MEMORY, { Offset }, Reg->Get_Size(), Right->Get_Name() + "_Mem");
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Reg, Offset }));
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Reg, Offset }, Input[i]->Location));
 
 			//set the Reg into the Left side.
 			Token* Dest = new Token(TOKEN::OFFSETTER, "+", Left, new Token(TOKEN::NUM, to_string(Current_Stack_Offset)));
 			
 			Dest = new Token(TOKEN::MEMORY, { Dest }, Reg->Get_Size(), Left->Get_Name() + "_Mem");
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Dest, Reg }));
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Dest, Reg }, Input[i]->Location));
 
 			Current_Stack_Offset += Reg->Get_Size();
 		}
@@ -494,7 +494,7 @@ void IRGenerator::Parse_Operators(int i)
 			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name() + to_string(Reg_Random_ID_Addon++), L->Get_Size());
 			//create the IR
 			Token* Opc = new Token(TOKEN::OPERATOR, "=");
-			IR* ir = new IR(Opc, { Reg, L });
+			IR* ir = new IR(Opc, { Reg, L }, Input[i]->Location);
 
 			Left = Reg;
 			Output->push_back(ir);
@@ -512,7 +512,7 @@ void IRGenerator::Parse_Operators(int i)
 				if (Left->is(TOKEN::MEMORY))
 					Type = "evaluate";
 				Token* r = new Token(TOKEN::REGISTER, Left->Get_Name() + "Save from the right side callations" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
-				Output->push_back(new IR(new Token(TOKEN::OPERATOR, Type), { r, new Token(*Left, _SYSTEM_BIT_SIZE_) }));
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, Type), { r, new Token(*Left, _SYSTEM_BIT_SIZE_) }, Input[i]->Location));
 				r = new Token(TOKEN::MEMORY, { r }, Left->Get_Size(), Left->Get_Name());
 				Left = r;
 			}
@@ -537,7 +537,7 @@ void IRGenerator::Parse_Operators(int i)
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name() + to_string(Reg_Random_ID_Addon++), R->Get_Size());
 		//create the IR
 		Token* Opc = new Token(TOKEN::OPERATOR, "=");
-		IR* ir = new IR(Opc, { Reg, R });
+		IR* ir = new IR(Opc, { Reg, R }, Input[i]->Location);
 
 		Right = Reg;
 		Output->push_back(ir);
@@ -561,7 +561,7 @@ void IRGenerator::Parse_Operators(int i)
 
 	Token* Opcode = new Token(TOKEN::OPERATOR, Operator);
 
-	IR* ir = new IR(Opcode, {Left, Right});
+	IR* ir = new IR(Opcode, {Left, Right}, Input[i]->Location);
 
 	Handle = Left;
 	Output->push_back(ir);
@@ -628,7 +628,7 @@ void IRGenerator::Parse_Pointers(int i)
 
 			Token* Right_Mem = new Token(TOKEN::MEMORY, { Right }, _SYSTEM_BIT_SIZE_, Right->Get_Name());
 
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), Right_Mem }));
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), Right_Mem }, Input[i]->Location));
 			Right = reg;
 		}
 		else {
@@ -661,7 +661,7 @@ void IRGenerator::Parse_Pointers(int i)
 
 	if (Left->is(TOKEN::CONTENT))
 		Left = new Token(TOKEN::MEMORY, { Left }, Left->Get_Size(), Left->Get_Name());
-	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Operator), { Left, Right }));
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Operator), { Left, Right }, Input[i]->Location));
 }
 
 void IRGenerator::Parse_Arrays(int i)
@@ -757,7 +757,7 @@ void IRGenerator::Parse_Arrays(int i)
 				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_),
 					new Token(TOKEN::MEMORY, {Right}, _SYSTEM_BIT_SIZE_, Right->Get_Name())
-					}));
+					}, Input[i]->Location));
 				Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 			}
 
@@ -779,7 +779,7 @@ void IRGenerator::Parse_Arrays(int i)
 			if (Is_In_Left_Side_Of_Operator && (size_t)o+1 >= Input[i]->Right->Childs.size())
 				Load_Type = "evaluate";	//this happends when it is the last load and it is left side of a assign
 
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }));
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }, Input[i]->Location));
 		
 			handle->Get_Childs()->back() = reg;
 			handle->Set_Name(reg->Get_Name());
@@ -869,7 +869,7 @@ void IRGenerator::Parse_Arrays(int i)
 			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 				new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_),
 				new Token(TOKEN::MEMORY, {Right}, _SYSTEM_BIT_SIZE_, Right->Get_Name())
-				}));
+				}, Input[i]->Location));
 			Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 		}
 		if (Right->is(TOKEN::REGISTER))
@@ -887,7 +887,7 @@ void IRGenerator::Parse_Arrays(int i)
 		if (Is_In_Left_Side_Of_Operator)
 			Load_Type = "evaluate";	//this happends when it is the last load and it is left side of a assign
 
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size, Left->Get_Name()) }));
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), { reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size, Left->Get_Name()) }, Input[i]->Location));
 
 		handle->Get_Childs()->back() = reg;
 		handle->Set_Name(reg->Get_Name());
@@ -941,7 +941,7 @@ void IRGenerator::Parse_PreFixes(int i)
 	Token* opc = new Token(TOKEN::OPERATOR, "+");
 	Token* num = new Token(TOKEN::NUM, "1", 4);
 
-	IR* ir = new IR(opc, { Right, num });
+	IR* ir = new IR(opc, { Right, num }, Input[i]->Location);
 	Output->push_back(ir);
 
 	Handle = Right;
@@ -970,7 +970,7 @@ void IRGenerator::Parse_PostFixes(int i)
 		Token* CR = new Token(TOKEN::REGISTER, "CLONEREG_" + Left->Get_Name(), Left->Get_Size());
 		Token* copc = new Token(TOKEN::OPERATOR, "=");
 
-		IR* cir = new IR(copc, { CR, Left });
+		IR* cir = new IR(copc, { CR, Left }, Input[i]->Location);
 		Output->push_back(cir);
 		Handle = CR;
 	}
@@ -980,7 +980,7 @@ void IRGenerator::Parse_PostFixes(int i)
 
 	Token* add = new Token(TOKEN::OPERATOR, "+");
 
-	IR* ir = new IR(add, { Left, num });
+	IR* ir = new IR(add, { Left, num }, Input[i]->Location);
 	Output->push_back(ir);
 	if (Input[i]->Context == nullptr)
 		Handle = Left;
@@ -1015,7 +1015,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + C->Get_Name(), C->Get_Size());
 		//create the IR
 		Token* Opc = new Token(TOKEN::OPERATOR, "=");
-		IR* ir = new IR(Opc, { Reg, C });
+		IR* ir = new IR(Opc, { Reg, C }, Input[i]->Location);
 
 		Handle = Reg;
 		Output->push_back(ir);
@@ -1050,9 +1050,9 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 	string Init_Type = "init";
 	if (value->is(TOKEN::STRING))
 		Init_Type = "ascii";
-	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }));
+	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }, n->Location));
 	if (value->is(TOKEN::STRING))
-		Output->insert(Output->begin() + 2, new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}));
+		Output->insert(Output->begin() + 2, new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}, n->Location));
 }
 
 void IRGenerator::Parse_Member_Fetch(Node* n)
@@ -1101,7 +1101,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	//if not then load this into register
 	Token* r = new Token(Type | TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), n->Get_Size());
 
-	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }));
+	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }, n->Location));
 
 	Handle = r;
 }
@@ -1194,7 +1194,7 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "convert"), {
 		r, Old_Format
-	}));
+	}, n->Location));
 
 	Handle = r;
 	n->Cast_Type = cast_Type;
@@ -1272,10 +1272,10 @@ void IRGenerator::Parse_Loops(int i)
 	//now make the _END addon at the end of loop for the false condition to fall
 	Output->push_back(Make_Jump("jump", Input[i]->Name));
 
-	Output->push_back(new IR(new Token(TOKEN::LABEL, Input[i]->Name + "_END"), {}));
+	Output->push_back(new IR(new Token(TOKEN::LABEL, Input[i]->Name + "_END"), {}, Input[i]->Location));
 
 	//make here IR that states that every variable that is extern to this while define list must last the same end.
-	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables((int)Output->size(), start_Index, Input[i])));
+	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables((int)Output->size(), start_Index, Input[i]), Input[i]->Location));
 }
 
 string IRGenerator::Get_Inverted_Condition(string c, Position* p)
@@ -1422,7 +1422,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			//move from handle to reg
 			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 				new Token(*Reg), new Token(*handle)
-				}));
+			}, nullptr));
 
 			//keep the old handle 
 			//if (j + 1 < Level_Difference) {
@@ -1448,7 +1448,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 		if (Right_Mem->Get_Size() != reg->Get_Size())
 			Right_Mem->Set_Size(reg->Get_Size());
 
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), Right_Mem }));
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "evaluate"), { new Token(*reg), Right_Mem }, nullptr));
 		return reg;
 	}
 	return p;
@@ -1460,7 +1460,7 @@ IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 	if (Mangle)
 		name = MANGLER::Mangle(n);
 	Token* label_name = new Token(TOKEN::LABEL, name);
-	IR* label = new IR();
+	IR* label = new IR(n->Location);
 	label->OPCODE = label_name;
 	return label;
 }
@@ -1469,7 +1469,7 @@ IR* IRGenerator::Make_Jump(string condition, string l)
 {
 	Token* jmp = new Token(TOKEN::FLOW, condition);
 	Token* label = new Token(TOKEN::LABEL, l);
-	IR* op = new IR();
+	IR* op = new IR(nullptr);
 	op->OPCODE = jmp;
 	op->Arguments.push_back(label);
 	return op;
@@ -1588,10 +1588,11 @@ void IRGenerator::Parse_Return(int i) {
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 		new Token(Flag, "Returning_REG" + to_string(Reg_Random_ID_Addon++), Returning_Reg_Size),
-		Return_Val }));
+		Return_Val }
+	, Input[i]->Location));
 
 	//let the postprosessor to handle stack emptying!
 	Token* ret = new Token(TOKEN::FLOW, "return");
 	ret->Set_Parent(Parent);
-	Output->push_back(new IR(ret, vector<Token*>{}));
+	Output->push_back(new IR(ret, vector<Token*>{}, Input[i]->Location));
 }

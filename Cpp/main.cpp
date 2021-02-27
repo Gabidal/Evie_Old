@@ -36,7 +36,7 @@ int _SYSTEM_BIT_SIZE_ = 4;
 string Output; 
 
 extern string VT_API;
-//Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
+//Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -d
 //Evie.exe -in ~/test.e
 int Build(int argc, const char* argv[])
 {

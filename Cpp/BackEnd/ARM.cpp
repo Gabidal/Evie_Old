@@ -295,22 +295,22 @@ void ARM_64::Init() {
 						*/
 						long long Chunk1 = Num & 0xffff;
 						Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), 4);
-						Result.push_back(new IR(new Token(OPERATOR, "mov"), { Reg1, new Token(NUM, to_string(Chunk1), 4) }));
+						Result.push_back(new IR(new Token(OPERATOR, "mov"), { Reg1, new Token(NUM, to_string(Chunk1), 4) }, nullptr));
 					
 						long long Chunk2 = (Num >> 16 ) & 0xffff;
 						Token* Reg2 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), 4);
-						Result.push_back(new IR(new Token(OPERATOR, "mov"), { Reg1, new Token(NUM, to_string(Chunk2), 4) }));
+						Result.push_back(new IR(new Token(OPERATOR, "mov"), { Reg1, new Token(NUM, to_string(Chunk2), 4) }, nullptr));
 
-						Result.push_back(new IR(new Token(OPERATOR, "lsl"), { Reg2, Reg2, new Token(NUM, to_string(16)) }));
-						Result.push_back(new IR(new Token(OPERATOR, "orr"), { Reg1, Reg1, Reg2 }));
+						Result.push_back(new IR(new Token(OPERATOR, "lsl"), { Reg2, Reg2, new Token(NUM, to_string(16)) }, nullptr));
+						Result.push_back(new IR(new Token(OPERATOR, "orr"), { Reg1, Reg1, Reg2 }, nullptr));
 					}
 				}
 				else {
 					//of memory
 					Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
-					Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+					Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }, nullptr));
 
-					Result.push_back(new IR(new Token(OPERATOR, "="), { Left, Reg1 }));
+					Result.push_back(new IR(new Token(OPERATOR, "="), { Left, Reg1 }, nullptr));
 				}
 			}
 
@@ -324,7 +324,7 @@ void ARM_64::Init() {
 				Move = "ldr";
 			}
 			
-			Result.push_back(new IR(new Token(OPERATOR, Move), { Left, Right }));
+			Result.push_back(new IR(new Token(OPERATOR, Move), { Left, Right }, nullptr));
 
 			return Result;
 		}
@@ -362,7 +362,7 @@ void ARM_64::Init() {
 	},
 		[](vector<Token*> args) {
 			vector<IR*> Result;
-			Result.push_back(new IR(new Token(OPERATOR, "lsl"), { args[0], args[0], args[1] }));
+			Result.push_back(new IR(new Token(OPERATOR, "lsl"), { args[0], args[0], args[1] }, nullptr));
 			return Result;
 		}
 	);
@@ -375,7 +375,7 @@ void ARM_64::Init() {
 		},
 		[](vector<Token*> args) {
 			vector<IR*> Result;
-			Result.push_back(new IR(new Token(OPERATOR, "lsr"), { args[0], args[0], args[1] }));
+			Result.push_back(new IR(new Token(OPERATOR, "lsr"), { args[0], args[0], args[1] }, nullptr));
 			return Result;
 		}
 	);
@@ -394,7 +394,7 @@ void ARM_64::Init() {
 	},
 		[](vector<Token*> args) {
 			vector<IR*> Result;
-			Result.push_back(new IR(new Token(OPERATOR, "orr"), { args[0], args[0], args[1] }));
+			Result.push_back(new IR(new Token(OPERATOR, "orr"), { args[0], args[0], args[1] }, nullptr));
 			return Result;
 		}
 	);
@@ -413,12 +413,12 @@ void ARM_64::Init() {
 
 			if (Right->is(NUM) && atoll(Right->Get_Name().c_str()) > 4095) {	//max 12bit number
 				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }, nullptr));
 
 				Right = Reg1;
 			}
 
-			Result.push_back(new IR(new Token(OPERATOR, "add"), { Left, Left, Right }));
+			Result.push_back(new IR(new Token(OPERATOR, "add"), { Left, Left, Right }, nullptr));
 
 			return Result;
 		}
@@ -438,12 +438,12 @@ void ARM_64::Init() {
 
 			if (Right->is(NUM) && atoll(Right->Get_Name().c_str()) > 4095) {	//max 12bit number
 				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }, nullptr));
 
 				Right = Reg1;
 			}
 
-			Result.push_back(new IR(new Token(OPERATOR, "sub"), { Left, Left, Right }));
+			Result.push_back(new IR(new Token(OPERATOR, "sub"), { Left, Left, Right }, nullptr));
 
 			return Result;
 		}
@@ -480,12 +480,12 @@ void ARM_64::Init() {
 
 			if (Right->is(NUM)) {
 				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }, nullptr));
 
 				Right = Reg1;
 			}
 
-			Result.push_back(new IR(new Token(OPERATOR, "mul"), { Left, Left, Right }));
+			Result.push_back(new IR(new Token(OPERATOR, "mul"), { Left, Left, Right }, nullptr));
 
 			return Result;
 		}
@@ -511,12 +511,12 @@ void ARM_64::Init() {
 
 			if (Right->is(NUM)) {
 				Token* Reg1 = new Token(REGISTER, "REG_" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }));
+				Result.push_back(new IR(new Token(OPERATOR, "="), { Reg1, Right }, nullptr));
 
 				Right = Reg1;
 			}
 
-			Result.push_back(new IR(new Token(OPERATOR, "div"), { Left, Left, Right }));
+			Result.push_back(new IR(new Token(OPERATOR, "div"), { Left, Left, Right }, nullptr));
 
 			return Result;
 		}
@@ -543,7 +543,7 @@ void ARM_64::Init() {
 			if (!tmp.second)
 				Eval_Type = "sub";
 
-			Result.push_back(new IR(new Token(OPERATOR, Eval_Type), tmp.first));
+			Result.push_back(new IR(new Token(OPERATOR, Eval_Type), tmp.first, nullptr));
 
 			return Result;
 		}
@@ -560,11 +560,11 @@ void ARM_64::Init() {
 
 			Result.push_back(new IR(new Token(OPERATOR, "adrp"), {
 				args[0], new Token(LABEL, ":got:" + args[1]->Get_Name(), 0)
-			}));
+			}, nullptr));
 
 			Result.push_back(new IR(new Token(OPERATOR, "ldr"), {
 				args[0], new Token(MEMORY, "MEM_" + args[1]->Get_Name(), _SYSTEM_BIT_SIZE_, {new Token(OFFSETTER, ",", args[0], new Token(LABEL, ":got_lo12:" + args[1]->Get_Name(), 0))})
-			}));
+			}, nullptr));
 
 			return Result;
 		}
@@ -617,12 +617,12 @@ void ARM_64::Init() {
 			//str args[0], [sp]
 			Result.push_back(new IR(new Token(OPERATOR, "str"), {
 				args[0], new Token(MEMORY,args[0]->Get_Name() + "stack" , args[0]->Get_Size(), {Stack})
-			}));
+			}, nullptr));
 
 			//sub sp, sp, args[0].size
 			Result.push_back(new IR(new Token(OPERATOR, "sub"), {
 				Stack, Stack, new Token(NUM, to_string(args[0]->Get_Size()), _SYSTEM_BIT_SIZE_)
-			}));
+			}, nullptr));
 
 			return Result;
 		}
@@ -640,12 +640,12 @@ void ARM_64::Init() {
 			//ldr args[0], [sp]
 			Result.push_back(new IR(new Token(OPERATOR, "ldr"), {
 				args[0], new Token(MEMORY,args[0]->Get_Name() + "stack" , args[0]->Get_Size(), {Stack})
-				}));
+				}, nullptr));
 
 			//add sp, sp, args[0].size
 			Result.push_back(new IR(new Token(OPERATOR, "add"), {
 				Stack, Stack, new Token(NUM, to_string(args[0]->Get_Size()), _SYSTEM_BIT_SIZE_)
-				}));
+				}, nullptr));
 
 			return Result;
 		}

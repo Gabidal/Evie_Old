@@ -137,7 +137,7 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descripto
 	Current_Reg->ID = Current_Name;
 	//now we need to give the cuurent user the new non-volatile register.
 	//TODO: Because im a peace of shit and dont know how to implement LIVE register change ill have to make a new move IR
-	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "move"), {non_volatile, Current_Reg });
+	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "move"), {non_volatile, Current_Reg }, nullptr);
 
 	//insert the mov before the new user starts
 	source->insert(source->begin() + New.first->First_Usage_Index, MOV);
@@ -557,14 +557,14 @@ void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//add rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK",  _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }));
+	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK",  _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
 }
 
 void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//sub rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "-"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }));
+	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "-"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
 }
 
 int Selector::Update_Stack_Size()

@@ -334,12 +334,12 @@ void x86_64_Win::Init()
 				//you cant give mul a num as a arg so move it to a register.
 				Token* tmp = mul;
 				mul = new Token(REGISTER, mul->Get_Name() + "_REG" + to_string(rand()), mul->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }));
+				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }, nullptr));
 			}
 
-			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }));
-			Result.push_back(new IR(new Token(OPERATOR, "mul"), { mul }));
-			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "mul"), { mul }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }, nullptr));
 			return Result;
 		}
 	);
@@ -372,13 +372,13 @@ void x86_64_Win::Init()
 				//you cant give mul a num as a arg so move it to a register.
 				Token* tmp = mul;
 				mul = new Token(REGISTER, mul->Get_Name() + "_REG" + to_string(rand()), mul->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }));
+				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }, nullptr));
 			}
 			//\u00a4
-			Result.push_back(new IR(new Token(OPERATOR, "¤"), { Remainder, Remainder }));
-			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }));
-			Result.push_back(new IR(new Token(OPERATOR, "div"), { mul }));
-			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }));
+			Result.push_back(new IR(new Token(OPERATOR, "¤"), { Remainder, Remainder }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "div"), { mul }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }, nullptr));
 			return Result;
 		}
 	);
@@ -476,13 +476,13 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R,
 					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
-					}));
+					}, nullptr));
 
 				if (!Left->is(MEMORY)) {
 					Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Right->Get_Size());
 					Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 						R2, R
-						}));
+						}, nullptr));
 					Right = R2;
 				}
 				else
@@ -492,14 +492,14 @@ void x86_64_Win::Init()
 				Token* R = new Token(REGISTER | DECIMAL, "REG_" + Right->Get_Name() + to_string(rand()), Right->Get_Size());
 				Result.push_back(new IR(new Token(OPERATOR, "="), {
 					R, Right
-					}));
+					}, nullptr));
 				Right = R;
 			}
 			else if (Right->is(MEMORY)) {
 				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), Right->Get_Size());
 				Result.push_back(new IR(new Token(OPERATOR, "convert"), {
 					R, Right
-					}));
+					}, nullptr));
 				Right = R;
 			}
 			else if (!Right->is(DECIMAL) && Right->is(REGISTER)) {
@@ -507,12 +507,12 @@ void x86_64_Win::Init()
 				string Type = "convert";
 				if (Right->is(DECIMAL))
 					Type = "=";
-				Result.push_back(new IR(new Token(OPERATOR, Type), { R, Right }));
+				Result.push_back(new IR(new Token(OPERATOR, Type), { R, Right }, nullptr));
 				Right = R;
 			}
 			else if (Right->is(DECIMAL) && Left->is(DECIMAL) && Right->Get_Size() != Left->Get_Size()) {
 				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), Left->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "convert"), { R, Right }));
+				Result.push_back(new IR(new Token(OPERATOR, "convert"), { R, Right }, nullptr));
 				Right = R;
 			}
 			else
@@ -520,7 +520,7 @@ void x86_64_Win::Init()
 
 			Result.push_back(new IR(new Token(OPERATOR, "="), {
 				Left, Right
-			}));
+			}, nullptr));
 
 			return Result;
 		}
@@ -548,25 +548,25 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R,
 					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
-					}));
+					}, nullptr));
 
 				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R2, R
-				}));
+				}, nullptr));
 				Right = R2;
 			}
 			if (Left->is(MEMORY)) {
 				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					L, Left
-				}));
+				}, nullptr));
 				Left = L;
 			}
 
 			Result.push_back(new IR(new Token(OPERATOR, "addF"), {
 				Left, Right
-				}));
+				}, nullptr));
 
 			return Result;
 		}
@@ -594,25 +594,25 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R,
 					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
-					}));
+					}, nullptr));
 
 				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R2, R
-					}));
+					}, nullptr));
 				Right = R2;
 			}
 			if (Left->is(MEMORY)) {
 				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					L, Left
-					}));
+					}, nullptr));
 				Left = L;
 			}
 
 			Result.push_back(new IR(new Token(OPERATOR, "subF"), {
 				Left, Right
-				}));
+				}, nullptr));
 
 			return Result;
 		}
@@ -640,25 +640,25 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R,
 					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
-					}));
+					}, nullptr));
 
 				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R2, R
-					}));
+					}, nullptr));
 				Right = R2;
 			}
 			if (Left->is(MEMORY)) {
 				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					L, Left
-					}));
+					}, nullptr));
 				Left = L;
 			}
 
 			Result.push_back(new IR(new Token(OPERATOR, "mulF"), {
 				Left, Right
-				}));
+				}, nullptr));
 
 			return Result;
 		}
@@ -686,25 +686,25 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R,
 					new Token(TOKEN::NUM, to_string(Name), Right->Get_Size())
-					}));
+					}, nullptr));
 
 				Token* R2 = new Token(TOKEN::REGISTER | TOKEN::DECIMAL, "MEDIA_" + to_string(Name + rand()), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					R2, R
-					}));
+					}, nullptr));
 				Right = R2;
 			}
 			if (Left->is(MEMORY)) {
 				Token* L = new Token(REGISTER | DECIMAL, "MEDIA_" + Left->Get_Name(), Left->Get_Size());
 				Result.push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 					L, Left
-					}));
+					}, nullptr));
 				Left = L;
 			}
 
 			Result.push_back(new IR(new Token(OPERATOR, "divF"), {
 				Left, Right
-				}));
+				}, nullptr));
 
 			return Result;
 		}

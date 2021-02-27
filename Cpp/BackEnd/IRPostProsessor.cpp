@@ -47,7 +47,7 @@ void IRPostProsessor::Scale_To_Same_Size(int i)
 	Token* NewReg = new Token(TOKEN::REGISTER, Scalable->Get_Name() + "_converted", Destination_Size);
 
 	Token* Convert = new Token(TOKEN::OPERATOR, "convert");
-	IR* CONV = new IR(Convert, { NewReg, new Token(*Scalable) });
+	IR* CONV = new IR(Convert, { NewReg, new Token(*Scalable) }, Input->at(i)->Location);
 
 	//now put the newreg where the scalable was.
 	Input->at(i)->Arguments[ArgIndex] = NewReg;
@@ -85,9 +85,9 @@ void IRPostProsessor::Handle_Global_Labels()
 {
 	for (auto i : Global_Scope->Header) {
 		if (i->is(IMPORT))
-			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "extern"), { new Token(TOKEN::LABEL, MANGLER::Mangle(i)) }));
+			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "extern"), { new Token(TOKEN::LABEL, MANGLER::Mangle(i)) }, nullptr));
 		else if (i->is("export") != -1)
-			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL,  MANGLER::Mangle(i)) }));
+			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL,  MANGLER::Mangle(i)) }, nullptr));
 
 	}
 	
@@ -129,7 +129,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 
 		reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
 		reg->ID = reg->Get_Name();
-		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }));
+		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }, Input->at(i)->Location));
 		Additional_Changes += Parse_Complex(Input->at(Start_Of_Function), Start_Of_Function, true);
 		Push_Amount.push_back(reg);
 	Already_Pushed:;
@@ -146,7 +146,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 			reg->ID = reg->Get_Name();
 
 
-			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }));
+			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }, Input->at(i)->Location));
 			Parse_Complex(Input->at(j), j, true);
 		}
 		Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, ret->Get_Parent());

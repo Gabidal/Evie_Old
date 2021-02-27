@@ -56,9 +56,9 @@ string Producer::Get_Assembler()
 
 string Producer::Get_Debug()
 {
-    if (Debug != "")
+    if (Debug)
     {
-        return " -g " + Debug;
+        return " -g dwarf4";
     }
     return "";
 }

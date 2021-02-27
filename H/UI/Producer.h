@@ -54,7 +54,7 @@ private:
 	string arch;
 	string OS;
 	string HOST_OS;
-	string Debug;
+	bool Debug;
 	vector<string> Libs;
 	vector<string> Source_Files;;
 };
