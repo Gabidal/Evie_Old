@@ -18,6 +18,9 @@ void Selector::Init() {
 				}
 				Opcodes = X86_64_WIN.Opcodes;
 				Size_Identifiers = X86_64_WIN.Size_Identifiers;
+
+				//DEBUG
+				STACK_REPRESENTIVE_REGISTER = X86_64_WIN.STACK_REPRESENTIVE_REGISTER;
 			}
 		}
 
@@ -33,6 +36,9 @@ void Selector::Init() {
 				}
 				Opcodes = _ARM_64.Opcodes;
 				Size_Identifiers = _ARM_64.Size_Identifiers;
+
+				//DEBUG
+				STACK_REPRESENTIVE_REGISTER = X86_64_WIN.STACK_REPRESENTIVE_REGISTER;
 			}
 		}
 	}

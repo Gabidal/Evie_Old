@@ -17,6 +17,7 @@
 #include "../H/BackEnd/x86.h"
 #include "../H/BackEnd/ARM.h"
 #include "../H/BackEnd/IRPostProsessor.h"
+#include "../H/BackEnd/DebugGenerator.h"
 
 #include <sstream>
 #include <iostream>
@@ -136,6 +137,8 @@ int Build(int argc, const char* argv[])
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
 
     IRPostProsessor IRpost(&IRs);
+
+    DebugGenerator DG(IRs);
 
     BackEnd Back(IRs, Output);
 

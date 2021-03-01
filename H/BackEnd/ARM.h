@@ -28,6 +28,8 @@ public:
 	//					 needs add or sub for the operation.
 	static pair<vector<Token*>, bool> Un_Wrap_Content(Token* t);
 
+	//DEBUG
+	int STACK_REPRESENTIVE_REGISTER = 111; //SP
 };
 
 #endif

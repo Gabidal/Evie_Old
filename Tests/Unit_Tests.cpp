@@ -12,7 +12,7 @@ int main(int argc, const char** argv) {
 	Usr tmp(argv, argc);
 	VT_API = tmp.Info.VT_API;
 	cout << Magenta << "Lexer tests:" << Reset << endl;
-	Lexer_Test L_Test;
+	//Lexer_Test L_Test;
 	cout << Magenta << "\n\nBack end tests:" << Reset << endl;
 	Back_End_Test B_Test;
 	return 0;

@@ -189,6 +189,7 @@
   <ItemGroup>
     <ClCompile Include="Cpp\BackEnd\ARM.cpp" />
     <ClCompile Include="Cpp\BackEnd\BackEnd.cpp" />
+    <ClCompile Include="Cpp\BackEnd\DebugGenerator.cpp" />
     <ClCompile Include="Cpp\BackEnd\IRGenerator.cpp" />
     <ClCompile Include="Cpp\BackEnd\Selector.cpp" />
     <ClCompile Include="Cpp\BackEnd\x86.cpp" />
@@ -240,6 +241,7 @@
   <ItemGroup>
     <ClInclude Include="H\BackEnd\ARM.h" />
     <ClInclude Include="H\BackEnd\BackEnd.h" />
+    <ClInclude Include="H\BackEnd\DebugGenerator.h" />
     <ClInclude Include="H\BackEnd\IRGenerator.h" />
     <ClInclude Include="H\BackEnd\IRPostProsessor.h" />
     <ClInclude Include="H\BackEnd\Selector.h" />

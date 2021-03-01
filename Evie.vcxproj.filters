@@ -108,6 +108,9 @@
     <ClCompile Include="Cpp\BackEnd\ARM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\BackEnd\DebugGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\unix.asm">
@@ -244,6 +247,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\BackEnd\ARM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\BackEnd\DebugGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

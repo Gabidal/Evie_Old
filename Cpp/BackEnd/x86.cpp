@@ -223,7 +223,7 @@ void x86_64_Win::Init()
 				}), INT32_MAX}
 		}, "memory");
 	Token* Label = new Token(LABEL | GLOBAL_VARIABLE, "label");
-	Token* Data = new Token(NUM | STRING);
+	Token* Data = new Token(NUM | STRING | LABEL);
 
 	Utility = {
 		Register,
@@ -813,13 +813,16 @@ void x86_64_Win::Init()
 		}); 
 	IR* EXTERN = new IR("extern", new Token(TOKEN::GLOBAL_LABEL, ".extern"), {
 		{{Label, {0, 0}}}
-			});
+	});
+	IR* SECTION = new IR("section", new Token(TOKEN::OPERATOR, ".section"), {
+		{{Label, {0, 0}}}
+	});
 
 	IR* DB = new IR("init", new Token(TOKEN::SET_DATA, ".byte"), {
 		{{Data, {1, 1}}}
 		}); 
 	IR* ASCII = new IR("ascii", new Token(TOKEN::SET_DATA, ".ascii"), {
-		{{Data, {1, 1}}}
+		{{Data, {0, 1}}}
 		});
 	IR* DW = new IR("init", new Token(TOKEN::SET_DATA, ".word"), {
 		{{Data, {2, 2}}}
@@ -858,6 +861,7 @@ void x86_64_Win::Init()
 		CALL,
 		GLOBAL,
 		EXTERN,
+		SECTION,
 		DB,
 		DW,
 		DD,

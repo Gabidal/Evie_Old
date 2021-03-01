@@ -25,6 +25,9 @@ public:
 	string Number_Pre_Fix;
 	string Label_Post_Fix;
 	void Init();
+
+	//DEBUG
+	int STACK_REPRESENTIVE_REGISTER = 87; //RSP
 };
 
 #endif
