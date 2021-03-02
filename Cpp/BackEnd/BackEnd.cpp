@@ -117,7 +117,7 @@ string BackEnd::Token_Builder(Token* t, bool Inside_Content)
 		//	Name = selector->Get_Size_Identifier(t->Get_Size()) + " " + t->Get_Name();
 	}
 	else if (t->is(TOKEN::STRING))
-		Name = t->Get_Name();
+		Name = "\"" + t->Get_Name() + "\"";
 	else if (t->is(TOKEN::GLOBAL_VARIABLE))
 		//Name = selector->Get_Size_Identifier(t->Get_Size()) + "[" + t->Get_Name() + "]";
 		Name = t->Get_Name();

@@ -69,7 +69,7 @@ void IRGenerator::Parse_Function(int i)
 	Output->push_back(new IR(ret, {}, Input[i]->Location));
 
 	//make the end of funciton like End Proc like label
-	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION), {}, Input[i]->Location));
+	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, Input[i]->Name), {}, Input[i]->Location));
 }
 
 void IRGenerator::Parse_Calls(int i)

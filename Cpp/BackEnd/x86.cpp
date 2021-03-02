@@ -817,13 +817,16 @@ void x86_64_Win::Init()
 	IR* SECTION = new IR("section", new Token(TOKEN::OPERATOR, ".section"), {
 		{{Label, {0, 0}}}
 	});
+	IR* FILE = new IR("file", new Token(TOKEN::OPERATOR, ".file"), {
+		{{Label, {0, 1}}}
+	});
 
 	IR* DB = new IR("init", new Token(TOKEN::SET_DATA, ".byte"), {
 		{{Data, {1, 1}}}
 		}); 
-	IR* ASCII = new IR("ascii", new Token(TOKEN::SET_DATA, ".ascii"), {
+	IR* ASCII = new IR("ascii", new Token(TOKEN::SET_DATA, ".asciz"), {
 		{{Data, {0, 1}}}
-		});
+	});
 	IR* DW = new IR("init", new Token(TOKEN::SET_DATA, ".word"), {
 		{{Data, {2, 2}}}
 		});
@@ -833,6 +836,7 @@ void x86_64_Win::Init()
 	IR* DQ = new IR("init", new Token(TOKEN::SET_DATA, ".quad"), {
 		{{Data, {8, 8}}}
 		});
+
 
 	Opcodes = {
 		MOV,
@@ -862,6 +866,7 @@ void x86_64_Win::Init()
 		GLOBAL,
 		EXTERN,
 		SECTION,
+		FILE,
 		DB,
 		DW,
 		DD,
