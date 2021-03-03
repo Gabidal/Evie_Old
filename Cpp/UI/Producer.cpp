@@ -58,7 +58,7 @@ string Producer::Get_Debug()
 {
     if (Debug)
     {
-        return " -g dwarf4";
+        return " -gdwarf3";
     }
     return "";
 }

@@ -138,7 +138,8 @@ int Build(int argc, const char* argv[])
 
     IRPostProsessor IRpost(&IRs);
 
-    DebugGenerator DG(IRs);
+    if (sys->Info.Debug)
+        DebugGenerator DG(IRs);
 
     BackEnd Back(IRs, Output);
 

@@ -1,8 +1,13 @@
 #include "../../H/BackEnd/DebugGenerator.h"
 
+
+long long Function_Abbrovation_Count = 2;
+constexpr long long Local_Variable_Abbrovation = 3;
+long long Type_Abbrovation = 4;
+long long Member_Abbrovation = 5;
+
 DebugGenerator::DebugGenerator(vector<IR*> &Input)
 {
-
     Insert_Start_End_Labels(Input);
 
     Define_File_Index();
@@ -114,12 +119,15 @@ void DebugGenerator::Construct_Debug_Abbrev()
     // takes a single operand encoded as a DW_FORM_exprloc value representing a DWARF expression.
     IR* DW_FORM_Exprloc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "24", 1) }, nullptr);
     Debug_Abbrev.push_back(DW_FORM_Exprloc);
-    //Debugging information entry representing a program entity that has been given a name.
-    DW_AT_Name;
-    Debug_Abbrev.push_back(DW_AT_Name);
+    //DW_AT_linkage_name
+    IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "110", 1) }, nullptr);
+    Debug_Abbrev.push_back(DW_AT_Linkage_Name);
     //Attribute values of class
     DW_FORM_Strp;
     Debug_Abbrev.push_back(DW_FORM_Strp);
+    //Debugging information entry representing a program entity that has been given a name.
+    DW_AT_Name;
+    Debug_Abbrev.push_back(DW_AT_Name);
     //Any debugging information entry representing the declaration of an object, module, subprogram or type.
     IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "58", 1) }, nullptr);
     Debug_Abbrev.push_back(DW_AT_Decl_File);
@@ -260,8 +268,8 @@ void DebugGenerator::Construct_Debug_Info()
     IR* DW_TAG_Compile_Unit = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
     Debug_Info.push_back(DW_TAG_Compile_Unit);
     //Containing information about the compiler that produced the compilation unit.
-    DW_TAG_Compile_Unit;
-    Debug_Info.push_back(DW_TAG_Compile_Unit);
+    IR* COMPILER = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, ".COMPILER_NAME", 4) }, nullptr);
+    Debug_Info.push_back(COMPILER);
     //Indicating the source language used to define the type. 
     IR* DW_AT_Language = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0x666", 2) }, nullptr);
     Debug_Info.push_back(DW_AT_Language);
@@ -393,6 +401,12 @@ void DebugGenerator::Construct_Debug_String()
     IR* Function_Name = new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, "func_NAME") }, nullptr);
     Debug_Str.push_back(Function_Name);
 
+    IR* Type_Name_Indicator = new IR(new Token(TOKEN::LABEL, "type_NAME"), {}, nullptr);
+    Debug_Str.push_back(Type_Name_Indicator);
+    //Function name
+    IR* Type_Name = new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, "type_NAME") }, nullptr);
+    Debug_Str.push_back(Type_Name);
+
 
     /*
     .Linfo_string3:
@@ -441,7 +455,6 @@ void DebugGenerator::Define_File_Index()
     }
 }
 
-constexpr long long Local_Variable_Abbrovation = 3;
 void DebugGenerator::Local_Variable_Info(Node* n)
 {
     //Abrevation tag name, i have decided that this can be a constant
@@ -473,11 +486,10 @@ void DebugGenerator::Local_Variable_Info(Node* n)
     Debug_Info.push_back(DW_AT_Type);
 }
 
-constexpr long long Type_Abbrovation = 4;
 void DebugGenerator::Type_Info()
 {
     for (auto i : Global_Scope->Defined)
-        if (i->is(CLASS_NODE)) {
+        if (i->is(CLASS_NODE) && ((i->Defined.size() == 1 && i->Defined[0]->is("const") != -1) || (i->Defined.size() == 2 && i->Defined[0]->is("const") != -1 && i->Defined[0]->is("const") != -1))) {
             //the label that others can reference to.
             IR* LINK = new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr);
             Debug_Info.push_back(LINK);
@@ -494,6 +506,65 @@ void DebugGenerator::Type_Info()
             IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr);
             Debug_Info.push_back(DW_AT_Byte_Size);
         }
+        else if (i->is(CLASS_NODE)){
+            while (Type_Abbrovation == Member_Abbrovation || Type_Abbrovation == Function_Abbrovation_Count || Type_Abbrovation == Local_Variable_Abbrovation)
+                Type_Abbrovation++;
+            IR* LINK = new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr);
+            Debug_Info.push_back(LINK);
+            //the code that indicates that this is the type abbrovation.
+            IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
+            Debug_Info.push_back(Abrrovation);
+            //the calling convensions for this class??
+            IR* DW_AT_Calling_Convention = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
+            Debug_Info.push_back(DW_AT_Calling_Convention);
+            //the name of this class
+            IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, i->Name + "_NAME", 4) }, nullptr);
+            Debug_Info.push_back(DW_AT_Name);
+            //the size of this class
+            IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr);
+            Debug_Info.push_back(DW_AT_Byte_Size);
+            //the file that this class is defined in
+            IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(i->Location->GetFilePath())), 1) }, nullptr);
+            Debug_Info.push_back(DW_AT_Decl_File);
+            //the line this class is defined in
+            IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Location->GetFriendlyLine()), 1) }, nullptr);
+            Debug_Info.push_back(DW_AT_Decl_Line);
+            
+
+            for (auto m : i->Defined) {
+                if (m->is("const") != -1)
+                    continue;
+                //abrovation for this member variable
+                while (Member_Abbrovation == Type_Abbrovation || Member_Abbrovation == Function_Abbrovation_Count || Member_Abbrovation == Local_Variable_Abbrovation)
+                    Member_Abbrovation++;
+
+                //the code that indicates that this is the type abbrovation.
+                IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Member_Abbrovation), 1) }, nullptr);
+                Debug_Info.push_back(Abrrovation);
+                //the name of this member variable
+                IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, m->Name + "_NAME", 4) }, nullptr);
+                Debug_Info.push_back(DW_AT_Name);
+                //type of this memebr variable
+                string Inheritted = i->Get_Inheritted("_", true, false, true);
+                if (Inheritted == "")
+                    Inheritted = i->Get_Inheritted("_", true, false, false);
+                IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr);
+                Debug_Info.push_back(DW_AT_Type);
+                //the file that this class is defined in
+                IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(m->Location->GetFilePath())), 1) }, nullptr);
+                Debug_Info.push_back(DW_AT_Decl_File);
+                //the line this class is defined in
+                IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Location->GetFriendlyLine()), 1) }, nullptr);
+                Debug_Info.push_back(DW_AT_Decl_Line);
+                //the stack offset this variable dorments in
+                IR* DW_AT_Data_Member_Location = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Memory_Offset), 1) }, nullptr);
+                Debug_Info.push_back(DW_AT_Data_Member_Location);
+                //publicity of this member variable
+                IR* DW_AT_Accessibility = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
+                Debug_Info.push_back(DW_AT_Accessibility);
+            }
+            
+        }
 
     //make one for void return typed functions
     //the label that others can reference to.
@@ -506,11 +577,26 @@ void DebugGenerator::Type_Info()
     IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "func_NAME", 8) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);
     //Some constant for encoding the inlisted type.
-    IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "62", 1) }, nullptr);
+    IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Encoding);
     //Size of the type
     IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Byte_Size);
+
+    IR* Type_LINK = new IR(new Token(TOKEN::LABEL, "_type_START"), {}, nullptr);
+    Debug_Info.push_back(Type_LINK);
+    //the code that indicates that this is the type abbrovation.
+    IR* Type_Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
+    Debug_Info.push_back(Type_Abrrovation);
+    //The name that is represented in a string at the data section.
+    IR* Type_DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "type_NAME", 8) }, nullptr);
+    Debug_Info.push_back(Type_DW_AT_Name);
+    //Some constant for encoding the inlisted type.
+    IR* Type_DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
+    Debug_Info.push_back(Type_DW_AT_Encoding);
+    //Size of the type
+    IR* Type_DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr);
+    Debug_Info.push_back(Type_DW_AT_Byte_Size);
 
    
     //End of the Type descriptors
@@ -526,6 +612,10 @@ void DebugGenerator::Insert_Start_End_Labels(vector<IR*>& input)
     IR* Debug_Info_End = new IR(new Token(TOKEN::LABEL, "Code_End"), {}, nullptr);
     input.insert(input.end(), Debug_Info_End);
 
+    IR* Section = new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr);
+    input.insert(input.begin(), Section);
+
+
     for (int i = 0; i < input.size(); i++) {
         if (input[i]->is(TOKEN::START_OF_FUNCTION)) {
             input.insert(input.begin() + i, new IR(new Token(TOKEN::LABEL, input[i]->OPCODE->Get_Name() + "_START"), {}, nullptr));
@@ -538,10 +628,9 @@ void DebugGenerator::Insert_Start_End_Labels(vector<IR*>& input)
     }
 }
 
-long long Function_Abbrovation_Count = 2;
 void DebugGenerator::Function_Info(Node* n, int i)
 {
-    while ((Function_Abbrovation_Count + 1 == Local_Variable_Abbrovation) || (Function_Abbrovation_Count + 1 == Type_Abbrovation)) {
+    while ((Function_Abbrovation_Count == Local_Variable_Abbrovation) || (Function_Abbrovation_Count == Type_Abbrovation)) {
         Function_Abbrovation_Count++;
     }
     //Function Abbrevation
@@ -559,6 +648,9 @@ void DebugGenerator::Function_Info(Node* n, int i)
     //The stack representive register number
     IR* DW_AT_Frame_Base_1 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(selector->STACK_REPRESENTIVE_REGISTER), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Frame_Base_1);
+    //Points into a string in data section which has the function name
+    IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
+    Debug_Info.push_back(DW_AT_Linkage_Name);
     //Points into a string in data section which has the function name
     IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);

@@ -77,13 +77,13 @@ vector<Base*> Back_End_Test::Run(string File)
 	int argc;
 	string Use_Debug = "-d";
 	if (Use_ARM) {
-		argv = new const char* [10] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm", Use_Debug.c_str() };
-		argc = 9;
+		argv = new const char* [9 + (Use_Debug == "-d")] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm", Use_Debug.c_str() };
+		argc = 9 + (Use_Debug == "-d");
 		Output = "";
 	}
 	else {
-		argv = new const char* [8] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", Use_Debug.c_str() };
-		argc = 7;
+		argv = new const char* [7 + (Use_Debug == "-d")] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", Use_Debug.c_str() };
+		argc = 7 + (Use_Debug == "-d");
 		Output = ".intel_syntax noprefix\n";
 	}
 	

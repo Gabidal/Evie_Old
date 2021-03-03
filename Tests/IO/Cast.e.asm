@@ -1,4 +1,5 @@
 .intel_syntax noprefix
+.section .text
 Code_Start:
 .global main
 .global Start_Test
@@ -109,8 +110,9 @@ debug_abbrev:
 .byte 6
 .byte 64
 .byte 24
-.byte 3
+.byte 110
 .byte 14
+.byte 3
 .byte 58
 .byte 11
 .byte 59
@@ -155,18 +157,19 @@ Debug_Info_Start:
 .long debug_abbrev
 .byte 8
 .byte 1
-.byte 1
+.long .COMPILER_NAME
 .word 0x666
 .long .FILE_NAME
 .long .LINE_TABLE
 .long .DIRECTORY
 .quad Code_Start
 .long Code_End-Code_Start
-.byte 4
+.byte 2
 .quad test_all_format_casts_START
 .long test_all_format_casts_END-test_all_format_casts_START
 .byte 1
 .byte 87
+.long test_all_format_casts_NAME
 .long test_all_format_casts_NAME
 .byte 0
 .byte 17
@@ -196,11 +199,12 @@ Debug_Info_Start:
 .byte 21
 .quad _double_START-Debug_Info_Start
 .byte 0
-.byte 4
+.byte 2
 .quad Base_START
 .long Base_END-Base_START
 .byte 1
 .byte 87
+.long Base_NAME
 .long Base_NAME
 .byte 1
 .byte 3
@@ -214,11 +218,12 @@ Debug_Info_Start:
 .byte 3
 .quad _Base_START-Debug_Info_Start
 .byte 0
-.byte 4
+.byte 2
 .quad Mid_START
 .long Mid_END-Mid_START
 .byte 1
 .byte 87
+.long Mid_NAME
 .long Mid_NAME
 .byte 2
 .byte 7
@@ -269,23 +274,76 @@ _string_START:
 .byte 1
 _Base_START:
 .byte 4
-.quad Base_NAME
-.byte 62
+.byte 1
+.long Base_NAME
 .byte 4
+.byte 1
+.byte 3
+.byte 5
+.long Type_NAME
+.quad _type_START-Debug_Info_Start
+.byte 1
+.byte 4
+.byte 0
+.byte 1
 _Mid_START:
 .byte 4
-.quad Mid_NAME
-.byte 62
+.byte 1
+.long Mid_NAME
 .byte 8
+.byte 1
+.byte 7
+.byte 5
+.long Type_NAME
+.quad _Base_START-Debug_Info_Start
+.byte 1
+.byte 4
+.byte 0
+.byte 1
+.byte 5
+.long feature_NAME
+.quad _Base_START-Debug_Info_Start
+.byte 1
+.byte 9
+.byte 4
+.byte 1
 _Top_START:
 .byte 4
-.quad Top_NAME
-.byte 62
+.byte 1
+.long Top_NAME
 .byte 12
+.byte 1
+.byte 12
+.byte 5
+.long Type_NAME
+.quad _Mid_START-Debug_Info_Start
+.byte 1
+.byte 4
+.byte 0
+.byte 1
+.byte 5
+.long feature_NAME
+.quad _Mid_START-Debug_Info_Start
+.byte 1
+.byte 9
+.byte 4
+.byte 1
+.byte 5
+.long feature_NAME
+.quad _Mid_START-Debug_Info_Start
+.byte 1
+.byte 14
+.byte 8
+.byte 1
 _func_START:
 .byte 4
 .quad func_NAME
-.byte 62
+.byte 1
+.byte 0
+_type_START:
+.byte 4
+.quad type_NAME
+.byte 1
 .byte 0
 .byte 0
 Debug_Info_End:
@@ -336,5 +394,7 @@ this_NAME:
 .asciz "this"
 func_NAME:
 .asciz "func_NAME"
+type_NAME:
+.asciz "type_NAME"
 .section .LINE_TABLE
 .LINE_TABLE:

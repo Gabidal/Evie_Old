@@ -110,7 +110,6 @@ void Usr::Find_Debug_Type(int& i)
 	if ((i <= Argument_Amount) && strcmp(Input[i], "-d") == 0)
 	{
 		Info.Debug = true;
-		i++;
 	}
 }
 

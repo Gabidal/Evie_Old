@@ -228,6 +228,7 @@
     <None Include="Tests\IO\Array.e" />
     <None Include="Tests\IO\Array.e.asm" />
     <None Include="Tests\IO\Cast.e" />
+    <None Include="Tests\IO\Cast.e.asm" />
     <None Include="Tests\IO\Conditions.e" />
     <None Include="Tests\IO\Conditions.e.asm" />
     <None Include="Tests\IO\Func.e" />
