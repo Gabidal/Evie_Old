@@ -5,6 +5,10 @@ long long Function_Abbrovation_Count = 2;
 constexpr long long Local_Variable_Abbrovation = 3;
 long long Type_Abbrovation = 4;
 long long Member_Abbrovation = 5;
+constexpr int DW_ATE_address = 0x01;
+constexpr int DW_ATE_float = 0x04;
+constexpr int DW_ATE_signed = 0x05;
+constexpr int DW_ATE_signed_char = 0x06;
 
 DebugGenerator::DebugGenerator(vector<IR*> &Input)
 {
@@ -292,7 +296,7 @@ void DebugGenerator::Construct_Debug_Info()
     int j = 0;
     for (auto i : Global_Scope->Defined)
         if (i->is(FUNCTION_NODE))
-            if (i->Calling_Count > 0)
+            if (i->Calling_Count > 0 || (i->is("export") != -1))
                 Function_Info(i, j++);
 
     Type_Info();
@@ -365,7 +369,7 @@ void DebugGenerator::Construct_Debug_String()
                 if (defined == i->Name)
                     Skip_Function_Declaration = true;
             if (i->is(FUNCTION_NODE))
-                if (i->Calling_Count < 1)
+                if (i->Calling_Count < 1 && (i->is("export") == -1))
                     goto Skip_Func;
             Declarated_Local_Variable_Names.push_back(i->Name);
             if (!Skip_Function_Declaration) {
@@ -500,7 +504,14 @@ void DebugGenerator::Type_Info()
             IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, i->Name + "_NAME", 8) }, nullptr);
             Debug_Info.push_back(DW_AT_Name);
             //Some constant for encoding the inlisted type.
-            IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "62", 1) }, nullptr);
+            int Encoding = DW_ATE_signed;
+            if (i->Format == "decimal")
+                Encoding = DW_ATE_float;
+            else if (i->is("ptr") != -1)
+                Encoding = DW_ATE_address;
+            else if (i->Size == 1)
+                Encoding = DW_ATE_signed_char;
+            IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Encoding), 1) }, nullptr);
             Debug_Info.push_back(DW_AT_Encoding);
             //Size of the type
             IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr);
@@ -576,8 +587,8 @@ void DebugGenerator::Type_Info()
     //The name that is represented in a string at the data section.
     IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "func_NAME", 8) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);
-    //Some constant for encoding the inlisted type.
-    IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
+    //Some constant for encoding the inlisted type.int Encoding = DW_ATE_signed;
+    IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_ATE_signed), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Encoding);
     //Size of the type
     IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr);
@@ -592,7 +603,7 @@ void DebugGenerator::Type_Info()
     IR* Type_DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "type_NAME", 8) }, nullptr);
     Debug_Info.push_back(Type_DW_AT_Name);
     //Some constant for encoding the inlisted type.
-    IR* Type_DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
+    IR* Type_DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_ATE_signed), 1) }, nullptr);
     Debug_Info.push_back(Type_DW_AT_Encoding);
     //Size of the type
     IR* Type_DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr);
@@ -655,7 +666,7 @@ void DebugGenerator::Function_Info(Node* n, int i)
     IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);
     //The source file
-    IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i), 1) }, nullptr);
+    IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Decl_File);
     //The source line the function starts at.
     IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr);
@@ -671,9 +682,11 @@ void DebugGenerator::Function_Info(Node* n, int i)
         Local_Variable_Info(v);
     }
 
-    //End of the function
-    IR* End_Of_Children_Mark = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
-    Debug_Info.push_back(End_Of_Children_Mark);
+    if (n->Defined.size() > 0) {
+        //End of the function
+        IR* End_Of_Children_Mark = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
+        Debug_Info.push_back(End_Of_Children_Mark);
+    }
 }
 
 int DebugGenerator::Get_Index_From_File(string s)

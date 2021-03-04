@@ -3,63 +3,12 @@
 Code_Start:
 .global main
 .global Start_Test
-sum_START:
-sum:
-add ecx, 3
-mov eax, ecx
-ret 
-ret 
-sum_END:
-
-
 Start_Test_START:
 Start_Test:
-push rbx
-mov ebx, 3
-mov ecx, ebx
-call sum
-mov ecx, eax
-mov r8d, ecx
-mov eax, r8d
-mul ebx
-mov r8d, eax
-mov r8d, r8d
-mov r9d, r8d
-xor edx, edx
-mov eax, r9d
-div ecx
-mov r9d, eax
-mov r9d, r9d
-add r9d, ebx
-add r9d, ecx
-sub r9d, r8d
-mov eax, r9d
-pop rbx
+mov eax, -6
 ret 
-mov ecx, 1067030938
-movd xmm0, ecx
-movss xmm0, xmm0
-mov ecx, 1075000115
-movd xmm1, ecx
-movss xmm1, xmm1
-call Test_Fpu
-cvttss2si ecx, xmm0
-mov eax, ecx
-pop rbx
-ret 
-pop rbx
 ret 
 Start_Test_END:
-
-
-Test_Fpu_START:
-Test_Fpu:
-mov ecx, -1110651699
-movd xmm0, ecx
-movss xmm0, xmm0
-ret 
-ret 
-Test_Fpu_END:
 
 
 main_START:
@@ -147,3 +96,119 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 0
+.section .debug_info
+.long Debug_Info_End-Debug_Info_Start
+Debug_Info_Start:
+.word 4
+.long debug_abbrev
+.byte 8
+.byte 1
+.long .COMPILER_NAME
+.word 0x666
+.long .FILE_NAME
+.long .LINE_TABLE
+.long .DIRECTORY
+.quad Code_Start
+.long Code_End-Code_Start
+.byte 2
+.quad Start_Test_START
+.long Start_Test_END-Start_Test_START
+.byte 1
+.byte 87
+.long Start_Test_NAME
+.long Start_Test_NAME
+.byte 1
+.byte 7
+.long _int_START-Debug_Info_Start
+.byte 2
+.quad main_START
+.long main_END-main_START
+.byte 1
+.byte 87
+.long main_NAME
+.long main_NAME
+.byte 1
+.byte 23
+.long _int_START-Debug_Info_Start
+_int_START:
+.byte 4
+.quad int_NAME
+.byte 5
+.byte 4
+_short_START:
+.byte 4
+.quad short_NAME
+.byte 5
+.byte 2
+_char_START:
+.byte 4
+.quad char_NAME
+.byte 6
+.byte 1
+_float_START:
+.byte 4
+.quad float_NAME
+.byte 4
+.byte 4
+_double_START:
+.byte 4
+.quad double_NAME
+.byte 4
+.byte 8
+_long_START:
+.byte 4
+.quad long_NAME
+.byte 5
+.byte 8
+_string_START:
+.byte 4
+.quad string_NAME
+.byte 6
+.byte 1
+_func_START:
+.byte 4
+.quad func_NAME
+.byte 5
+.byte 0
+_type_START:
+.byte 4
+.quad type_NAME
+.byte 5
+.byte 0
+.byte 0
+Debug_Info_End:
+.section .debug_str
+.COMPILER_NAME:
+.asciz "Evie engine 3.0.0 https://github.com/Gabidal/Evie"
+.FILE_NAME:
+.asciz "Tests/IO/Math.e"
+.DIRECTORY:
+.asciz "Tests/IO/"
+int_NAME:
+.asciz "int"
+size_NAME:
+.asciz "size"
+short_NAME:
+.asciz "short"
+char_NAME:
+.asciz "char"
+float_NAME:
+.asciz "float"
+format_NAME:
+.asciz "format"
+double_NAME:
+.asciz "double"
+long_NAME:
+.asciz "long"
+string_NAME:
+.asciz "string"
+Start_Test_NAME:
+.asciz "Start_Test"
+main_NAME:
+.asciz "main"
+func_NAME:
+.asciz "func_NAME"
+type_NAME:
+.asciz "type_NAME"
+.section .LINE_TABLE
+.LINE_TABLE:
