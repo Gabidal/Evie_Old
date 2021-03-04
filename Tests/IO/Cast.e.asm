@@ -110,9 +110,8 @@ debug_abbrev:
 .byte 6
 .byte 64
 .byte 24
-.byte 110
-.byte 14
 .byte 3
+.byte 14
 .byte 58
 .byte 11
 .byte 59
@@ -154,14 +153,14 @@ debug_abbrev:
 .long Debug_Info_End-Debug_Info_Start
 Debug_Info_Start:
 .word 4
-.long debug_abbrev
+.secrel32 debug_abbrev
 .byte 8
 .byte 1
-.long .COMPILER_NAME
-.word 0x666
-.long .FILE_NAME
-.long .LINE_TABLE
-.long .DIRECTORY
+.secrel32 .COMPILER_NAME
+.word 666
+.secrel32 .FILE_NAME
+.secrel32 .LINE_TABLE
+.secrel32 .DIRECTORY
 .quad Code_Start
 .long Code_End-Code_Start
 .byte 2
@@ -169,16 +168,15 @@ Debug_Info_Start:
 .long test_all_format_casts_END-test_all_format_casts_START
 .byte 1
 .byte 87
-.long test_all_format_casts_NAME
-.long test_all_format_casts_NAME
-.byte 0
+.secrel32 test_all_format_casts_NAME
+.byte 1
 .byte 17
 .long _func_START-Debug_Info_Start
 .byte 3
 .byte 2
 .byte 145
 .byte 0
-.long i_NAME
+.secrel32 i_NAME
 .byte 1
 .byte 18
 .quad _int_START-Debug_Info_Start
@@ -186,7 +184,7 @@ Debug_Info_Start:
 .byte 2
 .byte 145
 .byte 0
-.long a_NAME
+.secrel32 a_NAME
 .byte 1
 .byte 20
 .quad _float_START-Debug_Info_Start
@@ -194,18 +192,44 @@ Debug_Info_Start:
 .byte 2
 .byte 145
 .byte 0
-.long b_NAME
+.secrel32 b_NAME
 .byte 1
 .byte 21
 .quad _double_START-Debug_Info_Start
 .byte 0
 .byte 2
+.quad Start_Test_START
+.long Start_Test_END-Start_Test_START
+.byte 1
+.byte 87
+.secrel32 Start_Test_NAME
+.byte 1
+.byte 30
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 2
+.byte 145
+.byte 0
+.secrel32 m_NAME
+.byte 1
+.byte 32
+.quad _Mid_START-Debug_Info_Start
+.byte 0
+.byte 2
+.quad main_START
+.long main_END-main_START
+.byte 1
+.byte 87
+.secrel32 main_NAME
+.byte 1
+.byte 36
+.long _int_START-Debug_Info_Start
+.byte 2
 .quad Base_START
 .long Base_END-Base_START
 .byte 1
 .byte 87
-.long Base_NAME
-.long Base_NAME
+.secrel32 Base_NAME
 .byte 1
 .byte 3
 .long _Base_START-Debug_Info_Start
@@ -213,7 +237,7 @@ Debug_Info_Start:
 .byte 2
 .byte 145
 .byte 0
-.long this_NAME
+.secrel32 this_NAME
 .byte 1
 .byte 3
 .quad _Base_START-Debug_Info_Start
@@ -223,59 +247,58 @@ Debug_Info_Start:
 .long Mid_END-Mid_START
 .byte 1
 .byte 87
-.long Mid_NAME
-.long Mid_NAME
-.byte 2
+.secrel32 Mid_NAME
+.byte 1
 .byte 7
 .long _Mid_START-Debug_Info_Start
 .byte 3
 .byte 2
 .byte 145
 .byte 0
-.long this_NAME
+.secrel32 this_NAME
 .byte 1
 .byte 7
 .quad _Mid_START-Debug_Info_Start
 .byte 0
 _int_START:
 .byte 4
-.quad int_NAME
-.byte 62
+.secrel32 int_NAME
+.byte 5
 .byte 4
 _short_START:
 .byte 4
-.quad short_NAME
-.byte 62
+.secrel32 short_NAME
+.byte 5
 .byte 2
 _char_START:
 .byte 4
-.quad char_NAME
-.byte 62
+.secrel32 char_NAME
+.byte 6
 .byte 1
 _float_START:
 .byte 4
-.quad float_NAME
-.byte 62
+.secrel32 float_NAME
+.byte 4
 .byte 4
 _double_START:
 .byte 4
-.quad double_NAME
-.byte 62
+.secrel32 double_NAME
+.byte 4
 .byte 8
 _long_START:
 .byte 4
-.quad long_NAME
-.byte 62
+.secrel32 long_NAME
+.byte 5
 .byte 8
 _string_START:
 .byte 4
-.quad string_NAME
-.byte 62
+.secrel32 string_NAME
+.byte 6
 .byte 1
 _Base_START:
 .byte 4
 .byte 1
-.long Base_NAME
+.secrel32 Base_NAME
 .byte 4
 .byte 1
 .byte 3
@@ -289,7 +312,7 @@ _Base_START:
 _Mid_START:
 .byte 4
 .byte 1
-.long Mid_NAME
+.secrel32 Mid_NAME
 .byte 8
 .byte 1
 .byte 7
@@ -310,7 +333,7 @@ _Mid_START:
 _Top_START:
 .byte 4
 .byte 1
-.long Top_NAME
+.secrel32 Top_NAME
 .byte 12
 .byte 1
 .byte 12
@@ -337,13 +360,13 @@ _Top_START:
 .byte 1
 _func_START:
 .byte 4
-.quad func_NAME
-.byte 1
+.secrel32 func_NAME
+.byte 5
 .byte 0
 _type_START:
 .byte 4
-.quad type_NAME
-.byte 1
+.secrel32 type_NAME
+.byte 5
 .byte 0
 .byte 0
 Debug_Info_End:
@@ -390,6 +413,12 @@ a_NAME:
 .asciz "a"
 b_NAME:
 .asciz "b"
+Start_Test_NAME:
+.asciz "Start_Test"
+m_NAME:
+.asciz "m"
+main_NAME:
+.asciz "main"
 this_NAME:
 .asciz "this"
 func_NAME:

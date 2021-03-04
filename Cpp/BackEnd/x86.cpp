@@ -836,6 +836,9 @@ void x86_64_Win::Init()
 	IR* DQ = new IR("init", new Token(TOKEN::SET_DATA, ".quad"), {
 		{{Data, {8, 8}}}
 		});
+	IR* SECREL32 = new IR("secrel32", new Token(TOKEN::SET_DATA, ".secrel32"), {
+		{{Data, {4, 8}}}
+	});
 
 
 	Opcodes = {
@@ -871,6 +874,7 @@ void x86_64_Win::Init()
 		DW,
 		DD,
 		DQ,
+		SECREL32,
 		ASCII,
 		MOVQ,
 		MOVD,

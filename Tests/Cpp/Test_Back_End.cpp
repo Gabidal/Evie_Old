@@ -28,6 +28,7 @@ int Back_End_Test::Run_Dll(string f) {
 		throw::runtime_error("INTERNAL ERROR!");
 
 	auto Func = (int(*)())GetProcAddress(Handle, "Start_Test");
+	//auto Func = (int(*)())GetProcAddress(Handle, "main");
 	if (Func == nullptr)
 		throw::runtime_error("INTERNAL ERROR!");
 
@@ -72,7 +73,7 @@ vector<Base*> Back_End_Test::Run(string File)
 	sys = nullptr;
 	selector = nullptr;
 
-	string output = File + ".asm";
+	string output = File +".asm";
 	const char** argv; 
 	int argc;
 	string Use_Debug = "-d";
@@ -88,6 +89,7 @@ vector<Base*> Back_End_Test::Run(string File)
 	}
 	
 	Build(argc, argv);
+
 	return { new Numeric_Info{Run_Dll(output + ".dll")} };
 }
 
@@ -170,6 +172,7 @@ void Back_End_Test::Init()
 {
 	//what we expect the function to return, file name
 	Tests = {
+		//{{1}, "Tests/IO/main"},
 		{{-6}, "Tests/IO/Math.e"},
 		{{2}, "Tests/IO/Cast.e"},
 		{{10}, "Tests/IO/Ptr.e"},

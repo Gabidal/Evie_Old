@@ -124,14 +124,15 @@ void DebugGenerator::Construct_Debug_Abbrev()
     IR* DW_FORM_Exprloc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "24", 1) }, nullptr);
     Debug_Abbrev.push_back(DW_FORM_Exprloc);
     //DW_AT_linkage_name
-    IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "110", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Linkage_Name);
+    //IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "110", 1) }, nullptr);
+    //Debug_Abbrev.push_back(DW_AT_Linkage_Name);
+
+    //Debugging information entry representing a program entity that has been given a name.
+    DW_AT_Name;
+    Debug_Abbrev.push_back(DW_AT_Name);    
     //Attribute values of class
     DW_FORM_Strp;
     Debug_Abbrev.push_back(DW_FORM_Strp);
-    //Debugging information entry representing a program entity that has been given a name.
-    DW_AT_Name;
-    Debug_Abbrev.push_back(DW_AT_Name);
     //Any debugging information entry representing the declaration of an object, module, subprogram or type.
     IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "58", 1) }, nullptr);
     Debug_Abbrev.push_back(DW_AT_Decl_File);
@@ -263,7 +264,7 @@ void DebugGenerator::Construct_Debug_Info()
     IR* DWARF_Version_Number = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "4", 2) }, nullptr);
     Debug_Info.push_back(DWARF_Version_Number);
     //Offset Into Abbrev. Section
-    IR* Offset_Into_Abbrev_Section = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "debug_abbrev", 4) }, nullptr);
+    IR* Offset_Into_Abbrev_Section = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, "debug_abbrev", 4) }, nullptr);
     Debug_Info.push_back(Offset_Into_Abbrev_Section);
     //Bits size 8 == 64
     IR* Address_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "8", 1) }, nullptr);
@@ -272,19 +273,19 @@ void DebugGenerator::Construct_Debug_Info()
     IR* DW_TAG_Compile_Unit = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
     Debug_Info.push_back(DW_TAG_Compile_Unit);
     //Containing information about the compiler that produced the compilation unit.
-    IR* COMPILER = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, ".COMPILER_NAME", 4) }, nullptr);
+    IR* COMPILER = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, ".COMPILER_NAME", 4) }, nullptr);
     Debug_Info.push_back(COMPILER);
     //Indicating the source language used to define the type. 
-    IR* DW_AT_Language = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0x666", 2) }, nullptr);
+    IR* DW_AT_Language = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "666", 2) }, nullptr);
     Debug_Info.push_back(DW_AT_Language);
     //Debugging information entry representing a program entity that has been given a name.
-    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, ".FILE_NAME", 4) }, nullptr);
+    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, ".FILE_NAME", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);
     //Attribute whose value is a section offset to the line number information for this compilation unit.
-    IR* DW_AT_Stmt_List = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, ".LINE_TABLE", 4) }, nullptr);
+    IR* DW_AT_Stmt_List = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, ".LINE_TABLE", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_Stmt_List);
     //Containing the current working directory of the compilation command that produced this compilation unit in whatever form makes sense for the host system.
-    IR* DW_AT_Comp_Dir = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, ".DIRECTORY", 4) }, nullptr);
+    IR* DW_AT_Comp_Dir = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, ".DIRECTORY", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_Comp_Dir);
     //Start of the all asm code
     IR* DW_AT_Low_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Code_Start", 8) }, nullptr);
@@ -474,7 +475,7 @@ void DebugGenerator::Local_Variable_Info(Node* n)
     IR* DW_AT_Location_Offset = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Location_Offset);
     //The variable name as a string in data section
-    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
+    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);
     //The file that the variable is described.
     IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr);
@@ -501,7 +502,7 @@ void DebugGenerator::Type_Info()
             IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
             Debug_Info.push_back(Abrrovation);
             //The name that is represented in a string at the data section.
-            IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, i->Name + "_NAME", 8) }, nullptr);
+            IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, i->Name + "_NAME", 8) }, nullptr);
             Debug_Info.push_back(DW_AT_Name);
             //Some constant for encoding the inlisted type.
             int Encoding = DW_ATE_signed;
@@ -529,7 +530,7 @@ void DebugGenerator::Type_Info()
             IR* DW_AT_Calling_Convention = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
             Debug_Info.push_back(DW_AT_Calling_Convention);
             //the name of this class
-            IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, i->Name + "_NAME", 4) }, nullptr);
+            IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, i->Name + "_NAME", 4) }, nullptr);
             Debug_Info.push_back(DW_AT_Name);
             //the size of this class
             IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr);
@@ -585,7 +586,7 @@ void DebugGenerator::Type_Info()
     IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
     Debug_Info.push_back(Abrrovation);
     //The name that is represented in a string at the data section.
-    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "func_NAME", 8) }, nullptr);
+    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, "func_NAME", 8) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);
     //Some constant for encoding the inlisted type.int Encoding = DW_ATE_signed;
     IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_ATE_signed), 1) }, nullptr);
@@ -600,7 +601,7 @@ void DebugGenerator::Type_Info()
     IR* Type_Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
     Debug_Info.push_back(Type_Abrrovation);
     //The name that is represented in a string at the data section.
-    IR* Type_DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "type_NAME", 8) }, nullptr);
+    IR* Type_DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, "type_NAME", 8) }, nullptr);
     Debug_Info.push_back(Type_DW_AT_Name);
     //Some constant for encoding the inlisted type.
     IR* Type_DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_ATE_signed), 1) }, nullptr);
@@ -660,10 +661,10 @@ void DebugGenerator::Function_Info(Node* n, int i)
     IR* DW_AT_Frame_Base_1 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(selector->STACK_REPRESENTIVE_REGISTER), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Frame_Base_1);
     //Points into a string in data section which has the function name
-    IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
-    Debug_Info.push_back(DW_AT_Linkage_Name);
+    //IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
+    //Debug_Info.push_back(DW_AT_Linkage_Name);
     //Points into a string in data section which has the function name
-    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
+    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_Name);
     //The source file
     IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr);
