@@ -1,43 +1,63 @@
 .intel_syntax noprefix
-.section .text
-Code_Start:
-.global Start_Test
-.global main
-main_START:
-main:
-call Start_Test
-mov eax, 1
-ret 
-ret 
-main_END:
-
-
-foo_START:
-foo:
-mov eax, 5
-ret 
-ret 
-foo_END:
-
-
-Start_Test_START:
-Start_Test:
-lea rcx, qword ptr [foo ]
-mov rcx, rcx
-call rcx
-mov eax, eax
-ret 
-ret 
-Start_Test_END:
-
-
-Code_End:
 .file 1 "Tests/IO/Func.e"
 .file 2 "../../IO/cstd.e"
 .file 3 "sys.e"
 .file 4 "win32.asm.obj"
 .file 5 "asm.h"
 .file 6 "win32.asm"
+.section .text
+Code_Start:
+.global Start_Test
+.global main
+main_START:
+.loc 1 4 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+main:
+.loc 1 5 2
+call Start_Test
+.loc 1 6 2
+mov eax, 1
+ret 
+.loc 1 4 1
+ret 
+main_END:
+
+
+.cfi_endproc 
+foo_START:
+.loc 1 9 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+foo:
+.loc 1 10 2
+mov eax, 5
+ret 
+.loc 1 9 1
+ret 
+foo_END:
+
+
+.cfi_endproc 
+Start_Test_START:
+.loc 1 13 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+Start_Test:
+.loc 1 14 14
+lea rcx, qword ptr [foo ]
+mov rcx, rcx
+.loc 1 15 9
+call rcx
+mov eax, eax
+ret 
+.loc 1 13 1
+ret 
+Start_Test_END:
+
+
+.cfi_endproc 
+Code_End:
 .section .debug_abbrev
 debug_abbrev:
 .byte 1

@@ -34,6 +34,8 @@ public:
 	void Type_Info();
 
 	void Insert_Start_End_Labels(vector<IR*>& input);
+	void Insert_Line_Change_Information(vector<IR*>& input);
+	void Insert_Stack_Info(vector<IR*> &Input);
 private:
 	vector<IR*> Debug_Abbrev;	//describes all needed debug information about the debuggable code.
 	vector<IR*> Debug_Info;		//lists all needed degub information about the debuggable code.

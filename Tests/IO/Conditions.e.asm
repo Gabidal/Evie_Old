@@ -1,10 +1,20 @@
 .intel_syntax noprefix
+.file 1 "Tests/IO/Conditions.e"
+.file 2 "../../IO/cstd.e"
+.file 3 "sys.e"
+.file 4 "win32.asm.obj"
+.file 5 "asm.h"
+.file 6 "win32.asm"
 .section .text
 Code_Start:
 .global main
 .global Start_Test
 Start_Test_START:
+.loc 1 3 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 Start_Test:
+.loc 1 5 10
 mov ecx, 0
 cmp ecx, 100
 jge while0_END
@@ -15,24 +25,35 @@ cmp ecx, 100
 jge while0_END
 jmp while0
 while0_END:
+.loc 1 8 2
 if1:
 cmp ecx, 100
 jne if1_END
+.loc 1 9 5
 mov ecx, 10
+.loc 1 8 2
 if1_END:
+.loc 1 11 2
 if2:
 cmp ecx, 100
 jne else3
+.loc 1 12 5
 mov ecx, 100
 jmp else3_END
+.loc 1 11 2
 if2_END:
+.loc 1 14 2
 else3:
 cmp ecx, 10
 jne else3_END
+.loc 1 15 5
 mov ecx, 100
+.loc 1 14 2
 else3_END:
+.loc 1 17 2
 mov eax, ecx
 ret 
+.loc 1 19 10
 mov ecx, 1
 cmp ecx, 2
 jge while4_END
@@ -42,27 +63,30 @@ cmp ecx, 2
 jge while4_END
 jmp while4
 while4_END:
+.loc 1 20 2
 mov eax, 0
 ret 
+.loc 1 3 1
 ret 
 Start_Test_END:
 
 
+.cfi_endproc 
 main_START:
+.loc 1 23 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 main:
+.loc 1 24 2
 mov eax, 1
 ret 
+.loc 1 23 1
 ret 
 main_END:
 
 
+.cfi_endproc 
 Code_End:
-.file 1 "Tests/IO/Conditions.e"
-.file 2 "../../IO/cstd.e"
-.file 3 "sys.e"
-.file 4 "win32.asm.obj"
-.file 5 "asm.h"
-.file 6 "win32.asm"
 .section .debug_abbrev
 debug_abbrev:
 .byte 1

@@ -12,15 +12,17 @@ constexpr int DW_ATE_signed_char = 0x06;
 
 DebugGenerator::DebugGenerator(vector<IR*> &Input)
 {
-    Insert_Start_End_Labels(Input);
-
     Define_File_Index();
+    Insert_Start_End_Labels(Input);
+    Insert_Line_Change_Information(Input);
+    Insert_Stack_Info(Input);
+
     Construct_Debug_Abbrev();
     Construct_Debug_Info();
     Construct_Debug_String();
     Construct_Line_Table();
 
-    DOCKER::Append(Input, File_Index);
+    DOCKER::Append(Input, File_Index, 0);
     DOCKER::Append(Input, Debug_Abbrev);
     DOCKER::Append(Input, Debug_Info);
     DOCKER::Append(Input, Debug_Str);
@@ -636,6 +638,38 @@ void DebugGenerator::Insert_Start_End_Labels(vector<IR*>& input)
         else if (input[i]->is(TOKEN::END_OF_FUNCTION)) {
             input.insert(input.begin() + i, new IR(new Token(TOKEN::LABEL, input[i]->OPCODE->Get_Name() + "_END"), {}, nullptr));
             i++;
+        }
+    }
+}
+
+void DebugGenerator::Insert_Line_Change_Information(vector<IR*>& input)
+{
+    int Current_Line = 0;
+    for (int i = 0; i < input.size(); i++)
+        if (input[i]->Location == nullptr)
+            continue;
+        else if (input[i]->Location->GetFriendlyLine() != Current_Line) {
+            Current_Line = input[i]->Location->GetFriendlyLine();
+
+            string Locatoin = to_string(Get_Index_From_File(input[i]->Location->GetFilePath())) + " " + to_string(Current_Line) + " " + to_string(input[i]->Location->GetFriendlyCharacter());
+            input.insert(input.begin() + i, new IR(new Token(TOKEN::SET_DATA, "location"), { new Token(TOKEN::LABEL, Locatoin) }, input[i]->Location));
+        }
+
+}
+
+void DebugGenerator::Insert_Stack_Info(vector<IR*> &Input)
+{
+    for (int i = 0; i < Input.size(); i++) {
+        if (Input[i]->is(TOKEN::START_OF_FUNCTION)) {
+            //cfi_startproc
+            Input.insert(Input.begin() + i + 1, new IR(new Token(TOKEN::SET_DATA, "cfi_start"), {}, nullptr));
+            //.cfi_def_cfa_offset 16
+            Input.insert(Input.begin() + i + 2, new IR(new Token(TOKEN::SET_DATA, "cfi_offset"), {new Token(TOKEN::NUM, "16")}, nullptr));
+
+        }
+        else if (Input[i]->is(TOKEN::END_OF_FUNCTION)) {
+            //cfi_endproc
+            Input.insert(Input.begin() + i + 1, new IR(new Token(TOKEN::SET_DATA, "cfi_end"), {}, nullptr));
         }
     }
 }

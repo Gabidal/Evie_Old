@@ -1,18 +1,32 @@
 .intel_syntax noprefix
+.file 1 "Tests/IO/Type.e"
+.file 2 "../../IO/cstd.e"
+.file 3 "sys.e"
+.file 4 "win32.asm.obj"
+.file 5 "asm.h"
+.file 6 "win32.asm"
 .section .text
 Code_Start:
 .global main
 .global Start_Test
 Banana_START:
+.loc 1 11 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 Banana:
 push rbx
 mov rbx, rcx
 mov rcx, rbx
 call Fruit
+.loc 1 12 12
 mov dword ptr [rbx + 4 ], 1
+.loc 1 13 14
 mov dword ptr [rbx + 8 ], 2
+.loc 1 14 11
 mov dword ptr [rbx + 12 ], 6
+.loc 1 15 7
 mov dword ptr [rbx + 0 ], 5
+.loc 1 11 1
 mov rax, rbx
 pop rbx
 ret 
@@ -21,63 +35,89 @@ ret
 Banana_END:
 
 
+.cfi_endproc 
 Fruit_START:
+.loc 1 7 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 Fruit:
+.loc 1 8 12
 mov dword ptr [rcx + 0 ], 4
+.loc 1 7 1
 ret 
 Fruit_END:
 
 
+.cfi_endproc 
 Get_Sugar_START:
+.loc 1 18 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 Get_Sugar:
+.loc 1 19 2
 mov eax, dword ptr [rcx + 4 ]
 ret 
+.loc 1 18 1
 ret 
 Get_Sugar_END:
 
 
+.cfi_endproc 
 is_Banana_START:
+.loc 1 22 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 is_Banana:
+.loc 1 23 9
 mov rcx, rcx
 call Get_Sugar
 mov eax, eax
 ret 
+.loc 1 22 1
 ret 
 is_Banana_END:
 
 
+.cfi_endproc 
 Start_Test_START:
+.loc 1 26 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 Start_Test:
 sub rsp, 16
 lea rcx, qword ptr [rsp ]
+.loc 1 27 11
 mov rcx, rcx
 call Banana
 lea rcx, qword ptr [rsp ]
+.loc 1 28 9
 mov rcx, rcx
 call is_Banana
 mov eax, eax
 add rsp, 16
 ret 
 add rsp, 16
+.loc 1 26 1
 ret 
 Start_Test_END:
 
 
+.cfi_endproc 
 main_START:
+.loc 1 31 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 main:
+.loc 1 32 2
 mov eax, 1
 ret 
+.loc 1 31 1
 ret 
 main_END:
 
 
+.cfi_endproc 
 Code_End:
-.file 1 "Tests/IO/Type.e"
-.file 2 "../../IO/cstd.e"
-.file 3 "sys.e"
-.file 4 "win32.asm.obj"
-.file 5 "asm.h"
-.file 6 "win32.asm"
 .section .debug_abbrev
 debug_abbrev:
 .byte 1

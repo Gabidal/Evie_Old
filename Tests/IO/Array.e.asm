@@ -1,45 +1,61 @@
 .intel_syntax noprefix
-.section .text
-Code_Start:
-.global main
-.global Start_Test
-Start_Test_START:
-Start_Test:
-sub rsp, 8
-mov ecx, 40
-call _Z8allocatei
-mov qword ptr [rsp ], rax
-lea rcx, qword ptr [rsp ]
-mov rcx, rcx
-mov r8, qword ptr [rcx + 0 * 8 ]
-lea r8, qword ptr [r8 + 1 * 4 ]
-mov dword ptr [r8 ], 1
-mov rcx, qword ptr [rcx + 0 * 8 ]
-mov ecx, dword ptr [rcx + 1 * 4 ]
-mov ecx, ecx
-mov eax, ecx
-add rsp, 8
-ret 
-add rsp, 8
-ret 
-Start_Test_END:
-
-
-main_START:
-main:
-mov eax, 1
-ret 
-ret 
-main_END:
-
-
-Code_End:
 .file 1 "Tests/IO/Array.e"
 .file 2 "../../IO/cstd.e"
 .file 3 "sys.e"
 .file 4 "win32.asm.obj"
 .file 5 "asm.h"
 .file 6 "win32.asm"
+.section .text
+Code_Start:
+.global main
+.global Start_Test
+Start_Test_START:
+.loc 1 3 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+Start_Test:
+sub rsp, 8
+.loc 1 4 14
+mov ecx, 40
+call _Z8allocatei
+mov qword ptr [rsp ], rax
+.loc 1 5 16
+lea rcx, qword ptr [rsp ]
+mov rcx, rcx
+.loc 1 6 2
+mov r8, qword ptr [rcx + 0 * 8 ]
+lea r8, qword ptr [r8 + 1 * 4 ]
+mov dword ptr [r8 ], 1
+.loc 1 7 10
+mov rcx, qword ptr [rcx + 0 * 8 ]
+mov ecx, dword ptr [rcx + 1 * 4 ]
+mov ecx, ecx
+.loc 1 8 2
+mov eax, ecx
+add rsp, 8
+ret 
+add rsp, 8
+.loc 1 3 1
+ret 
+Start_Test_END:
+
+
+.cfi_endproc 
+main_START:
+.loc 1 11 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+main:
+.loc 1 12 2
+mov eax, 1
+ret 
+.loc 1 11 1
+ret 
+main_END:
+
+
+.cfi_endproc 
+Code_End:
 .section .debug_abbrev
 debug_abbrev:
 .byte 1

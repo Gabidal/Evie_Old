@@ -839,6 +839,14 @@ void x86_64_Win::Init()
 	IR* SECREL32 = new IR("secrel32", new Token(TOKEN::SET_DATA, ".secrel32"), {
 		{{Data, {4, 8}}}
 	});
+	IR* LOCATOIN = new IR("location", new Token(TOKEN::SET_DATA, ".loc"), {
+		{{Data, {0, 0}}}
+	});
+	IR* CFI_START = new IR("cfi_start", new Token(TOKEN::SET_DATA, ".cfi_startproc"), {});
+	IR* CFI_END = new IR("cfi_end", new Token(TOKEN::SET_DATA, ".cfi_endproc"), {});
+	IR* CFI_OFFSET = new IR("cfi_offset", new Token(TOKEN::SET_DATA, ".cfi_def_cfa_offset"), {
+		{{Data, {0, 4}}}
+	});
 
 
 	Opcodes = {
@@ -875,6 +883,10 @@ void x86_64_Win::Init()
 		DD,
 		DQ,
 		SECREL32,
+		LOCATOIN,
+		CFI_START,
+		CFI_END,
+		CFI_OFFSET,
 		ASCII,
 		MOVQ,
 		MOVD,

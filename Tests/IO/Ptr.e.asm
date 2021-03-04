@@ -1,27 +1,44 @@
 .intel_syntax noprefix
+.file 1 "Tests/IO/Ptr.e"
+.file 2 "../../IO/cstd.e"
+.file 3 "sys.e"
+.file 4 "win32.asm.obj"
+.file 5 "asm.h"
+.file 6 "win32.asm"
 .section .text
 Code_Start:
 .global main
 .global Start_Test
 Start_Test_START:
+.loc 1 5 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 Start_Test:
 sub rsp, 44
+.loc 1 6 10
 mov dword ptr [rsp ], 10
+.loc 1 7 12
 lea rcx, qword ptr [rsp ]
 mov qword ptr [rsp + 4 ], rcx
+.loc 1 8 16
 lea rcx, qword ptr [rsp + 4 ]
 mov qword ptr [rsp + 12 ], rcx
 mov rcx, qword ptr [rsp + 4 ]
 mov ecx, dword ptr [rcx ]
+.loc 1 9 2
 mov eax, ecx
 add rsp, 44
 ret 
+.loc 1 11 20
 lea rcx, qword ptr [rsp + 12 ]
 mov qword ptr [rsp + 20 ], rcx
+.loc 1 12 24
 lea rcx, qword ptr [rsp + 20 ]
 mov qword ptr [rsp + 28 ], rcx
+.loc 1 13 28
 lea rcx, qword ptr [rsp + 28 ]
 mov qword ptr [rsp + 36 ], rcx
+.loc 1 14 32
 lea rcx, qword ptr [rsp + 36 ]
 mov rcx, rcx
 mov rcx, qword ptr [rcx ]
@@ -30,41 +47,49 @@ mov rcx, qword ptr [rcx ]
 mov rcx, qword ptr [rcx ]
 mov rcx, qword ptr [rcx ]
 mov ecx, dword ptr [rcx ]
+.loc 1 15 2
 mov eax, ecx
 add rsp, 44
 ret 
+.loc 1 17 34
 mov rcx, 123
 mov ecx, dword ptr [rcx ]
+.loc 1 18 2
 mov eax, ecx
 add rsp, 44
 ret 
+.loc 1 20 34
 mov rcx, 1234
 mov rcx, qword ptr [rcx ]
 mov ecx, dword ptr [rcx ]
+.loc 1 21 2
 mov eax, ecx
 add rsp, 44
 ret 
 add rsp, 44
+.loc 1 5 1
 ret 
 Start_Test_END:
 
 
+.cfi_endproc 
 main_START:
+.loc 1 24 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
 main:
+.loc 1 25 2
 call Start_Test
+.loc 1 26 2
 mov eax, 1
 ret 
+.loc 1 24 1
 ret 
 main_END:
 
 
+.cfi_endproc 
 Code_End:
-.file 1 "Tests/IO/Ptr.e"
-.file 2 "../../IO/cstd.e"
-.file 3 "sys.e"
-.file 4 "win32.asm.obj"
-.file 5 "asm.h"
-.file 6 "win32.asm"
 .section .debug_abbrev
 debug_abbrev:
 .byte 1

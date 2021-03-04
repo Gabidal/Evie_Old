@@ -1,31 +1,43 @@
 .intel_syntax noprefix
-.section .text
-Code_Start:
-.global main
-.global Start_Test
-Start_Test_START:
-Start_Test:
-mov eax, -6
-ret 
-ret 
-Start_Test_END:
-
-
-main_START:
-main:
-mov eax, 1
-ret 
-ret 
-main_END:
-
-
-Code_End:
 .file 1 "Tests/IO/Math.e"
 .file 2 "../../IO/cstd.e"
 .file 3 "sys.e"
 .file 4 "win32.asm.obj"
 .file 5 "asm.h"
 .file 6 "win32.asm"
+.section .text
+Code_Start:
+.global main
+.global Start_Test
+Start_Test_START:
+.loc 1 7 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+Start_Test:
+.loc 1 16 2
+mov eax, -6
+ret 
+.loc 1 7 1
+ret 
+Start_Test_END:
+
+
+.cfi_endproc 
+main_START:
+.loc 1 23 1
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+main:
+.loc 1 24 2
+mov eax, 1
+ret 
+.loc 1 23 1
+ret 
+main_END:
+
+
+.cfi_endproc 
+Code_End:
 .section .debug_abbrev
 debug_abbrev:
 .byte 1
