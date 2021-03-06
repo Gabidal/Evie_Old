@@ -1,10 +1,175 @@
 #include "../../H/BackEnd/DebugGenerator.h"
 
+namespace DW_TAG {
+    constexpr int Namelist = 0x2b;
+    constexpr int Namelist_item = 0x2c;
+    constexpr int Packed_type = 0x2d;
+    constexpr int Subprogram = 0x2e;
+    constexpr int Template_type_parameter = 0x2f;
+    constexpr int Template_value_parameter = 0x30;
+    constexpr int Thrown_type = 0x31;
+    constexpr int Try_block = 0x32;
+    constexpr int Variant_part = 0x33;
+    constexpr int Variable = 0x34;
+    constexpr int Volatile_type = 0x35;
+    constexpr int Dwarf_procedure = 0x36;
+    constexpr int Restrict_type = 0x37;
+    constexpr int Interface_type = 0x38;
+    constexpr int Namespace = 0x39;
+    constexpr int Imported_module = 0x3a;
+    constexpr int Unspecified_type = 0x3b;
+    constexpr int Partial_unit = 0x3c;
+    constexpr int Imported_unit = 0x3d;
+    constexpr int Condition = 0x3f;
+    constexpr int Union_type = 0x17;
+    constexpr int Unspecified_parameters = 0x18;
+    constexpr int Variant = 0x19;
+    constexpr int Common_block = 0x1a;
+    constexpr int Common_inclusion = 0x1b;
+    constexpr int Inheritance = 0x1c;
+    constexpr int Inlined_subroutine = 0x1d;
+    constexpr int Module = 0x1e;
+    constexpr int Ptr_to_member_type = 0x1f;
+    constexpr int Set_type = 0x20;
+    constexpr int Subrange_type = 0x21;
+    constexpr int With_stmt = 0x22;
+    constexpr int Access_declaration = 0x23;
+    constexpr int Base_type = 0x24;
+    constexpr int Catch_block = 0x25;
+    constexpr int Const_type = 0x26;
+    constexpr int Constant = 0x27;
+    constexpr int Enumerator = 0x28;
+    constexpr int File_type = 0x29;
+    constexpr int Friend = 0x2a;
+    constexpr int Array_type = 0x01;
+    constexpr int Class_type = 0x02;
+    constexpr int Entry_point = 0x03;
+    constexpr int Enumeration_type = 0x04;
+    constexpr int Formal_parameter = 0x05;
+    constexpr int Imported_declaration = 0x08;
+    constexpr int Label = 0x0a;
+    constexpr int Lexical_block = 0x0b;
+    constexpr int Member = 0x0d;
+    constexpr int Pointer_type = 0x0f;
+    constexpr int Reference_type = 0x10;
+    constexpr int Compile_unit = 0x11;
+    constexpr int String_type = 0x12;
+    constexpr int Structure_type = 0x13;
+    constexpr int Subroutine_type = 0x15;
+    constexpr int Typedef = 0x16;
+}
 
-long long Function_Abbrovation_Count = 2;
-constexpr long long Local_Variable_Abbrovation = 3;
-long long Type_Abbrovation = 4;
-long long Member_Abbrovation = 5;
+namespace DW_CHILDREN {
+    int No = 0x00;
+    int Yes = 0x01;
+}
+
+namespace DW_AT {
+    constexpr int Sibling = 0x01;
+    constexpr int Location = 0x02;
+    constexpr int Name = 0x03;
+    constexpr int Ordering = 0x09;
+    constexpr int Byte_size = 0x0b;
+    constexpr int Bit_offset = 0x0c;
+    constexpr int Bit_size = 0x0d;
+    constexpr int Stmt_list = 0x10;
+    constexpr int Low_pc = 0x11;
+    constexpr int High_pc = 0x12;
+    constexpr int Language = 0x13;
+    constexpr int Discr = 0x15;
+    constexpr int Discr_value = 0x16;
+    constexpr int Visibility = 0x17;
+    constexpr int Import = 0x18;
+    constexpr int String_length = 0x19;
+    constexpr int Common_reference = 0x1a;
+    constexpr int Comp_dir = 0x1b;
+    constexpr int Const_value = 0x1c;
+    constexpr int Threads_scaled = 0x62;
+    constexpr int Explicit = 0x63;
+    constexpr int Object_pointer = 0x64;
+    constexpr int Endianity = 0x65;
+    constexpr int Elemental = 0x66;
+    constexpr int Pure = 0x67;
+    constexpr int Recursive = 0x68;
+    constexpr int Signature = 0x69;
+    constexpr int Main_subprogram = 0x6a;
+    constexpr int Data_bit_offset = 0x6b;
+    constexpr int Const_expr = 0x6c;
+    constexpr int Enum_class = 0x6d;
+    constexpr int Linkage_name = 0x6e;
+    constexpr int Lo_user = 0x2000;
+    constexpr int Hi_user = 0x3fff;
+    constexpr int Decl_file = 0x3a;
+    constexpr int Decl_line = 0x3b;
+    constexpr int Declaration = 0x3c;
+    constexpr int Discr_list = 0x3d;
+    constexpr int Encoding = 0x3e;
+    constexpr int External = 0x3f;
+    constexpr int Frame_base = 0x40;
+    constexpr int Friend = 0x41;
+    constexpr int Identifier_case = 0x42;
+    constexpr int Macro_info = 0x43;
+    constexpr int Namelist_item = 0x44;
+    constexpr int Priority = 0x45;
+    constexpr int Segment = 0x46;
+    constexpr int Specification = 0x47;
+    constexpr int Static_link = 0x48;
+    constexpr int Type = 0x49;
+    constexpr int Use_location = 0x4a;
+    constexpr int Variable_parameter = 0x4b;
+    constexpr int Virtuality = 0x4c;
+    constexpr int Vtable_elem_location = 0x4d;
+    constexpr int Containing_type = 0x1d;
+    constexpr int Default_value = 0x1e;
+    constexpr int Inline = 0x20;
+    constexpr int Is_optional = 0x21;
+    constexpr int Lower_bound = 0x22;
+    constexpr int Producer = 0x25;
+    constexpr int Prototyped = 0x27;
+    constexpr int Return_addr = 0x2a;
+    constexpr int Start_scope = 0x2c;
+    constexpr int Bit_stride = 0x2e;
+    constexpr int Upper_bound = 0x2f;
+    constexpr int Abstract_origin = 0x31;
+    constexpr int Accessibility = 0x32;
+    constexpr int Address_class = 0x33;
+    constexpr int Artificial = 0x34;
+    constexpr int Base_types = 0x35;
+    constexpr int Calling_convention = 0x36;
+    constexpr int Count = 0x37;
+    constexpr int Data_member_location = 0x38;
+    constexpr int Decl_column = 0x39;
+
+}
+
+namespace DW_FORM {
+    constexpr int Addr = 0x01;
+    constexpr int Block2 = 0x03;
+    constexpr int Block4 = 0x04;
+    constexpr int Data2 = 0x05;
+    constexpr int Data4 = 0x06;
+    constexpr int Data8 = 0x07;
+    constexpr int String = 0x08;
+    constexpr int Block = 0x09;
+    constexpr int Block1 = 0x0a;
+    constexpr int Data1 = 0x0b;
+    constexpr int Flag = 0x0c;
+    constexpr int Sdata = 0x0d;
+    constexpr int Strp = 0x0e;
+    constexpr int Udata = 0x0f;
+    constexpr int Ref_addr = 0x10;
+    constexpr int Ref1 = 0x11;
+    constexpr int Ref2 = 0x12;
+    constexpr int Ref4 = 0x13;
+    constexpr int Ref8 = 0x14;
+    constexpr int Ref_udata = 0x15;
+    constexpr int Indirect = 0x16;
+    constexpr int Sec_offset = 0x17;
+    constexpr int Exprloc = 0x18;
+    constexpr int Flag_present = 0x19;
+    constexpr int Ref_sig8 = 0x20;
+}
+
 constexpr int DW_ATE_address = 0x01;
 constexpr int DW_ATE_float = 0x04;
 constexpr int DW_ATE_signed = 0x05;
@@ -98,7 +263,7 @@ void DebugGenerator::Construct_Debug_Abbrev()
     //End of marker
     EOM;
     Debug_Abbrev.push_back(EOM);
-    //Abbreviation Code describes the current section as an index
+    /*//Abbreviation Code describes the current section as an index
     IR* Abbreviation_Code_Describing_Index_1 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "2", 1) }, nullptr);
     Debug_Abbrev.push_back(Abbreviation_Code_Describing_Index_1);
     //A template instantiation is represented by a debugging information entry with the tag.
@@ -246,7 +411,15 @@ void DebugGenerator::Construct_Debug_Abbrev()
     //End of marker
     EOM;
     Debug_Abbrev.push_back(EOM);
+    */
 
+    for (auto i : Global_Scope->Defined) {
+        Generate_Abbrev(Abbrev_Type(i));
+        for (auto j : i->Defined)
+            Generate_Abbrev(Abbrev_Type(j));
+    }
+    EOM;
+    Debug_Abbrev.push_back(EOM);
 }
 
 void DebugGenerator::Construct_Debug_Info()
@@ -278,7 +451,7 @@ void DebugGenerator::Construct_Debug_Info()
     IR* COMPILER = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, ".COMPILER_NAME", 4) }, nullptr);
     Debug_Info.push_back(COMPILER);
     //Indicating the source language used to define the type. 
-    IR* DW_AT_Language = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "666", 2) }, nullptr);
+    IR* DW_AT_Language = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0x29A", 2) }, nullptr);
     Debug_Info.push_back(DW_AT_Language);
     //Debugging information entry representing a program entity that has been given a name.
     IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, ".FILE_NAME", 4) }, nullptr);
@@ -465,7 +638,7 @@ void DebugGenerator::Define_File_Index()
 void DebugGenerator::Local_Variable_Info(Node* n)
 {
     //Abrevation tag name, i have decided that this can be a constant
-    IR* Abbrevation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Local_Variable_Abbrovation), 1) }, nullptr);
+    IR* Abbrevation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr);
     Debug_Info.push_back(Abbrevation);
     // describes the location of a variable or parameter at run - time
     IR* DW_AT_Location = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "2", 1) }, nullptr);
@@ -486,22 +659,24 @@ void DebugGenerator::Local_Variable_Info(Node* n)
     IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Decl_Line);
     //The inheritance type 
-    string Inheritted = n->Get_Inheritted("_", true, false, true);
-    if (Inheritted == "")
-        Inheritted = n->Get_Inheritted("_", true, false, false);
-    IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr);
-    Debug_Info.push_back(DW_AT_Type);
+    if (Abbrev_Type(n).TYPE) {
+        string Inheritted = n->Get_Inheritted("_", true, false, true);
+        if (Inheritted == "")
+            Inheritted = n->Get_Inheritted("_", true, false, false);
+        IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr);
+        Debug_Info.push_back(DW_AT_Type);
+    }
 }
 
 void DebugGenerator::Type_Info()
 {
     for (auto i : Global_Scope->Defined)
-        if (i->is(CLASS_NODE) && ((i->Defined.size() == 1 && i->Defined[0]->is("const") != -1) || (i->Defined.size() == 2 && i->Defined[0]->is("const") != -1 && i->Defined[0]->is("const") != -1))) {
+        if (i->is(CLASS_NODE) && MANGLER::Is_Base_Type(i)) {
             //the label that others can reference to.
             IR* LINK = new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr);
             Debug_Info.push_back(LINK);
             //the code that indicates that this is the type abbrovation.
-            IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
+            IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr);
             Debug_Info.push_back(Abrrovation);
             //The name that is represented in a string at the data section.
             IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, i->Name + "_NAME", 8) }, nullptr);
@@ -521,12 +696,10 @@ void DebugGenerator::Type_Info()
             Debug_Info.push_back(DW_AT_Byte_Size);
         }
         else if (i->is(CLASS_NODE)){
-            while (Type_Abbrovation == Member_Abbrovation || Type_Abbrovation == Function_Abbrovation_Count || Type_Abbrovation == Local_Variable_Abbrovation)
-                Type_Abbrovation++;
             IR* LINK = new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr);
             Debug_Info.push_back(LINK);
             //the code that indicates that this is the type abbrovation.
-            IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
+            IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr);
             Debug_Info.push_back(Abrrovation);
             //the calling convensions for this class??
             IR* DW_AT_Calling_Convention = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
@@ -549,21 +722,21 @@ void DebugGenerator::Type_Info()
                 if (m->is("const") != -1)
                     continue;
                 //abrovation for this member variable
-                while (Member_Abbrovation == Type_Abbrovation || Member_Abbrovation == Function_Abbrovation_Count || Member_Abbrovation == Local_Variable_Abbrovation)
-                    Member_Abbrovation++;
 
                 //the code that indicates that this is the type abbrovation.
-                IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Member_Abbrovation), 1) }, nullptr);
+                IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr);
                 Debug_Info.push_back(Abrrovation);
                 //the name of this member variable
                 IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, m->Name + "_NAME", 4) }, nullptr);
                 Debug_Info.push_back(DW_AT_Name);
                 //type of this memebr variable
-                string Inheritted = i->Get_Inheritted("_", true, false, true);
-                if (Inheritted == "")
-                    Inheritted = i->Get_Inheritted("_", true, false, false);
-                IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr);
-                Debug_Info.push_back(DW_AT_Type);
+                if (Abbrev_Type(m).TYPE) {
+                    string Inheritted = m->Get_Inheritted("_", true, false, true);
+                    if (Inheritted == "")
+                        Inheritted = m->Get_Inheritted("_", true, false, false);
+                    IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr);
+                    Debug_Info.push_back(DW_AT_Type);
+                }
                 //the file that this class is defined in
                 IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(m->Location->GetFilePath())), 1) }, nullptr);
                 Debug_Info.push_back(DW_AT_Decl_File);
@@ -579,43 +752,86 @@ void DebugGenerator::Type_Info()
             }
             
         }
-
-    //make one for void return typed functions
-    //the label that others can reference to.
-    IR* LINK = new IR(new Token(TOKEN::LABEL, "_func_START"), {}, nullptr);
-    Debug_Info.push_back(LINK);
-    //the code that indicates that this is the type abbrovation.
-    IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
-    Debug_Info.push_back(Abrrovation);
-    //The name that is represented in a string at the data section.
-    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, "func_NAME", 8) }, nullptr);
-    Debug_Info.push_back(DW_AT_Name);
-    //Some constant for encoding the inlisted type.int Encoding = DW_ATE_signed;
-    IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_ATE_signed), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Encoding);
-    //Size of the type
-    IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Byte_Size);
-
-    IR* Type_LINK = new IR(new Token(TOKEN::LABEL, "_type_START"), {}, nullptr);
-    Debug_Info.push_back(Type_LINK);
-    //the code that indicates that this is the type abbrovation.
-    IR* Type_Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Type_Abbrovation), 1) }, nullptr);
-    Debug_Info.push_back(Type_Abrrovation);
-    //The name that is represented in a string at the data section.
-    IR* Type_DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, "type_NAME", 8) }, nullptr);
-    Debug_Info.push_back(Type_DW_AT_Name);
-    //Some constant for encoding the inlisted type.
-    IR* Type_DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_ATE_signed), 1) }, nullptr);
-    Debug_Info.push_back(Type_DW_AT_Encoding);
-    //Size of the type
-    IR* Type_DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr);
-    Debug_Info.push_back(Type_DW_AT_Byte_Size);
-
    
     //End of the Type descriptors
     IR* End_Of_Children_Mark = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
     Debug_Info.push_back(End_Of_Children_Mark);
+}
+
+int ID = 2;
+void DebugGenerator::Generate_Abbrev(Abbrev_Type abbrev)
+{
+    if (abbrev.TAG == -1)
+        return;     //unsupported type
+
+    //first find if this abbrev does exist
+    for (auto i : Abbrovation_IDs)
+        if (abbrev == i.first)
+            return;
+
+    if (abbrev.ID)
+        //Abbreviation Code describes the current section as an index
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(ID++), 1) }, nullptr));
+    if (abbrev.TAG == !- 1)
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(abbrev.TAG), 1) }, nullptr));
+    Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(abbrev.HAS_CHILDREN), 1) }, nullptr));
+    if (abbrev.CALLING_CONVENTION) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Calling_convention), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data1), 1) }, nullptr));
+    }
+    if (abbrev.MEMORY_LOCATION) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Location), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Exprloc), 1) }, nullptr));
+    }
+    if (abbrev.START) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Low_pc), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Addr), 1) }, nullptr));
+    }
+    if (abbrev.END) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::High_pc), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data4), 1) }, nullptr));
+    }
+    if (abbrev.STACK_FRAME_LOCATION) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Frame_base), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Exprloc), 1) }, nullptr));
+    }
+    if (abbrev.MANGLED_NAME) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Linkage_name), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Strp), 1) }, nullptr));
+    }
+    if (abbrev.NAME) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Name), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Strp), 1) }, nullptr));
+    }
+    if (abbrev.ENCODING) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Encoding), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data1), 1) }, nullptr));
+    }
+    if (abbrev.BYTE_SIZE) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Byte_size), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data1), 1) }, nullptr));
+    }
+    if (abbrev.SOURCE_FILE) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Decl_file), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data1), 1) }, nullptr));
+    }
+    if (abbrev.SOURCE_LINE) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Decl_line), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data1), 1) }, nullptr));
+    }
+    if (abbrev.TYPE) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Type), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Ref4), 1) }, nullptr));
+    }
+    if (abbrev.EXTERNAL) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::External), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Flag_present), 1) }, nullptr));
+    }
+    //EOM(0)
+    Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
+    Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
+
+    Abbrovation_IDs.push_back({abbrev, ID});
 }
 
 void DebugGenerator::Insert_Start_End_Labels(vector<IR*>& input)
@@ -676,11 +892,9 @@ void DebugGenerator::Insert_Stack_Info(vector<IR*> &Input)
 
 void DebugGenerator::Function_Info(Node* n, int i)
 {
-    while ((Function_Abbrovation_Count == Local_Variable_Abbrovation) || (Function_Abbrovation_Count == Type_Abbrovation)) {
-        Function_Abbrovation_Count++;
-    }
+    
     //Function Abbrevation
-    IR* Function_Abbrevation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Function_Abbrovation_Count), 1) }, nullptr);
+    IR* Function_Abbrevation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr);
     Debug_Info.push_back(Function_Abbrevation);
     //The label that is in the start of the function
     IR* DW_AT_Low_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_START", 8) }, nullptr);
@@ -707,12 +921,13 @@ void DebugGenerator::Function_Info(Node* n, int i)
     IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr);
     Debug_Info.push_back(DW_AT_Decl_Line);
     //Return type declaration address
-    string Inheritted = n->Get_Inheritted("_", true, false, true);
-    if (Inheritted == "")
-        Inheritted = n->Get_Inheritted("_", true, false, false);
-    IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 4) }, nullptr);
-    Debug_Info.push_back(DW_AT_Type);
-
+    if (Abbrev_Type(n).TYPE) {
+        string Inheritted = n->Get_Inheritted("_", true, false, true);
+        if (Inheritted == "")
+            Inheritted = n->Get_Inheritted("_", true, false, false);
+        IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 4) }, nullptr);
+        Debug_Info.push_back(DW_AT_Type);
+    }
     for (auto v : n->Defined) {
         Local_Variable_Info(v);
     }
@@ -732,3 +947,58 @@ int DebugGenerator::Get_Index_From_File(string s)
     throw::runtime_error("ERROR!");
 }
 
+int DebugGenerator::Get_Abbrovation_Index(Node* n)
+{
+    for (auto i : Abbrovation_IDs)
+        if (Abbrev_Type(n) == i.first)
+            return i.second;
+
+    throw::runtime_error("ERROR");
+}
+
+Abbrev_Type::Abbrev_Type(Node* n)
+{
+    ID = true;
+    NAME = true;
+    TYPE = true;
+    SOURCE_FILE = true;
+    SOURCE_LINE = true;
+    if (n->is(FUNCTION_NODE)) {
+        TAG = DW_TAG::Subprogram;
+
+        START = true;
+        END = true;
+        if (n->Defined.size() > 0)
+            HAS_CHILDREN = true;
+
+        STACK_FRAME_LOCATION = true;
+
+        if (MANGLER::Is_Based_On_Base_Type(n)) {
+            TYPE = false;
+        }
+    }
+    else if (n->is(OBJECT_DEFINTION_NODE)) {
+        TAG = DW_TAG::Variable;
+        MEMORY_LOCATION = true;
+    }
+    else if (n->is(PARAMETER_NODE)) {
+        TAG = DW_TAG::Formal_parameter;
+        MEMORY_LOCATION = true;
+    }
+    else if (n->is(CLASS_NODE)) {
+        if (MANGLER::Is_Base_Type(n)) {
+            TAG = DW_TAG::Base_type;
+            ENCODING = true;
+        }
+        else {
+            if (n->Defined.size() > 0)
+                HAS_CHILDREN = true;
+            TAG = DW_TAG::Class_type;
+            CALLING_CONVENTION = true;
+        }
+    }
+    if (n->is("export")) {
+        EXTERNAL = true;
+        MANGLED_NAME = true;
+    }
+}

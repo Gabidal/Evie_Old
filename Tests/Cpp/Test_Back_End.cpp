@@ -59,6 +59,7 @@ extern string Output;
 extern int arg_count;
 extern map<string, pair<int, string>> MANGLER::IDS;
 extern vector<pair<string, string>> DOCKER::Working_Dir;
+extern int ID;
 
 extern int Build(int argc, const char* argv[]);
 
@@ -72,6 +73,7 @@ vector<Base*> Back_End_Test::Run(string File)
 	Global_Scope = nullptr;
 	sys = nullptr;
 	selector = nullptr;
+	ID = 2;
 
 	string output = File +".asm";
 	const char** argv; 

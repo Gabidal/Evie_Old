@@ -253,6 +253,8 @@ bool MANGLER::Is_Base_Type(Node* n)
 	for (auto i : n->Childs) {
 		if (i->Name == "size" && i->is("const") != -1)
 			continue;
+		else if (i->Name == "format" && i->is("const") != -1)
+			continue;
 		Result = false;	//because base types do not have any other member other than the Size.
 	}
 	for (auto i : n->Inheritted) {
