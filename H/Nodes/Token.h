@@ -92,6 +92,7 @@ public:
 	void remove(long long flag){this->Flags ^= (Flags & flag);}
 	int Get_Size() { return Size; }
 	long long Get_Flags() { return Flags; }
+	void Set_Flags(long long f) { Flags = f; }
 	string Get_Name() { 
 		if (this->is(TOKEN::MEMORY))
 			if (Childs[0]->is(TOKEN::OFFSETTER) || Childs[0]->is(TOKEN::DEOFFSETTER))

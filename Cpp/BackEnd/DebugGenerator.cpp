@@ -341,11 +341,7 @@ void DebugGenerator::Construct_Debug_Info()
 
     int j = 0;
     for (auto i : Global_Scope->Defined)
-        if (i->is(FUNCTION_NODE))
-            if (i->Calling_Count > 0 || (i->is("export") != -1))
-                Function_Info(i, j++);
-
-    Type_Info();
+        Info_Generator(i);
 
     //This label indicates the section start point.
     IR* Ldebug_Info_Start0 = new IR(new Token(TOKEN::LABEL, "Debug_Info_End"), {}, nullptr);
@@ -407,66 +403,71 @@ void DebugGenerator::Construct_Debug_String()
     Debug_Str.push_back(Directory);
 
     vector<string> Declarated_Local_Variable_Names;
+    vector<string> Declarated_Local_Variable_Mangles;
 
-    for (auto i : Global_Scope->Defined)
-        if (i->is(FUNCTION_NODE) || i->is(CLASS_NODE) ) {
-            Abbrev_Type Info(i);
-            bool Skip_Function_Declaration = false;
-            for (auto defined : Declarated_Local_Variable_Names)
-                if (defined == i->Name)
-                    Skip_Function_Declaration = true;
-            if (i->is(FUNCTION_NODE))
-                if (i->Calling_Count < 1 && (i->is("export") == -1))
-                    goto Skip_Func;
-            Declarated_Local_Variable_Names.push_back(i->Name);
-            if (!Skip_Function_Declaration) {
-                if (Info.MANGLED_NAME) {
-                    for (auto defined : Declarated_Local_Variable_Names)
-                        if (defined == MANGLER::Mangle(i))
-                            goto Skip_Mangle;
-                    Declarated_Local_Variable_Names.push_back(MANGLER::Mangle(i));
-                    //Funtion name label indicator
-                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, MANGLER::Mangle(i) + "_NAME"), {}, nullptr));
-                    //Function name
-                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(i)) }, nullptr));
-                Skip_Mangle:;
-                }
-                if (Info.NAME) {
-                    //Funtion name label indicator
-                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, i->Name + "_NAME"), {}, nullptr));
-                    //Function name
-                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, i->Name) }, nullptr));
-                }
-            }
-            for (auto v : i->Defined) {
+    for (auto i : Global_Scope->Defined) {
+        if (i->is(FUNCTION_NODE) || i->is(IMPORT) || i->is(PROTOTYPE))
+            if (i->Calling_Count < 1 && (i->is("export") == -1))
+                continue;
+            if (i->is(FUNCTION_NODE) || i->is(CLASS_NODE)) {
+                Abbrev_Type Info(i);
+                bool Skip_Function_Declaration = false;
                 for (auto defined : Declarated_Local_Variable_Names)
-                    if (defined == v->Name)
-                        goto Skip_Variable;
-
-                Declarated_Local_Variable_Names.push_back(v->Name); 
-                Info = Abbrev_Type(v);
-                if (Info.MANGLED_NAME) {
+                    if (defined == i->Name) {
+                        Skip_Function_Declaration = true;
+                        break;
+                    }
+                Declarated_Local_Variable_Names.push_back(i->Name);
+                if (!Skip_Function_Declaration) {
+                    if (Info.MANGLED_NAME) {
+                        for (auto defined : Declarated_Local_Variable_Mangles)
+                            if (defined == MANGLER::Mangle(i) + "_MANGLE")
+                                goto Skip_Mangle_1;
+                        Declarated_Local_Variable_Mangles.push_back(MANGLER::Mangle(i) + "_MANGLE");
+                        //Funtion name label indicator
+                        Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, MANGLER::Mangle(i) + "_MANGLE"), {}, nullptr));
+                        //Function name
+                        Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(i)) }, nullptr));
+                    Skip_Mangle_1:;
+                    }
+                    if (Info.NAME) {
+                        //Funtion name label indicator
+                        Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, i->Name + "_NAME"), {}, nullptr));
+                        //Function name
+                        Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, i->Name) }, nullptr));
+                    }
+                }
+                for (auto v : i->Defined) {
+                    if (v->is("const") != -1)
+                        continue;
                     for (auto defined : Declarated_Local_Variable_Names)
-                        if (defined == MANGLER::Mangle(v))
-                            goto Skip_Mangle_1;
-                    Declarated_Local_Variable_Names.push_back(MANGLER::Mangle(v));
-                    //Funtion name label indicator
-                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, MANGLER::Mangle(v) + "_NAME"), {}, nullptr));
-                    //Function name
-                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(v)) }, nullptr));
-                Skip_Mangle_1:;
-                }
-                if (Info.NAME) {
-                    //Funtion name label indicator
-                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, v->Name + "_NAME"), {}, nullptr));
-                    //Function name
-                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, v->Name) }, nullptr));
-                }
+                        if (defined == v->Name)
+                            goto Skip_Variable;
 
-            Skip_Variable:;
+                    Declarated_Local_Variable_Names.push_back(v->Name);
+                    Info = Abbrev_Type(v);
+                    if (Info.MANGLED_NAME) {
+                        for (auto defined : Declarated_Local_Variable_Mangles)
+                            if (defined == MANGLER::Mangle(v) + "_MANGLE")
+                                goto Skip_Mangle;
+                        Declarated_Local_Variable_Mangles.push_back(MANGLER::Mangle(v) + "_MANGLE");
+                        //Funtion name label indicator
+                        Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, MANGLER::Mangle(v) + "_MANGLE"), {}, nullptr));
+                        //Function name
+                        Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(v)) }, nullptr));
+                    Skip_Mangle:;
+                    }
+                    if (Info.NAME) {
+                        //Funtion name label indicator
+                        Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, v->Name + "_NAME"), {}, nullptr));
+                        //Function name
+                        Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, v->Name) }, nullptr));
+                    }
+
+                Skip_Variable:;
+                }
             }
-        Skip_Func:;
-        }
+    }
 }
 
 void DebugGenerator::Construct_Line_Table()
@@ -490,136 +491,6 @@ void DebugGenerator::Define_File_Index()
     }
 }
 
-void DebugGenerator::Local_Variable_Info(Node* n)
-{
-    Abbrev_Type Info(n);
-    //Abrevation tag name, i have decided that this can be a constant
-    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr));
-    if (Info.MEMORY_LOCATION) {
-        // describes the location of a variable or parameter at run - time
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "2", 1) }, nullptr));
-        //Offset added to Stack representive register
-        IR* DW_AT_Location_Offset_Representive = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "145", 1) }, nullptr);
-        Debug_Info.push_back(DW_AT_Location_Offset_Representive);
-        //the actual stack offset of the variable
-        IR* DW_AT_Location_Offset = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr);
-        Debug_Info.push_back(DW_AT_Location_Offset);
-    }
-    if (Info.NAME)
-        //The variable name as a string in data section
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr));
-    if (Info.SOURCE_FILE)
-        //The file that the variable is described.
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr));
-    if (Info.SOURCE_LINE)
-        //The line that the variable has defined in.
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr));
-    //The inheritance type 
-    if (Info.TYPE) {
-        string Inheritted = n->Get_Inheritted("_", true, false, true);
-        if (Inheritted == "")
-            Inheritted = n->Get_Inheritted("_", true, false, false);
-        IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr);
-        Debug_Info.push_back(DW_AT_Type);
-    }
-}
-
-void DebugGenerator::Type_Info()
-{
-    for (auto i : Global_Scope->Defined)
-        if (i->is(CLASS_NODE) && MANGLER::Is_Base_Type(i)) {
-            Abbrev_Type Info(i);
-            //the label that others can reference to.
-            Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr));
-            //the code that indicates that this is the type abbrovation.
-            Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr));
-            if (Info.MANGLED_NAME)    
-                //The name that is represented in a string at the data section.
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, MANGLER::Mangle(i) + "_NAME", 8) }, nullptr));
-            if (Info.NAME)
-                //The name that is represented in a string at the data section.
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, i->Name + "_NAME", 8) }, nullptr));
-            if (Info.ENCODING) {
-                //Some constant for encoding the inlisted type.
-                int Encoding = DW_ATE_signed;
-                if (i->Format == "decimal")
-                    Encoding = DW_ATE_float;
-                else if (i->is("ptr") != -1)
-                    Encoding = DW_ATE_address;
-                else if (i->Size == 1)
-                    Encoding = DW_ATE_signed_char;
-                IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Encoding), 1) }, nullptr);
-                Debug_Info.push_back(DW_AT_Encoding);
-            }
-            if (Info.BYTE_SIZE)
-                //Size of the type
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr));
-        }
-        else if (i->is(CLASS_NODE)){
-            Abbrev_Type Info(i);
-            Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr));
-            //the code that indicates that this is the type abbrovation.
-            Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr));
-            if (Info.CALLING_CONVENTION)
-                //the calling convensions for this class??
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr));
-            if (Info.MANGLED_NAME)
-                //the mangled name of this class
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, MANGLER::Mangle(i) + "_NAME", 4) }, nullptr));
-            if (Info.NAME)
-                //the name of this class
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, i->Name + "_NAME", 4) }, nullptr));
-            if (Info.BYTE_SIZE)
-                //the size of this class
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr));
-            if (Info.SOURCE_FILE)
-                //the file that this class is defined in
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(i->Location->GetFilePath())), 1) }, nullptr));
-            if (Info.SOURCE_LINE)
-                //the line this class is defined in
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Location->GetFriendlyLine()), 1) }, nullptr));
-            
-
-            for (auto m : i->Defined) {
-                if (m->is("const") != -1)
-                    continue;
-                Info = Abbrev_Type(m);
-                //the code that indicates that this is the type abbrovation.
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr));
-                if (Info.MANGLED_NAME)
-                    //the name of this member variable
-                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, MANGLER::Mangle(m) + "_NAME", 4) }, nullptr));
-                if (Info.NAME)
-                    //the name of this member variable
-                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, m->Name + "_NAME", 4) }, nullptr));
-                //type of this memebr variable
-                if (Info.TYPE) {
-                    string Inheritted = m->Get_Inheritted("_", true, false, true);
-                    if (Inheritted == "")
-                        Inheritted = m->Get_Inheritted("_", true, false, false);
-                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr));
-                }
-                if (Info.SOURCE_FILE)
-                    //the file that this class is defined in
-                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(m->Location->GetFilePath())), 1) }, nullptr));
-                if (Info.SOURCE_LINE)
-                    //the line this class is defined in
-                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Location->GetFriendlyLine()), 1) }, nullptr));
-                if (Info.MEMORY_LOCATION)
-                //the stack offset this variable dorments in
-                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Memory_Offset), 1) }, nullptr));
-                if (Info.EXTERNAL)
-                    //publicity of this member variable
-                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr));
-            }
-            
-        }
-   
-    //End of the Type descriptors
-    IR* End_Of_Children_Mark = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
-    Debug_Info.push_back(End_Of_Children_Mark);
-}
-
 int ID = 2;
 void DebugGenerator::Generate_Abbrev(Abbrev_Type abbrev)
 {
@@ -633,7 +504,7 @@ void DebugGenerator::Generate_Abbrev(Abbrev_Type abbrev)
 
     if (abbrev.ID)
         //Abbreviation Code describes the current section as an index
-        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(ID++), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(ID), 1) }, nullptr));
     if (abbrev.TAG != - 1)
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(abbrev.TAG), 1) }, nullptr));
     Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(abbrev.HAS_CHILDREN), 1) }, nullptr));
@@ -693,7 +564,7 @@ void DebugGenerator::Generate_Abbrev(Abbrev_Type abbrev)
     Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
     Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
 
-    Abbrovation_IDs.push_back({abbrev, ID});
+    Abbrovation_IDs.push_back({abbrev, ID++});
 }
 
 void DebugGenerator::Insert_Start_End_Labels(vector<IR*>& input)
@@ -752,17 +623,46 @@ void DebugGenerator::Insert_Stack_Info(vector<IR*> &Input)
     }
 }
 
-void DebugGenerator::Function_Info(Node* n, int i)
+void DebugGenerator::Info_Generator(Node* n)
 {
     Abbrev_Type Info(n);
-    //Function Abbrevation
+    if (Info.TAG == -1)
+        return;
+    if (n->is(FUNCTION_NODE))
+        if (n->Calling_Count == 0 && n->is("extern") == -1)
+            return;
+
+    bool Skip_Scope_Generation = false;
+    for (auto i : Genrated_Info)
+        if (i == n->Name || i == MANGLER::Mangle(n)) {
+            Skip_Scope_Generation = true;
+            goto Go_Straight_To_Childs;
+        }
+
+    Genrated_Info.push_back(n->Name);
+    Genrated_Info.push_back(MANGLER::Mangle(n));
+
+    if (n->is(CLASS_NODE))
+        Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + n->Name + "_START"), {}, nullptr));
+
     Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr));
+    if (Info.CALLING_CONVENTION) {
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(1), 1) }, nullptr));
+    }
+    if (Info.MEMORY_LOCATION) {
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr));
+    }
     if (Info.START)
         //The label that is in the start of the function
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_START", 8) }, nullptr));
     if (Info.END)
         //The label that is in the end of the function
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_END-" + n->Name + "_START", 4) }, nullptr));
+    if (Info.STACK_FRAME_LOCATION) {
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(2), 1) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(145), 1) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr));
+    }
     if (Info.STACK_FRAME_REPRESENTIVE_REGISTER) {
         //Location description.
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr));
@@ -771,10 +671,24 @@ void DebugGenerator::Function_Info(Node* n, int i)
     }
     if (Info.MANGLED_NAME)
         //Points into a string in data section which has the function name
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, MANGLER::Mangle(n) + "_MANGLE", 4) }, nullptr));
     if (Info.NAME)
         //Points into a string in data section which has the function name
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr));
+    if (Info.ENCODING) {
+        //Some constant for encoding the inlisted type.
+        int Encoding = DW_ATE_signed;
+        if (n->Format == "decimal")
+            Encoding = DW_ATE_float;
+        else if (n->is("ptr") != -1)
+            Encoding = DW_ATE_address;
+        else if (n->Size == 1)
+            Encoding = DW_ATE_signed_char;
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Encoding), 1) }, nullptr));
+    }
+    if (Info.BYTE_SIZE) {
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Size), 1) }, nullptr));
+    }
     if (Info.SOURCE_FILE)
         //The source file
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr));
@@ -789,14 +703,14 @@ void DebugGenerator::Function_Info(Node* n, int i)
         IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 4) }, nullptr);
         Debug_Info.push_back(DW_AT_Type);
     }
+Go_Straight_To_Childs:;
     for (auto v : n->Defined) {
-        Local_Variable_Info(v);
+        if (v->is("const") != -1)
+            continue;
+        Info_Generator(v);
     }
-    if (Info.HAS_CHILDREN) {
-        //End of the function
-        IR* End_Of_Children_Mark = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
-        Debug_Info.push_back(End_Of_Children_Mark);
-    }
+    if (Info.HAS_CHILDREN && !Skip_Scope_Generation)
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
 }
 
 int DebugGenerator::Get_Index_From_File(string s)
@@ -832,6 +746,7 @@ Abbrev_Type::Abbrev_Type(Node* n)
             HAS_CHILDREN = true;
 
         STACK_FRAME_LOCATION = true;
+        STACK_FRAME_REPRESENTIVE_REGISTER = true;
 
         if (MANGLER::Is_Based_On_Base_Type(n)) {
             TYPE = false;
@@ -839,13 +754,20 @@ Abbrev_Type::Abbrev_Type(Node* n)
     }
     else if (n->is(OBJECT_DEFINTION_NODE)) {
         TAG = DW_TAG::Variable;
-        MEMORY_LOCATION = true;
+        if (n->Scope->is(FUNCTION_NODE))
+            STACK_FRAME_LOCATION = true;
+        else if (n->Scope->is(CLASS_NODE))
+            MEMORY_LOCATION = true;
     }
     else if (n->is(PARAMETER_NODE)) {
         TAG = DW_TAG::Formal_parameter;
         MEMORY_LOCATION = true;
     }
     else if (n->is(CLASS_NODE)) {
+        BYTE_SIZE = true;        
+        if (MANGLER::Is_Based_On_Base_Type(n)) {
+            TYPE = false;
+        }
         if (MANGLER::Is_Base_Type(n)) {
             TAG = DW_TAG::Base_type;
             ENCODING = true;

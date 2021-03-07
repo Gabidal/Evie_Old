@@ -73,9 +73,7 @@ public:
 	void Define_File_Index();
 
 
-	void Function_Info(Node* n, int i);
-	void Local_Variable_Info(Node* n);
-	void Type_Info();
+	void Info_Generator(Node* n);
 	void Generate_Abbrev(Abbrev_Type abbrev);
 	
 
@@ -91,6 +89,7 @@ private:
 	vector<IR*> Line_Table;
 	vector<pair<string, int>> Files;	//File_Name, Index representive
 	vector<pair<Abbrev_Type, int>> Abbrovation_IDs;
+	vector<string> Genrated_Info;
 
 	int Get_Index_From_File(string s);
 	int Get_Abbrovation_Index(Node* n);

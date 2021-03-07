@@ -53,10 +53,12 @@ void IRGenerator::Parse_Function(int i)
 	if (Input[i]->is("export") != -1)
 		Global_Scope->Header.push_back(Input[i]);
 
-	Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}, Input[i]->Location));
+	//Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}, Input[i]->Location));
 
 	//label
-	Output->push_back(Make_Label(Input[i], true));
+	IR* Label = Make_Label(Input[i], true);
+	Label->OPCODE->Set_Flags(Label->OPCODE->Get_Flags() | TOKEN::START_OF_FUNCTION);
+	Output->push_back(Label);
 
 	Reg_Random_ID_Addon = 0;
 

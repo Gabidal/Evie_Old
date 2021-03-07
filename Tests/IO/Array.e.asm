@@ -11,9 +11,9 @@ Code_Start:
 .global Start_Test
 Start_Test_START:
 .loc 1 3 1
+Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-Start_Test:
 sub rsp, 8
 .loc 1 4 14
 mov ecx, 40
@@ -43,9 +43,9 @@ Start_Test_END:
 .cfi_endproc 
 main_START:
 .loc 1 11 1
+main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-main:
 .loc 1 12 2
 mov eax, 1
 ret 
@@ -86,12 +86,12 @@ debug_abbrev:
 .byte 14
 .byte 62
 .byte 11
+.byte 11
+.byte 11
 .byte 58
 .byte 11
 .byte 59
 .byte 11
-.byte 73
-.byte 19
 .byte 63
 .byte 25
 .byte 0
@@ -173,6 +173,25 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 7
+.byte 52
+.byte 0
+.byte 64
+.byte 24
+.byte 110
+.byte 14
+.byte 3
+.byte 14
+.byte 58
+.byte 11
+.byte 59
+.byte 11
+.byte 73
+.byte 19
+.byte 63
+.byte 25
+.byte 0
+.byte 0
+.byte 8
 .byte 46
 .byte 0
 .byte 17
@@ -204,79 +223,62 @@ Debug_Info_Start:
 .secrel32 .DIRECTORY
 .quad Code_Start
 .long Code_End-Code_Start
-.byte 7
-.quad Start_Test_START
-.long Start_Test_END-Start_Test_START
-.secrel32 Start_Test_NAME
-.byte 1
-.byte 3
-.byte 4
-.byte 2
-.byte 145
-.byte 0
-.secrel32 a_NAME
-.byte 1
-.byte 4
-.quad _int_START-Debug_Info_Start
-.byte 4
-.byte 2
-.byte 145
-.byte 0
-.secrel32 b_NAME
-.byte 1
-.byte 5
-.quad _int_START-Debug_Info_Start
-.byte 4
-.byte 2
-.byte 145
-.byte 0
-.secrel32 c_NAME
-.byte 1
-.byte 7
-.quad _int_START-Debug_Info_Start
-.byte 0
-.byte 8
-.quad main_START
-.long main_END-main_START
-.secrel32 main_NAME
-.byte 1
-.byte 11
 _int_START:
-.byte 3
-.secrel32 i_NAME
+.byte 2
+.secrel32 i_MANGLE
 .secrel32 int_NAME
 .byte 5
-_short_START:
+.byte 4
+.byte 2
 .byte 3
-.secrel32 s_NAME
+_short_START:
+.byte 2
+.secrel32 s_MANGLE
 .secrel32 short_NAME
 .byte 5
+.byte 2
+.byte 2
+.byte 7
 _char_START:
-.byte 3
-.secrel32 c_NAME
+.byte 2
+.secrel32 c_MANGLE
 .secrel32 char_NAME
 .byte 6
+.byte 1
+.byte 2
+.byte 11
 _float_START:
-.byte 3
-.secrel32 f_NAME
+.byte 2
+.secrel32 f_MANGLE
 .secrel32 float_NAME
 .byte 4
+.byte 4
+.byte 2
+.byte 15
 _double_START:
-.byte 3
-.secrel32 d_NAME
+.byte 2
+.secrel32 d_MANGLE
 .secrel32 double_NAME
 .byte 4
+.byte 8
+.byte 2
+.byte 20
 _long_START:
-.byte 3
-.secrel32 l_NAME
+.byte 2
+.secrel32 l_MANGLE
 .secrel32 long_NAME
 .byte 5
+.byte 8
+.byte 2
+.byte 25
 _string_START:
-.byte 3
-.secrel32 string_NAME
+.byte 2
+.secrel32 string_MANGLE
 .secrel32 string_NAME
 .byte 6
-.byte 0
+.byte 1
+.byte 2
+.byte 29
 Debug_Info_End:
 .section .debug_str
 .COMPILER_NAME:
@@ -285,44 +287,46 @@ Debug_Info_End:
 .asciz "Tests/IO/Array.e"
 .DIRECTORY:
 .asciz "Tests/IO/"
-i_NAME:
+i_MANGLE:
 .asciz "i"
 int_NAME:
 .asciz "int"
-t_NAME:
-.asciz "t"
-size_NAME:
-.asciz "size"
-s_NAME:
+s_MANGLE:
 .asciz "s"
 short_NAME:
 .asciz "short"
-c_NAME:
+c_MANGLE:
 .asciz "c"
 char_NAME:
 .asciz "char"
-f_NAME:
+f_MANGLE:
 .asciz "f"
 float_NAME:
 .asciz "float"
-format_NAME:
-.asciz "format"
-d_NAME:
+d_MANGLE:
 .asciz "d"
 double_NAME:
 .asciz "double"
-l_NAME:
+l_MANGLE:
 .asciz "l"
 long_NAME:
 .asciz "long"
+string_MANGLE:
+.asciz "string"
 string_NAME:
 .asciz "string"
 Start_Test_NAME:
 .asciz "Start_Test"
+a_MANGLE:
+.asciz "a"
 a_NAME:
 .asciz "a"
+b_MANGLE:
+.asciz "b"
 b_NAME:
 .asciz "b"
+c_NAME:
+.asciz "c"
 main_NAME:
 .asciz "main"
 .section .LINE_TABLE
