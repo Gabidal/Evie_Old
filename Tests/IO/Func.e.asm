@@ -75,11 +75,12 @@ debug_abbrev:
 .byte 14
 .byte 17
 .byte 1
-.byte 18
-.byte 6
+.byte 85
+.byte 23
 .byte 0
 .byte 0
 .byte 2
+.byte 36
 .byte 0
 .byte 110
 .byte 14
@@ -98,6 +99,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 3
+.byte 52
 .byte 0
 .byte 2
 .byte 24
@@ -116,6 +118,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 4
+.byte 46
 .byte 1
 .byte 17
 .byte 1
@@ -136,6 +139,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 5
+.byte 5
 .byte 0
 .byte 2
 .byte 24
@@ -154,6 +158,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 6
+.byte 46
 .byte 0
 .byte 17
 .byte 1
@@ -170,6 +175,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 7
+.byte 46
 .byte 0
 .byte 17
 .byte 1
@@ -190,6 +196,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 8
+.byte 46
 .byte 1
 .byte 17
 .byte 1
@@ -223,24 +230,19 @@ Debug_Info_Start:
 .byte 7
 .quad main_START
 .long main_END-main_START
-.byte 1
-.byte 87
 .secrel32 main_NAME
 .byte 1
 .byte 4
 .byte 8
 .quad foo_START
 .long foo_END-foo_START
-.byte 1
-.byte 87
+.secrel32 foo_NAME
 .secrel32 foo_NAME
 .byte 1
 .byte 9
 .byte 9
 .quad Start_Test_START
 .long Start_Test_END-Start_Test_START
-.byte 1
-.byte 87
 .secrel32 Start_Test_NAME
 .byte 1
 .byte 13
@@ -255,39 +257,39 @@ Debug_Info_Start:
 .byte 0
 _int_START:
 .byte 3
+.secrel32 i_NAME
 .secrel32 int_NAME
 .byte 5
-.byte 4
 _short_START:
 .byte 3
+.secrel32 s_NAME
 .secrel32 short_NAME
 .byte 5
-.byte 2
 _char_START:
 .byte 3
+.secrel32 c_NAME
 .secrel32 char_NAME
 .byte 6
-.byte 1
 _float_START:
 .byte 3
+.secrel32 f_NAME
 .secrel32 float_NAME
-.byte 4
 .byte 4
 _double_START:
 .byte 3
+.secrel32 d_NAME
 .secrel32 double_NAME
 .byte 4
-.byte 8
 _long_START:
 .byte 3
+.secrel32 l_NAME
 .secrel32 long_NAME
 .byte 5
-.byte 8
 _string_START:
 .byte 3
 .secrel32 string_NAME
+.secrel32 string_NAME
 .byte 6
-.byte 1
 .byte 0
 Debug_Info_End:
 .section .debug_str
@@ -297,20 +299,34 @@ Debug_Info_End:
 .asciz "Tests/IO/Func.e"
 .DIRECTORY:
 .asciz "Tests/IO/"
+i_NAME:
+.asciz "i"
 int_NAME:
 .asciz "int"
+t_NAME:
+.asciz "t"
 size_NAME:
 .asciz "size"
+s_NAME:
+.asciz "s"
 short_NAME:
 .asciz "short"
+c_NAME:
+.asciz "c"
 char_NAME:
 .asciz "char"
+f_NAME:
+.asciz "f"
 float_NAME:
 .asciz "float"
 format_NAME:
 .asciz "format"
+d_NAME:
+.asciz "d"
 double_NAME:
 .asciz "double"
+l_NAME:
+.asciz "l"
 long_NAME:
 .asciz "long"
 string_NAME:
@@ -323,9 +339,5 @@ Start_Test_NAME:
 .asciz "Start_Test"
 fuz_NAME:
 .asciz "fuz"
-func_NAME:
-.asciz "func_NAME"
-type_NAME:
-.asciz "type_NAME"
 .section .LINE_TABLE
 .LINE_TABLE:

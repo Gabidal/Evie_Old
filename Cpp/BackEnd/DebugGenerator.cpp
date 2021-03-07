@@ -139,7 +139,26 @@ namespace DW_AT {
     constexpr int Count = 0x37;
     constexpr int Data_member_location = 0x38;
     constexpr int Decl_column = 0x39;
-
+    constexpr int Allocated = 0x4e;
+    constexpr int Associated = 0x4f;
+    constexpr int Data_location = 0x50;
+    constexpr int Byte_stride = 0x51;
+    constexpr int Entry_pc = 0x52;
+    constexpr int Use_UTF8 = 0x53;
+    constexpr int Extension = 0x54;
+    constexpr int Ranges = 0x55;
+    constexpr int Trampoline = 0x56;
+    constexpr int Call_column = 0x57;
+    constexpr int Call_file = 0x58;
+    constexpr int Call_line = 0x59;
+    constexpr int Description = 0x5a;
+    constexpr int Binary_scale = 0x5b;
+    constexpr int Decimal_scale = 0x5c;
+    constexpr int Small = 0x5d;
+    constexpr int Decimal_sign = 0x5e;
+    constexpr int Digit_count = 0x5f;
+    constexpr int Picture_string = 0x60;
+    constexpr int Mutable = 0x61;
 }
 
 namespace DW_FORM {
@@ -252,10 +271,10 @@ void DebugGenerator::Construct_Debug_Abbrev()
     IR* DW_FORM_Addr = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
     Debug_Abbrev.push_back(DW_FORM_Addr);
     //addresses of a debugging information entry.
-    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "18", 1) }, nullptr);
+    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Ranges), 1) }, nullptr);
     Debug_Abbrev.push_back(DW_AT_High_Pc);
     //Add a new attribute form for section offsets.
-    IR* DW_FORM_Data4 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "6", 1) }, nullptr);
+    IR* DW_FORM_Data4 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Sec_offset), 1) }, nullptr);
     Debug_Abbrev.push_back(DW_FORM_Data4);
     //End of marker
     IR* EOM = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
@@ -263,155 +282,6 @@ void DebugGenerator::Construct_Debug_Abbrev()
     //End of marker
     EOM;
     Debug_Abbrev.push_back(EOM);
-    /*//Abbreviation Code describes the current section as an index
-    IR* Abbreviation_Code_Describing_Index_1 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "2", 1) }, nullptr);
-    Debug_Abbrev.push_back(Abbreviation_Code_Describing_Index_1);
-    //A template instantiation is represented by a debugging information entry with the tag.
-    IR* DW_TAG_Subprogram = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "46", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_TAG_Subprogram);
-    //1-byte value that determines whether a debugging information entry using this abbreviation has child entries or not.
-    DW_CHILDREN_Yes;
-    Debug_Abbrev.push_back(DW_CHILDREN_Yes);
-    //attribute for a single address.
-    DW_AT_Low_Pc;
-    Debug_Abbrev.push_back(DW_AT_Low_Pc);
-    //Represented as an object of appropriate size to hold an address on the target machine.
-    DW_FORM_Addr;
-    Debug_Abbrev.push_back(DW_FORM_Addr);
-    //pair of attributes for a single contiguous range of addresses.
-    DW_AT_High_Pc;
-    Debug_Abbrev.push_back(DW_AT_High_Pc);
-    //Add a new attribute form for section offsets, DW_FORM_sec_offset, to replace the use of DW_FORM_data4and DW_FORM_data8 for section offsets.
-    DW_FORM_Data4;
-    Debug_Abbrev.push_back(DW_FORM_Data4);
-    //offset from the address specified by the location description.
-    IR* DW_AT_Frame_Base = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "64", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Frame_Base);
-    // takes a single operand encoded as a DW_FORM_exprloc value representing a DWARF expression.
-    IR* DW_FORM_Exprloc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "24", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_FORM_Exprloc);
-    //DW_AT_linkage_name
-    //IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "110", 1) }, nullptr);
-    //Debug_Abbrev.push_back(DW_AT_Linkage_Name);
-
-    //Debugging information entry representing a program entity that has been given a name.
-    DW_AT_Name;
-    Debug_Abbrev.push_back(DW_AT_Name);    
-    //Attribute values of class
-    DW_FORM_Strp;
-    Debug_Abbrev.push_back(DW_FORM_Strp);
-    //Any debugging information entry representing the declaration of an object, module, subprogram or type.
-    IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "58", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Decl_File);
-    //There are fixed length constant data forms for one, two, fourand eight byte values.
-    IR* DW_FORM_Data1 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "11", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_FORM_Data1);
-    //attribute represents the source line number at which the first character of the identifier of the declared object appears.
-    IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "59", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Decl_Line);
-    //There are fixed length constant data forms for one, two, fourand eight byte values.
-    DW_FORM_Data1;
-    Debug_Abbrev.push_back(DW_FORM_Data1);
-    //Describing a declaration that has a type
-    IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "73", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Type);
-    //identify any debugging information entry within the containing unit.
-    IR* DW_FORM_Ref4 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "19", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_FORM_Ref4);
-    //Containing compilation unit.
-    IR* DW_AT_External = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "63", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_External);
-    //Represented explicitly as a single byte of data.
-    IR* DW_FORM_flag_present = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "25", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_FORM_flag_present);
-    //End of marker
-    EOM;
-    Debug_Abbrev.push_back(EOM);
-    //End of marker
-    EOM;
-    Debug_Abbrev.push_back(EOM);
-    //Abbreviation Code describes the current section as an index
-    IR* Abbreviation_Code_Describing_Index_2 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "3", 1) }, nullptr);
-    Debug_Abbrev.push_back(Abbreviation_Code_Describing_Index_2);
-    //associated with another entry that also has the tag.
-    IR* DW_TAG_Variable = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "52", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_TAG_Variable);
-    //the next physically succeeding entry of any debugging information entry using this abbreviation is a sibling of that entry.
-    IR* DW_CHILDREN_No = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_CHILDREN_No);
-    //Transfers control of DWARF expression evaluation to the DW_AT_location attribute of the referenced debugging information entry.
-    IR* DW_AT_Location = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "2", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Location);
-    //This is an unsigned LEB128 length followed by the number of information bytes specified by the length.
-    DW_FORM_Exprloc;
-    Debug_Abbrev.push_back(DW_FORM_Exprloc);
-    //Any debugging information entry representing a program entity that has been given a name.
-    DW_AT_Name;
-    Debug_Abbrev.push_back(DW_AT_Name);
-    //Attribute values of class
-    DW_FORM_Strp;
-    Debug_Abbrev.push_back(DW_FORM_Strp);
-    //Any debugging information entry representing the declaration of an object, module, subprogram or type.
-    DW_AT_Decl_File;
-    Debug_Abbrev.push_back(DW_AT_Decl_File);
-    //There are fixed length constant data forms for one, two, fourand eight byte values.
-    DW_FORM_Data1;
-    Debug_Abbrev.push_back(DW_FORM_Data1);
-    //represents the source line number at which the first character of the identifier of the declared object appears.
-    DW_AT_Decl_Line;
-    Debug_Abbrev.push_back(DW_AT_Decl_Line);
-    //There are fixed length constant data forms for one, two, fourand eight byte values.
-    DW_FORM_Data1;
-    Debug_Abbrev.push_back(DW_FORM_Data1);
-    //The entry referenced may describe a base type, that is, a type that is not defined in terms of other data types, or it may describe a user - defined type, such as an array, structure or enumeration.
-    DW_AT_Type;
-    Debug_Abbrev.push_back(DW_AT_Type);
-    //identify any debugging information entry within the containing unit.
-    DW_FORM_Ref4;
-    Debug_Abbrev.push_back(DW_FORM_Ref4);
-    //End of marker
-    EOM;
-    Debug_Abbrev.push_back(EOM);
-    //End of marker
-    EOM;
-    Debug_Abbrev.push_back(EOM);
-    //Abbreviation Code describes the current section as an index
-    IR* Abbreviation_Code_Describing_Index_3 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "4", 1) }, nullptr);
-    Debug_Abbrev.push_back(Abbreviation_Code_Describing_Index_3);
-    //A base type is represented by a debugging information entry with the tag.
-    IR* DW_TAG_Base_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "36", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_TAG_Base_Type);
-    //the next physically succeeding entry of any debugging information entry using this abbreviation is a sibling of that entry.
-    DW_CHILDREN_No;
-    Debug_Abbrev.push_back(DW_CHILDREN_No);
-    //Any debugging information entry representing a program entity that has been given a name.
-    DW_AT_Name;
-    Debug_Abbrev.push_back(DW_AT_Name);
-    //Attribute values of class
-    DW_FORM_Strp;
-    Debug_Abbrev.push_back(DW_FORM_Strp);
-    // describing how the base type is encoded and is to be interpreted.
-    IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "62", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Encoding);
-    //There are fixed length constant data forms for one, two, fourand eight byte values.
-    DW_FORM_Data1;
-    Debug_Abbrev.push_back(DW_FORM_Data1);
-    //Many debugging information entries allow either a DW_AT_byte_size attribute or a DW_AT_bit_size attribute, whose integer constant value.
-    IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "11", 1) }, nullptr);
-    Debug_Abbrev.push_back(DW_AT_Byte_Size);
-    //There are fixed length constant data forms for one, two, fourand eight byte values.
-    DW_FORM_Data1;
-    Debug_Abbrev.push_back(DW_FORM_Data1);
-    //End of marker
-    EOM;
-    Debug_Abbrev.push_back(EOM);
-    //End of marker
-    EOM;
-    Debug_Abbrev.push_back(EOM);
-    //End of marker
-    EOM;
-    Debug_Abbrev.push_back(EOM);
-    */
 
     for (auto i : Global_Scope->Defined) {
         Generate_Abbrev(Abbrev_Type(i));
@@ -540,6 +410,7 @@ void DebugGenerator::Construct_Debug_String()
 
     for (auto i : Global_Scope->Defined)
         if (i->is(FUNCTION_NODE) || i->is(CLASS_NODE) ) {
+            Abbrev_Type Info(i);
             bool Skip_Function_Declaration = false;
             for (auto defined : Declarated_Local_Variable_Names)
                 if (defined == i->Name)
@@ -549,69 +420,53 @@ void DebugGenerator::Construct_Debug_String()
                     goto Skip_Func;
             Declarated_Local_Variable_Names.push_back(i->Name);
             if (!Skip_Function_Declaration) {
-                //Funtion name label indicator
-                IR* Function_Name_Indicator = new IR(new Token(TOKEN::LABEL, i->Name + "_NAME"), {}, nullptr);
-                Debug_Str.push_back(Function_Name_Indicator);
-                //Function name
-                IR* Function_Name = new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, i->Name) }, nullptr);
-                Debug_Str.push_back(Function_Name);
+                if (Info.MANGLED_NAME) {
+                    for (auto defined : Declarated_Local_Variable_Names)
+                        if (defined == MANGLER::Mangle(i))
+                            goto Skip_Mangle;
+                    Declarated_Local_Variable_Names.push_back(MANGLER::Mangle(i));
+                    //Funtion name label indicator
+                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, MANGLER::Mangle(i) + "_NAME"), {}, nullptr));
+                    //Function name
+                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(i)) }, nullptr));
+                Skip_Mangle:;
+                }
+                if (Info.NAME) {
+                    //Funtion name label indicator
+                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, i->Name + "_NAME"), {}, nullptr));
+                    //Function name
+                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, i->Name) }, nullptr));
+                }
             }
             for (auto v : i->Defined) {
                 for (auto defined : Declarated_Local_Variable_Names)
                     if (defined == v->Name)
                         goto Skip_Variable;
-                Declarated_Local_Variable_Names.push_back(v->Name);
-                //Variable name label indicator
-                IR* Variable_Name_Indicator = new IR(new Token(TOKEN::LABEL, v->Name + "_NAME"), {}, nullptr);
-                Debug_Str.push_back(Variable_Name_Indicator);
-                //Variable name
-                IR* Variable_Name = new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, v->Name) }, nullptr);
-                Debug_Str.push_back(Variable_Name);
+
+                Declarated_Local_Variable_Names.push_back(v->Name); 
+                Info = Abbrev_Type(v);
+                if (Info.MANGLED_NAME) {
+                    for (auto defined : Declarated_Local_Variable_Names)
+                        if (defined == MANGLER::Mangle(v))
+                            goto Skip_Mangle_1;
+                    Declarated_Local_Variable_Names.push_back(MANGLER::Mangle(v));
+                    //Funtion name label indicator
+                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, MANGLER::Mangle(v) + "_NAME"), {}, nullptr));
+                    //Function name
+                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(v)) }, nullptr));
+                Skip_Mangle_1:;
+                }
+                if (Info.NAME) {
+                    //Funtion name label indicator
+                    Debug_Str.push_back(new IR(new Token(TOKEN::LABEL, v->Name + "_NAME"), {}, nullptr));
+                    //Function name
+                    Debug_Str.push_back(new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, v->Name) }, nullptr));
+                }
 
             Skip_Variable:;
             }
         Skip_Func:;
         }
-
-    //forvoid functions too
-    //Funtion name label indicator
-    IR* Function_Name_Indicator = new IR(new Token(TOKEN::LABEL,  "func_NAME"), {}, nullptr);
-    Debug_Str.push_back(Function_Name_Indicator);
-    //Function name
-    IR* Function_Name = new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, "func_NAME") }, nullptr);
-    Debug_Str.push_back(Function_Name);
-
-    IR* Type_Name_Indicator = new IR(new Token(TOKEN::LABEL, "type_NAME"), {}, nullptr);
-    Debug_Str.push_back(Type_Name_Indicator);
-    //Function name
-    IR* Type_Name = new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, "type_NAME") }, nullptr);
-    Debug_Str.push_back(Type_Name);
-
-
-    /*
-    .Linfo_string3:
-    .asciz  "_Z5applev"                     // string offset=126
-    .Linfo_string4:
-    .asciz  "apple"                         // string offset=136
-    .Linfo_string5:
-    .asciz  "char"                          // string offset=142
-    .Linfo_string6:
-    .asciz  "_Z6bananav"                    // string offset=147
-    .Linfo_string7:
-    .asciz  "banana"                        // string offset=158
-    .Linfo_string8:
-    .asciz  "int"                           // string offset=165
-    .Linfo_string9:
-    .asciz  "a"                             // string offset=169
-    .Linfo_string10:
-    .asciz  "b"                             // string offset=171
-    .Linfo_string11:
-    .asciz  "c"                             // string offset=173
-    .Linfo_string12:
-    .asciz  "d"                             // string offset=175
-    .ident  "clang version 13.0.0 (https://github.com/llvm/llvm-project.git 5de09ef02e24d234d9fc0cd1c6dfe18a1bb784b0)"
-  
-    */
 }
 
 void DebugGenerator::Construct_Line_Table()
@@ -637,29 +492,30 @@ void DebugGenerator::Define_File_Index()
 
 void DebugGenerator::Local_Variable_Info(Node* n)
 {
+    Abbrev_Type Info(n);
     //Abrevation tag name, i have decided that this can be a constant
-    IR* Abbrevation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr);
-    Debug_Info.push_back(Abbrevation);
-    // describes the location of a variable or parameter at run - time
-    IR* DW_AT_Location = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "2", 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Location);
-    //Offset added to Stack representive register
-    IR* DW_AT_Location_Offset_Representive = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "145", 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Location_Offset_Representive);
-    //the actual stack offset of the variable
-    IR* DW_AT_Location_Offset = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Location_Offset);
-    //The variable name as a string in data section
-    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
-    Debug_Info.push_back(DW_AT_Name);
-    //The file that the variable is described.
-    IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Decl_File);
-    //The line that the variable has defined in.
-    IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Decl_Line);
+    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr));
+    if (Info.MEMORY_LOCATION) {
+        // describes the location of a variable or parameter at run - time
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "2", 1) }, nullptr));
+        //Offset added to Stack representive register
+        IR* DW_AT_Location_Offset_Representive = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "145", 1) }, nullptr);
+        Debug_Info.push_back(DW_AT_Location_Offset_Representive);
+        //the actual stack offset of the variable
+        IR* DW_AT_Location_Offset = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr);
+        Debug_Info.push_back(DW_AT_Location_Offset);
+    }
+    if (Info.NAME)
+        //The variable name as a string in data section
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr));
+    if (Info.SOURCE_FILE)
+        //The file that the variable is described.
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr));
+    if (Info.SOURCE_LINE)
+        //The line that the variable has defined in.
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr));
     //The inheritance type 
-    if (Abbrev_Type(n).TYPE) {
+    if (Info.TYPE) {
         string Inheritted = n->Get_Inheritted("_", true, false, true);
         if (Inheritted == "")
             Inheritted = n->Get_Inheritted("_", true, false, false);
@@ -672,83 +528,89 @@ void DebugGenerator::Type_Info()
 {
     for (auto i : Global_Scope->Defined)
         if (i->is(CLASS_NODE) && MANGLER::Is_Base_Type(i)) {
+            Abbrev_Type Info(i);
             //the label that others can reference to.
-            IR* LINK = new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr);
-            Debug_Info.push_back(LINK);
+            Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr));
             //the code that indicates that this is the type abbrovation.
-            IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr);
-            Debug_Info.push_back(Abrrovation);
-            //The name that is represented in a string at the data section.
-            IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, i->Name + "_NAME", 8) }, nullptr);
-            Debug_Info.push_back(DW_AT_Name);
-            //Some constant for encoding the inlisted type.
-            int Encoding = DW_ATE_signed;
-            if (i->Format == "decimal")
-                Encoding = DW_ATE_float;
-            else if (i->is("ptr") != -1)
-                Encoding = DW_ATE_address;
-            else if (i->Size == 1)
-                Encoding = DW_ATE_signed_char;
-            IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Encoding), 1) }, nullptr);
-            Debug_Info.push_back(DW_AT_Encoding);
-            //Size of the type
-            IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr);
-            Debug_Info.push_back(DW_AT_Byte_Size);
+            Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr));
+            if (Info.MANGLED_NAME)    
+                //The name that is represented in a string at the data section.
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, MANGLER::Mangle(i) + "_NAME", 8) }, nullptr));
+            if (Info.NAME)
+                //The name that is represented in a string at the data section.
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, i->Name + "_NAME", 8) }, nullptr));
+            if (Info.ENCODING) {
+                //Some constant for encoding the inlisted type.
+                int Encoding = DW_ATE_signed;
+                if (i->Format == "decimal")
+                    Encoding = DW_ATE_float;
+                else if (i->is("ptr") != -1)
+                    Encoding = DW_ATE_address;
+                else if (i->Size == 1)
+                    Encoding = DW_ATE_signed_char;
+                IR* DW_AT_Encoding = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Encoding), 1) }, nullptr);
+                Debug_Info.push_back(DW_AT_Encoding);
+            }
+            if (Info.BYTE_SIZE)
+                //Size of the type
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr));
         }
         else if (i->is(CLASS_NODE)){
-            IR* LINK = new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr);
-            Debug_Info.push_back(LINK);
+            Abbrev_Type Info(i);
+            Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + i->Name + "_START"), {}, nullptr));
             //the code that indicates that this is the type abbrovation.
-            IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr);
-            Debug_Info.push_back(Abrrovation);
-            //the calling convensions for this class??
-            IR* DW_AT_Calling_Convention = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
-            Debug_Info.push_back(DW_AT_Calling_Convention);
-            //the name of this class
-            IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, i->Name + "_NAME", 4) }, nullptr);
-            Debug_Info.push_back(DW_AT_Name);
-            //the size of this class
-            IR* DW_AT_Byte_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr);
-            Debug_Info.push_back(DW_AT_Byte_Size);
-            //the file that this class is defined in
-            IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(i->Location->GetFilePath())), 1) }, nullptr);
-            Debug_Info.push_back(DW_AT_Decl_File);
-            //the line this class is defined in
-            IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Location->GetFriendlyLine()), 1) }, nullptr);
-            Debug_Info.push_back(DW_AT_Decl_Line);
+            Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr));
+            if (Info.CALLING_CONVENTION)
+                //the calling convensions for this class??
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr));
+            if (Info.MANGLED_NAME)
+                //the mangled name of this class
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, MANGLER::Mangle(i) + "_NAME", 4) }, nullptr));
+            if (Info.NAME)
+                //the name of this class
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::NUM, i->Name + "_NAME", 4) }, nullptr));
+            if (Info.BYTE_SIZE)
+                //the size of this class
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Size), 1) }, nullptr));
+            if (Info.SOURCE_FILE)
+                //the file that this class is defined in
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(i->Location->GetFilePath())), 1) }, nullptr));
+            if (Info.SOURCE_LINE)
+                //the line this class is defined in
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(i->Location->GetFriendlyLine()), 1) }, nullptr));
             
 
             for (auto m : i->Defined) {
                 if (m->is("const") != -1)
                     continue;
-                //abrovation for this member variable
-
+                Info = Abbrev_Type(m);
                 //the code that indicates that this is the type abbrovation.
-                IR* Abrrovation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr);
-                Debug_Info.push_back(Abrrovation);
-                //the name of this member variable
-                IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, m->Name + "_NAME", 4) }, nullptr);
-                Debug_Info.push_back(DW_AT_Name);
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(i)), 1) }, nullptr));
+                if (Info.MANGLED_NAME)
+                    //the name of this member variable
+                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, MANGLER::Mangle(m) + "_NAME", 4) }, nullptr));
+                if (Info.NAME)
+                    //the name of this member variable
+                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, m->Name + "_NAME", 4) }, nullptr));
                 //type of this memebr variable
-                if (Abbrev_Type(m).TYPE) {
+                if (Info.TYPE) {
                     string Inheritted = m->Get_Inheritted("_", true, false, true);
                     if (Inheritted == "")
                         Inheritted = m->Get_Inheritted("_", true, false, false);
-                    IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr);
-                    Debug_Info.push_back(DW_AT_Type);
+                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 8) }, nullptr));
                 }
-                //the file that this class is defined in
-                IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(m->Location->GetFilePath())), 1) }, nullptr);
-                Debug_Info.push_back(DW_AT_Decl_File);
-                //the line this class is defined in
-                IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Location->GetFriendlyLine()), 1) }, nullptr);
-                Debug_Info.push_back(DW_AT_Decl_Line);
+                if (Info.SOURCE_FILE)
+                    //the file that this class is defined in
+                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(m->Location->GetFilePath())), 1) }, nullptr));
+                if (Info.SOURCE_LINE)
+                    //the line this class is defined in
+                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Location->GetFriendlyLine()), 1) }, nullptr));
+                if (Info.MEMORY_LOCATION)
                 //the stack offset this variable dorments in
-                IR* DW_AT_Data_Member_Location = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Memory_Offset), 1) }, nullptr);
-                Debug_Info.push_back(DW_AT_Data_Member_Location);
-                //publicity of this member variable
-                IR* DW_AT_Accessibility = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
-                Debug_Info.push_back(DW_AT_Accessibility);
+                Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(m->Memory_Offset), 1) }, nullptr));
+                if (Info.EXTERNAL)
+                    //publicity of this member variable
+                    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr));
             }
             
         }
@@ -772,7 +634,7 @@ void DebugGenerator::Generate_Abbrev(Abbrev_Type abbrev)
     if (abbrev.ID)
         //Abbreviation Code describes the current section as an index
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(ID++), 1) }, nullptr));
-    if (abbrev.TAG == !- 1)
+    if (abbrev.TAG != - 1)
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(abbrev.TAG), 1) }, nullptr));
     Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(abbrev.HAS_CHILDREN), 1) }, nullptr));
     if (abbrev.CALLING_CONVENTION) {
@@ -892,36 +754,35 @@ void DebugGenerator::Insert_Stack_Info(vector<IR*> &Input)
 
 void DebugGenerator::Function_Info(Node* n, int i)
 {
-    
+    Abbrev_Type Info(n);
     //Function Abbrevation
-    IR* Function_Abbrevation = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr);
-    Debug_Info.push_back(Function_Abbrevation);
-    //The label that is in the start of the function
-    IR* DW_AT_Low_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_START", 8) }, nullptr);
-    Debug_Info.push_back(DW_AT_Low_Pc);
-    //The label that is in the end of the function
-    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_END-" + n->Name + "_START", 4) }, nullptr);
-    Debug_Info.push_back(DW_AT_High_Pc);
-    //Location description.
-    IR* DW_AT_Frame_Base = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Frame_Base);
-    //The stack representive register number
-    IR* DW_AT_Frame_Base_1 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(selector->STACK_REPRESENTIVE_REGISTER), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Frame_Base_1);
-    //Points into a string in data section which has the function name
-    //IR* DW_AT_Linkage_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
-    //Debug_Info.push_back(DW_AT_Linkage_Name);
-    //Points into a string in data section which has the function name
-    IR* DW_AT_Name = new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr);
-    Debug_Info.push_back(DW_AT_Name);
-    //The source file
-    IR* DW_AT_Decl_File = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Decl_File);
-    //The source line the function starts at.
-    IR* DW_AT_Decl_Line = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr);
-    Debug_Info.push_back(DW_AT_Decl_Line);
+    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr));
+    if (Info.START)
+        //The label that is in the start of the function
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_START", 8) }, nullptr));
+    if (Info.END)
+        //The label that is in the end of the function
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_END-" + n->Name + "_START", 4) }, nullptr));
+    if (Info.STACK_FRAME_REPRESENTIVE_REGISTER) {
+        //Location description.
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr));
+        //The stack representive register number
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(selector->STACK_REPRESENTIVE_REGISTER), 1) }, nullptr));
+    }
+    if (Info.MANGLED_NAME)
+        //Points into a string in data section which has the function name
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr));
+    if (Info.NAME)
+        //Points into a string in data section which has the function name
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr));
+    if (Info.SOURCE_FILE)
+        //The source file
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Index_From_File(n->Location->GetFilePath())), 1) }, nullptr));
+    if (Info.SOURCE_LINE)
+        //The source line the function starts at.
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr));
     //Return type declaration address
-    if (Abbrev_Type(n).TYPE) {
+    if (Info.TYPE) {
         string Inheritted = n->Get_Inheritted("_", true, false, true);
         if (Inheritted == "")
             Inheritted = n->Get_Inheritted("_", true, false, false);
@@ -931,8 +792,7 @@ void DebugGenerator::Function_Info(Node* n, int i)
     for (auto v : n->Defined) {
         Local_Variable_Info(v);
     }
-
-    if (n->Defined.size() > 0) {
+    if (Info.HAS_CHILDREN) {
         //End of the function
         IR* End_Of_Children_Mark = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
         Debug_Info.push_back(End_Of_Children_Mark);

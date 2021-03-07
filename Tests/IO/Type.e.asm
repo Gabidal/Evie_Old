@@ -135,11 +135,12 @@ debug_abbrev:
 .byte 14
 .byte 17
 .byte 1
-.byte 18
-.byte 6
+.byte 85
+.byte 23
 .byte 0
 .byte 0
 .byte 2
+.byte 36
 .byte 0
 .byte 110
 .byte 14
@@ -158,6 +159,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 3
+.byte 52
 .byte 0
 .byte 2
 .byte 24
@@ -176,6 +178,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 4
+.byte 46
 .byte 1
 .byte 17
 .byte 1
@@ -196,6 +199,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 5
+.byte 5
 .byte 0
 .byte 2
 .byte 24
@@ -214,6 +218,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 6
+.byte 2
 .byte 1
 .byte 54
 .byte 11
@@ -232,6 +237,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 7
+.byte 46
 .byte 1
 .byte 17
 .byte 1
@@ -254,6 +260,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 8
+.byte 46
 .byte 1
 .byte 17
 .byte 1
@@ -270,6 +277,7 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 9
+.byte 46
 .byte 0
 .byte 17
 .byte 1
@@ -303,8 +311,7 @@ Debug_Info_Start:
 .byte 8
 .quad Fruit_START
 .long Fruit_END-Fruit_START
-.byte 1
-.byte 87
+.secrel32 Fruit_NAME
 .secrel32 Fruit_NAME
 .byte 1
 .byte 7
@@ -321,8 +328,7 @@ Debug_Info_Start:
 .byte 5
 .quad Get_Sugar_START
 .long Get_Sugar_END-Get_Sugar_START
-.byte 1
-.byte 87
+.secrel32 Get_Sugar_NAME
 .secrel32 Get_Sugar_NAME
 .byte 1
 .byte 18
@@ -338,8 +344,7 @@ Debug_Info_Start:
 .byte 5
 .quad is_Banana_START
 .long is_Banana_END-is_Banana_START
-.byte 1
-.byte 87
+.secrel32 is_Banana_NAME
 .secrel32 is_Banana_NAME
 .byte 1
 .byte 22
@@ -355,8 +360,6 @@ Debug_Info_Start:
 .byte 9
 .quad Start_Test_START
 .long Start_Test_END-Start_Test_START
-.byte 1
-.byte 87
 .secrel32 Start_Test_NAME
 .byte 1
 .byte 26
@@ -372,16 +375,13 @@ Debug_Info_Start:
 .byte 10
 .quad main_START
 .long main_END-main_START
-.byte 1
-.byte 87
 .secrel32 main_NAME
 .byte 1
 .byte 31
 .byte 8
 .quad Banana_START
 .long Banana_END-Banana_START
-.byte 1
-.byte 87
+.secrel32 Banana_NAME
 .secrel32 Banana_NAME
 .byte 1
 .byte 11
@@ -397,47 +397,48 @@ Debug_Info_Start:
 .byte 0
 _int_START:
 .byte 3
+.secrel32 i_NAME
 .secrel32 int_NAME
 .byte 5
-.byte 4
 _short_START:
 .byte 3
+.secrel32 s_NAME
 .secrel32 short_NAME
 .byte 5
-.byte 2
 _char_START:
 .byte 3
+.secrel32 c_NAME
 .secrel32 char_NAME
 .byte 6
-.byte 1
 _float_START:
 .byte 3
+.secrel32 f_NAME
 .secrel32 float_NAME
-.byte 4
 .byte 4
 _double_START:
 .byte 3
+.secrel32 d_NAME
 .secrel32 double_NAME
 .byte 4
-.byte 8
 _long_START:
 .byte 3
+.secrel32 l_NAME
 .secrel32 long_NAME
 .byte 5
-.byte 8
 _string_START:
 .byte 3
 .secrel32 string_NAME
+.secrel32 string_NAME
 .byte 6
-.byte 1
 _Fruit_START:
 .byte 7
 .byte 1
 .secrel32 Fruit_NAME
-.byte 4
+.secrel32 Fruit_NAME
 .byte 1
 .byte 3
 .byte 7
+.long Type_NAME
 .long Type_NAME
 .quad _int_START-Debug_Info_Start
 .byte 1
@@ -448,10 +449,11 @@ _Banana_START:
 .byte 7
 .byte 1
 .secrel32 Banana_NAME
-.byte 16
+.secrel32 Banana_NAME
 .byte 1
 .byte 11
 .byte 7
+.long Type_NAME
 .long Type_NAME
 .quad _int_START-Debug_Info_Start
 .byte 1
@@ -460,6 +462,7 @@ _Banana_START:
 .byte 1
 .byte 7
 .long Sugar_NAME
+.long Sugar_NAME
 .quad _int_START-Debug_Info_Start
 .byte 1
 .byte 12
@@ -467,12 +470,14 @@ _Banana_START:
 .byte 1
 .byte 7
 .long Protein_NAME
+.long Protein_NAME
 .quad _int_START-Debug_Info_Start
 .byte 1
 .byte 13
 .byte 8
 .byte 1
 .byte 7
+.long size_NAME
 .long size_NAME
 .quad _int_START-Debug_Info_Start
 .byte 1
@@ -488,20 +493,34 @@ Debug_Info_End:
 .asciz "Tests/IO/Type.e"
 .DIRECTORY:
 .asciz "Tests/IO/"
+i_NAME:
+.asciz "i"
 int_NAME:
 .asciz "int"
+t_NAME:
+.asciz "t"
 size_NAME:
 .asciz "size"
+s_NAME:
+.asciz "s"
 short_NAME:
 .asciz "short"
+c_NAME:
+.asciz "c"
 char_NAME:
 .asciz "char"
+f_NAME:
+.asciz "f"
 float_NAME:
 .asciz "float"
 format_NAME:
 .asciz "format"
+d_NAME:
+.asciz "d"
 double_NAME:
 .asciz "double"
+l_NAME:
+.asciz "l"
 long_NAME:
 .asciz "long"
 string_NAME:
@@ -524,17 +543,11 @@ b_NAME:
 .asciz "b"
 is_Banana_NAME:
 .asciz "is_Banana"
-f_NAME:
-.asciz "f"
 Start_Test_NAME:
 .asciz "Start_Test"
 x_NAME:
 .asciz "x"
 main_NAME:
 .asciz "main"
-func_NAME:
-.asciz "func_NAME"
-type_NAME:
-.asciz "type_NAME"
 .section .LINE_TABLE
 .LINE_TABLE:
