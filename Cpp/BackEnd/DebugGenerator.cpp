@@ -298,12 +298,14 @@ void DebugGenerator::Construct_Debug_Info()
 
     //                                                                                    .debug_info,"",@progbits
     IR* Section = new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".debug_info") }, nullptr);
-    Debug_Info.push_back(Section);
+    Debug_Info.push_back(Section);    
+    //This label indicates that the next variable defined, inlists the size of the debug_info section
+    Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "Debug_Info_Start"), {}, nullptr));
     //This is the variable which has the next section size init.
-    IR* Section_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Debug_Info_End-Debug_Info_Start", 4) }, nullptr);
+    IR* Section_Size = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Debug_Info_End-Debug_Info", 4) }, nullptr);
     Debug_Info.push_back(Section_Size);
     //This label indicates that the next variable defined, inlists the size of the debug_info section
-    IR* Debug_Info_Start = new IR(new Token(TOKEN::LABEL, "Debug_Info_Start"), {}, nullptr);
+    IR* Debug_Info_Start = new IR(new Token(TOKEN::LABEL, "Debug_Info"), {}, nullptr);
     Debug_Info.push_back(Debug_Info_Start);
     //DWARF version number
     IR* DWARF_Version_Number = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "4", 2) }, nullptr);
@@ -401,7 +403,7 @@ void DebugGenerator::Construct_Debug_String()
     DOCKER::Update_Working_Dir(DOCKER::Included_Files[0], Dir);
     IR* Directory = new IR(new Token(TOKEN::OPERATOR, "ascii"), { new Token(TOKEN::STRING, Dir) }, nullptr);
     Debug_Str.push_back(Directory);
-
+    /*
     vector<string> Declarated_Local_Variable_Names;
     vector<string> Declarated_Local_Variable_Mangles;
 
@@ -468,6 +470,7 @@ void DebugGenerator::Construct_Debug_String()
                 }
             }
     }
+    */
 }
 
 void DebugGenerator::Construct_Line_Table()
@@ -524,17 +527,21 @@ void DebugGenerator::Generate_Abbrev(Abbrev_Type abbrev)
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::High_pc), 1) }, nullptr));
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data4), 1) }, nullptr));
     }
-    if (abbrev.STACK_FRAME_LOCATION) {
+    if (abbrev.STACK_FRAME_REPRESENTIVE_REGISTER) {
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Frame_base), 1) }, nullptr));
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Exprloc), 1) }, nullptr));
     }
+    if (abbrev.STACK_FRAME_LOCATION) {
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Data_member_location), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data2), 1) }, nullptr));
+    }
     if (abbrev.MANGLED_NAME) {
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Linkage_name), 1) }, nullptr));
-        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Strp), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::String), 1) }, nullptr));
     }
     if (abbrev.NAME) {
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Name), 1) }, nullptr));
-        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Strp), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::String), 1) }, nullptr));
     }
     if (abbrev.ENCODING) {
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Encoding), 1) }, nullptr));
@@ -601,7 +608,7 @@ void DebugGenerator::Insert_Line_Change_Information(vector<IR*>& input)
             Current_Line = input[i]->Location->GetFriendlyLine();
 
             string Locatoin = to_string(Get_Index_From_File(input[i]->Location->GetFilePath())) + " " + to_string(Current_Line) + " " + to_string(input[i]->Location->GetFriendlyCharacter());
-            input.insert(input.begin() + i, new IR(new Token(TOKEN::SET_DATA, "location"), { new Token(TOKEN::LABEL, Locatoin) }, input[i]->Location));
+            input.insert(input.begin() + i + 1, new IR(new Token(TOKEN::SET_DATA, "location"), { new Token(TOKEN::LABEL, Locatoin) }, input[i]->Location));
         }
 
 }
@@ -629,7 +636,7 @@ void DebugGenerator::Info_Generator(Node* n)
     if (Info.TAG == -1)
         return;
     if (n->is(FUNCTION_NODE))
-        if (n->Calling_Count == 0 && n->is("extern") == -1)
+        if (n->Calling_Count == 0 && n->is("export") == -1)
             return;
 
     bool Skip_Scope_Generation = false;
@@ -671,10 +678,10 @@ void DebugGenerator::Info_Generator(Node* n)
     }
     if (Info.MANGLED_NAME)
         //Points into a string in data section which has the function name
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, MANGLER::Mangle(n) + "_MANGLE", 4) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(n)) }, nullptr));
     if (Info.NAME)
         //Points into a string in data section which has the function name
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "secrel32"), { new Token(TOKEN::LABEL, n->Name + "_NAME", 4) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "ascii"), { new Token(TOKEN::STRING, n->Name) }, nullptr));
     if (Info.ENCODING) {
         //Some constant for encoding the inlisted type.
         int Encoding = DW_ATE_signed;
@@ -745,7 +752,7 @@ Abbrev_Type::Abbrev_Type(Node* n)
         if (n->Defined.size() > 0)
             HAS_CHILDREN = true;
 
-        STACK_FRAME_LOCATION = true;
+        //STACK_FRAME_LOCATION = true;
         STACK_FRAME_REPRESENTIVE_REGISTER = true;
 
         if (MANGLER::Is_Based_On_Base_Type(n)) {
@@ -755,9 +762,9 @@ Abbrev_Type::Abbrev_Type(Node* n)
     else if (n->is(OBJECT_DEFINTION_NODE)) {
         TAG = DW_TAG::Variable;
         if (n->Scope->is(FUNCTION_NODE))
-            STACK_FRAME_LOCATION = true;
-        else if (n->Scope->is(CLASS_NODE))
             MEMORY_LOCATION = true;
+        else if (n->Scope->is(CLASS_NODE))
+            STACK_FRAME_LOCATION = true;
     }
     else if (n->is(PARAMETER_NODE)) {
         TAG = DW_TAG::Formal_parameter;
@@ -779,7 +786,7 @@ Abbrev_Type::Abbrev_Type(Node* n)
             CALLING_CONVENTION = true;
         }
     }
-    if (n->is("export")) {
+    if (n->is("export") != -1) {
         EXTERNAL = true;
         MANGLED_NAME = true;
     }
