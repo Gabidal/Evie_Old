@@ -286,6 +286,13 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 				break;
 		}
 
+	//DEBUG
+	for (auto& v : Input[i]->Defined) {
+		v->Memory_Offset = v->Scope->Local_Allocation_Space;
+		v->Scope->Local_Allocation_Space += v->Get_Size();
+		v->Requires_Address = true;
+	}
+
 	return;
 }
 

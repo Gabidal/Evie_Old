@@ -14,10 +14,13 @@ sum:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 .loc 1 3 1
+sub rsp, 4
 add ecx, 3
 .loc 1 4 11
 mov eax, ecx
+add rsp, 4
 ret 
+add rsp, 4
 ret 
 .loc 1 3 1
 sum_END:
@@ -29,36 +32,36 @@ Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 .loc 1 7 1
-mov ebx, 3
+sub rsp, 16
+mov dword ptr [rsp ], 3
 .loc 1 8 8
-push rbx
-.loc 1 7 1
-mov ecx, ebx
+mov ecx, dword ptr [rsp ]
 .loc 1 9 10
 call sum
-mov ecx, eax
-mov r8d, ecx
+mov dword ptr [rsp + 4 ], eax
+mov ecx, dword ptr [rsp + 4 ]
 .loc 1 10 12
-mov eax, r8d
-mul ebx
-mov r8d, eax
-mov r8d, r8d
-mov r9d, r8d
+mov eax, ecx
+mul dword ptr [rsp ]
+mov ecx, eax
+mov dword ptr [rsp + 8 ], ecx
+mov ecx, dword ptr [rsp + 8 ]
 .loc 1 11 12
 xor edx, edx
-mov eax, r9d
-div ecx
-mov r9d, eax
-mov r9d, r9d
-add r9d, ebx
+mov eax, ecx
+div dword ptr [rsp + 4 ]
+mov ecx, eax
+mov dword ptr [rsp + 12 ], ecx
+mov ecx, dword ptr [rsp ]
 .loc 1 12 11
-add r9d, ecx
-sub r9d, r8d
-mov eax, r9d
-pop rbx
-.loc 1 7 1
+add dword ptr [rsp + 12 ], ecx
+mov ecx, dword ptr [rsp + 4 ]
+add dword ptr [rsp + 12 ], ecx
+mov ecx, dword ptr [rsp + 8 ]
+sub dword ptr [rsp + 12 ], ecx
+mov eax, dword ptr [rsp + 12 ]
+add rsp, 16
 ret 
-.loc 1 12 2
 mov ecx, 1067030938
 movd xmm0, ecx
 movss xmm0, xmm0
@@ -69,19 +72,15 @@ call Test_Fpu
 .loc 1 14 9
 cvttss2si ecx, xmm0
 mov eax, ecx
-pop rbx
-.loc 1 16 2
+add rsp, 16
 ret 
-.loc 1 14 2
 mov eax, -6
 .loc 1 16 2
-pop rbx
-.loc 1 7 1
+add rsp, 16
 ret 
-.loc 1 16 2
-pop rbx
-.loc 1 7 1
+add rsp, 16
 ret 
+.loc 1 7 1
 Start_Test_END:
 
 
@@ -91,11 +90,14 @@ Test_Fpu:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 .loc 1 19 1
+sub rsp, 8
 mov ecx, -1110651699
 movd xmm0, ecx
 movss xmm0, xmm0
+add rsp, 8
 ret 
 .loc 1 20 2
+add rsp, 8
 ret 
 .loc 1 19 1
 Test_Fpu_END:
@@ -107,11 +109,14 @@ main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 .loc 1 23 1
-mov ecx, 1
+sub rsp, 4
+mov dword ptr [rsp ], 1
 .loc 1 24 8
-mov eax, ecx
+mov eax, dword ptr [rsp ]
 .loc 1 25 2
+add rsp, 4
 ret 
+add rsp, 4
 ret 
 .loc 1 23 1
 main_END:
@@ -312,6 +317,8 @@ _string_START:
 .byte 1
 .byte 3
 .byte 5
+.byte 2
+.byte 145
 .byte 0
 .asciz "a"
 .byte 1
@@ -328,10 +335,36 @@ _string_START:
 .byte 1
 .byte 7
 .byte 7
+.byte 2
+.byte 145
 .byte 0
+.asciz "a"
+.byte 1
+.byte 8
+.long _int_START-Debug_Info_Start
+.byte 7
+.byte 2
+.byte 145
+.byte 4
 .asciz "b"
 .byte 1
 .byte 9
+.long _int_START-Debug_Info_Start
+.byte 7
+.byte 2
+.byte 145
+.byte 8
+.asciz "c"
+.byte 1
+.byte 10
+.long _int_START-Debug_Info_Start
+.byte 7
+.byte 2
+.byte 145
+.byte 12
+.asciz "d"
+.byte 1
+.byte 11
 .long _int_START-Debug_Info_Start
 .byte 0
 .byte 4
@@ -352,6 +385,14 @@ _string_START:
 .asciz "main"
 .byte 1
 .byte 23
+.byte 7
+.byte 2
+.byte 145
+.byte 0
+.asciz "a"
+.byte 1
+.byte 24
+.long _int_START-Debug_Info_Start
 .byte 0
 Debug_Info_End:
 .section .debug_str

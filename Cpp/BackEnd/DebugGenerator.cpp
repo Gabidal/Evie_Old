@@ -641,7 +641,7 @@ void DebugGenerator::Info_Generator(Node* n)
 
     bool Skip_Scope_Generation = false;
     for (auto i : Genrated_Info)
-        if (i == n->Name || i == MANGLER::Mangle(n)) {
+        if ((i == n->Name || i == MANGLER::Mangle(n)) && !n->is(OBJECT_DEFINTION_NODE)) {
             Skip_Scope_Generation = true;
             goto Go_Straight_To_Childs;
         }
@@ -656,7 +656,7 @@ void DebugGenerator::Info_Generator(Node* n)
     if (Info.CALLING_CONVENTION) {
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(1), 1) }, nullptr));
     }
-    if (Info.MEMORY_LOCATION) {
+    if (Info.STACK_FRAME_LOCATION) {
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr));
     }
     if (Info.START)
@@ -665,7 +665,7 @@ void DebugGenerator::Info_Generator(Node* n)
     if (Info.END)
         //The label that is in the end of the function
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_END-" + n->Name + "_START", 4) }, nullptr));
-    if (Info.STACK_FRAME_LOCATION) {
+    if (Info.MEMORY_LOCATION) {
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(2), 1) }, nullptr));
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(145), 1) }, nullptr));
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr));

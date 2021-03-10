@@ -110,6 +110,9 @@ void IRGenerator::Parse_Calls(int i)
 		else
 			p = new Token(n);	
 
+		if (p->is(TOKEN::CONTENT))
+			p = new Token(TOKEN::MEMORY, { p }, p->Get_Size(), p->Get_Name());
+
 		int Level_Difference = Get_Amount("ptr", n) - Get_Amount("ptr", Input[i]->Function_Implementation->Parameters[Parameter_Place]);
 		if (Level_Difference != 0)
 			p = g.Operate_Pointter(p, Level_Difference);
@@ -484,7 +487,7 @@ void IRGenerator::Parse_Operators(int i)
 			//dont load the value into a register
 			Left = new Token(Input[i]->Left);
 			if (Left->is(TOKEN::CONTENT))
-				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Get_Size());
+				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Get_Size(), Left->Get_Name());
 			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
 			//	Left = Left; //:D no need to do enything
 		}
@@ -1503,72 +1506,6 @@ void IRGenerator::Parse_Return(int i) {
 
 	Node* p = Input[i]->Get_Parent_As(FUNCTION_NODE, Input[i]);
 
-	int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
-	if (Level_Difference != 0) {
-		Return_Val = Operate_Pointter(Return_Val, Level_Difference);
-	}
-	else if (Return_Val->is(TOKEN::CONTENT)) {
-		Token* m = new Token(TOKEN::MEMORY, { Return_Val }, _SYSTEM_BIT_SIZE_);
-		Return_Val = m;
-	}
-	/*
-	if (Return_Val->is(TOKEN::CONTENT)) {
-		Token* m = new Token(TOKEN::MEMORY, { Return_Val }, _SYSTEM_BIT_SIZE_);
-		Return_Val = m;
-	}
-	else if (Level_Difference != 0) {
-		vector<string> Type_Trace = Input[i]->Find(Return_Val->Get_Name(), Return_Val->Get_Parent())->Inheritted;
-		//reverse(Type_Trace.begin(), Type_Trace.end());
-
-		//load the Left to right level
-		//mov reg1, [(esp+123)]
-		//mov reg2, [reg1]
-		//give Left [reg2]
-		//set the Left size into right system bit size
-		Return_Val->Set_Size(_SYSTEM_BIT_SIZE_);
-		Token* handle = new Token(TOKEN::MEMORY, { Return_Val }, _SYSTEM_BIT_SIZE_, Return_Val->Get_Name());	//start from the pointter 
-		Token* Reg = nullptr;
-		int Keep_Last_Address = 0;
-		if (Input[i]->is(ASSIGN_OPERATOR_NODE))
-			Keep_Last_Address = 1;
-		for (int j = 0; j <= Level_Difference - Keep_Last_Address; j++) {
-			int Reg_Size = _SYSTEM_BIT_SIZE_;
-			if (j + 1 >= Level_Difference) {
-				Reg_Size = 0;
-				//	 -j because we need to remove the current ptr to see what is inside it
-				for (int s = Type_Trace.size() - 1 - j; s >= 0; s--) {
-					//keywords dont have defined in the find list so skip them and put ptr the scaler switch.
-					if (Lexer::GetComponents(Type_Trace[s])[0].is(Flags::KEYWORD_COMPONENT)) {
-						if (Type_Trace[s] == "ptr") {
-							Reg_Size = _SYSTEM_BIT_SIZE_;
-							break;
-						}
-					}
-					else
-						Reg_Size += Input[i]->Find(Type_Trace[s], Parent)->Size;
-				}
-
-			}
-
-			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG", Reg_Size);
-			//move from handle to reg
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
-				new Token(*Reg), new Token(*handle)
-				}));
-
-			//keep the old handle 
-			//if (j + 1 < Level_Difference) {
-			//replace the Original Left, to the new Reg for next loop.
-			handle->Childs.back() = Reg;
-			handle->Set_Name(Reg->Get_Name());
-			//}
-		}
-		if (Input[i]->is(ASSIGN_OPERATOR_NODE))
-			Return_Val = handle;	//handle already has the 
-		else
-			Return_Val = Reg;
-	}*/
-
 	int Returning_Reg_Size = 0;
 	for (auto& j : p->Inheritted) {
 		if (j == "ptr") {
@@ -1578,6 +1515,15 @@ void IRGenerator::Parse_Return(int i) {
 		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 			continue; //skip keywords
 		Returning_Reg_Size += Global_Scope->Find(j, Global_Scope)->Size;
+	}
+
+	int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
+	if (Level_Difference != 0) {
+		Return_Val = Operate_Pointter(Return_Val, Level_Difference);
+	}
+	else if (Return_Val->is(TOKEN::CONTENT)) {
+		Token* m = new Token(TOKEN::MEMORY, { Return_Val }, Returning_Reg_Size, Return_Val->Get_Name());
+		Return_Val = m;
 	}
 
 	if (Return_Val->is(TOKEN::NUM) && Returning_Reg_Size != 0)
