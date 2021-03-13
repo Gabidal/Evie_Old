@@ -486,24 +486,74 @@ void Selector::Break_Up(Token* r)
 		}
 }
 
-int Selector::Get_Numerical_Parameter_Register_Count()
+int Selector::Get_Numerical_Parameter_Register_Count(vector<Node*> Parameters)
 {
-	int result = 0;
-	for (auto i : Parameter_Registers) {
-		if (!i[0]->is(TOKEN::DECIMAL))
-			result++;
+	if(sys->Info.OS == "win") {
+		//first get the amount of all non decimal registers
+		int Non_Decimal_Register_Count = 0;
+		for (auto i : Parameter_Registers) {
+			if (!i[0]->is(TOKEN::DECIMAL))
+				Non_Decimal_Register_Count++;
+		}
+		//then get the amount of all decimal registers
+		int Decimal_Register_Count = 0;
+		for (auto i : Parameter_Registers) {
+			if (i[0]->is(TOKEN::DECIMAL))
+				Decimal_Register_Count++;
+		}
+		//then count the number of decimal parameters used in the Parameters list
+		int Parameter_Decimal_Register_Count = 0;
+		for (auto i : Parameters) {
+			if (i->is(TOKEN::DECIMAL))
+				Parameter_Decimal_Register_Count++;
+		}
+		//now that we have the amount of possible decimal register count and the used amount of them we can
+		//calculate the substraction of the used decimal registers from non decimal registers, bear with me.
+		return Non_Decimal_Register_Count - (Decimal_Register_Count - (Decimal_Register_Count - Parameter_Decimal_Register_Count));
 	}
-	return result;
+	else {
+		int Non_Decimal_Register_Count = 0;
+		for (auto i : Parameter_Registers) {
+			if (!i[0]->is(TOKEN::DECIMAL))
+				Non_Decimal_Register_Count++;
+		}
+		return Non_Decimal_Register_Count;
+	}
 }
 
-int Selector::Get_Floating_Parameter_Register_Count()
+int Selector::Get_Floating_Parameter_Register_Count(vector<Node*> Parameters)
 {
-	int result = 0;
-	for (auto i : Parameter_Registers) {
-		if (i[0]->is(TOKEN::DECIMAL))
-			result++;
+	if (sys->Info.OS == "win") {
+		//first get the amount of all non decimal registers
+		int Non_Decimal_Register_Count = 0;
+		for (auto i : Parameter_Registers) {
+			if (!i[0]->is(TOKEN::DECIMAL))
+				Non_Decimal_Register_Count++;
+		}
+		//then get the amount of all decimal registers
+		int Decimal_Register_Count = 0;
+		for (auto i : Parameter_Registers) {
+			if (i[0]->is(TOKEN::DECIMAL))
+				Decimal_Register_Count++;
+		}
+		//then count the number of non decimal parameters used in the Parameters list
+		int Parameter_Non_Decimal_Register_Count = 0;
+		for (auto i : Parameters) {
+			if (!i->is(TOKEN::DECIMAL))
+				Parameter_Non_Decimal_Register_Count++;
+		}
+		//now that we have the amount of possible non decimal register count and the used amount of them, we can
+		//calculate the substraction of the used non decimal registers from decimal registers, bear with me.
+		return Decimal_Register_Count - (Non_Decimal_Register_Count - (Non_Decimal_Register_Count - Parameter_Non_Decimal_Register_Count));
 	}
-	return result;
+	else {
+		int Decimal_Register_Count = 0;
+		for (auto i : Parameter_Registers) {
+			if (i[0]->is(TOKEN::DECIMAL))
+				Decimal_Register_Count++;
+		}
+		return Decimal_Register_Count;
+	}
 }
 
 void Selector::Clean_Register_Holders()

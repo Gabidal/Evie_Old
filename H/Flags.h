@@ -44,6 +44,7 @@ namespace TOKEN {
 	constexpr long long SET_DATA = 1 << 29;
 	constexpr long long GLOBAL_VARIABLE = 1 << 30;
 	constexpr long long STRING = (long long)1 << 31;
+	constexpr long long ADD_NON_VOLATILE_SPACE_NEEDS_HERE = (long long)1 << 32;
 }
 
 namespace Flags{

@@ -3,10 +3,12 @@
 #include "../../H/Parser/Parser.h"
 #include "../../H/Lexer/Lexer.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/UI/Usr.h"
 
 extern Node* Global_Scope;
 long long LNumber = 0;
 extern bool Optimized;
+extern Usr* sys;
 
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node();
@@ -287,11 +289,14 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 		}
 
 	//DEBUG
-	for (auto& v : Input[i]->Defined) {
-		v->Memory_Offset = v->Scope->Local_Allocation_Space;
-		v->Scope->Local_Allocation_Space += v->Get_Size();
-		v->Requires_Address = true;
-	}
+	if (sys->Info.Debug)
+		for (auto& v : Input[i]->Defined) {
+			if (v->is(PARAMETER_NODE))
+				continue;
+			v->Memory_Offset = v->Scope->Local_Allocation_Space;
+			v->Scope->Local_Allocation_Space += v->Get_Size();
+			v->Requires_Address = true;
+		}
 
 	return;
 }

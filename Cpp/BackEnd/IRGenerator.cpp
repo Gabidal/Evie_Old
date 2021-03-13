@@ -3,8 +3,10 @@
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/UI/Usr.h"
 
 extern Selector* selector;
+extern Usr* sys;
 unsigned long long Reg_Random_ID_Addon = 0;
 
 void IRGenerator::Factory()
@@ -53,19 +55,35 @@ void IRGenerator::Parse_Function(int i)
 	if (Input[i]->is("export") != -1)
 		Global_Scope->Header.push_back(Input[i]);
 
-	//Output->push_back(new IR(new Token(TOKEN::START_OF_FUNCTION, Input[i]->Name), {}, Input[i]->Location));
-
 	//label
 	IR* Label = Make_Label(Input[i], true);
 	Label->OPCODE->Set_Flags(Label->OPCODE->Get_Flags() | TOKEN::START_OF_FUNCTION);
 	Output->push_back(Label);
-
 	Reg_Random_ID_Addon = 0;
+
+	if (sys->Info.Debug) {
+		//the stack locaiton of these parameters are decided in IRPostProsessor.cpp
+		int Max_Non_Decimal_Register_Count = selector->Get_Numerical_Parameter_Register_Count(Input[i]->Parameters);
+		int Max_Decimal_Register_Count = selector->Get_Floating_Parameter_Register_Count(Input[i]->Parameters);
+
+		for (int j = 0; j < Input[i]->Parameters.size(); j++) {
+			if (j <= Max_Decimal_Register_Count || j <= Max_Non_Decimal_Register_Count) {
+				//first make a register representive out of the parameter.
+				Token* Register = new Token(Input[i]->Parameters[j]);
+				//then declare that the parameter now needs memory
+				Global_Scope->Find(Input[i]->Name, Global_Scope, Input[i]->Type)->Parameters[j]->Requires_Address = true;
+				//now the new token that is created is a memory representive of the original parameter.
+				Token* Memory = new Token(TOKEN::MEMORY, { new Token(Input[i]->Parameters[j]) }, Register->Get_Size(), Register->Get_Name());
+
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Memory, Register }, Input[i]->Location));
+			}
+		}
+	}
 
 	//go through the childs of the function
 	IRGenerator g(Input[i], Input[i]->Childs, Output);
 
-	//TODO: Make the return IR here
+
 	Token* ret = new Token(TOKEN::FLOW, "return");
 	ret->Set_Parent(Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE));
 	Output->push_back(new IR(ret, {}, Input[i]->Location));
@@ -88,9 +106,9 @@ void IRGenerator::Parse_Calls(int i)
 	//nah why dont do it here? :)
 	//ok. (:
 	int Number_Register_Count = 0;
-	int MAX_Number_Register_Count = selector->Get_Numerical_Parameter_Register_Count();
+	int MAX_Number_Register_Count = selector->Get_Numerical_Parameter_Register_Count(Input[i]->Parameters);
 	int Float_Register_Count = 0;
-	int MAX_Floating_Register_Count = selector->Get_Floating_Parameter_Register_Count();
+	int MAX_Floating_Register_Count = selector->Get_Floating_Parameter_Register_Count(Input[i]->Parameters);
 
 	//to push everything currectly
 	vector<Token*> Reversable_Pushes;
@@ -194,9 +212,14 @@ void IRGenerator::Parse_Calls(int i)
 	Node* parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, Input[i]);
 
 	int allocation = 0;
-	for (auto p : Reversable_Pushes) {
-		allocation += p->Get_Size();
+	if (sys->Info.Debug) {
+		for (auto p : Input[i]->Parameters)
+			allocation += p->Size;
 	}
+	else
+		for (auto p : Reversable_Pushes) {
+			allocation += p->Get_Size();
+		}
 
 	if (parent->Max_Allocation_Space < allocation)
 		parent->Max_Allocation_Space = allocation;
@@ -205,8 +228,8 @@ void IRGenerator::Parse_Calls(int i)
 	for (auto p : Reversable_Pushes) {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
 			new Token(TOKEN::MEMORY, {
-				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + parent->Local_Allocation_Space)))
-				}, p->Get_Size(), p->Get_Name()),
+				new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Stack_Offset + parent->Local_Allocation_Space)))
+				}, p->Get_Size(), p->Get_Name() + "_REGISTER"),
 			p
 			}, Input[i]->Location));
 		Stack_Offset += p->Get_Size();

@@ -749,7 +749,7 @@ void Parser::Function_Pattern(int i)
 			j->Is_Template_Object = true;
 	}
 
-	func->Parameters = p.Input[0].node->Childs;
+	func->Parameters = func->Defined;
 	p.Input.clear();
 
 	p.Input.push_back(Input[Parenthesis_Indexes[1]]);

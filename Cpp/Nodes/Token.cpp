@@ -1,7 +1,9 @@
 #include "../../H/Nodes/Token.h"
 #include "../../H/BackEnd/Selector.h"
+#include "../../H/UI/Usr.h"
 
 extern Selector* selector;
+extern Usr* sys;
 
 Token::Token(Node* n) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
@@ -26,15 +28,18 @@ Token::Token(Node* n) {
 	}
 	else if (n->is(PARAMETER_NODE)) {
 		//first get the index this paremet is
-		int Max_Integer_Registers = selector->Get_Numerical_Parameter_Register_Count();
+		int Max_Integer_Registers = selector->Get_Numerical_Parameter_Register_Count(n->Scope->Parameters);
 		int Current_Integer_Register_Count = 0;
-		int Max_Floating_Registers = selector->Get_Floating_Parameter_Register_Count();
+		int Max_Floating_Registers = selector->Get_Floating_Parameter_Register_Count(n->Scope->Parameters);
 		int Current_Float_Register_Count = 0;
+
+		bool Requires_Address = n->Find(n, n->Scope)->Requires_Address;
+
 		//find the curresponding register
 		for (int i = 0; i < n->Scope->Parameters.size(); i++) {
 			if (n->Scope->Parameters[i]->Name == n->Name) {
 				if (n->Find(n->Scope->Parameters[i]->Name)->Format == "decimal") {
-					if (Current_Float_Register_Count < Max_Floating_Registers) {
+					if (Current_Float_Register_Count < Max_Floating_Registers && !Requires_Address) {
 						Flags = TOKEN::REGISTER | TOKEN::DECIMAL | TOKEN::PARAMETER;
 						Parameter_Index = i;
 					}
@@ -43,7 +48,7 @@ Token::Token(Node* n) {
 					break;
 				}
 				else {
-					if (Current_Integer_Register_Count < Max_Integer_Registers) {
+					if (Current_Integer_Register_Count < Max_Integer_Registers && !Requires_Address) {
 						Flags = TOKEN::REGISTER | TOKEN::PARAMETER;
 						Parameter_Index = i;
 					}

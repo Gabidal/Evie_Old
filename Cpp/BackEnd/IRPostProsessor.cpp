@@ -79,6 +79,9 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 		if (selector->Get_New_Reg(Input, i, t) == nullptr)
 			selector->Allocate_Register(Input, i, t);
 	t->ID = selector->Get_Register(t)->Get_Name();
+	if (t->Get_Name() == "") {
+		cout << ".";
+	}
 }
 
 void IRPostProsessor::Handle_Global_Labels()
@@ -134,6 +137,23 @@ void IRPostProsessor::Clean_Selector(int& i)
 		Push_Amount.push_back(reg);
 	Already_Pushed:;
 	}
+
+	//Compute here the needed re-location of the function parameters
+	int New_Stack_Offset = 0;
+	for (auto r : Push_Amount)
+		New_Stack_Offset += r->Get_Size();
+	//start from the bottom of the function and rise up until hit function start label.
+	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j -= 1) {
+		for (auto& arg : Input->at(j)->Arguments)
+			for (auto& Child : arg->Get_All_Childs(arg))
+				if (Child->is(TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE)) {
+					int Current_Offset = atoi(Child->Get_Name().c_str());
+					Current_Offset += New_Stack_Offset;
+					Child->Set_Name(to_string(Current_Offset));
+				}
+	}
+
+
 	//now do same but for the end of funciton
 	selector->Set_Stack_Start_Value(0);
 	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j -= 1) {
@@ -176,6 +196,7 @@ void IRPostProsessor::Prepare_Function(int i)
 		Token* tmp = new Token(p);
 		if (tmp->is(TOKEN::REGISTER))
 			selector->Get_New_Reg(Input, i, new Token(p));
+
 	}
 }
 
@@ -214,13 +235,17 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 	Function->Update_Defined_Stack_Offsets();
 
 	Node* og = Function->Find(t->Get_Name());
+	long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
+	if (og->is(PARAMETER_NODE))
+		Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;
+
 	//Maybe we need to add the parameters addresses here?
-	if (og->Memory_Offset > 0)
-		*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(og->Memory_Offset)));
+	if (og->Memory_Offset > 0 || og->is(PARAMETER_NODE))
+		*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
 	else if (og->Memory_Offset == 0)
 		*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
 	else if (og->Memory_Offset < 0)
-		*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(og->Memory_Offset)));
+		*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
 
 }
 
