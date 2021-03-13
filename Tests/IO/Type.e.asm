@@ -10,115 +10,112 @@ Code_Start:
 .global main
 .global Start_Test
 Banana_START:
+.loc 1 11 1
 Banana:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 11 1
-mov rbx, rcx
-push rbx
-mov rcx, rbx
+sub rsp, 8
+mov qword ptr [rsp + 16 ], rcx
+mov rcx, qword ptr [rsp + 16 ]
 call Fruit
-mov dword ptr [rbx + 4 ], 1
 .loc 1 12 12
-mov dword ptr [rbx + 8 ], 2
+mov dword ptr [rsp + 16 + 4 ], 1
 .loc 1 13 14
-mov dword ptr [rbx + 12 ], 6
+mov dword ptr [rsp + 16 + 8 ], 2
 .loc 1 14 11
-mov dword ptr [rbx + 0 ], 5
+mov dword ptr [rsp + 16 + 12 ], 6
 .loc 1 15 7
-mov rax, rbx
+mov dword ptr [rsp + 16 + 0 ], 5
 .loc 1 11 1
-pop rbx
+mov rax, qword ptr [rsp + 16 ]
+add rsp, 8
 ret 
-pop rbx
+add rsp, 8
 ret 
 Banana_END:
 
 
 .cfi_endproc 
 Fruit_START:
+.loc 1 7 1
 Fruit:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 7 1
-mov dword ptr [rcx + 0 ], 4
+mov qword ptr [rsp + 8 ], rcx
 .loc 1 8 12
+mov dword ptr [rsp + 8 + 0 ], 4
 ret 
-.loc 1 7 1
 Fruit_END:
 
 
 .cfi_endproc 
 Get_Sugar_START:
+.loc 1 18 1
 Get_Sugar:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 18 1
-sub rsp, 8
-mov eax, dword ptr [rcx + 4 ]
+mov qword ptr [rsp + 8 ], rcx
 .loc 1 19 2
-add rsp, 8
+mov eax, dword ptr [rsp + 8 + 4 ]
 ret 
-add rsp, 8
 ret 
-.loc 1 18 1
 Get_Sugar_END:
 
 
 .cfi_endproc 
 is_Banana_START:
+.loc 1 22 1
 is_Banana:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 22 1
 sub rsp, 8
-mov rcx, rcx
+mov qword ptr [rsp + 16 ], rcx
 .loc 1 23 9
+mov rcx, qword ptr [rsp + 16 ]
 call Get_Sugar
 mov eax, eax
 add rsp, 8
 ret 
 add rsp, 8
 ret 
-.loc 1 22 1
 is_Banana_END:
 
 
 .cfi_endproc 
 Start_Test_START:
+.loc 1 26 1
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 26 1
-sub rsp, 32
-lea rcx, qword ptr [rsp ]
-mov rcx, rcx
+sub rsp, 48
+lea rcx, qword ptr [rsp + 16 ]
 .loc 1 27 11
-call Banana
-lea rcx, qword ptr [rsp ]
 mov rcx, rcx
+call Banana
+lea rcx, qword ptr [rsp + 16 ]
 .loc 1 28 9
+mov rcx, rcx
 call is_Banana
 mov eax, eax
-add rsp, 32
+add rsp, 48
 ret 
-add rsp, 32
+add rsp, 48
 ret 
-.loc 1 26 1
 Start_Test_END:
 
 
 .cfi_endproc 
 main_START:
+.loc 1 31 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 31 1
-mov eax, 1
 .loc 1 32 2
+call Start_Test
+.loc 1 33 2
+mov eax, 1
 ret 
 ret 
-.loc 1 31 1
 main_END:
 
 
@@ -397,7 +394,7 @@ _Fruit_START:
 .byte 5
 .byte 2
 .byte 145
-.byte 0
+.byte 8
 .asciz "this"
 .byte 1
 .byte 7
@@ -452,7 +449,7 @@ _Banana_START:
 .byte 5
 .byte 2
 .byte 145
-.byte 0
+.byte 8
 .asciz "b"
 .byte 1
 .byte 18
@@ -509,7 +506,7 @@ _Banana_START:
 .byte 10
 .byte 2
 .byte 145
-.byte 0
+.byte 16
 .asciz "x"
 .byte 1
 .byte 27

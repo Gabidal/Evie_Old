@@ -608,7 +608,7 @@ void DebugGenerator::Insert_Line_Change_Information(vector<IR*>& input)
             Current_Line = input[i]->Location->GetFriendlyLine();
 
             string Locatoin = to_string(Get_Index_From_File(input[i]->Location->GetFilePath())) + " " + to_string(Current_Line) + " " + to_string(input[i]->Location->GetFriendlyCharacter());
-            input.insert(input.begin() + i + 1, new IR(new Token(TOKEN::SET_DATA, "location"), { new Token(TOKEN::LABEL, Locatoin) }, input[i]->Location));
+            input.insert(input.begin() + i, new IR(new Token(TOKEN::SET_DATA, "location"), { new Token(TOKEN::LABEL, Locatoin) }, input[i]->Location));
         }
 
 }

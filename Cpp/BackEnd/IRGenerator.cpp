@@ -86,10 +86,10 @@ void IRGenerator::Parse_Function(int i)
 
 	Token* ret = new Token(TOKEN::FLOW, "return");
 	ret->Set_Parent(Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE));
-	Output->push_back(new IR(ret, {}, Input[i]->Location));
+	Output->push_back(new IR(ret, {}, nullptr));
 
 	//make the end of funciton like End Proc like label
-	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, Input[i]->Name), {}, Input[i]->Location));
+	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, Input[i]->Name), {}, nullptr));
 }
 
 void IRGenerator::Parse_Calls(int i)
@@ -221,8 +221,8 @@ void IRGenerator::Parse_Calls(int i)
 			allocation += p->Get_Size();
 		}
 
-	if (parent->Max_Allocation_Space < allocation)
-		parent->Max_Allocation_Space = allocation;
+	if (parent->Size_of_Call_Space < allocation)
+		parent->Size_of_Call_Space = allocation;
 
 	int Stack_Offset = 0;
 	for (auto p : Reversable_Pushes) {

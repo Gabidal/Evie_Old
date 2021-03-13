@@ -21,6 +21,6 @@ float Test_Fpu(float a, float b){
 }
 
 export int main(){
-	int a = 1
-	return a
+	Start_Test()
+	return 1
 }

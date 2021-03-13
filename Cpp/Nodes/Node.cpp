@@ -12,27 +12,25 @@ using namespace std;
 
 void Node::Update_Defined_Stack_Offsets()
 {
-	//sjip the returnin address.
+	//skip the returnin address.
 	int Parameter_Offset = 8;
 	int Local_Offset = 0;
 	//first conmpute all the local variable memory locaitions.
-	for (auto i : Defined) {
+	for (auto& i : Defined) {
 		if (i->is(OBJECT_NODE) || i->is(OBJECT_DEFINTION_NODE)) {
 			//every local variable is defined default as a value in a register.
 			if (i->Requires_Address) {
-				i->Memory_Offset = Local_Offset;
+				i->Memory_Offset = Local_Offset + Size_of_Call_Space;
 				i->Update_Size_By_Inheritted();
 				Local_Offset += i->Get_Size();
 			}
 		}
-	}
-	for (auto i : Defined) {
 		if (i->is(PARAMETER_NODE)) {
 			if (!Token(i).is(TOKEN::REGISTER)) {
 				//the parameters locate below the local variable space and the returning address 
 				//also, do remeber that, the pushes that the code needs for the nonvolatiles
 				//those come before the parameter space.
-				i->Memory_Offset = Parameter_Offset + Local_Offset;
+				i->Memory_Offset = Parameter_Offset + Size_of_Call_Space;
 				i->Update_Size_By_Inheritted();
 				Parameter_Offset += i->Get_Size();
 			}

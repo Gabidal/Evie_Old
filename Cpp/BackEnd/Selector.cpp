@@ -61,6 +61,23 @@ bool Selector::Find(string n, Token* ast)
 	return false;
 }
 
+bool Selector::Find(Token* n, Token* ast)
+{
+	if (ast->Get_Name() == n->Get_Name() && ast->is(n->Get_Flags()))
+		return true;
+	if (ast->is(TOKEN::CONTENT) || ast->is(TOKEN::MEMORY))
+		for (auto& i : ast->Childs)
+			//throw::runtime_error("haha nobnob");
+			return Find(n, i);
+	if (ast->is(TOKEN::OFFSETTER) || ast->is(TOKEN::DEOFFSETTER) || ast->is(TOKEN::SCALER)) {
+		if (Find(n, ast->Left))
+			return true;
+		if (Find(n, ast->Right))
+			return true;
+	}
+	return false;
+}
+
 int L1 = 0;
 vector<Token*> Selector::Transform(Token* parent)
 {
@@ -88,7 +105,7 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 	for (int j = i; j < source.size(); j++) {
 		for (auto k : source[j]->Arguments) {
 			//TODO: Cheking names wont work on duplicated local varibles inside a condition like scopes.
-			if (Find(t->Get_Name(), k)) {
+			if (Find(t, k)) {
 				//check if this is the same variable...
 				Last_Usage = j;
 				if (Crossed_Call != -1) {
@@ -572,42 +589,6 @@ vector<pair<Register_Descriptor*, Token*>> Selector::Get_Register_Type(long f)
 	}
 	return Result;
 }
-
-/*void Selector::Save(Token* id, Token* t, vector<IR*>* list, int i)
-{
-	//try to look if the t is has already a stack address
-	int Offset = 0;
-	for (auto v : Stack) {
-		if (v->Get_Name() == id->Get_Name()) {
-			list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {
-				new Token(TOKEN::MEMORY, {new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Offset), _SYSTEM_BIT_SIZE_))}),
-				t
-				}));
-		}
-		Offset += v->Get_Size();
-	}
-	//if not then push it to stack
-	Stack.push_back(id);
-	//now so the same thing
-	Save(id, t, list, i);
-}*/
-
-/*Token* Selector::Load(string id, vector<IR*>* list, int i)
-{
-	Token* Result = new Token(TOKEN::REGISTER, id + "_REG");
-	int Offset = 0;
-	for (auto v : Stack) {
-		if (v->Get_Name() == id) {
-			Result->Set_Size(v->Get_Size());
-			list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {
-				new Token(TOKEN::MEMORY, {new Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER, _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Offset), _SYSTEM_BIT_SIZE_))}),
-				Result
-				}));
-		}
-		Offset += v->Get_Size();
-	}
-	return Result;
-}*/
 
 void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {

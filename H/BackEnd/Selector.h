@@ -34,6 +34,7 @@ private:
 	void Init();
 	//tools
 	bool Find(string n, Token* ast);
+	bool Find(Token* n, Token* ast);
 	//registers
 	vector<pair<Register_Descriptor*, Token*>> Registers;
 	vector<vector<Token*>> Parameter_Registers;

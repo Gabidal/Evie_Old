@@ -116,6 +116,7 @@ void PostProsessor::Type_Definer(int i)
 	This->Name = "this";
 	This->Defined = Parent->Defined[i]->Defined;
 	This->Scope = Function;
+	This->Update_Size_By_Inheritted();
 
 	Function->Parameters.push_back(This);
 	Function->Defined.push_back(This);
@@ -188,7 +189,7 @@ vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* 
 			continue;
 
 		Node* Call = new Node(CALL_NODE, Class->Location);
-		Call->Parameters.push_back(This->Copy_Node(This, Call));
+		Call->Parameters.push_back(This->Copy_Node(This, Funciton));
 		Call->Name = i;
 		Call->Scope = Funciton;
 
@@ -335,6 +336,10 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//other wise we have normal functions
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
+
+	for (auto& i : n->Parameters)
+		if (i->Size == 0)
+			i->Update_Size_By_Inheritted();
 
 	Node* OgFunc = nullptr;
 	//also the returning type of this callation is not made,

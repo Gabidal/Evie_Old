@@ -29,5 +29,6 @@ export int Start_Test(){
 }
 
 export int main(){
+	Start_Test()
 	return 1
 }

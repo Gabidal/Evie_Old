@@ -51,7 +51,7 @@ public:
 	vector<Node*> Operator_Overloads;
 	int Call_Space_Start_Address = 0;
 	//for maximus parametrus usagus.
-	int Max_Allocation_Space = 0;
+	int Size_of_Call_Space = 0;
 	//for local variables.
 	int Local_Allocation_Space = 0;
 	//function features
