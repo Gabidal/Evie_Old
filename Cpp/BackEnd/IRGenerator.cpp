@@ -1105,8 +1105,14 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		Fecher = Fecher->Childs.back();
 	}
 
-	//remember to load object if it is a ptr.
-	//mov handle, [esp+class_offset+member_offset]
+	//if the fetcher is a memory we need to load it first to a register and that register is our handle for the member offset
+	if (Fecher->is(TOKEN::CONTENT) && !n->Fetcher->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE}) && n->Fetcher->is("ptr") != -1) {
+		//call the pointter handle system to do our job here :D
+		//															 - 1 because the fecher being memory 
+		//															the pointter operator alrerady because of that does one unwrap
+		Fecher = Operate_Pointter(Fecher, n->Fetcher->Get_All("ptr"), false, n->Fetcher->Inheritted);
+
+	}
 	
 	//make the member offset
 	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Find(n->Fetcher, n->Fetcher->Scope)->Find(n->Name)->Memory_Offset));
@@ -1422,7 +1428,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			handle = new Token(*p);
 		Token* Reg = nullptr;
 		//														  memory uploading needs more unwrapping.
-		for (int j = 0; j <= Difference - !Needed_At_Addressing + p->is(TOKEN::MEMORY); j++) {
+		for (int j = 0; j <= Difference - !Needed_At_Addressing /*+ p->is(TOKEN::MEMORY)*/; j++) {
 			int Reg_Size = _SYSTEM_BIT_SIZE_;
 			if (j + 1 <= Difference + p->is(TOKEN::MEMORY)) {
 				Reg_Size = 0;
@@ -1442,9 +1448,9 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			}
 
 			int Needed_Size = Reg_Size;
-			handle->Set_Size(Needed_Size);
 			if (Needed_At_Addressing)
 				Needed_Size = _SYSTEM_BIT_SIZE_;
+			handle->Set_Size(Needed_Size);
 			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Needed_Size);
 
 			//move from handle to reg

@@ -18,14 +18,18 @@ sub rsp, 8
 mov qword ptr [rsp + 16 ], rcx
 mov rcx, qword ptr [rsp + 16 ]
 call Fruit
+mov rcx, qword ptr [rsp + 16 ]
 .loc 1 12 12
-mov dword ptr [rsp + 16 + 4 ], 1
+mov dword ptr [rcx + 4 ], 1
+mov rcx, qword ptr [rsp + 16 ]
 .loc 1 13 14
-mov dword ptr [rsp + 16 + 8 ], 2
+mov dword ptr [rcx + 8 ], 2
+mov rcx, qword ptr [rsp + 16 ]
 .loc 1 14 11
-mov dword ptr [rsp + 16 + 12 ], 6
+mov dword ptr [rcx + 12 ], 6
+mov rcx, qword ptr [rsp + 16 ]
 .loc 1 15 7
-mov dword ptr [rsp + 16 + 0 ], 5
+mov dword ptr [rcx + 0 ], 5
 .loc 1 11 1
 mov rax, qword ptr [rsp + 16 ]
 add rsp, 8
@@ -42,8 +46,9 @@ Fruit:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 mov qword ptr [rsp + 8 ], rcx
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 8 12
-mov dword ptr [rsp + 8 + 0 ], 4
+mov dword ptr [rcx + 0 ], 4
 ret 
 Fruit_END:
 
@@ -55,8 +60,9 @@ Get_Sugar:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 mov qword ptr [rsp + 8 ], rcx
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 19 2
-mov eax, dword ptr [rsp + 8 + 4 ]
+mov eax, dword ptr [rcx + 4 ]
 ret 
 ret 
 Get_Sugar_END:

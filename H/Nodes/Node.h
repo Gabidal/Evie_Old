@@ -583,6 +583,17 @@ public:
 		return Result;
 	}
 
+	/// <summary>
+	/// Gets amount of specified int the parameter from inheritance
+	/// </summary>
+	int Get_All(string s) {
+		int Result = 0;
+		for (auto i : Inheritted)
+			if (i == s)
+				Result++;
+		return Result;
+	}
+
 	static vector<Node*> Get_all(int f, vector<Node*> l) {
 		vector<Node*> Result;
 		for (Node* n : l)

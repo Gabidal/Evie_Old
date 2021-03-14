@@ -15,7 +15,7 @@ void Node::Update_Defined_Stack_Offsets()
 	//skip the returnin address.
 	int Parameter_Offset = 8;
 	int Local_Offset = 0;
-	//first conmpute all the local variable memory locaitions.
+	//first conmpute all the memory locaitions.
 	for (auto& i : Defined) {
 		if (i->is(OBJECT_NODE) || i->is(OBJECT_DEFINTION_NODE)) {
 			//every local variable is defined default as a value in a register.
