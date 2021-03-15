@@ -10,49 +10,49 @@ Code_Start:
 .global Start_Test
 .global main
 main_START:
+.loc 1 4 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 4 1
-call Start_Test
 .loc 1 5 2
-mov eax, 1
+call Start_Test
 .loc 1 6 2
+mov eax, 1
 ret 
 ret 
-.loc 1 4 1
 main_END:
 
 
 .cfi_endproc 
 foo_START:
+.loc 1 9 1
 foo:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 9 1
-mov eax, 5
 .loc 1 10 2
+mov eax, 5
 ret 
 ret 
-.loc 1 9 1
 foo_END:
 
 
 .cfi_endproc 
 Start_Test_START:
+.loc 1 13 1
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 13 1
-lea rcx, qword ptr [foo ]
+sub rsp, 8
 .loc 1 14 14
-mov rcx, rcx
-call rcx
+lea rcx, qword ptr [foo ]
+mov qword ptr [rsp ], rcx
 .loc 1 15 9
+call qword ptr [rsp ]
 mov eax, eax
+add rsp, 8
 ret 
+add rsp, 8
 ret 
-.loc 1 13 1
 Start_Test_END:
 
 
@@ -97,8 +97,8 @@ debug_abbrev:
 .byte 3
 .byte 52
 .byte 0
-.byte 2
-.byte 24
+.byte 56
+.byte 5
 .byte 3
 .byte 8
 .byte 58
@@ -203,8 +203,8 @@ debug_abbrev:
 .byte 9
 .byte 52
 .byte 0
-.byte 56
-.byte 5
+.byte 2
+.byte 24
 .byte 3
 .byte 8
 .byte 58

@@ -221,7 +221,7 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 	if (t->is(TOKEN::MEMORY))
 		for (auto& i : t->Childs)
 			Handle_Stack_Usages(i);
-	if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::DEOFFSETTER)) {
+	if (t->is(TOKEN::OFFSETTER) || t->is(TOKEN::DEOFFSETTER) || t->is(TOKEN::SCALER)) {
 		Handle_Stack_Usages(t->Left);
 		Handle_Stack_Usages(t->Right);
 	}

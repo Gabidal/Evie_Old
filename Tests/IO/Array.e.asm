@@ -23,11 +23,11 @@ mov qword ptr [rsp + 4 ], rax
 lea rcx, qword ptr [rsp + 4 ]
 mov qword ptr [rsp + 12 ], rcx
 .loc 1 6 2
-mov rcx, qword ptr [() + 0 * 8 ]
+mov rcx, qword ptr [rsp + 12 + 0 * 8 ]
 lea rcx, qword ptr [rcx + 1 * 4 ]
 mov dword ptr [rcx ], 1
 .loc 1 7 10
-mov rcx, qword ptr [() + 0 * 8 ]
+mov rcx, qword ptr [rsp + 12 + 0 * 8 ]
 mov ecx, dword ptr [rcx + 1 * 4 ]
 mov dword ptr [rsp + 20 ], ecx
 .loc 1 8 2

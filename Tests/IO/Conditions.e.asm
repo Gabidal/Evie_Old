@@ -10,51 +10,53 @@ Code_Start:
 .global main
 .global Start_Test
 Start_Test_START:
+.loc 1 3 1
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 3 1
-mov ecx, 0
+sub rsp, 4
 .loc 1 5 10
-cmp ecx, 100
+mov dword ptr [rsp ], 0
+cmp dword ptr [rsp ], 100
 jge while0_END
 while0:
-mov r8d, ecx
-add ecx, 1
-cmp ecx, 100
+mov ecx, dword ptr [rsp ]
+add dword ptr [rsp ], 1
+cmp dword ptr [rsp ], 100
 jge while0_END
 jmp while0
 while0_END:
+.loc 1 8 2
 if1:
-.loc 1 8 2
-cmp ecx, 100
+cmp dword ptr [rsp ], 100
 jne if1_END
-mov ecx, 10
 .loc 1 9 5
-if1_END:
+mov dword ptr [rsp ], 10
 .loc 1 8 2
+if1_END:
+.loc 1 11 2
 if2:
-.loc 1 11 2
-cmp ecx, 100
+cmp dword ptr [rsp ], 100
 jne else3
-mov ecx, 100
 .loc 1 12 5
+mov dword ptr [rsp ], 100
 jmp else3_END
-if2_END:
 .loc 1 11 2
+if2_END:
+.loc 1 14 2
 else3:
-.loc 1 14 2
-cmp ecx, 10
+cmp dword ptr [rsp ], 10
 jne else3_END
-mov ecx, 100
 .loc 1 15 5
-else3_END:
+mov dword ptr [rsp ], 100
 .loc 1 14 2
-mov eax, ecx
+else3_END:
 .loc 1 17 2
+mov eax, dword ptr [rsp ]
+add rsp, 4
 ret 
-mov ecx, 1
 .loc 1 19 10
+mov ecx, 1
 cmp ecx, 2
 jge while4_END
 while4:
@@ -63,25 +65,25 @@ cmp ecx, 2
 jge while4_END
 jmp while4
 while4_END:
-mov eax, 0
 .loc 1 20 2
+mov eax, 0
+add rsp, 4
 ret 
+add rsp, 4
 ret 
-.loc 1 3 1
 Start_Test_END:
 
 
 .cfi_endproc 
 main_START:
+.loc 1 23 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 23 1
-mov eax, 1
 .loc 1 24 2
+mov eax, 1
 ret 
 ret 
-.loc 1 23 1
 main_END:
 
 
@@ -126,8 +128,8 @@ debug_abbrev:
 .byte 3
 .byte 52
 .byte 0
-.byte 2
-.byte 24
+.byte 56
+.byte 5
 .byte 3
 .byte 8
 .byte 58
@@ -194,8 +196,8 @@ debug_abbrev:
 .byte 7
 .byte 52
 .byte 0
-.byte 56
-.byte 5
+.byte 2
+.byte 24
 .byte 3
 .byte 8
 .byte 58
@@ -301,6 +303,14 @@ _string_START:
 .asciz "Start_Test"
 .byte 1
 .byte 3
+.byte 7
+.byte 2
+.byte 145
+.byte 0
+.asciz "i"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
 .byte 0
 .byte 8
 .quad main_START

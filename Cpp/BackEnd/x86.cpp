@@ -778,7 +778,8 @@ void x86_64_Win::Init()
 		{{Register, {1, 8}}, {Register, {1, 8}}},
 		{{Register, {1, 8}}, {Memory, {1, 8}}},
 		{{Memory, {1, 8}}, {Register, {1, 8}}},
-		{{Register,  {1, 8}}, {Const, {1, 8}}}
+		{{Register,  {1, 8}}, {Const, {1, 8}}},
+		{ {Memory,  {1, 8}}, {Const, {1, 8}}}
 		});
 
 	IR* JMP = new IR("jump", new Token(FLOW, "jmp"), { {{Label, {0, 0}}} });
@@ -805,7 +806,8 @@ void x86_64_Win::Init()
 
 	IR* CALL = new IR("call", new Token(TOKEN::CALL, "call"), {
 		{{Label, {0, 0}}},
-		{{Register, {_SYSTEM_BIT_SIZE_, _SYSTEM_BIT_SIZE_}}}
+		{{Register, {_SYSTEM_BIT_SIZE_, _SYSTEM_BIT_SIZE_}}},
+		{ {Memory, {_SYSTEM_BIT_SIZE_, _SYSTEM_BIT_SIZE_}}}
 	});	
 
 	IR* GLOBAL = new IR("global", new Token(TOKEN::GLOBAL_LABEL, ".global"), {

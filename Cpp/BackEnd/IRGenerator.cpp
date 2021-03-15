@@ -242,7 +242,10 @@ void IRGenerator::Parse_Calls(int i)
 	else {
 		Node* tmp = Input[i];
 		tmp->Type = OBJECT_NODE;
-		ir = new IR(call, { new Token(tmp) }, Input[i]->Location);
+		Token* Call_Variable = new Token(tmp);
+		if (Call_Variable->is(TOKEN::CONTENT))
+			Call_Variable = new Token(TOKEN::MEMORY, { Call_Variable }, Call_Variable->Get_Size(), Call_Variable->Get_Name());
+		ir = new IR(call, { Call_Variable }, Input[i]->Location);
 	}
 
 	Output->push_back(ir);
@@ -532,6 +535,8 @@ void IRGenerator::Parse_Operators(int i)
 		}
 		else {
 			Left = new Token(Input[i]->Left);
+			if (Left->is(TOKEN::CONTENT))
+				Left = new Token(TOKEN::MEMORY, { Left }, Left->Get_Size(), Left->Get_Name());
 		}
 	}
 
@@ -811,7 +816,7 @@ void IRGenerator::Parse_Arrays(int i)
 			if (Is_In_Left_Side_Of_Operator && (size_t)o+1 >= Input[i]->Right->Childs.size())
 				Load_Type = "evaluate";	//this happends when it is the last load and it is left side of a assign
 
-			Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size) }, Input[i]->Location));
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, Load_Type), {reg, new Token(TOKEN::MEMORY, {Scaler}, Next_Register_Size, Input[i]->Left->Name + "_" + Input[i]->Right->Name) }, Input[i]->Location));
 		
 			handle->Get_Childs()->back() = reg;
 			handle->Set_Name(reg->Get_Name());
