@@ -10,47 +10,45 @@ Code_Start:
 .global main
 .global Start_Test
 Start_Test_START:
+.loc 1 3 1
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 3 1
-sub rsp, 8
-mov ecx, 40
+sub rsp, 32
 .loc 1 4 14
+mov ecx, 40
 call _Z8allocatei
-mov qword ptr [rsp ], rax
-lea rcx, qword ptr [rsp ]
+mov qword ptr [rsp + 4 ], rax
 .loc 1 5 16
-mov rcx, rcx
-mov r8, qword ptr [rcx + 0 * 8 ]
+lea rcx, qword ptr [rsp + 4 ]
+mov qword ptr [rsp + 12 ], rcx
 .loc 1 6 2
-lea r8, qword ptr [r8 + 1 * 4 ]
-mov dword ptr [r8 ], 1
-mov rcx, qword ptr [rcx + 0 * 8 ]
+mov rcx, qword ptr [() + 0 * 8 ]
+lea rcx, qword ptr [rcx + 1 * 4 ]
+mov dword ptr [rcx ], 1
 .loc 1 7 10
+mov rcx, qword ptr [() + 0 * 8 ]
 mov ecx, dword ptr [rcx + 1 * 4 ]
-mov ecx, ecx
-mov eax, ecx
+mov dword ptr [rsp + 20 ], ecx
 .loc 1 8 2
-add rsp, 8
+mov eax, dword ptr [rsp + 20 ]
+add rsp, 32
 ret 
-add rsp, 8
+add rsp, 32
 ret 
-.loc 1 3 1
 Start_Test_END:
 
 
 .cfi_endproc 
 main_START:
+.loc 1 11 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 11 1
-mov eax, 1
 .loc 1 12 2
+mov eax, 1
 ret 
 ret 
-.loc 1 11 1
 main_END:
 
 
@@ -95,8 +93,8 @@ debug_abbrev:
 .byte 3
 .byte 52
 .byte 0
-.byte 2
-.byte 24
+.byte 56
+.byte 5
 .byte 3
 .byte 8
 .byte 58
@@ -163,8 +161,8 @@ debug_abbrev:
 .byte 7
 .byte 52
 .byte 0
-.byte 56
-.byte 5
+.byte 2
+.byte 24
 .byte 3
 .byte 8
 .byte 58
@@ -273,7 +271,7 @@ _string_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 0
+.byte 4
 .asciz "a"
 .byte 1
 .byte 4
@@ -281,10 +279,18 @@ _string_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 0
+.byte 12
 .asciz "b"
 .byte 1
 .byte 5
+.long _int_START-Debug_Info_Start
+.byte 7
+.byte 2
+.byte 145
+.byte 20
+.asciz "c"
+.byte 1
+.byte 7
 .long _int_START-Debug_Info_Start
 .byte 0
 .byte 8

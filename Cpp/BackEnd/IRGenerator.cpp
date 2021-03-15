@@ -133,7 +133,7 @@ void IRGenerator::Parse_Calls(int i)
 
 		int Level_Difference = Get_Amount("ptr", n) - Get_Amount("ptr", Input[i]->Function_Implementation->Parameters[Parameter_Place]);
 		if (Level_Difference != 0)
-			p = g.Operate_Pointter(p, Level_Difference);
+			p = g.Operate_Pointter(p, Level_Difference, false, p->is(TOKEN::MEMORY));
 
 		if (n->Format == "decimal") {
 			if (Float_Register_Count < MAX_Floating_Register_Count) {
@@ -418,8 +418,8 @@ void IRGenerator::Parse_Cloning(int i)
 		Right = new Token(Input[i]->Right);
 
 	//check for pointters
-	if (Input[i]->Right->is("ptr") != -1) {								// -1 keep one pointter is there is
-		Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right) -1, true, Input[i]->Right->Inheritted);
+	if (Input[i]->Right->is("ptr") != -1) {								// -1 keep one pointter that there is
+		Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right) -1, true, Right->is(TOKEN::MEMORY), Input[i]->Right->Inheritted);
 	}
 
 	Token* Left;
@@ -667,7 +667,7 @@ void IRGenerator::Parse_Pointers(int i)
 			int Keep_Last_Address = 0;
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 				Keep_Last_Address = 1;
-			Left = Operate_Pointter(Left, Level_Difference - Keep_Last_Address);
+			Left = Operate_Pointter(Left, Level_Difference - Keep_Last_Address, false, Left->is(TOKEN::MEMORY));
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 				Left = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_);
 		}
@@ -678,7 +678,7 @@ void IRGenerator::Parse_Pointers(int i)
 		}
 	}
 	else if (Left_Level < Right_Level) {
-		Right = Operate_Pointter(Right, Level_Difference, false, Input[i]->Right->Inheritted);
+		Right = Operate_Pointter(Right, Level_Difference, false, Right->is(TOKEN::MEMORY), Input[i]->Right->Inheritted);
 		if (Left->is(TOKEN::CONTENT)) {
 				//handle the other side into a usable register
 				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Get_Size());
@@ -783,7 +783,7 @@ void IRGenerator::Parse_Arrays(int i)
 
 			if (Input[i]->Right->Childs[o]->is("ptr") != -1)
 				//								//unload all ptr layers
-				Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right->Childs[o]), true);
+				Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right->Childs[o]), true, Right->is(TOKEN::MEMORY));
 			else if (Right->is(TOKEN::CONTENT)) {
 				//load variable into a register
 				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
@@ -895,7 +895,7 @@ void IRGenerator::Parse_Arrays(int i)
 
 		if (Input[i]->Right->is("ptr") != -1)
 			//								//unload all ptr layers
-			Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right), true);
+			Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right), true, Right->is(TOKEN::MEMORY));
 		else if (Right->is(TOKEN::CONTENT)) {
 			//load variable into a register
 			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
@@ -1114,7 +1114,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		//call the pointter handle system to do our job here :D
 		//															 - 1 because the fecher being memory 
 		//															the pointter operator alrerady because of that does one unwrap
-		Fecher = Operate_Pointter(Fecher, n->Fetcher->Get_All("ptr"), false, n->Fetcher->Inheritted);
+		Fecher = Operate_Pointter(Fecher, n->Fetcher->Get_All("ptr"), false, false, n->Fetcher->Inheritted);
 
 	}
 	
@@ -1414,7 +1414,7 @@ vector<Token*> IRGenerator::Find(long n, Token* t)
 	return Result;
 }
 
-Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing, vector<string> Types)
+Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Address_Offsetting, bool Unwrap_Memory, vector<string> Types)
 {
 	if (p->is(TOKEN::CONTENT)) {
 		p = new Token(TOKEN::MEMORY, { p }, _SYSTEM_BIT_SIZE_, p->Get_Name(), p->Get_Parent());
@@ -1438,7 +1438,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			handle = new Token(*p);
 		Token* Reg = nullptr;
 		//														  memory uploading needs more unwrapping.
-		for (int j = 0; j <= Difference - !Needed_At_Addressing /*+ p->is(TOKEN::MEMORY)*/; j++) {
+		for (int j = 0; j <= Difference - !Needed_At_Address_Offsetting + Unwrap_Memory; j++) {
 			int Reg_Size = _SYSTEM_BIT_SIZE_;
 			if (j + 1 <= Difference + p->is(TOKEN::MEMORY)) {
 				Reg_Size = 0;
@@ -1458,7 +1458,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			}
 
 			int Needed_Size = Reg_Size;
-			if (Needed_At_Addressing)
+			if (Needed_At_Address_Offsetting)
 				Needed_Size = _SYSTEM_BIT_SIZE_;
 			handle->Set_Size(Needed_Size);
 			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Needed_Size);
@@ -1475,7 +1475,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			handle->Set_Name(Reg->Get_Name());
 			//}
 		}
-		if (Needed_At_Addressing)
+		if (Needed_At_Address_Offsetting)
 			Reg->Set_Size(_SYSTEM_BIT_SIZE_);
 		return Reg;
 	}
@@ -1558,7 +1558,7 @@ void IRGenerator::Parse_Return(int i) {
 
 	int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
 	if (Level_Difference != 0) {
-		Return_Val = Operate_Pointter(Return_Val, Level_Difference);
+		Return_Val = Operate_Pointter(Return_Val, Level_Difference, false, Return_Val->is(TOKEN::CONTENT));
 	}
 	else if (Return_Val->is(TOKEN::CONTENT)) {
 		Token* m = new Token(TOKEN::MEMORY, { Return_Val }, Returning_Reg_Size, Return_Val->Get_Name());
