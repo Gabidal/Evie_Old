@@ -488,6 +488,11 @@ void x86_64_Win::Init()
 				else
 					Right = R;
 			}
+			else if (Right->is(DECIMAL) && Left->is(DECIMAL) && Right->Get_Size() != Left->Get_Size()) {
+				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), Left->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "convert"), { R, Right }, nullptr));
+				Right = R;
+			}
 			else if (Right->is(MEMORY | DECIMAL)) {
 				Token* R = new Token(REGISTER | DECIMAL, "REG_" + Right->Get_Name() + to_string(rand()), Right->Get_Size());
 				Result.push_back(new IR(new Token(OPERATOR, "="), {
@@ -508,11 +513,6 @@ void x86_64_Win::Init()
 				if (Right->is(DECIMAL))
 					Type = "=";
 				Result.push_back(new IR(new Token(OPERATOR, Type), { R, Right }, nullptr));
-				Right = R;
-			}
-			else if (Right->is(DECIMAL) && Left->is(DECIMAL) && Right->Get_Size() != Left->Get_Size()) {
-				Token* R = new Token(REGISTER | DECIMAL, "MEDIA_" + Right->Get_Name() + to_string(rand()), Left->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "convert"), { R, Right }, nullptr));
 				Right = R;
 			}
 			else

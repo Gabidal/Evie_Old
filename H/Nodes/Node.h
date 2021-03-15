@@ -421,7 +421,7 @@ public:
 			//there is no inheritable type that doesnt have enything init.
 			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
-			Node* t = Find(s, Scope, true);
+			Node* t = Find(s, Scope, CLASS_NODE);
 			t->Update_Format();
 			if (t->Format == "integer")
 				Format = t->Get_Format();

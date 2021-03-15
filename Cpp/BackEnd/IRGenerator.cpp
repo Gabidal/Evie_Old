@@ -483,6 +483,7 @@ void IRGenerator::Parse_Operators(int i)
 		return;
 
 	Update_Operator(Input[i]);
+	Input[i]->Update_Format();
 
 	Input[i]->Left->Update_Size_By_Inheritted();
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
@@ -502,6 +503,10 @@ void IRGenerator::Parse_Operators(int i)
 	vector<IR*> tmp;
 	IRGenerator g2(Parent, { Input[i]->Right }, &tmp);
 
+	long long F = 0;
+	if (Input[i]->Format == "decimal")
+		F |= TOKEN::DECIMAL;
+
 	if (g.Handle != nullptr) {
 		Left = g.Handle;
 	}
@@ -510,16 +515,14 @@ void IRGenerator::Parse_Operators(int i)
 			//dont load the value into a register
 			Left = new Token(Input[i]->Left);
 			if (Left->is(TOKEN::CONTENT))
-				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Get_Size(), Left->Get_Name());
-			//else if (Left->is(TOKEN::REGISTER) || Left->is(TOKEN::PARAMETER))
-			//	Left = Left; //:D no need to do enything
+				Left = new Token(TOKEN::MEMORY | F, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Get_Size(), Left->Get_Name());
 		}
 		else if (Is_In_Left_Side_Of_Operator || (!Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) || Input[i]->Left->is(NUMBER_NODE))) {
 			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Scope));
 			if (L->is(TOKEN::CONTENT))
-				L = new Token(TOKEN::MEMORY, { L }, L->Get_Size(), L->Get_Name());
+				L = new Token(TOKEN::MEMORY | F, { L }, L->Get_Size(), L->Get_Name());
 
-			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name() + to_string(Reg_Random_ID_Addon++), L->Get_Size());
+			Token* Reg = new Token(TOKEN::REGISTER | F, "REG_" + L->Get_Name() + to_string(Reg_Random_ID_Addon++), L->Get_Size());
 			//create the IR
 			Token* Opc = new Token(TOKEN::OPERATOR, "=");
 			IR* ir = new IR(Opc, { Reg, L }, Input[i]->Location);
@@ -539,9 +542,9 @@ void IRGenerator::Parse_Operators(int i)
 				string Type = "=";
 				if (Left->is(TOKEN::MEMORY))
 					Type = "evaluate";
-				Token* r = new Token(TOKEN::REGISTER, Left->Get_Name() + "Save from the right side callations" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
+				Token* r = new Token(TOKEN::REGISTER | F, Left->Get_Name() + "Save from the right side callations" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 				Output->push_back(new IR(new Token(TOKEN::OPERATOR, Type), { r, new Token(*Left, _SYSTEM_BIT_SIZE_) }, Input[i]->Location));
-				r = new Token(TOKEN::MEMORY, { r }, Left->Get_Size(), Left->Get_Name());
+				r = new Token(TOKEN::MEMORY | F, { r }, Left->Get_Size(), Left->Get_Name());
 				Left = r;
 			}
 	}
@@ -559,10 +562,11 @@ void IRGenerator::Parse_Operators(int i)
 	}
 	else if (!Input[i]->Right->is(NUMBER_NODE) && !Token(Input[i]->Right).is(TOKEN::REGISTER) && !Left->is(TOKEN::REGISTER)){//!Is_Parameter_Register) {
 		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Scope));
-		if (R->is(TOKEN::CONTENT))
-			R = new Token(TOKEN::MEMORY, { R }, R->Get_Size(), R->Get_Name());
 
-		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name() + to_string(Reg_Random_ID_Addon++), R->Get_Size());
+		if (R->is(TOKEN::CONTENT))
+			R = new Token(TOKEN::MEMORY | F, { R }, R->Get_Size(), R->Get_Name());
+
+		Token* Reg = new Token(TOKEN::REGISTER | F, "REG_" + R->Get_Name() + to_string(Reg_Random_ID_Addon++), R->Get_Size());
 		//create the IR
 		Token* Opc = new Token(TOKEN::OPERATOR, "=");
 		IR* ir = new IR(Opc, { Reg, R }, Input[i]->Location);
@@ -575,7 +579,7 @@ void IRGenerator::Parse_Operators(int i)
 		if (Right->is(TOKEN::NUM))
 			Right->Set_Size(Left->Get_Size());
 		if (Right->is(TOKEN::CONTENT))
-			Right = new Token(TOKEN::MEMORY, { Right }, Left->Get_Size() ,Right->Get_Name());
+			Right = new Token(TOKEN::MEMORY | F, { Right }, Left->Get_Size() ,Right->Get_Name());
 		//Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
 	}
 	
@@ -1184,6 +1188,12 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	else
 		Old_Format = new Token(n);
 
+	long long Additional_Flags = TOKEN::MEMORY;
+	if (Old_Format->is(TOKEN::DECIMAL))
+		Additional_Flags |= TOKEN::DECIMAL;
+	if (Old_Format->is(TOKEN::CONTENT)) {
+		Old_Format = new Token(Additional_Flags, { Old_Format },  Old_Format->Get_Size(), Old_Format->Get_Name() + "_REGISTER");
+	}
 
 	/*if (n->is("ptr") != -1) {
 		int amount = 0;

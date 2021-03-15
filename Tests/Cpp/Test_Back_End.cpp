@@ -175,10 +175,10 @@ void Back_End_Test::Init()
 	//what we expect the function to return, file name
 	Tests = {
 		//{{1}, "Tests/IO/main"},
+		{{10}, "Tests/IO/Ptr.e"},
+		{{2}, "Tests/IO/Cast.e"},
 		{{-6}, "Tests/IO/Math.e"},
 		{{1}, "Tests/IO/Type.e"},
-		{{2}, "Tests/IO/Cast.e"},
-		{{10}, "Tests/IO/Ptr.e"},
 		{{1}, "Tests/IO/Array.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{100}, "Tests/IO/Conditions.e"},

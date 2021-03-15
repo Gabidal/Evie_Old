@@ -10,81 +10,78 @@ Code_Start:
 .global main
 .global Start_Test
 Start_Test_START:
+.loc 1 5 1
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 5 1
-sub rsp, 44
-mov dword ptr [rsp ], 10
+sub rsp, 112
 .loc 1 6 10
-lea rcx, qword ptr [rsp ]
+mov dword ptr [rsp ], 10
 .loc 1 7 12
+lea rcx, qword ptr [rsp ]
 mov qword ptr [rsp + 4 ], rcx
-lea rcx, qword ptr [rsp + 4 ]
 .loc 1 8 16
+lea rcx, qword ptr [rsp + 4 ]
 mov qword ptr [rsp + 12 ], rcx
 mov rcx, qword ptr [rsp + 4 ]
-mov ecx, dword ptr [rcx ]
-mov eax, ecx
 .loc 1 9 2
-add rsp, 44
+mov eax, rcx
+add rsp, 112
 ret 
-lea rcx, qword ptr [rsp + 12 ]
 .loc 1 11 20
+lea rcx, qword ptr [rsp + 12 ]
 mov qword ptr [rsp + 20 ], rcx
-lea rcx, qword ptr [rsp + 20 ]
 .loc 1 12 24
+lea rcx, qword ptr [rsp + 20 ]
 mov qword ptr [rsp + 28 ], rcx
-lea rcx, qword ptr [rsp + 28 ]
 .loc 1 13 28
+lea rcx, qword ptr [rsp + 28 ]
 mov qword ptr [rsp + 36 ], rcx
-lea rcx, qword ptr [rsp + 36 ]
 .loc 1 14 32
-mov rcx, rcx
+lea rcx, qword ptr [rsp + 36 ]
+mov qword ptr [rsp + 44 ], rcx
+mov rcx, qword ptr [rsp + 44 ]
 mov rcx, qword ptr [rcx ]
 mov rcx, qword ptr [rcx ]
 mov rcx, qword ptr [rcx ]
 mov rcx, qword ptr [rcx ]
 mov rcx, qword ptr [rcx ]
-mov ecx, dword ptr [rcx ]
-mov eax, ecx
 .loc 1 15 2
-add rsp, 44
+mov eax, rcx
+add rsp, 112
 ret 
-mov rcx, 123
 .loc 1 17 34
-mov ecx, dword ptr [rcx ]
-mov eax, ecx
+mov qword ptr [rsp + 52 ], 123
+mov rcx, qword ptr [rsp + 52 ]
 .loc 1 18 2
-add rsp, 44
+mov eax, rcx
+add rsp, 112
 ret 
-mov rcx, 1234
 .loc 1 20 34
+mov qword ptr [rsp + 60 ], 1234
+mov rcx, qword ptr [rsp + 60 ]
 mov rcx, qword ptr [rcx ]
-mov ecx, dword ptr [rcx ]
-mov eax, ecx
 .loc 1 21 2
-add rsp, 44
+mov eax, rcx
+add rsp, 112
 ret 
-add rsp, 44
+add rsp, 112
 ret 
-.loc 1 5 1
 Start_Test_END:
 
 
 .cfi_endproc 
 main_START:
+.loc 1 24 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 24 1
-call Start_Test
 .loc 1 25 2
-mov eax, 1
+call Start_Test
 .loc 1 26 2
+mov eax, 1
 ret 
 ret 
-.loc 1 24 1
 main_END:
 
 
@@ -129,8 +126,8 @@ debug_abbrev:
 .byte 3
 .byte 52
 .byte 0
-.byte 2
-.byte 24
+.byte 56
+.byte 5
 .byte 3
 .byte 8
 .byte 58
@@ -197,8 +194,8 @@ debug_abbrev:
 .byte 7
 .byte 52
 .byte 0
-.byte 56
-.byte 5
+.byte 2
+.byte 24
 .byte 3
 .byte 8
 .byte 58
@@ -338,6 +335,22 @@ _Static_Cast_START:
 .byte 7
 .byte 2
 .byte 145
+.byte 20
+.asciz "c"
+.byte 1
+.byte 11
+.long _int_START-Debug_Info_Start
+.byte 7
+.byte 2
+.byte 145
+.byte 28
+.asciz "d"
+.byte 1
+.byte 12
+.long _int_START-Debug_Info_Start
+.byte 7
+.byte 2
+.byte 145
 .byte 36
 .asciz "e"
 .byte 1
@@ -346,7 +359,15 @@ _Static_Cast_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 0
+.byte 44
+.asciz "f"
+.byte 1
+.byte 14
+.long _int_START-Debug_Info_Start
+.byte 7
+.byte 2
+.byte 145
+.byte 52
 .asciz "Normal_Cast_needing_Var"
 .byte 1
 .byte 17
@@ -354,7 +375,7 @@ _Static_Cast_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 0
+.byte 60
 .asciz "Dynamic_needing_Var"
 .byte 1
 .byte 20

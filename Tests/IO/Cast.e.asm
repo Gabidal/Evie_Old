@@ -10,14 +10,16 @@ Code_Start:
 .global main
 .global Start_Test
 Base_START:
+.loc 1 3 1
 Base:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 3 1
-mov dword ptr [rcx + 0 ], 0
+mov qword ptr [rsp + 8 ], rcx
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 4 11
-mov rax, rcx
+mov dword ptr [rcx + 0 ], 0
 .loc 1 3 1
+mov rax, qword ptr [rsp + 8 ]
 ret 
 ret 
 Base_END:
@@ -25,96 +27,101 @@ Base_END:
 
 .cfi_endproc 
 Mid_START:
+.loc 1 7 1
 Mid:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 7 1
-mov rbx, rcx
-push rbx
-mov rcx, rbx
+sub rsp, 8
+mov qword ptr [rsp + 16 ], rcx
+mov rcx, qword ptr [rsp + 16 ]
 call Base
-mov dword ptr [rbx + 0 ], 1
+mov rcx, qword ptr [rsp + 16 ]
 .loc 1 8 7
-mov ecx, 1074261268
-mov dword ptr [rbx + 4 ], ecx
-mov rax, rbx
+mov dword ptr [rcx + 0 ], 1
+mov rcx, qword ptr [rsp + 16 ]
+mov r8d, 1074261268
+mov dword ptr [rcx + 4 ], r8d
 .loc 1 7 1
-pop rbx
+mov rax, qword ptr [rsp + 16 ]
+add rsp, 8
 ret 
-pop rbx
+add rsp, 8
 ret 
 Mid_END:
 
 
 .cfi_endproc 
 test_all_format_casts_START:
+.loc 1 17 1
 test_all_format_casts:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 17 1
-mov ecx, 1
+sub rsp, 16
 .loc 1 18 8
-cvtsi2ss xmm0, ecx
-movss xmm0, xmm0
+mov dword ptr [rsp ], 1
+cvtsi2ss xmm0, dword ptr [rsp ]
 .loc 1 20 10
-cvtsi2sd xmm1, ecx
+movss dword ptr [rsp + 4 ], xmm0
 .loc 1 18 2
-movsd xmm1, xmm1
+cvtsi2sd xmm0, dword ptr [rsp ]
 .loc 1 21 11
-cvttss2si r8d, xmm0
+movsd qword ptr [rsp + 8 ], xmm0
 .loc 1 20 2
-mov ecx, r8d
+cvttss2si ecx, dword ptr [rsp + 4 ]
 .loc 1 23 4
-cvttsd2si r8d, xmm1
+mov dword ptr [rsp ], ecx
 .loc 1 21 2
-mov ecx, r8d
+cvttsd2si ecx, qword ptr [rsp + 8 ]
 .loc 1 24 4
-cvtsd2ss xmm1, xmm1
-movss xmm0, xmm1
+mov dword ptr [rsp ], ecx
+.loc 1 26 4
+movsd xmm0, qword ptr [rsp + 8 ]
+cvtsd2ss xmm0, xmm0
+movss dword ptr [rsp + 4 ], xmm0
+.loc 1 27 4
+movss xmm0, dword ptr [rsp + 4 ]
 cvtss2sd xmm0, xmm0
-movsd xmm1, xmm0
+movsd qword ptr [rsp + 8 ], xmm0
+add rsp, 16
 ret 
-.loc 1 17 1
 test_all_format_casts_END:
 
 
 .cfi_endproc 
 Start_Test_START:
+.loc 1 30 1
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 30 1
-sub rsp, 8
-call test_all_format_casts
+sub rsp, 24
 .loc 1 31 2
-lea rcx, qword ptr [rsp ]
-mov rcx, rcx
+call test_all_format_casts
+lea rcx, qword ptr [rsp + 8 ]
 .loc 1 32 8
+mov rcx, rcx
 call Mid
-movss xmm0, dword ptr [rsp + 4 ]
 .loc 1 9 2
+movss xmm0, dword ptr [rsp + 8 + 4 ]
 cvttss2si ecx, xmm0
-mov eax, ecx
 .loc 1 33 2
-add rsp, 8
+mov eax, ecx
+add rsp, 24
 ret 
-add rsp, 8
+add rsp, 24
 ret 
-.loc 1 30 1
 Start_Test_END:
 
 
 .cfi_endproc 
 main_START:
+.loc 1 36 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 36 1
-mov eax, 1
 .loc 1 38 2
+mov eax, 1
 ret 
 ret 
-.loc 1 36 1
 main_END:
 
 
@@ -384,8 +391,6 @@ _Base_START:
 .byte 1
 .byte 3
 .byte 3
-.byte 2
-.byte 145
 .byte 0
 .asciz "Type"
 .byte 1
@@ -401,8 +406,12 @@ _Mid_START:
 .byte 7
 .long _Base_START-Debug_Info_Start
 .byte 3
-.byte 2
-.byte 145
+.byte 0
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 3
 .byte 4
 .asciz "feature"
 .byte 1
@@ -417,6 +426,24 @@ _Top_START:
 .byte 1
 .byte 12
 .long _Mid_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 4
+.asciz "feature"
+.byte 1
+.byte 9
+.long _float_START-Debug_Info_Start
+.byte 3
+.byte 8
+.asciz "feature"
+.byte 1
+.byte 14
+.long _int_START-Debug_Info_Start
 .byte 0
 .byte 4
 .quad test_all_format_casts_START
@@ -427,13 +454,25 @@ _Top_START:
 .byte 1
 .byte 17
 .byte 8
+.byte 2
+.byte 145
 .byte 0
+.asciz "i"
+.byte 1
+.byte 18
+.long _int_START-Debug_Info_Start
+.byte 8
+.byte 2
+.byte 145
+.byte 4
 .asciz "a"
 .byte 1
 .byte 20
 .long _float_START-Debug_Info_Start
 .byte 8
-.byte 0
+.byte 2
+.byte 145
+.byte 8
 .asciz "b"
 .byte 1
 .byte 21
@@ -449,11 +488,25 @@ _Top_START:
 .byte 1
 .byte 30
 .byte 8
-.byte 0
+.byte 2
+.byte 145
+.byte 8
 .asciz "m"
 .byte 1
 .byte 32
 .long _Mid_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 4
+.asciz "feature"
+.byte 1
+.byte 9
+.long _float_START-Debug_Info_Start
 .byte 0
 .byte 10
 .quad main_START
@@ -465,11 +518,31 @@ _Top_START:
 .byte 1
 .byte 36
 .byte 5
-.byte 0
+.byte 2
+.byte 145
+.byte 8
 .asciz "this"
 .byte 1
 .byte 3
 .long _Base_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 4
+.asciz "feature"
+.byte 1
+.byte 9
+.long _float_START-Debug_Info_Start
 Debug_Info_End:
 .section .debug_str
 .COMPILER_NAME:
