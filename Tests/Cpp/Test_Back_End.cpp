@@ -47,6 +47,7 @@ int Back_End_Test::Run_Dll(string f) {
 #endif
 
 bool Use_ARM = false;
+bool Generate_Debug = false;
 
 
 extern Usr* sys;
@@ -78,7 +79,9 @@ vector<Base*> Back_End_Test::Run(string File)
 	string output = File +".asm";
 	const char** argv; 
 	int argc;
-	string Use_Debug = "-d";
+	string Use_Debug;
+	if (Generate_Debug) 
+		Use_Debug = "-d";
 	if (Use_ARM) {
 		argv = new const char* [9 + (Use_Debug == "-d")] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm", Use_Debug.c_str() };
 		argc = 9 + (Use_Debug == "-d");
@@ -97,17 +100,26 @@ vector<Base*> Back_End_Test::Run(string File)
 
 void Back_End_Test::Factory()
 {
-	cout << Magenta << "x86_64 tests:" << Reset << endl;
-	Use_ARM = false;
-	for (auto i : Tests) {
-		Check_Assert(i.first, i.second);
-	}
-	/*
 	cout << Magenta << "\nARMv8_64 tests:" << Reset << endl;
 	Use_ARM = true;
 	for (auto i : Tests) {
 		Check_Assert(i.first, i.second);
-	}*/
+	}
+	cout << "\n";
+	cout << Magenta << "x86_64 -Debug tests:" << Reset << endl;
+	Use_ARM = false;
+	Generate_Debug = true;
+	for (auto i : Tests) {
+		Check_Assert(i.first, i.second);
+	}
+	cout << "\n";
+	cout << Magenta << "x86_64 -Release tests:" << Reset << endl;
+	Use_ARM = false;
+	Generate_Debug = false;
+	for (auto i : Tests) {
+		Check_Assert(i.first, i.second);
+	}
+	cout << "\n";
 }
 
 void Back_End_Test::Check_Assert(Back_Expectation_Set expectation, string s)
@@ -175,12 +187,12 @@ void Back_End_Test::Init()
 	//what we expect the function to return, file name
 	Tests = {
 		//{{1}, "Tests/IO/main"},
+		{{-6}, "Tests/IO/Math.e"},
 		{{100}, "Tests/IO/Conditions.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{1}, "Tests/IO/Array.e"},
 		{{10}, "Tests/IO/Ptr.e"},
 		{{2}, "Tests/IO/Cast.e"},
-		{{-6}, "Tests/IO/Math.e"},
 		{{1}, "Tests/IO/Type.e"},
 	};
 }

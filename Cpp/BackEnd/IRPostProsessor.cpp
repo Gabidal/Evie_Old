@@ -79,9 +79,9 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 		if (selector->Get_New_Reg(Input, i, t) == nullptr)
 			selector->Allocate_Register(Input, i, t);
 	t->ID = selector->Get_Register(t)->Get_Name();
-	if (t->Get_Name() == "") {
-		cout << ".";
-	}
+	//if (t->Get_Name() == "REG_2") {
+	//	cout << ".";
+	//}
 }
 
 void IRPostProsessor::Handle_Global_Labels()
