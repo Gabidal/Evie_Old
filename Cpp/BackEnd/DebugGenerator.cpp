@@ -579,11 +579,17 @@ void DebugGenerator::Insert_Start_End_Labels(vector<IR*>& input)
     IR* Debug_Info_Start = new IR(new Token(TOKEN::LABEL, "Code_Start"), {}, nullptr);
     input.insert(input.begin(), Debug_Info_Start);
 
+    int Data_Section_Start;
+    for (Data_Section_Start = 0; Data_Section_Start < input.size(); Data_Section_Start++)
+        if (input[Data_Section_Start]->Arguments.size() > 0)
+            if (input[Data_Section_Start]->OPCODE->Get_Name() == "section")
+                if (input[Data_Section_Start]->Arguments[0]->Get_Name() == ".data")
+                    break;
     IR* Debug_Info_End = new IR(new Token(TOKEN::LABEL, "Code_End"), {}, nullptr);
-    input.insert(input.end(), Debug_Info_End);
+    input.insert(input.begin() + Data_Section_Start, Debug_Info_End);
 
-    IR* Section = new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr);
-    input.insert(input.begin(), Section);
+    //IR* Section = new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr);
+    //input.insert(input.begin(), Section);
 
 
     for (int i = 0; i < input.size(); i++) {

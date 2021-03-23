@@ -11,6 +11,8 @@ unsigned long long Reg_Random_ID_Addon = 0;
 
 void IRGenerator::Factory()
 {
+	if (Parent->Name == "GLOBAL_SCOPE") 
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
 	for (int i = 0; i < Input.size(); i++)
 		Un_Wrap_Inline(i);
 	for (int i = 0; i < Input.size(); i++)
@@ -34,8 +36,11 @@ void IRGenerator::Factory()
 		Parse_PreFixes(i);
 		Parse_Return(i);
 	}
-	for (auto i : Parent->Header)
-		Parse_Global_Variables(i);
+	if (Parent->Name == "GLOBAL_SCOPE") {
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
+		for (auto i : Parent->Header)
+			Parse_Global_Variables(i);
+	}
 }
 
 void IRGenerator::Parse_Function(int i)
@@ -1079,7 +1084,7 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 	if (!n->is(ASSIGN_OPERATOR_NODE))
 		return;
 
-	Output->insert(Output->begin(), Make_Label(n->Left, false));
+	Output->push_back(Make_Label(n->Left, false));
 
 	Parent->Find(n->Left->Name)->Update_Size_By_Inheritted();
 	Token* value = new Token(n->Right);
@@ -1087,9 +1092,9 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 	string Init_Type = "init";
 	if (value->is(TOKEN::STRING))
 		Init_Type = "ascii";
-	Output->insert(Output->begin() + 1, new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }, n->Location));
+	Output->push_back(new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }, n->Location));
 	if (value->is(TOKEN::STRING))
-		Output->insert(Output->begin() + 2, new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}, n->Location));
+		Output->push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}, n->Location));
 }
 
 void IRGenerator::Parse_Member_Fetch(Node* n)
@@ -1540,7 +1545,15 @@ void IRGenerator::Parse_Return(int i) {
 	if (Input[i]->Name != "return")
 		return;
 
-	IRGenerator g(Parent, { Input[i]->Right }, Output, true);
+	bool Can_Modify_Last_Variable_Value = true;
+	for (auto j : Input[i]->Right->Has(Input[i]->Right, OBJECT_NODE)) {
+		if (j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && j->Scope == Global_Scope)
+			Can_Modify_Last_Variable_Value = false;
+		if (j->is("ptr") != -1)
+			Can_Modify_Last_Variable_Value = false;
+	}
+
+	IRGenerator g(Parent, { Input[i]->Right }, Output, Can_Modify_Last_Variable_Value);
 
 	Token* Return_Val = nullptr;
 	if (g.Handle != nullptr)

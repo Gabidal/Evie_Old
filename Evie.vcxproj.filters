@@ -148,6 +148,7 @@
     <None Include="Tests\IO\Cast.e.asm">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Tests\IO\Global.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">

@@ -75,6 +75,9 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 {
 	if (!t->is(TOKEN::REGISTER))
 		return;
+	//if (t->Get_Name() == ".RIP") {
+	//	cout << ".";
+	//}
 	if (selector->Get_Register(t) == nullptr)
 		if (selector->Get_New_Reg(Input, i, t) == nullptr)
 			selector->Allocate_Register(Input, i, t);
@@ -228,23 +231,27 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 	if (!t->is(TOKEN::CONTENT))
 		return;
 
-	//first update the stack offset.
-	Node* Function = Global_Scope->Find(t->Get_Parent()->Name, t->Get_Parent(), FUNCTION_NODE);
-	Function->Update_Defined_Stack_Offsets();
+	if (t->is(TOKEN::GLOBAL_VARIABLE)) {
+		*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::POSITION_INDEPENDENT_REGISTER | TOKEN::REGISTER, ".RIP", _SYSTEM_BIT_SIZE_), new Token(TOKEN::GLOBAL_VARIABLE, t->Get_Name(), t->Get_Size()));
+	}
+	else {
+		//first update the stack offset.
+		Node* Function = Global_Scope->Find(t->Get_Parent()->Name, t->Get_Parent(), FUNCTION_NODE);
+		Function->Update_Defined_Stack_Offsets();
 
-	Node* og = Function->Find(t->Get_Name());
-	long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
-	if (og->is(PARAMETER_NODE))
-		Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;
+		Node* og = Function->Find(t->Get_Name());
+		long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
+		if (og->is(PARAMETER_NODE))
+			Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;
 
-	//Maybe we need to add the parameters addresses here?
-	if (og->Memory_Offset > 0 || og->is(PARAMETER_NODE))
-		*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
-	else if (og->Memory_Offset == 0)
-		*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
-	else if (og->Memory_Offset < 0)
-		*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
-
+		//Maybe we need to add the parameters addresses here?
+		if (og->Memory_Offset > 0 || og->is(PARAMETER_NODE))
+			*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
+		else if (og->Memory_Offset == 0)
+			*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
+		else if (og->Memory_Offset < 0)
+			*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
+	}
 }
 
 int IRPostProsessor::Parse_Complex(IR* ir, int i, bool Registry)

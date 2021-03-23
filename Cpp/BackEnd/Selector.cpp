@@ -202,7 +202,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 			}
 		}
 	}
-	long Reg_Type = 0;
+	long long Reg_Type = 0;
 	if (t->is(TOKEN::RETURNING))
 		Reg_Type |= TOKEN::RETURNING;
 	else if (t->is(TOKEN::REMAINDER))
@@ -213,6 +213,8 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		Reg_Type |= TOKEN::PARAMETER;
 	else if (t->is(TOKEN::STACK_POINTTER))
 		Reg_Type |= TOKEN::STACK_POINTTER;
+	else if (t->is(TOKEN::POSITION_INDEPENDENT_REGISTER))
+		Reg_Type |= TOKEN::POSITION_INDEPENDENT_REGISTER;
 	else if ((p->Intersects_Calls.size() > 0))
 		Reg_Type |= TOKEN::NONVOLATILE;
 	else
@@ -222,7 +224,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 	//because there is usually only one register for those purposes we need to enable same typed register usage
 	//example: mov eax, eax, if we are returning a call value the value resides in a eax, and the return value in eax.
 	//optimizer will remove these errors later on.
-	bool Single_Register_Type = t->is(TOKEN::RETURNING) || t->is(TOKEN::REMAINDER) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::STACK_POINTTER);
+	bool Single_Register_Type = t->is(TOKEN::RETURNING) || t->is(TOKEN::REMAINDER) || t->is(TOKEN::QUOTIENT) || t->is(TOKEN::STACK_POINTTER) || t->is(TOKEN::POSITION_INDEPENDENT_REGISTER);
 
 	if (t->Parameter_Index != -1) {
 		Token* reg = nullptr;

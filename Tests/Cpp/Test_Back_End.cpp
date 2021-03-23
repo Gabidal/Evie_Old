@@ -100,11 +100,7 @@ vector<Base*> Back_End_Test::Run(string File)
 
 void Back_End_Test::Factory()
 {
-	cout << Magenta << "\nARMv8_64 tests:" << Reset << endl;
-	Use_ARM = true;
-	for (auto i : Tests) {
-		Check_Assert(i.first, i.second);
-	}
+
 	cout << "\n";
 	cout << Magenta << "x86_64 -Debug tests:" << Reset << endl;
 	Use_ARM = false;
@@ -119,7 +115,14 @@ void Back_End_Test::Factory()
 	for (auto i : Tests) {
 		Check_Assert(i.first, i.second);
 	}
-	cout << "\n";
+	cout << "\n";	
+	/*
+	cout << Magenta << "\nARMv8_64 tests:" << Reset << endl;
+	Use_ARM = true;
+	for (auto i : Tests) {
+		Check_Assert(i.first, i.second);
+	}
+	*/
 }
 
 void Back_End_Test::Check_Assert(Back_Expectation_Set expectation, string s)
@@ -187,6 +190,7 @@ void Back_End_Test::Init()
 	//what we expect the function to return, file name
 	Tests = {
 		//{{1}, "Tests/IO/main"},
+		{{4}, "Tests/IO/Global.e"},
 		{{-6}, "Tests/IO/Math.e"},
 		{{100}, "Tests/IO/Conditions.e"},
 		{{5}, "Tests/IO/Func.e"},

@@ -8,7 +8,7 @@ extern Usr* sys;
 Token::Token(Node* n) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
 		if (n->Find(n, n->Scope)->Scope->Name == "GLOBAL_SCOPE")
-			Flags = TOKEN::GLOBAL_VARIABLE;
+			Flags = TOKEN::GLOBAL_VARIABLE | TOKEN::CONTENT;
 		else if (n->Find(n, n->Scope)->Requires_Address)
 			Flags = TOKEN::CONTENT;
 		else
