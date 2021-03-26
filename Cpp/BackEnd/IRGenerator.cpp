@@ -40,6 +40,8 @@ void IRGenerator::Factory()
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
 		for (auto i : Parent->Header)
 			Parse_Global_Variables(i);
+		for (auto i : Parent->Defined)
+			Parse_Static_Variables(i);
 	}
 }
 
@@ -593,6 +595,14 @@ void IRGenerator::Parse_Operators(int i)
 		//Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
 	}
 	
+	/*if (Left->is({ TOKEN::CONTENT, TOKEN::GLOBAL_VARIABLE }) && Right->is({ TOKEN::CONTENT, TOKEN::GLOBAL_VARIABLE })) {
+		//Global variable + Global variable does this.
+		//Member fetcher returns into Handler: Content and global scope flagged tokens
+		if (Input[i]->Name == "=") {
+			//move right into register then set Left's value into the register value that right just putted.
+			Token* Reg = new Token(TOKEN::REGISTER, Right->Get_Name(), Right->Get_Size());
+		}
+	}*/
 
 
 	string Operator = Input[i]->Name;
@@ -1076,6 +1086,28 @@ void IRGenerator::Update_Operator(Node* n)
 	n->Inheritted = n->Left->Inheritted;
 }
 
+void IRGenerator::Generate_Global_Variable(string Variable_Name, Node* Value)
+{
+	Output->push_back(Make_Label(Variable_Name));
+
+	Token* value = new Token(Value);
+
+	string Init_Type = "init";
+	if (value->is(TOKEN::STRING))
+		Init_Type = "ascii";
+	Output->push_back(new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }, nullptr));
+	if (value->is(TOKEN::STRING))
+		Output->push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1) }, nullptr));
+}
+
+void IRGenerator::Generate_Global_Variable(string Variable_Name, int Size)
+{
+	Node* Value = new Node(NUMBER_NODE, nullptr);
+	Value->Name = "0";
+	Value->Size = Size;
+	Generate_Global_Variable(Variable_Name, Value);
+}
+
 void IRGenerator::Parse_Global_Variables(Node* n)
 {
 	if (Parent->Name != "GLOBAL_SCOPE")
@@ -1084,17 +1116,30 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 	if (!n->is(ASSIGN_OPERATOR_NODE))
 		return;
 
-	Output->push_back(Make_Label(n->Left, false));
+	n->Right->Size = n->Find(n->Left, n)->Size;
+	Generate_Global_Variable(n->Left->Name, n->Right);
+}
 
-	Parent->Find(n->Left->Name)->Update_Size_By_Inheritted();
-	Token* value = new Token(n->Right);
-	value->Set_Size(Parent->Find(n->Left->Name)->Get_Size());
-	string Init_Type = "init";
-	if (value->is(TOKEN::STRING))
-		Init_Type = "ascii";
-	Output->push_back(new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }, n->Location));
-	if (value->is(TOKEN::STRING))
-		Output->push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1)}, n->Location));
+void IRGenerator::Parse_Static_Variables(Node* n)
+{
+	if (n->is(CLASS_NODE)) {
+		if (n->is("static") != -1)
+			for (auto i : n->Childs)
+				Parse_Static_Variables(i);
+		else
+			for (auto i : n->Header)
+				Parse_Static_Variables(i);
+		return;
+	}
+
+	if (n->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
+		//{[Namespace name] + [Static variable name]} d[size] [Value]
+		Generate_Global_Variable(n->Scope->Name + "_" + n->Left->Name, n->Right);
+	}
+	else if (n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE })) {
+		//{[Namespace name] + [Static variable name]} d[size] 0
+		Generate_Global_Variable(n->Scope->Name + "_" + n->Name, n->Size);
+	}
 }
 
 void IRGenerator::Parse_Member_Fetch(Node* n)
@@ -1107,6 +1152,32 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;	//x.size										//They're were Holders, both of em actually... srry, i dont know what this does m8!
 	if ((!Is_In_Left_Side_Of_Operator && n->Context == nullptr) || (n->Scope != nullptr && n->Scope->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
 		return;
+
+	if (n->is("static") != -1 || n->Fetcher->is("static") != -1) {
+		if (Parent->is(FUNCTION_NODE)) {
+			//this now namespace if the condition above yelds true.
+			bool Load_To_Reg = true;
+
+			if (n->Context->Name == "=" && n->Context->Left == n)
+				Load_To_Reg = false;	//the label data is going to be rewritten by set operator.
+
+			Token* Result = new Token(TOKEN::MEMORY, { new Token(n) }, n->Size, n->Name);
+
+			if (Load_To_Reg) {
+				Token* Reg = new Token(TOKEN::REGISTER, n->Fetcher->Name + "_" + n->Name + "_REGISTER", n->Size);
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="),
+					{
+						Reg, Result
+					}, nullptr));
+				Result = Reg;
+			}
+
+			Handle = Result;
+			return;
+		}
+		Handle = new Token(n);
+		return;
+	}
 
 	Token* Fecher;
 	IRGenerator g(n->Scope, { n->Fetcher }, Output, true);
@@ -1515,6 +1586,15 @@ IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 		name = MANGLER::Mangle(n);
 	Token* label_name = new Token(TOKEN::LABEL, name);
 	IR* label = new IR(n->Location);
+	label->OPCODE = label_name;
+	return label;
+}
+
+IR* IRGenerator::Make_Label(string n)
+{
+	string name = n;
+	Token* label_name = new Token(TOKEN::LABEL, name);
+	IR* label = new IR(nullptr);
 	label->OPCODE = label_name;
 	return label;
 }

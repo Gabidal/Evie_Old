@@ -416,6 +416,8 @@ public:
 	void Update_Format() {
 		if (this->is(NUMBER_NODE))
 			return;
+		if (this->is("const") != -1 && this->Name == "format")
+			return;
 		Format = "integer";
 		for (string s : Inheritted) {
 			//there is no inheritable type that doesnt have enything init.
@@ -534,6 +536,14 @@ public:
 		for (int i = 0; i < s.size(); i++)
 			if (is(s[i]))
 				return is(s[i]);
+		return false;
+	}
+
+	static bool Has(vector<Node*> l, Node* n) {
+		for (auto i : l)
+			for (auto j : i->Has(n->Type))
+				if (i->Name == n->Name)
+					return true;
 		return false;
 	}
 

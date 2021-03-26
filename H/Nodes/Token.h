@@ -87,6 +87,12 @@ public:
 	}
 	vector<Token*>* Get_Childs() { return &Childs; }
 	bool is(long long flag){return (Flags & flag) == flag;}
+	bool is(vector<long long> f) {
+		for (auto i : f)
+			if (!is(i))
+				return false;
+		return true;
+	}
 	bool Any(long long flags){return (Flags & flags) != 0;}
 	void add(long long flag){this->Flags |= flag;}
 	void remove(long long flag){this->Flags ^= (Flags & flag);}

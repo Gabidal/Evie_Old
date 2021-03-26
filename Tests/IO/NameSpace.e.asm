@@ -3,26 +3,24 @@
 .global Start_Test
 .section .text
 Start_Test:
-mov ecx, dword ptr [rip + a ]
-add ecx, dword ptr [rip + b ]
+mov ecx, dword ptr [rip + Banana_Y ]
+mov r8d, dword ptr [rip + Apple_Y ]
+add ecx, r8d
 mov eax, ecx
 ret 
 ret 
 
 
 main:
-call Start_Test
 mov eax, 1
 ret 
 ret 
 
 
 .section .data
-a:
-.long 1
-b:
+Banana_Y:
+.long 2
+Apple_X:
+.long 2
+Apple_Y:
 .long 3
-GLOBAL_SCOPE_a:
-.long 0
-GLOBAL_SCOPE_b:
-.long 0

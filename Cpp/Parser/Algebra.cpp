@@ -332,6 +332,8 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 					continue;
 				if (other->Coefficient == 0)
 					continue;
+				if (v->Fetcher->Name != other->Fetcher->Name)
+					continue;
 
 				//decide wich one is in wich side
 				Node* l = v;

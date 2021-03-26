@@ -7,7 +7,7 @@ extern Usr* sys;
 
 Token::Token(Node* n) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
-		if (n->Find(n, n->Scope)->Scope->Name == "GLOBAL_SCOPE")
+		if (n->Find(n, n->Scope)->Scope->Name == "GLOBAL_SCOPE" || n->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1))
 			Flags = TOKEN::GLOBAL_VARIABLE | TOKEN::CONTENT;
 		else if (n->Find(n, n->Scope)->Requires_Address)
 			Flags = TOKEN::CONTENT;
@@ -75,5 +75,9 @@ Token::Token(Node* n) {
 	Size = n->Find(n, n->Scope)->Size;
 
 	Name = n->Name;
+
+	if (n->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1))
+		Name = n->Fetcher->Name + "_" + n->Name;
+
 	Parent = n->Scope;
 }

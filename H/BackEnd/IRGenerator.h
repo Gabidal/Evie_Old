@@ -46,7 +46,10 @@ public:
 	void Parse_Parenthesis(int i);
 	void Update_Operator(Node*n);
 
+	void Generate_Global_Variable(string Variable_Name, Node* Value);
+	void Generate_Global_Variable(string Variable_Name, int Size);
 	void Parse_Global_Variables(Node* n);
+	void Parse_Static_Variables(Node* n);
 
 	void Parse_Member_Fetch(Node* n);
 
@@ -66,6 +69,7 @@ public:
 	Token* Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing, bool Unwrap_Memory, vector<string> Types = vector<string>());
 
 	IR* Make_Label(Node* n, bool Mangle);
+	IR* Make_Label(string n);
 	IR* Make_Jump(string condition, string l);
 	int Get_Amount(string t, Node* n);
 

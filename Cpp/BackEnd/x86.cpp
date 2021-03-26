@@ -271,7 +271,9 @@ void x86_64_Win::Init()
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Register, {1, 8}} },
 		{{Register, {1, 8}}, {Const, {1, 8}} },
-		{{Memory, {1, 8}}, {Const, {1, 8}} }
+		{{Memory, {1, 8}}, {Const, {1, 8}} },
+
+		{ {Memory_Float, {4, 4}}, {Register, {4, 4}} }
 		});
 
 	IR* XOR = new IR("¤", new Token(OPERATOR, "xor"), {
@@ -448,6 +450,7 @@ void x86_64_Win::Init()
 		{{Memory, {4, 8}}, {Register_Float, {4, 12}} },
 		{{Register_Float, {4, 12}}, {Memory_Float, {4, 8}} },
 		{{Memory_Float, {4, 8}}, {Register_Float, {4, 12}} },
+		{{Memory_Float, {4, 8}}, {Decimal, {4, 12}} },
 		{{Register_Float, {4, 12}}, {Register_Float, {4, 12}} },
 		{{Register_Float, {4, 12}}, {Const, {4, 8}} },
 		{{Memory, {4, 8}}, {Const, {4, 8}} },
@@ -458,14 +461,6 @@ void x86_64_Win::Init()
 			vector<IR*> Result;
 			Token* Left = args[0];
 			Token* Right = args[1];
-			/*if (args[0]->is(NUM)) {
-				Right = args[0];
-				Left = args[1];
-			}
-			else {
-				Left = args[0];
-				Right = args[1];
-			}*/
 			//transform right side into xmm0
 			if (Right->is(NUM)) {
 				long long Name;

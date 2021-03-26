@@ -149,6 +149,7 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="Tests\IO\Global.e" />
+    <None Include="Tests\IO\NameSpace.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">

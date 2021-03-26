@@ -70,10 +70,6 @@ void PostProsessor::Type_Definer(int i)
 	if (Parent->Defined[i]->Type != CLASS_NODE)
 		return;
 
-	//This is done in Parser!!
-	//combine inheritted memebrs
-	//Parent->Defined[i]->Get_Inheritted_Class_Members();
-
 	//update members sizes
 	Parent->Defined[i]->Update_Members_Size();
 
@@ -81,7 +77,24 @@ void PostProsessor::Type_Definer(int i)
 	Parent->Defined[i]->Update_Members_Mem_Offset();
 
 	//update format
-	Parent->Defined[i]->Format = Parent->Defined[i]->Get_Format();
+	Parent->Defined[i]->Update_Format();
+
+	//update all member formats as well
+	for (auto& i : Parent->Defined[i]->Defined)
+		i->Update_Format();
+
+	//If this is a namespace skip the default constructor builder
+	if (Parent->Defined[i]->is("static") != -1)
+		return;
+
+	//check for static members and move them into Header section to be labelazed
+	for (auto& j : Parent->Defined[i]->Childs)
+		if (j->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
+			if (j->Left->is("static") != -1 && Node::Has(Parent->Defined[i]->Header, j->Left) == false)
+				Parent->Defined[i]->Header.push_back(j);
+		}
+		else if (j->is("static") != -1 && Node::Has(Parent->Defined[i]->Header, j) == false)
+				Parent->Defined[i]->Header.push_back(j);
 
 	//DISABLE default constructor if user has already defined one.
 	for (auto j : Parent->Defined) {
@@ -151,7 +164,10 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 {
 	vector<Node*> Result;
 	for (auto c : Childs) {
+		Update_Operator_Inheritance(c);
 		if (c->is("const") != -1)
+			continue;
+		if (c->is("static") != -1)
 			continue;
 		Node* c_copy = c->Copy_Node(c, Function);
 		//insert this. infront of every member
@@ -627,6 +643,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		Right->Fetcher = Left;
 
 		//now remove the current dot operator and replace it with the new fetched member
+		Right->Context = n->Context;
 		*n = *Right;
 	}
 }
@@ -1019,12 +1036,12 @@ void PostProsessor::Move_Global_Varibles_To_Header(int i)
 {
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
-	if (Parent->Name != "GLOBAL_SCOPE")
+	if (Parent->Name != "GLOBAL_SCOPE" && Parent->is("static") == -1)
 		return;
 
 	Parent->Find(Input[i]->Left->Name)->Type = OBJECT_NODE;
 
-	Global_Scope->Header.push_back(Input[i]);
+	Parent->Header.push_back(Input[i]);
 
 	Input.erase(Input.begin() + i);
 

@@ -955,6 +955,7 @@ void Parser::Return_Pattern(int i)
 	ret->Scope = Parent;
 	if (!No_Return_Value) {
 		ret->Right = Input[(size_t)i + 1].node;
+		ret->Right->Context = ret;
 		Input.erase(Input.begin() + i + 1);
 	}
 	Input[i].node = ret;

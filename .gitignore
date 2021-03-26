@@ -19,3 +19,5 @@ IO/test.asm.lib
 IO/test.asm.obj
 IO/test.asm.pdb
 Evie
+
+Tests/IO/Remote
