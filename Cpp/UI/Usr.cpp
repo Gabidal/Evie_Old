@@ -136,6 +136,13 @@ void output::Fill_Empty_Arguments()
 	if (Destination_File == "")
 		Destination_File = (string)Source_File + ".asm";
 
+	if (Repo_Dir == "") {
+		char* Env = getenv("Repo_Dir");
+		if (Env != nullptr)
+			Repo_Dir = Env;
+		else
+			Repo_Dir = "Remote";
+	}
 }
 
 bool is_number(const string& s)

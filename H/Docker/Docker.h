@@ -33,6 +33,7 @@ namespace DOCKER {
 	extern vector<string>(*Slicer)(string);
 	extern vector<string> Included_Files;
 	extern vector<bool> Is_Local;
+	extern bool WORKING_DIR_IS_ABSOLUTE;
 	//vector<pair<Type, Regex string>>
 	//vector<pair<string, string>> Types;
 	//returns the filename of the header file

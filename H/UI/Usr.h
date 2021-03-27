@@ -14,7 +14,7 @@ public:
 	string HOST_OS;
 	string Architecture = "x86";
 	vector<string> Libs;
-	string Repo_Dir = "Remote";
+	string Repo_Dir = "";
 	vector<string> Source_Files;
 	string Format = "exe";
 	string Bits_Mode = "0";

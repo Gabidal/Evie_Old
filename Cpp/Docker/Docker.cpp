@@ -14,6 +14,7 @@ void (*DOCKER::Default)(vector<string>&) = nullptr;
 vector<string> DOCKER::Included_Files;
 vector<bool> DOCKER::Is_Local;
 vector<string>(*DOCKER::Slicer)(string);
+bool DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
 
 void DOCKER::Start_Analyzer()
 {
@@ -215,8 +216,13 @@ string DOCKER::Update_Working_Dir(string File_Name)
 {
 	int i = (int)File_Name.find_last_of('/');
 	string Prevous_Dir = "";
+
 	if (Working_Dir.size() > 0)
 		Prevous_Dir = Working_Dir.back().second;
+
+	if (WORKING_DIR_IS_ABSOLUTE)
+		Prevous_Dir = "";
+
 	if (i != -1)
 	{
 		Working_Dir.push_back({Prevous_Dir + File_Name , Prevous_Dir + File_Name.substr(0, (size_t)i + 1) });
@@ -285,10 +291,8 @@ bool DOCKER::Is_Folder(string path)
 {
 	vector<string> Files;
 	//collect all filenames in the working dir
-	if (filesystem::exists(path)) {
-		if (filesystem::is_directory(path)) {
-			return true;
-		}
+	if (filesystem::is_directory(path)) {
+		return true;
 	}
 	return false;
 }

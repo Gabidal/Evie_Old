@@ -51,34 +51,51 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 		Double_Command_Mark = " && ";
 	}
 
+	string Seperator = "";
+	if (Remote_Dir[0] != '/')
+		Seperator = '/' + Seperator;
+	string Remote_Dir_Location = DOCKER::Working_Dir.back().second + Seperator + Remote_Dir;
+
 	//check if the Remote folder exists
 	bool Repo_Folder = false;
-	for (auto i : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second)) {
+	if (DOCKER::Is_Folder(Remote_Dir_Location))
+		Repo_Folder = true;
+
+	/*for (auto i : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second)) {
 		if (i == Remote_Dir)
 			Repo_Folder = true;
+	}*/
+
+	if (Repo_Folder == false) {
+		//This could also mean that the repo folder is given as a absolute path.
+		if (DOCKER::Is_Folder(Remote_Dir)) {
+			Remote_Dir_Location = Remote_Dir;
+			Repo_Folder = true;
+			DOCKER::WORKING_DIR_IS_ABSOLUTE = true;
+		}
 	}
 
 	if (Repo_Folder == false) {
-		Report(Observation(WARNING, "folder " + DOCKER::Working_Dir.back().second + Remote_Dir + " does not exist, making a new one.", Position()));
-		system(("mkdir \"" + DOCKER::Working_Dir.back().second + Remote_Dir + "\"").c_str());
+		Report(Observation(WARNING, "folder " + Remote_Dir_Location + " does not exist, making a new one.", Position()));
+		system(("mkdir \"" + Remote_Dir_Location + "\"").c_str());
 	}
 
 	bool New_Repo = true;
 	//try to see if there is already a git folder for this git repo.
-	for (auto i : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second + Remote_Dir)) {
+	for (auto i : DOCKER::Get_File_List(Remote_Dir_Location)) {
 		//the i contains the reponame
 		if (i == Info[3]) {
 			New_Repo = false;
 		}
 	}
 
-	if (Remote_Dir[Remote_Dir.size()] != '/')
-		Remote_Dir += '/';
+	if (Remote_Dir_Location[Remote_Dir_Location.size()-1] != '/')
+		Remote_Dir_Location += '/';
 
-	string Command = "cd " + DOCKER::Working_Dir.back().second + Remote_Dir + Info[3] + Double_Command_Mark + "git pull \"" + URL + "\"";
+	string Command = "cd " + Remote_Dir_Location + Info[3] + Double_Command_Mark + "git pull \"" + URL + "\"";
 
 	if (New_Repo) {
-		Command = "cd " + DOCKER::Working_Dir.back().second + Remote_Dir + Double_Command_Mark + "git clone \"" + URL + "\"";
+		Command = "cd " + Remote_Dir_Location + Double_Command_Mark + "git clone \"" + URL + "\"";
 	}
 	string Repo_Folder_Dest_Path;
 
@@ -157,7 +174,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 				Report(Observation(1, curl_easy_strerror(res), Position()));
 			}
 			else {
-				ofstream o(DOCKER::Working_Dir.back().second + Remote_Dir + Name.c_str());
+				ofstream o(Remote_Dir_Location + Name.c_str());
 				if (!o.is_open()) {
 					Report(Observation(1, "Could not save contents of " + Name, Position()));
 				}
@@ -168,10 +185,12 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 			}
 			curl_easy_cleanup(curl_handle);
 			free(chunk.memory);
-			Repo_Folder_Dest_Path = Remote_Dir + Name.c_str();
+			Repo_Folder_Dest_Path = Remote_Dir_Location + Name.c_str();
 		}
 	}
 	else {
+		if (Remote_Dir[Remote_Dir.size()-1] != '/')
+			Remote_Dir += '/';
 		//now we have the repo, next we need to know if we want to build the whole folder or just get a single file.
 		Repo_Folder_Dest_Path = Remote_Dir;
 		for (int i = 3; i < Info.size() - 1; i++) {
@@ -190,7 +209,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 
 	string Dir = "";
 	string File = DOCKER::Update_Working_Dir(File_Path, Dir);
-	for (auto f : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second + Remote_Dir + Dir))
+	for (auto f : DOCKER::Get_File_List(Remote_Dir_Location + Dir))
 		if (f == File)
 			Need_Make_Build = false;
 
@@ -215,7 +234,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 			Report(Observation(1, to_string(error) + " Could not build with default argument, going into fallback mode.", Position()));
 		}
 		else
-			for (auto f : DOCKER::Get_File_List(DOCKER::Working_Dir.back().second + Remote_Dir + Dir))
+			for (auto f : DOCKER::Get_File_List(Remote_Dir_Location + Dir))
 				if (f == File)
 					All_Argument_Made_It = true;
 
@@ -224,11 +243,11 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 				Report(Observation(1, "Make-utility build error, please fix the problems first.", Position()));
 			}
 
-		Docker D(DOCKER::Working_Dir.back().second + Remote_Dir + Dir + File);
+		Docker D(Remote_Dir_Location + Dir + File);
 	}
 	else {
 		Docker D(Repo_Folder_Dest_Path);
 	}
-
+	DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
 	return;
 }
