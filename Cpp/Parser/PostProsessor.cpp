@@ -249,29 +249,23 @@ void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
 void PostProsessor::Member_Function(int i)
 {
 	//<summary>
-	//check if the funciton node has inherittes '.'
-	//and sets the function into types function list
-	//and changes the parent pointter into the class type
+	//	The function is in global scope's childs list-
+	//	but it can be found in the respective scope that the fetchers describe.
+	//	The Find function in Node.cpp can handle complex AST search to find the respective function.
+	//	
+	//	If the function in question is not a static type then we need to apply this pointters and other cool stuf.
 	//</summary>
 	if (Input[i]->Type != FUNCTION_NODE)
 		return;
-	if (Input[i]->is(".") == -1)
+	if (Input[i]->Fetcher == nullptr)
+		return;
+	if (Input[i]->is("static") != -1)
 		return;
 
 	Node* func = Input[i];
-	
-	//get the parent type that this member function belong to.
-	Node* type = Parent->Find(
-		func->Inheritted[
-			(size_t)func->is(".") - 1
-		], 
-		func->Scope
-	);
 
-	//for member variables accessing
-	func->Scope = type;
 
-	type->Member_Functions.push_back(func);
+
 
 	return;
 }

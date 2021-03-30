@@ -14,6 +14,7 @@ namespace MANGLER {
 		PREFIX,
 		POSTFIX,
 		CLASS,
+		END_CLASS,
 		NUMBER,
 	};
 	string Un_Mangle(string raw);

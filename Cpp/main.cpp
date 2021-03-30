@@ -50,7 +50,7 @@ int Build(int argc, const char* argv[])
         cout << "-host [the host operating system (win32/unix)]\n";
         cout << "-arch [output assembly type (x86/arm)]\n";
         cout << "-lib [relative path/lib name]\n";
-        cout << "-repo_dir [relative path/folder name (for saving git repos there)]\n";
+        cout << "-repo_dir [relative/absolute path for saving git repos]\n";
         cout << (string)"-f [\n  supported output file formats are:\n" +
             "  exe(executable (works for unix as well)),\n" +
             "  lib(static lib),\n" +
@@ -88,6 +88,8 @@ int Build(int argc, const char* argv[])
     MANGLER::Add_ID({ "d",{MANGLER::VARIABLE, "8 decimal"} });
     MANGLER::Add_ID({ "l",{MANGLER::VARIABLE, "4 integer"} });
     MANGLER::Add_ID({ "x",{MANGLER::VARIABLE, "8 integer"} });
+    MANGLER::Add_ID({ { "N" }, { MANGLER::CLASS, "" } });
+    MANGLER::Add_ID({ { "E" }, { MANGLER::END_CLASS, "" } });
 
     //temporary
     MANGLER::Add_ID({ "t",{MANGLER::VARIABLE, "type"} });

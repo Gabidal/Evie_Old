@@ -11,6 +11,14 @@ type Banana{	#In the declaration of Banana we can set it to static
 	#Or we can let Banana type be as it is, and set the static prefix to every child inside Banana.
 	int X = 1
 	static int Y = 2
+	int Set(int x){
+		X = x
+		return 1
+	}
+}
+
+int Banana.Get(){
+	return 0
 }
 
 static Apple{
@@ -20,6 +28,7 @@ static Apple{
 }
 
 export int Start_Test(){
+	int B_X = Banana.Get()
 	return Banana.Y + Apple.Y
 }
 

@@ -261,11 +261,19 @@ public:
 
 	Node* Find(Node* n, Node* p);
 
+	Node* Find(Node* n, Node* p, int f);
+
 	Node* Find(string n) {
 		return Find(n, this);
 	}
 
+	Node* Find_Scope(Node* n);
+
+	vector<Node*> Get_All_Fetchers();
+
 	Node* Get_Parent_As(int F, Node* Parent);
+
+	vector<Node*> Get_Scope_Path();
 
 	Node* Get_Right_Parent() {
 		if (Fetcher != nullptr) {
@@ -671,6 +679,9 @@ public:
 		}
 		throw::runtime_error("ERROR!");
 	}
+
+	//Transform all this A.B.C.D into D->C->B->A
+	void Transform_Dot_To_Fechering(Node* To);
 };
 
 #endif

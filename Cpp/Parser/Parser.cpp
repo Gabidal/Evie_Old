@@ -946,7 +946,7 @@ void Parser::Return_Pattern(int i)
 {
 	if (Input[i].Value != "return")
 		return;
-	bool No_Return_Value = (((size_t)i + 1 > Input.size() - 1) || (Input[(size_t)i + 1].Value == ";"));
+	bool No_Return_Value = (((size_t)i + 1 > Input.size() - 1) || (Input[i+1].node == nullptr));
 
 	//return a + b
 	//return;
@@ -1100,6 +1100,44 @@ void Parser::Format_Pattern(int i)
 	return;
 }
 
+void Parser::Member_Function_Pattern(int i)
+{
+	//return_type class_name.funcname(){}
+	if (Parent->Name != "GLOBAL_SCOPE")
+		return;
+	if (Input[i].node == nullptr)
+		return;
+	if (Input[i].Value != ".")
+		return;
+
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
+	if (Parenthesis_Indexes.size() != 2)
+		return;
+	if (Input[Parenthesis_Indexes[1]].Value[0] != '{')
+		return;
+	if (Input[Parenthesis_Indexes[0]].Value[0] != '(')
+		return;
+	//set all the left sided of operators as the fetchers
+	Input[i].node->Left->Transform_Dot_To_Fechering(Input[i].node->Right);
+
+	//Find the scope that this function is set to as a member to.
+	Node* Class = Parent->Find(Input[i].node->Right->Fetcher, Parent, CLASS_NODE);
+	if (Class == nullptr)
+		Report(Observation(ERROR, Input[i].node->Right->Fetcher->Name + " was not found when creating " + Input[i].node->Right->Name, Input[i].Location));
+
+	Input[i].node->Right->Context = Input[i].node->Context;
+	Input[i].node->Right->Scope = Input[i].node->Scope;
+	Input[i].node = Input[i].node->Right;
+	Input[i].Value = Input[i].node->Name;
+
+	Input[i].node->Inheritted = Input[i].node->Fetcher->Inheritted;
+	Input[i].node->Fetcher->Inheritted.clear();
+
+	Function_Pattern(i);
+
+	Class->Defined.push_back(Input[i].node);
+}
+
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
@@ -1133,6 +1171,7 @@ void Parser::Factory() {
 	//AST operator combinator.
 	Operator_Order();
 	for (int i = 0; i < Input.size(); i++) {
+		Member_Function_Pattern(i);
 		Return_Pattern(i);
 	}
 }

@@ -20,6 +20,7 @@ public:
 	vector<Component> Get_Inheritting_Components(int i);
 	vector<int> Get_Amount_Of(int i, long Flag, bool All_in_Same_Line = true);
 	vector<int> Get_Amount_Of(int i, vector<int> Flags, bool All_in_Same_Line = true);
+
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a
@@ -47,6 +48,7 @@ public:
 	void Label_Definition(int i);
 	void Size_Pattern(int i);									//if (contidion){..}
 	void Format_Pattern(int i);									//format = decimal
+	void Member_Function_Pattern(int i);						//return_type class_name.funcname(){}
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	//Pattern Users
 	void Operator_Order();

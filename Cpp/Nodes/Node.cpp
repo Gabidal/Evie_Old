@@ -139,6 +139,43 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 	}
 }
 
+Node* Node::Find_Scope(Node* n)
+{
+	Node* Current_Scope = n->Scope;
+	vector<Node*> Fetchers = Get_All_Fetchers();
+
+	while (true) {
+		for (auto i : Current_Scope->Defined) {
+			if (Fetchers.back()->Name == i->Name) {
+				Current_Scope = Fetchers.back();
+				Fetchers.pop_back();
+			}
+			if (Fetchers.size() == 0)
+				break;
+		}
+
+		if (Fetchers.size() == 0)
+			break;
+		if (Current_Scope->Scope == nullptr)
+			Report(Observation(ERROR, "Scope not found", *n->Location));
+
+		Current_Scope = Current_Scope->Scope;
+	}
+
+	return Current_Scope;
+}
+
+vector<Node*> Node::Get_All_Fetchers()
+{
+	vector<Node*> Result;
+	if (Fetcher != nullptr) {
+		vector<Node*> tmp = Fetcher->Get_All_Fetchers();
+		Result.insert(Result.end(), tmp.begin(), tmp.end());
+	}
+	Result.push_back(this);
+	return Result;
+}
+
 Node* Node::Get_Parent_As(int F, Node* parent) {
 	if (parent->is(F))
 		return parent;
@@ -148,31 +185,112 @@ Node* Node::Get_Parent_As(int F, Node* parent) {
 	throw::runtime_error("ERROR!");
 }
 
-Node* Node::Find(Node* n, Node* p) {
+/// <summary>
+/// Gets a list of all the upper parents that this is defined in, up to global scope :D
+/// </summary>
+/// <returns></returns>
+vector<Node*> Node::Get_Scope_Path()
+{
+	vector<Node*> Result;
+	Node* Current_Scope = Scope;
+	while (Current_Scope->Name != "GLOBAL_SCOPE") {
+
+		Result.push_back(Current_Scope);
+		Current_Scope = Current_Scope->Scope;
+
+		if (Current_Scope == nullptr)
+			Report(Observation(ERROR, "Parental Scope was not found.", *this->Location));
+	}
+	return Result;
+}
+
+Node* Node::Find(Node* n, Node* s)
+{
+	//some criteria
 	if (n->Name == "\n")
 		return nullptr;
 	if (n->is(NUMBER_NODE) || n->is(STRING_NODE) || n->is(LABEL_NODE))
 		return n;
-	if (p == nullptr) {
+	if (s == nullptr) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
 		throw::runtime_error("ERROR!");
 	}
-	for (Node* i : p->Defined)
-		if (i->Name == n->Name) {
-			if (n->Cast_Type != "") {
-				Node* tmp = i->Copy_Node(i, i->Scope);
-				tmp->Cast_Type = n->Cast_Type;
-				return tmp;
-			}
-			return i;
-		}
-	if (p->Scope != nullptr)
-		if (Find(n->Name, p->Scope) != nullptr)
-			return Find(n->Name, p->Scope);
-	if (p->Cast_Type != "")
-		for (auto i : p->Find(p->Cast_Type, p, CLASS_NODE)->Defined)
-			if (i->Name == n->Name)
+
+	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
+	//because of same named objects in the current scope.
+	if (n->Fetcher != nullptr)
+		if (n->Scope != s)
+			for (auto i : Find_Scope(n)->Defined)
+				if (i->Name == n->Name)
+					return n;
+
+	//Normal current and above going scope search algorithm
+	for (Node* i : s->Defined)
+			if (i->Name == n->Name) {
+				if (n->Cast_Type != "") {
+					Node* tmp = i->Copy_Node(i, i->Scope);
+					tmp->Cast_Type = n->Cast_Type;
+					return tmp;
+				}
 				return i;
+			}
+	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
+	if (s->Scope != nullptr)
+		if (Find(n, s->Scope) != nullptr)
+			return Find(n, s->Scope);
+
+	//IDK what this does, please explain!
+	if (s->Cast_Type != "")
+		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+				if (i->Name == n->Name)
+					return i;
+
+	return nullptr;
+}
+
+Node* Node::Find(Node* n, Node* s, int f)
+{
+	//some criteria
+	if (n->Name == "\n")
+		return nullptr;
+	if (n->is(NUMBER_NODE) || n->is(STRING_NODE) || n->is(LABEL_NODE))
+		return n;
+	if (s == nullptr) {
+		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
+		throw::runtime_error("ERROR!");
+	}
+
+	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
+	//because of same named objects in the current scope.
+	if (n->Fetcher != nullptr)
+		for (auto i : Find_Scope(n)->Defined)
+			if (i->is(f))
+				if (i->Name == n->Name)
+					return n;
+
+	//Normal current and above going scope search algorithm
+	for (Node* i : s->Defined)
+		if (i->is(f))
+			if (i->Name == n->Name) {
+				if (n->Cast_Type != "") {
+					Node* tmp = i->Copy_Node(i, i->Scope);
+					tmp->Cast_Type = n->Cast_Type;
+					return tmp;
+				}
+				return i;
+			}
+	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
+	if (s->Scope != nullptr)
+		if (Find(n, s->Scope, f) != nullptr)
+			return Find(n, s->Scope, f);
+
+	//IDK what this does, please explain!
+	if (s->Cast_Type != "")
+		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+			if (i->is(f))
+				if (i->Name == n->Name)
+					return i;
+	
 	return nullptr;
 }
 
@@ -247,4 +365,20 @@ void Node::Update_Inheritance() {
 
 	Inheritted.push_back(Cast_Type);
 	Inheritted.insert(Inheritted.end(), Keyword_Inheritance.begin(), Keyword_Inheritance.end());
+}
+
+void Node::Transform_Dot_To_Fechering(Node* To)
+{
+	//(((A.B).C).D).Banana()
+	//we start at the Dot that is left side of Banana()
+	//((A.B).C).D | this == (..).D
+	if (Name == ".") {
+		//set the left side to To
+		To->Fetcher = Right;
+		if (Left->Name == ".") {
+			Left->Transform_Dot_To_Fechering(Right);
+		}
+	}
+	else
+		To->Fetcher = this;
 }

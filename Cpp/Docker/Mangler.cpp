@@ -4,6 +4,7 @@
 #include <sstream>
 
 map<string, pair<int, string>> MANGLER::IDS;
+bool Functoin_Name_Is_Before_End_Of_Namespace = false;
 
 string MANGLER::Un_Mangle(string raw) {
 	//try to find if there are any prefixes and remove them into another string
@@ -13,14 +14,17 @@ string MANGLER::Un_Mangle(string raw) {
 		PreFix = raw.substr(0, (size_t)pre_i + 1);
 		raw = raw.substr((size_t)pre_i + 1, raw.size());
 	}
+	bool Func_Name = true;
+	bool Namespace = false;
+
 	string Function = "";
 	vector<string> Parenthesis;
 	string Return_Type = "";
-	bool Func_Name = true;
 	string Current;
 	string Current_Variable = "";
 	string Current_PreFix = "";
 	string Current_Complex_Name = "";
+	vector<string> Scope_Path;
 	string STD = "";
 	vector<string> Current_Parameter_Inheritted;
 	//type ptr new  type
@@ -55,6 +59,14 @@ string MANGLER::Un_Mangle(string raw) {
 						Parenthesis.push_back(Current_Variable);
 					Current_PreFix += MANGLER::IDS.at(Current).second + " ";
 					Current_Complex_Name = "";
+				}
+				else if (MANGLER::IDS.at(Current).first == MANGLER::CLASS && Current_Complex_Name.size() == 1) {
+					Namespace = true;
+					if (Functoin_Name_Is_Before_End_Of_Namespace)
+						Func_Name = false;
+				}
+				else if (MANGLER::IDS.at(Current).first == MANGLER::END_CLASS && Current_Complex_Name.size() == 1) {
+					Namespace = false;
 				}
 			}
 			else if (MANGLER::IDS.find(Current) != MANGLER::IDS.end()) {
@@ -102,11 +114,15 @@ string MANGLER::Un_Mangle(string raw) {
 				for (int j = i + (int)tmp.size(); (j < (size + i + (int)tmp.size())) && j < (int)raw.size(); j++) {
 					name += (char)raw[j];
 				}
-				if (Func_Name) {
+				if (Namespace) {
+					Scope_Path.push_back(name);
+				}
+				else if (Func_Name) {
 					Function = name;
 					Func_Name = false;
 				}
 				else {
+
 					//class based parameters.
 					if (Current_Variable != "") {
 						Parenthesis.push_back(Current_Variable);
@@ -132,7 +148,19 @@ string MANGLER::Un_Mangle(string raw) {
 		//this lauches when no call type is identifyed.
 		Function = raw;
 	}
-	string Result = Return_Type + " " + STD + " " + Function + "( ";
+	string Result = Return_Type + " " + STD + " ";
+
+	if (Scope_Path.size() > 0 && Functoin_Name_Is_Before_End_Of_Namespace) {
+		Function = Scope_Path.back();
+		Scope_Path.pop_back();
+	}
+
+	for (auto s : Scope_Path)
+		Result += s + ".";
+	
+	Result += Function + "( ";
+
+
 	for (int i = 0; i < ((int)Parenthesis.size()) - 1; i++) {
 		Result += Parenthesis[i] + ", ";
 	}
@@ -155,13 +183,21 @@ string MANGLER::Mangle(Node* raw)
 		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
 			Classes.clear();
 			Result = "_Z";
+
 			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE")
-				Result += "n" + raw->Scope->Name.size() + raw->Scope->Name;
+				Result += "N" + raw->Scope->Name.size() + raw->Scope->Name;
+
+			for (auto i : raw->Get_Scope_Path())
+				Result += to_string(i->Name.size()) + i->Name;
+
 			Result += to_string(raw->Name.size()) + raw->Name;
+
 			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE")
 				Result += "E";
+
 			if (raw->Parameters.size() < 1)
 				Result += "v";
+
 			for (auto i : raw->Parameters) {
 				Result += Mangle(i);
 			}
