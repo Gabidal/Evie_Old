@@ -56,11 +56,16 @@ void IRGenerator::Parse_Function(int i)
 	for (auto j : Input[i]->Parameters)
 		if (j->is("type") != -1)
 			return;	//skip template functions.
-	if ((Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE)->Calling_Count == 0) && Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE)->is("export") == -1)
+
+	Node* Scope = Parent;
+	if (Input[i]->Fetcher != nullptr)
+		Scope = Input[i]->Fetcher;
+
+	if ((Scope->Find(Input[i]->Name, Scope, FUNCTION_NODE)->Calling_Count == 0) && Scope->Find(Input[i]->Name, Scope, FUNCTION_NODE)->is("export") == -1)
 		return;
 
 	if (Input[i]->is("export") != -1)
-		Global_Scope->Header.push_back(Input[i]);
+		Scope->Header.push_back(Input[i]);
 
 	//label
 	IR* Label = Make_Label(Input[i], true);
@@ -76,9 +81,9 @@ void IRGenerator::Parse_Function(int i)
 		for (int j = 0; j < Input[i]->Parameters.size(); j++) {
 			if (j <= Max_Decimal_Register_Count || j <= Max_Non_Decimal_Register_Count) {
 				//first make a register representive out of the parameter.
-				Token* Register = new Token(Input[i]->Parameters[j]);
+				Token* Register = new Token(Input[i]->Parameters[j], true);
 				//then declare that the parameter now needs memory
-				Global_Scope->Find(Input[i]->Name, Global_Scope, Input[i]->Type)->Parameters[j]->Requires_Address = true;
+				Scope->Find(Input[i]->Name, Scope, Input[i]->Type)->Parameters[j]->Requires_Address = true;
 				//now the new token that is created is a memory representive of the original parameter.
 				Token* Memory = new Token(TOKEN::MEMORY, { new Token(Input[i]->Parameters[j]) }, Register->Get_Size(), Register->Get_Name());
 
@@ -92,7 +97,7 @@ void IRGenerator::Parse_Function(int i)
 
 
 	Token* ret = new Token(TOKEN::FLOW, "return");
-	ret->Set_Parent(Global_Scope->Find(Input[i]->Name, Global_Scope, FUNCTION_NODE));
+	ret->Set_Parent(Scope->Find(Input[i]->Name, Scope, FUNCTION_NODE));
 	Output->push_back(new IR(ret, {}, nullptr));
 
 	//make the end of funciton like End Proc like label
@@ -1152,6 +1157,8 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;	//x.size										//They're were Holders, both of em actually... srry, i dont know what this does m8!
 	if ((!Is_In_Left_Side_Of_Operator && n->Context == nullptr) || (n->Scope != nullptr && n->Scope->Has({ CLASS_NODE, FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE }) == false))
 		return;
+	if (n->is(CALL_NODE))
+		return;
 
 	if (n->is("static") != -1 || n->Fetcher->is("static") != -1) {
 		if (Parent->is(FUNCTION_NODE)) {
@@ -1585,6 +1592,13 @@ IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 	if (Mangle)
 		name = MANGLER::Mangle(n);
 	Token* label_name = new Token(TOKEN::LABEL, name);
+
+	Node* Scope_Path = Parent;
+	if (n->Fetcher != nullptr)
+		Scope_Path = n->Fetcher;
+
+	label_name->Set_Parent(Scope_Path);
+
 	IR* label = new IR(n->Location);
 	label->OPCODE = label_name;
 	return label;

@@ -44,7 +44,7 @@ public:
 	Token(const Token& t, long long f) { *this = t; Flags = f; }
 	Token(const Token& t, int s) { *this = t; Size = s; }
 	Token(long long f) : Flags(f) {}
-	Token(Node* n);
+	Token(Node* n, bool Skip_Needed_Address_Protocol = false);
 	Token(long long f, int s) : Flags(f), Size(s) {}
 	Token(long long f, string n) : Flags(f), Name(n) {}
 	Token(long long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) {}

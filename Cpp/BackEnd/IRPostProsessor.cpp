@@ -192,8 +192,12 @@ void IRPostProsessor::Prepare_Function(int i)
 
 	selector->Set_Stack_Start_Value(_SYSTEM_BIT_SIZE_);
 	//selector->Allocate_Stack(Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space, Input, i + 1);
+	
+	Node* Scope = Input->at(i)->OPCODE->Get_Parent();
 
-	for (auto p : Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Defined) {
+	Node* Func = Scope->Find(Input->at(i)->OPCODE->Get_Name());
+
+	for (auto p : Func->Defined) {
 		if (!p->is(PARAMETER_NODE))
 			continue;
 		Token* tmp = new Token(p);
@@ -211,12 +215,14 @@ void IRPostProsessor::Handle_Labels(int i)
 	if (!Input->at(i)->is(TOKEN::START_OF_FUNCTION))
 		return;
 
-	Node* parent = Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope, FUNCTION_NODE);
+	Node* Scope = Input->at(i)->OPCODE->Get_Parent();
 
-	if (parent->Size_of_Call_Space == 0 && parent->Local_Allocation_Space == 0)
+	Node* Func = Scope->Find(Input->at(i)->OPCODE->Get_Name(), Scope, FUNCTION_NODE);
+
+	if (Func->Size_of_Call_Space == 0 && Func->Local_Allocation_Space == 0)
 		return;
 
-	selector->Allocate_Stack(parent->Size_of_Call_Space + parent->Local_Allocation_Space, Input, i + 1);
+	selector->Allocate_Stack(Func->Size_of_Call_Space + Func->Local_Allocation_Space, Input, i + 1);
 }
 
 void IRPostProsessor::Handle_Stack_Usages(Token* t)
@@ -236,10 +242,12 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 	}
 	else {
 		//first update the stack offset.
-		Node* Function = Global_Scope->Find(t->Get_Parent()->Name, t->Get_Parent(), FUNCTION_NODE);
+		Node* Function = t->Get_Parent();
+
 		Function->Update_Defined_Stack_Offsets();
 
 		Node* og = Function->Find(t->Get_Name());
+
 		long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
 		if (og->is(PARAMETER_NODE))
 			Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;

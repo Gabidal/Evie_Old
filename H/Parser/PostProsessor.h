@@ -28,8 +28,9 @@ public:
 	void Factory();
 	void Transform_Component_Into_Node();			//transfer the components into pure nodes
 	void Type_Definer(int i);						//defines all the members of type
-	void Member_Function(int i);					//puts the func into parenting type class
-	//void Combine_Conditions(int i);					//combines the if and else
+	void Member_Function_Defined_Outside(int i);	//puts the func into parenting type class
+	void Member_Function_Defined_Inside(int i);		//
+	//void Combine_Conditions(int i);				//combines the if and else
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
 	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
 	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call

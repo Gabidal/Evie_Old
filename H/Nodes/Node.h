@@ -30,6 +30,7 @@ public:
 	Node(int flag, Position* p, string f) : Type(flag), Location(p), Format(f) {}
 	Node(string n, Position* p) : Name(n), Location(p) {}
 	Node(int flag, string n, Position* p) : Type(flag), Name(n), Location(p) {}
+	Node(Node* n, int f) { *this = *Copy_Node(n, n->Scope); Type = f; }
 	//Node(){}
 	//Normal features
 	Position* Location = nullptr;
@@ -350,6 +351,8 @@ public:
 	//this reqiers that the other local variables inside this object are already having theyre own size!
 	void Update_Size() {
 		for (Node* m : Defined) {
+			if (m->is(FUNCTION_NODE))
+				continue;
 			//gather member variables
 			m->Update_Size();
 			Size += m->Size;
@@ -403,6 +406,8 @@ public:
 				Get_Inheritted_Class_Members(s);
 		}
 		for (Node* i : Defined) {
+			if (i->is(FUNCTION_NODE))
+				continue;
 			//now revaluate the all new and old defined variables.
 			i->Update_Members_Size();
 		}

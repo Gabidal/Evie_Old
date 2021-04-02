@@ -5,7 +5,7 @@
 extern Selector* selector;
 extern Usr* sys;
 
-Token::Token(Node* n) {
+Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
 		if (n->Find(n, n->Scope)->Scope->Name == "GLOBAL_SCOPE" || n->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1))
 			Flags = TOKEN::GLOBAL_VARIABLE | TOKEN::CONTENT;
@@ -33,7 +33,7 @@ Token::Token(Node* n) {
 		int Max_Floating_Registers = selector->Get_Floating_Parameter_Register_Count(n->Scope->Parameters);
 		int Current_Float_Register_Count = 0;
 
-		bool Requires_Address = n->Find(n, n->Scope)->Requires_Address;
+		bool Requires_Address = n->Find(n, n->Scope)->Requires_Address && !Skip_Needed_Address_Protocol;
 
 		//find the curresponding register
 		for (int i = 0; i < n->Scope->Parameters.size(); i++) {

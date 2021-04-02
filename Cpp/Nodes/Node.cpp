@@ -147,7 +147,7 @@ Node* Node::Find_Scope(Node* n)
 	while (true) {
 		for (auto i : Current_Scope->Defined) {
 			if (Fetchers.back()->Name == i->Name) {
-				Current_Scope = Fetchers.back();
+				Current_Scope = i;
 				Fetchers.pop_back();
 			}
 			if (Fetchers.size() == 0)

@@ -13,7 +13,7 @@ type Banana{	#In the declaration of Banana we can set it to static
 	static int Y = 2
 	int Set(int x){
 		X = x
-		return 1
+		return X + 1
 	}
 }
 
@@ -28,7 +28,8 @@ static Apple{
 }
 
 export int Start_Test(){
-	int B_X = Banana.Get()
+	Banana b
+	int B_X = b.Get()
 	return Banana.Y + Apple.Y
 }
 

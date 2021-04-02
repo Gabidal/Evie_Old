@@ -23,7 +23,8 @@ void PostProsessor::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		Cast(Input[i]);
 		Operator_Overload(i);
-		Member_Function(i);
+		Member_Function_Defined_Outside(i);
+		Member_Function_Defined_Inside(i);
 		Open_Function_For_Prosessing(i);
 		Open_Condition_For_Prosessing(i);
 		Open_Loop_For_Prosessing(i);
@@ -164,7 +165,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 {
 	vector<Node*> Result;
 	for (auto c : Childs) {
-		Update_Operator_Inheritance(c);
+		//Update_Operator_Inheritance(c);
 		if (c->is("const") != -1)
 			continue;
 		if (c->is("static") != -1)
@@ -246,7 +247,7 @@ void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
 	f->Calling_Count++;
 }
 
-void PostProsessor::Member_Function(int i)
+void PostProsessor::Member_Function_Defined_Outside(int i)
 {
 	//<summary>
 	//	The function is in global scope's childs list-
@@ -264,8 +265,53 @@ void PostProsessor::Member_Function(int i)
 
 	Node* func = Input[i];
 
+	Node* This = new Node(OBJECT_NODE, "this", nullptr);
+	This->Inheritted = { func->Fetcher->Name, "ptr" };
+	This->Scope = func;
+	This->Size = _SYSTEM_BIT_SIZE_;
 
+	func->Defined.push_back(This);
 
+	func->Parameters.insert(func->Parameters.begin(), new Node(This, PARAMETER_NODE));
+
+	func->Childs = Insert_Dot(func->Childs, func, This);
+
+	Node* Scope = func->Fetcher->Find_Scope(func->Fetcher);
+
+	func->Fetcher = Scope;
+
+	*func->Fetcher->Find(func, Scope, FUNCTION_NODE) = *func;
+
+	return;
+}
+
+void PostProsessor::Member_Function_Defined_Inside(int i)
+{
+	if (!Input[i]->is(FUNCTION_NODE))
+		return;
+	if (Input[i]->is("static") != -1)
+		return;
+	if (Parent->Name == "GLOBAL_SCOPE")
+		return;
+	if (Input[i]->Fetcher != nullptr)
+		return;
+
+	Node* func = Input[i];
+
+	Node* This = new Node(OBJECT_NODE, "this", nullptr);
+	This->Inheritted = { Parent->Name, "ptr" };
+	This->Scope = func;
+	This->Size = _SYSTEM_BIT_SIZE_;
+
+	func->Defined.push_back(This);
+
+	func->Parameters.insert(func->Parameters.begin(), new Node(This, PARAMETER_NODE));
+
+	func->Childs = Insert_Dot(func->Childs, func, This);
+
+	Node* Scope = Parent->Find(Parent->Name, Parent, CLASS_NODE);
+
+	*Parent->Find(func, Scope, FUNCTION_NODE) = *func;
 
 	return;
 }
@@ -347,6 +393,14 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
 
+	Node* Scope = Global_Scope;
+	if (n->Fetcher != nullptr) {
+		if (n->Fetcher->is(CLASS_NODE))
+			Scope = n->Fetcher->Find(n->Fetcher->Name, n, CLASS_NODE);
+		else
+			Scope = n->Fetcher->Find(n->Fetcher->Inheritted[0], n, CLASS_NODE);
+	}
+
 	for (auto& i : n->Parameters)
 		if (i->Size == 0)
 			i->Update_Size_By_Inheritted();
@@ -371,9 +425,9 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			//this happends when the n return a template type.
 			//there can be only one template function.
 			vector<int> callation;
-			for (int c = 0; c < Global_Scope->Defined.size(); c++) {
-				if (Global_Scope->Defined[c]->is(FUNCTION_NODE) && (Global_Scope->Defined[c]->Name == n->Context->Name)) {
-					if (Global_Scope->Defined[c]->Parameters.size() == n->Context->Parameters.size())
+			for (int c = 0; c < Scope->Defined.size(); c++) {
+				if (Scope->Defined[c]->is(FUNCTION_NODE) && (Scope->Defined[c]->Name == n->Context->Name)) {
+					if (Scope->Defined[c]->Parameters.size() == n->Context->Parameters.size())
 						callation.push_back(c);
 				}
 			}
@@ -384,7 +438,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 					});
 				throw::runtime_error("Error!");
 			}
-			n->Inheritted = Global_Scope->Defined[callation[0]]->Parameters[Parameter_Index]->Inheritted;
+			n->Inheritted = Scope->Defined[callation[0]]->Parameters[Parameter_Index]->Inheritted;
 		}
 
 	}
@@ -393,20 +447,20 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	bool Skip_Name_Checking_For_Func_Ptr = false;
 Try_Again:;
 	//first ignore the template parameters for now
-	for (int f = 0; f < Global_Scope->Defined.size(); f++) {
+	for (int f = 0; f < Scope->Defined.size(); f++) {
 		if (!Skip_Name_Checking_For_Func_Ptr)
-			if (Global_Scope->Defined[f]->Name != n->Name)
+			if (Scope->Defined[f]->Name != n->Name)
 				continue;
-		if (Global_Scope->Defined[f]->is(CLASS_NODE))
+		if (Scope->Defined[f]->is(CLASS_NODE))
 			continue;	//this is for constructors
 		//check for template return types.
-		if (!Check_If_Template_Function_Is_Right_One(Global_Scope->Defined[f], n))
+		if (!Check_If_Template_Function_Is_Right_One(Scope->Defined[f], n))
 			continue;
-		if (Global_Scope->Defined[f]->Parameters.size() != n->Parameters.size())
+		if (Scope->Defined[f]->Parameters.size() != n->Parameters.size())
 			continue;
 		int g_i = -1;
 		bool Has_Template_Parameters = false;
-		for (auto g : Global_Scope->Defined[f]->Parameters) {
+		for (auto g : Scope->Defined[f]->Parameters) {
 			g_i++;
 
 			if (g->Is_Template_Object) {
@@ -438,13 +492,13 @@ Try_Again:;
 			Right_Type:;
 			}
 		}
-		if (Has_Template_Parameters && !Global_Scope->Defined[f]->is(IMPORT)) {
-			OgFunc = Global_Scope->Defined[f];
+		if (Has_Template_Parameters && !Scope->Defined[f]->is(IMPORT)) {
+			OgFunc = Scope->Defined[f];
 			goto Non_Imported_Template_Function_Usage;
 		}
 		if (Skip_Name_Checking_For_Func_Ptr)
 			n->Function_Ptr = true;	//this caller is a function pointter.
-		n->Function_Implementation = Global_Scope->Defined[f];
+		n->Function_Implementation = Scope->Defined[f];
 		if (!Skip_Name_Checking_For_Func_Ptr)
 			n->Function_Implementation->Calling_Count++;
 		n->Inheritted = n->Function_Implementation->Inheritted;
@@ -488,6 +542,11 @@ Try_Again:;
 		if (Skip_Name_Checking_For_Func_Ptr == false) {
 			Skip_Name_Checking_For_Func_Ptr = true;
 			goto Try_Again;
+	}
+
+	if (OgFunc == nullptr && Scope != Global_Scope) {
+		Scope = Global_Scope;
+		goto Try_Again;
 	}
 
 	if (OgFunc == nullptr) {
@@ -542,8 +601,8 @@ Try_Again:;
 	Update_Used_Object_Info(func);
 
 	//now we want to inject it to global scope to be reached next time.
-	Global_Scope->Childs.push_back(func);
-	Global_Scope->Defined.push_back(func);
+	Scope->Childs.push_back(func);
+	Scope->Defined.push_back(func);
 
 	return;
 }
@@ -596,6 +655,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 	if (n->Right->is(CALL_NODE)) {
 		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
 		n->Right->Context = n->Context;
+		n->Right->Fetcher = n->Left;
 		*n = *n->Right;
 	}
 	else {
@@ -1089,6 +1149,10 @@ vector<Node*> PostProsessor::Linearise(Node* ast)
 			childs.insert(childs.end(), tmp.begin(), tmp.end());
 		}
 		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	else if (ast->Name == "return" && ast->Right != nullptr) {
+		for (auto c : Linearise(ast->Right))
+			Result.push_back(c);
 	}
 	else
 		Result.push_back(ast);

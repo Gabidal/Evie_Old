@@ -946,6 +946,8 @@ void Parser::Return_Pattern(int i)
 {
 	if (Input[i].Value != "return")
 		return;
+	if (Input[i].node != nullptr)
+		return;
 	bool No_Return_Value = (((size_t)i + 1 > Input.size() - 1) || (Input[i+1].node == nullptr));
 
 	//return a + b
@@ -1124,6 +1126,13 @@ void Parser::Member_Function_Pattern(int i)
 	Node* Class = Parent->Find(Input[i].node->Right->Fetcher, Parent, CLASS_NODE);
 	if (Class == nullptr)
 		Report(Observation(ERROR, Input[i].node->Right->Fetcher->Name + " was not found when creating " + Input[i].node->Right->Name, Input[i].Location));
+
+	Node* Ghost_Definition = Input[i].node->Left;
+
+	for (int j = 0; j < Parent->Defined.size(); j++)
+		if (Ghost_Definition == Parent->Defined[j])
+			Parent->Defined.erase(Parent->Defined.begin() + j);
+
 
 	Input[i].node->Right->Context = Input[i].node->Context;
 	Input[i].node->Right->Scope = Input[i].node->Scope;
