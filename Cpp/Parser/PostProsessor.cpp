@@ -276,7 +276,7 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 
 	func->Childs = Insert_Dot(func->Childs, func, This);
 
-	Node* Scope = func->Fetcher->Find_Scope(func->Fetcher);
+	Node* Scope = func->Find_Scope(func);
 
 	func->Fetcher = Scope;
 
@@ -698,6 +698,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 
 		//now remove the current dot operator and replace it with the new fetched member
 		Right->Context = n->Context;
+		Right->Scope = n->Scope;
 		*n = *Right;
 	}
 }

@@ -3,7 +3,8 @@
 .global Start_Test
 .section .text
 Get:
-mov eax, 0
+mov ecx, dword ptr [rip + Banana_Y ]
+mov eax, ecx
 ret 
 ret 
 

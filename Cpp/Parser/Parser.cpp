@@ -348,7 +348,7 @@ void Parser::Object_Pattern(int i)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
-	Input[i].node = new Node(*Parent->Find(Input[i].Value, Parent, true));
+	Input[i].node = Parent->Copy_Node(Parent->Find(Input[i].Value, Parent, true), Parent);
 	if (Input[i].node->is(OBJECT_DEFINTION_NODE))
 		Input[i].node->Type = OBJECT_NODE;
 	else if (Input[i].node->is(PARAMETER_NODE))
@@ -357,6 +357,8 @@ void Parser::Object_Pattern(int i)
 		Input[i].node->Type = LABEL_NODE;
 	else if (Input[i].node->is(FUNCTION_NODE)) //this happends for function pointer adress geting prosess
 		Input[i].node->Type = OBJECT_NODE;
+
+	Input[i].node->Scope = Parent;
 	return;
 }
 
@@ -369,6 +371,11 @@ void Parser::Parenthesis_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::PAREHTHESIS_COMPONENT))
 		return;
+
+	if (Input[i].Value[0] == '{')
+		if (Parent == Global_Scope)
+			return;		//this is for member functions
+
 	//create an content Node and output will be in the same input.
 	Node* Paranthesis = new Node(CONTENT_NODE, new Position(Input[i].Location));
 	Paranthesis->Scope = Parent;

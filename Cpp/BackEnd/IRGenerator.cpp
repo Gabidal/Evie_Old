@@ -1168,6 +1168,9 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 			if (n->Context->Name == "=" && n->Context->Left == n)
 				Load_To_Reg = false;	//the label data is going to be rewritten by set operator.
 
+			if (!n->Fetcher->is(CLASS_NODE))
+				n->Fetcher = n->Find(n->Fetcher->Inheritted[0]);
+
 			Token* Result = new Token(TOKEN::MEMORY, { new Token(n) }, n->Size, n->Name);
 
 			if (Load_To_Reg) {
@@ -1641,7 +1644,7 @@ void IRGenerator::Parse_Return(int i) {
 
 	bool Can_Modify_Last_Variable_Value = true;
 	for (auto j : Input[i]->Right->Has(Input[i]->Right, OBJECT_NODE)) {
-		if (j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && j->Scope == Global_Scope)
+		if (j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && j->Find(j, j->Scope)->Scope == Global_Scope)
 			Can_Modify_Last_Variable_Value = false;
 		if (j->is("ptr") != -1)
 			Can_Modify_Last_Variable_Value = false;

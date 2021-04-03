@@ -142,7 +142,9 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 Node* Node::Find_Scope(Node* n)
 {
 	Node* Current_Scope = n->Scope;
-	vector<Node*> Fetchers = Get_All_Fetchers();
+	vector<Node*> Fetchers = n->Fetcher->Get_All_Fetchers();
+
+	reverse(Fetchers.begin(), Fetchers.end());
 
 	while (true) {
 		for (auto i : Current_Scope->Defined) {
@@ -219,7 +221,7 @@ Node* Node::Find(Node* n, Node* s)
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
 	if (n->Fetcher != nullptr)
-		if (n->Scope != s)
+		if (n->Fetcher != s)
 			for (auto i : Find_Scope(n)->Defined)
 				if (i->Name == n->Name)
 					return n;
@@ -312,6 +314,12 @@ Node* Node::Find(string name, Node* parent, int flags) {
 		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
 			if (i->Name == name)
 				return i;
+	if (parent->Fetcher != nullptr) {
+		Node* F = Find_Scope(parent);
+		if (F != nullptr)
+			if (Find(name, F, flags) != nullptr)
+				return Find(name, F, flags);
+	}
 	return nullptr;
 }
 
@@ -333,6 +341,12 @@ Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
 		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
 			if (i->Name == name)
 				return i;
+	if (parent->Fetcher != nullptr) {
+		Node* F = Find_Scope(parent);
+		if (F != nullptr)
+			if (Find(name, F, Need_Parent_existance) != nullptr)
+				return Find(name, F, Need_Parent_existance);
+	}
 	return nullptr;
 }
 

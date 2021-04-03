@@ -411,7 +411,7 @@ void Algebra::Set_Defining_Value(int i)
 		return;
 
 	if (Input->at(i)->is(ASSIGN_OPERATOR_NODE))
-		if (Input->at(i)->Left->Scope->Find(Input->at(i)->Left->Name)->is("ptr"))
+		if (Input->at(i)->Left->Find(Input->at(i)->Left, Input->at(i)->Left->Scope)->is("ptr"))
 			return;
 
 	//callations hould not be inlined because theyre return value may vary.

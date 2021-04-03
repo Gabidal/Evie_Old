@@ -18,7 +18,7 @@ type Banana{	#In the declaration of Banana we can set it to static
 }
 
 int Banana.Get(){
-	return 0
+	return Y
 }
 
 static Apple{
