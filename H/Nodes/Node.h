@@ -596,6 +596,8 @@ public:
 			Result.insert(Result.end(), childs.begin(), childs.end());
 		}
 		for (Node* i : Defined) {
+			if (i->is(FUNCTION_NODE))
+				continue;
 			vector<Node*> childs = i->Get_all(f);
 			Result.insert(Result.end(), childs.begin(), childs.end());
 		}

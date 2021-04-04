@@ -59,5 +59,6 @@ private:
 	void Factory();
 	void Check_Return_Validity(Node* n);
 	void Disable_Non_Ptr_Class_Return(Node* n);
+	void Check_For_Unitialized_Objects(Node* func);
 	vector<Node*> Input;
 };

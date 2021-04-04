@@ -20,6 +20,7 @@ void Safe::Factory()
 	for (auto i : Input) {
 		Check_Return_Validity(i);
 		Disable_Non_Ptr_Class_Return(i);
+		Check_For_Unitialized_Objects(i);
 	}
 }
 
@@ -148,5 +149,38 @@ void Safe::Disable_Non_Ptr_Class_Return(Node* n)
 			Observation(SOLUTION, "Please return the object as a pointter", *n->Location)
 			});
 		throw::runtime_error("ERROR!");
+	}
+}
+
+void Safe::Check_For_Unitialized_Objects(Node* func)
+{
+	//go through the code inside this function and try to find '=' operators-
+	//that set the object in question an initial value.
+	if (!func->is(FUNCTION_NODE))
+		return;
+
+	for (auto v : func->Defined) {
+		if (v->is(PARAMETER_NODE))
+			continue;
+		for (auto c : func->Childs) {
+			for (auto n : c->Get_all(ASSIGN_OPERATOR_NODE)) {
+				if (n->Left->Name == v->Name)
+					goto Next_Variable;
+			}
+			//constructor callation
+			for (auto n : c->Get_all(CALL_NODE)) {
+				if (n->Parameters.size() > 0 && n->Parameters[0]->Name == v->Name)
+					if (n->Name == v->Inheritted[0])
+						goto Next_Variable;
+			}
+		}
+
+		
+		Report({
+			Observation(WARNING, "Usage of uninitialized object is dangerous!", *v->Location),
+			Observation(SOLUTION, "Call constructor of '" + v->Name + "' to initialize it.", *v->Location),
+		});
+
+	Next_Variable:;
 	}
 }
