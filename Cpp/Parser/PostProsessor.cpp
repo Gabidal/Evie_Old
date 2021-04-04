@@ -165,10 +165,12 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 {
 	vector<Node*> Result;
 	for (auto c : Childs) {
-		//Update_Operator_Inheritance(c);
+		Update_Operator_Inheritance(c);
 		if (c->is("const") != -1)
 			continue;
 		if (c->is("static") != -1)
+			continue;
+		if (c->is(FUNCTION_NODE))
 			continue;
 		Node* c_copy = c->Copy_Node(c, Function);
 		//insert this. infront of every member
@@ -265,14 +267,14 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 
 	Node* func = Input[i];
 
-	Node* This = new Node(OBJECT_NODE, "this", nullptr);
+	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { func->Fetcher->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
 
 	func->Defined.push_back(This);
 
-	func->Parameters.insert(func->Parameters.begin(), new Node(This, PARAMETER_NODE));
+	func->Parameters.insert(func->Parameters.begin(), This);
 
 	func->Childs = Insert_Dot(func->Childs, func, This);
 

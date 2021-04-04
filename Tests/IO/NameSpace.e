@@ -18,7 +18,7 @@ type Banana{	#In the declaration of Banana we can set it to static
 }
 
 int Banana.Get(){
-	return Y
+	return Y + X
 }
 
 static Apple{
@@ -28,11 +28,12 @@ static Apple{
 }
 
 export int Start_Test(){
-	Banana b
+	Banana b.Banana()
 	int B_X = b.Get()
-	return Banana.Y + Apple.Y
+	return Banana.Y + Apple.Y - B_X
 }
 
 export int main(){
+	Start_Test()
 	return 1
 }

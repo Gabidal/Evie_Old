@@ -191,7 +191,7 @@ void Back_End_Test::Init()
 	Tests = {
 		//{{1}, "Tests/IO/main"},
 		{{4}, "Tests/IO/Global.e"},
-		{{5}, "Tests/IO/NameSpace.e"},
+		{{2}, "Tests/IO/NameSpace.e"},
 		{{1}, "Tests/IO/Type.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{2}, "Tests/IO/Cast.e"},

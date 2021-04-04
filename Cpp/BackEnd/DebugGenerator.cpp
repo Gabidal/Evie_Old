@@ -720,6 +720,8 @@ Go_Straight_To_Childs:;
     for (auto v : n->Defined) {
         if (v->is("const") != -1)
             continue;
+        if (v->is(FUNCTION_NODE))
+            continue;
         Info_Generator(v);
     }
     if (Info.HAS_CHILDREN && !Skip_Scope_Generation)
