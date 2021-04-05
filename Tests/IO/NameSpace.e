@@ -4,7 +4,7 @@ use "../../IO/cstd.e"
 #Go and vote for the keyword to be used for using/inlining namespaces :D
 #https://docs.google.com/forms/d/e/1FAIpQLSfR5CAMP7dXWwrp_lcAa4PrpHgiuRlQxReuvX2oMiFtULR6vQ/viewform?usp=sf_link
 
-#a namespace is like a type class but everything inside it is static.
+#a namespace is like a type class but everything inside it, is static type'd.
 type Banana{	#In the declaration of Banana we can set it to static
 				#that way everything inside it will be static.
 	
@@ -34,6 +34,5 @@ export int Start_Test(){
 }
 
 export int main(){
-	Start_Test()
 	return 1
 }

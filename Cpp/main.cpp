@@ -60,6 +60,7 @@ int Build(int argc, const char* argv[])
         cout << (string)"-debug [\n supported debug symbol types:\n" +
             "  dwarf2\n" +
             "]\n";
+        cout << "-vt [virus total API-key]\n";
         cout << endl;
         return -1;
     }

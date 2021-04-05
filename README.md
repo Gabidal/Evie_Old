@@ -3,275 +3,241 @@
 # Evie- lang
 
 ### Catalog:
-- #### New's
 - #### Manual
-    - ##### Types.
+    - ##### Type.
+    - ##### Base type.
+    - ##### Static member.
+    - ##### Member function.
     - ##### Function.
-    - ##### Condition.
+    - ##### Static funciton.
+    - ##### If statement.
     - ##### Loop.
-    - ##### Multi-file.
-    - ##### Math.
+    - ##### File include.
+    - ##### Manual header info construction.
+    - ##### Asm file including.
+    - ##### VTC.
     - ##### Array.
-    - ##### Arguments.
     - ##### Preprosessor.
-    - ##### Docker.
-    - ##### Future of Evie
-
-
-
-
-## New's
-Beta 2.0.0 brings new Lexer, Parser, Back-end.
-More flexible than ever.
-
-Beta 2.0.8 fixed:
-- ###### multiline math register handle fix.
-- ###### removed reduntant register abuse.
-
-
-Beta 2.1.2 fixed:
-- ###### Stackframe added.
-- ###### Parameter order reversed.
-- ###### Stupid/Ridiclius stackOffset's removed.
-- ###### Tooken Registers from tokens away.
-
-
-Beta 2.1.4 fixed:
-- ###### Makefile updated.
-
-
-Beta 2.1.6 fixed:
-- ###### If's.
-- ###### AL & AH had same ID.
-- ###### Now calling a exported function works :D.
-
-
-Beta 2.1.9 fixed:
-- ###### Exporting is now
-
-From:
-```
-    export main()(..)
-```
-
-To:
-```
-    export func main()(..)
-```
-- ###### Also Exporting has it's own type class in CSTD.e .
-
-
-Beta 2.1.10 fixed:
-- ###### Parameters didnt have stackframe.
-
-Beta 2.1.11 fixed:
-- ###### Fixed returning register.
-
-Beta 2.1.12 added:
-- ###### Added pointters (experimental)
-
-Beta 2.1.16 added:
-- ###### Added Scaler function to fix some scaling problems.
-
-Beta 2.1.20 fixed:
-- ###### Fixed stack register abuse.
-
-Beta 2.1.30 added:
-- ###### Added Linux file linking.
-
-Beta 2.1.40 added:
-- ###### Added post prosessor. See <sys.e> for a example.
-
-Beta 2.1.46 added:
-- ###### Boost lib to imrpove your code output.
-
-Beta 2.1.51 fixed:
-- ###### Fixed stupid parameter pusher.
-- ###### Added a new pattern into boost.e .
-
-Beta 2.1.62 added:
-- ###### Added a new pattern to improve math.
-
-Beta 2.1.63 added:
-- ###### Added new link method:
-```
-link /NXCOMPAT /DYNAMICBASE "glfw3.lib" "OpenGL32.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib" /DEBUG /MACHINE:X86 /INCREMENTAL /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /ERRORREPORT:PROMPT /NOLOGO /TLBID:1  test.asm.obj /libpath:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\um\x86" OpenGL32.lib /entry:main /out:test.asm.exe /libpath:"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.25.28610\lib\x86" vcruntime.lib /libpath:"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.26.28801\lib\x86" /libpath:"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\ucrt\x86" ucrt.lib
-```
-- ###### Evie can now use OpenGL 
-
-
-Beta 2.1.64 added:
-
-- ###### Evie now supports global variables.
-- ###### Evie now supports the linking inline.
-
-Use OpenGL32.lib as a -lib argument, on windows.
-```
--in IO/test.e -out IO/test.asm -lib OpenGL32.lib -os win32 -arch x86 -mode 4 -debug dwarf2
-```
-Sorry for Linux users, u have to use ur skills, until i have added a template for linux too...
-
-Beta 2.1.68 added/fixed:
-- ###### added loyal keyword, use this if you dont want to clean the called functions parameters from stack.
-- ###### rewamped the whole typing system from string into vector strings so that you can inherit literally unlimited amount of types.
-
-
-Beta 2.1.82 fixed:
-- ###### cache variable inherit numbr and thus crash.
-- ###### optimized some array output.
-
-Beta 2.1.103 fixed:
-- ###### Register selection is now improved.
-
-Beta 2.1.104 fixed:
-- ###### Safe doesnt yell at everything enymore.
-- ###### Added line number into token info at Safe, so now you can find your problems in life :P
-
-
-Beta 2.1.105 added:
-- ###### Added C like array pointting:"int a[0] = 123".
-
-Beta 2.1.121 added/fixed:
-- ###### Fixed some issues with the docker system. Now using elf files should be working regardles the order of files.
-- ###### Now you dont even have to make header file to every elf file (or lib/dll in future) you just need to make one header file named "general.[a-z]".
-
-
-Beta 2.1.222 added:
-- ###### New Safe method into Safe.cpp, named: Safe_Calling(Token* t);
-- ###### Evie now should be able to assist you on right function calling's.
-
-
-Beta 2.1.223 added:
-
-- ###### Finally the member support is here!
-
-
+    - ##### Arguments.
 
 ## Manual
 
 ### Type
-###### Types are the biggest differences between GAS and Evie.
+#### Types are like classes in any other programming language.
 #### Syntax:
 ```
-    type [name](){
-        [feature] [operator(=)] [number]
-        [type] [name]
+    type Foo{
+        int X = 1
+        int y = 2
     }
-    
-    [type_name] [new_defined_object_Name] 
 ```
 
+### Base type
+#### In Evie you can make your own base types
+#### Syntax:
+```
+    type Foo{
+        size = 4 #this 4 represent's bits size of this base type
+        format = integer #this can be 'integer' or 'decimal'
+    }
+```
+
+#### Oh did i mention you can type basically anything into the type's initialization, 
+#### it all gets transformed into constructor code nonetheless.
+#### Syntax:
+```
+    type Foo{
+        int X = 1
+        int y = 2
+        call_something(X, Y)
+        if (X == 2){
+            X = 3
+        }
+    }
+```
+
+### Static member
+#### Syntax:
+```
+    type Foo{
+        static int X = 1
+        static int Y = 2
+        int Z = 3
+    }
+
+    int baz(){
+        return Foo.X + Foo.Y
+    }
+```
+
+### Member function
+#### Syntax:
+```
+    type Foo{
+        int X = 1
+        int Fuz(int something){
+            return something + X
+        }
+    }
+
+    int Foo.Baz(){
+        return X
+    }
+```
 
 ### Function
-###### The functions are nontype.
+#### the 'func' keyword is same as C++ 'void'.
 #### Syntax:
 ```
-[return type] [name] ([parameter(s)], ..){
-    [code]
-}
+    int Calculate(int param1, int param2){
+        return param1 + param2
+    }
+
+    func Foo(int param1, int param2){
+        int useless = param1 - param2 + Calculate(param1, param2)
+    }
 ```
 
+### Static function
+#### Syntax: 
+```
+    type foo{
+        static int Fuz(int x, int y){
+            return x + y
+        }
+    }
 
-### Condition
-###### Notice how the condition does not have else if's nor else's.
+    int baz(){
+        return foo.Fuz(1, 2)
+    }
+```
+
+### If statement
 #### Syntax:
 ```
-if ([condition]){
-    [code]
-}
+    int Foo(){
+        int i = 1
+        int j = 2
+        if (i == j){
+            return 0
+        }
+        else (i < j){
+            return 1
+        }
+        else{
+            return j
+        }
+    }
 ```
-
 
 ### Loop
-###### It loop's until the condition it is given proves wrong.
-#### Synatx:
-```
-while ([condition]){
-    [code]
-}
-
-while ([set], [condition], [footer]){
-    [code]
-}
-```
-
-
-### Multi-file
 #### Syntax:
 ```
-use "[folder/filename]"
+    int Increment(int x){
+        return x + 1
+    }
+
+    int Foo(){
+        int x = 0
+        while (int i = 0; i < 10; i++){
+            x = Increment(x)
+        }
+        if (x == 10){
+            while (x > 0){
+                x--
+            }
+        }
+        return x
+    }
 ```
-#### You can also give Evie ASM/OBJ/ELF/LIB/URL files!
 
-
-### Math
-###### Like other languages.
+### File include
+#### Evie can also include .lib files, .elf files, URL files, .dll files, git repos, .asm files.
+#### Evie can automatically construct header file information for the included file like lib/elf/dll/asm
+#### If Evie doesn't find the wanted file in the included repo, then Evie will try to use 'Make all' or 'Make -B' to build the repo.
+#### To get the wanted repo file.
+#### Although in some situations you, the user must you're self give Evie header information about the content of that included file.
 #### Syntax:
 ```
-[value] [operator] [value]
+    use "some_file.e"
+    use "some_lib.lib"
+    use "some_elf.elf"
+    use "https://some_URL/file_x.e/dll/lib/elf/asm"
+    use "some_dll.dll"
+    use "https://github.com/some_user/some_repo/some_util.e/dll/lib/elf/asm"
+    use "https://bigbucket.com/some_user/some_repo/make_file_requiring_lib.lib"
+    use "some_ams.asm"
+
+    #utilization of included files here. :D
+```
+
+### Manual header info construction
+#### Syntax:
+```
+    use "hard_to_automatically_construct_include_binary.lib/elf/dll/asm"
+
+    import int manually_constructed_function(int, int)
+```
+
+### Asm file including
+#### When including .asm files, the included file must begin with the following comment: '#analyze'.
+#### Also make shure that you're .asm file is written in GNU-assembler syntax.
+
+### VTC
+#### The VTC stands for Virus Total Check.
+#### It means that Evie will check all files that come from outside world with VTC.
+#### Evie also check's the generated output binary with VTC.
+#### Of course, for this to work you need to pass to Evie when builing your virus total API-key.
+#### Syntax:
+```
+    ./Evie -in some_file.e -vt [API_KEY_HERE]
 ```
 
 ### Array
-###### Array's are actually just normal operator's.
 #### Syntax:
 ```
-[array name][[offsetter]]
-```
+    int Baz(){
+        #1D arraysa
+        int ptr Array1 = allocate(int.size * 10)
+        Array1[0] = 123
+        return Array[0]
+    }
 
-### Argument's
-#### Synatx:
-```
-[./]Evie[.exe] -in [input filename]  -out [output filename] (-lib [output type {obj, exe, li, so, etc}] == not a must) -os [OS] -arch [architecture] (-mode [bits mode] == not a must)  (-debug [type(for example dwarf2)] = not a must)
+    int Foo(){
+        #2D arrays
+        int ptr Array1 = allocate(int.size * 100)
+        Array1[1, 2] = 123
+        return Array[1, 2]
+    }
 ```
 
 ### Preprosessor
-###### Atm there is only preprosessor conditional if's
-###### Also the preprosessor gives us some goods: 
-- ###### SOURCE_FILE
-- ###### DESTINATION_FILE
-- ###### OS
-- ###### ARCHITECTURE
-- ###### FORMAT
-- ###### BITS_MODE
-- ###### true
-- ###### false
+#### The Evie preprosessor gives us these to work with:
+- ##### SOURCE_FILE
+- ##### DESTINATION_FILE
+- ##### OS
+- ##### ARCHITECTURE
+- ##### FORMAT
+- ##### BITS_MODE
+- ##### true
+- ##### false
 
-###### Use these preprosessor variables like this:
-```
-if (OS == "win32"){
-    [code if the condition yelds true]
-}
-```
 
-### Docker
-###### Docker is the next generation of file handling in Evie.
-###### Docker can understand elf, as well as lib & dll files in future.
-###### "But how does Evie know what function is what", you might ask.
-###### Evie has a built in REGEX support. Meaning that you can just give Evie the type of inheritting and the REGEX string it references, in the header file.
-###### Example:
-
-```
-[loyal std = "_(\w*@*)*"]
-```
-
-###### The above code creates a new object named (std) which inherits the (loyal) keyword.
-###### The loyal keyword implies that the function cleans its stack on its own, not the user.
-###### Now, the object std is set to the value of the string ("_(\w*@*)*").
-###### That string is in REGEX syntax.
-###### The elf(+lib & dll in future) is given to Docker so that it can find the corresponding header and then sets every function it finds, that has corresponding REGEX string, to the same inheriting features that (std) has.
-
-### Templates
-###### Example:
-```
-use "cstd.e"
-
-func foo(type ptr a, type ptr b, int size){
-    while(int i = 0; i < size; i++){
-        a[i] = b[i]
-    }
-}
-```
-###### Evie will copy the funciton into a new funciton but with the given parameter types.
-
-### Future of Evie
-###### Atm, just making the Evie engine 3.0. 
+### Arguments
+##### -in [relative path/source file]
+##### -out [relative path/output file name]
+##### -os [target operating system (win32/unix)]
+##### -host [the host operating system (win32/unix)]
+##### -arch [output assembly type (x86/arm)]
+##### -lib [relative path/lib name]
+##### -repo_dir [relative/absolute path for saving git repos]
+##### -mode [bit mode for assembly output (32/64)]
+##### -vt [virus total API-key]
+##### -f [supported output file formats are:
+#####     exe(executable (works for unix as well)),
+#####     lib(static lib),
+#####     dll(dynamic library (support is not made yet!))
+##### ]
+##### -debug [ supported debug symbol types:
+#####     dwarf2
+##### ];
