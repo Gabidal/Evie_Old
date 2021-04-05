@@ -27,6 +27,7 @@ public:
 
 	void Factory();
 	void Parse_Function(int i);
+	void Parse_Member_Functions(Node* Class);
 	void Parse_Calls(int i);
 	void Parse_If(int i);
 	void Loop_Elses(Node* e);

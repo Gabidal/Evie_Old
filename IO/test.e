@@ -1,5 +1,6 @@
 use "cstd.e"
 
-float export main(float a, float b){
-	return 1.2 + b - a - 1.3
+int main(){
+	List int ptr a = allocte(a.Update_Size(int.size * 10))
+	return a[a.Size-1]
 }

@@ -221,6 +221,8 @@
     <ClCompile Include="Cpp\BackEnd\IRPostProsessor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="IO\List.e" />
+    <None Include="IO\STD.e" />
     <None Include="IO\test.e" />
     <None Include="IO\test.e.asm" />
     <None Include="io\unix.asm" />

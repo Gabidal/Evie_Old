@@ -88,6 +88,14 @@ void PostProsessor::Type_Definer(int i)
 	if (Parent->Defined[i]->is("static") != -1)
 		return;
 
+	for (auto& j : Parent->Defined[i]->Defined)
+		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] != Parent->Defined[i]->Name)) {
+			PostProsessor p(Parent->Defined[i], { j });
+			//p.Input = { j };
+			//p.Member_Function_Defined_Inside(0);
+			//j = p.Output[0];
+		}
+
 	//check for static members and move them into Header section to be labelazed
 	for (auto& j : Parent->Defined[i]->Childs)
 		if (j->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
@@ -264,6 +272,8 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 		return;
 	if (Input[i]->is("static") != -1)
 		return;
+	if (Input[i]->Parameters.size() > 0 && Input[i]->Parameters[0]->Name == "this")
+		return;
 
 	Node* func = Input[i];
 
@@ -300,14 +310,14 @@ void PostProsessor::Member_Function_Defined_Inside(int i)
 
 	Node* func = Input[i];
 
-	Node* This = new Node(OBJECT_NODE, "this", nullptr);
+	Node* This = new Node(PARAMETER_NODE, "this", nullptr);
 	This->Inheritted = { Parent->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
 
 	func->Defined.push_back(This);
 
-	func->Parameters.insert(func->Parameters.begin(), new Node(This, PARAMETER_NODE));
+	func->Parameters.insert(func->Parameters.begin(), This);
 
 	func->Childs = Insert_Dot(func->Childs, func, This);
 

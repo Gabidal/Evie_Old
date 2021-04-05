@@ -17,9 +17,11 @@ void IRGenerator::Factory()
 		Un_Wrap_Inline(i);
 	for (int i = 0; i < Input.size(); i++)
 		Switch_To_Correct_Places(Input[i]);
-	for (int i = 0; i < Input.size(); i++) {
+	for (int i = 0; i < Input.size(); i++)
 		Parse_Function(i);
-	}
+	for (auto i : Parent->Defined)
+		Parse_Member_Functions(i);
+
 	for (int i = 0; i < Input.size(); i++) {
 		Parse_Dynamic_Casting(Input[i]);
 		Parse_Static_Casting(Input[i]);
@@ -102,6 +104,20 @@ void IRGenerator::Parse_Function(int i)
 
 	//make the end of funciton like End Proc like label
 	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, Input[i]->Name), {}, nullptr));
+}
+
+void IRGenerator::Parse_Member_Functions(Node* Class)
+{
+	if (!Class->is(CLASS_NODE))
+		return;
+
+	for (auto i : Class->Defined) {
+		if (i->is(FUNCTION_NODE))
+			if (i->Fetcher == nullptr)	//if this function has a fetcher then it is defined in global scope.
+				IRGenerator g(Class, { i }, Output);
+		else if (i->is(CLASS_NODE))
+			Parse_Member_Functions(i);
+	}
 }
 
 void IRGenerator::Parse_Calls(int i)
@@ -559,9 +575,10 @@ void IRGenerator::Parse_Operators(int i)
 				string Type = "=";
 				if (Left->is(TOKEN::MEMORY))
 					Type = "evaluate";
-				Token* r = new Token(TOKEN::REGISTER | F, Left->Get_Name() + "Save from the right side callations" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
-				Output->push_back(new IR(new Token(TOKEN::OPERATOR, Type), { r, new Token(*Left, _SYSTEM_BIT_SIZE_) }, Input[i]->Location));
-				r = new Token(TOKEN::MEMORY | F, { r }, Left->Get_Size(), Left->Get_Name());
+				Token* r = new Token(TOKEN::REGISTER | F, Left->Get_Name() + "Save from the right side callations" + to_string(Reg_Random_ID_Addon++), Left->Get_Size());
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, Type), { r, new Token(*Left) }, Input[i]->Location));
+				//wtf is this register to memory operator here m8?
+				//r = new Token(TOKEN::MEMORY | F, { r }, Left->Get_Size(), Left->Get_Name());
 				Left = r;
 			}
 	}

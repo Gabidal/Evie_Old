@@ -260,9 +260,9 @@ void Algebra::Inline_Variables(int i)
 		return;
 	}
 
-	for (auto j : Linear_Ast) {
-		if (j->is(CALL_NODE)) {
-			for (auto k : j->Parameters) {
+	for (int j = 0; j < Linear_Ast.size(); j++) {
+		if (Linear_Ast[j]->is(CALL_NODE)) {
+			for (auto k : Linear_Ast[j]->Parameters) {
 				vector<Node*> tmp = Linearise(k);
 				Linear_Ast.insert(Linear_Ast.end(), tmp.begin(), tmp.end());
 			}		

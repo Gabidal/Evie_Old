@@ -29,7 +29,7 @@ static Apple{
 
 export int Start_Test(){
 	Banana b.Banana()
-	int B_X = b.Get()
+	int B_X = b.Get() + b.Set(1)
 	return Banana.Y + Apple.Y - B_X
 }
 

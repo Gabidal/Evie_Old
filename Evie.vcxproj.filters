@@ -153,6 +153,8 @@
     <None Include="Tests\IO\NameSpace.e.asm">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="IO\List.e" />
+    <None Include="IO\STD.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">
