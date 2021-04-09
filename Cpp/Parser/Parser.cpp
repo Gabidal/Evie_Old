@@ -63,6 +63,82 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	return Result;
 }
 
+void Parser::Template_Pattern(int i)
+{
+	if (Input[i].Value != "<")
+		return;
+	//if (s < 1 && s > 0)
+	int j = i;
+	int This_Scopes_Open_Template_Operators = 1;
+	while (Input[j].Value != ">" || This_Scopes_Open_Template_Operators > 0) {
+		j++;
+		if (Input[j].Value == "<")
+			This_Scopes_Open_Template_Operators++;
+		if (Input[j].Value == ">")
+			This_Scopes_Open_Template_Operators--;
+		else if (Input[j].Value != ">" && Input[j].Value != "<" && !Input[j].is(Flags::TEXT_COMPONENT))
+			break;
+	}
+
+	//this is not a template holding operator.
+	if (This_Scopes_Open_Template_Operators > 0)
+		return;
+	if (Input[j].Value != ">")
+		return;
+
+	Input[i].Flags = Flags::TEMPLATE_COMPONENT;
+	Input[i].Value = "<>";
+	for (int k = i + 1; k < j; k++) {
+		Input[i].Components.push_back(Input[k]);
+	}
+
+	Parser p(Parent);
+	p.Input = { Input[i].Components };
+	p.Factory();
+
+	Input[i].Components = p.Input;
+
+	Input.erase(Input.begin() + i + 1, Input.begin() + j + 1);
+}
+
+void Parser::Operator_Combinator(int i)
+{
+	if (Input[i].Value != ">")
+		return;
+
+	string All_Combined_Operators = ">";
+	for (int j = i + 1; j < Input.size() && Input[j].Value == ">"; j++)
+		All_Combined_Operators += ">";
+
+	if (All_Combined_Operators.size() == 1)
+		return;
+
+	Input.erase(Input.begin() + i + 1, Input.begin() + i + All_Combined_Operators.size() - 1);
+
+	Input[i].Value = All_Combined_Operators;
+
+}
+
+void Parser::Nodize_Template_Pattern(int i)
+{
+	if (!Input[i].is(Flags::TEMPLATE_COMPONENT))
+		return;
+	if (Input[i].node != nullptr)
+		return;
+
+	Input[i].node = new Node(TEMPLATE_NODE, "<>", &Input[i].Location);
+
+	//List<List<int>, List<int>>
+	for (auto T : Input[i].Components) {
+		Parser p(Parent);
+		p.Input = { T };
+		p.Factory();
+
+		Input[i].node->Templates.push_back(p.Input.back().node);
+	}
+
+}
+
 void Parser::Definition_Pattern(int i)
 {
 	//foo ptr a = ...|bool is(int f) | bool is(string f)
@@ -71,12 +147,12 @@ void Parser::Definition_Pattern(int i)
 	//put that result object into parents defined list and also into-
 	//the INPUT[i + object index] the newly created object
 	//</summary>
-	vector<int> Words = Get_Amount_Of(i, { Flags::KEYWORD_COMPONENT, Flags::TEXT_COMPONENT });
+	vector<int> Words = Get_Amount_Of(i, { Flags::KEYWORD_COMPONENT, Flags::TEXT_COMPONENT, Flags::TEMPLATE_COMPONENT });
 	//object definition needs atleast one type and one raw text
 	if (Words.size() < 2)
 		return;
 	//the last word must be a raw text not a keyword to be defined as a new object
-	if (Input[Words.back()].is(Flags::KEYWORD_COMPONENT))
+	if (Input[Words.back()].Has({ Flags::KEYWORD_COMPONENT , Flags::TEMPLATE_COMPONENT}))
 		return;
 	//this is because of the syntax of label jumping exmp: "jump somewhere" is same as a variable declaration exmp: "int somename".
 	for (auto j : Words)
@@ -85,15 +161,20 @@ void Parser::Definition_Pattern(int i)
 			return;
 
 	//type a
-	vector<string> Inheritted;
+	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE, new Position(Input[Words[0]].Location));
 
 	//transform the indecies into strings, and the -1 means that we want to skip the last element in the list (the name)
 	for (int j = 0; j < Words.size() -1; j++) {
-		Inheritted.push_back(Input[Words[j]].Value);
+		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
+			//List<List<int>> a
+			Parser p(Parent);
+			p.Input = Input[Words[j]].Components;
+			p.Factory();
+			New_Defined_Object->Templates.push_back(p.Input.back().node);
+		}
+		else
+			New_Defined_Object->Inheritted.push_back(Input[Words[j]].Value);
 	}
-
-	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE, new Position(Input[Words[0]].Location));
-	New_Defined_Object->Inheritted = Inheritted;
 
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Scope = Parent;
@@ -349,6 +430,17 @@ void Parser::Object_Pattern(int i)
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 	Input[i].node = Parent->Copy_Node(Parent->Find(Input[i].Value, Parent, true), Parent);
+
+	if (Input[i].node->Templates.size() > 0) {
+		//this means that the next element is a template
+		if (i+1 >= Input.size() || !Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+			Report(Observation(ERROR, "Inheritted type " + Input[i].Value + " needs a template argument!", Input[i].Location));
+
+		Input[i].node->Templates = Input[i + 1].node->Templates;
+
+		//TODO: Call the new template type creator here!!!
+	}
+
 	if (Input[i].node->is(OBJECT_DEFINTION_NODE))
 		Input[i].node->Type = OBJECT_NODE;
 	else if (Input[i].node->is(PARAMETER_NODE))
@@ -785,7 +877,13 @@ void Parser::Type_Pattern(int i)
 		return;
 	if (Parent->Find(Input[i].Value, Parent, false) == nullptr)
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
+
+	int Paranthesis_Offset = 1;
+	if (i+1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+		Paranthesis_Offset = 2;
+
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + Paranthesis_Offset, Flags::PAREHTHESIS_COMPONENT, false);
+	
 	if (Parenthesis_Indexes.size() != 1)
 		return;
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '{')
@@ -807,6 +905,14 @@ void Parser::Type_Pattern(int i)
 	//combine inheritted memebrs
 	Type->Get_Inheritted_Class_Members();
 
+	if (Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
+		for (auto T : Input[i + 1].Components) {
+			Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
+
+			Type->Templates.push_back(Template);
+		}
+	}
+
 	Parser p(Type);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
@@ -815,6 +921,10 @@ void Parser::Type_Pattern(int i)
 	p.Input.clear();
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
+
+	if (Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+		Input.erase(Input.begin() + i + 1);
+
 	Input.erase(Input.begin() + i);
 
 	if (i < Input.size())
@@ -1159,12 +1269,14 @@ void Parser::Factory() {
 		//variable/objects definator.		
 		Prototype_Pattern(i);	//Definition_pattern stoles this import functions, so this goes first
 		Import_Pattern(i);
+		Template_Pattern(i);
 		Definition_Pattern(i);
 		Label_Definition(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
 		Type_Pattern(i);		//class constructor
+		Nodize_Template_Pattern(i);
 		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
 		Function_Pattern(i);
 		If_Pattern(i);
@@ -1183,6 +1295,9 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		Size_Pattern(i);
 		Format_Pattern(i);
+	}
+	for (int i = 0; i < Input.size(); i++) {
+		Operator_Combinator(i);
 	}
 	//AST operator combinator.
 	Operator_Order();

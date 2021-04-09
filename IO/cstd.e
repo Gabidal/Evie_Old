@@ -39,3 +39,5 @@ func memcpy(type ptr dest, type ptr source, int Size){
     }
     return;
 }
+
+use "STD.e"

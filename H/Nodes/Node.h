@@ -42,6 +42,7 @@ public:
 	bool Requires_Address = false;	//for optimisation pusrposes.
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
+	vector<Node*> Templates;
 	Node* Scope = nullptr;
 	//funciton inlining features
 	vector<Node*> Header;

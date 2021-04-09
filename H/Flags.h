@@ -60,6 +60,7 @@ namespace Flags{
 	constexpr long OPERATOR_COMPONENT					= 1 << 7;
 	constexpr long TEXT_COMPONENT						= 1 << 8;
 	constexpr long END_OF_DIRECTIVE_CHANGING_FILE		= 1 << 9;
+	constexpr long TEMPLATE_COMPONENT					= 1 << 10;
 }
 
 enum Node_Type {

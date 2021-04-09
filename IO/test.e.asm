@@ -1,11 +1,10 @@
 .intel_syntax noprefix
 .global main
+.section .text
 main:
-mov ecx, -1110651699
-movd xmm0, ecx
-cvtsd2ss xmm0, xmm0
-movss xmm0, xmm0
+mov eax, 0
 ret 
 ret 
 
 
+.section .data

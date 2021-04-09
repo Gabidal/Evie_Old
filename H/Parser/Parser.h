@@ -21,6 +21,12 @@ public:
 	vector<int> Get_Amount_Of(int i, long Flag, bool All_in_Same_Line = true);
 	vector<int> Get_Amount_Of(int i, vector<int> Flags, bool All_in_Same_Line = true);
 
+	//POST-PREPROSESSOR PATTERNS
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Template_Pattern(int i);
+	void Operator_Combinator(int i);
+	void Nodize_Template_Pattern(int i);
+
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a

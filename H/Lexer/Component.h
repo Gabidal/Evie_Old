@@ -21,6 +21,12 @@ public:
     {
         return (Flags & flag) == flag;
     }
+    bool Has(vector<long> f) {
+        for (auto i : f)
+            if (is(i))
+                return true;
+        return false;
+    }
 };
 
 #endif

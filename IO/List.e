@@ -1,7 +1,5 @@
-type List{
+type List<T>{
 	int Size = 0
-	int Update_Size(int s){
-		Size = s
-		return Size
-	}
+	T ptr Array
 }
+

@@ -15,7 +15,7 @@ void Producer::Assembly_Other_Source_Files()
     stringstream output;
     output << " ";
     for (string i : Source_Files)
-        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + i + ".obj " << i;
+        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + i + ".obj " << i << "\n";
     for (string i : Source_Files)
         Libs.push_back(i + ".obj");
     system(output.str().c_str());

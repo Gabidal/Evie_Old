@@ -75,6 +75,36 @@ char GetParenthesisClosing(char opening, Position p)
     throw::runtime_error("ERROR");
 }
 
+/// <summary>
+/// Returns all the characters which can mix with the specified character.
+/// If this function returns null, it means the specified character can mix with any character.
+/// </summary>
+const char* GetMixingCharacters(char c)
+{
+    switch (c)
+    {
+        case '.': return ".0123456789";
+        case ',': return "";
+        case '<': return "=";
+        case '>': return "=-";
+        default: return nullptr;
+    }
+}
+
+/// <summary>
+/// Returns whether the two specified characters can mix
+/// </summary>
+bool Mixes(char a, char b)
+{
+    auto x = GetMixingCharacters(a);
+    if (x != nullptr) return strchr(x, b) != nullptr;
+
+    auto y = GetMixingCharacters(b);
+    if (y != nullptr) return strchr(y, a) != nullptr;
+
+    return true;
+}
+
 bool IsOperator(char c)
 {
     return ((c >= 33 && c <= 47) || (c >= 58 && c <= 64) || c == '^' || c == '|' || c == BITWISE_XOR) && c != Lexer::SingleLineCommentIdentifier && c != Lexer::StringIdentifier ;
@@ -141,6 +171,12 @@ Type GetType(char c)
 
 bool IsPartOf(Type previous, Type current, char previous_symbol, char current_symbol)
 {
+    // Ensure the previous and the current character mix
+    if (!Mixes(previous_symbol, current_symbol))
+    {
+        return false;
+    }
+
     if (current == previous || previous == Type::UNSPECIFIED)
     {
         return true;
@@ -306,6 +342,8 @@ optional<Area> GetNextComponent(const string &text, Position start)
     default:
         break;
     }
+
+    position.NextCharacter();
 
     // Possible types are now: TEXT, NUMBER, OPERATOR
     while (position.GetLocal() < text.size())

@@ -218,6 +218,11 @@ Node* Node::Find(Node* n, Node* s)
 		throw::runtime_error("ERROR!");
 	}
 
+	if (n->is(TEMPLATE_NODE))
+		for (auto i : s->Templates)
+			if (i->Name == n->Name)
+				return i;
+
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
 	if (n->Fetcher != nullptr)
@@ -262,6 +267,12 @@ Node* Node::Find(Node* n, Node* s, int f)
 		throw::runtime_error("ERROR!");
 	}
 
+	if (n->is(TEMPLATE_NODE))
+		for (auto i : s->Templates)
+			if (i->is(n->Type))
+				if (i->Name == n->Name)
+					return i;
+
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
 	if (n->Fetcher != nullptr)
@@ -296,26 +307,35 @@ Node* Node::Find(Node* n, Node* s, int f)
 	return nullptr;
 }
 
-Node* Node::Find(string name, Node* parent, int flags) {
+Node* Node::Find(string name, Node* s, int flags) {
 	if (name == "\n")
 		return nullptr;
-	if (parent == nullptr) {
+	if (s == nullptr) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
 		throw::runtime_error("ERROR!");
 		return nullptr;
 	}
-	for (Node* i : parent->Defined)
+
+	for (auto i : s->Templates)
+		if (i->is(flags))
+			if (i->Name == Name)
+				return i;
+
+	for (Node* i : s->Defined)
 		if (i->Name == name && i->is(flags))
 			return i;
-	if (parent->Scope != nullptr)
-		if (Find(name, parent->Scope, flags) != nullptr)
-			return Find(name, parent->Scope, flags);
-	if (parent->Cast_Type != "")
-		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
+
+	if (s->Scope != nullptr)
+		if (Find(name, s->Scope, flags) != nullptr)
+			return Find(name, s->Scope, flags);
+
+	if (s->Cast_Type != "")
+		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 			if (i->Name == name)
 				return i;
-	if (parent->Fetcher != nullptr) {
-		Node* F = Find_Scope(parent);
+
+	if (s->Fetcher != nullptr) {
+		Node* F = Find_Scope(s);
 		if (F != nullptr)
 			if (Find(name, F, flags) != nullptr)
 				return Find(name, F, flags);
@@ -323,26 +343,34 @@ Node* Node::Find(string name, Node* parent, int flags) {
 	return nullptr;
 }
 
-Node* Node::Find(string name, Node* parent, bool Need_Parent_existance) {
+Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 	if (name == "\n")
 		return nullptr;
-	if (parent == nullptr /*&& Need_Parent_existance*/) {
+	if (s == nullptr /*&& Need_Parent_existance*/) {
 		Report(Observation(ERROR, "Critical Error: parent is null!", *Location));
 		throw::runtime_error("ERROR!");
 		return nullptr;
 	}
-	for (Node* i : parent->Defined)
+
+	for (auto i : s->Templates)
+		if (i->Name == Name)
+			return i;
+
+	for (Node* i : s->Defined)
 		if (i->Name == name)
 			return i;
-	if (parent->Scope != nullptr)
-		if (Find(name, parent->Scope, Need_Parent_existance) != nullptr)
-			return Find(name, parent->Scope, Need_Parent_existance);
-	if (parent->Cast_Type != "")
-		for (auto i : parent->Find(parent->Cast_Type, parent, CLASS_NODE)->Defined)
+
+	if (s->Scope != nullptr)
+		if (Find(name, s->Scope, Need_Parent_existance) != nullptr)
+			return Find(name, s->Scope, Need_Parent_existance);
+
+	if (s->Cast_Type != "")
+		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 			if (i->Name == name)
 				return i;
-	if (parent->Fetcher != nullptr) {
-		Node* F = Find_Scope(parent);
+
+	if (s->Fetcher != nullptr) {
+		Node* F = Find_Scope(s);
 		if (F != nullptr)
 			if (Find(name, F, Need_Parent_existance) != nullptr)
 				return Find(name, F, Need_Parent_existance);

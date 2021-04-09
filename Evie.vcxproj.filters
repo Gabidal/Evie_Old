@@ -155,6 +155,7 @@
     </None>
     <None Include="IO\List.e" />
     <None Include="IO\STD.e" />
+    <None Include="IO\cstd.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">

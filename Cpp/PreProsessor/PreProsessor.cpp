@@ -38,6 +38,8 @@ void PreProsessor::Include(int i)
 
 	DOCKER::Append(sys->Info.Libs, DOCKER::Libs);
 	DOCKER::Append(sys->Info.Source_Files, DOCKER::Assembly_Source_File);
+	DOCKER::Libs.clear();
+	DOCKER::Assembly_Source_File.clear();
 
 	Factory();
 	return;
