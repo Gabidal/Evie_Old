@@ -70,7 +70,8 @@ void PostProsessor::Type_Definer(int i)
 	//</summary>
 	if (Parent->Defined[i]->Type != CLASS_NODE)
 		return;
-
+	if (Parent->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
+		return;
 	//update members sizes
 	Parent->Defined[i]->Update_Members_Size();
 
@@ -711,7 +712,15 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		//now remove the current dot operator and replace it with the new fetched member
 		Right->Context = n->Context;
 		Right->Scope = n->Scope;
-		*n = *Right;
+
+		//a.Array[1]
+		//put the a.Array as the left side of the array operator
+		if (n->Right->is(ARRAY_NODE)) {
+			*n->Right->Left = *Right;
+			*n = *n->Right;
+		}
+		else
+			*n = *Right;
 	}
 }
 
@@ -1197,7 +1206,7 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		if (n->Right->Childs.size() > 1)
 			Pointter_UnWrapping_Count = (int)n->Right->Childs.size();
 
-		for (auto i : n->Left->Scope->Find(n->Left->Name)->Inheritted) {
+		for (auto i : n->Find(n->Left, n->Scope)->Inheritted) {
 			if (i == "ptr") {
 				if (Pointter_UnWrapping_Count < 1) {
 					n->Inheritted.push_back(i);

@@ -27,6 +27,7 @@ public:
 
 	void Factory();
 	void Transform_Component_Into_Node();			//transfer the components into pure nodes
+	
 	void Type_Definer(int i);						//defines all the members of type
 	void Member_Function_Defined_Outside(int i);	//puts the func into parenting type class
 	void Member_Function_Defined_Inside(int i);		//

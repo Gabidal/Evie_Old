@@ -343,7 +343,8 @@ void DebugGenerator::Construct_Debug_Info()
 
     int j = 0;
     for (auto i : Global_Scope->Defined)
-        Info_Generator(i);
+        if (i->Templates.size() == 0)
+            Info_Generator(i);
 
     //This label indicates the section start point.
     IR* Ldebug_Info_Start0 = new IR(new Token(TOKEN::LABEL, "Debug_Info_End"), {}, nullptr);

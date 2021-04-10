@@ -63,7 +63,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	return Result;
 }
 
-void Parser::Template_Pattern(int i)
+void Parser::Template_Pattern(int& i)
 {
 	if (Input[i].Value != "<")
 		return;
@@ -92,13 +92,16 @@ void Parser::Template_Pattern(int i)
 		Input[i].Components.push_back(Input[k]);
 	}
 
+	Input.erase(Input.begin() + i + 1, Input.begin() + j + 1);
+
 	Parser p(Parent);
 	p.Input = { Input[i].Components };
 	p.Factory();
 
 	Input[i].Components = p.Input;
 
-	Input.erase(Input.begin() + i + 1, Input.begin() + j + 1);
+	//for difinition pattern.
+	i--;
 }
 
 void Parser::Operator_Combinator(int i)
@@ -139,6 +142,60 @@ void Parser::Nodize_Template_Pattern(int i)
 
 }
 
+void Parser::Template_Type_Constructor(int i)
+{
+	if (Input[i].node == nullptr)
+		return;
+	if (Input[i].node->Templates.size() == 0)
+		return;
+	if (!Input[i].node->is(CLASS_NODE))
+		return;
+
+	string New_Name = "." + Input[i].node->Construct_Template_Type_Name();
+	if (Parent->Find(New_Name) != nullptr)
+		return;
+
+	Node* Og_Type = Input[i].node->Find(Input[i].node, Parent);
+	Node* Type = Parent->Copy_Node(Og_Type, Og_Type->Scope);
+
+	//turn List<List<int>, int> into .List_List_int
+	for (int T = 0; T < Input[i].node->Templates.size(); T++) {
+		string T_Arg = Type->Templates[T]->Name;
+		string T_Type = Input[i].node->Templates[T]->Name;
+
+		for (auto& Defined : Type->Template_Children) {
+			for (auto n : Defined.Get_all())
+				if (n->Value == T_Arg)
+					n->Value = T_Type;
+		}
+	}
+
+	Type->Templates.clear();
+	Type->Defined.clear();
+	Type->Childs.clear();
+	Type->Name = New_Name;
+
+	vector<Component> New_Constructed_Template_Type;
+
+	for (auto j : Type->Inheritted)
+		New_Constructed_Template_Type.push_back(Component(j, *Type->Location, Lexer::GetComponents(j)[0].Flags));
+
+	New_Constructed_Template_Type.push_back(Component(Type->Name, *Type->Location, Flags::TEXT_COMPONENT));
+
+	Component Content = Component("{", *Type->Location, Flags::PAREHTHESIS_COMPONENT);
+	Content.Components = Type->Template_Children;
+
+	New_Constructed_Template_Type.push_back(Content);
+
+	Parser p(Type->Scope);
+	p.Input = New_Constructed_Template_Type;
+	p.Factory();
+	
+	Input.erase(Input.begin() + i + 1);
+
+	Input[i].Value = Type->Name;
+}
+
 void Parser::Definition_Pattern(int i)
 {
 	//foo ptr a = ...|bool is(int f) | bool is(string f)
@@ -167,12 +224,14 @@ void Parser::Definition_Pattern(int i)
 	for (int j = 0; j < Words.size() -1; j++) {
 		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
 			//List<List<int>> a
+			//-> .List_List_int a 
 			Parser p(Parent);
-			p.Input = Input[Words[j]].Components;
+			p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
 			p.Factory();
-			New_Defined_Object->Templates.push_back(p.Input.back().node);
+			New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
+
 		}
-		else
+		else if (j+1 < Words.size() && !Input[Words[j+1]].is(Flags::TEMPLATE_COMPONENT))
 			New_Defined_Object->Inheritted.push_back(Input[Words[j]].Value);
 	}
 
@@ -429,8 +488,10 @@ void Parser::Object_Pattern(int i)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
+
 	Input[i].node = Parent->Copy_Node(Parent->Find(Input[i].Value, Parent, true), Parent);
 
+	//List<int> a -> .List_int a
 	if (Input[i].node->Templates.size() > 0) {
 		//this means that the next element is a template
 		if (i+1 >= Input.size() || !Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
@@ -438,7 +499,9 @@ void Parser::Object_Pattern(int i)
 
 		Input[i].node->Templates = Input[i + 1].node->Templates;
 
-		//TODO: Call the new template type creator here!!!
+		//invoke the template type constructor here,
+		//and transform now made template node* type, into a inheritable stirng.
+
 	}
 
 	if (Input[i].node->is(OBJECT_DEFINTION_NODE))
@@ -909,8 +972,11 @@ void Parser::Type_Pattern(int i)
 		for (auto T : Input[i + 1].Components) {
 			Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
 
+			Template->Inheritted.push_back("type");
+
 			Type->Templates.push_back(Template);
 		}
+		Type->Template_Children = Input[Parenthesis_Indexes[0]].Components;
 	}
 
 	Parser p(Type);
@@ -922,7 +988,7 @@ void Parser::Type_Pattern(int i)
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
 
-	if (Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+	if (i+1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
 		Input.erase(Input.begin() + i + 1);
 
 	Input.erase(Input.begin() + i);
@@ -1276,6 +1342,8 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
 		Type_Pattern(i);		//class constructor
+		if (Input.size() == 0)
+			break;
 		Nodize_Template_Pattern(i);
 		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
 		Function_Pattern(i);
@@ -1287,6 +1355,7 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//prepreattor for math operator AST combinator.
 		Object_Pattern(i);
+		Template_Type_Constructor(i);
 		Parenthesis_Pattern(i);
 		String_Pattern(i);
 		Number_Pattern(i);

@@ -23,9 +23,10 @@ public:
 
 	//POST-PREPROSESSOR PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-	void Template_Pattern(int i);
+	void Template_Pattern(int& i);
 	void Operator_Combinator(int i);
-	void Nodize_Template_Pattern(int i);
+	void Nodize_Template_Pattern(int i); 
+	void Template_Type_Constructor(int i);
 
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-

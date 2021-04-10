@@ -2,7 +2,9 @@
 .global main
 .section .text
 main:
-mov eax, 0
+mov rcx, qword ptr [rcx + 4 ]
+lea rcx, qword ptr [rcx + 1 * 4 ]
+mov eax, dword ptr [rcx ]
 ret 
 ret 
 

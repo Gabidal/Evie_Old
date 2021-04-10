@@ -43,6 +43,7 @@ public:
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
 	vector<Node*> Templates;
+	vector<Component> Template_Children;
 	Node* Scope = nullptr;
 	//funciton inlining features
 	vector<Node*> Header;
@@ -464,6 +465,9 @@ public:
 		for (int i = 0; i < Result->Defined.size(); i++)
 			Result->Defined[i] = Copy_Node(Result->Defined[i], Result);
 
+		for (int i = 0; i < Result->Templates.size(); i++)
+			Result->Templates[i] = Copy_Node(Result->Templates[i], Result);
+
 		for (int i = 0; i < Result->Childs.size(); i++)
 			if (Result->is(CONTENT_NODE))
 				Result->Childs[i] = Copy_Node(Result->Childs[i], p);
@@ -690,6 +694,13 @@ public:
 
 	//Transform all this A.B.C.D into D->C->B->A
 	void Transform_Dot_To_Fechering(Node* To);
+
+	string Construct_Template_Type_Name() {
+		string Result = Name + "_";
+		for (auto i : Templates)
+			Result += i->Construct_Template_Type_Name() + "_";
+		return Result;
+	}
 };
 
 #endif

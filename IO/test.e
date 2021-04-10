@@ -1,6 +1,6 @@
 use "cstd.e"
 
 export int main(){
-	List<List<int>> a
-	return 0
+	List<int> ptr a 
+	return a.Array[1]
 }

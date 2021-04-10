@@ -114,6 +114,9 @@ public:
 	Token* Get_Size_Parent(int s, Token* t) {
 		if (t->Get_Size() == s)
 			return t;
+		//for (auto i : t->Childs)
+		//	if (Get_Size_Parent(s, i) != nullptr)
+		//		return Get_Size_Parent(s, i);
 		if (t->Holder != nullptr)
 			return Get_Size_Parent(s, t->Holder);
 		return nullptr;

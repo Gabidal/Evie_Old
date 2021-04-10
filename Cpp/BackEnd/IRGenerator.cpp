@@ -433,6 +433,7 @@ void IRGenerator::Un_Wrap_Inline(int i)
 	IRGenerator g(Parent, Input[i]->Header, Output);
 }
 
+//Classs move to other class
 void IRGenerator::Parse_Cloning(int i)
 {
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
@@ -762,7 +763,7 @@ void IRGenerator::Parse_Arrays(int i)
 	//x, 123
 	if (Input[i]->Right->Childs.size() > 1) {
 		//this is where the 2D array operators are constructed.
-		vector<string> Type_Trace = Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Inheritted;
+		vector<string> Type_Trace = Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Inheritted;
 		//reverse(Type_Trace.begin(), Type_Trace.end());
 		//int,[ptr, ptr]
 		//x	  [123, 123]
@@ -885,7 +886,7 @@ void IRGenerator::Parse_Arrays(int i)
 	}
 	else {
 		//this is where the 1D array operators are constructed.
-		vector<string> Type_Trace = Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Inheritted;
+		vector<string> Type_Trace = Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Inheritted;
 		//reverse(Type_Trace.begin(), Type_Trace.end());
 		//int,[ptr, ptr]
 		//x	  [123, 123]
@@ -1690,7 +1691,7 @@ void IRGenerator::Parse_Return(int i) {
 
 	int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
 	if (Level_Difference != 0) {
-		Return_Val = Operate_Pointter(Return_Val, Level_Difference, false, Return_Val->is(TOKEN::CONTENT));
+		Return_Val = Operate_Pointter(Return_Val, Level_Difference, false, Return_Val->is(TOKEN::CONTENT), Input[i]->Right->Inheritted);
 	}
 	else if (Return_Val->is(TOKEN::CONTENT)) {
 		Token* m = new Token(TOKEN::MEMORY, { Return_Val }, Returning_Reg_Size, Return_Val->Get_Name());
