@@ -128,6 +128,7 @@ void IRGenerator::Parse_Calls(int i)
 		return;
 
 	IRGenerator g(Parent, Output);
+
 	//do the parameters
 	//no ur wrong m8!
 	//the IRPostprosessor takes care of the parameters here (:
@@ -147,7 +148,7 @@ void IRGenerator::Parse_Calls(int i)
 
 	int Parameter_Place = 0;
 	for (Node* n : Input[i]->Parameters) {
-		g.Generate({ n }, true);
+		g.Generate({ n }, false);
 
 		Token* p;
 		//handle complex instructions

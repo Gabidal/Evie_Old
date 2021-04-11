@@ -282,6 +282,7 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 	This->Inheritted = { func->Fetcher->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
+	This->Defined = func->Find(func->Fetcher->Name, func, CLASS_NODE)->Defined;
 
 	func->Defined.push_back(This);
 
