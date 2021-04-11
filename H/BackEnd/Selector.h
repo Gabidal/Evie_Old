@@ -58,7 +58,8 @@ public:
 	//REGISTERS:
 	//											<Wanted Register description, and the register itself> , <the new user description, the user itself>,  IRs, index
 	void Make_Solution_For_Crossed_Register_Usages(pair< Register_Descriptor*, Token*> Current, pair< Register_Descriptor*, Token*> New, vector<IR*>* source, int i);
-	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t);
+	Token* Move_Parameter_Into_Non_Volatile(pair<Path*, Token*> Owner, Token* Current_Reg, vector<IR*>* source, int i);
+	Token* Get_New_Reg(vector<IR*> *source, int i, Token* t, Path* path = nullptr);
 	Token* Get_Right_Parameter_Register(Token* t, int parameter_index);
 	void Reset_Parameter_Register_Count(IR* r);
 	Token* Get_Register(Token* t);

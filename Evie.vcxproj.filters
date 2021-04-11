@@ -157,6 +157,9 @@
     <None Include="IO\STD.e" />
     <None Include="IO\cstd.e" />
     <None Include="Tests\IO\Template.e" />
+    <None Include="Tests\IO\Template.e.asm">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">

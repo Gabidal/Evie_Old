@@ -160,7 +160,7 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descripto
 	Current_Reg->ID = Current_Name;
 	//now we need to give the cuurent user the new non-volatile register.
 	//TODO: Because im a peace of shit and dont know how to implement LIVE register change ill have to make a new move IR
-	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "move"), {non_volatile, Current_Reg }, nullptr);
+	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "="), {non_volatile, Current_Reg }, nullptr);
 
 	//insert the mov before the new user starts
 	source->insert(source->begin() + New.first->First_Usage_Index, MOV);
@@ -178,9 +178,26 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descripto
 	Pair_Up(Current.second, New.first);
 }
 
-Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
+Token* Selector::Move_Parameter_Into_Non_Volatile(pair<Path*, Token*> Owner, Token* Current_Reg, vector<IR*>* source, int i)
 {
-	Path* p = Get_Path_Info(*source, i, t);
+	Token* New_Reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, Owner.second->Get_Name(), Owner.second->Get_Size());
+	New_Reg->ID = Get_New_Reg(source, i, New_Reg, Owner.first)->Get_Name();
+
+	Token* New_Token = new Token(*Owner.second);
+
+	New_Token->ID = Current_Reg->Get_Name();
+	//New_Token->Set_Name(Current_Reg->Get_Name());
+
+	source->insert(source->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), { New_Reg, New_Token }, nullptr));
+
+	return New_Reg;
+}
+
+Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
+{
+	Path* p = path;
+	if (p == nullptr)
+		p = Get_Path_Info(*source, i, t);
 	if (p->Parameter_Place != -1 && (p->Parameter_Place <= Parameter_Registers.size())) {
 		//TODO: this can go broke if there is one or more calls before this so the parameter chosen by this is going to be overwritten :(
 		Token* reg = Get_Right_Parameter_Register(t, p->Parameter_Place);
@@ -217,6 +234,8 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		Reg_Type |= TOKEN::POSITION_INDEPENDENT_REGISTER;
 	else if ((p->Intersects_Calls.size() > 0))
 		Reg_Type |= TOKEN::NONVOLATILE;
+	else if (t->is(TOKEN::NONVOLATILE))
+		Reg_Type |= TOKEN::NONVOLATILE;
 	else
 		Reg_Type |= TOKEN::VOLATILE;
 	if (t->is(TOKEN::DECIMAL))
@@ -242,7 +261,12 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t)
 		for (auto& r : Registers) {
 			if (r.second->Get_Name() == reg->Get_Name()) {
 				if (r.first == nullptr || r.first->Last_Usage_Index <= p->Last_Usage) {
+
+					if (p->Intersects_Calls.size() > 0)
+						return Move_Parameter_Into_Non_Volatile({ p, t }, r.second, source, i);
+
 					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
+
 					return r.second;
 				}
 				else if (r.first->User == t->Get_Name()) {

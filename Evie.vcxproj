@@ -243,6 +243,7 @@
     <None Include="Tests\IO\NameSpace.e.asm" />
     <None Include="Tests\IO\Ptr.e" />
     <None Include="Tests\IO\Template.e" />
+    <None Include="Tests\IO\Template.e.asm" />
     <None Include="Tests\IO\Type.e" />
     <None Include="Tests\IO\Type.e.asm" />
   </ItemGroup>

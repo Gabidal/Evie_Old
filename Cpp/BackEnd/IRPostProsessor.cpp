@@ -146,14 +146,15 @@ void IRPostProsessor::Clean_Selector(int& i)
 	for (auto r : Push_Amount)
 		New_Stack_Offset += r->Get_Size();
 	//start from the bottom of the function and rise up until hit function start label.
-	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j -= 1) {
+	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j--) {
 		for (auto& arg : Input->at(j)->Arguments)
 			for (auto& Child : arg->Get_All_Childs(arg))
-				if (Child->is(TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE)) {
-					int Current_Offset = atoi(Child->Get_Name().c_str());
-					Current_Offset += New_Stack_Offset;
-					Child->Set_Name(to_string(Current_Offset));
-				}
+				if (Child->is(TOKEN::OFFSETTER) || Child->is(TOKEN::DEOFFSETTER))
+					if (Child->Left->is(TOKEN::STACK_POINTTER) && Child->Right->is(TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE)) {
+						int Current_Offset = atoi(Child->Right->Get_Name().c_str());
+						Current_Offset += New_Stack_Offset;
+						Child->Right->Set_Name(to_string(Current_Offset));
+					}
 	}
 
 
