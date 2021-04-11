@@ -186,7 +186,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 		for (auto& linear_n : Linearise(c_copy)) {
 			if (linear_n->is(NUMBER_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1))
 				continue;
-			if (linear_n->is(OBJECT_DEFINTION_NODE) || linear_n->is(OBJECT_NODE)) {
+			if ((linear_n->is(OBJECT_DEFINTION_NODE) || linear_n->is(OBJECT_NODE)) && This->Find(linear_n, This) != nullptr) {
 				//Node* define = c->Find(linear_n, Function);
 				Node* Dot = new Node(OPERATOR_NODE, Function->Location);
 				Dot->Name = ".";
@@ -642,7 +642,7 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	PostProsessor p(Parent, Input[i]->Parameters);
 
 	//use optimization into the parameters.
-	Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
+	//Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
 
 	for (auto j : Input[i]->Parameters)
 		if (j->is(OPERATOR_NODE))

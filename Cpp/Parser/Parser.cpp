@@ -152,8 +152,11 @@ void Parser::Template_Type_Constructor(int i)
 		return;
 
 	string New_Name = "." + Input[i].node->Construct_Template_Type_Name();
-	if (Parent->Find(New_Name) != nullptr)
+	if (Parent->Find(New_Name) != nullptr) {
+		Input[i].Value = New_Name;
+		Input.erase(Input.begin() + i + 1);
 		return;
+	}
 
 	Node* Og_Type = Input[i].node->Find(Input[i].node, Parent);
 	Node* Type = Parent->Copy_Node(Og_Type, Og_Type->Scope);
@@ -770,27 +773,32 @@ void Parser::Callation_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT).size() != 1)
+
+	int Paranthesis_Offset = 1;
+	if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+		Paranthesis_Offset = 2;
+
+	if (Get_Amount_Of(i + Paranthesis_Offset, Flags::PAREHTHESIS_COMPONENT).size() != 1)
 		return;
-	if (Input[(size_t)i + 1].Value[0] != '(')
+	if (Input[(size_t)i + Paranthesis_Offset].Value[0] != '(')
 		return;
 
 	Node* call = new Node(CALL_NODE, new Position(Input[i].Location));
 
-	//give the normal call the inheritance for future operator type determining
-	/*Node* Function = nullptr;
-	Function = Parent->Find(Input[i].Value, Parent, FUNCTION_NODE);
-	if (Function == nullptr)
-		Function = Parent->Find(Input[i].Value, Parent, IMPORT);
-	if (Function == nullptr)
-		Function = Parent->Find(Input[i].Value, Parent, EXPORT);
-	if (Function == nullptr)
-		Function = Parent->Find(Input[i].Value, Parent, PROTOTYPE);
-	if (Function == nullptr)
-		Function = Parent->Find(Input[i].Value, Parent, OBJECT_DEFINTION_NODE);
-	call->Inheritted = Function->Inheritted;*/
+	if (Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
+		Parser p(Parent);
+		p.Input = { Input[i] ,Input[i + 1] };
+		p.Factory();
 
-	call->Name = Input[i].Value;
+		call->Name = p.Input.back().Value;
+		Input.erase(Input.begin() + i + 1);
+	}
+	else {
+		call->Name = Input[i].Value;
+	}
+	//give the normal call the inheritance for future operator type determining
+
+
 	call->Scope = Parent;
 
 	if (Parent->is(CALL_NODE))
@@ -803,6 +811,7 @@ void Parser::Callation_Pattern(int i)
 
 	call->Parameters = p.Input.back().node->Childs;
 	Input[i].node = call;
+	Input[i].Value = call->Name;
 
 	Input.erase(Input.begin() + i + 1);
 	return;
@@ -867,7 +876,7 @@ void Parser::Array_Pattern(int i)
 
 void Parser::Function_Pattern(int i)
 {
-	//import loyal int func main() [\n] {..}
+	//import int func main() [\n] {..}
 	//<summary>
 	//Notice!!! The parameter parenthesis & Childs parenthesis must be already initialized!!!
 	//Notice!!! The construction of function must be done before this!!!
@@ -879,7 +888,12 @@ void Parser::Function_Pattern(int i)
 		return;
 	if (Input[i].is(Flags::KEYWORD_COMPONENT))
 		return;
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
+
+	int Paranthesis_Offset = 1;
+	if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+		Paranthesis_Offset = 2;
+
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + Paranthesis_Offset, Flags::PAREHTHESIS_COMPONENT, false);
 	if (Parenthesis_Indexes.size() != 2)
 		return;
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '(')

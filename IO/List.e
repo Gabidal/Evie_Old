@@ -1,5 +1,5 @@
 type List<T>{
-	int Size = 0
-	T ptr Array
+	int Size
+	T ptr Array = allocate(T.size * Size)
 }
 
