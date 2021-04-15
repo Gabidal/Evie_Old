@@ -231,6 +231,12 @@ Node* Node::Find(Node* n, Node* s)
 				if (i->Name == n->Name)
 					return n;
 
+	if (s->Fetcher != nullptr)
+		if (s->Fetcher != s->Scope)
+			for (auto i : Find_Scope(s)->Defined)
+				if (i->Name == n->Name)
+					return n;
+
 	//Normal current and above going scope search algorithm
 	for (Node* i : s->Defined)
 			if (i->Name == n->Name) {
@@ -318,7 +324,7 @@ Node* Node::Find(string name, Node* s, int flags) {
 
 	for (auto i : s->Templates)
 		if (i->is(flags))
-			if (i->Name == Name)
+			if (i->Name == name)
 				return i;
 
 	for (Node* i : s->Defined)

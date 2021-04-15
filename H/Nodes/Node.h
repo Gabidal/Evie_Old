@@ -372,7 +372,7 @@ public:
 		Size = 0;
 		for (string s : Inheritted) {
 			//there is no inheritable type that doesnt have enything init.
-			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT)) {
+			if (Lexer::GetComponent(s).is(Flags::KEYWORD_COMPONENT)) {
 				if (s == "ptr") {
 					//this is for function pointters.
 					//Size = _SYSTEM_BIT_SIZE_;
@@ -393,7 +393,7 @@ public:
 		//decide between this forloop and inheritting the members that we inherit
 		for (string s : Inheritted) {
 			//there is no inheritable type that doesnt have enything init.
-			if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT)) {
+			if (Lexer::GetComponent(s).is(Flags::KEYWORD_COMPONENT)) {
 				if (s == "func")
 					//this is for function pointters.
 					Size += _SYSTEM_BIT_SIZE_;

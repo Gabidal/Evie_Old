@@ -63,6 +63,16 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	return Result;
 }
 
+void Parser::Combine_Dot_In_Member_Functions(int& i)
+{
+	if (Parent->is(FUNCTION_NODE) || (Parent->is(CLASS_NODE) && Parent->Name != "GLOBAL_SCOPE"))
+		return;
+	if (Input[i].Value != ".")
+		return;
+
+	Math_Pattern(i, { "." }, OPERATOR_NODE, true);
+}
+
 void Parser::Template_Pattern(int& i)
 {
 	if (Input[i].Value != "<")
@@ -171,32 +181,112 @@ void Parser::Template_Type_Constructor(int i)
 				if (n->Value == T_Arg)
 					n->Value = T_Type;
 		}
+		for (auto& Func_Children : Type->Defined)
+			for (auto& Defined : Func_Children->Template_Children)
+				for (auto n : Defined.Get_all())
+					if (n->Value == T_Arg)
+						n->Value = T_Type;
+	}
+
+	vector<Component> New_Constructed_Template_Code;
+
+	//Construct the class
+	Type->Name = New_Name;
+	for (auto j : Type->Inheritted)
+		New_Constructed_Template_Code.push_back(Component(j, *Type->Location, Lexer::GetComponent(j).Flags));
+	New_Constructed_Template_Code.push_back(Component(Type->Name, *Type->Location, Flags::TEXT_COMPONENT));
+	Component Content = Component("{", *Type->Location, Flags::PAREHTHESIS_COMPONENT);
+	Content.Components = Type->Template_Children;
+	New_Constructed_Template_Code.push_back(Content); 
+	New_Constructed_Template_Code.push_back(Lexer::GetComponent("\n"));
+
+	//now Construct all member funcitons as well.
+	for (auto& Func : Type->Defined) {
+		if (!Func->is(FUNCTION_NODE))
+			continue;
+		vector<Component> Return_Type;
+		for (auto& Inheritted : Func->Inheritted) {
+			for (int T = 0; T < Input[i].node->Templates.size(); T++) {
+				string T_Arg = Type->Templates[T]->Name;
+				string T_Type = Input[i].node->Templates[T]->Name;
+
+				if (Inheritted == T_Arg)
+					Inheritted = T_Type;
+			}
+			Return_Type.push_back(Lexer::GetComponent(Inheritted));
+		}
+		
+		vector<Component> Fetchers;
+		if (Func->Fetcher != nullptr)
+			for (auto& Fetcher : Func->Fetcher->Get_All_Fetchers()) {
+
+				Node* New_Fetcher = Fetcher->Copy_Node(Fetcher, Fetcher->Scope);
+
+				for (int T = 0; T < Input[i].node->Templates.size(); T++) {
+					string T_Arg = Type->Templates[T]->Name;
+					string T_Type = Input[i].node->Templates[T]->Name;
+
+					for (auto& t : New_Fetcher->Templates)
+						if (t->Name == T_Arg)
+							t->Name = T_Type;
+
+				}
+				Component Fetcher_Component = Lexer::GetComponent(New_Fetcher->Construct_Template_Type_Name());
+				Fetcher_Component.Value = "." + Fetcher_Component.Value;
+				Fetchers.push_back(Fetcher_Component);
+				Fetchers.push_back(Lexer::GetComponent("."));
+			}
+
+
+
+		Component Name = Lexer::GetComponent(Func->Name);
+
+		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Return_Type.begin(), Return_Type.end());
+		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Fetchers.begin(), Fetchers.end());
+		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Name);
+		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Func->Template_Children.begin(), Func->Template_Children.end());
+		New_Constructed_Template_Code.push_back(Lexer::GetComponent("\n"));
+
 	}
 
 	Type->Templates.clear();
 	Type->Defined.clear();
 	Type->Childs.clear();
-	Type->Name = New_Name;
-
-	vector<Component> New_Constructed_Template_Type;
-
-	for (auto j : Type->Inheritted)
-		New_Constructed_Template_Type.push_back(Component(j, *Type->Location, Lexer::GetComponents(j)[0].Flags));
-
-	New_Constructed_Template_Type.push_back(Component(Type->Name, *Type->Location, Flags::TEXT_COMPONENT));
-
-	Component Content = Component("{", *Type->Location, Flags::PAREHTHESIS_COMPONENT);
-	Content.Components = Type->Template_Children;
-
-	New_Constructed_Template_Type.push_back(Content);
 
 	Parser p(Type->Scope);
-	p.Input = New_Constructed_Template_Type;
+	p.Input = New_Constructed_Template_Code;
 	p.Factory();
 	
 	Input.erase(Input.begin() + i + 1);
 
 	Input[i].Value = Type->Name;
+}
+
+void Parser::Inject_Template_Into_Member_Function_Fetcher(int& i)
+{
+	// i-1 should have the class fetcher that feches the member.
+	if (i - 1 < 0)
+		return;
+	if (!Input[i - 1].is(Flags::TEXT_COMPONENT))
+		return;
+	if (Input[i - 1].node == nullptr)
+		return;
+	if (Parent->Find(Input[i - 1].Value, Parent, CLASS_NODE) == nullptr)
+		return;
+
+	// i should have the template <>
+	if (!Input[i].is(Flags::TEMPLATE_COMPONENT))
+		return;
+
+	for (auto T : Input[i].Components) {
+		Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
+
+		Template->Inheritted.push_back("type");
+
+		Input[i - 1].node->Templates.push_back(Template);
+	}
+
+	Input.erase(Input.begin() + i--);
 }
 
 void Parser::Definition_Pattern(int i)
@@ -556,7 +646,7 @@ void Parser::Parenthesis_Pattern(int i)
 	return;
 }
 
-void Parser::Math_Pattern(int i, vector<string> Operators, int F)
+void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_Index)
 {
 	//<summary>
 	//This function paternises the math order.
@@ -619,12 +709,14 @@ void Parser::Math_Pattern(int i, vector<string> Operators, int F)
 
 	Input[i].node = Operator;
 	Input.erase(Input.begin() + i + 1);
-	Input.erase(Input.begin() + i - 1);
+	if (Change_Index)
+		i--;
+	Input.erase(Input.begin() + i);
 
-	if ((size_t)i + 1 > Input.size() - 1)
+	if ((size_t)i + 1 + Change_Index > Input.size() - 1)
 		return;
-	if (Input[i].is(Flags::OPERATOR_COMPONENT))
-		Math_Pattern(i, Operators, F);
+	if (Input[i + Change_Index].is(Flags::OPERATOR_COMPONENT))
+		Math_Pattern(i += Change_Index, Operators, F, Change_Index);
 	return;
 }
 
@@ -674,6 +766,8 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	//++a/++b()
 	//Adds the Operator_Prefix into the next object
 	//</summary>
+	if (i - 1 < 0)
+		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
 		return;
 	if (Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT))		//a -b
@@ -711,6 +805,8 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 	//a++/b()++
 	//Adds the Operator_Postfix into the previus object
 	//</summary>
+	if (i + 1 >= Input.size())
+		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
 		return;		//++
 	if ((size_t)i + 1 < Input.size() - 1) {
@@ -719,7 +815,7 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 		if (Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
 			return;		//++ (..)
 	}
-	if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT))
+	if (i-1 >= 0 && Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT))
 		return; // b = ++<a>
 
 	bool op_Pass = false;
@@ -805,11 +901,16 @@ void Parser::Callation_Pattern(int i)
 		call->Context = Parent;
 
 	//initialize the parenthesis that contains the parameters
-	Parser p(call);
+	Parser p(Parent);
 	p.Input = {Input[(size_t)i + 1]};
 	p.Factory();
 
 	call->Parameters = p.Input.back().node->Childs;
+
+	for (auto P : call->Parameters) {
+		P->Context = call;
+	}
+
 	Input[i].node = call;
 	Input[i].Value = call->Name;
 
@@ -899,6 +1000,8 @@ void Parser::Function_Pattern(int i)
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '(')
 		return;
 
+	
+
 	//first try to get the behavior
 	Node* func = nullptr;
 	if (Input[i].node->Type == OBJECT_DEFINTION_NODE)
@@ -934,6 +1037,21 @@ void Parser::Function_Pattern(int i)
 	p.Input.clear();
 
 	func->Mangled_Name = func->Get_Mangled_Name();
+
+
+	//Template Fucntions.
+	for (auto T : func->Inheritted)
+		if (func->Find(T, func, TEMPLATE_NODE) != nullptr) {
+			func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
+			break;
+		}
+	if (func->Template_Children.size() == 0)
+		for (auto T : func->Parameters)
+			for (auto T_inheritance : T->Inheritted)
+				if (func->Find(T, func, TEMPLATE_NODE) != nullptr) {
+					func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
+					break;
+				}
 
 	Input[i].node = func;
 
@@ -1302,12 +1420,11 @@ void Parser::Format_Pattern(int i)
 void Parser::Member_Function_Pattern(int i)
 {
 	//return_type class_name.funcname(){}
-	if (Parent->Name != "GLOBAL_SCOPE")
-		return;
-	if (Input[i].node == nullptr)
+	if (Parent->is(FUNCTION_NODE))
 		return;
 	if (Input[i].Value != ".")
 		return;
+	
 
 	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
 	if (Parenthesis_Indexes.size() != 2)
@@ -1324,6 +1441,7 @@ void Parser::Member_Function_Pattern(int i)
 	if (Class == nullptr)
 		Report(Observation(ERROR, Input[i].node->Right->Fetcher->Name + " was not found when creating " + Input[i].node->Right->Name, Input[i].Location));
 
+	//delete the tmp fecher defined in the parent scope.
 	Node* Ghost_Definition = Input[i].node->Left;
 
 	for (int j = 0; j < Parent->Defined.size(); j++)
@@ -1345,6 +1463,8 @@ void Parser::Member_Function_Pattern(int i)
 }
 
 void Parser::Factory() {
+	//for (int i = 0; i < Input.size(); i++)
+	//	Template_Pattern(i);
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
 		Prototype_Pattern(i);	//Definition_pattern stoles this import functions, so this goes first
@@ -1355,11 +1475,14 @@ void Parser::Factory() {
 	}
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
+		Combine_Dot_In_Member_Functions(i);
 		Type_Pattern(i);		//class constructor
 		if (Input.size() == 0)
 			break;
+		Inject_Template_Into_Member_Function_Fetcher(i);
 		Nodize_Template_Pattern(i);
 		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
+		Member_Function_Pattern(i);
 		Function_Pattern(i);
 		If_Pattern(i);
 		Else_Pattern(i);
@@ -1385,7 +1508,6 @@ void Parser::Factory() {
 	//AST operator combinator.
 	Operator_Order();
 	for (int i = 0; i < Input.size(); i++) {
-		Member_Function_Pattern(i);
 		Return_Pattern(i);
 	}
 }

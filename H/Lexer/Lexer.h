@@ -16,6 +16,7 @@ namespace Lexer
 
     extern vector<Component> GetComponentsFromFile(string file);
     extern vector<Component> GetComponents(string text);
+    extern Component GetComponent(string text);
 }
 
 #endif

@@ -614,6 +614,26 @@ vector<Component> Lexer::GetComponents(string text)
     return GetComponents(text, Position());
 }
 
+Component Lexer::GetComponent(string text)
+{
+    Position position(0, 0, 0, 0);
+
+    replace(text.begin(), text.end(), '\t', ' ');
+    replace(text.begin(), text.end(), '\r', ' ');
+
+    optional<Area> area = GetNextComponent(text, position);
+
+    if (!area)
+    {
+        Report(Observation(ERROR, "Could not generate component from string '" + text + "'.", position));
+    }
+
+    Component component = ParseComponent(area.value());
+    component.Location = area->Start;
+
+    return component;
+}
+
 vector<Component> Lexer::GetComponentsFromFile(string file)
 {
     if (Lexer::SingleLineCommentIdentifier == 0 || Lexer::StringIdentifier == 0 || Lexer::DecimalSeparator == 0 || Lexer::ExponentSeparator == 0)
