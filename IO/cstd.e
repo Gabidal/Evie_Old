@@ -30,14 +30,15 @@ type string{
 	size = 1
 }
 
+#import T ptr cpp allocate<T>(int size)
 import type ptr cpp allocate(int size)
 #import func cpp deallocate(type ptr, int)
 
-func memcpy(type ptr dest, type ptr source, int Size){
+func memcpy<T>(T ptr dest, T ptr source, int Size){
     while (int i = 0, i < Size, i++){
-        dest[i] = source[i];
+        dest[i] = source[i]
     }
-    return;
+    return
 }
 
 use "STD.e"

@@ -158,17 +158,16 @@ void Parser::Template_Type_Constructor(int i)
 		return;
 	if (Input[i].node->Templates.size() == 0)
 		return;
-	if (!Input[i].node->is(CLASS_NODE))
+	if (!Parent->Find(Input[i].Value, Parent, CLASS_NODE))
 		return;
 
 	string New_Name = "." + Input[i].node->Construct_Template_Type_Name();
 	if (Parent->Find(New_Name) != nullptr) {
 		Input[i].Value = New_Name;
-		Input.erase(Input.begin() + i + 1);
 		return;
 	}
 
-	Node* Og_Type = Input[i].node->Find(Input[i].node, Parent);
+	Node* Og_Type = Input[i].node->Find(Input[i].node, Parent, CLASS_NODE);
 	Node* Type = Parent->Copy_Node(Og_Type, Og_Type->Scope);
 
 	//turn List<List<int>, int> into .List_List_int
@@ -184,8 +183,10 @@ void Parser::Template_Type_Constructor(int i)
 		for (auto& Func_Children : Type->Defined)
 			for (auto& Defined : Func_Children->Template_Children)
 				for (auto n : Defined.Get_all())
-					if (n->Value == T_Arg)
+					if (n->Value == T_Arg) {
 						n->Value = T_Type;
+						Func_Children->Is_Template_Object = true;
+					}
 	}
 
 	vector<Component> New_Constructed_Template_Code;
@@ -202,51 +203,8 @@ void Parser::Template_Type_Constructor(int i)
 
 	//now Construct all member funcitons as well.
 	for (auto& Func : Type->Defined) {
-		if (!Func->is(FUNCTION_NODE))
-			continue;
-		vector<Component> Return_Type;
-		for (auto& Inheritted : Func->Inheritted) {
-			for (int T = 0; T < Input[i].node->Templates.size(); T++) {
-				string T_Arg = Type->Templates[T]->Name;
-				string T_Type = Input[i].node->Templates[T]->Name;
-
-				if (Inheritted == T_Arg)
-					Inheritted = T_Type;
-			}
-			Return_Type.push_back(Lexer::GetComponent(Inheritted));
-		}
-		
-		vector<Component> Fetchers;
-		if (Func->Fetcher != nullptr)
-			for (auto& Fetcher : Func->Fetcher->Get_All_Fetchers()) {
-
-				Node* New_Fetcher = Fetcher->Copy_Node(Fetcher, Fetcher->Scope);
-
-				for (int T = 0; T < Input[i].node->Templates.size(); T++) {
-					string T_Arg = Type->Templates[T]->Name;
-					string T_Type = Input[i].node->Templates[T]->Name;
-
-					for (auto& t : New_Fetcher->Templates)
-						if (t->Name == T_Arg)
-							t->Name = T_Type;
-
-				}
-				Component Fetcher_Component = Lexer::GetComponent(New_Fetcher->Construct_Template_Type_Name());
-				Fetcher_Component.Value = "." + Fetcher_Component.Value;
-				Fetchers.push_back(Fetcher_Component);
-				Fetchers.push_back(Lexer::GetComponent("."));
-			}
-
-
-
-		Component Name = Lexer::GetComponent(Func->Name);
-
-		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Return_Type.begin(), Return_Type.end());
-		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Fetchers.begin(), Fetchers.end());
-		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Name);
-		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Func->Template_Children.begin(), Func->Template_Children.end());
-		New_Constructed_Template_Code.push_back(Lexer::GetComponent("\n"));
-
+		vector<Component> tmp = Template_Function_Constructor(Func, Type->Templates, Input[i].node->Templates);
+		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), tmp.begin(), tmp.end());
 	}
 
 	Type->Templates.clear();
@@ -257,9 +215,67 @@ void Parser::Template_Type_Constructor(int i)
 	p.Input = New_Constructed_Template_Code;
 	p.Factory();
 	
-	Input.erase(Input.begin() + i + 1);
+	//for erasing the <>
+	//Input.erase(Input.begin() + i + 1);
 
 	Input[i].Value = Type->Name;
+}
+
+vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*> T_Args, vector<Node*> T_Types)
+{
+	vector<Component> New_Constructed_Template_Code;
+	string New_Name = Func->Construct_Template_Type_Name();
+	if (Parent->Find("." + New_Name) != nullptr) {
+		Func->Name = "." + New_Name;
+		return New_Constructed_Template_Code;
+	}
+	if (!Func->is(FUNCTION_NODE))
+		return New_Constructed_Template_Code;
+	vector<Component> Return_Type;
+	for (auto& Inheritted : Func->Inheritted) {
+		for (int T = 0; T < T_Args.size(); T++) {
+			string T_Arg = T_Args[T]->Name;
+			string T_Type = T_Types[T]->Name;
+
+			if (Inheritted == T_Arg) {
+				Inheritted = T_Type;
+				Func->Is_Template_Object = true;
+			}
+		}
+		Return_Type.push_back(Lexer::GetComponent(Inheritted));
+	}
+
+	vector<Component> Fetchers;
+	if (Func->Fetcher != nullptr)
+		for (auto& Fetcher : Func->Fetcher->Get_All_Fetchers()) {
+
+			Node* New_Fetcher = Fetcher->Copy_Node(Fetcher, Fetcher->Scope);
+
+			for (int T = 0; T < T_Args.size(); T++) {
+				string T_Arg = T_Args[T]->Name;
+				string T_Type = T_Types[T]->Name;
+
+				for (auto& t : New_Fetcher->Templates)
+					if (t->Name == T_Arg)
+						t->Name = T_Type;
+
+			}
+			Component Fetcher_Component = Lexer::GetComponent(New_Fetcher->Construct_Template_Type_Name());
+			Fetcher_Component.Value = "." + Fetcher_Component.Value;
+			Fetchers.push_back(Fetcher_Component);
+			Fetchers.push_back(Lexer::GetComponent("."));
+		}
+
+	Component Name = Lexer::GetComponent(New_Name);
+	Name.Value = "." + New_Name;
+
+	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Return_Type.begin(), Return_Type.end());
+	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Fetchers.begin(), Fetchers.end());
+	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Name);
+	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Func->Template_Children.begin(), Func->Template_Children.end());
+	New_Constructed_Template_Code.push_back(Lexer::GetComponent("\n"));
+
+	return New_Constructed_Template_Code;
 }
 
 void Parser::Inject_Template_Into_Member_Function_Fetcher(int& i)
@@ -299,10 +315,12 @@ void Parser::Definition_Pattern(int i)
 	//</summary>
 	vector<int> Words = Get_Amount_Of(i, { Flags::KEYWORD_COMPONENT, Flags::TEXT_COMPONENT, Flags::TEMPLATE_COMPONENT });
 	//object definition needs atleast one type and one raw text
+	if (Words.size() > 0 && Input[Words.back()].is(Flags::TEMPLATE_COMPONENT))
+		Words.pop_back();	
 	if (Words.size() < 2)
 		return;
 	//the last word must be a raw text not a keyword to be defined as a new object
-	if (Input[Words.back()].Has({ Flags::KEYWORD_COMPONENT , Flags::TEMPLATE_COMPONENT}))
+	if (Input[Words.back()].is(Flags::KEYWORD_COMPONENT))
 		return;
 	//this is because of the syntax of label jumping exmp: "jump somewhere" is same as a variable declaration exmp: "int somename".
 	for (auto j : Words)
@@ -369,11 +387,14 @@ void Parser::Constructor_Pattern(int i)
 
 void Parser::Prototype_Pattern(int i)
 {
+	if (!(Parent->is(CLASS_NODE) && (Parent->is("static") || Parent->Name == "GLOBAL_SCOPE")))
+		return;
 	//func banana(int, short)\n
-	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT });
+	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT });
 	//Words list must be a at leat two size for the type and for the name to be inside it
 	if (Words.size() < 2)
 		return;
+
 	vector<int> Paranthesis = Get_Amount_Of(Words.back() + 1, Flags::PAREHTHESIS_COMPONENT);
 	if (Paranthesis.size() != 1)
 		return;
@@ -387,6 +408,21 @@ void Parser::Prototype_Pattern(int i)
 		if (Input[c].Value == "jump" || Input[c].Value == "return" || Input[c].Value == "import")
 			return;
 
+	Node* New_Defined_Object = new Node(PROTOTYPE, new Position(Input[Words.back()].Location));
+
+	if (Input[Words.back()].is(Flags::TEMPLATE_COMPONENT)) {
+		if (Input[Words.back()].is(Flags::TEMPLATE_COMPONENT)) {
+			for (auto T : Input[Words.back()].Components) {
+				Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
+
+				Template->Inheritted.push_back("type");
+
+				New_Defined_Object->Templates.push_back(Template);
+			}
+		}
+		Words.pop_back();
+		New_Defined_Object->Is_Template_Object = true;
+	}
 	//type a
 	vector<string> Inheritted;
 
@@ -395,7 +431,6 @@ void Parser::Prototype_Pattern(int i)
 		Inheritted.push_back(Input[Words[j]].Value);
 	}
 
-	Node* New_Defined_Object = new Node(PROTOTYPE, new Position(Input[Words.back()].Location));
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Scope = Parent;
@@ -463,7 +498,7 @@ void Parser::Prototype_Pattern(int i)
 void Parser::Import_Pattern(int i)
 {
 	//func banana(int, short)\n
-	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT });
+	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT });
 	//Words list must be a at leat two size for the type and for the name to be inside it
 	if (Words.size() < 2)
 		return;
@@ -481,6 +516,21 @@ void Parser::Import_Pattern(int i)
 	if (!Has_Import_Keyword)
 		return;
 
+	Node* New_Defined_Object = new Node(IMPORT, new Position(Input[Words.back()].Location));
+
+
+	if (Input[Words.back()].is(Flags::TEMPLATE_COMPONENT)) {
+		for (auto T : Input[Words.back()].Components) {
+			Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
+
+			Template->Inheritted.push_back("type");
+
+			New_Defined_Object->Templates.push_back(Template);
+		}
+		Words.pop_back();
+		New_Defined_Object->Is_Template_Object = true;
+	}
+
 	//type a
 	vector<string> Inheritted;
 
@@ -489,7 +539,6 @@ void Parser::Import_Pattern(int i)
 		Inheritted.push_back(Input[Words[j]].Value);
 	}
 
-	Node* New_Defined_Object = new Node(IMPORT, new Position(Input[Words.back()].Location));
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Scope = Parent;
@@ -592,9 +641,21 @@ void Parser::Object_Pattern(int i)
 
 		Input[i].node->Templates = Input[i + 1].node->Templates;
 
-		//invoke the template type constructor here,
-		//and transform now made template node* type, into a inheritable stirng.
+		Input.erase(Input.begin() + i + 1);
+	}
+	else if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
+		for (auto T : Input[i + 1].Components)
+			Input[i].node->Templates.push_back(T.node);
 
+		if (Parent->Find(Input[i].node, Parent) == nullptr){
+			Report(Observation(ERROR, "This object does not take template arguments '" + Input[i].Value + "'", Input[i].Location));
+		}							 //this object does not take template arguments
+									 //This object does not have a base template on which to build a template type
+									 //There is no template to base of this object's templating
+		Input[i].node = Parent->Find(Input[i].node, Parent);
+		Input[i].node->Templates = Input[i + 1].node->Templates;
+
+		Input.erase(Input.begin() + i + 1);
 	}
 
 	if (Input[i].node->is(OBJECT_DEFINTION_NODE))
@@ -711,7 +772,7 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 	Input.erase(Input.begin() + i + 1);
 	if (Change_Index)
 		i--;
-	Input.erase(Input.begin() + i);
+	Input.erase(Input.begin() + i - !Change_Index);
 
 	if ((size_t)i + 1 + Change_Index > Input.size() - 1)
 		return;
@@ -880,17 +941,43 @@ void Parser::Callation_Pattern(int i)
 		return;
 
 	Node* call = new Node(CALL_NODE, new Position(Input[i].Location));
+	call->Name = Input[i].Value;
 
 	if (Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
+		//Nodize the template type 'int' for example.
 		Parser p(Parent);
 		p.Input = { Input[i] ,Input[i + 1] };
 		p.Factory();
 
-		call->Name = p.Input.back().Value;
+		for (auto input : p.Input)
+			if (input.node->Templates.size() > 0)
+				for (auto T : input.node->Templates)
+				call->Templates.push_back(T);
+		//now find the function to call, of course this cannot be super accurate. 
+		//Simply because the bigger gun is in dorment in PostProsessor.cpp Find_Call_Owner().
+		if (Parent->Find(call, Parent, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })) {
+			Node* Func = Parent->Copy_Node(Parent->Find(call, Parent, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }), Parent->Find(call, Parent, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })->Scope);
+			vector<Node*> Args = Func->Templates;
+			Func->Templates = call->Templates;
+
+			Parser P(Parent->Get_Parent_As(CLASS_NODE, Parent));
+			P.Input = Template_Function_Constructor(Func, Args, call->Templates);
+			P.Factory();
+
+			call->Name = "." + call->Construct_Template_Type_Name();
+			call->Templates.clear();
+		}
+		else if (Parent->Find(call, Parent, CLASS_NODE)) {
+			//Constructors
+			call->Name = "." + call->Construct_Template_Type_Name();
+			call->Templates.clear();
+		}
+		else {
+			Report(Observation(ERROR, "Too many similiar functions to call '" + call->Name + Input[i + 1].Value + "'", *call->Location));
+			//we could try to invoke the PostProsessor.cpp's Find_Call_Owner() function here??
+		}
+
 		Input.erase(Input.begin() + i + 1);
-	}
-	else {
-		call->Name = Input[i].Value;
 	}
 	//give the normal call the inheritance for future operator type determining
 
@@ -1000,9 +1087,7 @@ void Parser::Function_Pattern(int i)
 	if (Input[Parenthesis_Indexes[0]].Value[0] != '(')
 		return;
 
-	
-
-	//first try to get the behavior
+	//first try to get the behaviour
 	Node* func = nullptr;
 	if (Input[i].node->Type == OBJECT_DEFINTION_NODE)
 		func = Input[i].node;
@@ -1018,45 +1103,54 @@ void Parser::Function_Pattern(int i)
 	func->Name = Input[i].Value;
 	func->Scope = Parent;
 
-	Parser p(func);
-	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
-	p.Factory();
-
-	for (auto& j : func->Defined) {
-		j->Type = PARAMETER_NODE;
-		if (j->is("type") != -1)
-			j->Is_Template_Object = true;
-	}
-
-	func->Parameters = func->Defined;
-	p.Input.clear();
-
-	p.Input.push_back(Input[Parenthesis_Indexes[1]]);
-	p.Factory();
-	func->Childs = p.Input[0].node->Childs;
-	p.Input.clear();
-
-	func->Mangled_Name = func->Get_Mangled_Name();
-
-
 	//Template Fucntions.
 	for (auto T : func->Inheritted)
 		if (func->Find(T, func, TEMPLATE_NODE) != nullptr) {
 			func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
+
+			func->Is_Template_Object = true;
 			break;
 		}
-	if (func->Template_Children.size() == 0)
-		for (auto T : func->Parameters)
-			for (auto T_inheritance : T->Inheritted)
-				if (func->Find(T, func, TEMPLATE_NODE) != nullptr) {
-					func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
-					break;
-				}
+	if (Paranthesis_Offset == 2) {
+		func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
+		for (auto T : Input[i + 1].Components) {
+			Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
+
+			Template->Inheritted.push_back("type");
+
+			func->Templates.push_back(Template);
+		}
+		func->Is_Template_Object = true;
+	}
+	if (!func->Is_Template_Object) {
+		Parser p(func);
+		p.Input.push_back(Input[Parenthesis_Indexes[0]]);
+		p.Factory();
+
+		for (auto& j : func->Defined) {
+			j->Type = PARAMETER_NODE;
+		}
+
+		func->Parameters = func->Defined;
+		p.Input.clear();
+
+		p.Input.push_back(Input[Parenthesis_Indexes[1]]);
+		p.Factory();
+		func->Childs = p.Input[0].node->Childs;
+		p.Input.clear();
+
+		func->Mangled_Name = func->Get_Mangled_Name();
+	}
+	if (func->Template_Children.size() > 0) {
+		Input.erase(Input.begin() + i + Paranthesis_Offset);
+	}
 
 	Input[i].node = func;
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
+	if (Paranthesis_Offset == 2)
+		Input.erase(Input.begin() + 1);
 
 	return;
 }
@@ -1220,6 +1314,8 @@ void Parser::Else_Pattern(int i)
 
 void Parser::Operator_Order()
 {
+	if (Input.size() < 2)
+		return;
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "->" }, NODE_CASTER);
 	for (int i = 0; i < Input.size(); i++)
@@ -1463,13 +1559,13 @@ void Parser::Member_Function_Pattern(int i)
 }
 
 void Parser::Factory() {
-	//for (int i = 0; i < Input.size(); i++)
-	//	Template_Pattern(i);
+	for (int i = 0; i < Input.size(); i++)
+		Template_Pattern(i);
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
 		Prototype_Pattern(i);	//Definition_pattern stoles this import functions, so this goes first
 		Import_Pattern(i);
-		Template_Pattern(i);
+		//Template_Pattern(i);
 		Definition_Pattern(i);
 		Label_Definition(i);
 	}

@@ -332,18 +332,23 @@ void PostProsessor::Member_Function_Defined_Inside(int i)
 
 void PostProsessor::Open_Function_For_Prosessing(int i)
 {
-	if (!Input[i]->is(FUNCTION_NODE))
-		return;
 	//here we just go trugh the insides of the function
 	//for optimization and other cool stuff :D
-	for (auto j : Input[i]->Parameters)
+	if (!Input[i]->is(FUNCTION_NODE))
+		return;
+	if (Input[i]->Is_Template_Object)
+		return;
+	/*for (auto j : Input[i]->Parameters)
 		if (j->is("type") != -1)
 			return;
+	*/
+
+
 
 	PostProsessor p(Input[i]);
 	p.Input = Input[i]->Childs;
 
-	//preprare the local variables
+	//prepare the local variables
 	p.Define_Sizes(Input[i]);
 
 	p.Factory();

@@ -266,6 +266,13 @@ public:
 
 	Node* Find(Node* n, Node* p, int f);
 
+	Node* Find(Node* n, Node* p, vector<int> f) {
+		for (auto flag : f)
+			if (Find(n, p, flag))
+				return Find(n, p, flag);
+		return nullptr;
+	}
+
 	Node* Find(string n) {
 		return Find(n, this);
 	}

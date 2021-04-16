@@ -29,6 +29,7 @@ public:
 	void Operator_Combinator(int i);
 	void Nodize_Template_Pattern(int i); 
 	void Template_Type_Constructor(int i);
+	vector<Component> Template_Function_Constructor(Node* Func, vector<Node*> T_Arg, vector<Node*> T_Type);
 	void Inject_Template_Into_Member_Function_Fetcher(int& i);
 
 	//PATTERNS

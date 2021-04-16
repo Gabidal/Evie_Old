@@ -8,12 +8,12 @@ type List<T>{
 T List<T>.Add(T Element){
 	if (T.size + Size > Capacity){
 		#allocate new heap space
-        Capacity = Size * 2;
-        T ptr tmp = allocate(Capacity * T.size);
+        Capacity = Size * 2
+        T ptr tmp = allocate(Capacity * T.size)
 
-        #memcpy(tmp, Array, Size * T.size);
-        Array = tmp;
+        memcpy<int>(tmp, Array, Size * T.size)
+        Array = tmp
 	}
-	Array[Size] = Element;
-	Size++;
+	Array[Size] = Element
+	Size++
 }

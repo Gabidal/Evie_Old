@@ -220,25 +220,29 @@ Node* Node::Find(Node* n, Node* s)
 
 	if (n->is(TEMPLATE_NODE))
 		for (auto i : s->Templates)
-			if (i->Name == n->Name)
-				return i;
+			if (i->Templates.size() == n->Templates.size())
+				if (i->Name == n->Name)
+					return i;
 
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
 	if (n->Fetcher != nullptr)
 		if (n->Fetcher != s)
 			for (auto i : Find_Scope(n)->Defined)
-				if (i->Name == n->Name)
-					return n;
+				if (i->Templates.size() == n->Templates.size())
+					if (i->Name == n->Name)
+						return n;
 
 	if (s->Fetcher != nullptr)
 		if (s->Fetcher != s->Scope)
 			for (auto i : Find_Scope(s)->Defined)
-				if (i->Name == n->Name)
-					return n;
+				if (i->Templates.size() == n->Templates.size())
+					if (i->Name == n->Name)
+						return n;
 
 	//Normal current and above going scope search algorithm
 	for (Node* i : s->Defined)
+		if (i->Templates.size() == n->Templates.size())
 			if (i->Name == n->Name) {
 				if (n->Cast_Type != "") {
 					Node* tmp = i->Copy_Node(i, i->Scope);
@@ -255,6 +259,7 @@ Node* Node::Find(Node* n, Node* s)
 	//IDK what this does, please explain!
 	if (s->Cast_Type != "")
 		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name)
 					return i;
 
@@ -276,28 +281,31 @@ Node* Node::Find(Node* n, Node* s, int f)
 	if (n->is(TEMPLATE_NODE))
 		for (auto i : s->Templates)
 			if (i->is(n->Type))
-				if (i->Name == n->Name)
-					return i;
+				if (i->Templates.size() == n->Templates.size())
+					if (i->Name == n->Name)
+						return i;
 
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
 	if (n->Fetcher != nullptr)
 		for (auto i : Find_Scope(n)->Defined)
 			if (i->is(f))
-				if (i->Name == n->Name)
-					return n;
+				if (i->Templates.size() == n->Templates.size())
+					if (i->Name == n->Name)
+						return n;
 
 	//Normal current and above going scope search algorithm
 	for (Node* i : s->Defined)
 		if (i->is(f))
-			if (i->Name == n->Name) {
-				if (n->Cast_Type != "") {
-					Node* tmp = i->Copy_Node(i, i->Scope);
-					tmp->Cast_Type = n->Cast_Type;
-					return tmp;
+			if (i->Templates.size() == n->Templates.size())
+				if (i->Name == n->Name) {
+					if (n->Cast_Type != "") {
+						Node* tmp = i->Copy_Node(i, i->Scope);
+						tmp->Cast_Type = n->Cast_Type;
+						return tmp;
+					}
+					return i;
 				}
-				return i;
-			}
 	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
 	if (s->Scope != nullptr)
 		if (Find(n, s->Scope, f) != nullptr)
@@ -307,8 +315,9 @@ Node* Node::Find(Node* n, Node* s, int f)
 	if (s->Cast_Type != "")
 		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 			if (i->is(f))
-				if (i->Name == n->Name)
-					return i;
+				if (i->Templates.size() == n->Templates.size())
+					if (i->Name == n->Name)
+						return i;
 	
 	return nullptr;
 }
