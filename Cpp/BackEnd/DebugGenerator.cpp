@@ -284,6 +284,8 @@ void DebugGenerator::Construct_Debug_Abbrev()
     Debug_Abbrev.push_back(EOM);
 
     for (auto i : Global_Scope->Defined) {
+        if (i->Is_Template_Object)
+            continue;
         Generate_Abbrev(Abbrev_Type(i));
         for (auto j : i->Defined)
             Generate_Abbrev(Abbrev_Type(j));
@@ -343,7 +345,7 @@ void DebugGenerator::Construct_Debug_Info()
 
     int j = 0;
     for (auto i : Global_Scope->Defined)
-        if (i->Templates.size() == 0)
+        if (i->Is_Template_Object == false)
             Info_Generator(i);
 
     //This label indicates the section start point.

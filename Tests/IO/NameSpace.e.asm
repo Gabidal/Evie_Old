@@ -2,22 +2,6 @@
 .global main
 .global Start_Test
 .section .text
-Banana:
-mov dword ptr [rcx + 0 ], 1
-mov rax, rcx
-ret 
-ret 
-
-
-Get:
-mov r8d, dword ptr [rip + Banana_Y ]
-mov ecx, dword ptr [rcx + 0 ]
-add r8d, ecx
-mov eax, r8d
-ret 
-ret 
-
-
 Start_Test:
 push rbx
 sub rsp, 8
@@ -53,10 +37,26 @@ ret
 ret 
 
 
+Banana:
+mov dword ptr [rcx + 0 ], 1
+mov rax, rcx
+ret 
+ret 
+
+
 Set:
 mov dword ptr [rcx + 0 ], edx
 add dword ptr [rcx + 0 ], 1
 mov eax, dword ptr [rcx + 0 ]
+ret 
+ret 
+
+
+Get:
+mov r8d, dword ptr [rip + Banana_Y ]
+mov ecx, dword ptr [rcx + 0 ]
+add r8d, ecx
+mov eax, r8d
 ret 
 ret 
 

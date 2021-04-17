@@ -2,22 +2,6 @@
 .global main
 .global Start_Test
 .section .text
-Banana:
-push rbx
-mov rbx, rcx
-mov rcx, rbx
-call Fruit
-mov dword ptr [rbx + 4 ], 1
-mov dword ptr [rbx + 8 ], 2
-mov dword ptr [rbx + 12 ], 6
-mov dword ptr [rbx + 0 ], 5
-mov rax, rbx
-pop rbx
-ret 
-pop rbx
-ret 
-
-
 Fruit:
 mov dword ptr [rcx + 0 ], 4
 ret 
@@ -56,6 +40,22 @@ main:
 call Start_Test
 mov eax, 1
 ret 
+ret 
+
+
+Banana:
+push rbx
+mov rbx, rcx
+mov rcx, rbx
+call Fruit
+mov dword ptr [rbx + 4 ], 1
+mov dword ptr [rbx + 8 ], 2
+mov dword ptr [rbx + 12 ], 6
+mov dword ptr [rbx + 0 ], 5
+mov rax, rbx
+pop rbx
+ret 
+pop rbx
 ret 
 
 

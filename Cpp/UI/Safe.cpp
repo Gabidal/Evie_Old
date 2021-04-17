@@ -138,6 +138,8 @@ void Safe::Disable_Non_Ptr_Class_Return(Node* n)
 		return;
 	if (n->is("ptr") != -1)
 		return;
+	if (n->Is_Template_Object)
+		return;
 	if (MANGLER::Is_Based_On_Base_Type(n))
 		return;
 

@@ -180,13 +180,6 @@ void Parser::Template_Type_Constructor(int i)
 				if (n->Value == T_Arg)
 					n->Value = T_Type;
 		}
-		for (auto& Func_Children : Type->Defined)
-			for (auto& Defined : Func_Children->Template_Children)
-				for (auto n : Defined.Get_all())
-					if (n->Value == T_Arg) {
-						n->Value = T_Type;
-						Func_Children->Is_Template_Object = true;
-					}
 	}
 
 	vector<Component> New_Constructed_Template_Code;
@@ -265,6 +258,13 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 			Fetchers.push_back(Fetcher_Component);
 			Fetchers.push_back(Lexer::GetComponent("."));
 		}
+
+	for (int T = 0; T < T_Args.size(); T++)
+		for (auto& Defined : Func->Template_Children)
+			for (auto n : Defined.Get_all())
+				if (n->Value == T_Args[T]->Name) {
+					n->Value = T_Types[T]->Name;
+				}
 
 	Component Name = Lexer::GetComponent(New_Name);
 	Name.Value = "." + New_Name;
@@ -866,10 +866,11 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 	//a++/b()++
 	//Adds the Operator_Postfix into the previus object
 	//</summary>
-	if (i + 1 >= Input.size())
+	if (i -1 < 0)
 		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
 		return;		//++
+	//check if this operator is meant to be a prefix, not postfix.
 	if ((size_t)i + 1 < Input.size() - 1) {
 		if (Input[(size_t)i + 1].is(Flags::TEXT_COMPONENT))
 			return;		//++ abc
@@ -1203,6 +1204,7 @@ void Parser::Type_Pattern(int i)
 			Type->Templates.push_back(Template);
 		}
 		Type->Template_Children = Input[Parenthesis_Indexes[0]].Components;
+		Type->Is_Template_Object = true;
 	}
 
 	Parser p(Type);

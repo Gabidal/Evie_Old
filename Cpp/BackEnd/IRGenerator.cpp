@@ -17,7 +17,7 @@ void IRGenerator::Factory()
 		Un_Wrap_Inline(i);
 	for (int i = 0; i < Input.size(); i++)
 		Switch_To_Correct_Places(Input[i]);
-	for (int i = 0; i < Input.size(); i++)
+	for (auto i : Parent->Defined)
 		Parse_Function(i);
 	for (auto i : Parent->Defined)
 		Parse_Member_Functions(i);
@@ -47,63 +47,65 @@ void IRGenerator::Factory()
 	}
 }
 
-void IRGenerator::Parse_Function(int i)
+void IRGenerator::Parse_Function(Node* Func)
 {
-	if (Input[i]->is(IMPORT)) {
-		if (Input[i]->is(IMPORT))
-			Global_Scope->Header.push_back(Input[i]);
+	if (Func->is(IMPORT)) {
+		if (Func->is(IMPORT))
+			Global_Scope->Header.push_back(Func);
 	}
-	if (!Input[i]->is(FUNCTION_NODE))
+	if (!Func->is(FUNCTION_NODE))
 		return;
-	for (auto j : Input[i]->Parameters)
+	if (Func->Is_Template_Object)
+		return;
+	for (auto j : Func->Parameters)
 		if (j->is("type") != -1)
 			return;	//skip template functions.
 
 	Node* Scope = Parent;
-	if (Input[i]->Fetcher != nullptr)
-		Scope = Input[i]->Fetcher;
+	if (Func->Fetcher != nullptr)
+		Scope = Func->Fetcher;
 
-	if ((Scope->Find(Input[i]->Name, Scope, FUNCTION_NODE)->Calling_Count == 0) && Scope->Find(Input[i]->Name, Scope, FUNCTION_NODE)->is("export") == -1)
+	if ((Scope->Find(Func->Name, Scope, FUNCTION_NODE)->Calling_Count == 0) && Scope->Find(Func->Name, Scope, FUNCTION_NODE)->is("export") == -1)
 		return;
 
-	if (Input[i]->is("export") != -1)
-		Scope->Header.push_back(Input[i]);
+	if (Func->is("export") != -1)
+		Scope->Header.push_back(Func);
 
 	//label
-	IR* Label = Make_Label(Input[i], true);
+	IR* Label = Make_Label(Func, true);
 	Label->OPCODE->Set_Flags(Label->OPCODE->Get_Flags() | TOKEN::START_OF_FUNCTION);
 	Output->push_back(Label);
 	Reg_Random_ID_Addon = 0;
 
 	if (sys->Info.Debug) {
 		//the stack locaiton of these parameters are decided in IRPostProsessor.cpp
-		int Max_Non_Decimal_Register_Count = selector->Get_Numerical_Parameter_Register_Count(Input[i]->Parameters);
-		int Max_Decimal_Register_Count = selector->Get_Floating_Parameter_Register_Count(Input[i]->Parameters);
+		int Max_Non_Decimal_Register_Count = selector->Get_Numerical_Parameter_Register_Count(Func->Parameters);
+		int Max_Decimal_Register_Count = selector->Get_Floating_Parameter_Register_Count(Func->Parameters);
 
-		for (int j = 0; j < Input[i]->Parameters.size(); j++) {
+		for (int j = 0; j < Func->Parameters.size(); j++) {
 			if (j <= Max_Decimal_Register_Count || j <= Max_Non_Decimal_Register_Count) {
 				//first make a register representive out of the parameter.
-				Token* Register = new Token(Input[i]->Parameters[j], true);
+				Token* Register = new Token(Func->Parameters[j], true);
 				//then declare that the parameter now needs memory
-				Scope->Find(Input[i]->Name, Scope, Input[i]->Type)->Parameters[j]->Requires_Address = true;
+				Scope->Find(Func->Name, Scope, Func->Type)->Parameters[j]->Requires_Address = true;
 				//now the new token that is created is a memory representive of the original parameter.
-				Token* Memory = new Token(TOKEN::MEMORY, { new Token(Input[i]->Parameters[j]) }, Register->Get_Size(), Register->Get_Name());
+				Token* Memory = new Token(TOKEN::MEMORY, { new Token(Func->Parameters[j]) }, Register->Get_Size(), Register->Get_Name());
 
-				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Memory, Register }, Input[i]->Location));
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { Memory, Register }, Func->Location));
 			}
 		}
 	}
 
 	//go through the childs of the function
-	IRGenerator g(Input[i], Input[i]->Childs, Output);
+	IRGenerator g(Func, Func->Childs, Output);
 
 
 	Token* ret = new Token(TOKEN::FLOW, "return");
-	ret->Set_Parent(Scope->Find(Input[i]->Name, Scope, FUNCTION_NODE));
+	ret->Set_Parent(Scope->Find(Func->Name, Scope, FUNCTION_NODE));
 	Output->push_back(new IR(ret, {}, nullptr));
 
 	//make the end of funciton like End Proc like label
-	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, Input[i]->Name), {}, nullptr));
+	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, Func->Name), {}, nullptr));
 }
 
 void IRGenerator::Parse_Member_Functions(Node* Class)
@@ -1661,57 +1663,58 @@ void IRGenerator::Parse_Return(int i) {
 	if (Input[i]->Name != "return")
 		return;
 
-	bool Can_Modify_Last_Variable_Value = true;
-	for (auto j : Input[i]->Right->Has(Input[i]->Right, OBJECT_NODE)) {
-		if (j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && j->Find(j, j->Scope)->Scope == Global_Scope)
-			Can_Modify_Last_Variable_Value = false;
-		if (j->is("ptr") != -1)
-			Can_Modify_Last_Variable_Value = false;
-	}
-
-	IRGenerator g(Parent, { Input[i]->Right }, Output, Can_Modify_Last_Variable_Value);
-
-	Token* Return_Val = nullptr;
-	if (g.Handle != nullptr)
-		Return_Val = g.Handle;
-	else
-		Return_Val = new Token(Input[i]->Right);
-
-	Node* p = Input[i]->Get_Parent_As(FUNCTION_NODE, Input[i]);
-
-	int Returning_Reg_Size = 0;
-	for (auto& j : p->Inheritted) {
-		if (j == "ptr") {
-			Returning_Reg_Size = _SYSTEM_BIT_SIZE_;
-			break;
+	if (Input[i]->Right) {
+		bool Can_Modify_Last_Variable_Value = true;
+		for (auto j : Input[i]->Right->Has(Input[i]->Right, OBJECT_NODE)) {
+			if (j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && j->Find(j, j->Scope)->Scope == Global_Scope)
+				Can_Modify_Last_Variable_Value = false;
+			if (j->is("ptr") != -1)
+				Can_Modify_Last_Variable_Value = false;
 		}
-		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
-			continue; //skip keywords
-		Returning_Reg_Size += Global_Scope->Find(j, Global_Scope)->Size;
+
+		IRGenerator g(Parent, { Input[i]->Right }, Output, Can_Modify_Last_Variable_Value);
+
+		Token* Return_Val = nullptr;
+		if (g.Handle != nullptr)
+			Return_Val = g.Handle;
+		else
+			Return_Val = new Token(Input[i]->Right);
+
+		Node* p = Input[i]->Get_Parent_As(FUNCTION_NODE, Input[i]);
+
+		int Returning_Reg_Size = 0;
+		for (auto& j : p->Inheritted) {
+			if (j == "ptr") {
+				Returning_Reg_Size = _SYSTEM_BIT_SIZE_;
+				break;
+			}
+			if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
+				continue; //skip keywords
+			Returning_Reg_Size += Global_Scope->Find(j, Global_Scope)->Size;
+		}
+
+		int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
+		if (Level_Difference != 0) {
+			Return_Val = Operate_Pointter(Return_Val, Level_Difference, false, Return_Val->is(TOKEN::CONTENT), Input[i]->Right->Inheritted);
+		}
+		else if (Return_Val->is(TOKEN::CONTENT)) {
+			Token* m = new Token(TOKEN::MEMORY, { Return_Val }, Returning_Reg_Size, Return_Val->Get_Name());
+			Return_Val = m;
+		}
+
+		if (Return_Val->is(TOKEN::NUM) && Returning_Reg_Size != 0)
+			Return_Val->Set_Size(Returning_Reg_Size);
+
+		long long Flag = TOKEN::REGISTER | TOKEN::RETURNING;
+
+		if (Return_Val->is(TOKEN::DECIMAL))
+			Flag |= TOKEN::DECIMAL;
+
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
+			new Token(Flag, "Returning_REG" + to_string(Reg_Random_ID_Addon++), Returning_Reg_Size),
+			Return_Val }
+		, Input[i]->Location));
 	}
-
-	int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
-	if (Level_Difference != 0) {
-		Return_Val = Operate_Pointter(Return_Val, Level_Difference, false, Return_Val->is(TOKEN::CONTENT), Input[i]->Right->Inheritted);
-	}
-	else if (Return_Val->is(TOKEN::CONTENT)) {
-		Token* m = new Token(TOKEN::MEMORY, { Return_Val }, Returning_Reg_Size, Return_Val->Get_Name());
-		Return_Val = m;
-	}
-
-	if (Return_Val->is(TOKEN::NUM) && Returning_Reg_Size != 0)
-		Return_Val->Set_Size(Returning_Reg_Size);
-
-	long long Flag = TOKEN::REGISTER | TOKEN::RETURNING;
-
-	if (Return_Val->is(TOKEN::DECIMAL))
-		Flag |= TOKEN::DECIMAL;
-
-	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
-		new Token(Flag, "Returning_REG" + to_string(Reg_Random_ID_Addon++), Returning_Reg_Size),
-		Return_Val }
-	, Input[i]->Location));
-
 	//let the postprosessor to handle stack emptying!
 	Token* ret = new Token(TOKEN::FLOW, "return");
 	ret->Set_Parent(Parent);

@@ -515,12 +515,26 @@ Try_Again:;
 			OgFunc = Scope->Defined[f];
 			goto Non_Imported_Template_Function_Usage;
 		}
-		if (Skip_Name_Checking_For_Func_Ptr)
+		if (Skip_Name_Checking_For_Func_Ptr) {
 			n->Function_Ptr = true;	//this caller is a function pointter.
+			n->Inheritted = n->Find(n, n->Scope)->Inheritted;
+			//remove one pointter
+			vector<string> New_Inheritance;
+			bool Removed_Ptr = false;
+			for (auto inherit : n->Inheritted) {
+				if (inherit == "ptr" && !Removed_Ptr) {
+					Removed_Ptr = true;
+					continue;
+				}
+				New_Inheritance.push_back(inherit);
+			}
+			n->Inheritted = New_Inheritance;
+		}
 		n->Function_Implementation = Scope->Defined[f];
-		if (!Skip_Name_Checking_For_Func_Ptr)
+		if (!Skip_Name_Checking_For_Func_Ptr) {
 			n->Function_Implementation->Calling_Count++;
-		n->Inheritted = n->Function_Implementation->Inheritted;
+			n->Inheritted = n->Function_Implementation->Inheritted;
+		}
 		return;
 		Wrong_Template_Function:;
 	}
