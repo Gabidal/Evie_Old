@@ -71,6 +71,8 @@ void Parser::Combine_Dot_In_Member_Functions(int& i)
 		return;
 
 	Math_Pattern(i, { "." }, OPERATOR_NODE, true);
+
+	
 }
 
 void Parser::Template_Pattern(int& i)
@@ -196,6 +198,16 @@ void Parser::Template_Type_Constructor(int i)
 
 	//now Construct all member funcitons as well.
 	for (auto& Func : Type->Defined) {
+		for (int T = 0; T < Func->Templates.size(); T++) {
+			string T_Arg = Func->Templates[T]->Name;
+			string T_Type = Input[i].node->Templates[T]->Name;
+
+			if (Func->Templates[T]->Name == T_Arg)
+				Func->Templates[T]->Name = T_Type;
+		}
+		if (Func->Fetcher == nullptr)
+			continue;	//inside type defined functions dont need to be rewritten again.
+
 		vector<Component> tmp = Template_Function_Constructor(Func, Type->Templates, Input[i].node->Templates);
 		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), tmp.begin(), tmp.end());
 	}
@@ -740,6 +752,9 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 		//Dont worry about function calls
 		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
 		new_member->Name = Input[(size_t)i - 1].Value;
+		new_member->Scope = Operator->Scope;
+
+
 
 		Operator->Left = new_member;
 	}
@@ -752,6 +767,7 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 		//Dont worry about function calls
 		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
 		new_member->Name = Input[(size_t)i + 1].Value;
+		new_member->Scope = Operator->Scope;
 
 		Operator->Right = new_member;
 	}
@@ -947,36 +963,12 @@ void Parser::Callation_Pattern(int i)
 	if (Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
 		//Nodize the template type 'int' for example.
 		Parser p(Parent);
-		p.Input = { Input[i] ,Input[i + 1] };
+		p.Input = {Input[i + 1]};
 		p.Factory();
 
-		for (auto input : p.Input)
-			if (input.node->Templates.size() > 0)
-				for (auto T : input.node->Templates)
-				call->Templates.push_back(T);
-		//now find the function to call, of course this cannot be super accurate. 
-		//Simply because the bigger gun is in dorment in PostProsessor.cpp Find_Call_Owner().
-		if (Parent->Find(call, Parent, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })) {
-			Node* Func = Parent->Copy_Node(Parent->Find(call, Parent, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }), Parent->Find(call, Parent, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })->Scope);
-			vector<Node*> Args = Func->Templates;
-			Func->Templates = call->Templates;
-
-			Parser P(Parent->Get_Parent_As(CLASS_NODE, Parent));
-			P.Input = Template_Function_Constructor(Func, Args, call->Templates);
-			P.Factory();
-
-			call->Name = "." + call->Construct_Template_Type_Name();
-			call->Templates.clear();
-		}
-		else if (Parent->Find(call, Parent, CLASS_NODE)) {
-			//Constructors
-			call->Name = "." + call->Construct_Template_Type_Name();
-			call->Templates.clear();
-		}
-		else {
-			Report(Observation(ERROR, "Too many similiar functions to call '" + call->Name + Input[i + 1].Value + "'", *call->Location));
-			//we could try to invoke the PostProsessor.cpp's Find_Call_Owner() function here??
-		}
+		//save all the template types into the call node, for postprosessor to handle this.
+		for (auto T : p.Input.back().Components)
+			call->Templates.push_back(T.node);
 
 		Input.erase(Input.begin() + i + 1);
 	}
@@ -1092,6 +1084,10 @@ void Parser::Function_Pattern(int i)
 	Node* func = nullptr;
 	if (Input[i].node->Type == OBJECT_DEFINTION_NODE)
 		func = Input[i].node;
+	else if (Input[i].node->Name == ".") {
+		Member_Function_Pattern(i);
+		return;
+	}
 	else
 		func = Parent->Find(Input[i].Value, Parent, true);
 	if (func == nullptr) {
@@ -1142,16 +1138,15 @@ void Parser::Function_Pattern(int i)
 
 		func->Mangled_Name = func->Get_Mangled_Name();
 	}
-	if (func->Template_Children.size() > 0) {
-		Input.erase(Input.begin() + i + Paranthesis_Offset);
-	}
 
 	Input[i].node = func;
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
-	if (Paranthesis_Offset == 2)
-		Input.erase(Input.begin() + 1);
+
+	if (func->Template_Children.size() > 0) {
+		Input.erase(Input.begin() + i + 1);
+	}
 
 	return;
 }
@@ -1522,9 +1517,12 @@ void Parser::Member_Function_Pattern(int i)
 		return;
 	if (Input[i].Value != ".")
 		return;
-	
 
-	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + 1, Flags::PAREHTHESIS_COMPONENT, false);
+	int Paranthesis_Offset = 1;
+	if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+		Paranthesis_Offset = 2;
+
+	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + Paranthesis_Offset, Flags::PAREHTHESIS_COMPONENT, false);
 	if (Parenthesis_Indexes.size() != 2)
 		return;
 	if (Input[Parenthesis_Indexes[1]].Value[0] != '{')
@@ -1558,6 +1556,18 @@ void Parser::Member_Function_Pattern(int i)
 	Function_Pattern(i);
 
 	Class->Defined.push_back(Input[i].node);
+
+	Node* Fethcer = Input[i].node->Fetcher;
+	Input[i].node->Fetcher = nullptr;
+
+	if (Input[i].node->Name[0] == '.' && Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE) == nullptr) {
+		Input[i].node->Fetcher = Fethcer;
+		Class->Scope->Defined.push_back(Input[i].node);
+	}
+	else
+		Input[i].node->Fetcher = Fethcer;
+
+
 }
 
 void Parser::Factory() {

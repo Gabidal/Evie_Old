@@ -334,7 +334,8 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 					continue;
 				if (v->Fetcher->Name != other->Fetcher->Name)
 					continue;
-
+				if (v->Context->is(ASSIGN_OPERATOR_NODE) || other->Context->is(ASSIGN_OPERATOR_NODE))
+					continue;
 				//decide wich one is in wich side
 				Node* l = v;
 				Node* r = other;
@@ -500,6 +501,9 @@ void Algebra::Reset_Defining_Value(int i)
 		Modified = Input->at(i)->Right;
 
 	//i++ | ++i -> defining val = 0
+
+	if (Modified->Has({ OPERATOR_NODE, ARRAY_NODE }))
+		Modified = Modified->Get_Most_Right();
 
 	Parent->Find(Modified, Modified->Scope)->Current_Value = nullptr;
 }

@@ -184,7 +184,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 		Node* c_copy = c->Copy_Node(c, Function);
 		//insert this. infront of every member
 		for (auto& linear_n : Linearise(c_copy)) {
-			if (linear_n->is(NUMBER_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1))
+			if (linear_n->is(NUMBER_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1) || MANGLER::Is_Base_Type(linear_n))
 				continue;
 			if ((linear_n->is(OBJECT_DEFINTION_NODE) || linear_n->is(OBJECT_NODE)) && This->Find(linear_n, This) != nullptr) {
 				//Node* define = c->Find(linear_n, Function);
@@ -418,6 +418,32 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			Scope = n->Fetcher->Find(n->Fetcher->Name, n, CLASS_NODE);
 		else
 			Scope = n->Fetcher->Find(n->Fetcher->Inheritted[0], n, CLASS_NODE);
+	}
+
+	//now that the scope is resolved we can finaly construct the template functions inners properly.
+	if (n->Templates.size() > 0) {
+		string New_Name = "." + n->Construct_Template_Type_Name();
+		if (Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })) {
+			n->Name = New_Name;
+			n->Templates.clear();
+		}
+		else if (Scope->Find(n, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })) {
+			Node* Func = Scope->Copy_Node(Scope->Find(n, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }), Scope->Find(n, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })->Scope);
+			vector<Node*> Args = Func->Templates;
+			Func->Templates = n->Templates;
+
+			Parser P(Scope->Get_Parent_As(CLASS_NODE, Scope));
+			P.Input = P.Template_Function_Constructor(Func, Args, n->Templates);
+			P.Factory();
+
+			n->Name = New_Name;
+			n->Templates.clear();
+		}
+		else if (Scope->Find(n, Scope, CLASS_NODE)) {
+			//Constructors
+			n->Name = New_Name;
+			n->Templates.clear();
+		}
 	}
 
 	for (auto& i : n->Parameters)
@@ -1184,9 +1210,37 @@ vector<Node*> PostProsessor::Linearise(Node* ast)
 		vector<Node*> right = Linearise(ast->Right);
 		Result.insert(Result.end(), right.begin(), right.end());
 	}
+	else if (ast->is(PREFIX_NODE)) {
+		vector<Node*> right = Linearise(ast->Right);
+		Result.insert(Result.end(), right.begin(), right.end());
+	}
+	else if (ast->is(POSTFIX_NODE)) {
+		vector<Node*> left = Linearise(ast->Left);
+		Result.insert(Result.end(), left.begin(), left.end());
+	}
 	else if (ast->is(CONTENT_NODE)) {
 		vector<Node*> childs;
 		for (auto c : ast->Childs) {
+			vector<Node*> tmp = Linearise(c);
+			childs.insert(childs.end(), tmp.begin(), tmp.end());
+		}
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	else if (ast->Has({IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE})) {
+		vector<Node*> childs;
+		for (auto c : ast->Parameters) {
+			vector<Node*> tmp = Linearise(c);
+			childs.insert(childs.end(), tmp.begin(), tmp.end());
+		}
+		for (auto c : ast->Childs) {
+			vector<Node*> tmp = Linearise(c);
+			childs.insert(childs.end(), tmp.begin(), tmp.end());
+		}
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	else if (ast->is(CALL_NODE)) {
+		vector<Node*> childs;
+		for (auto c : ast->Parameters) {
 			vector<Node*> tmp = Linearise(c);
 			childs.insert(childs.end(), tmp.begin(), tmp.end());
 		}

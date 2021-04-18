@@ -241,6 +241,13 @@ public:
 	Node* Find(string name, Node* parent, bool Need_Parent_existance = true);
 	
 	Node* Find(string name, Node* parent, int flags);
+
+	Node* Find(string name, Node* parent, vector<int> flags) {
+		for (auto flag : flags)
+			if (Find(name, parent, flag))
+				return Find(name, parent, flag);
+		return nullptr;
+	}
 	
 	Node* Find(int size, Node* parent, string f) {
 		for (Node* i : parent->Defined)

@@ -112,6 +112,8 @@ void IRGenerator::Parse_Member_Functions(Node* Class)
 {
 	if (!Class->is(CLASS_NODE))
 		return;
+	if (Class->Templates.size() > 0)
+		return;
 
 	for (auto i : Class->Defined) {
 		if (i->is(FUNCTION_NODE))
@@ -950,6 +952,7 @@ void IRGenerator::Parse_Arrays(int i)
 				}, Input[i]->Location));
 			Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 		}
+		//scale the offsetter into a usable system bit size.
 		if (Right->is(TOKEN::REGISTER))
 			Right->Set_Size(_SYSTEM_BIT_SIZE_);
 
@@ -1253,7 +1256,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }, n->Location));
 
-	Handle = r;
+	Handle = new Token(*r);
 }
 
 void IRGenerator::Switch_To_Correct_Places(Node* o)

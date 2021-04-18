@@ -21,7 +21,7 @@ private:
 	void Give_New_Register(Token* t, int i);
 	void Handle_Global_Labels();
 	void Clean_Selector(int& i);
-	void Prepare_Function(int i);
+	void Prepare_Function(int& i);
 	void Handle_Labels(int i);
 
 	void Handle_Stack_Usages(Token* t);

@@ -5,7 +5,7 @@ type List<T>{
 }
 
 
-T List<T>.Add(T Element){
+func List<T>.Add<T>(T Element){
 	if (T.size + Size > Capacity){
 		#allocate new heap space
         Capacity = Size * 2
@@ -15,5 +15,5 @@ T List<T>.Add(T Element){
         Array = tmp
 	}
 	Array[Size] = Element
-	Size++
+	Size = Size + 1
 }

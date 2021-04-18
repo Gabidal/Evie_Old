@@ -186,7 +186,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 	for (; !Input->at(i)->is(TOKEN::END_OF_FUNCTION); i++);
 }
 
-void IRPostProsessor::Prepare_Function(int i)
+void IRPostProsessor::Prepare_Function(int& i)
 {
 	if (!Input->at(i)->is(TOKEN::START_OF_FUNCTION))
 		return;
@@ -198,14 +198,16 @@ void IRPostProsessor::Prepare_Function(int i)
 
 	Node* Func = Scope->Find(Input->at(i)->OPCODE->Get_Name());
 
+	int Before_OpCode_Additions = Input->size();
 	for (auto p : Func->Defined) {
 		if (!p->is(PARAMETER_NODE))
 			continue;
 		Token* tmp = new Token(p);
 		if (tmp->is(TOKEN::REGISTER))
-			selector->Get_New_Reg(Input, i, new Token(p));
-
+			selector->Get_New_Reg(Input, i+1, new Token(p));
 	}
+
+	i += (Input->size() - Before_OpCode_Additions) + (Input->size() > Before_OpCode_Additions);
 }
 
 void IRPostProsessor::Handle_Labels(int i)
