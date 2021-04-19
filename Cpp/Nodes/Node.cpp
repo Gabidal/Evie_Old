@@ -21,7 +21,6 @@ void Node::Update_Defined_Stack_Offsets()
 			//every local variable is defined default as a value in a register.
 			if (i->Requires_Address) {
 				i->Memory_Offset = Local_Offset + Size_of_Call_Space;
-				i->Update_Size_By_Inheritted();
 				Local_Offset += i->Get_Size();
 			}
 		}
@@ -31,7 +30,6 @@ void Node::Update_Defined_Stack_Offsets()
 				//also, do remeber that, the pushes that the code needs for the nonvolatiles
 				//those come before the parameter space.
 				i->Memory_Offset = Parameter_Offset + Size_of_Call_Space;
-				i->Update_Size_By_Inheritted();
 				Parameter_Offset += i->Get_Size();
 			}
 		}
@@ -394,18 +392,13 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 }
 
 void Node::Get_Inheritted_Class_Members() {
-	for (string s : Inheritted) {
-		if (Lexer::GetComponents(s)[0].is(Flags::KEYWORD_COMPONENT))
+	for (auto Inherit : Inheritted) {
+		if (Lexer::GetComponent(Inherit).is(::Flags::KEYWORD_COMPONENT))
 			continue;
-		if (s == ".")
-			continue;
-		Node* inheritted = Find(s, Scope, CLASS_NODE);
-		for (auto i : inheritted->Defined)
-			for (auto j : this->Defined) {
-				if (j->Name == i->Name)
-					Report(Observation(ERROR, "Overlapping member variable names '" + i->Name + "' and '" + j->Name + "' in '" + this->Scope->Name + ".", *this->Scope->Location));
-			}
-		this->Defined.insert(this->Defined.begin(), inheritted->Defined.begin(), inheritted->Defined.end());
+		for (auto Member : Find(Inherit, Scope)->Defined)
+			if (Member->is("const") == -1)
+				if (Locate(Member->Name, Defined) == false)
+					Defined.insert(Defined.begin(), Member);
 	}
 }
 
@@ -438,4 +431,45 @@ void Node::Transform_Dot_To_Fechering(Node* To)
 	}
 	else
 		To->Fetcher = this;
+}
+
+vector<Node*> Trace;
+int Node::Update_Size() {
+	if (is("const") != -1)
+		return Size;
+
+	Trace.push_back(this);
+
+	for (int i = 0; i < Trace.size(); i++)
+		for (int j = 0; j < Trace.size(); j++)
+			if (Trace[i] == Trace[j] && i != j) {
+				Trace.pop_back();
+				if (is("ptr") != -1 || is("func") != -1)
+					return _SYSTEM_BIT_SIZE_;
+				return Size;
+			}
+
+
+	Size = 0;
+	for (auto Member : Defined) {
+		if (Member->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
+			Member->Update_Size();
+		else
+			Size += Member->Update_Size();
+	}
+
+	//this must be done after the members size are all set because the ptr will override them size.
+	for (auto Inherit : Inheritted) {
+		if (Lexer::GetComponent(Inherit).is(Flags::KEYWORD_COMPONENT)) {
+			if (Inherit == "ptr" || Inherit == "func") {
+				Size = _SYSTEM_BIT_SIZE_;
+				break;
+			}
+			continue;
+		}
+		else if (MANGLER::Is_Base_Type(Find(Inherit)))
+			Size += Find(Inherit)->Update_Size();
+	}
+	Trace.pop_back();
+	return Size;
 }

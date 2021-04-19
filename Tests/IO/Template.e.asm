@@ -16,28 +16,28 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 52
-lea rcx, qword ptr [rsp + 20 ]
+sub rsp, 48
+lea rcx, qword ptr [rsp + 16 ]
 .loc 1 4 14
 mov rcx, rcx
 call .List_int__
-mov rcx, qword ptr [rsp + 20 + 8 ]
+mov rcx, qword ptr [rsp + 16 + 8 ]
 .loc 1 5 4
 lea rcx, qword ptr [rcx + 1 * 4 ]
 mov dword ptr [rcx ], 5
-lea rcx, qword ptr [rsp + 20 ]
+lea rcx, qword ptr [rsp + 16 ]
 .loc 1 6 4
 mov rcx, rcx
 mov edx, 2
 call .Add_int__
 .loc 8 4 2
-mov rcx, qword ptr [rsp + 20 + 8 ]
+mov rcx, qword ptr [rsp + 16 + 8 ]
 .loc 1 7 11
 lea rcx, qword ptr [rcx + 1 * 4 ]
 mov eax, dword ptr [rcx ]
-add rsp, 52
+add rsp, 48
 ret 
-add rsp, 52
+add rsp, 48
 ret 
 Start_Test_END:
 
@@ -64,80 +64,76 @@ main_END:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 push rbx
-sub rsp, 20
-mov qword ptr [rsp + 40 ], rcx
-mov dword ptr [rsp + 36 ], edx
-.loc 8 9 2
-if0:
-mov rcx, qword ptr [rsp + 40 ]
+sub rsp, 12
+mov qword ptr [rsp + 32 ], rcx
+mov dword ptr [rsp + 28 ], edx
+.loc 8 8 2
+if01:
+mov rcx, qword ptr [rsp + 32 ]
 .loc 8 3 2
 mov ecx, dword ptr [rcx + 4 ]
-.loc 8 9 12
-add ecx, 0
-mov r8, qword ptr [rsp + 40 ]
+.loc 8 8 12
+add ecx, 4
+mov r8, qword ptr [rsp + 32 ]
 .loc 8 2 2
 mov r8d, dword ptr [r8 + 0 ]
-.loc 8 9 19
+.loc 8 8 19
 cmp ecx, r8d
-jle if0_END
-mov rcx, qword ptr [rsp + 40 ]
-mov r8, qword ptr [rsp + 40 ]
+jle if01_END
+mov rcx, qword ptr [rsp + 32 ]
+mov r8, qword ptr [rsp + 32 ]
 .loc 8 3 2
 mov r8d, dword ptr [r8 + 4 ]
 mov eax, 2
 mul r8d
 mov r8d, eax
-.loc 8 11 18
+.loc 8 10 18
 mov dword ptr [rcx + 0 ], r8d
-mov rcx, qword ptr [rsp + 40 ]
+mov rcx, qword ptr [rsp + 32 ]
 .loc 8 2 2
 mov ecx, dword ptr [rcx + 0 ]
-mov eax, 0
+mov eax, 4
 mul ecx
 mov ecx, eax
-.loc 8 12 21
+.loc 8 11 21
 mov ecx, ecx
 call _Z8allocatei
 mov rbx, rax
-.loc 8 14 9
+.loc 8 13 9
 mov rcx, rbx
-mov r8, qword ptr [rsp + 40 ]
+mov r8, qword ptr [rsp + 32 ]
 .loc 8 4 2
 mov r8, qword ptr [r8 + 8 ]
-.loc 8 14 9
+.loc 8 13 9
 mov rdx, r8
-mov r8, qword ptr [rsp + 40 ]
+mov r8, qword ptr [rsp + 32 ]
 .loc 8 3 2
 mov r8d, dword ptr [r8 + 4 ]
-mov eax, 0
+mov eax, 4
 mul r8d
 mov r8d, eax
-.loc 8 14 9
+.loc 8 13 9
 mov r8d, r8d
 call .memcpy_int__
-mov rcx, qword ptr [rsp + 40 ]
-.loc 8 15 15
+mov rcx, qword ptr [rsp + 32 ]
+.loc 8 14 15
 mov qword ptr [rcx + 8 ], rbx
-.loc 8 9 2
-if0_END:
-mov rcx, qword ptr [rsp + 40 ]
+.loc 8 8 2
+if01_END:
+mov rcx, qword ptr [rsp + 32 ]
 .loc 8 4 2
 mov rcx, qword ptr [rcx + 8 ]
-mov r8, qword ptr [rsp + 40 ]
+mov r8, qword ptr [rsp + 32 ]
 .loc 8 3 2
 mov r8d, dword ptr [r8 + 4 ]
-.loc 8 17 2
+.loc 8 16 2
 lea rcx, qword ptr [rcx + r8 * 4 ]
-mov r8d, dword ptr [rsp + 36 ]
+mov r8d, dword ptr [rsp + 28 ]
 mov dword ptr [rcx ], r8d
-mov rcx, qword ptr [rsp + 40 ]
-mov r8, qword ptr [rsp + 40 ]
-.loc 8 3 2
-mov r8d, dword ptr [r8 + 4 ]
-.loc 8 18 14
-add r8d, 1
-mov dword ptr [rcx + 4 ], r8d
-add rsp, 20
+mov rcx, qword ptr [rsp + 32 ]
+.loc 8 17 6
+add dword ptr [rcx + 4 ], 1
+add rsp, 12
 pop rbx
 ret 
 .Add_int___END:
@@ -155,19 +151,18 @@ mov dword ptr [rsp + 24 ], r8d
 .loc 2 38 17
 mov ecx, 0
 cmp ecx, dword ptr [rsp + 24 ]
-jge while_END
-while:
+jge while2_END
+while2:
 .loc 2 39 9
 lea r8, qword ptr [rsp + 8 + rcx * 4 ]
 mov r9d, dword ptr [rsp + 16 + rcx * 4 ]
 mov dword ptr [r8 ], r9d
 .loc 2 38 33
-mov r8d, ecx
 add ecx, 1
 cmp ecx, dword ptr [rsp + 24 ]
-jge while_END
-jmp while
-while_END:
+jge while2_END
+jmp while2
+while2_END:
 .loc 2 41 5
 ret 
 ret 
@@ -465,16 +460,16 @@ _string_START:
 .byte 5
 .byte 2
 .byte 145
-.byte 20
+.byte 16
 .asciz "a"
 .byte 1
 .byte 4
 .long _.List_int___START-Debug_Info_Start
 .byte 3
-.byte 0
-.asciz "Capacity"
 .byte 8
-.byte 2
+.asciz "Array"
+.byte 8
+.byte 4
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
@@ -483,10 +478,10 @@ _string_START:
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
+.byte 0
+.asciz "Capacity"
 .byte 8
-.asciz "Array"
-.byte 8
-.byte 4
+.byte 2
 .long _int_START-Debug_Info_Start
 .byte 0
 .byte 6
@@ -535,15 +530,15 @@ _.List_int___START:
 .byte 9
 .byte 2
 .byte 145
-.byte 28
+.byte 20
 .asciz "Element"
 .byte 8
-.byte 8
+.byte 7
 .long _int_START-Debug_Info_Start
 .byte 9
 .byte 2
 .byte 145
-.byte 32
+.byte 24
 .asciz "this"
 .byte 8
 .byte 1

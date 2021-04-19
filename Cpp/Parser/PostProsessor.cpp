@@ -19,13 +19,16 @@ void PostProsessor::Factory() {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Handle_Imports(i);
 	}
+	for (int i = 0; i < Parent->Defined.size(); i++) {
+		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
+		Open_Function_For_Prosessing(i);
+	}
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
 		Cast(Input[i]);
 		Operator_Overload(i);
 		Member_Function_Defined_Outside(i);
 		Member_Function_Defined_Inside(i);
-		Open_Function_For_Prosessing(i);
 		Open_Condition_For_Prosessing(i);
 		Open_Loop_For_Prosessing(i);
 		//Combine_Conditions(i);
@@ -39,6 +42,8 @@ void PostProsessor::Factory() {
 		Update_Operator_Inheritance(Input[i]);
 		Analyze_Return_Value(Input[i]);
 		Increase_Calling_Number_For_Function_Address_Givers(Input[i]);
+		Open_PreFix_Operator(i);
+		Open_PostFix_Operator(i);
 	}
 	Open_Safe(Input);
 	for (int i = 0; i < Input.size(); i++)
@@ -73,7 +78,7 @@ void PostProsessor::Type_Definer(int i)
 	if (Parent->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
 		return;
 	//update members sizes
-	Parent->Defined[i]->Update_Members_Size();
+	Parent->Defined[i]->Update_Size();
 
 	//update the member stack offsets
 	Parent->Defined[i]->Update_Members_Mem_Offset();
@@ -139,10 +144,12 @@ void PostProsessor::Type_Definer(int i)
 	This->Name = "this";
 	This->Defined = Parent->Defined[i]->Defined;
 	This->Scope = Function;
-	This->Update_Size_By_Inheritted();
+	This->Update_Size();
 
 	Function->Parameters.push_back(This);
 	Function->Defined.push_back(This);
+
+	Function->Update_Size();
 
 	Node* p = Parent->Defined[i];
 	if (p->Has({ "cpp", "evie", "vivid" }) != -1)
@@ -334,9 +341,9 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 {
 	//here we just go trugh the insides of the function
 	//for optimization and other cool stuff :D
-	if (!Input[i]->is(FUNCTION_NODE))
+	if (!Parent->Defined[i]->is(FUNCTION_NODE))
 		return;
-	if (Input[i]->Is_Template_Object)
+	if (Parent->Defined[i]->Is_Template_Object)
 		return;
 	/*for (auto j : Input[i]->Parameters)
 		if (j->is("type") != -1)
@@ -345,20 +352,20 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 
 
-	PostProsessor p(Input[i]);
-	p.Input = Input[i]->Childs;
+	PostProsessor p(Parent->Defined[i]);
+	p.Input = Parent->Defined[i]->Childs;
 
 	//prepare the local variables
-	p.Define_Sizes(Input[i]);
+	p.Define_Sizes(Parent->Defined[i]);
 
 	p.Factory();
 
-	Input[i]->Childs = p.Input;
+	Parent->Defined[i]->Childs = p.Input;
 
-	Input[i]->Update_Format();
+	Parent->Defined[i]->Update_Format();
 
-	for (auto& v : Input[i]->Defined)
-		for (auto j : Input[i]->Childs) {
+	for (auto& v : Parent->Defined[i]->Defined)
+		for (auto j : Parent->Defined[i]->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
 			if (v->Requires_Address)
 				break;
@@ -366,7 +373,7 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 	//DEBUG
 	if (sys->Info.Debug)
-		for (auto& v : Input[i]->Defined) {
+		for (auto& v : Parent->Defined[i]->Defined) {
 			if (v->is(PARAMETER_NODE))
 				continue;
 			v->Memory_Offset = v->Scope->Local_Allocation_Space;
@@ -445,10 +452,6 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			n->Templates.clear();
 		}
 	}
-
-	for (auto& i : n->Parameters)
-		if (i->Size == 0)
-			i->Update_Size_By_Inheritted();
 
 	Node* OgFunc = nullptr;
 	//also the returning type of this callation is not made,
@@ -559,7 +562,9 @@ Try_Again:;
 		n->Function_Implementation = Scope->Defined[f];
 		if (!Skip_Name_Checking_For_Func_Ptr) {
 			n->Function_Implementation->Calling_Count++;
-			n->Inheritted = n->Function_Implementation->Inheritted;
+
+			if ((MANGLER::Is_Based_On_Base_Type(n->Function_Implementation) == false) || n->Inheritted.size() == 0)
+				n->Inheritted = n->Function_Implementation->Inheritted;
 		}
 		return;
 		Wrong_Template_Function:;
@@ -691,8 +696,10 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	//Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
 
 	for (auto j : Input[i]->Parameters)
-		if (j->is(OPERATOR_NODE))
+		if (j->is(OPERATOR_NODE)) {
 			Update_Operator_Inheritance(j);
+			j->Update_Size();
+		}
 }
 
 void PostProsessor::Algebra_Laucher(int i)
@@ -725,10 +732,8 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		Cast(n->Right);
 		Combine_Member_Fetching(n->Left);
 		//set the left side
-		Node* Left = Get_From_AST(n->Left);
+		Node* Left = Parent->Find(Get_From_AST(n->Left), Parent);
 		//we must also update the current left side to inherit the members from the inherit list
-		//Left->Get_Inheritted_Class_Members();
-		Left->Update_Members_Size();
 
 		//get the left side of the dot operator, this is getted from most left because it can be also an AST.
 		Node* Right = n->Get_Most_Left(n->Right);
@@ -805,7 +810,8 @@ void PostProsessor::Define_Sizes(Node* p)
 {
 	//here we set the defined size of the variable
 	for (Node* d : p->Defined) {
-		d->Update_Members_Size();
+		d->Get_Inheritted_Class_Members();
+		d->Update_Size();
 		d->Update_Members_Mem_Offset();
 		d->Update_Format();
 	}
@@ -906,28 +912,21 @@ void PostProsessor::Determine_Array_Type(int i)
 	Input[i]->Inheritted = Input[i]->Left->Inheritted;
 }
 
-void PostProsessor::Operator_Type_Definer(Node* n)
+void PostProsessor::Open_PreFix_Operator(int i)
 {
-	//go trhough the ast tree
-	if (n->is(OPERATOR_NODE)) {
-		Operator_Type_Definer(n->Left);
-		Operator_Type_Definer(n->Right);
-	}
-	if (n->is(CONTENT_NODE))
-		for (Node* i : n->Childs)
-			Operator_Type_Definer(i);
+	if (!Input[i]->is(PREFIX_NODE))
+		return;
 
-	//now set the values
-	if (n->is(OPERATOR_NODE)) {
-		n->Inheritted = n->Left->Inheritted;
-		if (n->Inheritted.size() == 0)
-			//for callation instances
-			n->Inheritted = n->Right->Inheritted;
-	}
-	if (n->is(CONTENT_NODE)) {
-		n->Inheritted = n->Childs[0]->Inheritted;
-	}
-	return;
+	PostProsessor p(Parent, { Input[i]->Right });
+}
+
+void PostProsessor::Open_PostFix_Operator(int i)
+{
+	if (!Input[i]->is(POSTFIX_NODE))
+		return;
+
+
+	PostProsessor p(Parent, { Input[i]->Left });
 }
 
 void PostProsessor::Handle_Imports(int i)
@@ -986,12 +985,12 @@ void PostProsessor::Update_Used_Object_Info(Node* n)
 		return;
 	for (auto i : n->Get_all(OBJECT_NODE)) {
 		i->Inheritted = n->Find(i->Name, i->Scope)->Inheritted;
-		i->Update_Members_Size();
+		i->Update_Size();
 	}
 	//do the same for parameters
 	for (auto i : n->Get_all(PARAMETER_NODE)) {
 		i->Inheritted = n->Find(i->Name, i->Scope)->Inheritted;
-		i->Update_Members_Size();
+		i->Update_Size();
 	}
 }
 

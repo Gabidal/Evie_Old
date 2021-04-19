@@ -707,7 +707,7 @@ void Parser::Parenthesis_Pattern(int i)
 
 	for (Component j : TMP_Parser.Input)
 		if (j.node != nullptr) {
-			j.node->Context = Paranthesis;
+			//j.node->Context = Paranthesis;
 			//j.node->Parent = Paranthesis;
 			Paranthesis->Childs.push_back(new Node(*j.node));
 		}
@@ -862,11 +862,15 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	if (!op_Pass)
 		return;
 	Node* PreFix = new Node(PREFIX_NODE, new Position(Input[i].Location));
+	PreFix->Scope = Parent;
 	//name
 	PreFix->Name = Input[i].Value;
 	//for more complex casting
 	PreFix->Left = Input[i].node;
 	PreFix->Right = Input[(size_t)i + 1].node;
+
+	PreFix->Right->Context = PreFix;
+	PreFix->Right->Scope = PreFix->Scope;
 	
 	//Operator_Node PreFix;	//++a/-a/--a
 	//Operator_Node PostFix;	//a++/a--
@@ -905,9 +909,12 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 
 	Node* post = new Node(POSTFIX_NODE, new Position(Input[i].Location));
 	post->Name = Input[i].Value;
+	post->Scope = Parent;
 	
 	//set the node to postfix as left
 	post->Left = Input[(size_t)i - 1].node;
+	post->Left->Context = post;
+	post->Left->Scope = post->Scope;
 	//for casting
 	post->Right = Input[i].node;
 

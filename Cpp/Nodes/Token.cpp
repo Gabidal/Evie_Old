@@ -71,7 +71,6 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	}
 	else
 		return;
-	n->Find(n, n->Scope)->Update_Size_By_Inheritted();
 	Size = n->Find(n, n->Scope)->Size;
 
 	Name = n->Name;

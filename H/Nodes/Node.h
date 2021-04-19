@@ -353,8 +353,8 @@ public:
 	void Get_Inheritted_Class_Members();
 	
 	void Get_Inheritted_Class_Members(string s) {
-			if (s == ".")
-				return;
+			//if (s == ".")
+			//	return;
 			Node* inheritted = Find(s, Scope);
 			for (auto i : inheritted->Defined) {
 				//now insert the inheritted classes members
@@ -365,22 +365,11 @@ public:
 	}
 	
 	//this reqiers that the other local variables inside this object are already having theyre own size!
-	void Update_Size() {
-		for (Node* m : Defined) {
-			if (m->is(FUNCTION_NODE))
-				continue;
-			//gather member variables
-			m->Update_Size();
-			Size += m->Size;
-		}
-		if (is("ptr") != -1) {
-			Scaler = Size;
-			Size = _SYSTEM_BIT_SIZE_;
-		}
-		return;
-	}
+	int Update_Size();
 
-	void Update_Size_By_Inheritted() {
+	/*void Update_Size_By_Inheritted() {
+		if (Name == "size" && (is("const") != -1))
+			return;
 		if (is(NUMBER_NODE))
 			return;
 		Size = 0;
@@ -408,14 +397,17 @@ public:
 		for (string s : Inheritted) {
 			//there is no inheritable type that doesnt have enything init.
 			if (Lexer::GetComponent(s).is(Flags::KEYWORD_COMPONENT)) {
-				if (s == "func")
+				if (s == "func" || s == "ptr")
 					//this is for function pointters.
 					Size += _SYSTEM_BIT_SIZE_;
 				continue;
 			}
-			if (Find(s, Scope)->Defined[0]->Name == "size" && (Find(s, Scope)->Defined[0]->is("const") != -1))
+			if (Find(s, Scope)->Defined[0]->Name == "size" && (Find(s, Scope)->Defined[0]->is("const") != -1)) {
 				//this is a preprossed size, take it!
-				Size += Find(s, Scope, true)->Size;
+				Node* Inherit = Find(s, Scope, true);
+				Inherit->Update_Members_Size();
+				Size += Inherit->Size;
+			}
 				//if this happends we this class will inherit the members of the inheritted.
 			else
 				//there we handle more complex inheritance instances.
@@ -429,7 +421,7 @@ public:
 		}
 		//now apply those revaluated values into us.
 		Update_Size();
-	}
+	}*/
 
 	void Update_Members_Mem_Offset() {
 		int Offset = 0;

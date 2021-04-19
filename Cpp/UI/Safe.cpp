@@ -104,9 +104,10 @@ void Safe::Check_Return_Validity(Node* n)
 	if (n->Name != "return")
 		return;
 	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Scope);
-	func->Update_Size_By_Inheritted();
-	n->Right->Update_Size_By_Inheritted();
+
 	if (n->Right != nullptr) {
+		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE }))
+			n->Right->Size = n->Find(n->Right, n->Scope)->Size;
 		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
 		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true))
@@ -143,9 +144,7 @@ void Safe::Disable_Non_Ptr_Class_Return(Node* n)
 	if (MANGLER::Is_Based_On_Base_Type(n))
 		return;
 
-	n->Update_Size_By_Inheritted();
-
-	if (n->Size > selector->Get_Largest_Register()) {
+	if (n->Find(n, n->Scope)->Size > selector->Get_Largest_Register()) {
 		Report({
 			Observation(ERROR, "Return object is bigger than: " + to_string(_SYSTEM_BIT_SIZE_ * 8), *n->Location),
 			Observation(SOLUTION, "Please return the object as a pointter", *n->Location)

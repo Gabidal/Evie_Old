@@ -289,7 +289,7 @@ void IRGenerator::Parse_Calls(int i)
 	//}
 
 	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
-	Input[i]->Update_Size_By_Inheritted();
+	Input[i]->Update_Size();
 	long long F = TOKEN::REGISTER | TOKEN::RETURNING;
 	if (Input[i]->Format == "decimal")
 		F |= TOKEN::DECIMAL;
@@ -522,7 +522,9 @@ void IRGenerator::Parse_Operators(int i)
 	Update_Operator(Input[i]);
 	Input[i]->Update_Format();
 
-	Input[i]->Left->Update_Size_By_Inheritted();
+	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE }))
+		Input[i]->Left->Size = Parent->Find(Input[i]->Left, Parent)->Size;
+
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
 		Parse_Cloning(i);
 		return;
@@ -662,8 +664,8 @@ void IRGenerator::Parse_Pointers(int i)
 		return;
 
 	Update_Operator(Input[i]);
-
-	Input[i]->Left->Update_Size_By_Inheritted();
+	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE }))
+		Input[i]->Left->Size = Parent->Find(Input[i]->Left, Parent)->Size;
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Get_Size() > _SYSTEM_BIT_SIZE_) {
 		//this has been already made in cloning objects
 		return;
@@ -1033,7 +1035,7 @@ void IRGenerator::Parse_PostFixes(int i)
 	if (!Input[i]->is(POSTFIX_NODE))
 		return;
 	//i++
-	IRGenerator g(Parent, { Input[i]->Left }, Output);
+	IRGenerator g(Parent, { Input[i]->Left }, Output, true);
 
 	Token* Left = nullptr;
 
@@ -1057,7 +1059,7 @@ void IRGenerator::Parse_PostFixes(int i)
 	}
 
 	//add to the original variable
-	Token* num = new Token(TOKEN::NUM, "1", 4);
+	Token* num = new Token(TOKEN::NUM, "1", Left->Get_Size());
 
 	Token* add = new Token(TOKEN::OPERATOR, "+");
 
