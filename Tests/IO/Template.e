@@ -2,9 +2,8 @@ use "../../IO/cstd.e"
 
 export int Start_Test(){
 	List<int> a.List<int>()
-	a.Array[1] = 5
-	a.Add<int>(2)
-	return a.Array[1]
+	a.Add<int>(5)
+	return a.Array[0]
 }
 
 export int main(){

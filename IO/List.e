@@ -5,7 +5,7 @@ type List<T>{
 }
 
 func List<T>.Add<T>(T Element){
-	if (T.size + Size > Capacity){
+	if (Size >= Capacity){
 		#allocate new heap space
         Capacity = Size * 2
         T ptr tmp = allocate(Capacity * T.size)

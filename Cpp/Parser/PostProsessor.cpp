@@ -21,14 +21,14 @@ void PostProsessor::Factory() {
 	}
 	for (int i = 0; i < Parent->Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
+		Member_Function_Defined_Outside(i);
+		Member_Function_Defined_Inside(i);
 		Open_Function_For_Prosessing(i);
 	}
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
 		Cast(Input[i]);
 		Operator_Overload(i);
-		Member_Function_Defined_Outside(i);
-		Member_Function_Defined_Inside(i);
 		Open_Condition_For_Prosessing(i);
 		Open_Loop_For_Prosessing(i);
 		//Combine_Conditions(i);
@@ -274,16 +274,16 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 	//	
 	//	If the function in question is not a static type then we need to apply this pointters and other cool stuf.
 	//</summary>
-	if (Input[i]->Type != FUNCTION_NODE)
+	if (Parent->Defined[i]->Type != FUNCTION_NODE)
 		return;
-	if (Input[i]->Fetcher == nullptr)
+	if (Parent->Defined[i]->Fetcher == nullptr)
 		return;
-	if (Input[i]->is("static") != -1)
+	if (Parent->Defined[i]->is("static") != -1)
 		return;
-	if (Input[i]->Parameters.size() > 0 && Input[i]->Parameters[0]->Name == "this")
+	if (Parent->Defined[i]->Parameters.size() > 0 && Parent->Defined[i]->Parameters[0]->Name == "this")
 		return;
 
-	Node* func = Input[i];
+	Node* func = Parent->Defined[i];
 
 	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { func->Fetcher->Name, "ptr" };
@@ -308,16 +308,16 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 
 void PostProsessor::Member_Function_Defined_Inside(int i)
 {
-	if (!Input[i]->is(FUNCTION_NODE))
+	if (!Parent->Defined[i]->is(FUNCTION_NODE))
 		return;
-	if (Input[i]->is("static") != -1)
+	if (Parent->Defined[i]->is("static") != -1)
 		return;
 	if (Parent->Name == "GLOBAL_SCOPE")
 		return;
-	if (Input[i]->Fetcher != nullptr)
+	if (Parent->Defined[i]->Fetcher != nullptr)
 		return;
 
-	Node* func = Input[i];
+	Node* func = Parent->Defined[i];
 
 	Node* This = new Node(PARAMETER_NODE, "this", nullptr);
 	This->Inheritted = { Parent->Name, "ptr" };

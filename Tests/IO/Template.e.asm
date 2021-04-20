@@ -21,19 +21,15 @@ lea rcx, qword ptr [rsp + 16 ]
 .loc 1 4 14
 mov rcx, rcx
 call .List_int__
-mov rcx, qword ptr [rsp + 16 + 8 ]
-.loc 1 5 4
-lea rcx, qword ptr [rcx + 1 * 4 ]
-mov dword ptr [rcx ], 5
 lea rcx, qword ptr [rsp + 16 ]
-.loc 1 6 4
+.loc 1 5 4
 mov rcx, rcx
-mov edx, 2
+mov edx, 5
 call .Add_int__
 .loc 8 4 2
 mov rcx, qword ptr [rsp + 16 + 8 ]
-.loc 1 7 11
-lea rcx, qword ptr [rcx + 1 * 4 ]
+.loc 1 6 11
+lea rcx, qword ptr [rcx + 0 * 4 ]
 mov eax, dword ptr [rcx ]
 add rsp, 48
 ret 
@@ -44,13 +40,13 @@ Start_Test_END:
 
 .cfi_endproc 
 main_START:
-.loc 1 10 1
+.loc 1 9 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 11 2
+.loc 1 10 2
 call Start_Test
-.loc 1 12 2
+.loc 1 11 2
 mov eax, 1
 ret 
 ret 
@@ -72,14 +68,12 @@ if01:
 mov rcx, qword ptr [rsp + 32 ]
 .loc 8 3 2
 mov ecx, dword ptr [rcx + 4 ]
-.loc 8 8 12
-add ecx, 4
 mov r8, qword ptr [rsp + 32 ]
 .loc 8 2 2
 mov r8d, dword ptr [r8 + 0 ]
-.loc 8 8 19
+.loc 8 8 10
 cmp ecx, r8d
-jle if01_END
+jl if01_END
 mov rcx, qword ptr [rsp + 32 ]
 mov r8, qword ptr [rsp + 32 ]
 .loc 8 3 2
@@ -492,7 +486,7 @@ _string_START:
 .asciz "main"
 .asciz "main"
 .byte 1
-.byte 10
+.byte 9
 _.List_int___START:
 .byte 7
 .byte 1
