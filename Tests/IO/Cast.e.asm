@@ -61,7 +61,7 @@ lea rcx, qword ptr [rsp + 8 ]
 mov rcx, rcx
 call Mid
 .loc 1 9 2
-movss xmm0, dword ptr [rsp + 8 + 4 ]
+movss xmm0, dword ptr [rsp + 8 + 0 ]
 cvttss2si ecx, xmm0
 .loc 1 33 2
 mov eax, ecx
@@ -91,13 +91,16 @@ Base_START:
 Base:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov qword ptr [rsp + 8 ], rcx
-mov rcx, qword ptr [rsp + 8 ]
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 4 11
-mov dword ptr [rcx + 0 ], 0
+mov dword ptr [rcx + 4 ], 0
 .loc 1 3 1
-mov rax, qword ptr [rsp + 8 ]
+mov rax, qword ptr [rsp + 0 ]
+add rsp, 8
 ret 
+add rsp, 8
 ret 
 Base_END:
 
@@ -108,21 +111,21 @@ Mid_START:
 Mid:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 8
-mov qword ptr [rsp + 16 ], rcx
-mov rcx, qword ptr [rsp + 16 ]
+sub rsp, 16
+mov qword ptr [rsp + 8 ], rcx
+mov rcx, qword ptr [rsp + 8 ]
 call Base
-mov rcx, qword ptr [rsp + 16 ]
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 8 7
-mov dword ptr [rcx + 0 ], 1
-mov rcx, qword ptr [rsp + 16 ]
+mov dword ptr [rcx + 4 ], 1
+mov rcx, qword ptr [rsp + 8 ]
 mov r8d, 1074261268
-mov dword ptr [rcx + 4 ], r8d
+mov dword ptr [rcx + 0 ], r8d
 .loc 1 7 1
-mov rax, qword ptr [rsp + 16 ]
-add rsp, 8
+mov rax, qword ptr [rsp + 8 ]
+add rsp, 16
 ret 
-add rsp, 8
+add rsp, 16
 ret 
 Mid_END:
 
@@ -394,7 +397,7 @@ _Base_START:
 .byte 1
 .byte 3
 .byte 3
-.byte 0
+.byte 4
 .asciz "Type"
 .byte 1
 .byte 4
@@ -409,13 +412,13 @@ _Mid_START:
 .byte 7
 .long _Base_START-Debug_Info_Start
 .byte 3
-.byte 0
+.byte 4
 .asciz "Type"
 .byte 1
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 3
-.byte 4
+.byte 0
 .asciz "feature"
 .byte 1
 .byte 9
@@ -431,16 +434,16 @@ _Top_START:
 .long _Mid_START-Debug_Info_Start
 .byte 3
 .byte 0
-.asciz "Type"
-.byte 1
-.byte 4
-.long _int_START-Debug_Info_Start
-.byte 3
-.byte 4
 .asciz "feature"
 .byte 1
 .byte 9
 .long _float_START-Debug_Info_Start
+.byte 3
+.byte 4
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "feature"
@@ -500,16 +503,16 @@ _Top_START:
 .long _Mid_START-Debug_Info_Start
 .byte 3
 .byte 0
-.asciz "Type"
-.byte 1
-.byte 4
-.long _int_START-Debug_Info_Start
-.byte 3
-.byte 4
 .asciz "feature"
 .byte 1
 .byte 9
 .long _float_START-Debug_Info_Start
+.byte 3
+.byte 4
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
 .byte 0
 .byte 9
 .quad main_START
@@ -523,25 +526,25 @@ _Top_START:
 .byte 10
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "this"
 .byte 1
 .byte 3
 .long _Base_START-Debug_Info_Start
 .byte 3
-.byte 0
-.asciz "Type"
-.byte 1
 .byte 4
-.long _int_START-Debug_Info_Start
-.byte 3
-.byte 0
 .asciz "Type"
 .byte 1
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
+.asciz "Type"
+.byte 1
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 0
 .asciz "feature"
 .byte 1
 .byte 9

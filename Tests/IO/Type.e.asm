@@ -16,10 +16,12 @@ Fruit_START:
 Fruit:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov qword ptr [rsp + 8 ], rcx
-mov rcx, qword ptr [rsp + 8 ]
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 8 12
 mov dword ptr [rcx + 0 ], 4
+add rsp, 8
 ret 
 Fruit_END:
 
@@ -30,11 +32,14 @@ Get_Sugar_START:
 Get_Sugar:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov qword ptr [rsp + 8 ], rcx
-mov rcx, qword ptr [rsp + 8 ]
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 19 2
 mov eax, dword ptr [rcx + 4 ]
+add rsp, 8
 ret 
+add rsp, 8
 ret 
 Get_Sugar_END:
 
@@ -46,9 +51,9 @@ is_Banana:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 sub rsp, 8
-mov qword ptr [rsp + 16 ], rcx
+mov qword ptr [rsp + 0 ], rcx
 .loc 1 23 9
-mov rcx, qword ptr [rsp + 16 ]
+mov rcx, qword ptr [rsp + 0 ]
 call Get_Sugar
 mov eax, eax
 add rsp, 8
@@ -102,27 +107,27 @@ Banana_START:
 Banana:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 8
-mov qword ptr [rsp + 16 ], rcx
-mov rcx, qword ptr [rsp + 16 ]
+sub rsp, 16
+mov qword ptr [rsp + 8 ], rcx
+mov rcx, qword ptr [rsp + 8 ]
 call Fruit
-mov rcx, qword ptr [rsp + 16 ]
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 12 12
 mov dword ptr [rcx + 4 ], 1
-mov rcx, qword ptr [rsp + 16 ]
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 13 14
 mov dword ptr [rcx + 8 ], 2
-mov rcx, qword ptr [rsp + 16 ]
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 14 11
 mov dword ptr [rcx + 12 ], 6
-mov rcx, qword ptr [rsp + 16 ]
+mov rcx, qword ptr [rsp + 8 ]
 .loc 1 15 7
 mov dword ptr [rcx + 0 ], 5
 .loc 1 11 1
-mov rax, qword ptr [rsp + 16 ]
-add rsp, 8
+mov rax, qword ptr [rsp + 8 ]
+add rsp, 16
 ret 
-add rsp, 8
+add rsp, 16
 ret 
 Banana_END:
 
@@ -403,7 +408,7 @@ _Fruit_START:
 .byte 6
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "this"
 .byte 1
 .byte 7
@@ -458,22 +463,16 @@ _Banana_START:
 .byte 6
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "b"
 .byte 1
 .byte 18
 .long _Banana_START-Debug_Info_Start
 .byte 3
-.byte 0
-.asciz "Type"
-.byte 1
-.byte 4
-.long _int_START-Debug_Info_Start
-.byte 3
-.byte 4
-.asciz "Sugar"
-.byte 1
 .byte 12
+.asciz "size"
+.byte 1
+.byte 14
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
@@ -482,10 +481,16 @@ _Banana_START:
 .byte 13
 .long _int_START-Debug_Info_Start
 .byte 3
-.byte 12
-.asciz "size"
+.byte 4
+.asciz "Sugar"
 .byte 1
-.byte 14
+.byte 12
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Type"
+.byte 1
+.byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
 .byte 8
@@ -521,16 +526,10 @@ _Banana_START:
 .byte 27
 .long _Banana_START-Debug_Info_Start
 .byte 3
-.byte 0
-.asciz "Type"
-.byte 1
-.byte 4
-.long _int_START-Debug_Info_Start
-.byte 3
-.byte 4
-.asciz "Sugar"
-.byte 1
 .byte 12
+.asciz "size"
+.byte 1
+.byte 14
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
@@ -539,10 +538,16 @@ _Banana_START:
 .byte 13
 .long _int_START-Debug_Info_Start
 .byte 3
-.byte 12
-.asciz "size"
+.byte 4
+.asciz "Sugar"
 .byte 1
-.byte 14
+.byte 12
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Type"
+.byte 1
+.byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
 .byte 11

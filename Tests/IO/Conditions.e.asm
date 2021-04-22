@@ -20,38 +20,38 @@ sub rsp, 4
 .loc 1 5 10
 mov dword ptr [rsp ], 0
 cmp dword ptr [rsp ], 100
-jge while1_END
-while1:
+jge while11_END
+while11:
 add dword ptr [rsp ], 1
 cmp dword ptr [rsp ], 100
-jge while1_END
-jmp while1
-while1_END:
+jge while11_END
+jmp while11
+while11_END:
 .loc 1 8 2
-if2:
+if12:
 cmp dword ptr [rsp ], 100
-jne if2_END
+jne if12_END
 .loc 1 9 5
 mov dword ptr [rsp ], 10
 .loc 1 8 2
-if2_END:
+if12_END:
 .loc 1 11 2
-if3:
+if13:
 cmp dword ptr [rsp ], 100
-jne else4
+jne else14
 .loc 1 12 5
 mov dword ptr [rsp ], 100
-jmp else4_END
+jmp else14_END
 .loc 1 11 2
-if3_END:
+if13_END:
 .loc 1 14 2
-else4:
+else14:
 cmp dword ptr [rsp ], 10
-jne else4_END
+jne else14_END
 .loc 1 15 5
 mov dword ptr [rsp ], 100
 .loc 1 14 2
-else4_END:
+else14_END:
 .loc 1 17 2
 mov eax, dword ptr [rsp ]
 add rsp, 4
@@ -59,13 +59,13 @@ ret
 .loc 1 19 10
 mov ecx, 1
 cmp ecx, 2
-jge while5_END
-while5:
+jge while15_END
+while15:
 mov ecx, 1
 cmp ecx, 2
-jge while5_END
-jmp while5
-while5_END:
+jge while15_END
+jmp while15
+while15_END:
 .loc 1 20 2
 mov eax, 0
 add rsp, 4

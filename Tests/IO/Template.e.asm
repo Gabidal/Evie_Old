@@ -60,22 +60,22 @@ main_END:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 push rbx
-sub rsp, 12
-mov qword ptr [rsp + 32 ], rcx
-mov dword ptr [rsp + 28 ], edx
+sub rsp, 36
+mov qword ptr [rsp + 24 ], rcx
+mov dword ptr [rsp + 20 ], edx
 .loc 8 8 2
-if01:
-mov rcx, qword ptr [rsp + 32 ]
+if89:
+mov rcx, qword ptr [rsp + 24 ]
 .loc 8 3 2
 mov ecx, dword ptr [rcx + 4 ]
-mov r8, qword ptr [rsp + 32 ]
+mov r8, qword ptr [rsp + 24 ]
 .loc 8 2 2
 mov r8d, dword ptr [r8 + 0 ]
 .loc 8 8 10
 cmp ecx, r8d
-jl if01_END
-mov rcx, qword ptr [rsp + 32 ]
-mov r8, qword ptr [rsp + 32 ]
+jl if89_END
+mov rcx, qword ptr [rsp + 24 ]
+mov r8, qword ptr [rsp + 24 ]
 .loc 8 3 2
 mov r8d, dword ptr [r8 + 4 ]
 mov eax, 2
@@ -83,7 +83,7 @@ mul r8d
 mov r8d, eax
 .loc 8 10 18
 mov dword ptr [rcx + 0 ], r8d
-mov rcx, qword ptr [rsp + 32 ]
+mov rcx, qword ptr [rsp + 24 ]
 .loc 8 2 2
 mov ecx, dword ptr [rcx + 0 ]
 mov eax, 4
@@ -95,12 +95,12 @@ call _Z8allocatei
 mov rbx, rax
 .loc 8 13 9
 mov rcx, rbx
-mov r8, qword ptr [rsp + 32 ]
+mov r8, qword ptr [rsp + 24 ]
 .loc 8 4 2
 mov r8, qword ptr [r8 + 8 ]
 .loc 8 13 9
 mov rdx, r8
-mov r8, qword ptr [rsp + 32 ]
+mov r8, qword ptr [rsp + 24 ]
 .loc 8 3 2
 mov r8d, dword ptr [r8 + 4 ]
 mov eax, 4
@@ -109,25 +109,25 @@ mov r8d, eax
 .loc 8 13 9
 mov r8d, r8d
 call .memcpy_int__
-mov rcx, qword ptr [rsp + 32 ]
+mov rcx, qword ptr [rsp + 24 ]
 .loc 8 14 15
 mov qword ptr [rcx + 8 ], rbx
 .loc 8 8 2
-if01_END:
-mov rcx, qword ptr [rsp + 32 ]
+if89_END:
+mov rcx, qword ptr [rsp + 24 ]
 .loc 8 4 2
 mov rcx, qword ptr [rcx + 8 ]
-mov r8, qword ptr [rsp + 32 ]
+mov r8, qword ptr [rsp + 24 ]
 .loc 8 3 2
 mov r8d, dword ptr [r8 + 4 ]
 .loc 8 16 2
 lea rcx, qword ptr [rcx + r8 * 4 ]
-mov r8d, dword ptr [rsp + 28 ]
+mov r8d, dword ptr [rsp + 20 ]
 mov dword ptr [rcx ], r8d
-mov rcx, qword ptr [rsp + 32 ]
+mov rcx, qword ptr [rsp + 24 ]
 .loc 8 17 6
 add dword ptr [rcx + 4 ], 1
-add rsp, 12
+add rsp, 36
 pop rbx
 ret 
 .Add_int___END:
@@ -139,26 +139,29 @@ ret
 .memcpy_int__:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov qword ptr [rsp + 8 ], rcx
-mov qword ptr [rsp + 16 ], rdx
-mov dword ptr [rsp + 24 ], r8d
+sub rsp, 20
+mov qword ptr [rsp + 0 ], rcx
+mov qword ptr [rsp + 8 ], rdx
+mov dword ptr [rsp + 16 ], r8d
 .loc 2 38 17
 mov ecx, 0
-cmp ecx, dword ptr [rsp + 24 ]
-jge while2_END
-while2:
+cmp ecx, dword ptr [rsp + 16 ]
+jge while10_END
+while10:
 .loc 2 39 9
-lea r8, qword ptr [rsp + 8 + rcx * 4 ]
-mov r9d, dword ptr [rsp + 16 + rcx * 4 ]
+lea r8, qword ptr [rsp + 0 + rcx * 4 ]
+mov r9d, dword ptr [rsp + 8 + rcx * 4 ]
 mov dword ptr [r8 ], r9d
 .loc 2 38 33
 add ecx, 1
-cmp ecx, dword ptr [rsp + 24 ]
-jge while2_END
-jmp while2
-while2_END:
+cmp ecx, dword ptr [rsp + 16 ]
+jge while10_END
+jmp while10
+while10_END:
+add rsp, 20
 .loc 2 41 5
 ret 
+add rsp, 20
 ret 
 .memcpy_int___END:
 
@@ -170,16 +173,16 @@ ret
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 push rbx
-sub rsp, 4
-mov qword ptr [rsp + 20 ], rcx
-mov rcx, qword ptr [rsp + 20 ]
+sub rsp, 12
+mov qword ptr [rsp + 12 ], rcx
+mov rcx, qword ptr [rsp + 12 ]
 .loc 8 2 15
 mov dword ptr [rcx + 0 ], 1
-mov rcx, qword ptr [rsp + 20 ]
+mov rcx, qword ptr [rsp + 12 ]
 .loc 8 3 11
 mov dword ptr [rcx + 4 ], 0
-mov rbx, qword ptr [rsp + 20 ]
-mov rcx, qword ptr [rsp + 20 ]
+mov rbx, qword ptr [rsp + 12 ]
+mov rcx, qword ptr [rsp + 12 ]
 .loc 8 2 2
 mov ecx, dword ptr [rcx + 0 ]
 mov eax, 4
@@ -190,11 +193,11 @@ mov ecx, ecx
 call _Z8allocatei
 mov qword ptr [rbx + 8 ], rax
 .loc 8 1 1
-mov rax, qword ptr [rsp + 20 ]
-add rsp, 4
+mov rax, qword ptr [rsp + 12 ]
+add rsp, 12
 pop rbx
 ret 
-add rsp, 4
+add rsp, 12
 pop rbx
 ret 
 .List_int___END:
@@ -524,7 +527,7 @@ _.List_int___START:
 .byte 9
 .byte 2
 .byte 145
-.byte 20
+.byte 12
 .asciz "Element"
 .byte 8
 .byte 7
@@ -532,7 +535,7 @@ _.List_int___START:
 .byte 9
 .byte 2
 .byte 145
-.byte 24
+.byte 16
 .asciz "this"
 .byte 8
 .byte 1
@@ -567,7 +570,7 @@ _.List_int___START:
 .byte 9
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "dest"
 .byte 2
 .byte 37
@@ -575,7 +578,7 @@ _.List_int___START:
 .byte 9
 .byte 2
 .byte 145
-.byte 16
+.byte 8
 .asciz "source"
 .byte 2
 .byte 37

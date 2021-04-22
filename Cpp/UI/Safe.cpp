@@ -127,7 +127,7 @@ void Safe::Check_Return_Validity(Node* n)
 			Stop();
 		}
 	}
-	else if (func->Get_Size() != 0){
+	else if (func->Get_Size() != 0 && func->is("func") == -1){
 		Report(Observation(ERROR, "Non-void function needs returning value.", *n->Location));
 		Stop();
 	}

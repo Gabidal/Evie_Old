@@ -358,11 +358,13 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 	//prepare the local variables
 	p.Define_Sizes(Parent->Defined[i]);
 
+	Parent->Defined[i]->Update_Format();
+
+	Parent->Defined[i]->Update_Size();
+
 	p.Factory();
 
 	Parent->Defined[i]->Childs = p.Input;
-
-	Parent->Defined[i]->Update_Format();
 
 	for (auto& v : Parent->Defined[i]->Defined)
 		for (auto j : Parent->Defined[i]->Childs) {
@@ -1009,7 +1011,7 @@ void PostProsessor::Templates(int i)
 
 void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 {
-	if (!v->is(OBJECT_DEFINTION_NODE) && !v->is(OBJECT_NODE))
+	if (!v->is(OBJECT_DEFINTION_NODE) && !v->is(OBJECT_NODE) && !v->is(PARAMETER_NODE))
 		return;
 
 	//if a variable is pointed to via a pointter or a function parameter address loader, use stack.
@@ -1050,7 +1052,7 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 				v->Requires_Address = true;
 		}
 	}
-	else if (n->Name == "return") {
+	else if (n->Name == "return" && n->Right != nullptr) {
 		Analyze_Variable_Address_Pointing(v, n->Right);
 		if (v->Requires_Address)
 			return;
@@ -1060,6 +1062,10 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 		if (Func_ptr > V_ptr)
 			v->Requires_Address = true;
 	}
+	
+	
+	if (v->is(PARAMETER_NODE) && sys->Info.Debug)
+		v->Requires_Address = true;
 
 	if (v->Requires_Address) {
 		v->Memory_Offset = v->Scope->Local_Allocation_Space;
@@ -1160,7 +1166,10 @@ void PostProsessor::Move_Global_Varibles_To_Header(int i)
 	if (Parent->Name != "GLOBAL_SCOPE" && Parent->is("static") == -1)
 		return;
 
-	Parent->Find(Input[i]->Left->Name)->Type = OBJECT_NODE;
+	Node* Globl_Var = Parent->Find(Input[i]->Left->Name);
+	Globl_Var->Type = OBJECT_NODE;
+
+	Globl_Var->Update_Size();
 
 	Parent->Header.push_back(Input[i]);
 

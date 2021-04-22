@@ -18,11 +18,11 @@ Start_Test:
 .cfi_def_cfa_offset 16
 push rbx
 sub rsp, 28
-lea rcx, qword ptr [rsp + 8 ] ; this
+lea rcx, qword ptr [rsp + 8 ]
 .loc 1 31 11
 mov rcx, rcx
 call Banana
-lea rcx, qword ptr [rsp + 8 ] ; this
+lea rcx, qword ptr [rsp + 8 ]
 .loc 1 32 14
 mov rcx, rcx
 call Get
@@ -69,13 +69,16 @@ Banana_START:
 Banana:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov qword ptr [rsp + 8 ], rcx
-mov rcx, qword ptr [rsp + 8 ]
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 12 8
 mov dword ptr [rcx + 0 ], 1
 .loc 1 8 1
-mov rax, qword ptr [rsp + 8 ]
+mov rax, qword ptr [rsp + 0 ]
+add rsp, 8
 ret 
+add rsp, 8
 ret 
 Banana_END:
 
@@ -86,17 +89,20 @@ Set_START:
 Set:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov qword ptr [rsp + 12 ], rcx ; this
-mov dword ptr [rsp + 8 ], edx ; value
-mov rcx, qword ptr [rsp + 12 ] ;this
+sub rsp, 12
+mov qword ptr [rsp + 4 ], rcx
+mov dword ptr [rsp + 0 ], edx
+mov rcx, qword ptr [rsp + 4 ]
 .loc 1 15 5
-mov r8d, dword ptr [rsp + 8 ] ;value
-mov dword ptr [rcx + 0 ], r8d ; this->X = value
-mov rcx, qword ptr [rsp + 12 ] ; this
+mov r8d, dword ptr [rsp + 0 ]
+mov dword ptr [rcx + 0 ], r8d
+mov rcx, qword ptr [rsp + 4 ]
 .loc 1 16 12
-add dword ptr [rcx + 0 ], 1 ;this->X++
-mov eax, dword ptr [rcx + 0 ] ; return this->X
+add dword ptr [rcx + 0 ], 1
+mov eax, dword ptr [rcx + 0 ]
+add rsp, 12
 ret 
+add rsp, 12
 ret 
 Set_END:
 
@@ -107,15 +113,18 @@ Get_START:
 Get:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov qword ptr [rsp + 8 ], rcx ; this
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
 mov ecx, dword ptr [rip + Banana_Y ]
-mov r8, qword ptr [rsp + 8 ] ; this
+mov r8, qword ptr [rsp + 0 ]
 .loc 1 12 2
-mov r8d, dword ptr [r8 + 0 ] ; ??
+mov r8d, dword ptr [r8 + 0 ]
 .loc 1 21 11
 add ecx, r8d
 mov eax, ecx
+add rsp, 8
 ret 
+add rsp, 8
 ret 
 Get_END:
 
@@ -458,7 +467,7 @@ _Apple_START:
 .byte 9
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "this"
 .byte 1
 .byte 8

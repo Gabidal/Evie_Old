@@ -16,11 +16,14 @@ sum_START:
 sum:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-mov dword ptr [rsp + 8 ], ecx
+sub rsp, 4
+mov dword ptr [rsp + 0 ], ecx
 .loc 1 4 11
-add dword ptr [rsp + 8 ], 3
-mov eax, dword ptr [rsp + 8 ]
+add dword ptr [rsp + 0 ], 3
+mov eax, dword ptr [rsp + 0 ]
+add rsp, 4
 ret 
+add rsp, 4
 ret 
 sum_END:
 
@@ -88,13 +91,16 @@ Test_Fpu_START:
 Test_Fpu:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-movss dword ptr [rsp + 8 ], xmm0
-movss dword ptr [rsp + 12 ], xmm1
+sub rsp, 8
+movss dword ptr [rsp + 0 ], xmm0
+movss dword ptr [rsp + 4 ], xmm1
 mov ecx, -1110651699
 movd xmm0, ecx
 movss xmm0, xmm0
+add rsp, 8
 .loc 1 20 2
 ret 
+add rsp, 8
 ret 
 Test_Fpu_END:
 
@@ -333,7 +339,7 @@ _string_START:
 .byte 5
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "a"
 .byte 1
 .byte 3

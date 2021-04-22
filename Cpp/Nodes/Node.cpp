@@ -25,7 +25,13 @@ void Node::Update_Defined_Stack_Offsets()
 			}
 		}
 		if (i->is(PARAMETER_NODE)) {
-			if (!Token(i).is(TOKEN::REGISTER)) {
+			if (Token(i, true).is(TOKEN::REGISTER)) {
+				//This happends when the parameter would be in a register but its in debug, so it uses stack
+				//we need to tell the system that it CAN use the Local_Offset as storing the parameter
+				i->Memory_Offset = Local_Offset + Size_of_Call_Space;
+				Local_Offset += i->Get_Size();
+			}
+			else if (!Token(i).is(TOKEN::REGISTER)) {
 				//the parameters locate below the local variable space and the returning address 
 				//also, do remeber that, the pushes that the code needs for the nonvolatiles
 				//those come before the parameter space.
@@ -435,7 +441,7 @@ void Node::Transform_Dot_To_Fechering(Node* To)
 
 vector<Node*> Trace;
 int Node::Update_Size() {
-	if (is("const") != -1)
+	if (is("const") != -1 && Size != 0)
 		return Size;
 
 	Trace.push_back(this);
@@ -451,12 +457,13 @@ int Node::Update_Size() {
 
 
 	Size = 0;
-	for (auto Member : Defined) {
-		if (Member->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
-			Member->Update_Size();
-		else
-			Size += Member->Update_Size();
-	}
+	if (!is(FUNCTION_NODE))
+		for (auto Member : Defined) {
+			if (Member->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
+				Member->Update_Size();
+			else
+				Size += Member->Update_Size();
+		}
 
 	//this must be done after the members size are all set because the ptr will override them size.
 	for (auto Inherit : Inheritted) {
