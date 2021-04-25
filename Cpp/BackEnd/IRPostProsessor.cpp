@@ -252,7 +252,7 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 		Node* og = Function->Find(t->Get_Name());
 
 		long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
-		if (og->is(PARAMETER_NODE))
+		if (og->is(PARAMETER_NODE) && !Token(og, true).is(TOKEN::REGISTER))
 			Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;
 
 		//Maybe we need to add the parameters addresses here?

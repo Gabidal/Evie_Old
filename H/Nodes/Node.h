@@ -286,6 +286,8 @@ public:
 
 	Node* Find_Scope(Node* n);
 
+	bool Compare_Fetchers(Node* other);
+
 	vector<Node*> Get_All_Fetchers();
 
 	Node* Get_Parent_As(int F, Node* Parent);
@@ -426,6 +428,8 @@ public:
 	void Update_Members_Mem_Offset() {
 		int Offset = 0;
 		for (auto i : Defined) {
+			if (i->is(FUNCTION_NODE))
+				continue;
 			i->Memory_Offset = Offset;
 			Offset += i->Size;
 		}
@@ -459,10 +463,23 @@ public:
 
 	void Update_Inheritance();
 
+	vector<Node*> Trace;
 	Node* Copy_Node(Node* What_Node, Node* p)
 	{
 		if (What_Node == nullptr)
 			return nullptr;
+
+		Trace.push_back(What_Node);
+
+		for (int i = 0; i < Trace.size(); i++) {
+			for (int j = 0; j < Trace.size(); j++) {
+				if (Trace[i] == Trace[j] && i != j) {
+					Trace.pop_back();
+					return What_Node;
+				}
+			}
+		}
+
 		//this will only copy the ptrs in list but we want to also copy what those ptr point to.
 		Node* Result = new Node(*What_Node);
 		Result->Scope = p;
@@ -504,6 +521,7 @@ public:
 		//The copying prosess must go downwards not upwards, otherwise it will loop forever!
 		//Result->Holder = Copy_Node(Result->Holder, p);
 
+		Trace.pop_back();
 		//now we have copyed every ptr into a new base to point.
 		return Result;
 	}
@@ -702,6 +720,8 @@ public:
 	void Transform_Dot_To_Fechering(Node* To);
 
 	string Construct_Template_Type_Name() {
+		if (Templates.size() == 0)
+			return Name;
 		string Result = Name + "_";
 		for (auto i : Templates)
 			Result += i->Construct_Template_Type_Name() + "_";

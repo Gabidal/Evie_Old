@@ -17,7 +17,7 @@ Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 push rbx
-sub rsp, 28
+sub rsp, 20
 lea rcx, qword ptr [rsp + 8 ]
 .loc 1 31 11
 mov rcx, rcx
@@ -39,10 +39,10 @@ mov r8d, dword ptr [rip + Apple_Y ]
 add ecx, r8d
 sub ecx, dword ptr [rsp + 16 ]
 mov eax, ecx
-add rsp, 28
+add rsp, 20
 pop rbx
 ret 
-add rsp, 28
+add rsp, 20
 pop rbx
 ret 
 Start_Test_END:
@@ -61,6 +61,28 @@ mov eax, 1
 ret 
 ret 
 main_END:
+
+
+.cfi_endproc 
+Get_START:
+.loc 1 20 11
+Get:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 16
+mov qword ptr [rsp + 0 ], rcx
+mov ecx, dword ptr [rip + Banana_Y ]
+mov r8, qword ptr [rsp + 0 ]
+.loc 1 12 2
+mov r8d, dword ptr [r8 + 0 ]
+.loc 1 21 11
+add ecx, r8d
+mov eax, ecx
+add rsp, 16
+ret 
+add rsp, 16
+ret 
+Get_END:
 
 
 .cfi_endproc 
@@ -105,28 +127,6 @@ ret
 add rsp, 12
 ret 
 Set_END:
-
-
-.cfi_endproc 
-Get_START:
-.loc 1 20 11
-Get:
-.cfi_startproc 
-.cfi_def_cfa_offset 16
-sub rsp, 8
-mov qword ptr [rsp + 0 ], rcx
-mov ecx, dword ptr [rip + Banana_Y ]
-mov r8, qword ptr [rsp + 0 ]
-.loc 1 12 2
-mov r8d, dword ptr [r8 + 0 ]
-.loc 1 21 11
-add ecx, r8d
-mov eax, ecx
-add rsp, 8
-ret 
-add rsp, 8
-ret 
-Get_END:
 
 
 .cfi_endproc 
@@ -464,14 +464,35 @@ _Apple_START:
 .asciz "main"
 .byte 1
 .byte 36
+.byte 5
+.quad Get_START
+.long Get_END-Get_START
+.byte 1
+.byte 87
+.asciz "Get"
+.byte 1
+.byte 20
 .byte 9
 .byte 2
 .byte 145
 .byte 0
 .asciz "this"
 .byte 1
-.byte 8
+.byte 20
 .long _Banana_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "X"
+.byte 1
+.byte 12
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 4
+.asciz "Y"
+.byte 1
+.byte 13
+.long _int_START-Debug_Info_Start
+.byte 0
 .byte 3
 .byte 0
 .asciz "X"

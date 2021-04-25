@@ -146,7 +146,7 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 Node* Node::Find_Scope(Node* n)
 {
 	Node* Current_Scope = n->Scope;
-	vector<Node*> Fetchers = n->Fetcher->Get_All_Fetchers();
+	vector<Node*> Fetchers = n->Get_All_Fetchers();
 
 	reverse(Fetchers.begin(), Fetchers.end());
 
@@ -171,14 +171,51 @@ Node* Node::Find_Scope(Node* n)
 	return Current_Scope;
 }
 
+bool Node::Compare_Fetchers(Node* other)
+{
+	string This_Fethcers = "";
+	for (auto i : Get_All_Fetchers()) {
+		if (Find(i, Scope, CLASS_NODE) || (Scope->Name == i->Name && Scope->is(CLASS_NODE)))
+			This_Fethcers += i->Name;
+		else
+			This_Fethcers += i->Get_Inheritted("", false, false, false);
+
+		//multi dimensional templates are disabled
+		for (auto j : i->Templates)
+			This_Fethcers += j->Name;
+	}
+	if (this->Fetcher == nullptr)
+		if (this->Has({ FUNCTION_NODE, CALL_NODE }))
+			This_Fethcers += this->Name;
+
+	string Other_Fethcers = "";
+	for (auto i : other->Get_All_Fetchers()) {
+		if (Find(i, Scope, CLASS_NODE) || (Scope->Name == i->Name && Scope->is(CLASS_NODE)))
+			Other_Fethcers += i->Name;
+		else
+			Other_Fethcers += i->Get_Inheritted("", false, false, false);
+
+		for (auto j : i->Templates)
+			Other_Fethcers += j->Name;
+	}
+	if (other->Fetcher == nullptr)
+		if (other->Has({ FUNCTION_NODE, CALL_NODE }))
+			Other_Fethcers += other->Name;
+
+	if (This_Fethcers == Other_Fethcers)
+		return true;
+	return false;
+}
+
 vector<Node*> Node::Get_All_Fetchers()
 {
 	vector<Node*> Result;
 	if (Fetcher != nullptr) {
 		vector<Node*> tmp = Fetcher->Get_All_Fetchers();
 		Result.insert(Result.end(), tmp.begin(), tmp.end());
+		Result.push_back(Fetcher);
 	}
-	Result.push_back(this);
+	//Result.push_back(this);
 	return Result;
 }
 

@@ -43,9 +43,11 @@ call sum
 mov dword ptr [rsp + 12 ], eax
 .loc 1 10 12
 mov ecx, dword ptr [rsp + 12 ]
+mov r8, rdx
 mov eax, ecx
 mul dword ptr [rsp + 8 ]
 mov ecx, eax
+mov rdx, r8
 mov dword ptr [rsp + 16 ], ecx
 .loc 1 11 12
 mov ecx, dword ptr [rsp + 16 ]

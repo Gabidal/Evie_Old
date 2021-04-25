@@ -117,8 +117,10 @@ void IRGenerator::Parse_Member_Functions(Node* Class)
 
 	for (auto i : Class->Defined) {
 		if (i->is(FUNCTION_NODE))
-			if (i->Fetcher == nullptr)	//if this function has a fetcher then it is defined in global scope.
-				IRGenerator g(Class, { i }, Output);
+			if (i->Fetcher == nullptr) {	//if this function has a fetcher then it is defined in global scope.
+				IRGenerator g(Class, Output);
+				g.Parse_Function(i);
+			}
 		else if (i->is(CLASS_NODE))
 			Parse_Member_Functions(i);
 	}

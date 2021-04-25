@@ -90,6 +90,7 @@ void PostProsessor::Type_Definer(int i)
 	for (auto& i : Parent->Defined[i]->Defined)
 		i->Update_Format();
 
+
 	//If this is a namespace skip the default constructor builder
 	if (Parent->Defined[i]->is("static") != -1)
 		return;
@@ -345,6 +346,9 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 		return;
 	if (Parent->Defined[i]->Is_Template_Object)
 		return;
+	for (auto j : Parent->Defined[i]->Get_All_Fetchers())
+		if (j->Is_Template_Object)
+			return;
 	/*for (auto j : Input[i]->Parameters)
 		if (j->is("type") != -1)
 			return;
@@ -376,12 +380,14 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 	//DEBUG
 	if (sys->Info.Debug)
 		for (auto& v : Parent->Defined[i]->Defined) {
-			if (v->is(PARAMETER_NODE))
+			if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
 				continue;
 			v->Memory_Offset = v->Scope->Local_Allocation_Space;
 			v->Scope->Local_Allocation_Space += v->Get_Size();
 			v->Requires_Address = true;
 		}
+
+	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 
 	return;
 }
@@ -432,7 +438,9 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//now that the scope is resolved we can finaly construct the template functions inners properly.
 	if (n->Templates.size() > 0) {
 		string New_Name = "." + n->Construct_Template_Type_Name();
-		if (Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })) {
+		Parser P(Scope->Get_Parent_As(CLASS_NODE, Scope));
+
+		if (Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }) != nullptr && n->Compare_Fetchers(Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))) {
 			n->Name = New_Name;
 			n->Templates.clear();
 		}
@@ -1067,10 +1075,10 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 	if (v->is(PARAMETER_NODE) && sys->Info.Debug)
 		v->Requires_Address = true;
 
-	if (v->Requires_Address) {
+	/*if (v->Requires_Address) {
 		v->Memory_Offset = v->Scope->Local_Allocation_Space;
 		v->Scope->Local_Allocation_Space += v->Get_Size();
-	}
+	}*/
 }
 
 int PostProsessor::Get_Amount(string t, Node* n)

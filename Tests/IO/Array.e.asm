@@ -16,12 +16,14 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 32
+sub rsp, 24
 .loc 1 4 31
 mov ecx, 4
+mov r8, rdx
 mov eax, 10
 mul ecx
 mov ecx, eax
+mov rdx, r8
 mov ecx, ecx
 call _Z8allocatei
 mov qword ptr [rsp + 4 ], rax
@@ -38,9 +40,9 @@ mov ecx, dword ptr [rcx + 1 * 4 ]
 mov dword ptr [rsp + 20 ], ecx
 .loc 1 8 2
 mov eax, dword ptr [rsp + 20 ]
-add rsp, 32
+add rsp, 24
 ret 
-add rsp, 32
+add rsp, 24
 ret 
 Start_Test_END:
 

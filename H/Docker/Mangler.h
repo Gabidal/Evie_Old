@@ -18,7 +18,7 @@ namespace MANGLER {
 		NUMBER,
 	};
 	string Un_Mangle(string raw);
-	string Mangle(Node* raw);
+	string Mangle(Node* raw, bool Force_Complex = false);
 	bool Is_Base_Type(Node* n);
 	bool Is_Based_On_Base_Type(Node* n);
 	bool Is_Template(Node* n);

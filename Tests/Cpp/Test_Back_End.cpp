@@ -100,12 +100,7 @@ vector<Base*> Back_End_Test::Run(string File)
 
 void Back_End_Test::Factory()
 {
-	cout << Magenta << "x86_64 -Release tests:" << Reset << endl;
-	Use_ARM = false;
-	Generate_Debug = false;
-	for (auto i : Tests) {
-		Check_Assert(i.first, i.second);
-	}
+
 	cout << "\n";
 	cout << Magenta << "x86_64 -Debug tests:" << Reset << endl;
 	Use_ARM = false;
@@ -113,8 +108,13 @@ void Back_End_Test::Factory()
 	for (auto i : Tests) {
 		Check_Assert(i.first, i.second);
 	}
-	cout << "\n";	
-
+	cout << "\n";		
+	cout << Magenta << "x86_64 -Release tests:" << Reset << endl;
+	Use_ARM = false;
+	Generate_Debug = false;
+	for (auto i : Tests) {
+		Check_Assert(i.first, i.second);
+	}
 	cout << "\n";	
 	/*
 	cout << Magenta << "\nARMv8_64 tests:" << Reset << endl;
@@ -191,10 +191,10 @@ void Back_End_Test::Init()
 	Tests = {
 		//{{1}, "Tests/IO/main"},
 		{{5}, "Tests/IO/Template.e"},
+		{{0}, "Tests/IO/NameSpace.e"},
 		{{2}, "Tests/IO/Cast.e"},
 		{{1}, "Tests/IO/Type.e"},
 		{{4}, "Tests/IO/Global.e"},
-		{{0}, "Tests/IO/NameSpace.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{-6}, "Tests/IO/Math.e"},
 		{{100}, "Tests/IO/Conditions.e"},

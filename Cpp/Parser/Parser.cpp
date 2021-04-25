@@ -1,5 +1,6 @@
 #include "../../H/Parser/Parser.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/Docker/Mangler.h"
 //this is for unamed parameters.
 int arg_count = 0;
 
@@ -171,11 +172,12 @@ void Parser::Template_Type_Constructor(int i)
 
 	Node* Og_Type = Input[i].node->Find(Input[i].node, Parent, CLASS_NODE);
 	Node* Type = Parent->Copy_Node(Og_Type, Og_Type->Scope);
+	Type->Templates = Input[i].node->Templates;
 
 	//turn List<List<int>, int> into .List_List_int
 	for (int T = 0; T < Input[i].node->Templates.size(); T++) {
-		string T_Arg = Type->Templates[T]->Name;
-		string T_Type = Input[i].node->Templates[T]->Name;
+		string T_Arg = Og_Type->Templates[T]->Name;
+		string T_Type = Type->Templates[T]->Name;
 
 		for (auto& Defined : Type->Template_Children) {
 			for (auto n : Defined.Get_all())
@@ -187,10 +189,9 @@ void Parser::Template_Type_Constructor(int i)
 	vector<Component> New_Constructed_Template_Code;
 
 	//Construct the class
-	Type->Name = New_Name;
 	for (auto j : Type->Inheritted)
 		New_Constructed_Template_Code.push_back(Component(j, *Type->Location, Lexer::GetComponent(j).Flags));
-	New_Constructed_Template_Code.push_back(Component(Type->Name, *Type->Location, Flags::TEXT_COMPONENT));
+	New_Constructed_Template_Code.push_back(Component(New_Name, *Type->Location, Flags::TEXT_COMPONENT));
 	Component Content = Component("{", *Type->Location, Flags::PAREHTHESIS_COMPONENT);
 	Content.Components = Type->Template_Children;
 	New_Constructed_Template_Code.push_back(Content); 
@@ -200,18 +201,21 @@ void Parser::Template_Type_Constructor(int i)
 	for (auto& Func : Type->Defined) {
 		for (int T = 0; T < Func->Templates.size(); T++) {
 			string T_Arg = Func->Templates[T]->Name;
-			string T_Type = Input[i].node->Templates[T]->Name;
+			string T_Type = Type->Templates[T]->Name;
 
 			if (Func->Templates[T]->Name == T_Arg)
 				Func->Templates[T]->Name = T_Type;
 		}
 		if (Func->Fetcher == nullptr)
 			continue;	//inside type defined functions dont need to be rewritten again.
+		//if (Func->Templates.size() == 0)
+			Func->Fetcher = Type;
 
-		vector<Component> tmp = Template_Function_Constructor(Func, Type->Templates, Input[i].node->Templates);
+		vector<Component> tmp = Template_Function_Constructor(Func, Og_Type->Templates, Type->Templates);
 		New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), tmp.begin(), tmp.end());
 	}
 
+	Type->Name = New_Name;
 	Type->Templates.clear();
 	Type->Defined.clear();
 	Type->Childs.clear();
@@ -230,9 +234,15 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 {
 	vector<Component> New_Constructed_Template_Code;
 	string New_Name = Func->Construct_Template_Type_Name();
-	if (Parent->Find("." + New_Name) != nullptr) {
-		Func->Name = "." + New_Name;
-		return New_Constructed_Template_Code;
+	string Template_Indentifier = ".";
+	if (Func->Templates.size() == 0)
+		Template_Indentifier = "";
+
+	if (Parent->Find(Template_Indentifier + New_Name) != nullptr) {
+		if (Func->Compare_Fetchers(Parent->Find(Template_Indentifier + New_Name))) {
+			Func->Name = Template_Indentifier + New_Name;
+			return New_Constructed_Template_Code;
+		}
 	}
 	if (!Func->is(FUNCTION_NODE))
 		return New_Constructed_Template_Code;
@@ -252,7 +262,7 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 
 	vector<Component> Fetchers;
 	if (Func->Fetcher != nullptr)
-		for (auto& Fetcher : Func->Fetcher->Get_All_Fetchers()) {
+		for (auto* Fetcher : Func->Get_All_Fetchers()) {
 
 			Node* New_Fetcher = Fetcher->Copy_Node(Fetcher, Fetcher->Scope);
 
@@ -279,7 +289,7 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 				}
 
 	Component Name = Lexer::GetComponent(New_Name);
-	Name.Value = "." + New_Name;
+	Name.Value = Template_Indentifier + New_Name;
 
 	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Return_Type.begin(), Return_Type.end());
 	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Fetchers.begin(), Fetchers.end());
@@ -1107,16 +1117,16 @@ void Parser::Function_Pattern(int i)
 	func->Name = Input[i].Value;
 	func->Scope = Parent;
 
+
+	func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
+
 	//Template Fucntions.
 	for (auto T : func->Inheritted)
 		if (func->Find(T, func, TEMPLATE_NODE) != nullptr) {
-			func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
-
 			func->Is_Template_Object = true;
 			break;
 		}
 	if (Paranthesis_Offset == 2) {
-		func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
 		for (auto T : Input[i + 1].Components) {
 			Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
 
@@ -1143,7 +1153,7 @@ void Parser::Function_Pattern(int i)
 		func->Childs = p.Input[0].node->Childs;
 		p.Input.clear();
 
-		func->Mangled_Name = func->Get_Mangled_Name();
+		func->Mangled_Name = MANGLER::Mangle(func, true);
 	}
 
 	Input[i].node = func;
@@ -1560,6 +1570,15 @@ void Parser::Member_Function_Pattern(int i)
 	Input[i].node->Inheritted = Input[i].node->Fetcher->Inheritted;
 	Input[i].node->Fetcher->Inheritted.clear();
 
+	//replace all the class named fetchers by the Class node for future referencing.
+	//this code break c++ XD
+	/*vector<Node*> Fethcers = Input[i].node->Get_All_Fetchers();
+
+	for (auto& Fetcher : Fethcers) {
+		if (Fetcher->Name == Class->Name)
+			*Fetcher = *Class;
+	}*/
+
 	Function_Pattern(i);
 
 	Class->Defined.push_back(Input[i].node);
@@ -1567,13 +1586,13 @@ void Parser::Member_Function_Pattern(int i)
 	Node* Fethcer = Input[i].node->Fetcher;
 	Input[i].node->Fetcher = nullptr;
 
-	if (Input[i].node->Name[0] == '.' && Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE) == nullptr) {
-		Input[i].node->Fetcher = Fethcer;
+	if (Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE) == nullptr) {
 		Class->Scope->Defined.push_back(Input[i].node);
-	}
-	else
 		Input[i].node->Fetcher = Fethcer;
-
+	}
+	//Input[i].node->Fetcher = Fethcer;
+	else if (Input[i].node->Fetcher = Fethcer; Input[i].node->Compare_Fetchers(Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE)))
+		Class->Scope->Defined.push_back(Input[i].node);
 
 }
 

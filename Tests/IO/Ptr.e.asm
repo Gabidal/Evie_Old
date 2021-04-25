@@ -16,7 +16,7 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 112
+sub rsp, 68
 .loc 1 6 10
 mov dword ptr [rsp ], 10
 .loc 1 7 12
@@ -29,7 +29,7 @@ mov rcx, qword ptr [rsp + 4 ]
 mov ecx, dword ptr [rcx ]
 .loc 1 9 2
 mov eax, ecx
-add rsp, 112
+add rsp, 68
 ret 
 .loc 1 11 20
 lea rcx, qword ptr [rsp + 12 ]
@@ -52,7 +52,7 @@ mov rcx, qword ptr [rcx ]
 mov ecx, dword ptr [rcx ]
 .loc 1 15 2
 mov eax, ecx
-add rsp, 112
+add rsp, 68
 ret 
 .loc 1 17 34
 mov qword ptr [rsp + 52 ], 123
@@ -60,7 +60,7 @@ mov rcx, qword ptr [rsp + 52 ]
 mov ecx, dword ptr [rcx ]
 .loc 1 18 2
 mov eax, ecx
-add rsp, 112
+add rsp, 68
 ret 
 .loc 1 20 34
 mov qword ptr [rsp + 60 ], 1234
@@ -69,9 +69,9 @@ mov rcx, qword ptr [rcx ]
 mov ecx, dword ptr [rcx ]
 .loc 1 21 2
 mov eax, ecx
-add rsp, 112
+add rsp, 68
 ret 
-add rsp, 112
+add rsp, 68
 ret 
 Start_Test_END:
 

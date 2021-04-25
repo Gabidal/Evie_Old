@@ -11,8 +11,15 @@ func List<T>.Add<T>(T Element){
         T ptr tmp = allocate(Capacity * T.size)
 
         memcpy<int>(tmp, Array, Size * T.size)
+
+		#deallocate(Array)
+
         Array = tmp
 	}
 	Array[Size] = Element
 	Size++
+}
+
+func List<T>.Pop_Back(){
+	Size--
 }

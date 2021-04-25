@@ -345,9 +345,16 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }, nullptr));
 			}
 
+			//save the rdx if it has some valuable value inside of it.
+			//this can occur when a multiplication has been done
+			Token* Save_Hold_Remainder = new Token(TOKEN::REGISTER, mul->Get_Name() + "_REMAINDER" + to_string(rand()), _SYSTEM_BIT_SIZE_);
+			Token* Remainder = new Token(TOKEN::REMAINDER | TOKEN::REGISTER, "REMAINDER_" + to_string(rand()), _SYSTEM_BIT_SIZE_);
+
+			Result.push_back(new IR(new Token(OPERATOR, "="), { Save_Hold_Remainder, Remainder }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "mul"), { mul }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { Remainder, Save_Hold_Remainder }, nullptr));
 			return Result;
 		}
 	);

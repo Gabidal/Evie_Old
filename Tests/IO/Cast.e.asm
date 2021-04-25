@@ -53,7 +53,7 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 24
+sub rsp, 16
 .loc 1 31 2
 call test_all_format_casts
 lea rcx, qword ptr [rsp + 8 ]
@@ -65,9 +65,9 @@ movss xmm0, dword ptr [rsp + 8 + 0 ]
 cvttss2si ecx, xmm0
 .loc 1 33 2
 mov eax, ecx
-add rsp, 24
+add rsp, 16
 ret 
-add rsp, 24
+add rsp, 16
 ret 
 Start_Test_END:
 

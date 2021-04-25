@@ -69,7 +69,7 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 48
+sub rsp, 32
 lea rcx, qword ptr [rsp + 16 ]
 .loc 1 27 11
 mov rcx, rcx
@@ -79,9 +79,9 @@ lea rcx, qword ptr [rsp + 16 ]
 mov rcx, rcx
 call is_Banana
 mov eax, eax
-add rsp, 48
+add rsp, 32
 ret 
-add rsp, 48
+add rsp, 32
 ret 
 Start_Test_END:
 

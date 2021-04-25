@@ -172,11 +172,11 @@ string MANGLER::Un_Mangle(string raw) {
 
 vector<string> Classes;
 
-string MANGLER::Mangle(Node* raw)
+string MANGLER::Mangle(Node* raw, bool Force_Complex)
 {
 	string Result = "";
 
-	if ((raw->is("cpp") != -1) || (raw->Scope->is("cpp") != -1)) {
+	if ((raw->is("cpp") != -1) || (raw->Scope->is("cpp") != -1) || Force_Complex) {
 		//if the function call uses the C standard.
 		//_import_func_cpp_internal_print__char__int to
 		//_Z14internal_printPci
@@ -184,22 +184,36 @@ string MANGLER::Mangle(Node* raw)
 			Classes.clear();
 			Result = "_Z";
 
-			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE")
-				Result += "N" + raw->Scope->Name.size() + raw->Scope->Name;
+			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE") {
+				Result += "N";
 
-			for (auto i : raw->Get_Scope_Path())
-				Result += to_string(i->Name.size()) + i->Name;
+				for (auto i : raw->Get_Scope_Path())
+					Result += to_string(i->Name.size()) + i->Name;
 
-			Result += to_string(raw->Name.size()) + raw->Name;
+				Result += to_string(raw->Name.size()) + raw->Name;
 
-			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE")
 				Result += "E";
+			}
+			else if (raw->Fetcher != nullptr) {
+				Result += "N";
+
+				for (auto i : raw->Get_All_Fetchers())
+					Result += to_string(i->Name.size()) + i->Name;
+
+
+				Result += to_string(raw->Name.size()) + raw->Name;
+
+				Result += "E";
+			}
+			else
+				Result += to_string(raw->Name.size()) + raw->Name;
+			
 
 			if (raw->Parameters.size() < 1)
 				Result += "v";
 
 			for (auto i : raw->Parameters) {
-				Result += Mangle(i);
+				Result += Mangle(i, Force_Complex);
 			}
 		}
 		else if (raw->is(CLASS_NODE)) {
@@ -292,11 +306,13 @@ bool MANGLER::Is_Base_Type(Node* n)
 		else if (i->Name == "format" && i->is("const") != -1)
 			continue;
 		Result = false;	//because base types do not have any other member other than the Size.
+		break;
 	}
 	for (auto i : n->Inheritted) {
 		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
 		Result = false;	//because base types do not inherit other classes, only features.
+		break;
 	}
 	return Result;
 }
