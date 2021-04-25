@@ -378,9 +378,11 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 		}
 
 	//DEBUG
-	if (sys->Info.Debug)
+	//if (sys->Info.Debug)
 		for (auto& v : Parent->Defined[i]->Defined) {
 			if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
+				continue;
+			else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
 				continue;
 			v->Memory_Offset = v->Scope->Local_Allocation_Space;
 			v->Scope->Local_Allocation_Space += v->Get_Size();

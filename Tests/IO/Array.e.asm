@@ -16,7 +16,7 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 24
+sub rsp, 8
 .loc 1 4 31
 mov ecx, 4
 mov r8, rdx
@@ -26,23 +26,23 @@ mov ecx, eax
 mov rdx, r8
 mov ecx, ecx
 call _Z8allocatei
-mov qword ptr [rsp + 4 ], rax
+mov qword ptr [rsp ], rax
 .loc 1 5 16
-lea rcx, qword ptr [rsp + 4 ]
-mov qword ptr [rsp + 12 ], rcx
+lea rcx, qword ptr [rsp ]
+mov rcx, rcx
 .loc 1 6 2
-mov rcx, qword ptr [rsp + 12 + 0 * 8 ]
-lea rcx, qword ptr [rcx + 1 * 4 ]
-mov dword ptr [rcx ], 1
+mov r8, qword ptr [rcx + 0 * 8 ]
+lea r8, qword ptr [r8 + 1 * 4 ]
+mov dword ptr [r8 ], 1
 .loc 1 7 10
-mov rcx, qword ptr [rsp + 12 + 0 * 8 ]
+mov rcx, qword ptr [rcx + 0 * 8 ]
 mov ecx, dword ptr [rcx + 1 * 4 ]
-mov dword ptr [rsp + 20 ], ecx
+mov ecx, ecx
 .loc 1 8 2
-mov eax, dword ptr [rsp + 20 ]
-add rsp, 24
+mov eax, ecx
+add rsp, 8
 ret 
-add rsp, 24
+add rsp, 8
 ret 
 Start_Test_END:
 
@@ -280,7 +280,7 @@ _string_START:
 .byte 5
 .byte 2
 .byte 145
-.byte 4
+.byte 0
 .asciz "a"
 .byte 1
 .byte 4
@@ -288,7 +288,7 @@ _string_START:
 .byte 5
 .byte 2
 .byte 145
-.byte 12
+.byte 0
 .asciz "b"
 .byte 1
 .byte 5
@@ -296,7 +296,7 @@ _string_START:
 .byte 5
 .byte 2
 .byte 145
-.byte 20
+.byte 0
 .asciz "c"
 .byte 1
 .byte 7

@@ -34,37 +34,34 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 24
+push rbx
 .loc 1 8 8
-mov dword ptr [rsp + 8 ], 3
+mov ebx, 3
 .loc 1 9 10
-mov ecx, dword ptr [rsp + 8 ]
+mov ecx, ebx
 call sum
-mov dword ptr [rsp + 12 ], eax
+mov ecx, eax
 .loc 1 10 12
-mov ecx, dword ptr [rsp + 12 ]
-mov r8, rdx
-mov eax, ecx
-mul dword ptr [rsp + 8 ]
-mov ecx, eax
-mov rdx, r8
-mov dword ptr [rsp + 16 ], ecx
+mov r8d, ecx
+mov r9, rdx
+mov eax, r8d
+mul ebx
+mov r8d, eax
+mov rdx, r9
+mov r8d, r8d
 .loc 1 11 12
-mov ecx, dword ptr [rsp + 16 ]
+mov r9d, r8d
 xor edx, edx
-mov eax, ecx
-div dword ptr [rsp + 12 ]
-mov ecx, eax
-mov dword ptr [rsp + 20 ], ecx
+mov eax, r9d
+div ecx
+mov r9d, eax
+mov r9d, r9d
 .loc 1 12 11
-mov ecx, dword ptr [rsp + 8 ]
-add dword ptr [rsp + 20 ], ecx
-mov ecx, dword ptr [rsp + 12 ]
-add dword ptr [rsp + 20 ], ecx
-mov ecx, dword ptr [rsp + 16 ]
-sub dword ptr [rsp + 20 ], ecx
-mov eax, dword ptr [rsp + 20 ]
-add rsp, 24
+add r9d, ebx
+add r9d, ecx
+sub r9d, r8d
+mov eax, r9d
+pop rbx
 ret 
 mov ecx, 1067030938
 movd xmm0, ecx
@@ -76,13 +73,15 @@ movss xmm1, xmm1
 call Test_Fpu
 cvttss2si ecx, xmm0
 mov eax, ecx
-add rsp, 24
+.loc 1 16 2
+pop rbx
+.loc 1 14 2
 ret 
 .loc 1 16 2
 mov eax, -6
-add rsp, 24
+pop rbx
 ret 
-add rsp, 24
+pop rbx
 ret 
 Start_Test_END:
 
@@ -359,7 +358,7 @@ _string_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "a"
 .byte 1
 .byte 8
@@ -367,7 +366,7 @@ _string_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 12
+.byte 0
 .asciz "b"
 .byte 1
 .byte 9
@@ -375,7 +374,7 @@ _string_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 16
+.byte 0
 .asciz "c"
 .byte 1
 .byte 10
@@ -383,7 +382,7 @@ _string_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 20
+.byte 0
 .asciz "d"
 .byte 1
 .byte 11

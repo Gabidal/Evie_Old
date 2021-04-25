@@ -69,19 +69,19 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 32
-lea rcx, qword ptr [rsp + 16 ]
+sub rsp, 16
+lea rcx, qword ptr [rsp ]
 .loc 1 27 11
 mov rcx, rcx
 call Banana
-lea rcx, qword ptr [rsp + 16 ]
+lea rcx, qword ptr [rsp ]
 .loc 1 28 9
 mov rcx, rcx
 call is_Banana
 mov eax, eax
-add rsp, 32
+add rsp, 16
 ret 
-add rsp, 32
+add rsp, 16
 ret 
 Start_Test_END:
 
@@ -107,27 +107,27 @@ Banana_START:
 Banana:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 16
-mov qword ptr [rsp + 8 ], rcx
-mov rcx, qword ptr [rsp + 8 ]
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+mov rcx, qword ptr [rsp + 0 ]
 call Fruit
-mov rcx, qword ptr [rsp + 8 ]
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 12 12
 mov dword ptr [rcx + 4 ], 1
-mov rcx, qword ptr [rsp + 8 ]
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 13 14
 mov dword ptr [rcx + 8 ], 2
-mov rcx, qword ptr [rsp + 8 ]
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 14 11
 mov dword ptr [rcx + 12 ], 6
-mov rcx, qword ptr [rsp + 8 ]
+mov rcx, qword ptr [rsp + 0 ]
 .loc 1 15 7
 mov dword ptr [rcx + 0 ], 5
 .loc 1 11 1
-mov rax, qword ptr [rsp + 8 ]
-add rsp, 16
+mov rax, qword ptr [rsp + 0 ]
+add rsp, 8
 ret 
-add rsp, 16
+add rsp, 8
 ret 
 Banana_END:
 
@@ -520,7 +520,7 @@ _Banana_START:
 .byte 10
 .byte 2
 .byte 145
-.byte 16
+.byte 0
 .asciz "x"
 .byte 1
 .byte 27

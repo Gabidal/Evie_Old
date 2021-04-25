@@ -16,61 +16,57 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 4
 .loc 1 5 10
-mov dword ptr [rsp ], 0
-cmp dword ptr [rsp ], 100
-jge while3_END
-while3:
-add dword ptr [rsp ], 1
-cmp dword ptr [rsp ], 100
-jge while3_END
-jmp while3
-while3_END:
+mov ecx, 0
+cmp ecx, 100
+jge while11_END
+while11:
+add ecx, 1
+cmp ecx, 100
+jge while11_END
+jmp while11
+while11_END:
 .loc 1 8 2
-if4:
-cmp dword ptr [rsp ], 100
-jne if4_END
+if12:
+cmp ecx, 100
+jne if12_END
 .loc 1 9 5
-mov dword ptr [rsp ], 10
+mov ecx, 10
 .loc 1 8 2
-if4_END:
+if12_END:
 .loc 1 11 2
-if5:
-cmp dword ptr [rsp ], 100
-jne else6
+if13:
+cmp ecx, 100
+jne else14
 .loc 1 12 5
-mov dword ptr [rsp ], 100
-jmp else6_END
+mov ecx, 100
+jmp else14_END
 .loc 1 11 2
-if5_END:
+if13_END:
 .loc 1 14 2
-else6:
-cmp dword ptr [rsp ], 10
-jne else6_END
+else14:
+cmp ecx, 10
+jne else14_END
 .loc 1 15 5
-mov dword ptr [rsp ], 100
+mov ecx, 100
 .loc 1 14 2
-else6_END:
+else14_END:
 .loc 1 17 2
-mov eax, dword ptr [rsp ]
-add rsp, 4
+mov eax, ecx
 ret 
 .loc 1 19 10
 mov ecx, 1
 cmp ecx, 2
-jge while7_END
-while7:
+jge while15_END
+while15:
 mov ecx, 1
 cmp ecx, 2
-jge while7_END
-jmp while7
-while7_END:
+jge while15_END
+jmp while15
+while15_END:
 .loc 1 20 2
 mov eax, 0
-add rsp, 4
 ret 
-add rsp, 4
 ret 
 Start_Test_END:
 

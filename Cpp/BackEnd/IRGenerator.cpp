@@ -246,7 +246,7 @@ void IRGenerator::Parse_Calls(int i)
 
 	Node* parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, Input[i]);
 
-	int allocation = 0;
+	/*int allocation = 0;
 	if (sys->Info.Debug) {
 		for (auto p : Input[i]->Parameters)
 			allocation += p->Size;
@@ -255,9 +255,7 @@ void IRGenerator::Parse_Calls(int i)
 		for (auto p : Reversable_Pushes) {
 			allocation += p->Get_Size();
 		}
-
-	if (parent->Size_of_Call_Space < allocation)
-		parent->Size_of_Call_Space = allocation;
+	*/
 
 	int Stack_Offset = 0;
 	for (auto p : Reversable_Pushes) {
@@ -269,6 +267,9 @@ void IRGenerator::Parse_Calls(int i)
 			}, Input[i]->Location));
 		Stack_Offset += p->Get_Size();
 	}
+
+	if (parent->Size_of_Call_Space < Stack_Offset)
+		parent->Size_of_Call_Space = Stack_Offset;
 
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
 	IR* ir;
@@ -899,7 +900,20 @@ void IRGenerator::Parse_Arrays(int i)
 		//reverse(Type_Trace.begin(), Type_Trace.end());
 		//int,[ptr, ptr]
 		//x	  [123, 123]
+
 		Token* handle = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_, Left->Get_Name());
+
+		//the array is a ptr and it is in a memory then load the actual address the pointter points to
+		if (Input[i]->Left->is("ptr") != -1)
+			if (Left->is(TOKEN::CONTENT)) {
+				Token* UnLoaded_Left = new Token(TOKEN::REGISTER, Left->Get_Name() + "_UnLoaded", Left->Get_Size());
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { UnLoaded_Left, new Token(*handle) }, nullptr));
+				Left = UnLoaded_Left;
+
+				handle->Get_Childs()->back() = Left;
+				handle->Set_Name(UnLoaded_Left->Get_Name());
+			}
+
 		Token* reg = nullptr;
 		int Scale = 0;
 		//calculate the current size and the next size for the scaling.

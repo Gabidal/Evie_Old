@@ -45,16 +45,13 @@ Start_Test_START:
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-sub rsp, 8
 .loc 1 14 14
 lea rcx, qword ptr [rip + foo ]
-mov qword ptr [rsp ], rcx
+mov rcx, rcx
 .loc 1 15 9
-call qword ptr [rsp ]
+call rcx
 mov eax, eax
-add rsp, 8
 ret 
-add rsp, 8
 ret 
 Start_Test_END:
 

@@ -17,32 +17,32 @@ Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 push rbx
-sub rsp, 20
-lea rcx, qword ptr [rsp + 8 ]
+sub rsp, 8
+lea rcx, qword ptr [rsp ]
 .loc 1 31 11
 mov rcx, rcx
 call Banana
-lea rcx, qword ptr [rsp + 8 ]
+lea rcx, qword ptr [rsp ]
 .loc 1 32 14
 mov rcx, rcx
 call Get
 mov ebx, eax
-lea rcx, qword ptr [rsp + 8 ]
+lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 mov edx, 1
 call Set
 add ebx, eax
-mov dword ptr [rsp + 16 ], ebx
-mov ecx, dword ptr [rip + Banana_Y ]
-mov r8d, dword ptr [rip + Apple_Y ]
+mov ecx, ebx
+mov r8d, dword ptr [rip + Banana_Y ]
+mov r9d, dword ptr [rip + Apple_Y ]
 .loc 1 33 18
-add ecx, r8d
-sub ecx, dword ptr [rsp + 16 ]
-mov eax, ecx
-add rsp, 20
+add r8d, r9d
+sub r8d, ecx
+mov eax, r8d
+add rsp, 8
 pop rbx
 ret 
-add rsp, 20
+add rsp, 8
 pop rbx
 ret 
 Start_Test_END:
@@ -429,7 +429,7 @@ _Apple_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 8
+.byte 0
 .asciz "b"
 .byte 1
 .byte 31
@@ -449,7 +449,7 @@ _Apple_START:
 .byte 7
 .byte 2
 .byte 145
-.byte 16
+.byte 0
 .asciz "B_X"
 .byte 1
 .byte 32
