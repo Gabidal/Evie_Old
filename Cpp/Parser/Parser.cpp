@@ -327,6 +327,29 @@ void Parser::Inject_Template_Into_Member_Function_Fetcher(int& i)
 	Input.erase(Input.begin() + i--);
 }
 
+void Parser::Combine_Comment(int i)
+{
+	if (!Input[i].is(Flags::COMMENT_COMPONENT))
+		return;
+	if (i + 1 >= Input.size() || !Input[i+1].is(Flags::COMMENT_COMPONENT))
+		return;
+
+	Input[i].Value += "\n" + Input[i + 1].Value;
+
+	Input.erase(Input.begin() + i + 1);
+
+	Combine_Comment(i);
+}
+
+void Parser::Remove_All_Excess_Comments(int i)
+{
+	if (!Input[i].is(Flags::COMMENT_COMPONENT))
+		return;
+	Input.erase(Input.begin() + i);
+
+	Remove_All_Excess_Comments(i);
+}
+
 void Parser::Definition_Pattern(int i)
 {
 	//foo ptr a = ...|bool is(int f) | bool is(string f)
@@ -352,6 +375,12 @@ void Parser::Definition_Pattern(int i)
 
 	//type a
 	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE, new Position(Input[Words[0]].Location));
+	
+	if (i - 1 >= 0 && Input[i - 1].is(Flags::COMMENT_COMPONENT)) {
+		New_Defined_Object->Comment = Input[i - 1].Value;
+
+		replace(New_Defined_Object->Comment.begin(), New_Defined_Object->Comment.end(), '#', ' ');
+	}
 
 	//transform the indecies into strings, and the -1 means that we want to skip the last element in the list (the name)
 	for (int j = 0; j < Words.size() -1; j++) {
@@ -1598,6 +1627,8 @@ void Parser::Member_Function_Pattern(int i)
 
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++)
+		Combine_Comment(i);
+	for (int i = 0; i < Input.size(); i++)
 		Template_Pattern(i);
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
@@ -1607,6 +1638,8 @@ void Parser::Factory() {
 		Definition_Pattern(i);
 		Label_Definition(i);
 	}
+	for (int i = 0; i < Input.size(); i++)
+		Remove_All_Excess_Comments(i);
 	for (int i = 0; i < Input.size(); i++) {
 		//multiline AST stuff
 		Combine_Dot_In_Member_Functions(i);
@@ -1644,4 +1677,5 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		Return_Pattern(i);
 	}
+
 }

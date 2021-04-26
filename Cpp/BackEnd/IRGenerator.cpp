@@ -778,6 +778,18 @@ void IRGenerator::Parse_Arrays(int i)
 		//int,[ptr, ptr]
 		//x	  [123, 123]
 		Token* handle = new Token(TOKEN::MEMORY, { Left}, _SYSTEM_BIT_SIZE_, Left->Get_Name());
+
+		//the array is a ptr and it is in a memory then load the actual address the pointter points to
+		if (Input[i]->Left->is("ptr") != -1)
+			if (Left->is(TOKEN::CONTENT)) {
+				Token* UnLoaded_Left = new Token(TOKEN::REGISTER, Left->Get_Name() + "_UnLoaded", Left->Get_Size());
+				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { UnLoaded_Left, new Token(*handle) }, nullptr));
+				Left = UnLoaded_Left;
+
+				handle->Get_Childs()->back() = Left;
+				handle->Set_Name(UnLoaded_Left->Get_Name());
+			}
+
 		Token* reg = nullptr;
 		for (int o = 0; o < Input[i]->Right->Childs.size(); o++) {
 			/*int Current_Size = Global_Scope->Find(Type_Trace[Type_Trace.size()-1 - o], Global_Scope)->Get_Size();

@@ -21,6 +21,7 @@ void Safe::Factory()
 		Check_Return_Validity(i);
 		Disable_Non_Ptr_Class_Return(i);
 		Check_For_Unitialized_Objects(i);
+		Warn_Usage_Of_Depricated(i);
 	}
 }
 
@@ -183,5 +184,20 @@ void Safe::Check_For_Unitialized_Objects(Node* func)
 		});
 
 	Next_Variable:;
+	}
+}
+
+void Safe::Warn_Usage_Of_Depricated(Node* n)
+{
+	if (n->Comment == "")
+		return;
+
+	regex expression("Depricated:.+");
+	smatch matches;
+	string Buffer = n->Comment;
+	if (regex_search(Buffer, matches, expression)) {
+		for (auto i : matches) {
+			Report(Observation(WARNING, i.str(), *n->Location));
+		}
 	}
 }

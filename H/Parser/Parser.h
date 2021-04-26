@@ -32,6 +32,11 @@ public:
 	vector<Component> Template_Function_Constructor(Node* Func, vector<Node*> T_Arg, vector<Node*> T_Type);
 	void Inject_Template_Into_Member_Function_Fetcher(int& i);
 
+	//Comment hazard
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Combine_Comment(int i);
+	void Remove_All_Excess_Comments(int i);
+
 	//PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Definition_Pattern(int i);								//test ptr a

@@ -35,6 +35,7 @@ public:
 	//Normal features
 	Position* Location = nullptr;
 	string Name = "";
+	string Comment = "";
 	//for string or char lists
 	string String = "";
 	int Type = 0;

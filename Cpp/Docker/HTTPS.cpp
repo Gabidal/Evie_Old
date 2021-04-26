@@ -100,6 +100,14 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 	string Repo_Folder_Dest_Path;
 
 	if (system(Command.c_str()) != 0) {
+
+		//try git stash to fix git merge.
+		string Stash = "cd " + Remote_Dir_Location + Info[3] + Double_Command_Mark + "git stash";
+		system(Stash.c_str());
+		
+		if (system(Command.c_str()) == 0)
+			goto Git_Merge_Error_Fixed;
+
 		Report(Observation(INFO, "Given URL is not git based, going into fallback mode.", Position()));
 		//this URL is not a git based file repo.
 		//use curl
@@ -189,6 +197,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 		}
 	}
 	else {
+	Git_Merge_Error_Fixed:;
 		if (Remote_Dir[Remote_Dir.size()-1] != '/')
 			Remote_Dir += '/';
 		//now we have the repo, next we need to know if we want to build the whole folder or just get a single file.

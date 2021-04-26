@@ -157,6 +157,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 					}
 	}
 
+	reverse(Push_Amount.begin(), Push_Amount.end());
 
 	//now do same but for the end of funciton
 	selector->Set_Stack_Start_Value(0);
