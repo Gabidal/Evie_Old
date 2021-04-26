@@ -189,12 +189,22 @@ void Safe::Check_For_Unitialized_Objects(Node* func)
 
 void Safe::Warn_Usage_Of_Depricated(Node* n)
 {
-	if (n->Comment == "")
+	if (n->Has({ FUNCTION_NODE, IMPORT, EXPORT, PROTOTYPE, CLASS_NODE }))
+		return;
+
+	string Comment;
+
+	if (n->is(CALL_NODE))
+		Comment = n->Function_Implementation->Comment;
+	else if (n->Has({OBJECT_NODE, OBJECT_DEFINTION_NODE}))
+		Comment = n->Find(n, n)->Comment;
+
+	if (Comment == "")
 		return;
 
 	regex expression("Depricated:.+");
 	smatch matches;
-	string Buffer = n->Comment;
+	string Buffer = Comment;
 	if (regex_search(Buffer, matches, expression)) {
 		for (auto i : matches) {
 			Report(Observation(WARNING, i.str(), *n->Location));

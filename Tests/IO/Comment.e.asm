@@ -12,13 +12,27 @@ Code_Start:
 .global main
 .global Start_Test
 .section .text
+banana_START:
+.loc 1 6 1
+banana:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+.loc 1 7 2
+mov eax, 1
+ret 
+ret 
+banana_END:
+
+
+.cfi_endproc 
 Start_Test_START:
 .loc 1 10 1
 Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 11 2
-mov eax, 1
+.loc 1 11 9
+call banana
+mov eax, eax
 ret 
 ret 
 Start_Test_END:
@@ -226,6 +240,14 @@ _string_START:
 .byte 1
 .byte 3
 .byte 29
+.byte 4
+.quad banana_START
+.long banana_END-banana_START
+.byte 1
+.byte 87
+.asciz "banana"
+.byte 1
+.byte 6
 .byte 5
 .quad Start_Test_START
 .long Start_Test_END-Start_Test_START

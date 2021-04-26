@@ -8,7 +8,7 @@ int banana(){
 }
 
 export int Start_Test(){
-	return 1
+	return banana()
 }
 
 export int main(){
