@@ -1,13 +1,12 @@
 .intel_syntax noprefix
 .file 1 "Tests/IO/Func.e"
 .file 2 "C:\Users\GabenRTX\.Repos/Evie/IO/cstd.e"
-.file 3 "https://github.com/Gabidal/Evie/IO/cstd.e"
-.file 4 "sys.e"
-.file 5 "win32.asm.obj"
-.file 6 "asm.h"
-.file 7 "win32.asm"
-.file 8 "STD.e"
-.file 9 "List.e"
+.file 3 "C:\Users\GabenRTX\.Repos/Evie/IO/sys.e"
+.file 4 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm.obj"
+.file 5 "C:\Users\GabenRTX\.Repos/Evie/IO/asm.h"
+.file 6 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm"
+.file 7 "C:\Users\GabenRTX\.Repos/Evie/IO/STD.e"
+.file 8 "C:\Users\GabenRTX\.Repos/Evie/IO/List.e"
 Code_Start:
 .global Start_Test
 .global main
@@ -237,49 +236,49 @@ _int_START:
 .asciz "int"
 .byte 5
 .byte 4
-.byte 3
+.byte 2
 .byte 3
 _short_START:
 .byte 2
 .asciz "short"
 .byte 5
 .byte 2
-.byte 3
+.byte 2
 .byte 7
 _char_START:
 .byte 2
 .asciz "char"
 .byte 6
 .byte 1
-.byte 3
+.byte 2
 .byte 11
 _float_START:
 .byte 2
 .asciz "float"
 .byte 4
 .byte 4
-.byte 3
+.byte 2
 .byte 15
 _double_START:
 .byte 2
 .asciz "double"
 .byte 4
 .byte 8
-.byte 3
+.byte 2
 .byte 20
 _long_START:
 .byte 2
 .asciz "long"
 .byte 5
 .byte 8
-.byte 3
+.byte 2
 .byte 25
 _string_START:
 .byte 2
 .asciz "string"
 .byte 6
 .byte 1
-.byte 3
+.byte 2
 .byte 29
 .byte 4
 .quad main_START

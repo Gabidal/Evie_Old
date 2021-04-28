@@ -217,7 +217,7 @@
     <ClInclude Include="h\ui\Usr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="io\asm.h">
+    <ClInclude Include="io\_asm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="io\general.h">

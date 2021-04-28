@@ -179,7 +179,7 @@ void ELF::ELF_Analyzer(vector<string>& output)
     if (Header_Data.size() < 1)
         Header_Data = DOCKER::Get_Header("elf..e");
     if (Header_Data.size() < 1)
-        Header_Data = DOCKER::Get_Header("general");
+        Header_Data = DOCKER::Default_Header_Data;
     if (Header_Data.size() < 1)
         Report(Observation(ERROR, "Docker didn't find Header file for " + DOCKER::FileName.back(), Position()));
     

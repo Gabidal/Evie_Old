@@ -1,12 +1,12 @@
 .intel_syntax noprefix
 .file 1 "Tests/IO/NameSpace.e"
-.file 2 "../../IO/cstd.e"
-.file 3 "sys.e"
-.file 4 "win32.asm.obj"
-.file 5 "asm.h"
-.file 6 "win32.asm"
-.file 7 "STD.e"
-.file 8 "List.e"
+.file 2 "Tests/IO/../../IO/cstd.e"
+.file 3 "Tests/IO/../../IO/sys.e"
+.file 4 "Tests/IO/../../IO/win32.asm.obj"
+.file 5 "Tests/IO/../../IO/asm.h"
+.file 6 "Tests/IO/../../IO/win32.asm"
+.file 7 "Tests/IO/../../IO/STD.e"
+.file 8 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test

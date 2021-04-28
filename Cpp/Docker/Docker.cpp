@@ -16,6 +16,15 @@ vector<bool> DOCKER::Is_Local;
 vector<string>(*DOCKER::Slicer)(string);
 bool DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
 
+vector<string> DOCKER::Default_ASM_Header_Data = {
+	"func local = \"global\ + ([A - Za - z0 - 9_@] + )\"",
+};
+
+vector<string> DOCKER::Default_Header_Data = {
+	"loyal std = \"_(\\w * @*) * \"\n",
+	"func Generic = \"[a-zA-Z0-9]+\""
+};
+
 void DOCKER::Start_Analyzer()
 {
 	Is_Local.push_back(false);

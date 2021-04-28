@@ -34,6 +34,8 @@ namespace DOCKER {
 	extern vector<string> Included_Files;
 	extern vector<bool> Is_Local;
 	extern bool WORKING_DIR_IS_ABSOLUTE;
+	extern vector<string> Default_Header_Data;
+	extern vector<string> Default_ASM_Header_Data;
 	//vector<pair<Type, Regex string>>
 	//vector<pair<string, string>> Types;
 	//returns the filename of the header file
@@ -91,8 +93,23 @@ public:
 		DOCKER::Priority_Type.push_back(PT);
 		//look up table at:https://en.wikipedia.org/wiki/List_of_file_signatures.
 		DOCKER::Start_Analyzer();
+
 		//for include loop to stop existing!
-		DOCKER::Included_Files.push_back(FN);
+		string Dir = "";
+		string File_Name = DOCKER::Update_Working_Dir(DOCKER::FileName.back(), Dir);
+		File_Name = DOCKER::Working_Dir.back().second + File_Name;
+		bool Already_Included_File_Name = false;
+		//the https needs to rename the https url link to the current ablselute path the repo resides in.
+		//so remove unnecessary filename from coming into include file list.
+		for (auto i : DOCKER::Included_Files)
+			if (i == File_Name) {
+				Already_Included_File_Name = true;
+				break;
+			}
+
+		if (Already_Included_File_Name == false)
+			DOCKER::Included_Files.push_back(File_Name);
+
 		//cleaner
 		DOCKER::FileName.pop_back();
 		DOCKER::Priority_Type.pop_back();

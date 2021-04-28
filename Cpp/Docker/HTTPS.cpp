@@ -251,10 +251,13 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 			if (system((Make + " -B").c_str()) != 0) {
 				Report(Observation(1, "Make-utility build error, please fix the problems first.", Position()));
 			}
-
+		DOCKER::FileName.back() = Remote_Dir_Location + Dir + File;
+		DOCKER::Output.erase(DOCKER::Output.rbegin()->first);
 		Docker D(Remote_Dir_Location + Dir + File);
 	}
 	else {
+		DOCKER::FileName.back() = Repo_Folder_Dest_Path;
+		DOCKER::Output.erase(DOCKER::Output.rbegin()->first);
 		Docker D(Repo_Folder_Dest_Path);
 	}
 	DOCKER::WORKING_DIR_IS_ABSOLUTE = false;

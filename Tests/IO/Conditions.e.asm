@@ -1,12 +1,12 @@
 .intel_syntax noprefix
 .file 1 "Tests/IO/Conditions.e"
-.file 2 "../../IO/cstd.e"
-.file 3 "sys.e"
-.file 4 "win32.asm.obj"
-.file 5 "asm.h"
-.file 6 "win32.asm"
-.file 7 "STD.e"
-.file 8 "List.e"
+.file 2 "Tests/IO/../../IO/cstd.e"
+.file 3 "Tests/IO/../../IO/sys.e"
+.file 4 "Tests/IO/../../IO/win32.asm.obj"
+.file 5 "Tests/IO/../../IO/asm.h"
+.file 6 "Tests/IO/../../IO/win32.asm"
+.file 7 "Tests/IO/../../IO/STD.e"
+.file 8 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -19,51 +19,51 @@ Start_Test:
 .loc 1 5 10
 mov ecx, 0
 cmp ecx, 100
-jge while11_END
-while11:
+jge while17_END
+while17:
 add ecx, 1
 cmp ecx, 100
-jge while11_END
-jmp while11
-while11_END:
+jge while17_END
+jmp while17
+while17_END:
 .loc 1 8 2
-if12:
+if18:
 cmp ecx, 100
-jne if12_END
+jne if18_END
 .loc 1 9 5
 mov ecx, 10
 .loc 1 8 2
-if12_END:
+if18_END:
 .loc 1 11 2
-if13:
+if19:
 cmp ecx, 100
-jne else14
+jne else20
 .loc 1 12 5
 mov ecx, 100
-jmp else14_END
+jmp else20_END
 .loc 1 11 2
-if13_END:
+if19_END:
 .loc 1 14 2
-else14:
+else20:
 cmp ecx, 10
-jne else14_END
+jne else20_END
 .loc 1 15 5
 mov ecx, 100
 .loc 1 14 2
-else14_END:
+else20_END:
 .loc 1 17 2
 mov eax, ecx
 ret 
 .loc 1 19 10
 mov ecx, 1
 cmp ecx, 2
-jge while15_END
-while15:
+jge while21_END
+while21:
 mov ecx, 1
 cmp ecx, 2
-jge while15_END
-jmp while15
-while15_END:
+jge while21_END
+jmp while21
+while21_END:
 .loc 1 20 2
 mov eax, 0
 ret 

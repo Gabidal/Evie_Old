@@ -22,7 +22,7 @@ void LIB::LIB_Analyzer(vector<string>& Output)
 	if (Header_Data.size() < 1)
 		Header_Data = DOCKER::Get_Header("lib..e");
 	if (Header_Data.size() < 1)
-		Header_Data = DOCKER::Get_Header("general");
+		Header_Data = DOCKER::Default_Header_Data;
 	if (Header_Data.size() < 1)
 		Report(Observation(ERROR,  "Docker didn't find Header file for " + DOCKER::FileName.back(), Position()));
 	

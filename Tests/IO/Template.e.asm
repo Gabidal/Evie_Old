@@ -1,12 +1,12 @@
 .intel_syntax noprefix
 .file 1 "Tests/IO/Template.e"
-.file 2 "../../IO/cstd.e"
-.file 3 "sys.e"
-.file 4 "win32.asm.obj"
-.file 5 "asm.h"
-.file 6 "win32.asm"
-.file 7 "STD.e"
-.file 8 "List.e"
+.file 2 "Tests/IO/../../IO/cstd.e"
+.file 3 "Tests/IO/../../IO/sys.e"
+.file 4 "Tests/IO/../../IO/win32.asm.obj"
+.file 5 "Tests/IO/../../IO/asm.h"
+.file 6 "Tests/IO/../../IO/win32.asm"
+.file 7 "Tests/IO/../../IO/STD.e"
+.file 8 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -74,7 +74,7 @@ sub rsp, 24
 mov qword ptr [rsp + 4 ], rcx
 mov dword ptr [rsp + 0 ], edx
 .loc 8 8 2
-if89:
+if1415:
 mov rcx, qword ptr [rsp + 4 ]
 .loc 8 3 2
 mov ecx, dword ptr [rcx + 4 ]
@@ -83,7 +83,7 @@ mov r8, qword ptr [rsp + 4 ]
 mov r8d, dword ptr [r8 + 0 ]
 .loc 8 8 10
 cmp ecx, r8d
-jl if89_END
+jl if1415_END
 mov rcx, qword ptr [rsp + 4 ]
 mov r8, qword ptr [rsp + 4 ]
 .loc 8 3 2
@@ -130,7 +130,7 @@ mov rcx, qword ptr [rsp + 4 ]
 .loc 8 17 15
 mov qword ptr [rcx + 8 ], rbx
 .loc 8 8 2
-if89_END:
+if1415_END:
 mov rcx, qword ptr [rsp + 4 ]
 .loc 8 4 2
 mov rcx, qword ptr [rcx + 8 ]
@@ -180,8 +180,8 @@ mov dword ptr [rsp + 16 ], r8d
 .loc 2 38 17
 mov ecx, 0
 cmp ecx, dword ptr [rsp + 16 ]
-jge while10_END
-while10:
+jge while16_END
+while16:
 mov r8, qword ptr [rsp + 0 ]
 .loc 2 39 9
 lea r8, qword ptr [r8 + rcx * 4 ]
@@ -191,9 +191,9 @@ mov dword ptr [r8 ], r9d
 .loc 2 38 33
 add ecx, 1
 cmp ecx, dword ptr [rsp + 16 ]
-jge while10_END
-jmp while10
-while10_END:
+jge while16_END
+jmp while16
+while16_END:
 add rsp, 20
 .loc 2 41 5
 ret 
