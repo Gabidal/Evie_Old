@@ -282,7 +282,7 @@
     <ClInclude Include="h\ui\Producer.h" />
     <ClInclude Include="h\ui\Safe.h" />
     <ClInclude Include="h\ui\Usr.h" />
-    <ClInclude Include="io\_asm.h" />
+    <ClInclude Include="IO\_asm.h" />
     <ClInclude Include="io\general.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

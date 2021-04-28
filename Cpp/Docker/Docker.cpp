@@ -17,7 +17,8 @@ vector<string>(*DOCKER::Slicer)(string);
 bool DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
 
 vector<string> DOCKER::Default_ASM_Header_Data = {
-	"func local = \"global\ + ([A - Za - z0 - 9_@] + )\"",
+	"func local = \"global\\ +([A-Za-z0-9_@]+)\"",
+	//func local = "global\ +([A-Za-z0-9_@]+)"
 };
 
 vector<string> DOCKER::Default_Header_Data = {

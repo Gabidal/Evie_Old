@@ -3,10 +3,9 @@
 .file 2 "C:\Users\GabenRTX\.Repos/Evie/IO/cstd.e"
 .file 3 "C:\Users\GabenRTX\.Repos/Evie/IO/sys.e"
 .file 4 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm.obj"
-.file 5 "C:\Users\GabenRTX\.Repos/Evie/IO/asm.h"
-.file 6 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm"
-.file 7 "C:\Users\GabenRTX\.Repos/Evie/IO/STD.e"
-.file 8 "C:\Users\GabenRTX\.Repos/Evie/IO/List.e"
+.file 5 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm"
+.file 6 "C:\Users\GabenRTX\.Repos/Evie/IO/STD.e"
+.file 7 "C:\Users\GabenRTX\.Repos/Evie/IO/List.e"
 Code_Start:
 .global Start_Test
 .global main

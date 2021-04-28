@@ -3,10 +3,9 @@
 .file 2 "Tests/IO/../../IO/cstd.e"
 .file 3 "Tests/IO/../../IO/sys.e"
 .file 4 "Tests/IO/../../IO/win32.asm.obj"
-.file 5 "Tests/IO/../../IO/asm.h"
-.file 6 "Tests/IO/../../IO/win32.asm"
-.file 7 "Tests/IO/../../IO/STD.e"
-.file 8 "Tests/IO/../../IO/List.e"
+.file 5 "Tests/IO/../../IO/win32.asm"
+.file 6 "Tests/IO/../../IO/STD.e"
+.file 7 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test

@@ -3,10 +3,9 @@
 .file 2 "C:\Users\GabenRTX\.Repos/Evie/IO/cstd.e"
 .file 3 "C:\Users\GabenRTX\.Repos/Evie/IO/sys.e"
 .file 4 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm.obj"
-.file 5 "C:\Users\GabenRTX\.Repos/Evie/IO/asm.h"
-.file 6 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm"
-.file 7 "C:\Users\GabenRTX\.Repos/Evie/IO/STD.e"
-.file 8 "C:\Users\GabenRTX\.Repos/Evie/IO/List.e"
+.file 5 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm"
+.file 6 "C:\Users\GabenRTX\.Repos/Evie/IO/STD.e"
+.file 7 "C:\Users\GabenRTX\.Repos/Evie/IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -59,7 +58,7 @@ main_END:
 
 .cfi_endproc 
 .memcpy_int__START:
-.loc 8 1 1
+.loc 7 1 1
 .memcpy_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
@@ -94,7 +93,7 @@ ret
 
 .cfi_endproc 
 .List_int__START:
-.loc 8 1 1
+.loc 7 1 1
 .List_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
@@ -102,25 +101,25 @@ push rbx
 sub rsp, 8
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsp + 0 ]
-.loc 8 2 15
+.loc 7 2 15
 mov dword ptr [rcx + 0 ], 1
 mov rcx, qword ptr [rsp + 0 ]
-.loc 8 3 11
+.loc 7 3 11
 mov dword ptr [rcx + 4 ], 0
 mov rbx, qword ptr [rsp + 0 ]
 mov rcx, qword ptr [rsp + 0 ]
-.loc 8 2 2
+.loc 7 2 2
 mov ecx, dword ptr [rcx + 0 ]
 mov r8, rdx
 mov eax, 4
 mul ecx
 mov ecx, eax
 mov rdx, r8
-.loc 8 4 16
+.loc 7 4 16
 mov ecx, ecx
 call _Z8allocatei
 mov qword ptr [rbx + 8 ], rax
-.loc 8 1 1
+.loc 7 1 1
 mov rax, qword ptr [rsp + 0 ]
 add rsp, 8
 pop rbx
@@ -418,19 +417,19 @@ _string_START:
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 8
+.byte 7
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 8
+.byte 7
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 8
+.byte 7
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -448,24 +447,24 @@ _.List_int__START:
 .byte 1
 .asciz ".List_int_"
 .byte 16
-.byte 8
+.byte 7
 .byte 1
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 8
+.byte 7
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 8
+.byte 7
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 8
+.byte 7
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -475,7 +474,7 @@ _.List_int__START:
 .byte 1
 .byte 87
 .asciz ".memcpy_int_"
-.byte 8
+.byte 7
 .byte 1
 .byte 9
 .byte 2
@@ -499,25 +498,25 @@ _.List_int__START:
 .byte 145
 .byte 0
 .asciz "this"
-.byte 8
+.byte 7
 .byte 1
 .long _.List_int__START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 8
+.byte 7
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 8
+.byte 7
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 8
+.byte 7
 .byte 4
 .long _int_START-Debug_Info_Start
 Debug_Info_End:
