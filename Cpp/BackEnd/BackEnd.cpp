@@ -2,7 +2,7 @@
 
 extern Node* Global_Scope;
 extern Usr* sys;
-extern x86_64_Win X86_64_WIN;
+extern x86_64 X86_64;
 extern ARM_64 _ARM_64;
 extern Selector* selector;
 
@@ -10,12 +10,10 @@ void BackEnd::Init()
 {
 	if (sys->Info.Architecture == "x86") {
 		if (sys->Info.Bits_Mode == "8") {
-			if (sys->Info.OS == "win") {
-				Seperator = X86_64_WIN.Seperator;
-				Register_Pre_Fix = X86_64_WIN.Register_Pre_Fix;
-				Number_Pre_Fix = X86_64_WIN.Number_Pre_Fix;
-				Label_Post_Fix = X86_64_WIN.Label_Post_Fix;
-			}
+			Seperator = X86_64.Seperator;
+			Register_Pre_Fix = X86_64.Register_Pre_Fix;
+			Number_Pre_Fix = X86_64.Number_Pre_Fix;
+			Label_Post_Fix = X86_64.Label_Post_Fix;
 		}
 
 	}	

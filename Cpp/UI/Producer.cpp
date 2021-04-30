@@ -49,7 +49,7 @@ string Producer::Get_Assembler()
     }
     else if (OS == "unix")
     {
-        return "yasm ";
+        return "as ";
     }
     return "";
 }
@@ -141,9 +141,14 @@ string Producer::Get_System_Paths()
         Seperator = ':';
 
     string Result = "";
-    char* Path = getenv("Path");
+
+    const char* Path_Type = "Path";
+    if (OS == "unix")
+        Path_Type = "PATH";
+
+    char* Path = getenv(Path_Type);
     if (Path == nullptr) {
-        throw::runtime_error("ERROR!");
+        throw::runtime_error("Cannot get environment variable '" + (string)Path_Type + "'!");
     }
     string List = string(Path);
 
@@ -239,7 +244,9 @@ string Producer::Get_Linker_Output(){
     }
     else if (OS == "unix"){
         if (Type == "exe")
-            return "-o" + Output_File + ".ThisIsTotallyExecutable ";
+            return "-o" + Output_File + ".out ";
+        else if (Type == "dll")
+            return "--shared -o" + Output_File + ".so ";
     }
     return "";
 }

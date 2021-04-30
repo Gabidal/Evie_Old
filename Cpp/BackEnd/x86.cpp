@@ -3,13 +3,14 @@
 
 extern Usr* sys;
 
-bool Is_OS_Windows = true;
 void x86_64::Init()
 {
 	size = 8;	//64 bit arch
 
-	if (sys->Info.HOST_OS == "unix")
-		Is_OS_Windows = false;
+	long long OS_DEPENDENT_FLAG = TOKEN::NONVOLATILE;
+
+	if (sys->Info.OS == "unix")
+		OS_DEPENDENT_FLAG = TOKEN::VOLATILE;
 
 	Seperator = ",";
 	Register_Pre_Fix = "";
@@ -40,17 +41,17 @@ void x86_64::Init()
 	Token* EDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "edx", 4, { DX });
 	Token* RDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "rdx", 8, { EDX });
 
-	Token* DIL = new Token(TOKEN::NONVOLATILE, "dil", 1, {});
+	Token* DIL = new Token(OS_DEPENDENT_FLAG, "dil", 1, {});
 	//Token* DIH = new Token(TOKEN::NONVOLATILE, "dih", 1, {});
-	Token* DI = new Token(TOKEN::NONVOLATILE , "di", 2, {DIL });
-	Token* EDI = new Token(TOKEN::NONVOLATILE, "edi", 4, { DI });
-	Token* RDI = new Token(TOKEN::NONVOLATILE, "rdi", 8, { EDI });
+	Token* DI = new Token(OS_DEPENDENT_FLAG, "di", 2, {DIL });
+	Token* EDI = new Token(OS_DEPENDENT_FLAG, "edi", 4, { DI });
+	Token* RDI = new Token(OS_DEPENDENT_FLAG, "rdi", 8, { EDI });
 
-	Token* SIL = new Token(TOKEN::NONVOLATILE, "sil", 1, {});
+	Token* SIL = new Token(OS_DEPENDENT_FLAG, "sil", 1, {});
 	//Token* SIH = new Token(TOKEN::NONVOLATILE, "sih", 1, {});
-	Token* SI = new Token(TOKEN::NONVOLATILE , "si", 2, {SIL });
-	Token* ESI = new Token(TOKEN::NONVOLATILE, "esi", 4, { SI });
-	Token* RSI = new Token(TOKEN::NONVOLATILE, "rsi", 8, { ESI });
+	Token* SI = new Token(OS_DEPENDENT_FLAG, "si", 2, {SIL });
+	Token* ESI = new Token(OS_DEPENDENT_FLAG, "esi", 4, { SI });
+	Token* RSI = new Token(OS_DEPENDENT_FLAG, "rsi", 8, { ESI });
 
 
 	Token* BPL = new Token(TOKEN::NONVOLATILE, "bpl", 1, {});
@@ -159,8 +160,10 @@ void x86_64::Init()
 	Token* R15D = new Token(TOKEN::NONVOLATILE, "r15d", 4, { R15W });
 	Token* R15 = new Token(TOKEN::NONVOLATILE , "r15", 8, { R15D });
 
-
-	Parameter_Registers = { RCX, RDX, R8, R9, XMM0, XMM1, XMM2, XMM3 };
+	if (sys->Info.OS == "win")
+		Parameter_Registers = { RCX, RDX, R8, R9, XMM0, XMM1, XMM2, XMM3 };
+	else
+		Parameter_Registers = { RDI, RSI, RDX, RCX, R8, R9, XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6 };
 	Registers = { 
 		RAX, EAX, AX, AH, AL,
 		RBX, EBX, BX, BH, BL,

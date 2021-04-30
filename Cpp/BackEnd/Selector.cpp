@@ -3,25 +3,23 @@
 #include "../../H/UI/Safe.h"
 
 extern Usr* sys;
-extern x86_64_Win X86_64_WIN;
+extern x86_64 X86_64;
 extern ARM_64 _ARM_64;
 
 void Selector::Init() {
 	if (sys->Info.Architecture == "x86") {
 		if (sys->Info.Bits_Mode == "8") {
-			if (sys->Info.OS == "win") {
-				X86_64_WIN.Init();
-				for (auto i : X86_64_WIN.Registers)
-					Registers.push_back({ nullptr, i });
-				for (auto i : X86_64_WIN.Parameter_Registers) {
-					Parameter_Registers.push_back(Transform(i));
-				}
-				Opcodes = X86_64_WIN.Opcodes;
-				Size_Identifiers = X86_64_WIN.Size_Identifiers;
-
-				//DEBUG
-				STACK_REPRESENTIVE_REGISTER = X86_64_WIN.STACK_REPRESENTIVE_REGISTER;
+			X86_64.Init();
+			for (auto i : X86_64.Registers)
+				Registers.push_back({ nullptr, i });
+			for (auto i : X86_64.Parameter_Registers) {
+				Parameter_Registers.push_back(Transform(i));
 			}
+			Opcodes = X86_64.Opcodes;
+			Size_Identifiers = X86_64.Size_Identifiers;
+
+			//DEBUG
+			STACK_REPRESENTIVE_REGISTER = X86_64.STACK_REPRESENTIVE_REGISTER;
 		}
 
 	}
@@ -38,7 +36,7 @@ void Selector::Init() {
 				Size_Identifiers = _ARM_64.Size_Identifiers;
 
 				//DEBUG
-				STACK_REPRESENTIVE_REGISTER = X86_64_WIN.STACK_REPRESENTIVE_REGISTER;
+				STACK_REPRESENTIVE_REGISTER = X86_64.STACK_REPRESENTIVE_REGISTER;
 			}
 		}
 	}

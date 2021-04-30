@@ -53,7 +53,7 @@ bool Generate_Debug = false;
 extern Usr* sys;
 extern Node* Global_Scope;
 extern Selector* selector;
-extern x86_64_Win X86_64_WIN;
+extern x86_64 X86_64;
 extern int _SYSTEM_BIT_SIZE_;
 
 extern string Output;
