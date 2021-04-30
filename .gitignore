@@ -7,7 +7,6 @@ x64/Test
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
-.vscode
 out
 .vs
 !.vs/launch.vs.json
