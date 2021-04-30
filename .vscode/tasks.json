@@ -13,7 +13,10 @@
             "group": "build",
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+			"atgs": [
+				"Debuggarna"
+			]
         }
     ]
 }

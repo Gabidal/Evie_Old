@@ -11,13 +11,6 @@
             "program": "${workspaceFolder}/Evie",
             "args": [
                 "-in", "${workspaceFolder}/IO/test.e",
-                "-out", "${workspaceFolder}/IO/test.asm",
-                "-f", "exe",
-                "-os", "unix",
-                "-arch", "x86",
-                "-mode", "4",
-                "-debug", "dwarf2",
-            
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -41,13 +34,6 @@
             "program": "${workspaceFolder}/Evie",
             "args": [
                 "-in", "${workspaceFolder}/IO/test.e",
-                "-out", "${workspaceFolder}/IO/test.asm",
-                "-f", "exe",
-                "-os", "unix",
-                "-arch", "x86",
-                "-mode", "4",
-                "-debug", "dwarf2",
-            
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
