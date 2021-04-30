@@ -30,7 +30,7 @@ using namespace std;
 Usr* sys;
 Node* Global_Scope;
 Selector* selector;
-x86_64_Win X86_64_WIN;
+x86_64 X86_64;
 ARM_64 _ARM_64;
 int _SYSTEM_BIT_SIZE_ = 4;
 

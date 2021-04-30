@@ -19,6 +19,7 @@
     - ##### Array.
     - ##### Preprosessor.
     - ##### Arguments.
+    - ##### Notices!
 
 ## Manual
 
@@ -241,3 +242,12 @@
 ##### -debug [ supported debug symbol types:
 #####     dwarf2
 ##### ];
+
+
+
+### Notices
+##### If you are in Linux, then you need to install curllib to Evie to work :D
+##### I recommend you to install "sudo apt install libcurl4-openssl-dev"
+##### G++
+##### Make
+##### GDB

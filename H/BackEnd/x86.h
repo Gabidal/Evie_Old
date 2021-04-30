@@ -11,7 +11,7 @@ using namespace std;
 #include "../Nodes/IR.h"
 #include "../Flags.h"
 
-class x86_64_Win {
+class x86_64 {
 public:
 	int size;
 	vector<Token*> Registers;
@@ -28,6 +28,8 @@ public:
 
 	//DEBUG
 	int STACK_REPRESENTIVE_REGISTER = 87; //RSP
+
+
 };
 
 #endif

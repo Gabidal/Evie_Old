@@ -14,7 +14,7 @@
             "problemMatcher": [
                 "$gcc"
             ],
-			"atgs": [
+			"args": [
 				"Debuggarna"
 			]
         }

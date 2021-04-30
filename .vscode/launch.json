@@ -19,11 +19,11 @@
             "MIMode": "gdb",
             "setupCommands": [
                 {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
+                  "description": "Enable pretty-printing for gdb",
+                  "text": "-enable-pretty-printing",
+                  "ignoreFailures": true
                 }
-            ],
+              ],
             "preLaunchTask": "Creatarna",
             "miDebuggerPath": "/usr/bin/gdb"
         },
@@ -42,11 +42,11 @@
             "MIMode": "gdb",
             "setupCommands": [
                 {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
+                  "description": "Enable pretty-printing for gdb",
+                  "text": "-enable-pretty-printing",
+                  "ignoreFailures": true
                 }
-            ],
+              ],
             "miDebuggerPath": "/usr/bin/gdb"
         }
     ]

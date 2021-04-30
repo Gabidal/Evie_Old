@@ -71,12 +71,12 @@ void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename, int
 	}
 	else if (DOCKER::Get_File_Extension(filename) != "e") {
 		for (auto j : symbols)
-			if (j != "\n")
+			if (j != "\n" && j != "")
 				DOCKER::Append(tmp, Lexer::GetComponents( "import " + MANGLER::Un_Mangle(j) + "\n"));
 	}
 	else {
 		for (auto j : symbols)
-			if (j != "\n")
+			if (j != "\n" && j != "")
 				DOCKER::Append(tmp, Lexer::GetComponents(j));
 	}
 	DOCKER::Append(tmp, { Component(string(*FileName), Flags::END_OF_DIRECTIVE_CHANGING_FILE) });

@@ -1,9 +1,15 @@
 #include "../../H/BackEnd/x86.h"
+#include "../../H/UI/Usr.h"
 
+extern Usr* sys;
 
-void x86_64_Win::Init()
+bool Is_OS_Windows = true;
+void x86_64::Init()
 {
 	size = 8;	//64 bit arch
+
+	if (sys->Info.HOST_OS == "unix")
+		Is_OS_Windows = false;
 
 	Seperator = ",";
 	Register_Pre_Fix = "";
@@ -276,7 +282,7 @@ void x86_64_Win::Init()
 		{ {Memory_Float, {4, 4}}, {Register, {4, 4}} }
 		});
 
-	IR* XOR = new IR("¤", new Token(OPERATOR, "xor"), {
+	IR* XOR = new IR("ï¿½", new Token(OPERATOR, "xor"), {
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
 		{{Register, {1, 8}}, {Label, {1, 8}} },
 		{{Memory, {1, 8}}, {Register, {1, 8}} },
@@ -390,7 +396,7 @@ void x86_64_Win::Init()
 				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }, nullptr));
 			}
 			//\u00a4
-			Result.push_back(new IR(new Token(OPERATOR, "¤"), { Remainder, Remainder }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "ï¿½"), { Remainder, Remainder }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "div"), { mul }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }, nullptr));
