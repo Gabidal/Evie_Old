@@ -40,7 +40,7 @@ mul ecx
 mov ecx, eax
 mov rdx, rdi
 mov edi, ecx
-call _V17internal_allocatel_rPh
+call _V17internal_allocatex_rPh
 lea rcx, qword ptr [rax ]
 mov qword ptr [rbx + 8 ], rcx
 mov rax, rbx

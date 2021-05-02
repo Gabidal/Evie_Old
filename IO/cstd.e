@@ -1,28 +1,28 @@
 use "sys.e"
 
-type cpp int{
+type int{
 	size = 4
 }
 
-type cpp short{
+type short{
 	size = 2
 }
 
-type cpp char{
+type char{
 	size = 1
 }
 
-type cpp float{
+type float{
 	size = 4
 	format = decimal
 }
 
-type cpp double{
+type double{
 	size = 8
 	format = decimal
 }
 
-type cpp long{
+type long{
 	size = 8
 }
 

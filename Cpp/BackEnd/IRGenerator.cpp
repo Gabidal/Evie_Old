@@ -279,7 +279,7 @@ void IRGenerator::Parse_Calls(int i)
 	Token* call = new Token(TOKEN::CALL, "call", All_Parameters);
 	IR* ir;
 	if (!Input[i]->Function_Ptr)
-		ir = new IR(call, { new Token(TOKEN::LABEL, MANGLER::Mangle(Input[i]->Function_Implementation)) }, Input[i]->Location);
+		ir = new IR(call, { new Token(TOKEN::LABEL, MANGLER::Mangle(Input[i]->Function_Implementation, "")) }, Input[i]->Location);
 	else {
 		Node* tmp = Input[i];
 		tmp->Type = OBJECT_NODE;
@@ -1718,7 +1718,7 @@ IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 {
 	string name = n->Name;
 	if (Mangle)
-		name = MANGLER::Mangle(n);
+		name = MANGLER::Mangle(n, "");
 	Token* label_name = new Token(TOKEN::LABEL, name);
 
 	Node* Scope_Path = Parent;

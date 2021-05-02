@@ -650,13 +650,13 @@ void DebugGenerator::Info_Generator(Node* n)
 
     bool Skip_Scope_Generation = false;
     for (auto i : Genrated_Info)
-        if ((i == n->Name || i == MANGLER::Mangle(n)) && !n->is(OBJECT_DEFINTION_NODE)) {
+        if ((i == n->Name || i == MANGLER::Mangle(n, "")) && !n->is(OBJECT_DEFINTION_NODE)) {
             Skip_Scope_Generation = true;
             goto Go_Straight_To_Childs;
         }
 
     Genrated_Info.push_back(n->Name);
-    Genrated_Info.push_back(MANGLER::Mangle(n));
+    Genrated_Info.push_back(MANGLER::Mangle(n, ""));
 
     if (n->is(CLASS_NODE))
         Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + n->Name + "_START"), {}, nullptr));
@@ -687,7 +687,7 @@ void DebugGenerator::Info_Generator(Node* n)
     }
     if (Info.MANGLED_NAME)
         //Points into a string in data section which has the function name
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(n)) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "ascii"), { new Token(TOKEN::STRING, MANGLER::Mangle(n, "")) }, nullptr));
     if (Info.NAME)
         //Points into a string in data section which has the function name
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "ascii"), { new Token(TOKEN::STRING, n->Name) }, nullptr));

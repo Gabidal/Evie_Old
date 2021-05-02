@@ -104,8 +104,8 @@ int Build(int argc, const char* argv[])
     MANGLER::Add_ID("vivid", { "i",{MANGLER::VARIABLE, "4 integer"} });
     MANGLER::Add_ID("vivid", { "f",{MANGLER::VARIABLE, "4 decimal"} });
     MANGLER::Add_ID("vivid", { "d",{MANGLER::VARIABLE, "8 decimal"} });
-    MANGLER::Add_ID("vivid", { "y",{MANGLER::VARIABLE, "8 integer"} });
     MANGLER::Add_ID("vivid", { "x",{MANGLER::VARIABLE, "8 integer"} });
+    MANGLER::Add_ID("vivid", { "y",{MANGLER::VARIABLE, "8 integer"} });
     MANGLER::Add_ID("vivid", { { "N" }, { MANGLER::CLASS, "" } });
     MANGLER::Add_ID("vivid", { { "E" }, { MANGLER::END_CLASS, "" } });
     MANGLER::Add_ID("vivid", { { "_r" }, { MANGLER::RETURN, "" } });

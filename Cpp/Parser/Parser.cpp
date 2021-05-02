@@ -1211,7 +1211,7 @@ void Parser::Function_Pattern(int i)
 		func->Childs = p.Input[0].node->Childs;
 		p.Input.clear();
 
-		func->Mangled_Name = MANGLER::Mangle(func, true);
+		func->Mangled_Name = MANGLER::Mangle(func, "");
 	}
 
 	Input[i].node = func;

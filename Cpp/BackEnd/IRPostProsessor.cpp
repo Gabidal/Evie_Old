@@ -93,7 +93,7 @@ void IRPostProsessor::Handle_Global_Labels()
 		//if (i->is(IMPORT))
 		//	Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "extern"), { new Token(TOKEN::LABEL, MANGLER::Mangle(i)) }, nullptr));
 		/*else*/ if (i->is("export") != -1)
-			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL,  MANGLER::Mangle(i)) }, nullptr));
+			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL,  MANGLER::Mangle(i, "")) }, nullptr));
 
 	}
 	

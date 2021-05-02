@@ -308,11 +308,11 @@ string MANGLER::Un_Mangle(string raw) {
 
 vector<string> Classes;
 
-string MANGLER::Mangle(Node* raw, bool Force_Complex)
+string MANGLER::Mangle(Node* raw, string Force_Complex)
 {
 	string Result = "";
 
-	if ((raw->is("cpp") != -1) || (raw->Scope->is("cpp") != -1) || Force_Complex) {
+	if ((raw->is("cpp") != -1) || (raw->Scope->is("cpp") != -1) || Force_Complex == "cpp") {
 		//if the function call uses the C standard.
 		//_import_func_cpp_internal_print__char__int to
 		//_Z14internal_printPci
@@ -349,7 +349,7 @@ string MANGLER::Mangle(Node* raw, bool Force_Complex)
 				Result += "v";
 
 			for (auto i : raw->Parameters) {
-				Result += Mangle(i, Force_Complex);
+				Result += Mangle(i, "cpp");
 			}
 		}
 		else if (raw->is(CLASS_NODE)) {
@@ -418,7 +418,7 @@ string MANGLER::Mangle(Node* raw, bool Force_Complex)
 		}
 		
 	}
-	else if ((raw->is("vivid") != -1) || (raw->Scope->is("vivid") != -1) || Force_Complex) {
+	else if ((raw->is("vivid") != -1) || (raw->Scope->is("vivid") != -1) || Force_Complex == "vivid") {
 
 		string STD = "vivid";
 		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
@@ -454,7 +454,7 @@ string MANGLER::Mangle(Node* raw, bool Force_Complex)
 				Result += "v";
 
 			for (auto i : raw->Parameters) {
-				Result += Mangle(i, Force_Complex);
+				Result += Mangle(i, "vivid");
 			}
 
 			bool Mark_Return_Type = false;
