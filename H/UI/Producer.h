@@ -10,6 +10,7 @@ extern Usr* sys;
 class Producer
 {
 public:
+	string Seperator = "&&";
 	Producer()
 	{
 		Size = to_string(atoi(sys->Info.Bits_Mode.c_str()) * 8);
@@ -21,6 +22,8 @@ public:
 		Debug = sys->Info.Debug;
 		Libs = sys->Info.Libs;
 		Source_Files = sys->Info.Source_Files;
+		if (HOST_OS == "unix")
+			Seperator = ";";
 	}
 
 	~Producer(){}

@@ -61,6 +61,8 @@ public:
 	//function features
 	vector<Node*> Parameters;
 	string Mangled_Name = "";
+	//Import features
+	vector<Node*> Numerical_Return_Types;
 	//operator features
 	Node* Context = nullptr;
 	Node* Left = nullptr;
@@ -93,6 +95,8 @@ public:
 	bool Is_Template_Object = false;
 	//casting features
 	string Cast_Type = "";
+	//IR safe features
+	bool Generated = false;
 
 	bool is(int F) {
 		return Type == F;
@@ -512,6 +516,10 @@ public:
 
 		for (int i = 0; i < Result->Header.size(); i++)
 			Result->Header[i] = Copy_Node(Result->Header[i], p);
+
+
+		for (int i = 0; i < Result->Numerical_Return_Types.size(); i++)
+			Result->Numerical_Return_Types[i] = Copy_Node(Result->Numerical_Return_Types[i], p);
 
 		Result->Left = Copy_Node(Result->Left, p);
 		Result->Right = Copy_Node(Result->Right, p);

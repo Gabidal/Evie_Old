@@ -139,6 +139,8 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 				continue;
 			result += seperator + Inheritted[i];
 		}
+		if (Cast_Type != "")
+			result += seperator + Cast_Type;
 		return result;
 	}
 }

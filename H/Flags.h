@@ -61,6 +61,7 @@ namespace Flags{
 	constexpr long TEXT_COMPONENT						= 1 << 8;
 	constexpr long END_OF_DIRECTIVE_CHANGING_FILE		= 1 << 9;
 	constexpr long TEMPLATE_COMPONENT					= 1 << 10;
+	constexpr long NUMERICAL_TYPE_COMPONENT				= 1 << 11;
 }
 
 enum Node_Type {
@@ -95,7 +96,7 @@ enum Node_Type {
 	PREFIX_NODE,
 	POSTFIX_NODE,
 	OBJECT_DEFINTION_NODE,
-	LABEL_NODE
+	LABEL_NODE,
 };
 
 #endif

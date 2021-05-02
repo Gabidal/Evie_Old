@@ -143,6 +143,8 @@ void output::Fill_Empty_Arguments()
 		else
 			Repo_Dir = "Remote";
 	}
+
+	replace(Repo_Dir.begin(), Repo_Dir.end(), '\\', '/');
 }
 
 bool is_number(const string& s)

@@ -546,10 +546,28 @@ void Parser::Prototype_Pattern(int i)
 	return;
 }
 
+void Parser::Combine_Import_Shattered_Return_Info(int i)
+{
+	//import func 4 integer banana(4 integer)
+	//import func 8 decimal banana(4 integer)
+	if (i + 1 >= Input.size())
+		return;
+	if (!Input[i].is(Flags::NUMBER_COMPONENT) || !Input[i + 1].is(Flags::TEXT_COMPONENT))
+		return;
+
+	Node* Numerical_Type = new Node(NUMBER_NODE, &Input[i].Location);
+	Numerical_Type->Name = Input[i].Value;
+	Numerical_Type->Format = Input[i + 1].Value;
+
+	Input[i].Flags = Flags::NUMERICAL_TYPE_COMPONENT;
+	Input[i].node = Numerical_Type;
+	Input.erase(Input.begin() + i + 1);
+}
+
 void Parser::Import_Pattern(int i)
 {
 	//func banana(int, short)\n
-	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT });
+	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT, Flags::NUMERICAL_TYPE_COMPONENT });
 	//Words list must be a at leat two size for the type and for the name to be inside it
 	if (Words.size() < 2)
 		return;
@@ -587,7 +605,11 @@ void Parser::Import_Pattern(int i)
 
 	//skip the last that is the name index.
 	for (int j = 0; j < Words.size() - 1; j++) {
-		Inheritted.push_back(Input[Words[j]].Value);
+		if (Input[Words[j]].is(Flags::NUMERICAL_TYPE_COMPONENT)) {
+			New_Defined_Object->Numerical_Return_Types.push_back(Input[Words[j]].node);
+		}
+		else
+			Inheritted.push_back(Input[Words[j]].Value);
 	}
 
 	New_Defined_Object->Inheritted = Inheritted;
@@ -597,11 +619,18 @@ void Parser::Import_Pattern(int i)
 	vector<Component> Types;
 	for (auto j : Input[Paranthesis[0]].Components) {
 		if (j.Value == ",") {
+			string Format = "";
+			for (int j = 0; j < Types.size(); j++) {
+				if (Types[j].Value == "decimal" || Types[j].Value == "integer") {
+					Format = Types[j].Value;
+					Types.erase(Types.begin() + j);
+				}
+			}
 			Node* p;
 			if (Types.back().is(Flags::NUMBER_COMPONENT))
-				p = new Node(NUMBER_NODE, &j.Location);
+				p = new Node(NUMBER_NODE, &j.Location, Format);
 			else
-				p = new Node(OBJECT_DEFINTION_NODE, &j.Location);
+				p = new Node(OBJECT_DEFINTION_NODE, &j.Location, Format);
 
 			if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 				p->Name = "ARG" + to_string(arg_count++);
@@ -1628,6 +1657,8 @@ void Parser::Member_Function_Pattern(int i)
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Comment(i);
+	for (int i = 0; i < Input.size(); i++)
+		Combine_Import_Shattered_Return_Info(i);
 	for (int i = 0; i < Input.size(); i++)
 		Template_Pattern(i);
 	for (int i = 0; i < Input.size(); i++) {

@@ -58,7 +58,7 @@ extern int _SYSTEM_BIT_SIZE_;
 
 extern string Output;
 extern int arg_count;
-extern map<string, pair<int, string>> MANGLER::IDS;
+extern vector<pair<string, vector<pair<string, pair<int, string>>>>> MANGLER::IDS;
 extern vector<pair<string, string>> DOCKER::Working_Dir;
 extern int ID;
 

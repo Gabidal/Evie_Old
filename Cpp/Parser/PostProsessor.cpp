@@ -11,13 +11,17 @@ extern bool Optimized;
 extern Usr* sys;
 
 void PostProsessor::Factory() {
-	Transform_Component_Into_Node();
+	Transform_Component_Into_Node(); 
 	for (int i = 0; i < Parent->Defined.size(); i++) {
-		Type_Definer(i);
+		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
+		Type_Size_Definer(i);
 	}
 	for (int i = 0; i < Parent->Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Handle_Imports(i);
+	}
+	for (int i = 0; i < Parent->Defined.size(); i++) {
+		Type_Definer(i);
 	}
 	for (int i = 0; i < Parent->Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
@@ -28,6 +32,7 @@ void PostProsessor::Factory() {
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
 		Cast(Input[i]);
+		Open_Paranthesis(i);
 		Operator_Overload(i);
 		Open_Condition_For_Prosessing(i);
 		Open_Loop_For_Prosessing(i);
@@ -77,7 +82,7 @@ void PostProsessor::Type_Definer(int i)
 		return;
 	if (Parent->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
 		return;
-	//update members sizes
+	/*//update members sizes
 	Parent->Defined[i]->Update_Size();
 
 	//update the member stack offsets
@@ -89,7 +94,7 @@ void PostProsessor::Type_Definer(int i)
 	//update all member formats as well
 	for (auto& i : Parent->Defined[i]->Defined)
 		i->Update_Format();
-
+	*/
 
 	//If this is a namespace skip the default constructor builder
 	if (Parent->Defined[i]->is("static") != -1)
@@ -412,6 +417,14 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	PostProsessor p(Input[i], Input[i]->Childs);
 
 	return;
+}
+
+void PostProsessor::Open_Paranthesis(int i)
+{
+	if (!Input[i]->is(CONTENT_NODE))
+		return;
+
+	PostProsessor p(Input[i], Input[i]->Childs);
 }
 
 void PostProsessor::Find_Call_Owner(Node* n)
@@ -892,11 +905,15 @@ void PostProsessor::Determine_Return_Type(int i)
 			continue;
 		Left_Size += Parent->Find(j, Parent)->Get_Size();
 	}	
+	if (Input[i]->Left->Cast_Type != "")
+		Left_Size = Parent->Find(Input[i]->Left->Cast_Type, Parent)->Get_Size();
 	for (auto j : Input[i]->Right->Get_Inheritted(false, false)) {
 		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
 		Right_Size += Parent->Find(j, Parent)->Get_Size();
 	}
+	if (Input[i]->Right->Cast_Type != "")
+		Right_Size = Parent->Find(Input[i]->Right->Cast_Type, Parent)->Get_Size();
 
 	if (Left_Size >= Right_Size)
 		Input[i]->Inheritted = Input[i]->Left->Get_Inheritted(false, false);
@@ -941,6 +958,26 @@ void PostProsessor::Open_PostFix_Operator(int i)
 	PostProsessor p(Parent, { Input[i]->Left });
 }
 
+void PostProsessor::Type_Size_Definer(int i)
+{
+	if (Parent->Defined[i]->Type != CLASS_NODE)
+		return;
+	if (Parent->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
+		return;
+	//update members sizes
+	Parent->Defined[i]->Update_Size();
+
+	//update the member stack offsets
+	Parent->Defined[i]->Update_Members_Mem_Offset();
+
+	//update format
+	Parent->Defined[i]->Update_Format();
+
+	//update all member formats as well
+	for (auto& i : Parent->Defined[i]->Defined)
+		i->Update_Format();
+}
+
 void PostProsessor::Handle_Imports(int i)
 {
 	if (!Parent->Defined[i]->is(IMPORT))
@@ -949,21 +986,36 @@ void PostProsessor::Handle_Imports(int i)
 	//all numbers need to be redefined by type size.
 	//and all other text is already classes.
 	//pointters are inside the parameter as inheritance.
-	for (int j = 0; j < Parent->Defined[i]->Parameters.size(); j++) {
-		vector<string> Inheritted = Parent->Defined[i]->Parameters[j]->Inheritted;
-		if (Parent->Defined[i]->Parameters[j]->is(NUMBER_NODE)) {
-			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(atoi(Parent->Defined[i]->Parameters[j]->Name.c_str()), Global_Scope, CLASS_NODE, Parent->Defined[i]->Parameters[j]->Format);
-			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
+	bool Parse_Returning_Numerical_Types = false;
+	vector<Node*> Numerical_Types = Parent->Defined[i]->Parameters;
+Again:;
+	for (int j = 0; j < Numerical_Types.size(); j++) {
+		vector<string> Inheritted = Numerical_Types[j]->Inheritted;
+		if (Numerical_Types[j]->is(NUMBER_NODE)) {
+			*Numerical_Types[j] = *Global_Scope->Find(atoi(Numerical_Types[j]->Name.c_str()), Global_Scope, CLASS_NODE, Numerical_Types[j]->Format);
+			Numerical_Types[j]->Inheritted.insert(Numerical_Types[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
-		else if (!MANGLER::Is_Base_Type(Parent->Defined[i]->Parameters[j]))
+		else if (!MANGLER::Is_Base_Type(Numerical_Types[j]))
 			continue;
-		else if (Parent->Defined[i]->Parameters[j]->is(OBJECT_DEFINTION_NODE)) {
-			if ((Parent->Defined[i]->Parameters[j]->Name == "type") || Parent->Defined[i]->Parameters[j]->is("type") != -1)
+		else if (Numerical_Types[j]->is(OBJECT_DEFINTION_NODE)) {
+			if ((Numerical_Types[j]->Name == "type") || Numerical_Types[j]->is("type") != -1)
 				continue;
-			*Parent->Defined[i]->Parameters[j] = *Global_Scope->Find(Parent->Defined[i]->Parameters[j]->Name, Global_Scope, CLASS_NODE);
-			Parent->Defined[i]->Parameters[j]->Inheritted.insert(Parent->Defined[i]->Parameters[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
+			*Numerical_Types[j] = *Global_Scope->Find(Numerical_Types[j]->Name, Global_Scope, CLASS_NODE);
+			Numerical_Types[j]->Inheritted.insert(Numerical_Types[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
 	}
+	if (Parse_Returning_Numerical_Types == false && Parent->Defined[i]->Numerical_Return_Types.size() > 0) {
+		Parse_Returning_Numerical_Types = true;
+		Numerical_Types = Parent->Defined[i]->Numerical_Return_Types;
+		goto Again;
+	}
+	else if (Parse_Returning_Numerical_Types) {
+		for (auto j : Numerical_Types) {
+			Parent->Defined[i]->Inheritted.push_back(j->Name);
+		}
+		Parent->Defined[i]->Numerical_Return_Types.clear();
+	}
+	//TODO: Re-order all return types and parameter types into a logical order.
 	//now all types are good to go.
 	//although function calling might get tricky with just types as the parameters.
 }
@@ -1232,7 +1284,7 @@ vector<Node*> PostProsessor::Linearise(Node* ast)
 		vector<Node*> right = Linearise(ast->Right);
 		Result.insert(Result.end(), right.begin(), right.end());
 	}
-	else if (ast->is(POSTFIX_NODE)) {
+	else if (ast->is(POSTFIX_NODE) || ast->is(NODE_CASTER)) {
 		vector<Node*> left = Linearise(ast->Left);
 		Result.insert(Result.end(), left.begin(), left.end());
 	}

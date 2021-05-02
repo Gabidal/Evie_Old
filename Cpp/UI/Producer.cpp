@@ -15,7 +15,7 @@ void Producer::Assembly_Other_Source_Files()
     stringstream output;
     output << " ";
     for (string i : Source_Files)
-        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + i + ".obj " << i << "\n";
+        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + i + ".obj " << i << " " << Seperator << " ";
     for (string i : Source_Files)
         Libs.push_back(i + ".obj");
     system(output.str().c_str());
@@ -119,10 +119,13 @@ string Producer::Get_Added_Libs()
     }
     else if (HOST_OS == "unix")
     {
-        string r = "";
+        string r = " ";
         for (auto i : Libs)
         {
-            r += "-l " + i + " ";
+            if (i[i.size()-3] == 'o' && i[i.size()-2] == 'b' && i[i.size()-1] == 'j' || i[i.size()-1] == 'o')
+                r += i + " ";
+            else
+                r += "-l " + i + " ";
         }
         return r;
     }
@@ -136,9 +139,6 @@ string Producer::Get_Entry()
 
 string Producer::Get_System_Paths()
 {
-    char Seperator = ';';
-    if (OS == "unix")
-        Seperator = ':';
 
     string Result = "";
 
@@ -157,7 +157,7 @@ string Producer::Get_System_Paths()
     for (auto i : List) {
         if (i == '\\')
             i = '/';
-        if (i == Seperator) {
+        if (i == Seperator[0]) {
             if (tmp == "")
                 continue;
             Paths.push_back(tmp);

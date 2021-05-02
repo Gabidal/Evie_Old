@@ -80,20 +80,37 @@ int Build(int argc, const char* argv[])
         Output = ".intel_syntax noprefix\n";
     string start_file = sys->Info.Source_File.c_str();
 
-    MANGLER::Add_ID({ "P",{MANGLER::PREFIX, "ptr"} });
-    MANGLER::Add_ID({ "R",{MANGLER::PREFIX, "ref"} });
-    MANGLER::Add_ID({ "c",{MANGLER::VARIABLE, "1 integer"} });
-    MANGLER::Add_ID({ "s",{MANGLER::VARIABLE, "2 integer"} });
-    MANGLER::Add_ID({ "i",{MANGLER::VARIABLE, "4 integer"} });
-    MANGLER::Add_ID({ "f",{MANGLER::VARIABLE, "4 decimal"} });
-    MANGLER::Add_ID({ "d",{MANGLER::VARIABLE, "8 decimal"} });
-    MANGLER::Add_ID({ "l",{MANGLER::VARIABLE, "4 integer"} });
-    MANGLER::Add_ID({ "x",{MANGLER::VARIABLE, "8 integer"} });
-    MANGLER::Add_ID({ { "N" }, { MANGLER::CLASS, "" } });
-    MANGLER::Add_ID({ { "E" }, { MANGLER::END_CLASS, "" } });
-
+    MANGLER::Add_ID("cpp", { "P",{MANGLER::PREFIX, "ptr"} });
+    MANGLER::Add_ID("cpp", { "R",{MANGLER::PREFIX, "ref"} });
+    MANGLER::Add_ID("cpp", { "c",{MANGLER::VARIABLE, "1 integer"} });
+    MANGLER::Add_ID("cpp", { "s",{MANGLER::VARIABLE, "2 integer"} });
+    MANGLER::Add_ID("cpp", { "i",{MANGLER::VARIABLE, "4 integer"} });
+    MANGLER::Add_ID("cpp", { "f",{MANGLER::VARIABLE, "4 decimal"} });
+    MANGLER::Add_ID("cpp", { "d",{MANGLER::VARIABLE, "8 decimal"} });
+    MANGLER::Add_ID("cpp", { "l",{MANGLER::VARIABLE, "4 integer"} });
+    MANGLER::Add_ID("cpp", { "x",{MANGLER::VARIABLE, "8 integer"} });
+    MANGLER::Add_ID("cpp", { { "N" }, { MANGLER::CLASS, "" } });
+    MANGLER::Add_ID("cpp", { { "E" }, { MANGLER::END_CLASS, "" } });
     //temporary
-    MANGLER::Add_ID({ "t",{MANGLER::VARIABLE, "type"} });
+    MANGLER::Add_ID("cpp", { "t",{MANGLER::VARIABLE, "type"} });
+
+    MANGLER::Add_ID("vivid", { "P",{MANGLER::PREFIX, "ptr"} });
+    MANGLER::Add_ID("vivid", { "R",{MANGLER::PREFIX, "ref"} });
+    MANGLER::Add_ID("vivid", { "h",{MANGLER::VARIABLE, "1 integer"} });
+    MANGLER::Add_ID("vivid", { "c",{MANGLER::VARIABLE, "1 integer"} });
+    MANGLER::Add_ID("vivid", { "t",{MANGLER::VARIABLE, "2 integer"} });
+    MANGLER::Add_ID("vivid", { "s",{MANGLER::VARIABLE, "2 integer"} });
+    MANGLER::Add_ID("vivid", { "j",{MANGLER::VARIABLE, "4 integer"} });
+    MANGLER::Add_ID("vivid", { "i",{MANGLER::VARIABLE, "4 integer"} });
+    MANGLER::Add_ID("vivid", { "f",{MANGLER::VARIABLE, "4 decimal"} });
+    MANGLER::Add_ID("vivid", { "d",{MANGLER::VARIABLE, "8 decimal"} });
+    MANGLER::Add_ID("vivid", { "y",{MANGLER::VARIABLE, "8 integer"} });
+    MANGLER::Add_ID("vivid", { "x",{MANGLER::VARIABLE, "8 integer"} });
+    MANGLER::Add_ID("vivid", { { "N" }, { MANGLER::CLASS, "" } });
+    MANGLER::Add_ID("vivid", { { "E" }, { MANGLER::END_CLASS, "" } });
+    MANGLER::Add_ID("vivid", { { "_r" }, { MANGLER::RETURN, "" } });
+    //temporary
+    //MANGLER::Add_ID("vivid", { "t",{MANGLER::VARIABLE, "type"} });
 
     DOCKER::Slicer = TXT::Unwrap;
     DOCKER::Set_Default_Translator(TXT::TXT_Analyzer);

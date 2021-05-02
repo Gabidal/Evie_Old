@@ -28,12 +28,19 @@ public:
 	void Factory();
 	void Transform_Component_Into_Node();			//transfer the components into pure nodes
 	
+	//Import handlers
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Type_Size_Definer(int i);
+	void Handle_Imports(int i);					//here we can redefine the types given to parameters.
+
+
 	void Type_Definer(int i);						//defines all the members of type
 	void Member_Function_Defined_Outside(int i);	//puts the func into parenting type class
 	void Member_Function_Defined_Inside(int i);		//
 	//void Combine_Conditions(int i);				//combines the if and else
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
 	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
+	void Open_Paranthesis(int i);					//(..)
 	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call
 	bool Find_Castable_Inheritance(vector<string> types, string target);
 	void Open_Call_Parameters_For_Prosessing(int i);//open the calls parameters to do postprosessing
@@ -45,8 +52,7 @@ public:
 	void Determine_Array_Type(int i);				//
 	void Open_PreFix_Operator(int i);
 	void Open_PostFix_Operator(int i);
-													//opens an operator for callation purposes.
-	void Handle_Imports(int i);					//here we can redefine the types given to parameters.
+										
 	void Open_Loop_For_Prosessing(int i);
 	void Update_Used_Object_Info(Node* n);
 

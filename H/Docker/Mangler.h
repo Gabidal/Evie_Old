@@ -16,18 +16,23 @@ namespace MANGLER {
 		CLASS,
 		END_CLASS,
 		NUMBER,
+		RETURN,
 	};
 	string Un_Mangle(string raw);
 	string Mangle(Node* raw, bool Force_Complex = false);
 	bool Is_Base_Type(Node* n);
 	bool Is_Based_On_Base_Type(Node* n);
 	bool Is_Template(Node* n);
-	int Find(string s);
+	int Find_Classes(string s);
 	//  alias , real id
 	//       P, ptr
 	//       i, int
-	extern map<string, pair<int, string>> IDS;
-	void Add_ID(pair<string, pair<int, string>> id);
+			  //cpp
+	extern vector<pair<string, vector<pair<string, pair<int, string>>>>> IDS;
+	void Add_ID(string Lang, pair<string, pair<int, string>> id);
+	string Get_Key(string Val, string Lang);
+	vector<pair<string, pair<int, string>>>* Find_STD_List(string Lang);
+	pair<int, string>* Find(string Key, vector<pair<string, pair<int, string>>>* Current_IDS);
 }
 
 #endif

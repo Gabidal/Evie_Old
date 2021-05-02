@@ -17,14 +17,11 @@ ret
 .memcpy_int_:
 mov ecx, 0
 cmp ecx, edx
-jge while2_END
 while2:
 lea r8, qword ptr [rdi + rcx * 4 ]
 mov r9d, dword ptr [rsi + rcx * 4 ]
 mov dword ptr [r8 ], r9d
 add ecx, 1
-cmp ecx, edx
-jge while2_END
 jmp while2
 while2_END:
 ret 
@@ -43,8 +40,9 @@ mul ecx
 mov ecx, eax
 mov rdx, rdi
 mov edi, ecx
-call _Z8allocatei
-mov qword ptr [rbx + 8 ], rax
+call _V17internal_allocatel_rPh
+lea rcx, qword ptr [rax ]
+mov qword ptr [rbx + 8 ], rcx
 mov rax, rbx
 pop rbx
 ret 

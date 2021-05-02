@@ -32,6 +32,12 @@ public:
 	vector<Component> Template_Function_Constructor(Node* Func, vector<Node*> T_Arg, vector<Node*> T_Type);
 	void Inject_Template_Into_Member_Function_Fetcher(int& i);
 
+	//Include parsers
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Combine_Import_Shattered_Return_Info(int i);			//import func ptr 4 integer
+	void Import_Pattern(int i);									//import func new(int amount)\n
+
+
 	//Comment hazard
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Combine_Comment(int i);
@@ -42,7 +48,6 @@ public:
 	void Definition_Pattern(int i);								//test ptr a
 	void Constructor_Pattern(int i);							//foo ptr foo(foo ptr){..}
 	void Prototype_Pattern(int i);								//int main()\n
-	void Import_Pattern(int i);									//import func new(int amount)\n
 	void Object_Pattern(int i);									//a
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int& i, vector<string> Operator, int Flag, bool Change_Index = false);			//a = b + c * d, a.b.c.d()
