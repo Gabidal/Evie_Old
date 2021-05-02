@@ -115,7 +115,7 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
 		return seperator + Name;
 	}
-	else if (is(NUMBER_NODE)) {
+	else if (is(NUMBER_NODE) && Cast_Type == "") {
 		//1.29348
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
@@ -129,6 +129,10 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 			}
 			return Find(4, Global_Scope, "integer")->Get_Inheritted(seperator, Skip_Prefixes, true);
 		}
+	}
+	else if (is(NUMBER_NODE) && Cast_Type != "") {
+		if (Cast_Type != "")
+			return seperator + Cast_Type;
 	}
 	else {
 		string result = "";

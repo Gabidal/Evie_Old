@@ -5,6 +5,8 @@ main:
 push rbx
 mov rdi, rbx
 call .List_int_
+mov edi, 0
+call _V4exitx
 mov rcx, qword ptr [rbx + 8 ]
 lea rcx, qword ptr [rcx + 1 * 4 ]
 mov eax, dword ptr [rcx ]

@@ -132,8 +132,6 @@ void IRGenerator::Parse_Calls(int i)
 		return;
 	if (Input[i]->Cast_Type != "")
 		return;
-	if (Handle != nullptr)
-		return;
 	if (Input[i]->Generated)
 		return;
 
