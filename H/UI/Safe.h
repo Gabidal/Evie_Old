@@ -61,5 +61,6 @@ private:
 	void Disable_Non_Ptr_Class_Return(Node* n);
 	void Check_For_Unitialized_Objects(Node* func);
 	void Warn_Usage_Of_Depricated(Node* n);
+	void Prefer_Class_Cast_Rather_Object_Cast(Node* n);
 	vector<Node*> Input;
 };

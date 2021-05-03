@@ -3,6 +3,7 @@
 #include "../../H/Docker/Mangler.h"
 #include "../../Tests/H/Test_Lexer.h"
 #include "../../Tests/H/Test_Back_End.h"
+#include "../../H/Parser/Algebra.h"
 
 extern Selector* selector;
 
@@ -22,6 +23,7 @@ void Safe::Factory()
 		Disable_Non_Ptr_Class_Return(i);
 		Check_For_Unitialized_Objects(i);
 		Warn_Usage_Of_Depricated(i);
+		Prefer_Class_Cast_Rather_Object_Cast(i);
 	}
 }
 
@@ -209,5 +211,19 @@ void Safe::Warn_Usage_Of_Depricated(Node* n)
 		for (auto i : matches) {
 			Report(Observation(WARNING, i.str(), *n->Location));
 		}
+	}
+}
+
+void Safe::Prefer_Class_Cast_Rather_Object_Cast(Node* n)
+{
+	if (n->Cast_Type == "" || n->Cast_Type == "address")
+		return;
+	//check here if the cast type is a class or a object
+	Node* Cast = n->Find(n->Cast_Type, n);
+	if (!Cast->is(CLASS_NODE)) {
+		Report({
+			Observation(WARNING, "Usage of non-class definition as a cast type is not recomended!", *n->Location),
+			Observation(SOLUTION, "Prefer class typed cast 'type " + Cast->Get_Inheritted(" ", false, false, false) + " " + Cast->Name + "{}'", *Cast->Location)
+			});
 	}
 }
