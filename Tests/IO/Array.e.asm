@@ -2,10 +2,16 @@
 .file 1 "Tests/IO/Array.e"
 .file 2 "Tests/IO/../../IO/cstd.e"
 .file 3 "Tests/IO/../../IO/sys.e"
-.file 4 "Tests/IO/../../IO/win32.asm.obj"
-.file 5 "Tests/IO/../../IO/win32.asm"
-.file 6 "Tests/IO/../../IO/STD.e"
-.file 7 "Tests/IO/../../IO/List.e"
+.file 4 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm.obj"
+.file 5 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm"
+.file 6 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm.obj"
+.file 7 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm"
+.file 8 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm.obj"
+.file 9 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm"
+.file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
+.file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
+.file 12 "Tests/IO/../../IO/STD.e"
+.file 13 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -16,7 +22,7 @@ Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 sub rsp, 8
-.loc 1 4 31
+.loc 1 5 40
 mov ecx, 4
 mov r8, rdx
 mov eax, 10
@@ -24,20 +30,20 @@ mul ecx
 mov ecx, eax
 mov rdx, r8
 mov ecx, ecx
-call _Z8allocatei
+call _V17internal_allocatex_rPh
 mov qword ptr [rsp ], rax
-.loc 1 5 16
+.loc 1 6 16
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
-.loc 1 6 2
+.loc 1 7 2
 mov r8, qword ptr [rcx + 0 * 8 ]
 lea r8, qword ptr [r8 + 1 * 4 ]
 mov dword ptr [r8 ], 1
-.loc 1 7 10
+.loc 1 8 10
 mov rcx, qword ptr [rcx + 0 * 8 ]
 mov ecx, dword ptr [rcx + 1 * 4 ]
 mov ecx, ecx
-.loc 1 8 2
+.loc 1 9 2
 mov eax, ecx
 add rsp, 8
 ret 
@@ -48,11 +54,11 @@ Start_Test_END:
 
 .cfi_endproc 
 main_START:
-.loc 1 11 1
+.loc 1 12 1
 main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 1 12 2
+.loc 1 13 2
 mov eax, 1
 ret 
 ret 
@@ -280,9 +286,17 @@ _string_START:
 .byte 2
 .byte 145
 .byte 0
-.asciz "a"
+.asciz "Cast"
 .byte 1
 .byte 4
+.long _char_START-Debug_Info_Start
+.byte 5
+.byte 2
+.byte 145
+.byte 0
+.asciz "a"
+.byte 1
+.byte 5
 .long _int_START-Debug_Info_Start
 .byte 5
 .byte 2
@@ -290,7 +304,7 @@ _string_START:
 .byte 0
 .asciz "b"
 .byte 1
-.byte 5
+.byte 6
 .long _int_START-Debug_Info_Start
 .byte 5
 .byte 2
@@ -298,7 +312,7 @@ _string_START:
 .byte 0
 .asciz "c"
 .byte 1
-.byte 7
+.byte 8
 .long _int_START-Debug_Info_Start
 .byte 0
 .byte 6
@@ -309,7 +323,7 @@ _string_START:
 .asciz "main"
 .asciz "main"
 .byte 1
-.byte 11
+.byte 12
 Debug_Info_End:
 .section .debug_str
 .COMPILER_NAME:

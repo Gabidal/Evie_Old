@@ -905,15 +905,20 @@ void PostProsessor::Determine_Return_Type(int i)
 			continue;
 		Left_Size += Parent->Find(j, Parent)->Get_Size();
 	}	
-	if (Input[i]->Left->Cast_Type != "")
+	if (Input[i]->Left->Cast_Type != "" && Input[i]->Left->Cast_Type != "address")
 		Left_Size = Parent->Find(Input[i]->Left->Cast_Type, Parent)->Get_Size();
+	if (Input[i]->Left->is("ptr") != -1)
+		Left_Size = _SYSTEM_BIT_SIZE_;
+
 	for (auto j : Input[i]->Right->Get_Inheritted(false, false)) {
 		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
 		Right_Size += Parent->Find(j, Parent)->Get_Size();
 	}
-	if (Input[i]->Right->Cast_Type != "")
+	if (Input[i]->Right->Cast_Type != "" && Input[i]->Right->Cast_Type != "address")
 		Right_Size = Parent->Find(Input[i]->Right->Cast_Type, Parent)->Get_Size();
+	if (Input[i]->Right->is("ptr") != -1)
+		Right_Size = _SYSTEM_BIT_SIZE_;
 
 	if (Left_Size >= Right_Size)
 		Input[i]->Inheritted = Input[i]->Left->Get_Inheritted(false, false);

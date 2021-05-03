@@ -1,11 +1,17 @@
 .intel_syntax noprefix
 .file 1 "Tests/IO/Comment.e"
-.file 2 "C:\Users\GabenRTX\.Repos/Evie/IO/cstd.e"
-.file 3 "C:\Users\GabenRTX\.Repos/Evie/IO/sys.e"
-.file 4 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm.obj"
-.file 5 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm"
-.file 6 "C:\Users\GabenRTX\.Repos/Evie/IO/STD.e"
-.file 7 "C:\Users\GabenRTX\.Repos/Evie/IO/List.e"
+.file 2 "C:/Users/GabenRTX/.Repos/Evie/IO/cstd.e"
+.file 3 "C:/Users/GabenRTX/.Repos/Evie/IO/sys.e"
+.file 4 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm.obj"
+.file 5 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm"
+.file 6 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm.obj"
+.file 7 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm"
+.file 8 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm.obj"
+.file 9 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm"
+.file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
+.file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
+.file 12 "C:/Users/GabenRTX/.Repos/Evie/IO/STD.e"
+.file 13 "C:/Users/GabenRTX/.Repos/Evie/IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -58,7 +64,7 @@ main_END:
 
 .cfi_endproc 
 .memcpy_int__START:
-.loc 7 1 1
+.loc 13 1 1
 .memcpy_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
@@ -69,8 +75,8 @@ mov dword ptr [rsp + 16 ], r8d
 .loc 2 38 17
 mov ecx, 0
 cmp ecx, dword ptr [rsp + 16 ]
-jge while13_END
-while13:
+jge while21_END
+while21:
 mov r8, qword ptr [rsp + 0 ]
 .loc 2 39 9
 lea r8, qword ptr [r8 + rcx * 4 ]
@@ -80,9 +86,9 @@ mov dword ptr [r8 ], r9d
 .loc 2 38 33
 add ecx, 1
 cmp ecx, dword ptr [rsp + 16 ]
-jge while13_END
-jmp while13
-while13_END:
+jge while21_END
+jmp while21
+while21_END:
 add rsp, 20
 .loc 2 41 5
 ret 
@@ -93,39 +99,37 @@ ret
 
 .cfi_endproc 
 .List_int__START:
-.loc 7 1 1
+.loc 13 1 1
 .List_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-push rbx
 sub rsp, 8
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsp + 0 ]
-.loc 7 2 15
+.loc 13 2 15
 mov dword ptr [rcx + 0 ], 1
 mov rcx, qword ptr [rsp + 0 ]
-.loc 7 3 11
+.loc 13 3 11
 mov dword ptr [rcx + 4 ], 0
-mov rbx, qword ptr [rsp + 0 ]
 mov rcx, qword ptr [rsp + 0 ]
-.loc 7 2 2
+.loc 13 2 2
 mov ecx, dword ptr [rcx + 0 ]
 mov r8, rdx
 mov eax, 4
 mul ecx
 mov ecx, eax
 mov rdx, r8
-.loc 7 4 16
+.loc 13 4 16
 mov ecx, ecx
-call _Z8allocatei
-mov qword ptr [rbx + 8 ], rax
-.loc 7 1 1
+call _V17internal_allocatex_rPh
+mov rcx, qword ptr [rsp + 0 ]
+lea r8, qword ptr [rax ]
+mov qword ptr [rcx + 8 ], r8
+.loc 13 1 1
 mov rax, qword ptr [rsp + 0 ]
 add rsp, 8
-pop rbx
 ret 
 add rsp, 8
-pop rbx
 ret 
 .List_int__END:
 
@@ -417,19 +421,19 @@ _string_START:
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -447,24 +451,24 @@ _.List_int__START:
 .byte 1
 .asciz ".List_int_"
 .byte 16
-.byte 7
+.byte 13
 .byte 1
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -474,7 +478,7 @@ _.List_int__START:
 .byte 1
 .byte 87
 .asciz ".memcpy_int_"
-.byte 7
+.byte 13
 .byte 1
 .byte 9
 .byte 2
@@ -498,25 +502,25 @@ _.List_int__START:
 .byte 145
 .byte 0
 .asciz "this"
-.byte 7
+.byte 13
 .byte 1
 .long _.List_int__START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 Debug_Info_End:

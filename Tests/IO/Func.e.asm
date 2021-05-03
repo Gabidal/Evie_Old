@@ -1,11 +1,17 @@
 .intel_syntax noprefix
 .file 1 "Tests/IO/Func.e"
-.file 2 "C:\Users\GabenRTX\.Repos/Evie/IO/cstd.e"
-.file 3 "C:\Users\GabenRTX\.Repos/Evie/IO/sys.e"
-.file 4 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm.obj"
-.file 5 "C:\Users\GabenRTX\.Repos/Evie/IO/win32.asm"
-.file 6 "C:\Users\GabenRTX\.Repos/Evie/IO/STD.e"
-.file 7 "C:\Users\GabenRTX\.Repos/Evie/IO/List.e"
+.file 2 "C:/Users/GabenRTX/.Repos/Evie/IO/cstd.e"
+.file 3 "C:/Users/GabenRTX/.Repos/Evie/IO/sys.e"
+.file 4 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm.obj"
+.file 5 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm"
+.file 6 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm.obj"
+.file 7 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm"
+.file 8 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm.obj"
+.file 9 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm"
+.file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
+.file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
+.file 12 "C:/Users/GabenRTX/.Repos/Evie/IO/STD.e"
+.file 13 "C:/Users/GabenRTX/.Repos/Evie/IO/List.e"
 Code_Start:
 .global Start_Test
 .global main

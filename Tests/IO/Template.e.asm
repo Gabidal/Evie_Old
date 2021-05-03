@@ -2,10 +2,16 @@
 .file 1 "Tests/IO/Template.e"
 .file 2 "Tests/IO/../../IO/cstd.e"
 .file 3 "Tests/IO/../../IO/sys.e"
-.file 4 "Tests/IO/../../IO/win32.asm.obj"
-.file 5 "Tests/IO/../../IO/win32.asm"
-.file 6 "Tests/IO/../../IO/STD.e"
-.file 7 "Tests/IO/../../IO/List.e"
+.file 4 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm.obj"
+.file 5 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm"
+.file 6 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm.obj"
+.file 7 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm"
+.file 8 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm.obj"
+.file 9 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm"
+.file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
+.file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
+.file 12 "Tests/IO/../../IO/STD.e"
+.file 13 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -34,7 +40,7 @@ lea rcx, qword ptr [rsp ]
 .loc 1 7 4
 mov rcx, rcx
 call Pop_Back
-.loc 7 4 2
+.loc 13 4 2
 mov rcx, qword ptr [rsp + 8 ]
 .loc 1 8 11
 lea rcx, qword ptr [rcx + 0 * 4 ]
@@ -63,7 +69,7 @@ main_END:
 
 .cfi_endproc 
 .Add_int__START:
-.loc 7 1 1
+.loc 13 1 1
 .Add_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
@@ -72,49 +78,50 @@ push rbx
 sub rsp, 24
 mov qword ptr [rsp + 4 ], rcx
 mov dword ptr [rsp + 0 ], edx
-.loc 7 8 2
-if1415:
+.loc 13 8 2
+if1617:
 mov rcx, qword ptr [rsp + 4 ]
-.loc 7 3 2
+.loc 13 3 2
 mov ecx, dword ptr [rcx + 4 ]
 mov r8, qword ptr [rsp + 4 ]
-.loc 7 2 2
+.loc 13 2 2
 mov r8d, dword ptr [r8 + 0 ]
-.loc 7 8 10
+.loc 13 8 10
 cmp ecx, r8d
-jl if1415_END
+jl if1617_END
 mov rcx, qword ptr [rsp + 4 ]
 mov r8, qword ptr [rsp + 4 ]
-.loc 7 3 2
+.loc 13 3 2
 mov r8d, dword ptr [r8 + 4 ]
 mov r9, rdx
 mov eax, 2
 mul r8d
 mov r8d, eax
 mov rdx, r9
-.loc 7 10 18
+.loc 13 10 18
 mov dword ptr [rcx + 0 ], r8d
 mov rcx, qword ptr [rsp + 4 ]
-.loc 7 2 2
+.loc 13 2 2
 mov ecx, dword ptr [rcx + 0 ]
 mov r8, rdx
 mov eax, 4
 mul ecx
 mov ecx, eax
 mov rdx, r8
-.loc 7 11 21
+.loc 13 11 21
 mov ecx, ecx
-call _Z8allocatei
-mov rbx, rax
-.loc 7 13 9
+call _V17internal_allocatex_rPh
+lea rcx, qword ptr [rax ]
+mov rbx, rcx
+.loc 13 13 9
 mov rcx, rbx
 mov r8, qword ptr [rsp + 4 ]
-.loc 7 4 2
+.loc 13 4 2
 mov r8, qword ptr [r8 + 8 ]
-.loc 7 13 9
+.loc 13 13 9
 mov rdx, r8
 mov r8, qword ptr [rsp + 4 ]
-.loc 7 3 2
+.loc 13 3 2
 mov r8d, dword ptr [r8 + 4 ]
 mov rdi, rdx
 mov r9, rdx
@@ -122,26 +129,26 @@ mov eax, 4
 mul r8d
 mov r8d, eax
 mov rdx, r9
-.loc 7 13 9
+.loc 13 13 9
 mov r8d, r8d
 call .memcpy_int_
 mov rcx, qword ptr [rsp + 4 ]
-.loc 7 17 15
+.loc 13 17 15
 mov qword ptr [rcx + 8 ], rbx
-.loc 7 8 2
-if1415_END:
+.loc 13 8 2
+if1617_END:
 mov rcx, qword ptr [rsp + 4 ]
-.loc 7 4 2
+.loc 13 4 2
 mov rcx, qword ptr [rcx + 8 ]
 mov r8, qword ptr [rsp + 4 ]
-.loc 7 3 2
+.loc 13 3 2
 mov r8d, dword ptr [r8 + 4 ]
-.loc 7 19 2
+.loc 13 19 2
 lea rcx, qword ptr [rcx + r8 * 4 ]
 mov r8d, dword ptr [rsp + 0 ]
 mov dword ptr [rcx ], r8d
 mov rcx, qword ptr [rsp + 4 ]
-.loc 7 20 6
+.loc 13 20 6
 add dword ptr [rcx + 4 ], 1
 add rsp, 24
 pop rbx
@@ -152,14 +159,14 @@ ret
 
 .cfi_endproc 
 Pop_Back_START:
-.loc 7 1 1
+.loc 13 1 1
 Pop_Back:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 sub rsp, 16
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsp + 0 ]
-.loc 7 24 6
+.loc 13 24 6
 add dword ptr [rcx + 4 ], 1
 add rsp, 16
 ret 
@@ -168,7 +175,7 @@ Pop_Back_END:
 
 .cfi_endproc 
 .memcpy_int__START:
-.loc 7 1 1
+.loc 13 1 1
 .memcpy_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
@@ -179,8 +186,8 @@ mov dword ptr [rsp + 16 ], r8d
 .loc 2 38 17
 mov ecx, 0
 cmp ecx, dword ptr [rsp + 16 ]
-jge while16_END
-while16:
+jge while18_END
+while18:
 mov r8, qword ptr [rsp + 0 ]
 .loc 2 39 9
 lea r8, qword ptr [r8 + rcx * 4 ]
@@ -190,9 +197,9 @@ mov dword ptr [r8 ], r9d
 .loc 2 38 33
 add ecx, 1
 cmp ecx, dword ptr [rsp + 16 ]
-jge while16_END
-jmp while16
-while16_END:
+jge while18_END
+jmp while18
+while18_END:
 add rsp, 20
 .loc 2 41 5
 ret 
@@ -203,39 +210,37 @@ ret
 
 .cfi_endproc 
 .List_int__START:
-.loc 7 1 1
+.loc 13 1 1
 .List_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-push rbx
 sub rsp, 8
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsp + 0 ]
-.loc 7 2 15
+.loc 13 2 15
 mov dword ptr [rcx + 0 ], 1
 mov rcx, qword ptr [rsp + 0 ]
-.loc 7 3 11
+.loc 13 3 11
 mov dword ptr [rcx + 4 ], 0
-mov rbx, qword ptr [rsp + 0 ]
 mov rcx, qword ptr [rsp + 0 ]
-.loc 7 2 2
+.loc 13 2 2
 mov ecx, dword ptr [rcx + 0 ]
 mov r8, rdx
 mov eax, 4
 mul ecx
 mov ecx, eax
 mov rdx, r8
-.loc 7 4 16
+.loc 13 4 16
 mov ecx, ecx
-call _Z8allocatei
-mov qword ptr [rbx + 8 ], rax
-.loc 7 1 1
+call _V17internal_allocatex_rPh
+mov rcx, qword ptr [rsp + 0 ]
+lea r8, qword ptr [rax ]
+mov qword ptr [rcx + 8 ], r8
+.loc 13 1 1
 mov rax, qword ptr [rsp + 0 ]
 add rsp, 8
-pop rbx
 ret 
 add rsp, 8
-pop rbx
 ret 
 .List_int__END:
 
@@ -502,19 +507,19 @@ _string_START:
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -532,24 +537,24 @@ _.List_int__START:
 .byte 1
 .asciz ".List_int_"
 .byte 16
-.byte 7
+.byte 13
 .byte 1
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -559,14 +564,14 @@ _.List_int__START:
 .byte 1
 .byte 87
 .asciz ".Add_int_"
-.byte 7
+.byte 13
 .byte 1
 .byte 8
 .byte 2
 .byte 145
 .byte 0
 .asciz "Element"
-.byte 7
+.byte 13
 .byte 7
 .long _int_START-Debug_Info_Start
 .byte 8
@@ -574,25 +579,25 @@ _.List_int__START:
 .byte 145
 .byte 4
 .asciz "this"
-.byte 7
+.byte 13
 .byte 1
 .long _.List_int__START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -602,24 +607,24 @@ _.List_int__START:
 .byte 1
 .byte 87
 .asciz "Pop_Back"
-.byte 7
+.byte 13
 .byte 1
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
@@ -629,7 +634,7 @@ _.List_int__START:
 .byte 1
 .byte 87
 .asciz ".memcpy_int_"
-.byte 7
+.byte 13
 .byte 1
 .byte 8
 .byte 2
@@ -651,19 +656,19 @@ _.List_int__START:
 .byte 3
 .byte 0
 .asciz "Capacity"
-.byte 7
+.byte 13
 .byte 2
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Size"
-.byte 7
+.byte 13
 .byte 3
 .long _int_START-Debug_Info_Start
 .byte 3
 .byte 8
 .asciz "Array"
-.byte 7
+.byte 13
 .byte 4
 .long _int_START-Debug_Info_Start
 Debug_Info_End:

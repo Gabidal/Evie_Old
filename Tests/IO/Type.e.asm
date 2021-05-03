@@ -2,10 +2,16 @@
 .file 1 "Tests/IO/Type.e"
 .file 2 "Tests/IO/../../IO/cstd.e"
 .file 3 "Tests/IO/../../IO/sys.e"
-.file 4 "Tests/IO/../../IO/win32.asm.obj"
-.file 5 "Tests/IO/../../IO/win32.asm"
-.file 6 "Tests/IO/../../IO/STD.e"
-.file 7 "Tests/IO/../../IO/List.e"
+.file 4 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm.obj"
+.file 5 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm"
+.file 6 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm.obj"
+.file 7 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm"
+.file 8 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm.obj"
+.file 9 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm"
+.file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
+.file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
+.file 12 "Tests/IO/../../IO/STD.e"
+.file 13 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -500,6 +506,14 @@ _Banana_START:
 .asciz "is_Banana"
 .byte 1
 .byte 22
+.byte 6
+.byte 2
+.byte 145
+.byte 0
+.asciz "f"
+.byte 1
+.byte 22
+.long _Fruit_START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Type"

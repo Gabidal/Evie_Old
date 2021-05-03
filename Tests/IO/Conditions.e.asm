@@ -2,10 +2,16 @@
 .file 1 "Tests/IO/Conditions.e"
 .file 2 "Tests/IO/../../IO/cstd.e"
 .file 3 "Tests/IO/../../IO/sys.e"
-.file 4 "Tests/IO/../../IO/win32.asm.obj"
-.file 5 "Tests/IO/../../IO/win32.asm"
-.file 6 "Tests/IO/../../IO/STD.e"
-.file 7 "Tests/IO/../../IO/List.e"
+.file 4 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm.obj"
+.file 5 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/console.asm"
+.file 6 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm.obj"
+.file 7 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/math.asm"
+.file 8 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm.obj"
+.file 9 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/memory.asm"
+.file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
+.file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
+.file 12 "Tests/IO/../../IO/STD.e"
+.file 13 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -18,51 +24,51 @@ Start_Test:
 .loc 1 5 10
 mov ecx, 0
 cmp ecx, 100
-jge while17_END
-while17:
+jge while11_END
+while11:
 add ecx, 1
 cmp ecx, 100
-jge while17_END
-jmp while17
-while17_END:
+jge while11_END
+jmp while11
+while11_END:
 .loc 1 8 2
-if18:
+if12:
 cmp ecx, 100
-jne if18_END
+jne if12_END
 .loc 1 9 5
 mov ecx, 10
 .loc 1 8 2
-if18_END:
+if12_END:
 .loc 1 11 2
-if19:
+if13:
 cmp ecx, 100
-jne else20
+jne else14
 .loc 1 12 5
 mov ecx, 100
-jmp else20_END
+jmp else14_END
 .loc 1 11 2
-if19_END:
+if13_END:
 .loc 1 14 2
-else20:
+else14:
 cmp ecx, 10
-jne else20_END
+jne else14_END
 .loc 1 15 5
 mov ecx, 100
 .loc 1 14 2
-else20_END:
+else14_END:
 .loc 1 17 2
 mov eax, ecx
 ret 
 .loc 1 19 10
 mov ecx, 1
 cmp ecx, 2
-jge while21_END
-while21:
+jge while15_END
+while15:
 mov ecx, 1
 cmp ecx, 2
-jge while21_END
-jmp while21
-while21_END:
+jge while15_END
+jmp while15
+while15_END:
 .loc 1 20 2
 mov eax, 0
 ret 
@@ -77,6 +83,8 @@ main:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 .loc 1 24 2
+call Start_Test
+.loc 1 25 2
 mov eax, 1
 ret 
 ret 

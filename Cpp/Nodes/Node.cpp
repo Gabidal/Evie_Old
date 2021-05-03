@@ -359,12 +359,12 @@ Node* Node::Find(Node* n, Node* s, int f)
 			return Find(n, s->Scope, f);
 
 	//IDK what this does, please explain!
-	if (s->Cast_Type != "")
-		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
-			if (i->is(f))
-				if (i->Templates.size() == n->Templates.size())
-					if (i->Name == n->Name)
-						return i;
+	if (s->Cast_Type != "" && s->Cast_Type != n->Name)
+			for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+				if (i->is(f))
+					if (i->Templates.size() == n->Templates.size())
+						if (i->Name == n->Name)
+							return i;
 	
 	return nullptr;
 }
@@ -391,10 +391,10 @@ Node* Node::Find(string name, Node* s, int flags) {
 		if (Find(name, s->Scope, flags) != nullptr)
 			return Find(name, s->Scope, flags);
 
-	if (s->Cast_Type != "")
-		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
-			if (i->Name == name)
-				return i;
+	if (s->Cast_Type != "" && s->Cast_Type != name)
+			for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+				if (i->Name == name)
+					return i;
 
 	if (s->Fetcher != nullptr) {
 		Node* F = Find_Scope(s);
@@ -426,10 +426,10 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 		if (Find(name, s->Scope, Need_Parent_existance) != nullptr)
 			return Find(name, s->Scope, Need_Parent_existance);
 
-	if (s->Cast_Type != "")
-		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
-			if (i->Name == name)
-				return i;
+	if (s->Cast_Type != "" && s->Cast_Type != name)
+			for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+				if (i->Name == name)
+					return i;
 
 	if (s->Fetcher != nullptr) {
 		Node* F = Find_Scope(s);

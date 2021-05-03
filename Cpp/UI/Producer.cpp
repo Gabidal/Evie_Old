@@ -14,8 +14,10 @@ void Producer::Assembly_Other_Source_Files()
 {
     stringstream output;
     output << " ";
-    for (string i : Source_Files)
-        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + i + ".obj " << i << " " << Seperator << " ";
+    for (int i = 0; i < Source_Files.size()-1; i++)
+        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + Source_Files[i] + ".obj " << Source_Files[i] << " " << Seperator << " ";
+    if (Source_Files.size() > 0)
+        output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + Source_Files[Source_Files.size()-1] + ".obj " << Source_Files[Source_Files.size() - 1] << " ";
     for (string i : Source_Files)
         Libs.push_back(i + ".obj");
     system(output.str().c_str());
@@ -140,6 +142,10 @@ string Producer::Get_Entry()
 string Producer::Get_System_Paths()
 {
 
+    char Path_Seperator = ';';
+    if (OS == "unix")
+        Path_Seperator = ':';
+
     string Result = "";
 
     const char* Path_Type = "Path";
@@ -157,7 +163,7 @@ string Producer::Get_System_Paths()
     for (auto i : List) {
         if (i == '\\')
             i = '/';
-        if (i == Seperator[0]) {
+        if (i == Path_Seperator) {
             if (tmp == "")
                 continue;
             Paths.push_back(tmp);

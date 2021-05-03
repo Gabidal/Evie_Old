@@ -370,9 +370,6 @@ void IRGenerator::Loop_Elses(Node* e)
 
 void IRGenerator::Parse_Jumps(int i)
 {
-	if (Input[i]->Generated)
-		return;
-
 	//NOTICE: this must happen after all operator is created as IR!!!
 	if (!Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
@@ -558,8 +555,8 @@ void IRGenerator::Parse_Operators(int i)
 	vector<IR*> tmp;
 	IRGenerator g2(Parent, { Input[i]->Right }, &tmp);
 
-	if (Input[i]->Generated)
-		return;
+	//if (Input[i]->Generated)
+	//	return;
 
 	long long F = 0;
 	if (Input[i]->Format == "decimal")
@@ -700,8 +697,8 @@ void IRGenerator::Parse_Pointers(int i)
 	Token* Right = nullptr;
 	Token* Left = nullptr;
 
-	if (Input[i]->Generated)
-		return;
+	//if (Input[i]->Generated)
+	//	return;
 	
 	//handle complex Right
 	IRGenerator g(Parent, { Input[i]->Right }, Output);
@@ -1373,6 +1370,11 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	n->Update_Format();
 
 	Node* Caster = n->Find(n->Cast_Type, n, CLASS_NODE);
+
+	if (Caster == nullptr) {
+		//if this happends then the catser is not a class but a local defined cast type
+		Caster = n->Find(n->Cast_Type, n, OBJECT_DEFINTION_NODE);
+	}
 
 
 	//parse calls, arrays etc..
