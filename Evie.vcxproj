@@ -223,6 +223,7 @@
   <ItemGroup>
     <None Include="IO\cstd.e" />
     <None Include="IO\List.e" />
+    <None Include="IO\Memory.e" />
     <None Include="IO\STD.e" />
     <None Include="IO\test.e" />
     <None Include="IO\test.e.asm" />

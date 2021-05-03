@@ -161,6 +161,7 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="Tests\IO\Comment.e" />
+    <None Include="IO\Memory.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">
