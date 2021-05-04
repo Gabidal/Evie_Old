@@ -26,6 +26,7 @@ public:
 	void Combine_Dot_In_Member_Functions(int& i);
 
 	void Template_Pattern(int& i);
+	void Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Component& i);
 	void Operator_Combinator(int i);
 	void Nodize_Template_Pattern(int i); 
 	void Template_Type_Constructor(int i);

@@ -89,7 +89,7 @@ void Parser::Template_Pattern(int& i)
 			This_Scopes_Open_Template_Operators++;
 		if (Input[j].Value == ">")
 			This_Scopes_Open_Template_Operators--;
-		else if (Input[j].Value != ">" && Input[j].Value != "<" && !Input[j].is(Flags::TEXT_COMPONENT))
+		else if (Input[j].Value != ">" && Input[j].Value != "<" && !Input[j].is(Flags::TEXT_COMPONENT) && !Input[j].is(Flags::KEYWORD_COMPONENT))
 			break;
 	}
 
@@ -115,6 +115,48 @@ void Parser::Template_Pattern(int& i)
 
 	//for difinition pattern.
 	i--;
+}
+
+void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Component& i)
+{
+	if (!i.is(Flags::TEMPLATE_COMPONENT))
+		return;
+
+	//<int ptr, char>
+	vector<vector<string>> Template_Pairs;
+	vector<string> Output;
+
+	//first sort template pair type by comma.
+	vector<string> Current_Template_Pair;
+	for (auto T : i.Components) {
+		if (T.Value == ",") {
+			Template_Pairs.push_back(Current_Template_Pair);
+			Current_Template_Pair.clear();
+		}
+		else {
+			if (T.is(Flags::TEMPLATE_COMPONENT)) {
+				//<int ptr, List<T ptr>>
+				Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(T);
+			}
+			Current_Template_Pair.push_back(T.Value);
+		}
+	}
+
+	//Now create a class for every template pair.
+	for (auto& Template_Pair : Template_Pairs) {
+		//ofcourse avoid same class redefinition.
+		string Template_Pair_Class_Name = ".";
+		for (auto T : Template_Pair) {
+			Template_Pair_Class_Name += T + "_";
+		}
+		if (Parent->Find(Template_Pair_Class_Name, Parent, CLASS_NODE) != nullptr) {
+			Output.push_back(Template_Pair_Class_Name);
+		}
+		else {
+
+		}
+	}
+
 }
 
 void Parser::Operator_Combinator(int i)
