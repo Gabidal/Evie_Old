@@ -4,14 +4,8 @@
 .section .text
 Start_Test:
 sub rsp, 8
-mov ecx, 4
-mov r8, rdx
-mov eax, 10
-mul ecx
-mov ecx, eax
-mov rdx, r8
-mov ecx, ecx
-call _V17internal_allocatex_rPh
+mov ecx, 10
+call .Allocate_int_
 mov qword ptr [rsp ], rax
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
@@ -30,6 +24,25 @@ ret
 
 main:
 mov eax, 1
+ret 
+ret 
+
+
+char:
+mov rax, rcx
+ret 
+ret 
+
+
+.Allocate_int_:
+mov r8, rdx
+mov eax, 4
+mul ecx
+mov ecx, eax
+mov rdx, r8
+mov ecx, ecx
+call _V17internal_allocatex_rPh
+mov rax, rax
 ret 
 ret 
 

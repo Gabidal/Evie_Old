@@ -646,6 +646,15 @@ public:
 		return Result;
 	}
 
+	vector<Node*> Get_all(vector<int> flags) {
+		vector<Node*> Result;
+		for (auto i : flags) {
+			vector<Node*> tmp = Get_all(i);
+			Result.insert(Result.end(), tmp.begin(), tmp.end());
+		}
+		return Result;
+	}
+
 	/// <summary>
 	/// Gets amount of specified int the parameter from inheritance
 	/// </summary>

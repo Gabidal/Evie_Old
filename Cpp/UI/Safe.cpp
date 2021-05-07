@@ -109,13 +109,13 @@ void Safe::Check_Return_Validity(Node* n)
 	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Scope);
 
 	if (n->Right != nullptr) {
-		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE }))
+		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE }))
 			n->Right->Size = n->Find(n->Right, n->Scope)->Size;
 		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
 		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
-		else if (n->Right->Cast_Type != "" && n->Find(n->Right->Cast_Type, n, CLASS_NODE)->Get_Size() == func->Get_Size() && n->Find(n->Right->Cast_Type, n, CLASS_NODE)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
+		else if (n->Right->Cast_Type != "" && n->Find(n->Right->Cast_Type, n)->Get_Size() == func->Get_Size() && n->Find(n->Right->Cast_Type, n)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
 		else if (func->Get_Size() == 0) {
 			Report(Observation(ERROR, "Cant return value in non-returning funciton.", *n->Location));

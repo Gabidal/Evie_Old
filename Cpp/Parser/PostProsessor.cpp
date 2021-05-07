@@ -425,6 +425,11 @@ void PostProsessor::Open_Paranthesis(int i)
 		return;
 
 	PostProsessor p(Input[i], Input[i]->Childs);
+
+	Input[i]->Inheritted.push_back(Input[i]->Childs.back()->Cast_Type);
+
+	if (Input[i]->Inheritted.back() == "")
+		Input[i]->Inheritted = Input[i]->Childs.back()->Inheritted;
 }
 
 void PostProsessor::Find_Call_Owner(Node* n)
@@ -1110,8 +1115,9 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 	else if (n->is(CALL_NODE)) {
 		vector<int> v_index;
 		for (int i = 0; i < n->Parameters.size(); i++)
-			if (n->Parameters[i]->Name == v->Name)
-				v_index.push_back(i);
+			for (auto j : n->Parameters[i]->Get_all({ OBJECT_NODE, PARAMETER_NODE, OBJECT_DEFINTION_NODE }))
+				if (j->Name == v->Name)
+					v_index.push_back(i);
 		for (auto i : v_index) {
 			int Template_ptr = Get_Amount("ptr", n->Function_Implementation->Parameters[i]);
 			int V_ptr = Get_Amount("ptr", v);
@@ -1123,11 +1129,19 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 		Analyze_Variable_Address_Pointing(v, n->Right);
 		if (v->Requires_Address)
 			return;
-		Node* func = n->Get_Parent_As(FUNCTION_NODE, n);
-		int Func_ptr = Get_Amount("ptr", func);
-		int V_ptr = Get_Amount("ptr", v);
-		if (Func_ptr > V_ptr)
-			v->Requires_Address = true;
+
+		//check if the return returs this v node
+		for (auto i : n->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
+			if (i->Name == v->Name)
+				if (i->Context == n) {
+					Node* func = n->Get_Parent_As(FUNCTION_NODE, n);
+					int Func_ptr = Get_Amount("ptr", func);
+					int V_ptr = Get_Amount("ptr", i);
+					if (Func_ptr > V_ptr)
+						v->Requires_Address = true;
+				}
+		}
+
 	}
 	
 	
@@ -1146,6 +1160,11 @@ int PostProsessor::Get_Amount(string t, Node* n)
 	for (string s : n->Inheritted)
 		if (s == t)
 			result++;
+
+	if (n->Cast_Type != "")
+		for (auto i : n->Find(n->Cast_Type, n)->Inheritted)
+			if (i == t)
+				result++;
 
 	return result;
 }

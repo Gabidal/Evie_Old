@@ -124,7 +124,7 @@ void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Compo
 
 	//<int ptr, char>
 	vector<vector<string>> Template_Pairs;
-	vector<string> Output;
+	vector<pair<string, bool>> Output;
 
 	//first sort template pair type by comma.
 	vector<string> Current_Template_Pair;
@@ -141,21 +141,49 @@ void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Compo
 			Current_Template_Pair.push_back(T.Value);
 		}
 	}
+	if (Current_Template_Pair.size() > 0) {
+		Template_Pairs.push_back(Current_Template_Pair);
+		Current_Template_Pair.clear();
+	}
 
 	//Now create a class for every template pair.
 	for (auto& Template_Pair : Template_Pairs) {
 		//ofcourse avoid same class redefinition.
-		string Template_Pair_Class_Name = ".";
+		if (Template_Pair.size() == 1) {
+			Output.push_back({ Template_Pair[0], false });
+			continue;
+		}
+		string Template_Pair_Class_Name = "";
 		for (auto T : Template_Pair) {
 			Template_Pair_Class_Name += T + "_";
 		}
-		if (Parent->Find(Template_Pair_Class_Name, Parent, CLASS_NODE) != nullptr) {
-			Output.push_back(Template_Pair_Class_Name);
+		string Template_Pair_Class_Name_Dot = "." + Template_Pair_Class_Name;
+		if (Parent->Find(Template_Pair_Class_Name_Dot, Parent, CLASS_NODE) != nullptr) {
+			Output.push_back({ Template_Pair_Class_Name_Dot, true });
 		}
 		else {
-
+			Node* New_Template_Pair_Class = new Node(CLASS_NODE, &i.Location);
+			New_Template_Pair_Class->Inheritted = Template_Pair;
+			New_Template_Pair_Class->Name = Template_Pair_Class_Name_Dot;
+			New_Template_Pair_Class->Scope = Global_Scope;
+			Global_Scope->Defined.push_back(New_Template_Pair_Class);
+			Output.push_back({ Template_Pair_Class_Name, true });
 		}
 	}
+
+	i.Components.clear();
+	for (auto j : Output) {
+		string PreFix = "";
+		if (j.second)
+			PreFix = ".";
+		Component C = Component(PreFix + j.first, i.Location, Flags::TEXT_COMPONENT);
+		i.Components.push_back(C);
+	}
+
+	Parser p(Global_Scope);
+	p.Input = i.Components;
+	p.Factory();
+	i.Components = p.Input;
 
 }
 
@@ -1703,6 +1731,8 @@ void Parser::Factory() {
 		Combine_Import_Shattered_Return_Info(i);
 	for (int i = 0; i < Input.size(); i++)
 		Template_Pattern(i);
+	for (auto& i : Input)
+		Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(i);
 	for (int i = 0; i < Input.size(); i++) {
 		//variable/objects definator.		
 		Prototype_Pattern(i);	//Definition_pattern stoles this import functions, so this goes first
