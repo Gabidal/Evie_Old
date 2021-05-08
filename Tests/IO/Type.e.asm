@@ -11,7 +11,8 @@
 .file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
 .file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
 .file 12 "Tests/IO/../../IO/STD.e"
-.file 13 "Tests/IO/../../IO/List.e"
+.file 13 "Tests/IO/../../IO/Memory.e"
+.file 14 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -107,8 +108,23 @@ main_END:
 
 
 .cfi_endproc 
+char_START:
+.loc 2 11 1
+char:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+mov rax, qword ptr [rsp + 0 ]
+add rsp, 8
+ret 
+add rsp, 8
+ret 
+char_END:
+
+
+.cfi_endproc 
 Banana_START:
-.loc 1 11 1
 Banana:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
@@ -193,7 +209,7 @@ debug_abbrev:
 .byte 0
 .byte 4
 .byte 2
-.byte 1
+.byte 0
 .byte 54
 .byte 11
 .byte 3
@@ -207,6 +223,21 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 5
+.byte 2
+.byte 1
+.byte 54
+.byte 11
+.byte 3
+.byte 8
+.byte 11
+.byte 11
+.byte 58
+.byte 11
+.byte 59
+.byte 11
+.byte 0
+.byte 0
+.byte 6
 .byte 46
 .byte 1
 .byte 17
@@ -214,21 +245,6 @@ debug_abbrev:
 .byte 18
 .byte 6
 .byte 64
-.byte 24
-.byte 3
-.byte 8
-.byte 58
-.byte 11
-.byte 59
-.byte 11
-.byte 73
-.byte 19
-.byte 0
-.byte 0
-.byte 6
-.byte 5
-.byte 0
-.byte 2
 .byte 24
 .byte 3
 .byte 8
@@ -241,6 +257,21 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 7
+.byte 5
+.byte 0
+.byte 2
+.byte 24
+.byte 3
+.byte 8
+.byte 58
+.byte 11
+.byte 59
+.byte 11
+.byte 73
+.byte 19
+.byte 0
+.byte 0
+.byte 8
 .byte 2
 .byte 1
 .byte 54
@@ -257,7 +288,7 @@ debug_abbrev:
 .byte 19
 .byte 0
 .byte 0
-.byte 8
+.byte 9
 .byte 46
 .byte 1
 .byte 17
@@ -274,7 +305,7 @@ debug_abbrev:
 .byte 11
 .byte 0
 .byte 0
-.byte 9
+.byte 10
 .byte 46
 .byte 1
 .byte 17
@@ -295,7 +326,7 @@ debug_abbrev:
 .byte 25
 .byte 0
 .byte 0
-.byte 10
+.byte 11
 .byte 52
 .byte 0
 .byte 2
@@ -310,7 +341,7 @@ debug_abbrev:
 .byte 19
 .byte 0
 .byte 0
-.byte 11
+.byte 12
 .byte 46
 .byte 0
 .byte 17
@@ -396,8 +427,15 @@ _string_START:
 .byte 1
 .byte 2
 .byte 29
-_Fruit_START:
+___CAST___START:
 .byte 4
+.byte 1
+.asciz "__CAST__"
+.byte 8
+.byte 13
+.byte 1
+_Fruit_START:
+.byte 5
 .byte 1
 .asciz "Fruit"
 .byte 4
@@ -410,7 +448,7 @@ _Fruit_START:
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
-.byte 6
+.byte 7
 .byte 2
 .byte 145
 .byte 0
@@ -425,7 +463,7 @@ _Fruit_START:
 .byte 4
 .long _int_START-Debug_Info_Start
 _Banana_START:
-.byte 7
+.byte 8
 .byte 1
 .asciz "Banana"
 .byte 16
@@ -457,7 +495,7 @@ _Banana_START:
 .byte 14
 .long _int_START-Debug_Info_Start
 .byte 0
-.byte 8
+.byte 9
 .quad Get_Sugar_START
 .long Get_Sugar_END-Get_Sugar_START
 .byte 1
@@ -465,7 +503,7 @@ _Banana_START:
 .asciz "Get_Sugar"
 .byte 1
 .byte 18
-.byte 6
+.byte 7
 .byte 2
 .byte 145
 .byte 0
@@ -498,7 +536,7 @@ _Banana_START:
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
-.byte 8
+.byte 9
 .quad is_Banana_START
 .long is_Banana_END-is_Banana_START
 .byte 1
@@ -506,7 +544,7 @@ _Banana_START:
 .asciz "is_Banana"
 .byte 1
 .byte 22
-.byte 6
+.byte 7
 .byte 2
 .byte 145
 .byte 0
@@ -521,7 +559,7 @@ _Banana_START:
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
-.byte 9
+.byte 10
 .quad Start_Test_START
 .long Start_Test_END-Start_Test_START
 .byte 1
@@ -530,7 +568,7 @@ _Banana_START:
 .asciz "Start_Test"
 .byte 1
 .byte 26
-.byte 10
+.byte 11
 .byte 2
 .byte 145
 .byte 0
@@ -563,7 +601,7 @@ _Banana_START:
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
-.byte 11
+.byte 12
 .quad main_START
 .long main_END-main_START
 .byte 1

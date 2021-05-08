@@ -1161,7 +1161,7 @@ int PostProsessor::Get_Amount(string t, Node* n)
 		if (s == t)
 			result++;
 
-	if (n->Cast_Type != "")
+	if (n->Cast_Type != "" && n->Cast_Type != "address")
 		for (auto i : n->Find(n->Cast_Type, n)->Inheritted)
 			if (i == t)
 				result++;

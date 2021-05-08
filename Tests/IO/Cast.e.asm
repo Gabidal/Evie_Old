@@ -11,7 +11,8 @@
 .file 10 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm.obj"
 .file 11 "C:/Users/GabenRTX/.Repos/vivid/Vivid/libv/windows_x64/system.asm"
 .file 12 "Tests/IO/../../IO/STD.e"
-.file 13 "Tests/IO/../../IO/List.e"
+.file 13 "Tests/IO/../../IO/Memory.e"
+.file 14 "Tests/IO/../../IO/List.e"
 Code_Start:
 .global main
 .global Start_Test
@@ -82,6 +83,22 @@ mov eax, 1
 ret 
 ret 
 main_END:
+
+
+.cfi_endproc 
+char_START:
+.loc 2 11 1
+char:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+mov rax, qword ptr [rsp + 0 ]
+add rsp, 8
+ret 
+add rsp, 8
+ret 
+char_END:
 
 
 .cfi_endproc 
@@ -185,7 +202,7 @@ debug_abbrev:
 .byte 0
 .byte 4
 .byte 2
-.byte 1
+.byte 0
 .byte 54
 .byte 11
 .byte 3
@@ -211,11 +228,26 @@ debug_abbrev:
 .byte 11
 .byte 59
 .byte 11
+.byte 0
+.byte 0
+.byte 6
+.byte 2
+.byte 1
+.byte 54
+.byte 11
+.byte 3
+.byte 8
+.byte 11
+.byte 11
+.byte 58
+.byte 11
+.byte 59
+.byte 11
 .byte 73
 .byte 19
 .byte 0
 .byte 0
-.byte 6
+.byte 7
 .byte 46
 .byte 1
 .byte 17
@@ -232,7 +264,7 @@ debug_abbrev:
 .byte 11
 .byte 0
 .byte 0
-.byte 7
+.byte 8
 .byte 52
 .byte 0
 .byte 2
@@ -247,30 +279,9 @@ debug_abbrev:
 .byte 19
 .byte 0
 .byte 0
-.byte 8
-.byte 46
-.byte 1
-.byte 17
-.byte 1
-.byte 18
-.byte 6
-.byte 64
-.byte 24
-.byte 110
-.byte 8
-.byte 3
-.byte 8
-.byte 58
-.byte 11
-.byte 59
-.byte 11
-.byte 63
-.byte 25
-.byte 0
-.byte 0
 .byte 9
 .byte 46
-.byte 0
+.byte 1
 .byte 17
 .byte 1
 .byte 18
@@ -290,6 +301,27 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 10
+.byte 46
+.byte 0
+.byte 17
+.byte 1
+.byte 18
+.byte 6
+.byte 64
+.byte 24
+.byte 110
+.byte 8
+.byte 3
+.byte 8
+.byte 58
+.byte 11
+.byte 59
+.byte 11
+.byte 63
+.byte 25
+.byte 0
+.byte 0
+.byte 11
 .byte 5
 .byte 0
 .byte 2
@@ -304,7 +336,7 @@ debug_abbrev:
 .byte 19
 .byte 0
 .byte 0
-.byte 11
+.byte 12
 .byte 46
 .byte 1
 .byte 17
@@ -388,8 +420,15 @@ _string_START:
 .byte 1
 .byte 2
 .byte 29
-_Base_START:
+___CAST___START:
 .byte 4
+.byte 1
+.asciz "__CAST__"
+.byte 8
+.byte 13
+.byte 1
+_Base_START:
+.byte 5
 .byte 1
 .asciz "Base"
 .byte 4
@@ -403,7 +442,7 @@ _Base_START:
 .long _int_START-Debug_Info_Start
 .byte 0
 _Mid_START:
-.byte 5
+.byte 6
 .byte 1
 .asciz "Mid"
 .byte 8
@@ -424,7 +463,7 @@ _Mid_START:
 .long _float_START-Debug_Info_Start
 .byte 0
 _Top_START:
-.byte 5
+.byte 6
 .byte 1
 .asciz "Top"
 .byte 12
@@ -450,7 +489,7 @@ _Top_START:
 .byte 14
 .long _int_START-Debug_Info_Start
 .byte 0
-.byte 6
+.byte 7
 .quad test_all_format_casts_START
 .long test_all_format_casts_END-test_all_format_casts_START
 .byte 1
@@ -458,7 +497,7 @@ _Top_START:
 .asciz "test_all_format_casts"
 .byte 1
 .byte 17
-.byte 7
+.byte 8
 .byte 2
 .byte 145
 .byte 0
@@ -466,7 +505,7 @@ _Top_START:
 .byte 1
 .byte 18
 .long _int_START-Debug_Info_Start
-.byte 7
+.byte 8
 .byte 2
 .byte 145
 .byte 0
@@ -474,7 +513,7 @@ _Top_START:
 .byte 1
 .byte 20
 .long _float_START-Debug_Info_Start
-.byte 7
+.byte 8
 .byte 2
 .byte 145
 .byte 0
@@ -483,7 +522,7 @@ _Top_START:
 .byte 21
 .long _double_START-Debug_Info_Start
 .byte 0
-.byte 8
+.byte 9
 .quad Start_Test_START
 .long Start_Test_END-Start_Test_START
 .byte 1
@@ -492,7 +531,7 @@ _Top_START:
 .asciz "Start_Test"
 .byte 1
 .byte 30
-.byte 7
+.byte 8
 .byte 2
 .byte 145
 .byte 0
@@ -513,7 +552,7 @@ _Top_START:
 .byte 4
 .long _int_START-Debug_Info_Start
 .byte 0
-.byte 9
+.byte 10
 .quad main_START
 .long main_END-main_START
 .byte 1
@@ -522,14 +561,14 @@ _Top_START:
 .asciz "main"
 .byte 1
 .byte 36
-.byte 10
+.byte 11
 .byte 2
 .byte 145
 .byte 0
 .asciz "this"
-.byte 1
-.byte 3
-.long _Base_START-Debug_Info_Start
+.byte 2
+.byte 11
+.long _char_START-Debug_Info_Start
 .byte 3
 .byte 4
 .asciz "Type"
