@@ -384,8 +384,9 @@ Node* Node::Find(string name, Node* s, int flags) {
 				return i;
 
 	for (Node* i : s->Defined)
-		if (i->Name == name && i->is(flags))
-			return i;
+		if (i->is(flags))
+			if (i->Name == name)
+				return i;
 
 	if (s->Scope != nullptr)
 		if (Find(name, s->Scope, flags) != nullptr)
@@ -415,7 +416,7 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 	}
 
 	for (auto i : s->Templates)
-		if (i->Name == Name)
+		if (i->Name == name)
 			return i;
 
 	for (Node* i : s->Defined)

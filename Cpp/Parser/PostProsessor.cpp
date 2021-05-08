@@ -460,7 +460,10 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		string New_Name = "." + n->Construct_Template_Type_Name();
 		Parser P(Scope->Get_Parent_As(CLASS_NODE, Scope));
 
-		if (Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }) != nullptr && n->Compare_Fetchers(Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))) {
+		Node* tmp_Current_Func = n->Copy_Node(n, n->Scope);
+		tmp_Current_Func->Name = New_Name;
+
+		if (Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }) != nullptr && tmp_Current_Func->Compare_Fetchers(Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))) {
 			n->Name = New_Name;
 			n->Templates.clear();
 		}

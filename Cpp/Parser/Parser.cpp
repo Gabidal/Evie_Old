@@ -508,7 +508,7 @@ void Parser::Constructor_Pattern(int i)
 
 void Parser::Prototype_Pattern(int i)
 {
-	if (!(Parent->is(CLASS_NODE) && (Parent->is("static") || Parent->Name == "GLOBAL_SCOPE")))
+	if (!(Parent->is(CLASS_NODE) && ((Parent->is("static") != -1) || Parent->Name == "GLOBAL_SCOPE")))
 		return;
 	//func banana(int, short)\n
 	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT });
@@ -606,7 +606,7 @@ void Parser::Prototype_Pattern(int i)
 	}
 
 	//erase inherittes as well the name as well the pearameters from the input list
-	Input.erase(Input.begin() + Words[0], Input.begin() + i + Paranthesis[0] + 1);
+	Input.erase(Input.begin() + Words[0], Input.begin() + Paranthesis[0] + 1);
 
 	Parent->Defined.push_back(New_Defined_Object);
 
@@ -776,7 +776,7 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Parent->Find(Input[i].Value, Parent, true) == nullptr)
+	if (Parent->Find(Input[i].Value, Parent, (bool)true) == nullptr)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
@@ -1112,8 +1112,8 @@ void Parser::Callation_Pattern(int i)
 		p.Factory();
 
 		//save all the template types into the call node, for postprosessor to handle this.
-		for (auto T : p.Input.back().Components)
-			call->Templates.push_back(T.node);
+		for (auto T : p.Input.back().node->Templates)
+			call->Templates.push_back(T);
 
 		Input.erase(Input.begin() + i + 1);
 	}
