@@ -1239,7 +1239,7 @@ void Parser::Function_Pattern(int i)
 		Report(Observation(ERROR, "Parser didnt find " + Input[i].node->Name + " constructor!", Input[i].Location));
 		throw::runtime_error("ERROR!");
 	}
-		//override the object definition node flag
+	//override the object definition node flag
 	func->Type = FUNCTION_NODE;
 	//set the other values
 	func->Name = Input[i].Value;
@@ -1264,16 +1264,17 @@ void Parser::Function_Pattern(int i)
 		}
 		func->Is_Template_Object = true;
 	}
+
+	Parser p(func);
+	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
+	p.Factory();
+
+	for (auto& j : func->Defined) {
+		j->Type = PARAMETER_NODE;
+	}
+
+	func->Parameters = func->Defined;
 	if (!func->Is_Template_Object) {
-		Parser p(func);
-		p.Input.push_back(Input[Parenthesis_Indexes[0]]);
-		p.Factory();
-
-		for (auto& j : func->Defined) {
-			j->Type = PARAMETER_NODE;
-		}
-
-		func->Parameters = func->Defined;
 		p.Input.clear();
 
 		p.Input.push_back(Input[Parenthesis_Indexes[1]]);

@@ -41,9 +41,18 @@ public:
 	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
 	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
 	void Open_Paranthesis(int i);					//(..)
-	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call
-	bool Find_Castable_Inheritance(vector<string> types, string target);
+
+	//Callation handlers
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Open_Call_Parameters_For_Prosessing(int i);//open the calls parameters to do postprosessing
+	vector<pair<Node*, Node*>> Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison);
+	map<int, vector<pair<pair<Node*, Node*>, Node*>>> Order_By_Accuracity(vector<pair<Node*, Node*>> Candidates, Node* Caller);
+	Node* Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pair<Node*, Node*>, Node*>>> Candidates, Node* Caller);
+
+	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call
+
+
+	bool Find_Castable_Inheritance(vector<string> types, string target);
 	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.

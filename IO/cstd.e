@@ -31,7 +31,7 @@ type string{
 }
 
 #import T ptr cpp allocate<T>(int size)
-import type ptr cpp internal_allocate(long size)
+#import type ptr cpp internal_allocate(long size)
 #import func cpp deallocate(type ptr, int)
 
 func memcpy<T>(T ptr dest, T ptr source, int Size){

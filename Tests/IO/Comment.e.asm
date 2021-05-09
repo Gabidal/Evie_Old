@@ -80,6 +80,30 @@ char_END:
 
 
 .cfi_endproc 
+.Allocate_int__START:
+.loc 14 1 1
+.Allocate_int_:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 4
+mov dword ptr [rsp + 0 ], ecx
+mov rcx, rdx
+mov eax, 4
+mul dword ptr [rsp + 0 ]
+mov dword ptr [rsp + 0 ], eax
+mov rdx, rcx
+.loc 13 5 9
+mov ecx, dword ptr [rsp + 0 ]
+call _V17internal_allocatex_rPh
+mov rax, rax
+add rsp, 4
+ret 
+add rsp, 4
+ret 
+.Allocate_int__END:
+
+
+.cfi_endproc 
 .memcpy_int__START:
 .loc 14 1 1
 .memcpy_int_:
@@ -120,6 +144,7 @@ ret
 .List_int_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
+push rbx
 sub rsp, 8
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsp + 0 ]
@@ -128,25 +153,21 @@ mov dword ptr [rcx + 0 ], 1
 mov rcx, qword ptr [rsp + 0 ]
 .loc 14 3 11
 mov dword ptr [rcx + 4 ], 0
+mov rbx, qword ptr [rsp + 0 ]
 mov rcx, qword ptr [rsp + 0 ]
 .loc 14 2 2
 mov ecx, dword ptr [rcx + 0 ]
-mov r8, rdx
-mov eax, 4
-mul ecx
-mov ecx, eax
-mov rdx, r8
 .loc 14 4 16
 mov ecx, ecx
-call _V17internal_allocatex_rPh
-mov rcx, qword ptr [rsp + 0 ]
-lea r8, qword ptr [rax ]
-mov qword ptr [rcx + 8 ], r8
+call .Allocate_int_
+mov qword ptr [rbx + 8 ], rax
 .loc 14 1 1
 mov rax, qword ptr [rsp + 0 ]
 add rsp, 8
+pop rbx
 ret 
 add rsp, 8
+pop rbx
 ret 
 .List_int__END:
 
@@ -519,6 +540,23 @@ _.List_int__START:
 .byte 2
 .byte 11
 .long _char_START-Debug_Info_Start
+.byte 9
+.quad .Allocate_int__START
+.long .Allocate_int__END-.Allocate_int__START
+.byte 1
+.byte 87
+.asciz ".Allocate_int_"
+.byte 14
+.byte 1
+.byte 7
+.byte 2
+.byte 145
+.byte 0
+.asciz "Return_Cast_Type"
+.byte 13
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 0
 .byte 9
 .quad .memcpy_int__START
 .long .memcpy_int__END-.memcpy_int__START

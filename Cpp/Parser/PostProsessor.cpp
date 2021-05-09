@@ -704,6 +704,116 @@ Try_Again:;
 	return;
 }
 
+vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison)
+{
+	vector<pair<Node*, Node*>> Result;
+
+	//first try to find the scope, by checking fetchers
+	vector<Node*> Scopes = caller->Get_Scope_Path();
+	//Get_Scope_Path() doesnt give us Global_Scope, so lets add it manually.
+	Scopes.push_back(Global_Scope);
+
+	//now that our scopes are ready to go, we can loop through them and find suitable candidates.
+	for (auto Scope : Scopes) {
+		for (auto Func : Scope->Defined) {
+			if (!Func->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
+				continue;
+			if (!Skip_Name_Comparison)
+				if (Func->Name != caller->Name)
+					continue;
+			if (Func->Parameters.size() != caller->Parameters.size())
+				continue;
+			if (Func->Templates.size() != caller->Templates.size())
+				continue;
+
+			Result.push_back({ Func, Scope });
+		}
+	}
+	return Result;
+}
+
+map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accuracity(vector<pair<Node*, Node*>> Candidates, Node* Caller)
+{
+	//save the candidatea by int accuracity
+	map<int, vector<pair<pair<Node*, Node*>, Node*>>> Result;
+
+	for (auto Candidate : Candidates) {
+		//for every point the accuracity increases.
+		int Accuracity = 0;
+
+		Node* Func = Candidate.first;
+
+		//make the template ready for comparison.
+		if (Candidate.first->Is_Template_Object) {
+			Func = Candidate.first->Copy_Node(Candidate.first, Candidate.second);
+
+			//this part is going to be really slow :/
+			for (int T = 0; T < Caller->Templates.size(); T++) {
+				//find and replace the template arg with the callers template type.
+				for (auto& I : Func->Inheritted)
+					if (I == Candidate.first->Templates[T]->Name)
+						I = Caller->Templates[T]->Name;
+
+				for (auto& P : Func->Parameters) {
+					for (auto& I : P->Inheritted)
+						if (I == Candidate.first->Templates[T]->Name)
+							I = Caller->Templates[T]->Name;
+				}
+			}
+		}
+
+		//dont worry about pointter amount, we will check them in another function-
+		//that is to run after this function.
+		if (Func->Get_Inheritted("_", true, false, true) == Caller->Get_Inheritted("_", true, false, true))
+			Accuracity++;
+
+		bool All_Parameters_Match = true;
+		for (int i = 0; i < Func->Parameters.size(); i++) {
+			if (Func->Parameters[i]->Get_Inheritted("_", true, false, true) != Caller->Parameters[i]->Get_Inheritted("_", true, false, true))
+				for (int j = 0; j < Func->Parameters[i]->Inheritted.size(); j++)
+					//banana --> fruit
+					if (!Find_Castable_Inheritance(Caller->Parameters[i]->Get_Inheritted(true, false), Func->Parameters[i]->Inheritted[j]))
+						//fruit <-- banana
+						for (int Caller_i = 0; Caller_i < Caller->Parameters[i]->Get_Inheritted(true, false).size(); Caller_i++)
+							if (!Find_Castable_Inheritance(Func->Parameters[i]->Get_Inheritted(true, false), Caller->Parameters[Caller_i]->Name))
+								All_Parameters_Match = false;
+		}
+
+		if (All_Parameters_Match)
+			Accuracity++;
+
+		Result[Accuracity].push_back({ {Candidate.first, Func}, Candidate.second });
+
+	}
+	return Result;
+}
+
+Node* PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pair<Node*, Node*>, Node*>>> Candidates, Node* Caller)
+{
+	//Max accuracity is currently capped out at 2
+	int Max_Accuracity = 2;
+
+	for (auto Func : Candidates[Max_Accuracity]) {
+		if (Func.first.first->Is_Template_Object) {
+			//check if the template function is already generated for this caller.
+			string New_Name = "." + Caller->Construct_Template_Type_Name();
+			Node* tmp_Current_Func = Func.first.first->Copy_Node(Func.first.first, Func.second);
+			tmp_Current_Func->Name = New_Name;
+
+			Node* Function = Func.second->Find(New_Name, Func.second, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT });
+			if (Function != nullptr && tmp_Current_Func->Compare_Fetchers(Function)) {
+				Caller->Function_Implementation = Function;
+				return;
+			}
+
+			//here we generate the template function from the template types
+			Parser P(Func.second); 
+			P.Input = P.Template_Function_Constructor(Func.first.first, Func.first.first->Templates, Caller->Templates);
+			P.Factory();
+		}
+	}
+}
+
 bool PostProsessor::Find_Castable_Inheritance(vector<string> types, string target)
 {
 	for (auto type : types) {
@@ -1271,8 +1381,18 @@ bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
 {
 	//t = template
 	//c = call
-	//how many times we can skip a type
-	int Type_Amount = Get_Amount("type", t);
+	int Type_Amount = 0;
+	if (t->Templates.size() > 0) {
+		for (auto T : t->Templates)
+			for (auto i : t->Inheritted)
+				if (i == T->Name)
+					Type_Amount++;
+	}
+	else {
+		//how many times we can skip a type
+		int Type_Amount = Get_Amount("type", t);
+
+	}
 
 	if (c->is("type") != -1) {
 		//this means this funciton call is in template usage or this is a void calling convension.
