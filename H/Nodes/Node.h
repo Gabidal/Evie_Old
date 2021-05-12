@@ -112,7 +112,7 @@ public:
 	
 	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false, bool skip_keywords = false);
 	
-	vector<string> Get_Inheritted(bool Skip_Prefixes = false, bool Get_Name = false);
+	vector<string> Get_Inheritted(bool Skip_Prefixes = false, bool Get_Name = false, bool Skip_Keywords = false);
 
 	string Get_Mangled_Name(bool Skip_Prefixes = false, bool Skip_Return_Type = false) {
 		//_int_ptr_Z6banana_int_int_short

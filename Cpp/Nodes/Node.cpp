@@ -81,7 +81,7 @@ Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 Stop:;
 }
 
-vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name) {
+vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip_Keywords) {
 	vector<string> Result;
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
 		return { Name };
@@ -104,6 +104,8 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name) {
 	else {
 		for (int i = 0; i < Inheritted.size(); i++) {
 			if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
+				continue;
+			if (Skip_Keywords && Lexer::GetComponent(Inheritted[i]).is(::Flags::KEYWORD_COMPONENT) && Inheritted[i] != "ptr")
 				continue;
 			Result.push_back(Inheritted[i]);
 		}

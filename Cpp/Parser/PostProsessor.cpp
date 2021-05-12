@@ -447,7 +447,14 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
 
-	Node* Scope = Global_Scope;
+	vector<pair<Node*, Node*>> Previus_Candidates;
+	bool It_Is_A_Function_Pointter = false;
+	while (n->Function_Implementation == nullptr) {
+		Previus_Candidates = Find_Suitable_Function_Candidates(n, It_Is_A_Function_Pointter);
+
+	}
+
+	/*Node* Scope = Global_Scope;
 	if (n->Fetcher != nullptr) {
 		if (n->Fetcher->is(CLASS_NODE))
 			Scope = n->Fetcher->Find(n->Fetcher->Name, n, CLASS_NODE);
@@ -634,7 +641,7 @@ Try_Again:;
 		OgFunc = f;
 		break;
 	Next_Function:;
-	}*/
+	}
 	if (OgFunc == nullptr && n->Scope->Find(n, n->Scope)->is("ptr") != -1)
 		if (Skip_Name_Checking_For_Func_Ptr == false) {
 			Skip_Name_Checking_For_Func_Ptr = true;
@@ -701,7 +708,7 @@ Try_Again:;
 	Scope->Childs.push_back(func);
 	Scope->Defined.push_back(func);
 
-	return;
+	return;*/
 }
 
 vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison)
@@ -709,7 +716,9 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	vector<pair<Node*, Node*>> Result;
 
 	//first try to find the scope, by checking fetchers
-	vector<Node*> Scopes = caller->Get_Scope_Path();
+	vector<Node*> Scopes;
+
+	Scopes.push_back(caller->Fetcher);
 	//Get_Scope_Path() doesnt give us Global_Scope, so lets add it manually.
 	Scopes.push_back(Global_Scope);
 
@@ -732,10 +741,10 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	return Result;
 }
 
-map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accuracity(vector<pair<Node*, Node*>> Candidates, Node* Caller)
+map<int, vector<pair<Node*, Node*>>> PostProsessor::Order_By_Accuracy(vector<pair<Node*, Node*>> Candidates, Node* Caller)
 {
 	//save the candidatea by int accuracity
-	map<int, vector<pair<pair<Node*, Node*>, Node*>>> Result;
+	map<int, vector<pair<Node*, Node*>>> Result;
 
 	for (auto Candidate : Candidates) {
 		//for every point the accuracity increases.
@@ -773,7 +782,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 				for (int j = 0; j < Func->Parameters[i]->Inheritted.size(); j++)
 					//banana --> fruit
 					if (!Find_Castable_Inheritance(Caller->Parameters[i]->Get_Inheritted(true, false), Func->Parameters[i]->Inheritted[j]))
-						//fruit <-- banana
+						//fruit --> banana
 						for (int Caller_i = 0; Caller_i < Caller->Parameters[i]->Get_Inheritted(true, false).size(); Caller_i++)
 							if (!Find_Castable_Inheritance(Func->Parameters[i]->Get_Inheritted(true, false), Caller->Parameters[Caller_i]->Name))
 								All_Parameters_Match = false;
@@ -782,36 +791,109 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 		if (All_Parameters_Match)
 			Accuracity++;
 
-		Result[Accuracity].push_back({ {Candidate.first, Func}, Candidate.second });
+		Result[Accuracity].push_back({ Candidate.first, Candidate.second });
 
 	}
 	return Result;
 }
 
-Node* PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pair<Node*, Node*>, Node*>>> Candidates, Node* Caller)
+// returns 0 if found caller's function implemitation.
+// returns 1 if constructed a new function implemitation based on the template types
+// returns -1 if nothing found
+// returns 2 if there is more than one suitable functions to call.
+//
+int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<Node*, Node*>>> Candidates, Node* Caller)
 {
 	//Max accuracity is currently capped out at 2
 	int Max_Accuracity = 2;
 
+	Node* Best_Candidate = nullptr;
+	Node* Template_Function_With_Args;
+	Node* Scope;
+
+	//	  Candidate, Distance
+	vector<pair<int, int>> Candidate_Distance;
 	for (auto Func : Candidates[Max_Accuracity]) {
-		if (Func.first.first->Is_Template_Object) {
-			//check if the template function is already generated for this caller.
-			string New_Name = "." + Caller->Construct_Template_Type_Name();
-			Node* tmp_Current_Func = Func.first.first->Copy_Node(Func.first.first, Func.second);
-			tmp_Current_Func->Name = New_Name;
+		//Check whoose closer if the return type or parameters need to be casted
+		int Current_Candidate_Distance = 0;
+		//the more casting is made the further the candidate is from the caller
+		vector<string> Callers_Return_Types = Caller->Get_Inheritted(false, false, true);
+		vector<string> Func_Return_Types = Func.first->Get_Inheritted(false, false, true);
 
-			Node* Function = Func.second->Find(New_Name, Func.second, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT });
-			if (Function != nullptr && tmp_Current_Func->Compare_Fetchers(Function)) {
-				Caller->Function_Implementation = Function;
-				return;
+		int All_Castings_Combined = 0;
+		for (int P = 0; P < Func.first->Parameters.size(); P++) {
+			All_Castings_Combined += Get_Casting_Distance(Caller->Parameters[P], Func.first->Parameters[P]);
+		}
+
+		if (Callers_Return_Types.size() == Func_Return_Types.size())
+			for (int P = 0; P < Callers_Return_Types.size(); P++)
+				All_Castings_Combined += Get_Casting_Distance(Scope->Find(Callers_Return_Types[P]), Scope->Find(Func_Return_Types[P]));
+		else {
+			//check if there are different amount of ptr
+			int Caller_Ptr_Count = Caller->Get_All("ptr");
+			int Func_Ptr_Count = Func.first->Get_All("ptr");
+
+			if ((Caller_Ptr_Count + Func_Ptr_Count > 0) && abs(Caller_Ptr_Count - Func_Ptr_Count)) {
+
 			}
+		}
 
-			//here we generate the template function from the template types
-			Parser P(Func.second); 
-			P.Input = P.Template_Function_Constructor(Func.first.first, Func.first.first->Templates, Caller->Templates);
-			P.Factory();
+	}
+
+	if (Best_Candidate == nullptr) {
+		return -1;
+	}
+
+
+	if (Best_Candidate->Is_Template_Object) {
+		//check if the template function is already generated for this caller.
+		string New_Name = "." + Caller->Construct_Template_Type_Name();
+		Node* tmp_Current_Func = Scope->Copy_Node(Best_Candidate, Scope);
+		tmp_Current_Func->Name = New_Name;
+
+		Node* Function = Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT });
+		if (Function != nullptr && tmp_Current_Func->Compare_Fetchers(Function)) {
+			Caller->Function_Implementation = Function;
+			Caller->Name = New_Name;
+			Function->Calling_Count++;
+			return 0;
+		}
+
+		//here we generate the template function from the template types
+		Parser P(Scope);
+		P.Input = P.Template_Function_Constructor(Template_Function_With_Args, Template_Function_With_Args->Templates, Caller->Templates);
+		P.Factory();
+
+		Caller->Function_Implementation = Scope->Defined.back();
+
+		return 1;
+	}
+}
+
+int PostProsessor::Get_Casting_Distance(Node* a, Node* b)
+{
+	int Result = 0;
+	//banana -> fruit
+	Node* Current = a;
+	Node* Goal = b;
+
+	for (auto I : Current->Get_Inheritted()) {
+		//try to chack if this inheritted is connected to the goal type.
+		int Distance = Get_Casting_Distance(Current->Find(I), Goal);
+		if (Distance > 0)
+			Result += Distance;
+	}
+
+	if (Result == 0) {
+		//fruit -> banana
+		for (auto I : Goal->Get_Inheritted()) {
+			//try to chack if this inheritted is connected to the goal type.
+			int Distance = Get_Casting_Distance(Goal->Find(I), Current);
+			if (Distance > 0)
+				Result += Distance;
 		}
 	}
+
 }
 
 bool PostProsessor::Find_Castable_Inheritance(vector<string> types, string target)
