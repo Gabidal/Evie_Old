@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -46,9 +47,9 @@ public:
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Open_Call_Parameters_For_Prosessing(int i);//open the calls parameters to do postprosessing
 	vector<pair<Node*, Node*>> Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison);
-	map<int, vector<pair<Node*, Node*>>> Order_By_Accuracy(vector<pair<Node*, Node*>> Candidates, Node* Caller);
-	int Choose_Most_Suited_Function_Candidate(map<int, vector<pair<Node*, Node*>>> Candidates, Node* Caller);
-	int Get_Casting_Distance(Node* a, Node* b);
+	map<int, vector<pair<pair<Node*, Node*>, Node*>>> Order_By_Accuracy(vector<pair<Node*, Node*>> Candidates, Node* Caller);
+	int Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pair<Node*, Node*>, Node*>>> Candidates, Node* Caller, bool Is_Func_Ptr);
+	int Get_Casting_Distance(Node* a, Node* b, bool Layer = false);
 	bool Find_Castable_Inheritance(vector<string> types, string target);
 	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call
 

@@ -560,7 +560,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 
 bool MANGLER::Is_Base_Type(Node* n)
 {
-	if (n->is(NUMBER_NODE) || n->is(OPERATOR_NODE) || n->is(ASSIGN_OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE) || n->is(BIT_OPERATOR_NODE) || n->is(ARRAY_NODE))
+	if (n->is(NUMBER_NODE) || n->is(OPERATOR_NODE) || n->is(ASSIGN_OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE) || n->is(BIT_OPERATOR_NODE) || n->is(ARRAY_NODE) || n->is(CALL_NODE))
 		return false;
 	bool Result = true;
 	for (auto i : n->Childs) {

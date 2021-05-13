@@ -109,6 +109,11 @@ public:
 		return -1;
 	}
 
+	int Calculate_Inheritted_Distance(Node* Val, Node* Loader, string type);
+
+	int Calculate_Inheritted_Distance(Node* Loader, string type) {
+		return Calculate_Inheritted_Distance(this, Loader, type);
+	}
 	
 	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false, bool skip_keywords = false);
 	

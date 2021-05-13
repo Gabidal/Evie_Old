@@ -109,8 +109,10 @@ void Safe::Check_Return_Validity(Node* n)
 	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Scope);
 
 	if (n->Right != nullptr) {
-		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE }))
+		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE })) {
 			n->Right->Size = n->Find(n->Right, n->Scope)->Size;
+			n->Right->Inheritted = n->Find(n->Right, n->Scope)->Inheritted;
+		}
 		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
 		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true))
@@ -196,7 +198,7 @@ void Safe::Warn_Usage_Of_Depricated(Node* n)
 
 	string Comment;
 
-	if (n->is(CALL_NODE))
+	if (n->is(CALL_NODE) && !n->Function_Ptr)
 		Comment = n->Function_Implementation->Comment;
 	else if (n->Has({OBJECT_NODE, OBJECT_DEFINTION_NODE}))
 		Comment = n->Find(n, n)->Comment;

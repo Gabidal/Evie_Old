@@ -151,6 +151,22 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 	}
 }
 
+int Node::Calculate_Inheritted_Distance(Node* Val, Node* Loader, string type)
+{
+	int Val_Ptr_Count = Val->Get_All(type);
+	int Loader_Ptr_Count = Loader->Get_All(type);
+
+	//if there is ptr involved					&& if the ptr distance is more than 1 
+	if ((Val_Ptr_Count + Loader_Ptr_Count > 0) && (abs(Val_Ptr_Count - Loader_Ptr_Count) > 2)) {
+		if (Loader_Ptr_Count > Val_Ptr_Count && type == "ptr") {
+			//this means that the Loader ptr count is greter than the Val ptr by *2
+			Report(Observation(ERROR, "Cannot wrap " + Val->Name + to_string(abs(Val_Ptr_Count - Loader_Ptr_Count)) + " times into " + Loader->Name, *Val->Location));
+		}
+	}
+
+	return abs(Val_Ptr_Count - Loader_Ptr_Count);
+}
+
 Node* Node::Find_Scope(Node* n)
 {
 	Node* Current_Scope = n->Scope;
