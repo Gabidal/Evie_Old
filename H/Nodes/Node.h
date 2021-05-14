@@ -114,6 +114,21 @@ public:
 	int Calculate_Inheritted_Distance(Node* Loader, string type) {
 		return Calculate_Inheritted_Distance(this, Loader, type);
 	}
+
+	bool Inherits_Template_Type() {
+		if (Is_Template_Object)
+			return true;
+		for (auto i : Inheritted) {
+			if (Lexer::GetComponent(i).is(::Flags::KEYWORD_COMPONENT))
+				continue;
+			bool Inheritted_templation = Find(i)->Inherits_Template_Type();
+			if (Inheritted_templation) {
+				Is_Template_Object = true;	//this speeds the prosess up if this is checked again
+				return Inheritted_templation;
+			}
+		}
+		return false;
+	}
 	
 	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false, bool skip_keywords = false);
 	

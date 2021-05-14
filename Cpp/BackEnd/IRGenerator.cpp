@@ -58,7 +58,7 @@ void IRGenerator::Parse_Function(Node* Func)
 	if (Func->Is_Template_Object)
 		return;
 	for (auto j : Func->Parameters)
-		if (j->is("type") != -1)
+		if (j->is("type") != -1 || j->Inherits_Template_Type())
 			return;	//skip template functions.
 
 	Node* Scope = Parent;
@@ -285,14 +285,12 @@ void IRGenerator::Parse_Calls(int i)
 		if (Call_Variable->is(TOKEN::CONTENT))
 			Call_Variable = new Token(TOKEN::MEMORY, { Call_Variable }, Call_Variable->Get_Size(), Call_Variable->Get_Name());
 		ir = new IR(call, { Call_Variable }, Input[i]->Location);
+		
+		//now remove one ptr from the fuz
+		Input[i]->Inheritted.erase(Input[i]->Inheritted.begin() + Input[i]->is("ptr"));
 	}
 
 	Output->push_back(ir);
-
-	//int De_Allocate_Size = 0;
-	//for (auto j : Reversable_Pushes) {
-	//	De_Allocate_Size += j->Get_Size();
-	//}
 
 	//selector->DeAllocate_Stack(De_Allocate_Size, Output, Output->size());
 	Input[i]->Update_Size();
@@ -301,6 +299,10 @@ void IRGenerator::Parse_Calls(int i)
 		F |= TOKEN::DECIMAL;
 
 	Token* returningReg = new Token(F, "RetREG_" + to_string(Reg_Random_ID_Addon++) /* + All_Parameters_Names*/, Input[i]->Size);
+
+	if (Input[i]->Function_Ptr) {
+		Input[i]->Inheritted.push_back("ptr");
+	}
 
 	Handle = returningReg;
 	Input[i]->Generated = true;
@@ -1801,7 +1803,19 @@ void IRGenerator::Parse_Return(int i) {
 		}
 
 		int Level_Difference = Get_Amount("ptr", Input[i]->Right) - Get_Amount("ptr", p);
-		if (Level_Difference != 0) {
+		//int main(){
+		//int ptr fuz = foo()
+		//return fuz()
+		//}
+		if (Input[i]->Right->Function_Ptr) {
+			if (Level_Difference < 0) {
+				Return_Val = Operate_Pointter(Return_Val, Level_Difference, false, Return_Val->is(TOKEN::CONTENT), Input[i]->Right->Inheritted);
+			}
+			else if (Level_Difference > 0) {
+				Level_Difference = 0;
+			}
+		}
+		else if (Level_Difference != 0) {
 			Return_Val = Operate_Pointter(Return_Val, Level_Difference, false, Return_Val->is(TOKEN::CONTENT), Input[i]->Right->Inheritted);
 		}
 		else if (Return_Val->is(TOKEN::CONTENT)) {

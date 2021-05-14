@@ -344,10 +344,22 @@ void DebugGenerator::Construct_Debug_Info()
     Debug_Info.push_back(DW_AT_High_Pc);
 
     int j = 0;
-    for (auto i : Global_Scope->Defined)
-        if (i->Is_Template_Object == false)
-            Info_Generator(i);
+    for (auto i : Global_Scope->Defined) {
+        if (i->Is_Template_Object)
+            continue;
 
+        bool Has_Template_Parameter = false;
+
+        if (i->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
+            for (auto P : i->Parameters)
+                if (P->Inherits_Template_Type())
+                    Has_Template_Parameter = true;
+
+        if (Has_Template_Parameter)
+            continue;
+
+        Info_Generator(i);
+    }
     //This label indicates the section start point.
     IR* Ldebug_Info_Start0 = new IR(new Token(TOKEN::LABEL, "Debug_Info_End"), {}, nullptr);
     Debug_Info.push_back(Ldebug_Info_Start0);
