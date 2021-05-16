@@ -180,6 +180,32 @@ void PostProsessor::Type_Definer(int i)
 	Global_Scope->Defined.push_back(Function);
 	Global_Scope->Childs.push_back(Function);
 
+	//infiltrate the class type and inject this behemoth
+	Node* Type = Parent->Defined[i];
+	if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
+		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
+		Reference_Count->Name = "Reference_Count";
+		Reference_Count->Scope = Type;
+
+		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type, CLASS_NODE, "integer");
+
+		if (Size_Representer == nullptr) {
+			Report(Observation(WARNING, "Cannot find suitable size type for the reference countter", *Type->Location));
+			//we can still save this!
+			Node* Size = new Node(OBJECT_DEFINTION_NODE, Type->Location);
+			Size->Name = "size";
+			Size->Size = sys->Info.Reference_Count_Size;
+			Size->Inheritted.push_back("const");
+
+			Reference_Count->Defined.push_back(Size);
+			Reference_Count->Inheritted.push_back("type");
+		}
+		else
+			Reference_Count->Inheritted.push_back(Size_Representer->Name);
+
+		Type->Defined.push_back(Reference_Count);
+	}
+
 	Destructor_Generator(Parent->Defined[i]);
 
 	return;
@@ -217,7 +243,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 
 	Parser p(Type);
 	p.Input = Lexer::GetComponents(
-		Type->Name + ".Destructor(){\n" +
+		"func Destructor(){\n" +
 			Ifs +
 		"}"
 	);
@@ -1184,6 +1210,8 @@ Node* PostProsessor::Get_From_AST(Node* n)
 	}
 }
 
+//this is not called upon type initializations because this is called on function memebers
+//so that unused classe's members size wont need to be calculated.
 void PostProsessor::Define_Sizes(Node* p)
 {
 	//here we set the defined size of the variable

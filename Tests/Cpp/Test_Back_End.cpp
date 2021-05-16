@@ -83,12 +83,12 @@ vector<Base*> Back_End_Test::Run(string File)
 	if (Generate_Debug) 
 		Use_Debug = "-d";
 	if (Use_ARM) {
-		argv = new const char* [9 + (Use_Debug == "-d")] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", "-arch", "arm", Use_Debug.c_str() };
+		argv = new const char* [9 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("-dll"))->c_str(), (new string("-arch"))->c_str(), (new string("-arm"))->c_str(), Use_Debug.c_str() };
 		argc = 9 + (Use_Debug == "-d");
 		Output = "";
 	}
 	else {
-		argv = new const char* [7 + (Use_Debug == "-d")] { "/Tests", "-in", File.c_str(), "-out", output.c_str(), "-f", "dll", Use_Debug.c_str() };
+		argv = new const char* [7 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("-dll"))->c_str(), Use_Debug.c_str() };
 		argc = 7 + (Use_Debug == "-d");
 		Output = ".intel_syntax noprefix\n";
 	}
@@ -100,12 +100,7 @@ vector<Base*> Back_End_Test::Run(string File)
 
 void Back_End_Test::Factory()
 {
-	cout << Magenta << "x86_64 -Release tests:" << Reset << endl;
-	Use_ARM = false;
-	Generate_Debug = false;
-	for (auto i : Tests) {
-		Check_Assert(i.first, i.second);
-	}
+
 	cout << "\n";
 	cout << Magenta << "x86_64 -Debug tests:" << Reset << endl;
 	Use_ARM = false;
@@ -114,7 +109,12 @@ void Back_End_Test::Factory()
 		Check_Assert(i.first, i.second);
 	}
 	cout << "\n";		
-
+	cout << Magenta << "x86_64 -Release tests:" << Reset << endl;
+	Use_ARM = false;
+	Generate_Debug = false;
+	for (auto i : Tests) {
+		Check_Assert(i.first, i.second);
+	}
 	cout << "\n";	
 	/*
 	cout << Magenta << "\nARMv8_64 tests:" << Reset << endl;
@@ -190,10 +190,10 @@ void Back_End_Test::Init()
 	//what we expect the function to return, file name
 	Tests = {
 		//{{1}, "Tests/IO/main"},
+		{{5}, "Tests/IO/Template.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{0}, "Tests/IO/NameSpace.e"},
 		{{1}, "Tests/IO/Array.e"},
-		{{5}, "Tests/IO/Template.e"},
 		{{10}, "Tests/IO/Ptr.e"},
 		{{100}, "Tests/IO/Conditions.e"},
 		{{1}, "Tests/IO/Comment.e"},

@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include <optional>
+#include <algorithm>
+#include <iostream>
 using namespace std;
 
 class output{
@@ -47,8 +49,8 @@ public:
 		Argument_Amount = count;
 
 		for (int i = 0; i < Argument_Amount; i++) {
-			transform(Input[i], Input[i] + strlen(Input[i]), Input[i], toupper);
-			replace(Input[i], Input[i] + strlen(Input[i]), '-', '_');
+			transform((char*)Input[i], (char*)Input[i] + strlen((char*)Input[i]), (char*)Input[i], tolower);
+			replace((char*)Input[i], (char*)Input[i] + strlen((char*)Input[i]), '-', '_');
 		}
 
 		Create_Argument_Stats();

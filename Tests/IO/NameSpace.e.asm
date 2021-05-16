@@ -4,7 +4,7 @@
 .section .text
 Start_Test:
 push rbx
-sub rsp, 8
+sub rsp, 16
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 call Banana
@@ -23,10 +23,10 @@ mov r9d, dword ptr [rip + Apple_Y ]
 add r8d, r9d
 sub r8d, ecx
 mov eax, r8d
-add rsp, 8
+add rsp, 16
 pop rbx
 ret 
-add rsp, 8
+add rsp, 16
 pop rbx
 ret 
 
@@ -40,7 +40,7 @@ ret
 
 Get:
 mov r8d, dword ptr [rip + Banana_Y ]
-mov ecx, dword ptr [rcx + 0 ]
+mov ecx, dword ptr [rcx + 8 ]
 add r8d, ecx
 mov eax, r8d
 ret 
@@ -54,16 +54,16 @@ ret
 
 
 Banana:
-mov dword ptr [rcx + 0 ], 1
+mov dword ptr [rcx + 8 ], 1
 mov rax, rcx
 ret 
 ret 
 
 
 Set:
-mov dword ptr [rcx + 0 ], edx
-add dword ptr [rcx + 0 ], 1
-mov eax, dword ptr [rcx + 0 ]
+mov dword ptr [rcx + 8 ], edx
+add dword ptr [rcx + 8 ], 1
+mov eax, dword ptr [rcx + 8 ]
 ret 
 ret 
 

@@ -164,7 +164,7 @@ void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Compo
 			Output.push_back({ Template_Pair_Class_Name_Dot, true });
 		}
 		else {
-			Node* New_Template_Pair_Class = new Node(CLASS_NODE, &i.Location);
+			Node* New_Template_Pair_Class = new Node(CLASS_NODE, (new Position(i.Location)));
 			New_Template_Pair_Class->Inheritted = Template_Pair;
 			New_Template_Pair_Class->Name = Template_Pair_Class_Name_Dot;
 			New_Template_Pair_Class->Scope = Global_Scope;
@@ -1295,7 +1295,7 @@ void Parser::Function_Pattern(int i)
 	Input.erase(Input.begin() + Parenthesis_Indexes[1]);
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
 
-	if (func->Template_Children.size() > 0) {
+	if (func->Templates.size() > 0) {
 		Input.erase(Input.begin() + i + 1);
 	}
 
@@ -1361,7 +1361,7 @@ void Parser::Type_Pattern(int i)
 	p.Input.clear();
 
 	//infiltrate the class type and inject this behemoth
-	if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
+	/*if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
 		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
 		Reference_Count->Name = "Reference_Count";
 		Reference_Count->Scope = Type;
@@ -1381,7 +1381,7 @@ void Parser::Type_Pattern(int i)
 		}
 		else
 			Reference_Count->Inheritted.push_back(Size_Representer->Name);
-	}
+	}*/
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
 
