@@ -45,13 +45,13 @@ string Producer::Get_Assembler()
     if (OS == "win")
     {
         if (arch == "x86")
-            return "Assemblers\\x86_as.exe ";
+            return "Assemblers\\x86_as.exe --no-warn ";
         else if (arch == "arm")
-            return "Assemblers\\arm_as.exe ";
+            return "Assemblers\\arm_as.exe --no-warn ";
     }
     else if (OS == "unix")
     {
-        return "as ";
+        return "as --no-warn ";
     }
     return "";
 }

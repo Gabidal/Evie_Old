@@ -21,6 +21,7 @@ public:
 	string Disable = "";
 	bool Debug = false;
 	string VT_API = "";
+	int Reference_Count_Size = 0;
 	output() {
 		#if _WIN32
 			OS = "win";
@@ -44,6 +45,12 @@ public:
 	{
 		Input = in;
 		Argument_Amount = count;
+
+		for (int i = 0; i < Argument_Amount; i++) {
+			transform(Input[i], Input[i] + strlen(Input[i]), Input[i], toupper);
+			replace(Input[i], Input[i] + strlen(Input[i]), '-', '_');
+		}
+
 		Create_Argument_Stats();
 		Info.Fill_Empty_Arguments();
 	}
@@ -65,6 +72,7 @@ private:
 	void Find_Repo_Dir(int& i);
 	void Find_Debug_Type(int& i);
 	void Find_VT_API(int& i);
+	void Find_Reference_Count(int& i);
 };
 
 

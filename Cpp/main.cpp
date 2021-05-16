@@ -50,7 +50,7 @@ int Build(int argc, const char* argv[])
         cout << "-host [the host operating system (win32/unix)]\n";
         cout << "-arch [output assembly type (x86/arm)]\n";
         cout << "-lib [relative path/lib name]\n";
-        cout << "-repo_dir [relative/absolute path for saving git repos]\n";
+        cout << "-repo-dir [relative/absolute path for saving git repos]\n";
         cout << (string)"-f [\n  supported output file formats are:\n" +
             "  exe(executable (works for unix as well)),\n" +
             "  lib(static lib),\n" +
@@ -61,6 +61,7 @@ int Build(int argc, const char* argv[])
             "  dwarf2\n" +
             "]\n";
         cout << "-vt [virus total API-key]\n";
+        cout << "-reference-count-size [reference count size]\n";
         cout << endl;
         return -1;
     }

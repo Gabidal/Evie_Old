@@ -1,8 +1,10 @@
 #include "../../H/Parser/Parser.h"
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Mangler.h"
+#include "../../H/UI/Usr.h"
 //this is for unamed parameters.
 int arg_count = 0;
+extern Usr* sys;
 
 vector<int> Parser::Get_Amount_Of(int i, long Flag, bool All_in_Same_Line)
 {
@@ -439,11 +441,11 @@ void Parser::Definition_Pattern(int i)
 		return;
 	//this is because of the syntax of label jumping exmp: "jump somewhere" is same as a variable declaration exmp: "int somename".
 	for (auto j : Words)
-		//import keywords have theyre own function to parse theyr patterns.
+		//import keywords have theyre own function to parse theyre own patterns.
 		if (Input[j].Value == "jump" || Input[j].Value == "return")
 			return;
 
-	//type a
+	//int ptr a
 	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE, new Position(Input[Words[0]].Location));
 	
 	if (i - 1 >= 0 && Input[i - 1].is(Flags::COMMENT_COMPONENT)) {
@@ -469,9 +471,12 @@ void Parser::Definition_Pattern(int i)
 
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Scope = Parent;
+
+
+
 	Parent->Defined.push_back(New_Defined_Object);
 
-	//for later AST use
+	//for later AST use:int ptr a = 123
 	Input[Words.back()].node = New_Defined_Object;
 
 	Input.erase(Input.begin() + i, Input.begin() + Words.back());
@@ -1354,6 +1359,29 @@ void Parser::Type_Pattern(int i)
 
 	Type->Childs = p.Input[0].node->Childs;
 	p.Input.clear();
+
+	//infiltrate the class type and inject this behemoth
+	if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
+		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
+		Reference_Count->Name = "Reference_Count";
+		Reference_Count->Scope = Type;
+
+		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type, CLASS_NODE, "integer");
+
+		if (Size_Representer == nullptr) {
+			Report(Observation(WARNING, "Cannot find suitable size type for the reference countter", *Type->Location));
+			//we can still save this!
+			Node* Size = new Node(OBJECT_DEFINTION_NODE, Type->Location);
+			Size->Name = "size";
+			Size->Size = sys->Info.Reference_Count_Size;
+			Size->Inheritted.push_back("const");
+
+			Reference_Count->Defined.push_back(Size);
+			Reference_Count->Inheritted.push_back("type");
+		}
+		else
+			Reference_Count->Inheritted.push_back(Size_Representer->Name);
+	}
 
 	Input.erase(Input.begin() + Parenthesis_Indexes[0]);
 

@@ -180,7 +180,48 @@ void PostProsessor::Type_Definer(int i)
 	Global_Scope->Defined.push_back(Function);
 	Global_Scope->Childs.push_back(Function);
 
+	Destructor_Generator(Parent->Defined[i]);
+
 	return;
+}
+
+void PostProsessor::Destructor_Generator(Node* Type)
+{
+	if (sys->Info.Reference_Count_Size < 1)
+		return;
+
+	//[type].Destructor(){
+	//	if ([member] != 0->address && --[member].Reference_Count < 1){
+	//		[member].Destructor()
+	//		Deallocate<[member type]>([member])
+	// 	}
+	//}
+
+	string Ifs = "";
+
+	for (auto Member : Type->Defined) {
+		if ((Member->is("ptr") == -1) || MANGLER::Is_Base_Type(Member))
+			continue;
+
+		string Member_Types = "";
+		for (auto I : Member->Inheritted) {
+			Member_Types += " " + I;
+		}
+
+		Ifs += 
+			"if (" + Member->Name + "!= 0->address && --" + Member->Name + ".Reference_Count < 1){\n" +
+				Member->Name + ".Destructor()\n" +
+				"Deallocate<" + Member_Types + ">(" + Member->Name + ", " + to_string(Member->Size) + ")\n" +
+			"}\n";
+	}
+
+	Parser p(Type);
+	p.Input = Lexer::GetComponents(
+		Type->Name + ".Destructor(){\n" +
+			Ifs +
+		"}"
+	);
+	p.Factory();
 }
 
 vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)

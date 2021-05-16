@@ -92,17 +92,17 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 	if (Remote_Dir_Location[Remote_Dir_Location.size()-1] != '/')
 		Remote_Dir_Location += '/';
 
-	string Command = "cd " + Remote_Dir_Location + Info[3] + Double_Command_Mark + "git pull \"" + URL + "\"";
+	string Command = "cd " + Remote_Dir_Location + Info[3] + Double_Command_Mark + "git pull --quiet \"" + URL + "\"";
 
 	if (New_Repo) {
-		Command = "cd " + Remote_Dir_Location + Double_Command_Mark + "git clone \"" + URL + "\"";
+		Command = "cd " + Remote_Dir_Location + Double_Command_Mark + "git clone --quiet \"" + URL + "\"";
 	}
 	string Repo_Folder_Dest_Path;
 
 	if (system(Command.c_str()) != 0) {
 
 		//try git stash to fix git merge.
-		string Stash = "cd " + Remote_Dir_Location + Info[3] + Double_Command_Mark + "git stash";
+		string Stash = "cd " + Remote_Dir_Location + Info[3] + Double_Command_Mark + "git stash --quiet ";
 		system(Stash.c_str());
 		
 		if (system(Command.c_str()) == 0)

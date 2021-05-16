@@ -23,7 +23,7 @@ void Usr::Create_Argument_Stats()
 
 void Usr::Find_Source_File(int &i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-in") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_in") == 0)
 	{
 		Info.Source_File = Input[i + 1];
 		i++;
@@ -32,7 +32,7 @@ void Usr::Find_Source_File(int &i)
 
 void Usr::Find_Destination_File(int &i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-out") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_out") == 0)
 	{
 		Info.Destination_File = Input[i + 1];
 		i++;
@@ -41,7 +41,7 @@ void Usr::Find_Destination_File(int &i)
 
 void Usr::Find_OS(int &i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-os") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_os") == 0)
 	{
 		Info.OS = Input[i + 1];
 		i++;
@@ -50,7 +50,7 @@ void Usr::Find_OS(int &i)
 
 void Usr::Find_HOST_OS(int& i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-host") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_host") == 0)
 	{
 		Info.HOST_OS = Input[i + 1];
 		i++;
@@ -59,7 +59,7 @@ void Usr::Find_HOST_OS(int& i)
 
 void Usr::Find_Architecture(int &i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-arch") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_arch") == 0)
 	{
 		Info.Architecture = Input[i + 1];
 		i++;
@@ -68,7 +68,7 @@ void Usr::Find_Architecture(int &i)
 
 void Usr::Find_Bits_Mode(int &i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-mode") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_mode") == 0)
 	{
 		Info.Bits_Mode = to_string(atoi(Input[i + 1]) / 8);
 		i++;
@@ -77,7 +77,7 @@ void Usr::Find_Bits_Mode(int &i)
 
 void Usr::Find_Format(int &i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-f") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_f") == 0)
 	{
 		string tmp = string(Input[i + 1]);
 		Info.Format = tmp.c_str();
@@ -87,7 +87,7 @@ void Usr::Find_Format(int &i)
 
 void Usr::Find_Lib(int& i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-lib") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_lib") == 0)
 	{
 		string tmp = string(Input[i + 1]);
 		Info.Libs.push_back(tmp.c_str());
@@ -97,7 +97,7 @@ void Usr::Find_Lib(int& i)
 
 void Usr::Find_Repo_Dir(int& i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-repo_dir") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_repo_dir") == 0)
 	{
 		string tmp = string(Input[i + 1]);
 		Info.Repo_Dir = tmp;
@@ -107,7 +107,7 @@ void Usr::Find_Repo_Dir(int& i)
 
 void Usr::Find_Debug_Type(int& i)
 {
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-d") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_d") == 0)
 	{
 		Info.Debug = true;
 	}
@@ -116,11 +116,19 @@ void Usr::Find_Debug_Type(int& i)
 void Usr::Find_VT_API(int& i)
 {
 	string a = string(Input[i]);
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-vt") == 0)
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_vt") == 0)
 	{
 		string tmp = string(Input[i + 1]);
 		Info.VT_API = tmp;
 		i++;
+	}
+}
+
+void Usr::Find_Reference_Count(int& i)
+{
+	if ((i <= Argument_Amount) && strcmp(Input[i], "_reference_count_size") == 0)
+	{
+		Info.Debug = true;
 	}
 }
 
@@ -131,6 +139,10 @@ void output::Fill_Empty_Arguments()
 	//first check if bit mode is set or not
 	if (Bits_Mode == "0")
 		Bits_Mode = to_string(sizeof(void*));
+
+	//initialize the default reference count
+	if (Reference_Count_Size == 0)
+		Reference_Count_Size = atoi(Bits_Mode.c_str());
 
 	//we can always use the source files name to output files name and add the .asm at the end
 	if (Destination_File == "")
@@ -143,6 +155,8 @@ void output::Fill_Empty_Arguments()
 		else
 			Repo_Dir = "Remote";
 	}
+
+
 
 	replace(Repo_Dir.begin(), Repo_Dir.end(), '\\', '/');
 }
