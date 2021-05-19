@@ -24,6 +24,7 @@ void Safe::Factory()
 		Check_For_Unitialized_Objects(i);
 		Warn_Usage_Of_Depricated(i);
 		Prefer_Class_Cast_Rather_Object_Cast(i);
+		Warn_Usage_Before_Definition(i);
 	}
 }
 
@@ -232,11 +233,11 @@ void Safe::Prefer_Class_Cast_Rather_Object_Cast(Node* n)
 
 void Safe::Warn_Usage_Before_Definition(Node* n)
 {
+	if (!n->is(OBJECT_NODE))
+		return;
 	Node* Definition = n->Find(n, n->Scope);
 
 	if (Definition == nullptr)
-		return;
-	if (!Definition->is(OBJECT_DEFINTION_NODE))
 		return;
 
 	if (Definition->Location->GetAbsolute() > n->Location->GetFriendlyAbsolute()) {

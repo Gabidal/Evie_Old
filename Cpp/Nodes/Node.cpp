@@ -501,6 +501,22 @@ void Node::Transform_Dot_To_Fechering(Node* To)
 		To->Fetcher = this;
 }
 
+Node* Node::Get_Closest_Context(int Flags)
+{
+	if (!this)
+		return nullptr;
+
+	if (is(Flags))
+		return this;
+
+	Node* Closest_Context = Context->Get_Closest_Context(Flags);
+
+	if (Closest_Context)
+		return Closest_Context;
+
+	return nullptr;
+}
+
 vector<Node*> Trace;
 int Node::Update_Size() {
 	if (is("const") != -1 && Size != 0)

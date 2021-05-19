@@ -765,6 +765,8 @@ public:
 			Result += i->Construct_Template_Type_Name() + "_";
 		return Result;
 	}
+
+	Node* Get_Closest_Context(int Flags);
 };
 
 #endif

@@ -33,7 +33,7 @@ void IRGenerator::Factory()
 		Parse_Parenthesis(i);
 		Parse_Operators(i);
 		Parse_Pointers(i);
-		Parse_Jumps(i);
+		Parse_Conditional_Jumps(i);
 		Parse_PostFixes(i);
 		Parse_PreFixes(i);
 		Parse_Return(i);
@@ -370,7 +370,7 @@ void IRGenerator::Loop_Elses(Node* e)
 
 }
 
-void IRGenerator::Parse_Jumps(int i)
+void IRGenerator::Parse_Conditional_Jumps(int i)
 {
 	//NOTICE: this must happen after all operator is created as IR!!!
 	if (!Input[i]->is(CONDITION_OPERATOR_NODE))
@@ -439,7 +439,13 @@ void IRGenerator::Parse_Jumps(int i)
 		Next_Label = Parent->Succsessor->Name;
 
 	//jmp if not correct
-	Output->push_back(Make_Jump(Get_Inverted_Condition(Input[i]->Name, Input[i]->Location), Next_Label));
+	string Condition = Get_Inverted_Condition(Input[i]->Name, Input[i]->Location);
+	Node* Logical_Condition_Node = Input[i]->Get_Closest_Context(LOGICAL_OPERATOR_NODE);
+	
+	if (Logical_Condition_Node && Logical_Condition_Node->Name == "||")
+		Condition = Input[i]->Name;
+
+	Output->push_back(Make_Jump(Condition, Next_Label));
 
 	Input[i]->Generated = true;
 }
@@ -457,10 +463,39 @@ void IRGenerator::Parse_Logical_Conditions(int i)
 	if (!Input[i]->is(LOGICAL_OPERATOR_NODE))
 		return;
 
+	// a == 1 && b < 2
+	// -->
+	// cmp a, 1
+	// jne end_of_if_children
+	// cmp b, 2
+	// jge end_of_if_children
+	// condition_children:
+	// 	   ..
+	// end_of_if_children:
 
+	// a == 1 || b < 2
+	// -->
+	// cmp a, 1
+	// je condition_children
+	// cmp b, 2
+	// jl condition_children
+	// jmp end_of_if_children
+	// condition_children:
+	// 	   ..
+	// end_of_if_children:
+
+	IRGenerator g(Parent, { Input[i]->Left, Input[i]->Right }, Output);
+
+	string Next_Label = Parent->Name + "_END";
+	if (Parent->Succsessor)
+		Next_Label = Parent->Succsessor->Name;
+
+	if (Input[i]->Name == "||") {
+		Output->push_back(Make_Jump("jump", Next_Label));
+	}
 }
 
-//Classs move to other class
+//Class move to other class
 void IRGenerator::Parse_Cloning(int i)
 {
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))

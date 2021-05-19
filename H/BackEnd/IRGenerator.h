@@ -38,7 +38,7 @@ public:
 	void Parse_Logical_Conditions(int i);
 	void Parse_Cloning(int i);
 	void Parse_Operators(int i);
-	void Parse_Jumps(int i);
+	void Parse_Conditional_Jumps(int i);
 	void Parse_Pointers(int i);
 	void Parse_Arrays(int i);
 	void Parse_PreFixes(int i);
