@@ -35,6 +35,7 @@ public:
 	void Parse_Loops(int i);
 	void Parse_Return(int i);
 
+	void Parse_Logical_Conditions(int i);
 	void Parse_Cloning(int i);
 	void Parse_Operators(int i);
 	void Parse_Jumps(int i);

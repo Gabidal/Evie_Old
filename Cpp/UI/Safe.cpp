@@ -229,3 +229,17 @@ void Safe::Prefer_Class_Cast_Rather_Object_Cast(Node* n)
 			});
 	}
 }
+
+void Safe::Warn_Usage_Before_Definition(Node* n)
+{
+	Node* Definition = n->Find(n, n->Scope);
+
+	if (Definition == nullptr)
+		return;
+	if (!Definition->is(OBJECT_DEFINTION_NODE))
+		return;
+
+	if (Definition->Location->GetAbsolute() > n->Location->GetFriendlyAbsolute()) {
+		Report(Observation(ERROR, "Usage of local variable '" + n->Name + "' before definition at line '" + to_string(Definition->Location->GetFriendlyLine()) + "'.", *n->Location));
+	}
+}

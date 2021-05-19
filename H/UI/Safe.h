@@ -62,5 +62,6 @@ private:
 	void Check_For_Unitialized_Objects(Node* func);
 	void Warn_Usage_Of_Depricated(Node* n);
 	void Prefer_Class_Cast_Rather_Object_Cast(Node* n);
+	void Warn_Usage_Before_Definition(Node* n);
 	vector<Node*> Input;
 };

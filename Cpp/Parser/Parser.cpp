@@ -787,6 +787,7 @@ void Parser::Object_Pattern(int i)
 		return;	//we dont want to rewrite the content
 
 	Input[i].node = Parent->Copy_Node(Parent->Find(Input[i].Value, Parent, true), Parent);
+	Input[i].node->Location = new Position(Input[i].Location);
 
 	//List<int> a -> .List_int a
 	if (Input[i].node->Templates.size() > 0) {
@@ -1503,23 +1504,29 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "." }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "^" }, OPERATOR_NODE);
+	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "*", "/" , "%" }, OPERATOR_NODE);
-	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "<<", ">>" }, BIT_OPERATOR_NODE);
-	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "&", "!&" }, BIT_OPERATOR_NODE);
-	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "?" }, BIT_OPERATOR_NODE);
-	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "|", "!|" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "+", "-" }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "<", ">" }, CONDITION_OPERATOR_NODE);
+		Math_Pattern(i, { "<<", ">>" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "==", "!=", "<=", ">=", "!<", "!>" , "|=", "&=" }, CONDITION_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "¤"}, BIT_OPERATOR_NODE);
+		Math_Pattern(i, { "&", "!&" }, BIT_OPERATOR_NODE);
+	//for (int i = 0; i < Input.size(); i++)
+	//	Math_Pattern(i, { "?" }, BIT_OPERATOR_NODE);	
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "¤" }, BIT_OPERATOR_NODE);
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "|", "!|" }, BIT_OPERATOR_NODE);
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "<", ">" }, CONDITION_OPERATOR_NODE);
+
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "&&", "||" }, LOGICAL_OPERATOR_NODE);
+
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "=", "+=", "-=", "*=", "/=" }, ASSIGN_OPERATOR_NODE);
 }

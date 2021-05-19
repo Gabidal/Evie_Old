@@ -452,6 +452,14 @@ void IRGenerator::Un_Wrap_Inline(int i)
 	IRGenerator g(Parent, Input[i]->Header, Output);
 }
 
+void IRGenerator::Parse_Logical_Conditions(int i)
+{
+	if (!Input[i]->is(LOGICAL_OPERATOR_NODE))
+		return;
+
+
+}
+
 //Classs move to other class
 void IRGenerator::Parse_Cloning(int i)
 {
@@ -528,6 +536,7 @@ void IRGenerator::Parse_Operators(int i)
 {
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
+	
 	if (Parent->Name == "GLOBAL_SCOPE")
 		return;
 	if (Input[i]->Name == ".")
@@ -651,7 +660,6 @@ void IRGenerator::Parse_Operators(int i)
 			Token* Reg = new Token(TOKEN::REGISTER, Right->Get_Name(), Right->Get_Size());
 		}
 	}*/
-
 
 	string Operator = Input[i]->Name;
 	//this translates the condition operator into a compare operation then the parse_jumps,
@@ -1180,7 +1188,7 @@ void IRGenerator::Update_Operator(Node* n)
 {
 	if (n == nullptr)
 		return;
-	if (!n->is(OPERATOR_NODE) && !n->is(ASSIGN_OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(BIT_OPERATOR_NODE))
+	if (!n->is(OPERATOR_NODE) && !n->is(ASSIGN_OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(BIT_OPERATOR_NODE) && !n->is(LOGICAL_OPERATOR_NODE))
 		return;
 	Update_Operator(n->Left);
 	Update_Operator(n->Right);
@@ -1505,11 +1513,16 @@ void IRGenerator::Parse_Loops(int i)
 	vector<Node*> Header;
 	if (Input[i]->Parameters[0]->is(OPERATOR_NODE) || Input[i]->Parameters[0]->is(ASSIGN_OPERATOR_NODE))
 		Header = { Input[i]->Parameters[0] };
-	Input[i]->Append(Header, Node::Get_all(CONDITION_OPERATOR_NODE, Input[i]->Parameters));
+
+	vector<Node*> Header_Conditions;
+	Input[i]->Append(Header_Conditions, Node::Get_all(CONDITION_OPERATOR_NODE, Input[i]->Parameters));
+	Input[i]->Append(Header, Input[i]->Append(Header_Conditions, Node::Get_all(LOGICAL_OPERATOR_NODE, Input[i]->Parameters)));
 
 	vector<Node*> Footer = Node::Get_all(POSTFIX_NODE, Input[i]->Parameters);
+	
 	if (Input[i]->Parameters[Input[i]->Parameters.size() - 1]->is(OPERATOR_NODE))
 		Input[i]->Append(Footer, { Input[i]->Parameters[Input[i]->Parameters.size() - 1] });
+	
 	Input[i]->Append(Footer, Node::Get_all(PREFIX_NODE, Input[i]->Parameters));
 
 	IRGenerator g(Input[i], Header, Output);
@@ -1526,8 +1539,8 @@ void IRGenerator::Parse_Loops(int i)
 	g.Generate(Footer, false);
 	//now do the condition again
 	//get the location of the condition
-	vector<Node*> Conditions = Node::Get_all(CONDITION_OPERATOR_NODE, Header);
-	g.Generate(Conditions, false);
+	//vector<Node*> Conditions = Node::Get_all(CONDITION_OPERATOR_NODE, Header);
+	g.Generate(Header_Conditions, false);
 
 	//now make the _END addon at the end of loop for the false condition to fall
 	Output->push_back(Make_Jump("jump", Input[i]->Name));
