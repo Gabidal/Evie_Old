@@ -12,8 +12,8 @@ cvttss2si r8d, xmm0
 mov ecx, r8d
 cvttsd2si r8d, xmm1
 mov ecx, r8d
-cvtsd2ss xmm1, xmm1
-movss xmm0, xmm1
+cvtsd2ss xmm2, xmm1
+movss xmm0, xmm2
 cvtss2sd xmm0, xmm0
 movsd xmm1, xmm0
 ret 

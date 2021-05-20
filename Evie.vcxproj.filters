@@ -160,7 +160,6 @@
     <None Include="Tests\IO\Template.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Comment.e" />
     <None Include="IO\Memory.e" />
   </ItemGroup>
   <ItemGroup>

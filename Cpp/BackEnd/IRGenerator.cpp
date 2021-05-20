@@ -35,6 +35,7 @@ void IRGenerator::Factory()
 		Parse_Parenthesis(i);
 		Parse_Operators(i);
 		Parse_Pointers(i);
+		Parse_Reference_Count_Increase(i);
 		Parse_Conditional_Jumps(i);
 		Parse_PostFixes(i);
 		Parse_PreFixes(i);
@@ -1182,13 +1183,15 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE) || Input[i]->Right->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE}))
 		return;
 	
+	if (MANGLER::Is_Based_On_Base_Type(Input[i]->Right))
+		return;
 
 	int Combined_Ptr_Count = Input[i]->Left->Get_All("ptr") + Input[i]->Right->Get_All("ptr");
 	if (Combined_Ptr_Count < 1)
 		return;
 
 	int Ptr_Difference = Input[i]->Left->Get_All("ptr") - Input[i]->Right->Get_All("ptr");
-	if (Ptr_Difference != 0)
+	if (Ptr_Difference >= 0)
 		return;
 
 	Parser p(Parent);

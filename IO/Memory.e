@@ -18,6 +18,6 @@ func Deallocate<T>(T ptr Address, long Size){
 	deallocate(Address->BYTE_POINTTER, Size)
 }
 
-T ptr new<T>(T Obj){
-	return (internal_allocate(Obj.size)->BYTE_POINTTER)->T	
+T ptr New<T>(){
+	return (internal_allocate(T.size)->BYTE_POINTTER)->T	
 }

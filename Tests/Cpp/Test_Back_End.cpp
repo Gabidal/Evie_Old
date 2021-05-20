@@ -83,12 +83,12 @@ vector<Base*> Back_End_Test::Run(string File)
 	if (Generate_Debug) 
 		Use_Debug = "-d";
 	if (Use_ARM) {
-		argv = new const char* [9 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("-dll"))->c_str(), (new string("-arch"))->c_str(), (new string("-arm"))->c_str(), Use_Debug.c_str() };
+		argv = new const char* [9 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("dll"))->c_str(), (new string("-arch"))->c_str(), (new string("-arm"))->c_str(), Use_Debug.c_str() };
 		argc = 9 + (Use_Debug == "-d");
 		Output = "";
 	}
 	else {
-		argv = new const char* [7 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("-dll"))->c_str(), Use_Debug.c_str() };
+		argv = new const char* [7 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("dll"))->c_str(), Use_Debug.c_str() };
 		argc = 7 + (Use_Debug == "-d");
 		Output = ".intel_syntax noprefix\n";
 	}
@@ -190,6 +190,7 @@ void Back_End_Test::Init()
 	//what we expect the function to return, file name
 	Tests = {
 		//{{1}, "Tests/IO/main"},
+		{{1}, "Tests/IO/Destructor.e"},
 		{{5}, "Tests/IO/Template.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{0}, "Tests/IO/NameSpace.e"},

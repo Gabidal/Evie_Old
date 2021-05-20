@@ -57,6 +57,8 @@ void PostProsessor::Factory() {
 		Move_Global_Varibles_To_Header(i);
 	for (int i = 0; i < Input.size(); i++)
 		Algebra_Laucher(i);
+	for (auto i : Parent->Defined)
+		Destructor_Caller(i);
 }
 
 void PostProsessor::Transform_Component_Into_Node()
@@ -248,6 +250,23 @@ void PostProsessor::Destructor_Generator(Node* Type)
 		"}"
 	);
 	p.Factory();
+}
+
+void PostProsessor::Destructor_Caller(Node* v)
+{
+	if (!v->is(OBJECT_DEFINTION_NODE))
+		return;
+	if (MANGLER::Is_Based_On_Base_Type(v))
+		return;
+	if (v->is("ptr") == -1)
+		return;
+
+	Parser p(Parent);
+	p.Input = Lexer::GetComponents(v->Name + ".Destructor()");
+	p.Factory();
+
+	PostProsessor P(Parent, p.Input);
+	v->Append(Output, P.Output);
 }
 
 vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)

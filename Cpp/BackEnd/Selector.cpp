@@ -61,7 +61,7 @@ bool Selector::Find(string n, Token* ast)
 
 bool Selector::Find(Token* n, Token* ast)
 {
-	if (ast->Get_Name() == n->Get_Name() && ast->is(n->Get_Flags()))
+	if ((ast == n) || (ast->Get_Name() == n->Get_Name() && ast->is(n->Get_Flags())))
 		return true;
 	if (ast->is(TOKEN::CONTENT) || ast->is(TOKEN::MEMORY))
 		for (auto& i : ast->Childs)
@@ -478,7 +478,8 @@ Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 {
 	for (auto i : Registers) {
-		if (i.second->Get_Name() == r->Get_Name()) {
+		//if (i.second->Get_Name() == r->Get_Name()) {
+		if (i.second == r){
 			if (i.first != nullptr)
 				return i.first;
 			if (r->Holder == nullptr)
