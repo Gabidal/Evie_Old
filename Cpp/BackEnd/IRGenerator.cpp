@@ -4,6 +4,8 @@
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Safe.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/Parser/Parser.h"
+#include "../../H/Parser/PostProsessor.h"
 
 extern Selector* selector;
 extern Usr* sys;
@@ -1173,6 +1175,29 @@ void IRGenerator::Parse_PostFixes(int i)
 	if (Input[i]->Context == nullptr)
 		Handle = Left;
 	Input[i]->Generated = true;
+}
+
+void IRGenerator::Parse_Reference_Count_Increase(int i)
+{
+	if (!Input[i]->is(ASSIGN_OPERATOR_NODE) || Input[i]->Right->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE}))
+		return;
+	
+
+	int Combined_Ptr_Count = Input[i]->Left->Get_All("ptr") + Input[i]->Right->Get_All("ptr");
+	if (Combined_Ptr_Count < 1)
+		return;
+
+	int Ptr_Difference = Input[i]->Left->Get_All("ptr") - Input[i]->Right->Get_All("ptr");
+	if (Ptr_Difference != 0)
+		return;
+
+	Parser p(Parent);
+	p.Input = Lexer::GetComponents(Input[i]->Right->Name + ".Reference_Count++");
+	p.Factory();
+
+	PostProsessor P(Parent, p.Input);
+
+	IRGenerator g(Parent, P.Output, Output);
 }
 
 void IRGenerator::Parse_Jump(int i)

@@ -43,6 +43,7 @@ public:
 	void Parse_Arrays(int i);
 	void Parse_PreFixes(int i);
 	void Parse_PostFixes(int i);
+	void Parse_Reference_Count_Increase(int i);
 
 	void Parse_Jump(int i);
 	void Parse_Parenthesis(int i);
