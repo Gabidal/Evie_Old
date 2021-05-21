@@ -48,10 +48,10 @@ public:
 		Input = in;
 		Argument_Amount = count;
 
-		for (int i = 0; i < Argument_Amount; i++) {
+		/*for (int i = 0; i < Argument_Amount; i++) {
 			transform((char*)Input[i], (char*)Input[i] + strlen((char*)Input[i]), (char*)Input[i], tolower);
 			replace((char*)Input[i], (char*)Input[i] + strlen((char*)Input[i]), '-', '_');
-		}
+		}*/
 
 		Create_Argument_Stats();
 		Info.Fill_Empty_Arguments();

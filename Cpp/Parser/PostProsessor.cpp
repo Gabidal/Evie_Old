@@ -467,7 +467,6 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 	Parent->Defined[i]->Childs = p.Input;
 
 	for (auto& v : Parent->Defined[i]->Defined) {
-		p.Destructor_Caller(v);
 		for (auto j : Parent->Defined[i]->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
 			if (v->Requires_Address)
@@ -486,6 +485,16 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 		v->Scope->Local_Allocation_Space += v->Get_Size();
 		v->Requires_Address = true;
 	}
+
+	while (true) {
+		Algebra a(Parent->Defined[i], &Parent->Defined[i]->Childs);
+		if (!Optimized)
+			break;
+		Optimized = false;
+	}
+
+	for (auto& v : Parent->Defined[i]->Defined)
+		Destructor_Caller(v);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Parent->Append(Parent->Defined[i]->Childs, p.Output);
