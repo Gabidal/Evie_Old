@@ -7,17 +7,17 @@ T ptr Allocate<T>(int Size){
 
 T ptr Allocate<T>(long Size){
 	T ptr Return_Cast_Type
-	return (internal_allocate(Size * (T.size)->long)->BYTE_POINTTER)->Return_Cast_Type	
+	return (internal_allocate(Size * (T.size)->long)->BYTE_POINTER)->Return_Cast_Type	
 }
 
 func Deallocate<T>(T ptr Address, int Size){
-	deallocate(Address->BYTE_POINTTER, Size->long)
+	deallocate(Address->BYTE_POINTER, Size->long)
 }
 
 func Deallocate<T>(T ptr Address, long Size){
-	deallocate(Address->BYTE_POINTTER, Size)
+	deallocate(Address->BYTE_POINTER, Size)
 }
 
 T ptr New<T>(){
-	return (internal_allocate(T.size)->BYTE_POINTTER)->T	
+	return (internal_allocate(T.size)->BYTE_POINTER)->T	
 }

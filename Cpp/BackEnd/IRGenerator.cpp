@@ -135,7 +135,7 @@ void IRGenerator::Parse_Calls(int i)
 		return;
 	if (Input[i]->Cast_Type != "")
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -308,14 +308,14 @@ void IRGenerator::Parse_Calls(int i)
 	}
 
 	Handle = returningReg;
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_If(int i)
 {
 	if (!Input[i]->is(IF_NODE))
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -334,7 +334,7 @@ void IRGenerator::Parse_If(int i)
 	//L3:
 	//do parameters
 	Loop_Elses(Input[i]);
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Loop_Elses(Node* e)
@@ -450,7 +450,7 @@ void IRGenerator::Parse_Conditional_Jumps(int i)
 
 	Output->push_back(Make_Jump(Condition, Next_Label));
 
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Un_Wrap_Inline(int i)
@@ -712,7 +712,7 @@ void IRGenerator::Parse_Operators(int i)
 	Handle = Left;
 	Output->push_back(ir);
 
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_Pointers(int i)
@@ -815,7 +815,7 @@ void IRGenerator::Parse_Pointers(int i)
 		Left = new Token(TOKEN::MEMORY, { Left }, Left->Get_Size(), Left->Get_Name());
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Operator), { Left, Right }, Input[i]->Location));
 
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_Arrays(int i)
@@ -824,7 +824,7 @@ void IRGenerator::Parse_Arrays(int i)
 		return;
 	if (Parent->Name == "GLOBAL_SCOPE")
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -1100,14 +1100,14 @@ void IRGenerator::Parse_Arrays(int i)
 			Handle = reg;
 	}
 
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_PreFixes(int i)
 {
 	if (!Input[i]->is(PREFIX_NODE))
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -1132,14 +1132,14 @@ void IRGenerator::Parse_PreFixes(int i)
 	Output->push_back(ir);
 
 	Handle = Right;
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_PostFixes(int i)
 {
 	if (!Input[i]->is(POSTFIX_NODE))
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 	//i++
@@ -1175,7 +1175,7 @@ void IRGenerator::Parse_PostFixes(int i)
 	Output->push_back(ir);
 	if (Input[i]->Context == nullptr)
 		Handle = Left;
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_Reference_Count_Increase(int i)
@@ -1200,19 +1200,19 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 
 	PostProsessor P(Parent, p.Input);
 
-	IRGenerator g(Parent, P.Output, Output);
+	IRGenerator g(Parent, P.Input, Output);
 }
 
 void IRGenerator::Parse_Jump(int i)
 {
 	if (Input[i]->Name != "jump")
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
 	Output->push_back(Make_Jump("jump", Input[i]->Right->Name));
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_Parenthesis(int i)
@@ -1221,7 +1221,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 		return;
 	if (Input[i]->Paranthesis_Type != '(')
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -1244,7 +1244,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 		Handle = Reg;
 		Output->push_back(ir);
 	}
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Update_Operator(Node* n)
@@ -1327,7 +1327,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;
 	if (n->is(CALL_NODE))
 		return;
-	if (n->Generated)
+	if (n->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -1353,11 +1353,11 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 				Result = Reg;
 			}
 
-			n->Generated = true;
+			n->Parsed_By |= PARSED_BY::IRGENERATOR;
 			Handle = Result;
 			return;
 		}
-		n->Generated = true;
+		n->Parsed_By |= PARSED_BY::IRGENERATOR;
 		Handle = new Token(n);
 		return;
 	}
@@ -1397,7 +1397,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 
 	if (Is_In_Left_Side_Of_Operator) {
 		Handle = Member_Offsetter;
-		n->Generated = true;
+		n->Parsed_By |= PARSED_BY::IRGENERATOR;
 		return;
 	}
 	
@@ -1407,7 +1407,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }, n->Location));
 
 	Handle = new Token(*r);
-	n->Generated = true;
+	n->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Switch_To_Correct_Places(Node* o)
@@ -1437,7 +1437,7 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 		return;
 	if (n->Cast_Type == "address")
 		return;
-	if (n->Generated)
+	if (n->is(PARSED_BY::IRGENERATOR))
 		return;
 
 	n->Update_Format();
@@ -1462,7 +1462,7 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	if (Output->size() > Last_Output_Size)
 		Handle = g.Handle;
 
-	n->Generated = true;
+	n->Parsed_By |= PARSED_BY::IRGENERATOR;
 
 	if (g.Handle != nullptr)
 		Old_Format = g.Handle;
@@ -1531,7 +1531,7 @@ void IRGenerator::Parse_Dynamic_Casting(Node* n)
 		return;
 	if (n->Cast_Type != "address")
 		return;
-	if (n->Generated)
+	if (n->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -1556,14 +1556,14 @@ void IRGenerator::Parse_Dynamic_Casting(Node* n)
 		}
 	}
 
-	n->Generated = true;
+	n->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 void IRGenerator::Parse_Loops(int i)
 {
 	if (!Input[i]->is(WHILE_NODE))
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 	//condition
@@ -1613,7 +1613,7 @@ void IRGenerator::Parse_Loops(int i)
 	//make here IR that states that every variable that is extern to this while define list must last the same end.
 	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables((int)Output->size(), start_Index, Input[i]), Input[i]->Location));
 
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
 string IRGenerator::Get_Inverted_Condition(string c, Position* p)
@@ -1844,7 +1844,7 @@ void IRGenerator::Parse_Return(int i) {
 		return;
 	if (Input[i]->Name != "return")
 		return;
-	if (Input[i]->Generated)
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
 
@@ -1917,5 +1917,5 @@ void IRGenerator::Parse_Return(int i) {
 	ret->Set_Parent(Parent);
 	Output->push_back(new IR(ret, vector<Token*>{}, Input[i]->Location));
 
-	Input[i]->Generated = true;
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }

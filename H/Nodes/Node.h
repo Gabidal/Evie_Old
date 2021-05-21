@@ -24,6 +24,20 @@ public:
 	Variable_Descriptor(Node* v, int i, vector<Node*> source);
 };
 
+namespace PARSED_BY {
+	constexpr long long NONE				= 1 << 0;
+	constexpr long long PREPROSESSOR		= 1 << 1;
+	constexpr long long PARSER				= 1 << 2;
+	constexpr long long POSTPROSESSOR		= 1 << 3;
+	constexpr long long ALGEBRA				= 1 << 4;
+	constexpr long long SAFE				= 1 << 5;
+	constexpr long long IRGENERATOR			= 1 << 6;
+	constexpr long long IRPOSTPROSESSOR		= 1 << 7;
+	constexpr long long BACKEND				= 1 << 8;
+
+	constexpr long long DESTRUCTOR_CALLER	= 1 << 9;
+}
+
 class Node {
 public:
 	Node(int flag, Position* p) : Type(flag), Location(p) {}
@@ -96,7 +110,12 @@ public:
 	//casting features
 	string Cast_Type = "";
 	//IR safe features
-	bool Generated = false;
+	//bool Generated = false;
+	long long Parsed_By = PARSED_BY::NONE;
+
+	bool is(long long F) {
+		return (Parsed_By & F) == F;
+	}
 
 	bool is(int F) {
 		return Type == F;

@@ -57,8 +57,6 @@ void PostProsessor::Factory() {
 		Move_Global_Varibles_To_Header(i);
 	for (int i = 0; i < Input.size(); i++)
 		Algebra_Laucher(i);
-	for (auto i : Parent->Defined)
-		Destructor_Caller(i);
 }
 
 void PostProsessor::Transform_Component_Into_Node()
@@ -179,6 +177,8 @@ void PostProsessor::Type_Definer(int i)
 
 	PostProsessor P(Function, Function->Childs);
 
+	Parent->Append(Function->Childs, P.Output);
+
 	Global_Scope->Defined.push_back(Function);
 	Global_Scope->Childs.push_back(Function);
 
@@ -260,13 +260,18 @@ void PostProsessor::Destructor_Caller(Node* v)
 		return;
 	if (v->is("ptr") == -1)
 		return;
+	if (v->is(PARSED_BY::DESTRUCTOR_CALLER))
+		return;
 
 	Parser p(Parent);
 	p.Input = Lexer::GetComponents(v->Name + ".Destructor()");
 	p.Factory();
 
+	v->Parsed_By |= PARSED_BY::DESTRUCTOR_CALLER;
+
 	PostProsessor P(Parent, p.Input);
-	v->Append(Output, P.Output);
+	v->Append(Output, P.Input);
+
 }
 
 vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)
@@ -461,27 +466,29 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 	Parent->Defined[i]->Childs = p.Input;
 
-	for (auto& v : Parent->Defined[i]->Defined)
+	for (auto& v : Parent->Defined[i]->Defined) {
+		p.Destructor_Caller(v);
 		for (auto j : Parent->Defined[i]->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
 			if (v->Requires_Address)
 				break;
 		}
+	}
 
 	//DEBUG
 	//if (sys->Info.Debug)
-		for (auto& v : Parent->Defined[i]->Defined) {
-			if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
-				continue;
-			else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
-				continue;
-			v->Memory_Offset = v->Scope->Local_Allocation_Space;
-			v->Scope->Local_Allocation_Space += v->Get_Size();
-			v->Requires_Address = true;
-		}
+	for (auto& v : Parent->Defined[i]->Defined) {
+		if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
+			continue;
+		else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
+			continue;
+		v->Memory_Offset = v->Scope->Local_Allocation_Space;
+		v->Scope->Local_Allocation_Space += v->Get_Size();
+		v->Requires_Address = true;
+	}
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
-
+	Parent->Append(Parent->Defined[i]->Childs, p.Output);
 	return;
 }
 
@@ -502,6 +509,11 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	//here we now postprosess also the insides of the condition
 	PostProsessor p(Input[i], Input[i]->Childs);
 
+	for (auto& v : Input[i]->Defined)
+		p.Destructor_Caller(v);
+
+	Parent->Append(Input[i]->Childs, p.Output);
+
 	return;
 }
 
@@ -511,6 +523,11 @@ void PostProsessor::Open_Paranthesis(int i)
 		return;
 
 	PostProsessor p(Input[i], Input[i]->Childs);
+
+	for (auto& v : Input[i]->Defined)
+		p.Destructor_Caller(v);
+
+	Parent->Append(Input[i]->Childs, p.Output);
 
 	Input[i]->Inheritted.push_back(Input[i]->Childs.back()->Cast_Type);
 
@@ -1115,6 +1132,11 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
 	PostProsessor p(Parent, Input[i]->Parameters);
 
+	for (auto& v : Input[i]->Defined)
+		p.Destructor_Caller(v);
+
+	Parent->Append(Output, p.Output);
+
 	//use optimization into the parameters.
 	//Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
 
@@ -1446,6 +1468,11 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 
 	//haha brain go brr
 	post.Factory();
+
+	for (auto& v : Input[i]->Defined)
+		post.Destructor_Caller(v);
+
+	Parent->Append(Input[i]->Childs, post.Output);
 }
 
 void PostProsessor::Update_Used_Object_Info(Node* n)
@@ -1817,6 +1844,11 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 		return;
 
 	PostProsessor p(n, { n->Right });
+
+	for (auto& v : n->Right->Defined)
+		p.Destructor_Caller(v);
+		
+	Parent->Append(Output, p.Output);
 
 	Update_Operator_Inheritance(n->Right);
 }

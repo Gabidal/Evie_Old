@@ -240,7 +240,7 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 	if (Definition == nullptr)
 		return;
 
-	if (Definition->Location->GetAbsolute() > n->Location->GetFriendlyAbsolute()) {
+	if (Definition->Location->GetAbsolute() > n->Location->GetFriendlyAbsolute() && Definition->Location->GetFilePath() == n->Location->GetFilePath()) {
 		Report(Observation(ERROR, "Usage of local variable '" + n->Name + "' before definition at line '" + to_string(Definition->Location->GetFriendlyLine()) + "'.", *n->Location));
 	}
 }
