@@ -13,9 +13,9 @@ using namespace std;
 class Parser
 {
 public:
-	Parser(Node* p) : Parent(p){}
+	Parser(Node* p) : Scope(p){}
 	~Parser(){}
-	Node* Parent = nullptr;
+	Node* Scope = nullptr;
 	vector<Component> Input;
 	vector<Component> Get_Inheritting_Components(int i);
 	vector<int> Get_Amount_Of(int i, long Flag, bool All_in_Same_Line = true);

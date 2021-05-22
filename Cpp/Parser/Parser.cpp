@@ -58,7 +58,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	//import int ptr func a
 	vector<Component> Result;
 	for (; i < Input.size(); i++) {
-		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Parent->Find(Input[i].Value, Parent, false) != nullptr))
+		if (Input[i].is(Flags::KEYWORD_COMPONENT) || (Scope->Find(Input[i].Value, Scope, false) != nullptr))
 			Result.push_back(Input[i]);
 		else 
 			break;
@@ -68,7 +68,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 
 void Parser::Combine_Dot_In_Member_Functions(int& i)
 {
-	if (Parent->is(FUNCTION_NODE) || (Parent->is(CLASS_NODE) && Parent->Name != "GLOBAL_SCOPE"))
+	if (Scope->is(FUNCTION_NODE) || (Scope->is(CLASS_NODE) && Scope->Name != "GLOBAL_SCOPE"))
 		return;
 	if (Input[i].Value != ".")
 		return;
@@ -109,7 +109,7 @@ void Parser::Template_Pattern(int& i)
 
 	Input.erase(Input.begin() + i + 1, Input.begin() + j + 1);
 
-	Parser p(Parent);
+	Parser p(Scope);
 	p.Input = { Input[i].Components };
 	p.Factory();
 
@@ -160,7 +160,7 @@ void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Compo
 			Template_Pair_Class_Name += T + "_";
 		}
 		string Template_Pair_Class_Name_Dot = "." + Template_Pair_Class_Name;
-		if (Parent->Find(Template_Pair_Class_Name_Dot, Parent, CLASS_NODE) != nullptr) {
+		if (Scope->Find(Template_Pair_Class_Name_Dot, Scope, CLASS_NODE) != nullptr) {
 			Output.push_back({ Template_Pair_Class_Name_Dot, true });
 		}
 		else {
@@ -218,7 +218,7 @@ void Parser::Nodize_Template_Pattern(int i)
 
 	//List<List<int>, List<int>>
 	for (auto T : Input[i].Components) {
-		Parser p(Parent);
+		Parser p(Scope);
 		p.Input = { T };
 		p.Factory();
 
@@ -233,17 +233,17 @@ void Parser::Template_Type_Constructor(int i)
 		return;
 	if (Input[i].node->Templates.size() == 0)
 		return;
-	if (!Parent->Find(Input[i].Value, Parent, CLASS_NODE))
+	if (!Scope->Find(Input[i].Value, Scope, CLASS_NODE))
 		return;
 
 	string New_Name = "." + Input[i].node->Construct_Template_Type_Name();
-	if (Parent->Find(New_Name) != nullptr) {
+	if (Scope->Find(New_Name) != nullptr) {
 		Input[i].Value = New_Name;
 		return;
 	}
 
-	Node* Og_Type = Input[i].node->Find(Input[i].node, Parent, CLASS_NODE);
-	Node* Type = Parent->Copy_Node(Og_Type, Og_Type->Scope);
+	Node* Og_Type = Input[i].node->Find(Input[i].node, Scope, CLASS_NODE);
+	Node* Type = Scope->Copy_Node(Og_Type, Og_Type->Scope);
 	Type->Templates = Input[i].node->Templates;
 
 	//turn List<List<int>, int> into .List_List_int
@@ -310,8 +310,8 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 	if (Func->Templates.size() == 0)
 		Template_Indentifier = "";
 
-	if (Parent->Find(Template_Indentifier + New_Name) != nullptr) {
-		if (Func->Compare_Fetchers(Parent->Find(Template_Indentifier + New_Name))) {
+	if (Scope->Find(Template_Indentifier + New_Name) != nullptr) {
+		if (Func->Compare_Fetchers(Scope->Find(Template_Indentifier + New_Name))) {
 			Func->Name = Template_Indentifier + New_Name;
 			return New_Constructed_Template_Code;
 		}
@@ -381,7 +381,7 @@ void Parser::Inject_Template_Into_Member_Function_Fetcher(int& i)
 		return;
 	if (Input[i - 1].node == nullptr)
 		return;
-	if (Parent->Find(Input[i - 1].Value, Parent, CLASS_NODE) == nullptr)
+	if (Scope->Find(Input[i - 1].Value, Scope, CLASS_NODE) == nullptr)
 		return;
 
 	// i should have the template <>
@@ -459,7 +459,7 @@ void Parser::Definition_Pattern(int i)
 		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
 			//List<List<int>> a
 			//-> .List_List_int a 
-			Parser p(Parent);
+			Parser p(Scope);
 			p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
 			p.Factory();
 			New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
@@ -470,11 +470,11 @@ void Parser::Definition_Pattern(int i)
 	}
 
 	New_Defined_Object->Name = Input[Words.back()].Value;
-	New_Defined_Object->Scope = Parent;
+	New_Defined_Object->Scope = Scope;
 
 
 
-	Parent->Defined.push_back(New_Defined_Object);
+	Scope->Defined.push_back(New_Defined_Object);
 
 	//for later AST use:int ptr a = 123
 	Input[Words.back()].node = New_Defined_Object;
@@ -491,7 +491,7 @@ void Parser::Constructor_Pattern(int i)
 	if (ReturnType[ReturnType.size() - 1].is(Flags::KEYWORD_COMPONENT))
 		return;	//the last list index is the name and thus cannot be a keyword
 
-	if (!Parent->Find(ReturnType[ReturnType.size() - 1].Value, Parent)->is(CLASS_NODE))
+	if (!Scope->Find(ReturnType[ReturnType.size() - 1].Value, Scope)->is(CLASS_NODE))
 		return;	//the name must be same as some class name to represent as the constructor of that class
 
 	for (auto j : ReturnType) {
@@ -513,7 +513,7 @@ void Parser::Constructor_Pattern(int i)
 
 void Parser::Prototype_Pattern(int i)
 {
-	if (!(Parent->is(CLASS_NODE) && ((Parent->is("static") != -1) || Parent->Name == "GLOBAL_SCOPE")))
+	if (!(Scope->is(CLASS_NODE) && ((Scope->is("static") != -1) || Scope->Name == "GLOBAL_SCOPE")))
 		return;
 	//func banana(int, short)\n
 	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT });
@@ -559,7 +559,7 @@ void Parser::Prototype_Pattern(int i)
 
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
-	New_Defined_Object->Scope = Parent;
+	New_Defined_Object->Scope = Scope;
 
 	vector<Component> Types;
 	for (auto j : Input[Paranthesis[0]].Components) {
@@ -613,7 +613,7 @@ void Parser::Prototype_Pattern(int i)
 	//erase inherittes as well the name as well the pearameters from the input list
 	Input.erase(Input.begin() + Words[0], Input.begin() + Paranthesis[0] + 1);
 
-	Parent->Defined.push_back(New_Defined_Object);
+	Scope->Defined.push_back(New_Defined_Object);
 
 	if (i < Input.size())
 		Prototype_Pattern(i);
@@ -689,7 +689,7 @@ void Parser::Import_Pattern(int i)
 
 	New_Defined_Object->Inheritted = Inheritted;
 	New_Defined_Object->Name = Input[Words.back()].Value;
-	New_Defined_Object->Scope = Parent;
+	New_Defined_Object->Scope = Scope;
 
 	vector<Component> Types;
 	for (auto j : Input[Paranthesis[0]].Components) {
@@ -765,7 +765,7 @@ void Parser::Import_Pattern(int i)
 	//erase inherittes as well the name as well the pearameters from the input list
 	Input.erase(Input.begin() + Words[0], Input.begin() + Paranthesis[0] + 1);
 
-	Parent->Defined.push_back(New_Defined_Object);
+	Scope->Defined.push_back(New_Defined_Object);
 
 	if (i < Input.size())
 		Import_Pattern(i);
@@ -781,12 +781,12 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Parent->Find(Input[i].Value, Parent, (bool)true) == nullptr)
+	if (Scope->Find(Input[i].Value, Scope, (bool)true) == nullptr)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
-	Input[i].node = Parent->Copy_Node(Parent->Find(Input[i].Value, Parent, true), Parent);
+	Input[i].node = Scope->Copy_Node(Scope->Find(Input[i].Value, Scope, true), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
 
 	//List<int> a -> .List_int a
@@ -803,12 +803,12 @@ void Parser::Object_Pattern(int i)
 		for (auto T : Input[i + 1].Components)
 			Input[i].node->Templates.push_back(T.node);
 
-		if (Parent->Find(Input[i].node, Parent) == nullptr){
+		if (Scope->Find(Input[i].node, Scope) == nullptr){
 			Report(Observation(ERROR, "This object does not take template arguments '" + Input[i].Value + "'", Input[i].Location));
 		}							 //this object does not take template arguments
 									 //This object does not have a base template on which to build a template type
 									 //There is no template to base of this object's templating
-		Input[i].node = Parent->Find(Input[i].node, Parent);
+		Input[i].node = Scope->Find(Input[i].node, Scope);
 		Input[i].node->Templates = Input[i + 1].node->Templates;
 
 		Input.erase(Input.begin() + i + 1);
@@ -823,7 +823,7 @@ void Parser::Object_Pattern(int i)
 	else if (Input[i].node->is(FUNCTION_NODE)) //this happends for function pointer adress geting prosess
 		Input[i].node->Type = OBJECT_NODE;
 
-	Input[i].node->Scope = Parent;
+	Input[i].node->Scope = Scope;
 	return;
 }
 
@@ -838,14 +838,14 @@ void Parser::Parenthesis_Pattern(int i)
 		return;
 
 	if (Input[i].Value[0] == '{')
-		if (Parent == Global_Scope)
+		if (Scope == Global_Scope)
 			return;		//this is for member functions
 
 	//create an content Node and output will be in the same input.
 	Node* Paranthesis = new Node(CONTENT_NODE, new Position(Input[i].Location));
-	Paranthesis->Scope = Parent;
+	Paranthesis->Scope = Scope;
 	
-	Parser TMP_Parser(Parent);
+	Parser TMP_Parser(Scope);
 	TMP_Parser.Input = Input[i].Components;
 	TMP_Parser.Factory();
 
@@ -888,7 +888,7 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 
 	Node* Operator = new Node(F, new Position(Input[i].Location));
 	Operator->Name = Input[i].Value;
-	Operator->Scope = Parent;
+	Operator->Scope = Scope;
 
 	if (Input[(size_t)i - 1].node != nullptr)
 		Operator->Left = Input[(size_t)i - 1].node;
@@ -921,8 +921,8 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 		Operator->Right->Coefficient *= -1;
 
 	if (Operator->Name == "=")
-		if (Parent->Name == "GLOBAL_SCOPE")
-			Parent->Find(Operator->Left->Name)->Inheritted.push_back("const");
+		if (Scope->Name == "GLOBAL_SCOPE")
+			Scope->Find(Operator->Left->Name)->Inheritted.push_back("const");
 
 	//give the left and right operators the right holder information
 	Operator->Left->Context = Operator;
@@ -950,7 +950,7 @@ void Parser::Number_Pattern(int i)
 		return;
 	Node* Num = new Node(NUMBER_NODE, new Position(Input[i].Location));
 	Num->Name = Input[i].Value;
-	Num->Scope = Parent;
+	Num->Scope = Scope;
 
 	for (int j = 0; j < Num->Name.size(); j++)
 		if (Num->Name[j] == '.') {
@@ -1006,7 +1006,7 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	if (!op_Pass)
 		return;
 	Node* PreFix = new Node(PREFIX_NODE, new Position(Input[i].Location));
-	PreFix->Scope = Parent;
+	PreFix->Scope = Scope;
 	//name
 	PreFix->Name = Input[i].Value;
 	//for more complex casting
@@ -1053,7 +1053,7 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 
 	Node* post = new Node(POSTFIX_NODE, new Position(Input[i].Location));
 	post->Name = Input[i].Value;
-	post->Scope = Parent;
+	post->Scope = Scope;
 	
 	//set the node to postfix as left
 	post->Left = Input[(size_t)i - 1].node;
@@ -1113,7 +1113,7 @@ void Parser::Callation_Pattern(int i)
 
 	if (Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
 		//Nodize the template type 'int' for example.
-		Parser p(Parent);
+		Parser p(Scope);
 		p.Input = {Input[i + 1]};
 		p.Factory();
 
@@ -1126,13 +1126,13 @@ void Parser::Callation_Pattern(int i)
 	//give the normal call the inheritance for future operator type determining
 
 
-	call->Scope = Parent;
+	call->Scope = Scope;
 
-	if (Parent->is(CALL_NODE))
-		call->Context = Parent;
+	if (Scope->is(CALL_NODE))
+		call->Context = Scope;
 
 	//initialize the parenthesis that contains the parameters
-	Parser p(Parent);
+	Parser p(Scope);
 	p.Input = {Input[(size_t)i + 1]};
 	p.Factory();
 
@@ -1165,7 +1165,7 @@ void Parser::Array_Pattern(int i)
 		return;
 
 	Node* arr = new Node(ARRAY_NODE, new Position(Input[i].Location));
-	arr->Scope = Parent;
+	arr->Scope = Scope;
 
 	if (Input[(size_t)i].node != nullptr)
 		arr->Left = Input[(size_t)i].node;
@@ -1175,7 +1175,7 @@ void Parser::Array_Pattern(int i)
 		new_member->Name = Input[(size_t)i].Value;
 
 		arr->Left = new_member;
-		arr->Left->Scope = Parent;
+		arr->Left->Scope = Scope;
 	}
 
 	if (Input[(size_t)i + 1].node->Childs.size() > 1) {
@@ -1192,7 +1192,7 @@ void Parser::Array_Pattern(int i)
 		new_member->Name = Input[(size_t)i + 1].Components[0].Value;
 
 		arr->Right = new_member;
-		arr->Right->Scope = Parent;
+		arr->Right->Scope = Scope;
 	}
 
 	//TODO:
@@ -1240,7 +1240,7 @@ void Parser::Function_Pattern(int i)
 		return;
 	}
 	else
-		func = Parent->Find(Input[i].Value, Parent, true);
+		func = Scope->Find(Input[i].Value, Scope, true);
 	if (func == nullptr) {
 		Report(Observation(ERROR, "Parser didnt find " + Input[i].node->Name + " constructor!", Input[i].Location));
 		throw::runtime_error("ERROR!");
@@ -1249,7 +1249,7 @@ void Parser::Function_Pattern(int i)
 	func->Type = FUNCTION_NODE;
 	//set the other values
 	func->Name = Input[i].Value;
-	func->Scope = Parent;
+	func->Scope = Scope;
 
 
 	func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
@@ -1312,7 +1312,7 @@ void Parser::Type_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Parent->Find(Input[i].Value, Parent, false) == nullptr)
+	if (Scope->Find(Input[i].Value, Scope, false) == nullptr)
 		return;
 
 	int Paranthesis_Offset = 1;
@@ -1331,7 +1331,7 @@ void Parser::Type_Pattern(int i)
 		//dont worry this has same pointter as the one that is in the Defined list, so this point to it
 		Type = Input[i].node;
 	else
-		Type = Parent->Find(Input[i].Value, Parent, OBJECT_DEFINTION_NODE);
+		Type = Scope->Find(Input[i].Value, Scope, OBJECT_DEFINTION_NODE);
 	if (Type == nullptr) {
 		Report(Observation(ERROR, "Type definition was not found!", Input[i].Location));
 		throw::runtime_error("ERROR!");
@@ -1432,7 +1432,7 @@ void Parser::If_Pattern(int i)
 
 	Parser p(con);
 	con->Name = Input[i].Value;
-	con->Scope = Parent;
+	con->Scope = Scope;
 
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
@@ -1470,7 +1470,7 @@ void Parser::Else_Pattern(int i)
 
 	Parser p(Else);
 	Else->Name = Input[i].Value;
-	Else->Scope = Parent;
+	Else->Scope = Scope;
 
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
@@ -1543,7 +1543,7 @@ void Parser::Return_Pattern(int i)
 	//return;
 	Node* ret = new Node(FLOW_NODE, new Position(Input[i].Location));
 	ret->Name = "return";
-	ret->Scope = Parent;
+	ret->Scope = Scope;
 	if (!No_Return_Value) {
 		ret->Right = Input[(size_t)i + 1].node;
 		ret->Right->Context = ret;
@@ -1581,14 +1581,14 @@ void Parser::Label_Pattern(int i)
 	//..
 	//labels are tricy because they are just one word
 	//so check that it isnt connectd to enythign
-	Node* l = Parent->Find(Input[i].Value, Parent);
+	Node* l = Scope->Find(Input[i].Value, Scope);
 	if (l == nullptr)
 		return;
 	if (!l->is(LABEL_NODE))
 		return;
 	Node* L = new Node(LABEL_NODE, new Position(Input[i].Location));
 	L->Name = Input[i].Value;
-	L->Scope = Parent;
+	L->Scope = Scope;
 	
 	Input[i].node = L;
 }
@@ -1603,7 +1603,7 @@ void Parser::Label_Definition(int i)
 		return;	//return label_name
 	if (Input[(size_t)i + 1].is(Flags::TEXT_COMPONENT))
 		return;	//label_name obj_name(int)
-	if (Parent->Find(Input[i].Value, Parent) != nullptr)
+	if (Scope->Find(Input[i].Value, Scope) != nullptr)
 		return;	//label_name(int), label_name = ..
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;	//only text name allowed
@@ -1620,11 +1620,11 @@ void Parser::Label_Definition(int i)
 	//passes: label_name {..}
 	Node* label = new Node(LABEL_NODE, new Position(Input[i].Location));
 	label->Name = Input[i].Value;
-	label->Scope = Parent;
+	label->Scope = Scope;
 
 	Input[i].node = label;
 
-	Parent->Defined.push_back(label);
+	Scope->Defined.push_back(label);
 }
 
 void Parser::Size_Pattern(int i)
@@ -1632,7 +1632,7 @@ void Parser::Size_Pattern(int i)
 	//size = 4
 	if (Input[i].Value != "size")
 		return;
-	if (!Parent->is(CLASS_NODE))
+	if (!Scope->is(CLASS_NODE))
 		return;
 	if (Input[i].node != nullptr)
 		return;
@@ -1649,9 +1649,9 @@ void Parser::Size_Pattern(int i)
 
 	size->Name = "size";
 	size->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
-	size->Scope = Parent;
+	size->Scope = Scope;
 
-	Parent->Defined.push_back(size);
+	Scope->Defined.push_back(size);
 
 	Input[i].node = size;
 
@@ -1665,7 +1665,7 @@ void Parser::Format_Pattern(int i)
 	//format = decimal
 	if (Input[i].Value != "format")
 		return;
-	if (!Parent->is(CLASS_NODE))
+	if (!Scope->is(CLASS_NODE))
 		return;
 	if (i - 1 >= 0)
 		if (Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT) || Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT) || Input[(size_t)i-1].is(Flags::KEYWORD_COMPONENT))
@@ -1680,9 +1680,9 @@ void Parser::Format_Pattern(int i)
 
 	format->Name = "format";
 	format->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
-	format->Scope = Parent;
+	format->Scope = Scope;
 
-	Parent->Defined.push_back(format);
+	Scope->Defined.push_back(format);
 
 	Input[i].node = format;
 
@@ -1694,7 +1694,7 @@ void Parser::Format_Pattern(int i)
 void Parser::Member_Function_Pattern(int i)
 {
 	//return_type class_name.funcname(){}
-	if (Parent->is(FUNCTION_NODE))
+	if (Scope->is(FUNCTION_NODE))
 		return;
 	if (Input[i].Value != ".")
 		return;
@@ -1714,16 +1714,16 @@ void Parser::Member_Function_Pattern(int i)
 	Input[i].node->Left->Transform_Dot_To_Fechering(Input[i].node->Right);
 
 	//Find the scope that this function is set to as a member to.
-	Node* Class = Parent->Find(Input[i].node->Right->Fetcher, Parent, CLASS_NODE);
+	Node* Class = Scope->Find(Input[i].node->Right->Fetcher, Scope, CLASS_NODE);
 	if (Class == nullptr)
 		Report(Observation(ERROR, Input[i].node->Right->Fetcher->Name + " was not found when creating " + Input[i].node->Right->Name, Input[i].Location));
 
 	//delete the tmp fecher defined in the parent scope.
 	Node* Ghost_Definition = Input[i].node->Left;
 
-	for (int j = 0; j < Parent->Defined.size(); j++)
-		if (Ghost_Definition == Parent->Defined[j])
-			Parent->Defined.erase(Parent->Defined.begin() + j);
+	for (int j = 0; j < Scope->Defined.size(); j++)
+		if (Ghost_Definition == Scope->Defined[j])
+			Scope->Defined.erase(Scope->Defined.begin() + j);
 
 
 	Input[i].node->Right->Context = Input[i].node->Context;

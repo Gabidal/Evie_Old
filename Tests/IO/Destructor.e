@@ -13,6 +13,6 @@ export int Start_Test(){
 	foo F = foo(New<foo>())
 	foo ptr handle_1 = F
 
-
-	return 1
+	int x = handle_1.X
+	return x
 }

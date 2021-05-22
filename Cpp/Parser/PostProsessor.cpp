@@ -12,18 +12,18 @@ extern Usr* sys;
 
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node(); 
-	for (int i = 0; i < Parent->Defined.size(); i++) {
+	for (int i = 0; i < Scope->Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Type_Size_Definer(i);
 	}
-	for (int i = 0; i < Parent->Defined.size(); i++) {
+	for (int i = 0; i < Scope->Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Handle_Imports(i);
 	}
-	for (int i = 0; i < Parent->Defined.size(); i++) {
+	for (int i = 0; i < Scope->Defined.size(); i++) {
 		Type_Definer(i);
 	}
-	for (int i = 0; i < Parent->Defined.size(); i++) {
+	for (int i = 0; i < Scope->Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Member_Function_Defined_Outside(i);
 		Member_Function_Defined_Inside(i);
@@ -78,9 +78,9 @@ void PostProsessor::Type_Definer(int i)
 	//<summary>
 	//stack type info
 	//</summary>
-	if (Parent->Defined[i]->Type != CLASS_NODE)
+	if (Scope->Defined[i]->Type != CLASS_NODE)
 		return;
-	if (Parent->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
+	if (Scope->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
 		return;
 	/*//update members sizes
 	Parent->Defined[i]->Update_Size();
@@ -97,41 +97,41 @@ void PostProsessor::Type_Definer(int i)
 	*/
 
 	//If this is a namespace skip the default constructor builder
-	if (Parent->Defined[i]->is("static") != -1)
+	if (Scope->Defined[i]->is("static") != -1)
 		return;
 
-	for (auto& j : Parent->Defined[i]->Defined)
-		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] != Parent->Defined[i]->Name)) {
-			PostProsessor p(Parent->Defined[i], { j });
+	/*for (auto& j : Scope->Defined[i]->Defined)
+		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] != Scope->Defined[i]->Name)) {
+			PostProsessor p(Scope->Defined[i], { j });
 			//p.Input = { j };
 			//p.Member_Function_Defined_Inside(0);
 			//j = p.Output[0];
-		}
+		}*/
 
 	//check for static members and move them into Header section to be labelazed
-	for (auto& j : Parent->Defined[i]->Childs)
+	for (auto& j : Scope->Defined[i]->Childs)
 		if (j->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
-			if (j->Left->is("static") != -1 && Node::Has(Parent->Defined[i]->Header, j->Left) == false)
-				Parent->Defined[i]->Header.push_back(j);
+			if (j->Left->is("static") != -1 && Node::Has(Scope->Defined[i]->Header, j->Left) == false)
+				Scope->Defined[i]->Header.push_back(j);
 		}
-		else if (j->is("static") != -1 && Node::Has(Parent->Defined[i]->Header, j) == false)
-				Parent->Defined[i]->Header.push_back(j);
+		else if (j->is("static") != -1 && Node::Has(Scope->Defined[i]->Header, j) == false)
+				Scope->Defined[i]->Header.push_back(j);
 
 	//DISABLE default constructor if user has already defined one.
-	for (auto j : Parent->Defined) {
+	for (auto j : Scope->Defined) {
 		if (!j->is(FUNCTION_NODE))
 			continue;
-		if (j->Name != Parent->Defined[i]->Name)
+		if (j->Name != Scope->Defined[i]->Name)
 			continue;
 
 		if (j->is("ptr") == -1)
 			continue;	//constructor must return a ptr
-		if (j->is(Parent->Defined[i]->Name) == -1)
+		if (j->is(Scope->Defined[i]->Name) == -1)
 			continue;	//constructor must return its self typed class type ptr.
 
 		if (j->Parameters.size() != 1)
 			continue;
-		if (j->Parameters[0]->is(Parent->Defined[i]->Name) == -1)
+		if (j->Parameters[0]->is(Scope->Defined[i]->Name) == -1)
 			continue;
 		if (j->Parameters[0]->is("ptr") == -1)
 			continue;	//constructor must take itself as a ptr.
@@ -140,15 +140,15 @@ void PostProsessor::Type_Definer(int i)
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
-	Node* Function = new Node(FUNCTION_NODE, Parent->Defined[i]->Location);
-	Function->Name = Parent->Defined[i]->Name;
-	Function->Inheritted = { Parent->Defined[i]->Name, "ptr" };
+	Node* Function = new Node(FUNCTION_NODE, Scope->Defined[i]->Location);
+	Function->Name = Scope->Defined[i]->Name;
+	Function->Inheritted = { Scope->Defined[i]->Name, "ptr" };
 	Function->Scope = Global_Scope;
 
-	Node* This = new Node(PARAMETER_NODE, Parent->Defined[i]->Location);
-	This->Inheritted = {Parent->Defined[i]->Name, "ptr"};
+	Node* This = new Node(PARAMETER_NODE, Scope->Defined[i]->Location);
+	This->Inheritted = {Scope->Defined[i]->Name, "ptr"};
 	This->Name = "this";
-	This->Defined = Parent->Defined[i]->Defined;
+	This->Defined = Scope->Defined[i]->Defined;
 	This->Scope = Function;
 	This->Update_Size();
 
@@ -157,19 +157,19 @@ void PostProsessor::Type_Definer(int i)
 
 	Function->Update_Size();
 
-	Node* p = Parent->Defined[i];
+	Node* p = Scope->Defined[i];
 	if (p->Has({ "cpp", "evie", "vivid" }) != -1)
 		Function->Inheritted.push_back(p->Inheritted[p->Has({ "cpp", "evie", "vivid" })]);
 
-	Function->Childs = Insert_Dot(Parent->Defined[i]->Childs, Function, This);
+	Function->Childs = Insert_Dot(Scope->Defined[i]->Childs, Function, This);
 
 	//call all the inheritted default or overrided constructor calls.
-	vector<Node*> tmp = Dottize_Inheritanse(Parent->Defined[i], This, Function);
+	vector<Node*> tmp = Dottize_Inheritanse(Scope->Defined[i], This, Function);
 
 	Function->Childs.insert(Function->Childs.begin(), tmp.begin(), tmp.end());
 
 	//make the return of this pointter
-	Node* ret = new Node(FLOW_NODE, Parent->Defined[i]->Location);
+	Node* ret = new Node(FLOW_NODE, Scope->Defined[i]->Location);
 	ret->Name = "return";
 	ret->Right = new Node(*This);
 	ret->Scope = Function;
@@ -177,13 +177,13 @@ void PostProsessor::Type_Definer(int i)
 
 	PostProsessor P(Function, Function->Childs);
 
-	Parent->Append(Function->Childs, P.Output);
+	Scope->Append(Function->Childs, P.Output);
 
 	Global_Scope->Defined.push_back(Function);
 	Global_Scope->Childs.push_back(Function);
 
 	//infiltrate the class type and inject this behemoth
-	Node* Type = Parent->Defined[i];
+	Node* Type = Scope->Defined[i];
 	if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
 		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
 		Reference_Count->Name = "Reference_Count";
@@ -208,7 +208,12 @@ void PostProsessor::Type_Definer(int i)
 		Type->Defined.push_back(Reference_Count);
 	}
 
-	Destructor_Generator(Parent->Defined[i]);
+	Destructor_Generator(Scope->Defined[i]);
+
+	for (auto& j : Scope->Defined[i]->Defined)
+		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] == Scope->Defined[i]->Name)) {
+			PostProsessor p(Scope->Defined[i], { j });
+		}
 
 	return;
 }
@@ -218,6 +223,8 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	if (sys->Info.Reference_Count_Size < 1)
 		return;
 
+	if (MANGLER::Is_Base_Type(Type))
+		return;
 	//[type].Destructor(){
 	//	if ([member] != 0->address && --[member].Reference_Count < 1){
 	//		[member].Destructor()
@@ -226,6 +233,10 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	//}
 
 	string Ifs = "";
+	//if (Type->is("ptr") != -1) {
+		Ifs +=
+			"if (this != 0->address && --Reference_Count < 1){\n";
+	//}
 
 	for (auto Member : Type->Defined) {
 		if ((Member->is("ptr") == -1) || MANGLER::Is_Base_Type(Member))
@@ -239,17 +250,38 @@ void PostProsessor::Destructor_Generator(Node* Type)
 		Ifs += 
 			"if (" + Member->Name + "!= 0->address && --" + Member->Name + ".Reference_Count < 1){\n" +
 				Member->Name + ".Destructor()\n" +
-				"Deallocate<" + Member_Types + ">(" + Member->Name + ", " + to_string(Member->Size) + ")\n" +
+				"Deallocate<" + Member_Types + ">(" + Member->Name + ")\n" +
 			"}\n";
 	}
 
-	Parser p(Type);
-	p.Input = Lexer::GetComponents(
-		"func Destructor(){\n" +
-			Ifs +
-		"}"
-	);
+	//if (Type->is("ptr") != -1) {
+		string Type_Inheritted = "";
+		for (auto I : Type->Inheritted) {
+			Type_Inheritted += " " + I;
+		}
+
+	Ifs += "Deallocate<" + Type_Inheritted + ">(this)\n}";
+	//}
+	//The function itself needs to be constructed with a this pointter.
+	Node* Func = new Node(FUNCTION_NODE, Type->Location);
+	Func->Name = "Destructor";
+	Func->Inheritted.push_back("func");
+	Func->Scope = Type;
+
+	Node* This = new Node(PARAMETER_NODE, Type->Location);
+	This->Name = "this";
+	This->Inheritted = { Type->Name, "ptr" };
+	This->Scope = Func;
+
+	Func->Parameters.push_back(This);
+	Func->Defined.push_back(This);
+
+	Parser p(Func);
+	p.Input = Lexer::GetComponents(Ifs);
 	p.Factory();
+	Func->Childs.push_back(p.Input[0].node);
+
+	Type->Defined.push_back(Func);
 }
 
 void PostProsessor::Destructor_Caller(Node* v)
@@ -263,13 +295,13 @@ void PostProsessor::Destructor_Caller(Node* v)
 	if (v->is(PARSED_BY::DESTRUCTOR_CALLER))
 		return;
 
-	Parser p(Parent);
+	Parser p(v->Scope);
 	p.Input = Lexer::GetComponents(v->Name + ".Destructor()");
 	p.Factory();
 
 	v->Parsed_By |= PARSED_BY::DESTRUCTOR_CALLER;
 
-	PostProsessor P(Parent, p.Input);
+	PostProsessor P(v->Scope, p.Input);
 	v->Append(Output, P.Input);
 
 }
@@ -371,16 +403,16 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 	//	
 	//	If the function in question is not a static type then we need to apply this pointters and other cool stuf.
 	//</summary>
-	if (Parent->Defined[i]->Type != FUNCTION_NODE)
+	if (Scope->Defined[i]->Type != FUNCTION_NODE)
 		return;
-	if (Parent->Defined[i]->Fetcher == nullptr)
+	if (Scope->Defined[i]->Fetcher == nullptr)
 		return;
-	if (Parent->Defined[i]->is("static") != -1)
+	if (Scope->Defined[i]->is("static") != -1)
 		return;
-	if (Parent->Defined[i]->Parameters.size() > 0 && Parent->Defined[i]->Parameters[0]->Name == "this")
+	if (Scope->Defined[i]->Parameters.size() > 0 && Scope->Defined[i]->Parameters[0]->Name == "this")
 		return;
 
-	Node* func = Parent->Defined[i];
+	Node* func = Scope->Defined[i];
 
 	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { func->Fetcher->Name, "ptr" };
@@ -394,30 +426,30 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 
 	func->Childs = Insert_Dot(func->Childs, func, This);
 
-	Node* Scope = func->Find_Scope(func);
+	Node* Class = func->Find_Scope(func);
 
-	func->Fetcher = Scope;
+	func->Fetcher = Class;
 
-	*func->Fetcher->Find(func, Scope, FUNCTION_NODE) = *func;
+	*func->Fetcher->Find(func, Class, FUNCTION_NODE) = *func;
 
 	return;
 }
 
 void PostProsessor::Member_Function_Defined_Inside(int i)
 {
-	if (!Parent->Defined[i]->is(FUNCTION_NODE))
+	if (!Scope->Defined[i]->is(FUNCTION_NODE))
 		return;
-	if (Parent->Defined[i]->is("static") != -1)
+	if (Scope->Defined[i]->is("static") != -1)
 		return;
-	if (Parent->Name == "GLOBAL_SCOPE")
+	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
-	if (Parent->Defined[i]->Fetcher != nullptr)
+	if (Scope->Defined[i]->Fetcher != nullptr)
 		return;
 
-	Node* func = Parent->Defined[i];
+	Node* func = Scope->Defined[i];
 
 	Node* This = new Node(PARAMETER_NODE, "this", nullptr);
-	This->Inheritted = { Parent->Name, "ptr" };
+	This->Inheritted = { Scope->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
 
@@ -427,9 +459,9 @@ void PostProsessor::Member_Function_Defined_Inside(int i)
 
 	func->Childs = Insert_Dot(func->Childs, func, This);
 
-	Node* Scope = Parent->Find(Parent->Name, Parent, CLASS_NODE);
+	Node* Class = Scope->Find(Scope->Name, Scope, CLASS_NODE);
 
-	*Parent->Find(func, Scope, FUNCTION_NODE) = *func;
+	*Scope->Find(func, Class, FUNCTION_NODE) = *func;
 
 	return;
 }
@@ -438,11 +470,11 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 {
 	//here we just go trugh the insides of the function
 	//for optimization and other cool stuff :D
-	if (!Parent->Defined[i]->is(FUNCTION_NODE))
+	if (!Scope->Defined[i]->is(FUNCTION_NODE))
 		return;
-	if (Parent->Defined[i]->Is_Template_Object)
+	if (Scope->Defined[i]->Is_Template_Object)
 		return;
-	for (auto j : Parent->Defined[i]->Get_All_Fetchers())
+	for (auto j : Scope->Defined[i]->Get_All_Fetchers())
 		if (j->Is_Template_Object)
 			return;
 	/*for (auto j : Input[i]->Parameters)
@@ -452,22 +484,22 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 
 
-	PostProsessor p(Parent->Defined[i]);
-	p.Input = Parent->Defined[i]->Childs;
+	PostProsessor p(Scope->Defined[i]);
+	p.Input = Scope->Defined[i]->Childs;
 
 	//prepare the local variables
-	p.Define_Sizes(Parent->Defined[i]);
+	p.Define_Sizes(Scope->Defined[i]);
 
-	Parent->Defined[i]->Update_Format();
+	Scope->Defined[i]->Update_Format();
 
-	Parent->Defined[i]->Update_Size();
+	Scope->Defined[i]->Update_Size();
 
 	p.Factory();
 
-	Parent->Defined[i]->Childs = p.Input;
+	Scope->Defined[i]->Childs = p.Input;
 
-	for (auto& v : Parent->Defined[i]->Defined) {
-		for (auto j : Parent->Defined[i]->Childs) {
+	for (auto& v : Scope->Defined[i]->Defined) {
+		for (auto j : Scope->Defined[i]->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
 			if (v->Requires_Address)
 				break;
@@ -476,7 +508,7 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 	//DEBUG
 	//if (sys->Info.Debug)
-	for (auto& v : Parent->Defined[i]->Defined) {
+	for (auto& v : Scope->Defined[i]->Defined) {
 		if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
 			continue;
 		else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
@@ -487,17 +519,17 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 	}
 
 	while (true) {
-		Algebra a(Parent->Defined[i], &Parent->Defined[i]->Childs);
+		Algebra a(Scope->Defined[i], &Scope->Defined[i]->Childs);
 		if (!Optimized)
 			break;
 		Optimized = false;
 	}
 
-	for (auto& v : Parent->Defined[i]->Defined)
-		Destructor_Caller(v);
+	for (auto& v : Scope->Defined[i]->Defined)
+		p.Destructor_Caller(v);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
-	Parent->Append(Parent->Defined[i]->Childs, p.Output);
+	Scope->Append(Scope->Defined[i]->Childs, p.Output);
 	return;
 }
 
@@ -521,7 +553,7 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	for (auto& v : Input[i]->Defined)
 		p.Destructor_Caller(v);
 
-	Parent->Append(Input[i]->Childs, p.Output);
+	Scope->Append(Input[i]->Childs, p.Output);
 
 	return;
 }
@@ -536,7 +568,7 @@ void PostProsessor::Open_Paranthesis(int i)
 	for (auto& v : Input[i]->Defined)
 		p.Destructor_Caller(v);
 
-	Parent->Append(Input[i]->Childs, p.Output);
+	Scope->Append(Input[i]->Childs, p.Output);
 
 	Input[i]->Inheritted.push_back(Input[i]->Childs.back()->Cast_Type);
 
@@ -861,6 +893,9 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 		}
 		Scopes.push_back(caller->Fetcher);
 	}
+	else if (caller->Get_Parent_As(CLASS_NODE, caller) != Global_Scope) {
+		Scopes.push_back(caller->Get_Parent_As(CLASS_NODE, caller));
+	}
 	//Get_Scope_Path() doesnt give us Global_Scope, so lets add it manually.
 	Scopes.push_back(Global_Scope);
 
@@ -1126,8 +1161,8 @@ bool PostProsessor::Find_Castable_Inheritance(vector<string> types, string targe
 			continue;
 		if (type == target)
 			return true;
-		if (!MANGLER::Is_Base_Type(Parent->Find(type, Parent, CLASS_NODE)))
-			if (Find_Castable_Inheritance(Parent->Find(type, Parent, CLASS_NODE)->Get_Inheritted(true), target))
+		if (!MANGLER::Is_Base_Type(Scope->Find(type, Scope, CLASS_NODE)))
+			if (Find_Castable_Inheritance(Scope->Find(type, Scope, CLASS_NODE)->Get_Inheritted(true), target))
 				return true;
 	}
 	return false;
@@ -1139,12 +1174,12 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 		return;
 
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
-	PostProsessor p(Parent, Input[i]->Parameters);
+	PostProsessor p(Scope, Input[i]->Parameters);
 
 	for (auto& v : Input[i]->Defined)
 		p.Destructor_Caller(v);
 
-	Parent->Append(Output, p.Output);
+	Scope->Append(Output, p.Output);
 
 	//use optimization into the parameters.
 	//Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
@@ -1186,7 +1221,7 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		Cast(n->Right);
 		Combine_Member_Fetching(n->Left);
 		//set the left side
-		Node* Left = Parent->Find(Get_From_AST(n->Left), Parent);
+		Node* Left = Scope->Find(Get_From_AST(n->Left), Scope);
 		//we must also update the current left side to inherit the members from the inherit list
 
 		//get the left side of the dot operator, this is getted from most left because it can be also an AST.
@@ -1240,15 +1275,15 @@ Node* PostProsessor::Get_From_AST(Node* n)
 		return Get_From_AST(n->Childs[0]);
 	}
 	else if (n->is(OPERATOR_NODE)) {
-		PostProsessor p(Parent, { n });
+		PostProsessor p(Scope, { n });
 		return Get_From_AST(n);	//this call the same funciton again because the structure of the AST might have been changed.
 	}
 	else if (n->is(ARRAY_NODE)) {
-		PostProsessor p(Parent, { n });
+		PostProsessor p(Scope, { n });
 		return n->Get_Most_Left();
 	}
 	else if (n->is(CALL_NODE)) {
-		PostProsessor p(Parent, n->Parameters);	//prosess the parameters.
+		PostProsessor p(Scope, n->Parameters);	//prosess the parameters.
 		//update the return type of the funciton call
 		//if (n->Holder->Name == "return")
 		//	Analyze_Return_Value(n->Holder);
@@ -1305,17 +1340,17 @@ void PostProsessor::Determine_Return_Type(int i)
 		return;
 
 	if (Input[i]->Right->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Right)) {
-		PostProsessor l(Parent, vector<Node*>{Input[i]->Left });
+		PostProsessor l(Scope, vector<Node*>{Input[i]->Left });
 		Input[i]->Right->Inheritted = Input[i]->Left->Inheritted;
-		PostProsessor r(Parent, vector<Node*>{ Input[i]->Right});
+		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right});
 	}
 	else if (Input[i]->Left->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Left)) {
-		PostProsessor r(Parent, vector<Node*>{ Input[i]->Right});
+		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right});
 		Input[i]->Left->Inheritted = Input[i]->Right->Inheritted;
-		PostProsessor l(Parent, vector<Node*>{Input[i]->Left });
+		PostProsessor l(Scope, vector<Node*>{Input[i]->Left });
 	}
 	else {
-		PostProsessor r(Parent, vector<Node*>{ Input[i]->Right, Input[i]->Left });
+		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right, Input[i]->Left });
 	}
 
 
@@ -1334,20 +1369,20 @@ void PostProsessor::Determine_Return_Type(int i)
 	for (auto j : Input[i]->Left->Get_Inheritted(false, false)) {
 		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
-		Left_Size += Parent->Find(j, Parent)->Get_Size();
+		Left_Size += Scope->Find(j, Scope)->Get_Size();
 	}	
 	if (Input[i]->Left->Cast_Type != "" && Input[i]->Left->Cast_Type != "address")
-		Left_Size = Parent->Find(Input[i]->Left->Cast_Type, Parent)->Get_Size();
+		Left_Size = Scope->Find(Input[i]->Left->Cast_Type, Scope)->Get_Size();
 	if (Input[i]->Left->is("ptr") != -1)
 		Left_Size = _SYSTEM_BIT_SIZE_;
 
 	for (auto j : Input[i]->Right->Get_Inheritted(false, false)) {
 		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 			continue;
-		Right_Size += Parent->Find(j, Parent)->Get_Size();
+		Right_Size += Scope->Find(j, Scope)->Get_Size();
 	}
 	if (Input[i]->Right->Cast_Type != "" && Input[i]->Right->Cast_Type != "address")
-		Right_Size = Parent->Find(Input[i]->Right->Cast_Type, Parent)->Get_Size();
+		Right_Size = Scope->Find(Input[i]->Right->Cast_Type, Scope)->Get_Size();
 	if (Input[i]->Right->is("ptr") != -1)
 		Right_Size = _SYSTEM_BIT_SIZE_;
 
@@ -1362,7 +1397,7 @@ void PostProsessor::Determine_Array_Type(int i)
 	if (!Input[i]->is(ARRAY_NODE))
 		return;
 
-	PostProsessor r(Parent, vector<Node*>{ Input[i]->Right, Input[i]->Left });
+	PostProsessor r(Scope, vector<Node*>{ Input[i]->Right, Input[i]->Left });
 
 	//Who is gay and does not pay taxes also farts in public 
 	for (auto& overload : Input[i]->Left->Operator_Overloads) {
@@ -1382,7 +1417,7 @@ void PostProsessor::Open_PreFix_Operator(int i)
 	if (!Input[i]->is(PREFIX_NODE))
 		return;
 
-	PostProsessor p(Parent, { Input[i]->Right });
+	PostProsessor p(Scope, { Input[i]->Right });
 }
 
 void PostProsessor::Open_PostFix_Operator(int i)
@@ -1391,39 +1426,39 @@ void PostProsessor::Open_PostFix_Operator(int i)
 		return;
 
 
-	PostProsessor p(Parent, { Input[i]->Left });
+	PostProsessor p(Scope, { Input[i]->Left });
 }
 
 void PostProsessor::Type_Size_Definer(int i)
 {
-	if (Parent->Defined[i]->Type != CLASS_NODE)
+	if (Scope->Defined[i]->Type != CLASS_NODE)
 		return;
-	if (Parent->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
+	if (Scope->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
 		return;
 	//update members sizes
-	Parent->Defined[i]->Update_Size();
+	Scope->Defined[i]->Update_Size();
 
 	//update the member stack offsets
-	Parent->Defined[i]->Update_Members_Mem_Offset();
+	Scope->Defined[i]->Update_Members_Mem_Offset();
 
 	//update format
-	Parent->Defined[i]->Update_Format();
+	Scope->Defined[i]->Update_Format();
 
 	//update all member formats as well
-	for (auto& i : Parent->Defined[i]->Defined)
+	for (auto& i : Scope->Defined[i]->Defined)
 		i->Update_Format();
 }
 
 void PostProsessor::Handle_Imports(int i)
 {
-	if (!Parent->Defined[i]->is(IMPORT))
+	if (!Scope->Defined[i]->is(IMPORT))
 		return;
 	//import func new (4, ABC)
 	//all numbers need to be redefined by type size.
 	//and all other text is already classes.
 	//pointters are inside the parameter as inheritance.
 	bool Parse_Returning_Numerical_Types = false;
-	vector<Node*> Numerical_Types = Parent->Defined[i]->Parameters;
+	vector<Node*> Numerical_Types = Scope->Defined[i]->Parameters;
 Again:;
 	for (int j = 0; j < Numerical_Types.size(); j++) {
 		vector<string> Inheritted = Numerical_Types[j]->Inheritted;
@@ -1440,16 +1475,16 @@ Again:;
 			Numerical_Types[j]->Inheritted.insert(Numerical_Types[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
 	}
-	if (Parse_Returning_Numerical_Types == false && Parent->Defined[i]->Numerical_Return_Types.size() > 0) {
+	if (Parse_Returning_Numerical_Types == false && Scope->Defined[i]->Numerical_Return_Types.size() > 0) {
 		Parse_Returning_Numerical_Types = true;
-		Numerical_Types = Parent->Defined[i]->Numerical_Return_Types;
+		Numerical_Types = Scope->Defined[i]->Numerical_Return_Types;
 		goto Again;
 	}
 	else if (Parse_Returning_Numerical_Types) {
 		for (auto j : Numerical_Types) {
-			Parent->Defined[i]->Inheritted.push_back(j->Name);
+			Scope->Defined[i]->Inheritted.push_back(j->Name);
 		}
-		Parent->Defined[i]->Numerical_Return_Types.clear();
+		Scope->Defined[i]->Numerical_Return_Types.clear();
 	}
 	//TODO: Re-order all return types and parameter types into a logical order.
 	//now all types are good to go.
@@ -1481,7 +1516,7 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	for (auto& v : Input[i]->Defined)
 		post.Destructor_Caller(v);
 
-	Parent->Append(Input[i]->Childs, post.Output);
+	Scope->Append(Input[i]->Childs, post.Output);
 }
 
 void PostProsessor::Update_Used_Object_Info(Node* n)
@@ -1609,12 +1644,12 @@ void PostProsessor::Analyze_Global_Variable_Changes(int i)
 	if (Input[i]->Left->Scope->Name != "GLOBAL_SCOPE")
 		return;
 
-	Node* og = Parent->Find(Input[i]->Left->Name);
+	Node* og = Scope->Find(Input[i]->Left->Name);
 
-	if (Parent->Name == "GLOBAL_SCOPE") {
+	if (Scope->Name == "GLOBAL_SCOPE") {
 		//We are in global scope area.
 		if (!Input[i]->Right->Get_Most_Left()->is(NUMBER_NODE) && !Input[i]->Right->Get_Most_Left()->is(STRING_NODE)) {
-			Node* Right = Parent->Find(Input[i]->Right->Get_Most_Left()->Name);
+			Node* Right = Scope->Find(Input[i]->Right->Get_Most_Left()->Name);
 			if (Right->is("const") == -1)
 				if (og->is("const") != -1) {
 					og->Inheritted.erase(og->Inheritted.begin() + og->is("const"));
@@ -1634,7 +1669,7 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 {
 	if (!Input[i]->is(STRING_NODE))
 		return;
-	if (Parent->Name == "GLOBAL_SCOPE")
+	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
 	//a = "123" to a = S0
 	int Current_S_Count = 0;
@@ -1680,15 +1715,15 @@ void PostProsessor::Move_Global_Varibles_To_Header(int i)
 {
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
-	if (Parent->Name != "GLOBAL_SCOPE" && Parent->is("static") == -1)
+	if (Scope->Name != "GLOBAL_SCOPE" && Scope->is("static") == -1)
 		return;
 
-	Node* Globl_Var = Parent->Find(Input[i]->Left->Name);
+	Node* Globl_Var = Scope->Find(Input[i]->Left->Name);
 	Globl_Var->Type = OBJECT_NODE;
 
 	Globl_Var->Update_Size();
 
-	Parent->Header.push_back(Input[i]);
+	Scope->Header.push_back(Input[i]);
 
 	Input.erase(Input.begin() + i);
 
@@ -1857,7 +1892,7 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 	for (auto& v : n->Right->Defined)
 		p.Destructor_Caller(v);
 		
-	Parent->Append(Output, p.Output);
+	Scope->Append(Output, p.Output);
 
 	Update_Operator_Inheritance(n->Right);
 }

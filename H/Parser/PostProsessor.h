@@ -18,11 +18,11 @@ public:
 	vector<Component> Components;
 	vector<Node*> Input;
 	vector<Node*> Output;
-	Node* Parent = nullptr;
+	Node* Scope = nullptr;
 
-	PostProsessor(Node* p) : Parent(p){}
-	PostProsessor(Node* p, vector<Node*> in) : Parent(p), Input(in) { Factory(); }
-	PostProsessor(Node* p, vector<Component> in) : Parent(p), Components(in) { Factory(); }
+	PostProsessor(Node* p) : Scope(p){}
+	PostProsessor(Node* p, vector<Node*> in) : Scope(p), Input(in) { Factory(); }
+	PostProsessor(Node* p, vector<Component> in) : Scope(p), Components(in) { Factory(); }
 	PostProsessor(){}
 	~PostProsessor(){}
 

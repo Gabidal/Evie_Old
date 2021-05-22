@@ -1,5 +1,6 @@
 #include "../../H/Parser/Algebra.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/Parser/PostProsessor.h"
 
 #include <cmath>
 
@@ -35,36 +36,15 @@ void Algebra::Factory() {
 
 vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
 {
-	vector<Node*> Result;
-	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE) || ast->is(ARRAY_NODE)) {
-		vector<Node*> left = Linearise(ast->Left, Include_Operator);
-		Result.insert(Result.end(), left.begin(), left.end());
+	PostProsessor p(ast);
+	vector<Node*> List = p.Linearise(ast);
 
-		if (Include_Operator)
-			Result.push_back(ast);
+	for (int i = 0; i < List.size(); i++) {
+		if (Include_Operator && List[i]->Has({ ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE }))
+			List.erase(List.begin() + i);
+	}
 
-		vector<Node*> right = Linearise(ast->Right, Include_Operator);
-		Result.insert(Result.end(), right.begin(), right.end());
-	}
-	else if (ast->is(CONTENT_NODE)) {
-		vector<Node*> childs;
-		for (auto c : ast->Childs) {
-			vector<Node*> tmp = Linearise(c, Include_Operator);
-			//apply the coeeficient of the content holder into the childs.
-			for (auto& i : tmp) {
-				i->Coefficient *= ast->Coefficient;
-			}
-			childs.insert(childs.end(), tmp.begin(), tmp.end());
-		}
-		Result.insert(Result.end(), childs.begin(), childs.end());
-	}
-	else if (ast->Name == "return") {
-		Result.push_back(ast->Right);
-	}
-	else
-		Result.push_back(ast);
-
-	return Result;
+	return List;
 }
 
 void Algebra::Function_Inliner(Node* c)
@@ -411,11 +391,11 @@ void Algebra::Set_Defining_Value(int i)
 	if (Input->at(i)->Left->is(ARRAY_NODE))
 		return;
 
-	if (Input->at(i)->is(ASSIGN_OPERATOR_NODE))
+	/*if (Input->at(i)->is(ASSIGN_OPERATOR_NODE))
 		if (Input->at(i)->Left->Find(Input->at(i)->Left, Input->at(i)->Left->Scope)->is("ptr"))
-			return;
+			return;*/
 
-	//callations hould not be inlined because theyre return value may vary.
+	//callations sould not be inlined because theyre return value may vary.
 	for (auto j : Linearise(Input->at(i)->Right))
 		if (j->is(CALL_NODE))
 			return;
@@ -436,7 +416,7 @@ void Algebra::Set_Defining_Value(int i)
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
 	Variable_Descriptor* description = new Variable_Descriptor(right, i, *Input);
-	Parent->Find(Input->at(i)->Left->Name, Input->at(i)->Left->Get_Right_Parent())->Current_Value = description;
+	Parent->Find(Input->at(i)->Left->Name, Input->at(i)->Left)->Current_Value = description;
 
 	return;
 }
@@ -510,7 +490,7 @@ void Algebra::Reset_Defining_Value(int i)
 
 void Algebra::Clean_Unused()
 {
-	for (int d = 0; d < Parent->Defined.size(); d++) {
+	/*for (int d = 0; d < Parent->Defined.size(); d++) {
 		if (Parent->Defined[d]->is("ptr") != -1)
 			if (Parent->Defined[d]->is(PARAMETER_NODE))
 				continue;
@@ -518,6 +498,7 @@ void Algebra::Clean_Unused()
 			continue;
 		//update the calling count.
 		Parent->Defined[d]->Calling_Count = 0;
+
 		for (int i = 0; i < Input->size(); i++) {
 			if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(BIT_OPERATOR_NODE)) {
 				if (Input->at(i)->Name == "return") {
@@ -585,6 +566,27 @@ void Algebra::Clean_Unused()
 				}
 			}
 		}
+	}*/
+	for (int i = 0; i < Parent->Defined.size(); i++) {
+		if (Parent->Defined[i]->is(PARAMETER_NODE))
+			continue;
+		//check if the expiring index is same as the definition index
+		if (Parent->Defined[i]->Current_Value){
+			if (Parent->Defined[i]->Current_Value->Define_Index == Parent->Defined[i]->Current_Value->Expiring_Index)
+				Parent->Defined.erase(Parent->Defined.begin() + i);
+			}
+		else {
+			//the inlining value could not be made.
+			for (auto line : *Input) {
+				for (auto element : Linearise(line)) {
+					if (element->Name == Parent->Defined[i]->Name)
+						Parent->Defined[i]->Calling_Count++;
+				}
+			}
+			if (Parent->Defined[i]->Calling_Count < 1)
+				Parent->Defined.erase(Parent->Defined.begin() + i);
+		}
+
 	}
 }
 
