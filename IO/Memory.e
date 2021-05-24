@@ -11,15 +11,15 @@ T ptr Allocate<T>(long Size){
 }
 
 func Deallocate<T>(T ptr Address, int Size){
-	deallocate(Address->BYTE_POINTER, Size->long)
+	internal_deallocate(Address->BYTE_POINTER, Size->long)
 }
 
 func Deallocate<T>(T ptr Address){
-	deallocate(Address->BYTE_POINTER, Address.size->long)
+	internal_deallocate(Address->BYTE_POINTER, Address.size->long)
 }
 
 func Deallocate<T>(T ptr Address, long Size){
-	deallocate(Address->BYTE_POINTER, Size)
+	internal_deallocate(Address->BYTE_POINTER, Size)
 }
 
 T ptr New<T>(){

@@ -254,13 +254,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 			"}\n";
 	}
 
-	//if (Type->is("ptr") != -1) {
-		string Type_Inheritted = "";
-		for (auto I : Type->Inheritted) {
-			Type_Inheritted += " " + I;
-		}
-
-	Ifs += "Deallocate<" + Type_Inheritted + ">(this)\n}";
+	Ifs += "Deallocate<" + Type->Name + ">(this)\n}";
 	//}
 	//The function itself needs to be constructed with a this pointter.
 	Node* Func = new Node(FUNCTION_NODE, Type->Location);
@@ -1021,7 +1015,7 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 
 	//	  Candidate, Distance
 	vector<pair<pair<pair<Node*, Node*>, Node*>, int>> Candidate_Distance;
-	for (int Current_Accuracy = Max_Accuracity; Current_Accuracy > 0; Current_Accuracy--) {
+	for (int Current_Accuracy = Max_Accuracity; Current_Accuracy >= 0; Current_Accuracy--) {
 		for (auto Func : Candidates[Current_Accuracy]) {
 			//Check whoose closer if the return type or parameters need to be casted
 			int Current_Candidate_Distance = 0;
