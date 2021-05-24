@@ -987,24 +987,23 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	//++a/++b()
 	//Adds the Operator_Prefix into the next object
 	//</summary>
-	if (i - 1 < 0)
+	if (i + 1 > Input.size() - 1)
+		return;
+	if (Input[i].node != nullptr)
 		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
 		return;
-	if (Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT))		//a -b
+	//return if the left side of the operator is a computable oject.
+	if (Input[(size_t)i - 1].Has({ Flags::TEXT_COMPONENT, Flags::NUMBER_COMPONENT, Flags::PAREHTHESIS_COMPONENT }))		//a -b
 		return;
-	if (Input[(size_t)i - 1].is(Flags::NUMBER_COMPONENT))		//1 -b
-		return;
-	if (Input[(size_t)i - 1].is(Flags::PAREHTHESIS_COMPONENT))		//(a+b) -a
-		return;
-	if (((size_t)i + 1) > Input.size())
-		return;
+
 	bool op_Pass = false;
 	for (string s : Prefixes)
 		if (Input[i].Value == s)
 			op_Pass = true;
 	if (!op_Pass)
 		return;
+
 	Node* PreFix = new Node(PREFIX_NODE, new Position(Input[i].Location));
 	PreFix->Scope = Scope;
 	//name
@@ -1032,8 +1031,11 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 	//</summary>
 	if (i -1 < 0)
 		return;
+	if (Input[i].node != nullptr)
+		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
-		return;		//++
+		return;
+
 	//check if this operator is meant to be a prefix, not postfix.
 	if ((size_t)i + 1 < Input.size() - 1) {
 		if (Input[(size_t)i + 1].is(Flags::TEXT_COMPONENT))
@@ -1041,8 +1043,6 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 		if (Input[(size_t)i + 1].is(Flags::PAREHTHESIS_COMPONENT))
 			return;		//++ (..)
 	}
-	if (i-1 >= 0 && Input[(size_t)i - 1].is(Flags::OPERATOR_COMPONENT))
-		return; // b = ++<a>
 
 	bool op_Pass = false;
 	for (string s : Postfix)
@@ -1493,6 +1493,8 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Array_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "." }, OPERATOR_NODE);
+	for (int i = 0; i < Input.size(); i++)
 		Variable_Negate_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
 		Operator_PreFix_Pattern(i, { "++", "--" });
@@ -1501,8 +1503,6 @@ void Parser::Operator_Order()
 	//the combination and multilayering of operations.
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { ":" }, OPERATOR_NODE);
-	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "." }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "^" }, OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)

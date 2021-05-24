@@ -275,6 +275,14 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	p.Factory();
 	Func->Childs.push_back(p.Input[0].node);
 
+	for (int i = 0; i < Func->Parameters.size(); i++)
+		if (Func->Parameters[i] == This)
+			Func->Parameters.erase(Func->Parameters.begin() + i);
+
+	for (int i = 0; i < Func->Defined.size(); i++)
+		if (Func->Defined[i] == This)
+			Func->Defined.erase(Func->Defined.begin() + i);
+
 	Type->Defined.push_back(Func);
 }
 
@@ -882,10 +890,10 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	vector<Node*> Scopes;
 
 	if (caller->Fetcher) {
-		if (caller->Fetcher->Defined.size() == 0) {
+		/*if (caller->Fetcher->Defined.size() == 0) {
 			caller->Fetcher->Defined = caller->Find(caller->Fetcher, caller->Scope)->Defined;
-		}
-		Scopes.push_back(caller->Fetcher);
+		}*/
+		Scopes.push_back(caller->Find(caller->Fetcher, caller->Scope));
 	}
 	else if (caller->Get_Parent_As(CLASS_NODE, caller) != Global_Scope) {
 		Scopes.push_back(caller->Get_Parent_As(CLASS_NODE, caller));

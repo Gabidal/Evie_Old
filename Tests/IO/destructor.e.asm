@@ -36,10 +36,30 @@ Start_Test:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
 sub rsp, 16
+.loc 1 13 13
+call .New_foo_
+mov rcx, rax
+call foo
+mov rcx, qword ptr [rax + 0 ]
+mov qword ptr [rsp + 0 ], rcx
+mov rcx, qword ptr [rax + 8 ]
+mov qword ptr [rsp + 8 ], rcx
+.loc 14 1 20
+add qword ptr [ + 0 ], 1
+.loc 1 14 19
+lea rcx, qword ptr [rsp ]
+mov rcx, rcx
+.loc 1 8 2
+mov r8d, dword ptr [rcx + 12 ]
+.loc 1 16 8
+mov r8d, r8d
 .loc 1 17 2
-mov eax, 1
+mov eax, r8d
 add rsp, 16
 ret 
+.loc 14 1 10
+mov rcx, rcx
+call Destructor
 add rsp, 16
 ret 
 Start_Test_END:
@@ -62,6 +82,23 @@ char_END:
 
 
 .cfi_endproc 
+.Deallocate_BYTE_POINTER__START:
+.loc 14 1 1
+.Deallocate_BYTE_POINTER_:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+.loc 13 18 2
+mov rcx, qword ptr [rsp + 0 ]
+mov edx, 8
+call _V19internal_deallocatePhx
+add rsp, 8
+ret 
+.Deallocate_BYTE_POINTER__END:
+
+
+.cfi_endproc 
 foo_START:
 .loc 1 7 1
 foo:
@@ -71,10 +108,10 @@ sub rsp, 8
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsp + 0 ]
 .loc 1 8 8
-mov dword ptr [rcx + 8 ], 1
+mov dword ptr [rcx + 12 ], 1
 mov rcx, qword ptr [rsp + 0 ]
 .loc 1 9 8
-mov dword ptr [rcx + 12 ], 2
+mov dword ptr [rcx + 8 ], 2
 .loc 1 7 1
 mov rax, qword ptr [rsp + 0 ]
 add rsp, 8
@@ -85,18 +122,55 @@ foo_END:
 
 
 .cfi_endproc 
+.Deallocate_foo__START:
+.loc 14 1 1
+.Deallocate_foo_:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+.loc 13 18 2
+mov rcx, qword ptr [rsp + 0 ]
+mov edx, 8
+call _V19internal_deallocatePhx
+add rsp, 8
+ret 
+.Deallocate_foo__END:
+
+
+.cfi_endproc 
 .New_foo__START:
 .loc 14 1 1
 .New_foo_:
 .cfi_startproc 
 .cfi_def_cfa_offset 16
-.loc 13 22 9
+.loc 13 26 9
 mov ecx, 8
 call _V17internal_allocatex_rPh
 mov rax, rax
 ret 
 ret 
 .New_foo__END:
+
+
+.cfi_endproc 
+Destructor_START:
+.loc 1 7 1
+Destructor:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 8
+mov qword ptr [rsp + 0 ], rcx
+.loc 14 1 1
+if1:
+.loc 14 2 1
+mov rcx, qword ptr [rsp + 0 ]
+call .Deallocate_foo_
+.loc 14 1 1
+if1_END:
+add rsp, 8
+ret 
+Destructor_END:
 
 
 .cfi_endproc 
@@ -154,23 +228,6 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 4
-.byte 46
-.byte 0
-.byte 17
-.byte 1
-.byte 18
-.byte 6
-.byte 64
-.byte 24
-.byte 3
-.byte 8
-.byte 58
-.byte 11
-.byte 59
-.byte 11
-.byte 0
-.byte 0
-.byte 5
 .byte 2
 .byte 1
 .byte 54
@@ -179,6 +236,23 @@ debug_abbrev:
 .byte 8
 .byte 11
 .byte 11
+.byte 58
+.byte 11
+.byte 59
+.byte 11
+.byte 0
+.byte 0
+.byte 5
+.byte 46
+.byte 1
+.byte 17
+.byte 1
+.byte 18
+.byte 6
+.byte 64
+.byte 24
+.byte 3
+.byte 8
 .byte 58
 .byte 11
 .byte 59
@@ -215,16 +289,20 @@ debug_abbrev:
 .byte 6
 .byte 64
 .byte 24
+.byte 110
+.byte 8
 .byte 3
 .byte 8
 .byte 58
 .byte 11
 .byte 59
 .byte 11
+.byte 63
+.byte 25
 .byte 0
 .byte 0
 .byte 8
-.byte 5
+.byte 52
 .byte 0
 .byte 2
 .byte 24
@@ -239,6 +317,21 @@ debug_abbrev:
 .byte 0
 .byte 0
 .byte 9
+.byte 5
+.byte 0
+.byte 2
+.byte 24
+.byte 3
+.byte 8
+.byte 58
+.byte 11
+.byte 59
+.byte 11
+.byte 73
+.byte 19
+.byte 0
+.byte 0
+.byte 10
 .byte 46
 .byte 1
 .byte 17
@@ -257,7 +350,7 @@ debug_abbrev:
 .byte 19
 .byte 0
 .byte 0
-.byte 10
+.byte 11
 .byte 46
 .byte 0
 .byte 17
@@ -342,7 +435,7 @@ _string_START:
 .byte 2
 .byte 29
 _BYTE_POINTER_START:
-.byte 5
+.byte 4
 .byte 1
 .asciz "BYTE_POINTER"
 .byte 8
@@ -365,20 +458,20 @@ _BYTE_POINTER_START:
 .byte 1
 .byte 3
 _foo_START:
-.byte 5
+.byte 4
 .byte 1
 .asciz "foo"
 .byte 8
 .byte 1
 .byte 7
 .byte 3
-.byte 8
+.byte 12
 .asciz "X"
 .byte 1
 .byte 8
 .long _int_START-Debug_Info_Start
 .byte 3
-.byte 12
+.byte 8
 .asciz "Y"
 .byte 1
 .byte 9
@@ -390,7 +483,7 @@ _foo_START:
 .byte 7
 .long _long_START-Debug_Info_Start
 .byte 0
-.byte 6
+.byte 7
 .quad Start_Test_START
 .long Start_Test_END-Start_Test_START
 .byte 1
@@ -403,10 +496,10 @@ _foo_START:
 .byte 2
 .byte 145
 .byte 0
-.asciz "this"
-.byte 2
-.byte 11
-.long _char_START-Debug_Info_Start
+.asciz "F"
+.byte 1
+.byte 13
+.long _foo_START-Debug_Info_Start
 .byte 3
 .byte 0
 .asciz "Reference_Count"
@@ -415,17 +508,128 @@ _foo_START:
 .long _long_START-Debug_Info_Start
 .byte 3
 .byte 8
+.asciz "Y"
+.byte 1
+.byte 9
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 12
+.asciz "X"
+.byte 1
+.byte 8
+.long _int_START-Debug_Info_Start
+.byte 8
+.byte 2
+.byte 145
+.byte 0
+.asciz "handle_1"
+.byte 1
+.byte 14
+.long _foo_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Reference_Count"
+.byte 1
+.byte 7
+.long _long_START-Debug_Info_Start
+.byte 3
+.byte 8
+.asciz "Y"
+.byte 1
+.byte 9
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 12
+.asciz "X"
+.byte 1
+.byte 8
+.long _int_START-Debug_Info_Start
+.byte 8
+.byte 2
+.byte 145
+.byte 0
+.asciz "x"
+.byte 1
+.byte 16
+.long _int_START-Debug_Info_Start
+.byte 0
+.byte 9
+.byte 2
+.byte 145
+.byte 0
+.asciz "this"
+.byte 2
+.byte 11
+.long _char_START-Debug_Info_Start
+.byte 5
+.quad .Deallocate_BYTE_POINTER__START
+.long .Deallocate_BYTE_POINTER__END-.Deallocate_BYTE_POINTER__START
+.byte 1
+.byte 87
+.asciz ".Deallocate_BYTE_POINTER_"
+.byte 14
+.byte 1
+.byte 9
+.byte 2
+.byte 145
+.byte 0
+.asciz "Address"
+.byte 13
+.byte 17
+.long _BYTE_POINTER_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Reference_Count"
+.byte 13
+.byte 1
+.long _long_START-Debug_Info_Start
+.byte 0
+.byte 3
+.byte 0
+.asciz "Reference_Count"
+.byte 1
+.byte 7
+.long _long_START-Debug_Info_Start
+.byte 3
+.byte 12
 .asciz "X"
 .byte 1
 .byte 8
 .long _int_START-Debug_Info_Start
 .byte 3
-.byte 12
+.byte 8
 .asciz "Y"
 .byte 1
 .byte 9
 .long _int_START-Debug_Info_Start
-.byte 10
+.byte 5
+.quad .Deallocate_foo__START
+.long .Deallocate_foo__END-.Deallocate_foo__START
+.byte 1
+.byte 87
+.asciz ".Deallocate_foo_"
+.byte 14
+.byte 1
+.byte 3
+.byte 0
+.asciz "Reference_Count"
+.byte 1
+.byte 7
+.long _long_START-Debug_Info_Start
+.byte 3
+.byte 8
+.asciz "Y"
+.byte 1
+.byte 9
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 12
+.asciz "X"
+.byte 1
+.byte 8
+.long _int_START-Debug_Info_Start
+.byte 0
+.byte 11
 .quad .New_foo__START
 .long .New_foo__END-.New_foo__START
 .byte 1
