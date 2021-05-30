@@ -34,8 +34,8 @@ void IRGenerator::Factory()
 		Parse_Calls(i);
 		Parse_Parenthesis(i);
 		Parse_Operators(i);
-		Parse_Pointers(i);
 		Parse_Reference_Count_Increase(i);
+		Parse_Pointers(i);
 		Parse_Conditional_Jumps(i);
 		Parse_PostFixes(i);
 		Parse_PreFixes(i);
@@ -589,6 +589,7 @@ void IRGenerator::Parse_Operators(int i)
 
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
 		Parse_Cloning(i);
+		Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 		return;
 	}
 	//If this operator is handling with pointters we cant use general operator handles
@@ -721,7 +722,8 @@ void IRGenerator::Parse_Pointers(int i)
 	//int ptr b = a + f - e / g get the address of memory
 	//int ptr c = b pass memory address of a to c
 	//int d = c		load value of a into c
-
+	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+		return;
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
 	if (Parent->Name == "GLOBAL_SCOPE")
@@ -1180,6 +1182,9 @@ void IRGenerator::Parse_PostFixes(int i)
 
 void IRGenerator::Parse_Reference_Count_Increase(int i)
 {
+	if (Input[i]->is(PARSED_BY::REFERENCE_COUNT_INCREASE))
+		return;
+
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE) || Input[i]->Right->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE}))
 		return;
 	
@@ -1191,14 +1196,58 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 		return;
 
 	int Ptr_Difference = Input[i]->Left->Get_All("ptr") - Input[i]->Right->Get_All("ptr");
-	if (Ptr_Difference >= 0)
+	if (Ptr_Difference < 0)
 		return;
 
+	//make a temporary local variable that is to hold the value of the right side, if the right side if to be a function call that returns a class pointter.
+	// [inheritted types] tmp01 = [operator right side]
+	// tmp01.Reference_Count++
+	// [operator left side] = tmp01
+
+	PostProsessor P(Parent);
+
+	Node* tmp = new Node(OBJECT_DEFINTION_NODE, Input[i]->Location);
+	tmp->Name = "_" + to_string((long long)tmp);
+	tmp->Inheritted = Input[i]->Inheritted;
+	tmp->Scope = Parent;
+	Parent->Defined.push_back(tmp);
+
+	//update now the parent funcion to aling all the stack offset to right
+	P.Define_Sizes(Parent);
+
+	//the move from right to tmp needs to be hand made, because we dont have call to string functions.
+
+	Node* Set = new Node(ASSIGN_OPERATOR_NODE, Input[i]->Location);
+	Set->Name = "=";
+	Set->Scope = Parent;
+	Set->Left = tmp;
+	Set->Right = Input[i]->Right;
+	Set->Parsed_By |= PARSED_BY::REFERENCE_COUNT_INCREASE;
+	Component Move("=", Flags::OPERATOR_COMPONENT);
+	Move.node = Set;
+
 	Parser p(Parent);
-	p.Input = Lexer::GetComponents(Input[i]->Right->Name + ".Reference_Count++");
+	p.Input.push_back(Move);
+	tmp->Append(p.Input,Lexer::GetComponents("\n" + tmp->Name + ".Reference_Count++\n"));
+
+	Set = new Node(ASSIGN_OPERATOR_NODE, Input[i]->Location);
+	Set->Name = "=";
+	Set->Scope = Parent;
+	Set->Left = Input[i]->Left;
+	Set->Right = tmp;
+	Set->Parsed_By |= PARSED_BY::REFERENCE_COUNT_INCREASE;
+	Move = Component("=", Flags::OPERATOR_COMPONENT);
+	Move.node = Set;
+
+	p.Input.push_back(Move);
+
+	/*Input.erase(Input.begin() + i);	//erase the old move that initiated this whole function.
+	i--;*/
+	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 	p.Factory();
 
-	PostProsessor P(Parent, p.Input);
+	P.Components = p.Input;
+	P.Factory();
 
 	IRGenerator g(Parent, P.Input, Output);
 }

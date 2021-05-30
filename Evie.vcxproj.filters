@@ -161,6 +161,10 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="IO\Memory.e" />
+    <None Include="Tests\IO\destructor.e.asm">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="Tests\IO\Destructor.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">

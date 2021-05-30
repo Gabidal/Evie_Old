@@ -39,12 +39,12 @@ public:
 	void Type_Definer(int i);						//defines all the members of type
 	void Destructor_Generator(Node* Type);			//creates the destructor pipeline
 	void Destructor_Caller(Node* v);
-	void Member_Function_Defined_Outside(int i);	//puts the func into parenting type class
-	void Member_Function_Defined_Inside(int i);		//
+	void Member_Function_Defined_Outside(Node* f);	//puts the func into parenting type class
+	void Member_Function_Defined_Inside(Node* f);		//
 
 
 	//void Combine_Conditions(int i);				//combines the if and else
-	void Open_Function_For_Prosessing(int i);		//just opens the functions insides for post prosessor.
+	void Open_Function_For_Prosessing(Node* f);		//just opens the functions insides for post prosessor.
 	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
 	void Open_Paranthesis(int i);					//(..)
 

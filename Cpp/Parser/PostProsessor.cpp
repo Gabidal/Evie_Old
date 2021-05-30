@@ -23,7 +23,7 @@ void PostProsessor::Factory() {
 	for (int i = 0; i < Scope->Defined.size(); i++) {
 		Type_Definer(i);
 	}
-	for (int i = 0; i < Scope->Defined.size(); i++) {
+	for (auto& i : Scope->Defined) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Member_Function_Defined_Outside(i);
 		Member_Function_Defined_Inside(i);
@@ -117,6 +117,34 @@ void PostProsessor::Type_Definer(int i)
 		else if (j->is("static") != -1 && Node::Has(Scope->Defined[i]->Header, j) == false)
 				Scope->Defined[i]->Header.push_back(j);
 
+	//infiltrate the class type and inject this behemoth
+	Node* Type = Scope->Defined[i];
+	if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
+		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
+		Reference_Count->Name = "Reference_Count";
+		Reference_Count->Scope = Type;
+
+		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type, CLASS_NODE, "integer");
+
+		if (Size_Representer == nullptr) {
+			Report(Observation(WARNING, "Cannot find suitable size type for the reference countter", *Type->Location));
+			//we can still save this!
+			Node* Size = new Node(OBJECT_DEFINTION_NODE, Type->Location);
+			Size->Name = "size";
+			Size->Size = sys->Info.Reference_Count_Size;
+			Size->Inheritted.push_back("const");
+
+			Reference_Count->Defined.push_back(Size);
+			Reference_Count->Inheritted.push_back("type");
+		}
+		else
+			Reference_Count->Inheritted.push_back(Size_Representer->Name);
+
+		Type->Defined.push_back(Reference_Count);
+	}
+
+	Destructor_Generator(Scope->Defined[i]);
+
 	//DISABLE default constructor if user has already defined one.
 	for (auto j : Scope->Defined) {
 		if (!j->is(FUNCTION_NODE))
@@ -182,37 +210,13 @@ void PostProsessor::Type_Definer(int i)
 	Global_Scope->Defined.push_back(Function);
 	Global_Scope->Childs.push_back(Function);
 
-	//infiltrate the class type and inject this behemoth
-	Node* Type = Scope->Defined[i];
-	if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
-		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
-		Reference_Count->Name = "Reference_Count";
-		Reference_Count->Scope = Type;
-
-		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type, CLASS_NODE, "integer");
-
-		if (Size_Representer == nullptr) {
-			Report(Observation(WARNING, "Cannot find suitable size type for the reference countter", *Type->Location));
-			//we can still save this!
-			Node* Size = new Node(OBJECT_DEFINTION_NODE, Type->Location);
-			Size->Name = "size";
-			Size->Size = sys->Info.Reference_Count_Size;
-			Size->Inheritted.push_back("const");
-
-			Reference_Count->Defined.push_back(Size);
-			Reference_Count->Inheritted.push_back("type");
-		}
-		else
-			Reference_Count->Inheritted.push_back(Size_Representer->Name);
-
-		Type->Defined.push_back(Reference_Count);
-	}
-
-	Destructor_Generator(Scope->Defined[i]);
 
 	for (auto& j : Scope->Defined[i]->Defined)
-		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] == Scope->Defined[i]->Name)) {
-			PostProsessor p(Scope->Defined[i], { j });
+		if (j->is(FUNCTION_NODE) /* && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] == Scope->Defined[i]->Name) */ ) {
+			PostProsessor p(Scope->Defined[i]);
+			p.Member_Function_Defined_Inside(j);
+			p.Member_Function_Defined_Outside(j);
+			p.Open_Function_For_Prosessing(j);
 		}
 
 	return;
@@ -239,7 +243,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	//}
 
 	for (auto Member : Type->Defined) {
-		if ((Member->is("ptr") == -1) || MANGLER::Is_Base_Type(Member))
+		if ((Member->is("ptr") == -1) || MANGLER::Is_Base_Type(Member) || MANGLER::Is_Based_On_Base_Type(Member))
 			continue;
 
 		string Member_Types = "";
@@ -248,7 +252,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 		}
 
 		Ifs += 
-			"if (" + Member->Name + "!= 0->address && --" + Member->Name + ".Reference_Count < 1){\n" +
+			"if (" + Member->Name + " != 0->address && --" + Member->Name + ".Reference_Count < 1){\n" +
 				Member->Name + ".Destructor()\n" +
 				"Deallocate<" + Member_Types + ">(" + Member->Name + ")\n" +
 			"}\n";
@@ -396,7 +400,7 @@ void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
 	f->Calling_Count++;
 }
 
-void PostProsessor::Member_Function_Defined_Outside(int i)
+void PostProsessor::Member_Function_Defined_Outside(Node* f)
 {
 	//<summary>
 	//	The function is in global scope's childs list-
@@ -405,16 +409,16 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 	//	
 	//	If the function in question is not a static type then we need to apply this pointters and other cool stuf.
 	//</summary>
-	if (Scope->Defined[i]->Type != FUNCTION_NODE)
+	if (f->Type != FUNCTION_NODE)
 		return;
-	if (Scope->Defined[i]->Fetcher == nullptr)
+	if (f->Fetcher == nullptr)
 		return;
-	if (Scope->Defined[i]->is("static") != -1)
+	if (f->is("static") != -1)
 		return;
-	if (Scope->Defined[i]->Parameters.size() > 0 && Scope->Defined[i]->Parameters[0]->Name == "this")
+	if (f->Parameters.size() > 0 && f->Parameters[0]->Name == "this")
 		return;
 
-	Node* func = Scope->Defined[i];
+	Node* func = f;
 
 	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { func->Fetcher->Name, "ptr" };
@@ -433,22 +437,24 @@ void PostProsessor::Member_Function_Defined_Outside(int i)
 	func->Fetcher = Class;
 
 	*func->Fetcher->Find(func, Class, FUNCTION_NODE) = *func;
+	
+	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
 
 	return;
 }
 
-void PostProsessor::Member_Function_Defined_Inside(int i)
+void PostProsessor::Member_Function_Defined_Inside(Node* f)
 {
-	if (!Scope->Defined[i]->is(FUNCTION_NODE))
+	if (!f->is(FUNCTION_NODE))
 		return;
-	if (Scope->Defined[i]->is("static") != -1)
+	if (f->is("static") != -1)
 		return;
 	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
-	if (Scope->Defined[i]->Fetcher != nullptr)
+	if (f->Fetcher != nullptr)
 		return;
 
-	Node* func = Scope->Defined[i];
+	Node* func = f;
 
 	Node* This = new Node(PARAMETER_NODE, "this", nullptr);
 	This->Inheritted = { Scope->Name, "ptr" };
@@ -465,18 +471,20 @@ void PostProsessor::Member_Function_Defined_Inside(int i)
 
 	*Scope->Find(func, Class, FUNCTION_NODE) = *func;
 
+	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
+
 	return;
 }
 
-void PostProsessor::Open_Function_For_Prosessing(int i)
+void PostProsessor::Open_Function_For_Prosessing(Node* f)
 {
 	//here we just go trugh the insides of the function
 	//for optimization and other cool stuff :D
-	if (!Scope->Defined[i]->is(FUNCTION_NODE))
+	if (!f->is(FUNCTION_NODE))
 		return;
-	if (Scope->Defined[i]->Is_Template_Object)
+	if (f->Is_Template_Object)
 		return;
-	for (auto j : Scope->Defined[i]->Get_All_Fetchers())
+	for (auto j : f->Get_All_Fetchers())
 		if (j->Is_Template_Object)
 			return;
 	/*for (auto j : Input[i]->Parameters)
@@ -486,22 +494,22 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 
 
-	PostProsessor p(Scope->Defined[i]);
-	p.Input = Scope->Defined[i]->Childs;
+	PostProsessor p(f);
+	p.Input = f->Childs;
 
 	//prepare the local variables
-	p.Define_Sizes(Scope->Defined[i]);
+	p.Define_Sizes(f);
 
-	Scope->Defined[i]->Update_Format();
+	f->Update_Format();
 
-	Scope->Defined[i]->Update_Size();
+	f->Update_Size();
 
 	p.Factory();
 
-	Scope->Defined[i]->Childs = p.Input;
+	f->Childs = p.Input;
 
-	for (auto& v : Scope->Defined[i]->Defined) {
-		for (auto j : Scope->Defined[i]->Childs) {
+	for (auto& v : f->Defined) {
+		for (auto j : f->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
 			if (v->Requires_Address)
 				break;
@@ -510,7 +518,7 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 
 	//DEBUG
 	//if (sys->Info.Debug)
-	for (auto& v : Scope->Defined[i]->Defined) {
+	for (auto& v : f->Defined) {
 		if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
 			continue;
 		else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
@@ -518,20 +526,31 @@ void PostProsessor::Open_Function_For_Prosessing(int i)
 		v->Memory_Offset = v->Scope->Local_Allocation_Space;
 		v->Scope->Local_Allocation_Space += v->Get_Size();
 		v->Requires_Address = true;
-	}
+	}	
+	
+	for (auto i : f->Childs)
+		for (auto j : Linearise(i)) {
+			Node* child = j->Find(j, j->Scope);
+			if (child != nullptr)
+				child->Current_Value = nullptr;
+		}
 
 	while (true) {
-		Algebra a(Scope->Defined[i], &Scope->Defined[i]->Childs);
+		Algebra a(f, &f->Childs);
 		if (!Optimized)
 			break;
 		Optimized = false;
 	}
 
-	for (auto& v : Scope->Defined[i]->Defined)
+
+
+	for (auto& v : f->Defined)
 		p.Destructor_Caller(v);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
-	Scope->Append(Scope->Defined[i]->Childs, p.Output);
+	Scope->Append(f->Childs, p.Output);
+
+	f->Parsed_By |= PARSED_BY::POSTPROSESSOR;
 	return;
 }
 
@@ -903,7 +922,7 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 
 	string New_Name = "";
 	if (caller->Templates.size() > 0) {
-		New_Name = "." + caller->Construct_Template_Type_Name();
+		New_Name = caller->Construct_Template_Type_Name();
 	}
 
 	//now that our scopes are ready to go, we can loop through them and find suitable candidates.
@@ -995,7 +1014,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 
 		//check if the function is already constructed for this caller.
 		if (Caller->Templates.size() > 0) {
-			string New_Name = "." + Caller->Construct_Template_Type_Name();
+			string New_Name = Caller->Construct_Template_Type_Name();
 			if (New_Name == Func->Name)
 				Accuracity++;
 		}
@@ -1019,7 +1038,7 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 	Node* Best_Candidate_Copy;
 	Node* Scope = Caller->Scope;
 
-	string New_Name = "." + Caller->Construct_Template_Type_Name();
+	string New_Name = Caller->Construct_Template_Type_Name();
 
 	//	  Candidate, Distance
 	vector<pair<pair<pair<Node*, Node*>, Node*>, int>> Candidate_Distance;
@@ -1077,8 +1096,10 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 
 	int Identical_Function_Candidate_Count = 0;
 	for (auto& I : Candidate_Distance) {
-		if (I.second == Closest->second && Closest != &I)
-			Identical_Function_Candidate_Count++;
+		if (I.second == Closest->second)
+			if (Closest != &I)
+				if (Closest->first.first != I.first.first)
+					Identical_Function_Candidate_Count++;
 	}
 
 	if (Identical_Function_Candidate_Count > 0)
@@ -1115,6 +1136,15 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 
 		Caller->Function_Implementation = Scope->Defined.back();
 		Caller->Name = New_Name;
+		Caller->Templates.clear();
+
+		if (!Caller->Function_Implementation->is(PARSED_BY::POSTPROSESSOR)) {
+			if (Caller->Function_Implementation->Fetcher != nullptr || Caller->Function_Implementation->Get_Parent_As(CLASS_NODE, Caller->Function_Implementation) != Global_Scope) {
+				Member_Function_Defined_Inside(Caller->Function_Implementation);
+				Member_Function_Defined_Outside(Caller->Function_Implementation);
+			}
+			Open_Function_For_Prosessing(Caller->Function_Implementation);
+		}
 
 		return 1;
 	}
@@ -1817,6 +1847,8 @@ vector<Node*> PostProsessor::Linearise(Node* ast)
 			childs.insert(childs.end(), tmp.begin(), tmp.end());
 		}
 		Result.insert(Result.end(), childs.begin(), childs.end());
+
+		//Result.push_back(ast);
 	}
 	else if (ast->Name == "return" && ast->Right != nullptr) {
 		for (auto c : Linearise(ast->Right))

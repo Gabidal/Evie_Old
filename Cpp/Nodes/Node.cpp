@@ -175,7 +175,7 @@ Node* Node::Find_Scope(Node* n)
 	reverse(Fetchers.begin(), Fetchers.end());
 
 	while (true) {
-		for (auto i : Current_Scope->Defined) {
+		for (auto& i : Current_Scope->Defined) {
 			if (Fetchers.back()->Name == i->Name) {
 				Current_Scope = i;
 				Fetchers.pop_back();
@@ -284,7 +284,7 @@ Node* Node::Find(Node* n, Node* s)
 	}
 
 	if (n->is(TEMPLATE_NODE))
-		for (auto i : s->Templates)
+		for (auto& i : s->Templates)
 			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name)
 					return i;
@@ -293,17 +293,17 @@ Node* Node::Find(Node* n, Node* s)
 	//because of same named objects in the current scope.
 	if (n->Fetcher != nullptr)
 		if (n->Fetcher != s)
-			for (auto i : Find_Scope(n)->Defined)
+			for (auto& i : Find_Scope(n)->Defined)
 				if (i->Templates.size() == n->Templates.size())
 					if (i->Name == n->Name)
-						return n;
+						return i;
 
 	if (s->Fetcher != nullptr)
 		if (s->Fetcher != s->Scope)
-			for (auto i : Find_Scope(s)->Defined)
+			for (auto& i : Find_Scope(s)->Defined)
 				if (i->Templates.size() == n->Templates.size())
 					if (i->Name == n->Name)
-						return n;
+						return i;
 
 	//Normal current and above going scope search algorithm
 	for (Node* i : s->Defined)
@@ -323,7 +323,7 @@ Node* Node::Find(Node* n, Node* s)
 
 	//IDK what this does, please explain!
 	if (s->Cast_Type != "")
-		for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+		for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name)
 					return i;
@@ -344,7 +344,7 @@ Node* Node::Find(Node* n, Node* s, int f)
 	}
 
 	if (n->is(TEMPLATE_NODE))
-		for (auto i : s->Templates)
+		for (auto& i : s->Templates)
 			if (i->is(n->Type))
 				if (i->Templates.size() == n->Templates.size())
 					if (i->Name == n->Name)
@@ -353,11 +353,11 @@ Node* Node::Find(Node* n, Node* s, int f)
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
 	if (n->Fetcher != nullptr)
-		for (auto i : Find_Scope(n)->Defined)
+		for (auto& i : Find_Scope(n)->Defined)
 			if (i->is(f))
 				if (i->Templates.size() == n->Templates.size())
 					if (i->Name == n->Name)
-						return n;
+						return i;
 
 	//Normal current and above going scope search algorithm
 	for (Node* i : s->Defined)
@@ -378,7 +378,7 @@ Node* Node::Find(Node* n, Node* s, int f)
 
 	//IDK what this does, please explain!
 	if (s->Cast_Type != "" && s->Cast_Type != n->Name)
-			for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 				if (i->is(f))
 					if (i->Templates.size() == n->Templates.size())
 						if (i->Name == n->Name)
@@ -396,7 +396,7 @@ Node* Node::Find(string name, Node* s, int flags) {
 		return nullptr;
 	}
 
-	for (auto i : s->Templates)
+	for (auto& i : s->Templates)
 		if (i->is(flags))
 			if (i->Name == name)
 				return i;
@@ -411,7 +411,7 @@ Node* Node::Find(string name, Node* s, int flags) {
 			return Find(name, s->Scope, flags);
 
 	if (s->Cast_Type != "" && s->Cast_Type != name)
-			for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 				if (i->Name == name)
 					return i;
 
@@ -433,7 +433,7 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 		return nullptr;
 	}
 
-	for (auto i : s->Templates)
+	for (auto& i : s->Templates)
 		if (i->Name == name)
 			return i;
 
@@ -446,7 +446,7 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 			return Find(name, s->Scope, Need_Parent_existance);
 
 	if (s->Cast_Type != "" && s->Cast_Type != name)
-			for (auto i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 				if (i->Name == name)
 					return i;
 

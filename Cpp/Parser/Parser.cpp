@@ -91,7 +91,8 @@ void Parser::Template_Pattern(int& i)
 			This_Scopes_Open_Template_Operators++;
 		if (Input[j].Value == ">")
 			This_Scopes_Open_Template_Operators--;
-		else if (Input[j].Value != ">" && Input[j].Value != "<" && !Input[j].is(Flags::TEXT_COMPONENT) && !Input[j].is(Flags::KEYWORD_COMPONENT))
+		//																																			
+		else if (Input[j].Value != ">" && Input[j].Value != "<" && !Input[j].is(Flags::TEXT_COMPONENT) && !Input[j].is(Flags::KEYWORD_COMPONENT) )
 			break;
 	}
 
@@ -155,18 +156,17 @@ void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Compo
 			Output.push_back({ Template_Pair[0], false });
 			continue;
 		}
-		string Template_Pair_Class_Name = "";
+		string Template_Pair_Class_Name = "____";
 		for (auto T : Template_Pair) {
 			Template_Pair_Class_Name += T + "_";
 		}
-		string Template_Pair_Class_Name_Dot = "." + Template_Pair_Class_Name;
-		if (Scope->Find(Template_Pair_Class_Name_Dot, Scope, CLASS_NODE) != nullptr) {
-			Output.push_back({ Template_Pair_Class_Name_Dot, true });
+		if (Scope->Find(Template_Pair_Class_Name, Scope, CLASS_NODE) != nullptr) {
+			Output.push_back({ Template_Pair_Class_Name, true });
 		}
 		else {
 			Node* New_Template_Pair_Class = new Node(CLASS_NODE, (new Position(i.Location)));
 			New_Template_Pair_Class->Inheritted = Template_Pair;
-			New_Template_Pair_Class->Name = Template_Pair_Class_Name_Dot;
+			New_Template_Pair_Class->Name = Template_Pair_Class_Name;
 			New_Template_Pair_Class->Scope = Global_Scope;
 			Global_Scope->Defined.push_back(New_Template_Pair_Class);
 			Output.push_back({ Template_Pair_Class_Name, true });
@@ -175,10 +175,7 @@ void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Compo
 
 	i.Components.clear();
 	for (auto j : Output) {
-		string PreFix = "";
-		if (j.second)
-			PreFix = ".";
-		Component C = Component(PreFix + j.first, i.Location, Flags::TEXT_COMPONENT);
+		Component C = Component(j.first, i.Location, Flags::TEXT_COMPONENT);
 		i.Components.push_back(C);
 	}
 
@@ -236,7 +233,7 @@ void Parser::Template_Type_Constructor(int i)
 	if (!Scope->Find(Input[i].Value, Scope, CLASS_NODE))
 		return;
 
-	string New_Name = "." + Input[i].node->Construct_Template_Type_Name();
+	string New_Name = Input[i].node->Construct_Template_Type_Name();
 	if (Scope->Find(New_Name) != nullptr) {
 		Input[i].Value = New_Name;
 		return;
@@ -246,7 +243,7 @@ void Parser::Template_Type_Constructor(int i)
 	Node* Type = Scope->Copy_Node(Og_Type, Og_Type->Scope);
 	Type->Templates = Input[i].node->Templates;
 
-	//turn List<List<int>, int> into .List_List_int
+	//turn List<List<int>, int> into ____List_List_int
 	for (int T = 0; T < Input[i].node->Templates.size(); T++) {
 		string T_Arg = Og_Type->Templates[T]->Name;
 		string T_Type = Type->Templates[T]->Name;
@@ -306,13 +303,10 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 {
 	vector<Component> New_Constructed_Template_Code;
 	string New_Name = Func->Construct_Template_Type_Name();
-	string Template_Indentifier = ".";
-	if (Func->Templates.size() == 0)
-		Template_Indentifier = "";
 
-	if (Scope->Find(Template_Indentifier + New_Name) != nullptr) {
-		if (Func->Compare_Fetchers(Scope->Find(Template_Indentifier + New_Name))) {
-			Func->Name = Template_Indentifier + New_Name;
+	if (Scope->Find(New_Name) != nullptr) {
+		if (Func->Compare_Fetchers(Scope->Find(New_Name))) {
+			Func->Name = New_Name;
 			return New_Constructed_Template_Code;
 		}
 	}
@@ -348,7 +342,6 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 
 			}
 			Component Fetcher_Component = Lexer::GetComponent(New_Fetcher->Construct_Template_Type_Name());
-			Fetcher_Component.Value = "." + Fetcher_Component.Value;
 			Fetchers.push_back(Fetcher_Component);
 			Fetchers.push_back(Lexer::GetComponent("."));
 		}
@@ -361,7 +354,7 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 				}
 
 	Component Name = Lexer::GetComponent(New_Name);
-	Name.Value = Template_Indentifier + New_Name;
+	Name.Value = New_Name;
 
 	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Return_Type.begin(), Return_Type.end());
 	New_Constructed_Template_Code.insert(New_Constructed_Template_Code.end(), Fetchers.begin(), Fetchers.end());
@@ -989,6 +982,8 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	//</summary>
 	if (i + 1 > Input.size() - 1)
 		return;
+	if (Input[i + 1].is(Flags::END_COMPONENT))
+		return;
 	if (Input[i].node != nullptr)
 		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
@@ -1073,14 +1068,13 @@ void Parser::Variable_Negate_Pattern(int i)
 {
 	if (Input[i].Value != "-")
 		return;
-	if (Input[(size_t)i - 1].is(Flags::TEXT_COMPONENT))		//a -b
-		return;
-	if (Input[(size_t)i - 1].is(Flags::NUMBER_COMPONENT))		//1 -b
-		return;
-	if (Input[(size_t)i - 1].is(Flags::PAREHTHESIS_COMPONENT))		//(a+b) -a
-		return;
+	if (i - 1 >= 0) {
+		if (Input[(size_t)i - 1].Has({ Flags::PAREHTHESIS_COMPONENT, Flags::NUMBER_COMPONENT, Flags::TEXT_COMPONENT, Flags::OPERATOR_COMPONENT}))
+			return;
+	}
 	if (((size_t)i + 1) > Input.size())
 		return;
+
 
 	Input[(size_t)i+1].node->Coefficient *= -1;
 

@@ -25,17 +25,18 @@ public:
 };
 
 namespace PARSED_BY {
-	constexpr long long NONE				= 1 << 0;
-	constexpr long long PREPROSESSOR		= 1 << 1;
-	constexpr long long PARSER				= 1 << 2;
-	constexpr long long POSTPROSESSOR		= 1 << 3;
-	constexpr long long ALGEBRA				= 1 << 4;
-	constexpr long long SAFE				= 1 << 5;
-	constexpr long long IRGENERATOR			= 1 << 6;
-	constexpr long long IRPOSTPROSESSOR		= 1 << 7;
-	constexpr long long BACKEND				= 1 << 8;
+	constexpr long long NONE							= 1 << 0;
+	constexpr long long PREPROSESSOR					= 1 << 1;
+	constexpr long long PARSER							= 1 << 2;
+	constexpr long long POSTPROSESSOR					= 1 << 3;
+	constexpr long long ALGEBRA							= 1 << 4;
+	constexpr long long SAFE							= 1 << 5;
+	constexpr long long IRGENERATOR						= 1 << 6;
+	constexpr long long IRPOSTPROSESSOR					= 1 << 7;
+	constexpr long long BACKEND							= 1 << 8;
 
-	constexpr long long DESTRUCTOR_CALLER	= 1 << 9;
+	constexpr long long DESTRUCTOR_CALLER				= 1 << 9;
+	constexpr long long REFERENCE_COUNT_INCREASE	= 1 << 10;
 }
 
 class Node {
@@ -779,7 +780,7 @@ public:
 	string Construct_Template_Type_Name() {
 		if (Templates.size() == 0)
 			return Name;
-		string Result = Name + "_";
+		string Result = "____" + Name + "_";
 		for (auto i : Templates)
 			Result += i->Construct_Template_Type_Name() + "_";
 		return Result;
