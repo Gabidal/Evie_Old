@@ -38,7 +38,7 @@ public:
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Type_Definer(int i);						//defines all the members of type
 	void Destructor_Generator(Node* Type);			//creates the destructor pipeline
-	void Destructor_Caller(Node* v);
+	void Destructor_Caller(Node* v, vector<Node*>& childs);
 	void Member_Function_Defined_Outside(Node* f);	//puts the func into parenting type class
 	void Member_Function_Defined_Inside(Node* f);		//
 

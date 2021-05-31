@@ -36,7 +36,7 @@ namespace PARSED_BY {
 	constexpr long long BACKEND							= 1 << 8;
 
 	constexpr long long DESTRUCTOR_CALLER				= 1 << 9;
-	constexpr long long REFERENCE_COUNT_INCREASE	= 1 << 10;
+	constexpr long long REFERENCE_COUNT_INCREASE		= 1 << 10;
 }
 
 class Node {

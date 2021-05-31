@@ -9,6 +9,7 @@ ret
 
 
 Start_Test:
+push rbx
 sub rsp, 16
 call ____New_foo_
 mov rcx, rax
@@ -22,13 +23,15 @@ mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
 mov rcx, rcx
 mov r8d, dword ptr [rcx + 12 ]
-mov r8d, r8d
-mov eax, r8d
-add rsp, 16
-ret 
+mov ebx, r8d
 mov rcx, rcx
 call Destructor
+mov eax, ebx
 add rsp, 16
+pop rbx
+ret 
+add rsp, 16
+pop rbx
 ret 
 
 
@@ -70,10 +73,10 @@ ret
 
 
 Destructor:
-if42:
+if34:
 mov rcx, rcx
 call ____Deallocate_foo_
-if42_END:
+if34_END:
 ret 
 
 

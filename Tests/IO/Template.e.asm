@@ -41,11 +41,11 @@ push rdi
 push rbx
 mov rdi, rcx
 mov ebx, edx
-if3538:
+if3740:
 mov ecx, dword ptr [rdi + 16 ]
 mov r8d, dword ptr [rdi + 20 ]
 cmp ecx, r8d
-jl if3538_END
+jl if3740_END
 mov ecx, dword ptr [rdi + 16 ]
 mov r8, rdx
 mov eax, 2
@@ -70,7 +70,7 @@ mov rdx, r9
 mov r8d, r8d
 call ____memcpy_int_
 mov qword ptr [rdi + 8 ], rsi
-if3538_END:
+if3740_END:
 mov rcx, qword ptr [rdi + 8 ]
 mov r8d, dword ptr [rdi + 16 ]
 lea rcx, qword ptr [rcx + r8 * 4 ]
@@ -133,16 +133,16 @@ ret
 ____memcpy_int_:
 mov r9d, 0
 cmp r9d, r8d
-jge while3639_END
-while3639:
+jge while3841_END
+while3841:
 lea r10, qword ptr [rcx + r9 * 4 ]
 mov r11d, dword ptr [rdx + r9 * 4 ]
 mov dword ptr [r10 ], r11d
 add r9d, 1
 cmp r9d, r8d
-jge while3639_END
-jmp while3639
-while3639_END:
+jge while3841_END
+jmp while3841
+while3841_END:
 ret 
 ret 
 

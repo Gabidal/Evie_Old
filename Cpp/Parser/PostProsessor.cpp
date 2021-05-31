@@ -290,7 +290,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	Type->Defined.push_back(Func);
 }
 
-void PostProsessor::Destructor_Caller(Node* v)
+void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 {
 	if (!v->is(OBJECT_DEFINTION_NODE))
 		return;
@@ -308,8 +308,14 @@ void PostProsessor::Destructor_Caller(Node* v)
 	v->Parsed_By |= PARSED_BY::DESTRUCTOR_CALLER;
 
 	PostProsessor P(v->Scope, p.Input);
-	v->Append(Output, P.Input);
+	//v->Append(Output, P.Input);
 
+	for (int i = 0; i < childs.size(); i++) {
+		if (childs[i]->Name == "return" && !childs[i]->is(PARSED_BY::DESTRUCTOR_CALLER)) {
+			childs[i]->Parsed_By |= PARSED_BY::DESTRUCTOR_CALLER;
+			childs.insert(childs.begin() + i, P.Input.begin(), P.Input.end());
+		}
+	}
 }
 
 vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)
@@ -545,7 +551,7 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 
 
 	for (auto& v : f->Defined)
-		p.Destructor_Caller(v);
+		p.Destructor_Caller(v, f->Childs);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);
@@ -572,7 +578,7 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	PostProsessor p(Input[i], Input[i]->Childs);
 
 	for (auto& v : Input[i]->Defined)
-		p.Destructor_Caller(v);
+		p.Destructor_Caller(v, Input[i]->Childs);
 
 	Scope->Append(Input[i]->Childs, p.Output);
 
@@ -587,7 +593,7 @@ void PostProsessor::Open_Paranthesis(int i)
 	PostProsessor p(Input[i], Input[i]->Childs);
 
 	for (auto& v : Input[i]->Defined)
-		p.Destructor_Caller(v);
+		p.Destructor_Caller(v, Input[i]->Childs);
 
 	Scope->Append(Input[i]->Childs, p.Output);
 
@@ -1209,7 +1215,7 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	PostProsessor p(Scope, Input[i]->Parameters);
 
 	for (auto& v : Input[i]->Defined)
-		p.Destructor_Caller(v);
+		p.Destructor_Caller(v, Input);
 
 	Scope->Append(Output, p.Output);
 
@@ -1546,7 +1552,7 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	post.Factory();
 
 	for (auto& v : Input[i]->Defined)
-		post.Destructor_Caller(v);
+		post.Destructor_Caller(v, Input[i]->Childs);
 
 	Scope->Append(Input[i]->Childs, post.Output);
 }
@@ -1924,7 +1930,7 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 	PostProsessor p(n, { n->Right });
 
 	for (auto& v : n->Right->Defined)
-		p.Destructor_Caller(v);
+		p.Destructor_Caller(v, Input);
 		
 	Scope->Append(Output, p.Output);
 
