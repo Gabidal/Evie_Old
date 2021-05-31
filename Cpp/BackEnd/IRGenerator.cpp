@@ -584,7 +584,7 @@ void IRGenerator::Parse_Operators(int i)
 	Update_Operator(Input[i]);
 	Input[i]->Update_Format();
 
-	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE }))
+	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE }))
 		Input[i]->Left->Size = Parent->Find(Input[i]->Left, Parent)->Size;
 
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
@@ -733,8 +733,9 @@ void IRGenerator::Parse_Pointers(int i)
 
 
 	Update_Operator(Input[i]);
-	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE }))
+	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE }))
 		Input[i]->Left->Size = Parent->Find(Input[i]->Left, Parent)->Size;
+
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Get_Size() > _SYSTEM_BIT_SIZE_) {
 		//this has been already made in cloning objects
 		return;
