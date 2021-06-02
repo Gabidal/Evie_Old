@@ -76,7 +76,7 @@ Destructor:
 if34:
 cmp rcx, 0
 je if34_END
-add r8, 1
+sub r8, 1
 cmp r8, 1
 jge if34_END
 mov rcx, rcx

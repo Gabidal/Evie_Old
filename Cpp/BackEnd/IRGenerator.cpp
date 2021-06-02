@@ -1128,8 +1128,11 @@ void IRGenerator::Parse_PreFixes(int i)
 	if (Right->is(TOKEN::CONTENT))
 		Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Get_Size());
 
+	string Change_Type = "+";
+	if (Input[i]->Name == "--")
+		Change_Type = "-";
 
-	Token* opc = new Token(TOKEN::OPERATOR, "+");
+	Token* opc = new Token(TOKEN::OPERATOR, Change_Type);
 	Token* num = new Token(TOKEN::NUM, "1", 4);
 
 	IR* ir = new IR(opc, { Right, num }, Input[i]->Location);
@@ -1173,7 +1176,11 @@ void IRGenerator::Parse_PostFixes(int i)
 	//add to the original variable
 	Token* num = new Token(TOKEN::NUM, "1", Left->Get_Size());
 
-	Token* add = new Token(TOKEN::OPERATOR, "+");
+	string Change_Type = "+";
+	if (Input[i]->Name == "--")
+		Change_Type = "-";
+
+	Token* add = new Token(TOKEN::OPERATOR, Change_Type);
 
 	IR* ir = new IR(add, { Left, num }, Input[i]->Location);
 	Output->push_back(ir);
