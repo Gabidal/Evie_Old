@@ -381,6 +381,7 @@ void PostProsessor::Cast(Node* n)
 
 	n->Left->Cast_Type = n->Right->Name;
 	n->Left->Context = n->Context;
+
 	*n = *n->Left;
 }
 
@@ -1374,10 +1375,16 @@ void PostProsessor::Combine_Condition(int i)
 
 void PostProsessor::Determine_Return_Type(int i)
 {
-	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE))
+	if (!Input[i]->Has({ASSIGN_OPERATOR_NODE, OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE}))
 		return;
 
-	if (Input[i]->Right->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Right)) {
+	if (Input[i]->is(PREFIX_NODE)) {
+		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right});
+	}
+	else if (Input[i]->is(POSTFIX_NODE)) {
+		PostProsessor r(Scope, vector<Node*>{ Input[i]->Left});
+	}
+	else if (Input[i]->Right->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Right)) {
 		PostProsessor l(Scope, vector<Node*>{Input[i]->Left });
 		Input[i]->Right->Inheritted = Input[i]->Left->Inheritted;
 		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right});
@@ -1391,38 +1398,42 @@ void PostProsessor::Determine_Return_Type(int i)
 		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right, Input[i]->Left });
 	}
 
-
+	if (!Input[i]->Has({PREFIX_NODE, POSTFIX_NODE}))
 	//try to find a suitable operator overload if there is one
-	for (auto& overload : Input[i]->Left->Operator_Overloads) {
-		//the syntax still needs to be done!
+		for (auto& overload : Input[i]->Left->Operator_Overloads) {
+			//the syntax still needs to be done!
 
-		//the operator overloads return type is the same as the operator type for this.
-		Input[i]->Inheritted = overload->Inheritted;
-		return;
-	}	
+			//the operator overloads return type is the same as the operator type for this.
+			Input[i]->Inheritted = overload->Inheritted;
+			return;
+		}
 
 	int Left_Size = 0;
 	int Right_Size = 0;
 
-	for (auto j : Input[i]->Left->Get_Inheritted(false, false)) {
-		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
-			continue;
-		Left_Size += Scope->Find(j, Scope)->Get_Size();
-	}	
-	if (Input[i]->Left->Cast_Type != "" && Input[i]->Left->Cast_Type != "address")
-		Left_Size = Scope->Find(Input[i]->Left->Cast_Type, Scope)->Get_Size();
-	if (Input[i]->Left->is("ptr") != -1)
-		Left_Size = _SYSTEM_BIT_SIZE_;
-
-	for (auto j : Input[i]->Right->Get_Inheritted(false, false)) {
-		if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
-			continue;
-		Right_Size += Scope->Find(j, Scope)->Get_Size();
+	if (!Input[i]->is(PREFIX_NODE)) {
+		for (auto j : Input[i]->Left->Get_Inheritted(false, false)) {
+			if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
+				continue;
+			Left_Size += Scope->Find(j, Scope)->Get_Size();
+		}
+		if (Input[i]->Left->Cast_Type != "" && Input[i]->Left->Cast_Type != "address")
+			Left_Size = Scope->Find(Input[i]->Left->Cast_Type, Scope)->Get_Size();
+		if (Input[i]->Left->is("ptr") != -1)
+			Left_Size = _SYSTEM_BIT_SIZE_;
 	}
-	if (Input[i]->Right->Cast_Type != "" && Input[i]->Right->Cast_Type != "address")
-		Right_Size = Scope->Find(Input[i]->Right->Cast_Type, Scope)->Get_Size();
-	if (Input[i]->Right->is("ptr") != -1)
-		Right_Size = _SYSTEM_BIT_SIZE_;
+
+	if (!Input[i]->is(POSTFIX_NODE)) {
+		for (auto j : Input[i]->Right->Get_Inheritted(false, false)) {
+			if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
+				continue;
+			Right_Size += Scope->Find(j, Scope)->Get_Size();
+		}
+		if (Input[i]->Right->Cast_Type != "" && Input[i]->Right->Cast_Type != "address")
+			Right_Size = Scope->Find(Input[i]->Right->Cast_Type, Scope)->Get_Size();
+		if (Input[i]->Right->is("ptr") != -1)
+			Right_Size = _SYSTEM_BIT_SIZE_;
+	}
 
 	if (Left_Size >= Right_Size)
 		Input[i]->Inheritted = Input[i]->Left->Get_Inheritted(false, false);
@@ -1904,14 +1915,14 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		}
 	}
 	else {
-		if (n->Left->is(OPERATOR_NODE) || n->Left->is(ASSIGN_OPERATOR_NODE) || n->Left->is(CONDITION_OPERATOR_NODE) || n->Left->is(BIT_OPERATOR_NODE) || n->Left->is(ARRAY_NODE))
+		if (n->Left->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE}))
 			n->Inheritted = n->Left->Inheritted;
 		else if (!n->Left->is(NUMBER_NODE) && !n->Left->is(CONTENT_NODE))
 			n->Inheritted = n->Left->Scope->Find(n->Left, n->Left->Scope)->Inheritted;
 		else if (n->Left->is(NUMBER_NODE))
 			n->Inheritted = n->Left->Get_Inheritted(false, false);
 		else {
-			if (n->Right->is(OPERATOR_NODE) || n->Right->is(ASSIGN_OPERATOR_NODE) || n->Right->is(CONDITION_OPERATOR_NODE) || n->Right->is(BIT_OPERATOR_NODE) || n->Right->is(ARRAY_NODE))
+			if (n->Right->Has({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE }))
 				n->Inheritted = n->Right->Inheritted;
 			else
 				//both cannot be numbers, because otherwise algebra would have optimized it away.

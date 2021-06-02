@@ -561,11 +561,26 @@ public:
 		for (int i = 0; i < Result->Numerical_Return_Types.size(); i++)
 			Result->Numerical_Return_Types[i] = Copy_Node(Result->Numerical_Return_Types[i], p);
 
-		Result->Left = Copy_Node(Result->Left, p);
-		Result->Right = Copy_Node(Result->Right, p);
+		if (Result->Left) {
+			Result->Left = Copy_Node(Result->Left, p);
+			Result->Left->Context = Result;
+		}
+		if (Result->Right) {
+			Result->Right = Copy_Node(Result->Right, p);
+			Result->Right->Context = Result;
+		}
 
 		Result->Succsessor = Copy_Node(Result->Succsessor, p);
 		Result->Predecessor = Copy_Node(Result->Predecessor, p);
+
+
+		if (Result->Succsessor) {
+			Result->Succsessor->Predecessor = Result->Predecessor;
+		}
+		if (Result->Predecessor) {
+			Result->Predecessor->Succsessor = Result->Succsessor;
+		}
+
 
 		//The copying prosess must go downwards not upwards, otherwise it will loop forever!
 		//Result->Holder = Copy_Node(Result->Holder, p);
