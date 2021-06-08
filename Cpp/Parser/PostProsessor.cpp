@@ -619,11 +619,11 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	//now lets check for template arguments-
 	//as parameters on the function this callation calls
 
-	vector<pair<Node*, Node*>> Previus_Candidates;
+	vector<pair<Node*, Node*>> Candidates;
 	bool It_Is_A_Function_Pointter = false;
 	while (n->Function_Implementation == nullptr) {
-		Previus_Candidates = Find_Suitable_Function_Candidates(n, It_Is_A_Function_Pointter);
-		int Note = Choose_Most_Suited_Function_Candidate(Order_By_Accuracy(Previus_Candidates, n), n, It_Is_A_Function_Pointter);
+		Candidates = Find_Suitable_Function_Candidates(n, It_Is_A_Function_Pointter);
+		int Note = Choose_Most_Suited_Function_Candidate(Order_By_Accuracy(Candidates, n), n, It_Is_A_Function_Pointter);
 
 		// returns 0 if found caller's function implemitation.
 		if (Note == 0) {
@@ -645,11 +645,13 @@ void PostProsessor::Find_Call_Owner(Node* n)
 			Report(Observation(ERROR, "Cannot decide which function overload to call!", *n->Location));
 		}
 	}
-
+	//the incerement of all func ptr candidates calling count happends at Choose_Most_Suited_Function_Candidate()
 	if (It_Is_A_Function_Pointter == false) {
 		n->Function_Implementation->Calling_Count++;
 		n->Inheritted = n->Function_Implementation->Inheritted;
 	}
+
+
 
 	/*Node* Scope = Global_Scope;
 	if (n->Fetcher != nullptr) {
@@ -1128,6 +1130,7 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 		if (Function != nullptr && Best_Candidate_Copy->Compare_Fetchers(Function)) {
 			Caller->Function_Implementation = Function;
 			Caller->Name = New_Name;
+			Caller->Templates.clear();
 			Function->Calling_Count++;
 			return 0;
 		}
@@ -1158,6 +1161,7 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 	else {
 		Caller->Function_Implementation = Best_Candidate;
 		Caller->Name = Caller->Function_Implementation->Name;
+		Caller->Templates.clear();
 		return 0;
 	}
 }

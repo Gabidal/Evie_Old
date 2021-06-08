@@ -23,3 +23,10 @@ func List<T>.Add<T>(T Element){
 func List<T>.Pop_Back(){
 	Size--
 }
+
+T List<T>.At<T>(int i){
+	if (i > Size){
+		return 0->T
+	}
+	return Array[i]
+}

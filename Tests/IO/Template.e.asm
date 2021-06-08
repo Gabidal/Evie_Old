@@ -41,11 +41,12 @@ lea rcx, qword ptr [rsp ]
 .loc 1 7 4
 mov rcx, rcx
 call Pop_Back
-.loc 14 4 2
-mov rcx, qword ptr [rsp + 8 ]
+lea rcx, qword ptr [rsp ]
 .loc 1 8 11
-lea rcx, qword ptr [rcx + 0 * 4 ]
-mov eax, dword ptr [rcx ]
+mov rcx, rcx
+mov edx, 0
+call ____At_int_
+mov eax, eax
 add rsp, 24
 ret 
 add rsp, 24
@@ -80,7 +81,7 @@ sub rsp, 24
 mov qword ptr [rsp + 4 ], rcx
 mov dword ptr [rsp + 0 ], edx
 .loc 14 8 2
-if47:
+if3640:
 mov rcx, qword ptr [rsp + 4 ]
 .loc 14 3 2
 mov ecx, dword ptr [rcx + 16 ]
@@ -89,7 +90,7 @@ mov r8, qword ptr [rsp + 4 ]
 mov r8d, dword ptr [r8 + 20 ]
 .loc 14 8 10
 cmp ecx, r8d
-jl if47_END
+jl if3640_END
 mov rcx, qword ptr [rsp + 4 ]
 mov r8, qword ptr [rsp + 4 ]
 .loc 14 3 2
@@ -131,7 +132,7 @@ mov rcx, qword ptr [rsp + 4 ]
 .loc 14 17 15
 mov qword ptr [rcx + 8 ], rbx
 .loc 14 8 2
-if47_END:
+if3640_END:
 mov rcx, qword ptr [rsp + 4 ]
 .loc 14 4 2
 mov rcx, qword ptr [rcx + 8 ]
@@ -166,6 +167,43 @@ sub dword ptr [rcx + 16 ], 1
 add rsp, 16
 ret 
 Pop_Back_END:
+
+
+.cfi_endproc 
+____At_int__START:
+.loc 14 1 1
+____At_int_:
+.cfi_startproc 
+.cfi_def_cfa_offset 16
+sub rsp, 24
+mov qword ptr [rsp + 4 ], rcx
+mov dword ptr [rsp + 0 ], edx
+.loc 14 28 2
+if3841:
+mov rcx, qword ptr [rsp + 4 ]
+.loc 14 3 2
+mov ecx, dword ptr [rcx + 16 ]
+.loc 14 28 7
+cmp dword ptr [rsp + 0 ], ecx
+jle if3841_END
+.loc 14 29 3
+mov eax, 0
+add rsp, 24
+ret 
+.loc 14 28 2
+if3841_END:
+mov rcx, qword ptr [rsp + 4 ]
+.loc 14 4 2
+mov rcx, qword ptr [rcx + 8 ]
+.loc 14 31 9
+mov r8d, dword ptr [rsp + 0 ]
+lea rcx, qword ptr [rcx + r8 * 4 ]
+mov eax, dword ptr [rcx ]
+add rsp, 24
+ret 
+add rsp, 24
+ret 
+____At_int__END:
 
 
 .cfi_endproc 
@@ -271,8 +309,8 @@ mov dword ptr [rsp + 16 ], r8d
 .loc 2 38 17
 mov ecx, 0
 cmp ecx, dword ptr [rsp + 16 ]
-jge while58_END
-while58:
+jge while3742_END
+while3742:
 mov r8, qword ptr [rsp + 0 ]
 .loc 2 39 9
 lea r8, qword ptr [r8 + rcx * 4 ]
@@ -282,9 +320,9 @@ mov dword ptr [r8 ], r9d
 .loc 2 38 33
 add ecx, 1
 cmp ecx, dword ptr [rsp + 16 ]
-jge while58_END
-jmp while58
-while58_END:
+jge while3742_END
+jmp while3742
+while3742_END:
 add rsp, 40
 .loc 2 41 5
 ret 
@@ -706,6 +744,47 @@ _____List_int__START:
 .asciz "Pop_Back"
 .byte 14
 .byte 1
+.byte 3
+.byte 20
+.asciz "Capacity"
+.byte 14
+.byte 2
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 16
+.asciz "Size"
+.byte 14
+.byte 3
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 8
+.asciz "Array"
+.byte 14
+.byte 4
+.long _int_START-Debug_Info_Start
+.byte 3
+.byte 0
+.asciz "Reference_Count"
+.byte 14
+.byte 1
+.long _long_START-Debug_Info_Start
+.byte 0
+.byte 5
+.quad ____At_int__START
+.long ____At_int__END-____At_int__START
+.byte 1
+.byte 87
+.asciz "____At_int_"
+.byte 14
+.byte 1
+.byte 9
+.byte 2
+.byte 145
+.byte 0
+.asciz "i"
+.byte 14
+.byte 27
+.long _int_START-Debug_Info_Start
 .byte 3
 .byte 20
 .asciz "Capacity"

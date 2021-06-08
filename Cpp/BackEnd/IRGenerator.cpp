@@ -1052,11 +1052,13 @@ void IRGenerator::Parse_Arrays(int i)
 			Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right), true, Right->is(TOKEN::MEMORY));
 		else if (Right->is(TOKEN::CONTENT)) {
 			//load variable into a register
+			Token* New_Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Right->Get_Size());
 			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), {
-				new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_),
-				new Token(TOKEN::MEMORY, {Right}, _SYSTEM_BIT_SIZE_, Right->Get_Name())
+				new Token(*New_Right),
+				new Token(TOKEN::MEMORY, {Right}, Right->Get_Size(), Right->Get_Name())
 				}, Input[i]->Location));
-			Right = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
+			New_Right->Set_Size(_SYSTEM_BIT_SIZE_);
+			Right = New_Right;
 		}
 		//scale the offsetter into a usable system bit size.
 		if (Right->is(TOKEN::REGISTER))

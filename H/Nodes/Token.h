@@ -50,7 +50,7 @@ public:
 	Token(long long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) {}
 	Token(long long f, string n, int s) : Flags(f), Name(n), Size(s) {}
 	Token(long long f, string n, int s, vector<Token*> c) : Flags(f), Name(n), Size(s), Childs(c) {
-		if (!is(TOKEN::REGISTER) && !is(TOKEN::VOLATILE) && !is(TOKEN::NONVOLATILE) && !is(TOKEN::RETURNING))
+		if (!Has({TOKEN::NONVOLATILE, TOKEN::VOLATILE, TOKEN::QUOTIENT, TOKEN::REMAINDER, TOKEN::RETURNING, TOKEN::PARAMETER}))
 			return;
 		for (auto i : Childs) {
 			i->Holder = this;

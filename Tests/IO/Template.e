@@ -5,7 +5,7 @@ export int Start_Test(){
 	a.Add<int>(5)
 	a.Add<int>(2)
 	a.Pop_Back()
-	return a.Array[0]
+	return a.At<int>(0)
 }
 
 export int main(){
