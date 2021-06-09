@@ -2,10 +2,10 @@ use "../../IO/cstd.e"
 
 export int Start_Test(){
 	List<int> a.List<int>()
-	a.Add<int>(5)
-	a.Add<int>(2)
+	a.Add(5)
+	a.Add(2)
 	a.Pop_Back()
-	return a.At<int>(0)
+	return a.At(0)
 }
 
 export int main(){

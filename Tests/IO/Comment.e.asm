@@ -166,8 +166,8 @@ mov dword ptr [rsp + 16 ], r8d
 .loc 2 38 17
 mov ecx, 0
 cmp ecx, dword ptr [rsp + 16 ]
-jge while5962_END
-while5962:
+jge while6166_END
+while6166:
 mov r8, qword ptr [rsp + 0 ]
 .loc 2 39 9
 lea r8, qword ptr [r8 + rcx * 4 ]
@@ -177,9 +177,9 @@ mov dword ptr [r8 ], r9d
 .loc 2 38 33
 add ecx, 1
 cmp ecx, dword ptr [rsp + 16 ]
-jge while5962_END
-jmp while5962
-while5962_END:
+jge while6166_END
+jmp while6166
+while6166_END:
 add rsp, 40
 .loc 2 41 5
 ret 

@@ -25,51 +25,51 @@ Start_Test:
 .loc 1 5 10
 mov ecx, 0
 cmp ecx, 100
-jge while52_END
-while52:
+jge while54_END
+while54:
 add ecx, 1
 cmp ecx, 100
-jge while52_END
-jmp while52
-while52_END:
+jge while54_END
+jmp while54
+while54_END:
 .loc 1 8 2
-if53:
+if55:
 cmp ecx, 100
-jne if53_END
+jne if55_END
 .loc 1 9 5
 mov ecx, 10
 .loc 1 8 2
-if53_END:
+if55_END:
 .loc 1 11 2
-if54:
+if56:
 cmp ecx, 100
-jne else55
+jne else57
 .loc 1 12 5
 mov ecx, 100
-jmp else55_END
+jmp else57_END
 .loc 1 11 2
-if54_END:
+if56_END:
 .loc 1 14 2
-else55:
+else57:
 cmp ecx, 10
-jne else55_END
+jne else57_END
 .loc 1 15 5
 mov ecx, 100
 .loc 1 14 2
-else55_END:
+else57_END:
 .loc 1 17 2
 mov eax, ecx
 ret 
 .loc 1 19 10
 mov ecx, 1
 cmp ecx, 2
-jge while56_END
-while56:
+jge while58_END
+while58:
 mov ecx, 1
 cmp ecx, 2
-jge while56_END
-jmp while56
-while56_END:
+jge while58_END
+jmp while58
+while58_END:
 .loc 1 20 2
 mov eax, 0
 ret 

@@ -168,17 +168,17 @@ Destructor:
 sub rsp, 8
 mov qword ptr [rsp + 0 ], rcx
 .loc 14 1 1
-if45:
+if47:
 cmp qword ptr [rsp + 0 ], 0
-je if45_END
+je if47_END
 sub rcx, 1
 cmp rcx, 1
-jge if45_END
+jge if47_END
 .loc 14 2 1
 mov rcx, qword ptr [rsp + 0 ]
 call ____Deallocate_foo_
 .loc 14 1 1
-if45_END:
+if47_END:
 add rsp, 8
 ret 
 Destructor_END:
@@ -567,7 +567,7 @@ _foo_START:
 .byte 2
 .byte 145
 .byte 0
-.asciz "_164661008"
+.asciz "_212466736"
 .byte 1
 .byte 14
 .long _foo_START-Debug_Info_Start

@@ -285,7 +285,6 @@ void Parser::Template_Type_Constructor(int i)
 	}
 
 	Type->Name = New_Name;
-	Type->Templates.clear();
 	Type->Defined.clear();
 	Type->Childs.clear();
 
@@ -293,6 +292,10 @@ void Parser::Template_Type_Constructor(int i)
 	p.Input = New_Constructed_Template_Code;
 	p.Factory();
 	
+	Type->Scope->Find(Type->Name)->Inheritable_templates = Input[i].node->Templates;
+	Input[i].node->Inheritable_templates = Input[i].node->Templates;
+	Input[i].node->Templates.clear();
+
 	//for erasing the <>
 	//Input.erase(Input.begin() + i + 1);
 
@@ -456,7 +459,7 @@ void Parser::Definition_Pattern(int i)
 			p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
 			p.Factory();
 			New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
-
+			New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
 		}
 		else if (j+1 < Words.size() && !Input[Words[j+1]].is(Flags::TEMPLATE_COMPONENT))
 			New_Defined_Object->Inheritted.push_back(Input[Words[j]].Value);

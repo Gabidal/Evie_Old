@@ -59,6 +59,7 @@ public:
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
 	vector<Node*> Templates;
+	vector<Node*> Inheritable_templates;
 	vector<Component> Template_Children;
 	Node* Scope = nullptr;
 	//funciton inlining features

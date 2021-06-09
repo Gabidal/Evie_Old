@@ -930,12 +930,24 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	Scopes.push_back(Global_Scope);
 
 	string New_Name = "";
+	bool Inherit_Templates = false;
 	if (caller->Templates.size() > 0) {
 		New_Name = caller->Construct_Template_Type_Name();
 	}
+	else {
+		Inherit_Templates = true;
+	}
+
+	bool Can_Remove_Templates = false;
 
 	//now that our scopes are ready to go, we can loop through them and find suitable candidates.
 	for (auto Scope : Scopes) {
+		if (Inherit_Templates && Scope->Inheritable_templates.size() > 0) {
+			caller->Templates = Scope->Inheritable_templates;
+			New_Name = caller->Construct_Template_Type_Name();
+			Can_Remove_Templates = true;
+		}
+
 		for (auto Func : Scope->Defined) {
 			bool Is_Similiar_To_Existing_Template_Func_That_Has_Been_Constructed = false;
 			if (!Func->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
@@ -948,7 +960,7 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 				}
 			}
 
-			if (!Skip_Name_Comparison)
+			if (!Skip_Name_Comparison) {
 				if (Func->Name != caller->Name)
 					if (New_Name != "") {
 						if (New_Name != Func->Name)
@@ -958,6 +970,10 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 					}
 					else
 						continue;
+				else if (Func->Templates.size() == 0 && Can_Remove_Templates) {
+					caller->Templates.clear();
+				}
+			}
 			if (Func->Parameters.size() != caller->Parameters.size())
 				continue;
 			if (Func->Templates.size() != caller->Templates.size() && !Is_Similiar_To_Existing_Template_Func_That_Has_Been_Constructed)
