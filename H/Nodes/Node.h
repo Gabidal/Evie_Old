@@ -581,6 +581,9 @@ public:
 		Result->Succsessor = Copy_Node(Result->Succsessor, p);
 		Result->Predecessor = Copy_Node(Result->Predecessor, p);
 
+		if (Result->Fetcher)
+			Result->Fetcher = Copy_Node(Result->Fetcher, p);
+
 
 		if (Result->Succsessor) {
 			Result->Succsessor->Predecessor = Result->Predecessor;
@@ -663,6 +666,13 @@ public:
 
 	vector<Node*> Get_all(int f)
 	{
+
+		if (this->is(FUNCTION_NODE))
+			if (this->is(f))
+				return { this };
+			else
+				return {};
+
 		vector<Node*> Result;
 		if (Left != nullptr) {
 			vector<Node*> left = Left->Get_all(f);
@@ -697,8 +707,6 @@ public:
 			Result.insert(Result.end(), childs.begin(), childs.end());
 		}
 		for (Node* i : Defined) {
-			if (i->is(FUNCTION_NODE))
-				continue;
 			vector<Node*> childs = i->Get_all(f);
 			Result.insert(Result.end(), childs.begin(), childs.end());
 		}
@@ -810,6 +818,8 @@ public:
 	}
 
 	Node* Get_Closest_Context(int Flags);
+
+	void Update_Stack_Space_Size(Node* f);
 };
 
 #endif

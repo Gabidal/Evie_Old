@@ -3,10 +3,13 @@
 #include "../../H/Parser/Algebra.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/UI/Usr.h"
 
 #include <vector>
 #include <string>
 #include <climits>
+
+extern Usr* sys;
 
 using namespace std;
 
@@ -575,4 +578,17 @@ int Node::Update_Size() {
 	}
 	Trace.pop_back();
 	return Size;
+}
+
+void Node::Update_Stack_Space_Size(Node* f)
+{
+	for (auto& v : f->Defined) {
+		if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
+			continue;
+		else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
+			continue;
+		v->Memory_Offset = v->Scope->Local_Allocation_Space;
+		v->Scope->Local_Allocation_Space += v->Get_Size();
+		v->Requires_Address = true;
+	}
 }

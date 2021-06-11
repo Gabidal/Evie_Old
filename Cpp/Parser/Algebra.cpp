@@ -110,7 +110,7 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end, Node* C
 		}
 		else {
 			Node* Return_Paranthesis = new Node(CONTENT_NODE, n->Location);
-			Return_Paranthesis->Paranthesis_Type = '(';
+			Return_Paranthesis->Paranthesis_Type = '{';
 			Return_Paranthesis->Name = "Paranthesis";
 
 			if (Return_Value) {
@@ -203,6 +203,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		Operator->Name = "=";
 		Operator->Left = Left_Side;
 		Operator->Right = Right_Side;
+		Operator->Scope = c->Scope;
 
 		Left_Side->Context = Operator;
 		Right_Side->Context = Operator;
@@ -210,6 +211,9 @@ void Algebra::Function_Inliner(Node* c, int i)
 		Childs.insert(Childs.begin(), Operator);
 	}
 
+	Node* Scope = c->Scope;
+
+	c->Function_Implementation->Calling_Count--;
 	Input->insert(Input->begin() + i, Childs.begin(), Childs.end());
 	c->Scope->Defined.insert(c->Scope->Defined.end(), Defined.begin(), Defined.end());
 
@@ -219,8 +223,10 @@ void Algebra::Function_Inliner(Node* c, int i)
 		Input->erase(Input->begin() + Childs.size() + i);
 
 	Inlined_Function_Count++;
-
 	Optimized = true;
+
+	Scope->Update_Defined_Stack_Offsets();
+	Scope->Update_Stack_Space_Size(Scope);
 }
 
 

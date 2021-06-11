@@ -6,7 +6,6 @@
 #include "../../H/UI/Usr.h"
 
 extern Node* Global_Scope;
-long long LNumber = 0;
 extern bool Optimized;
 extern Usr* sys;
 
@@ -340,7 +339,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 				Dot->Name = ".";
 				Dot->Scope = linear_n->Scope;
 
-				Dot->Left = new Node(*This);
+				Dot->Left = This->Copy_Node(This, This->Scope);
 
 				Dot->Right = new Node(*linear_n);
 
@@ -525,15 +524,7 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 
 	//DEBUG
 	//if (sys->Info.Debug)
-	for (auto& v : f->Defined) {
-		if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
-			continue;
-		else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
-			continue;
-		v->Memory_Offset = v->Scope->Local_Allocation_Space;
-		v->Scope->Local_Allocation_Space += v->Get_Size();
-		v->Requires_Address = true;
-	}	
+	f->Update_Stack_Space_Size(f);
 	
 	for (auto i : f->Childs)
 		for (auto j : Linearise(i)) {
@@ -566,7 +557,7 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 	if (!Input[i]->is(IF_NODE) && !Input[i]->is(ELSE_IF_NODE) && !Input[i]->is(ELSE_NODE))
 		return;
 	//this add the L number to it
-	Input[i]->Name += to_string(LNumber++);
+	//Input[i]->Name += to_string(LNumber++);
 
 	//preprare the local variables
 	Define_Sizes(Input[i]);
@@ -1570,7 +1561,7 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	if (!Input[i]->is(WHILE_NODE))
 		return;
 	//this add the L number to it
-	Input[i]->Name += to_string(LNumber++);
+	//Input[i]->Name += to_string(LNumber++);
 
 	//while (a + 1 < a * 2){..}
 	//while (int i = 0, a + i < a * i*2, i++){..}

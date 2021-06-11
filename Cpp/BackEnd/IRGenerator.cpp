@@ -10,6 +10,7 @@
 extern Selector* selector;
 extern Usr* sys;
 unsigned long long Reg_Random_ID_Addon = 0;
+unsigned long long Label_Differential_ID = 0;
 
 void IRGenerator::Factory()
 {
@@ -41,6 +42,7 @@ void IRGenerator::Factory()
 		Parse_PostFixes(i);
 		Parse_PreFixes(i);
 		Parse_Return(i);
+		Parse_Jump(i);
 	}
 	if (Parent->Name == "GLOBAL_SCOPE") {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
@@ -341,6 +343,7 @@ void IRGenerator::Parse_If(int i)
 void IRGenerator::Loop_Elses(Node* e)
 {
 	//the if/else label
+	e->Name += "_" + to_string(Label_Differential_ID++);
 	Node* tmp = new Node(e->Name, e->Location);
 	Output->push_back(Make_Label(tmp, false));
 
@@ -1279,30 +1282,33 @@ void IRGenerator::Parse_Parenthesis(int i)
 {
 	if (!Input[i]->is(CONTENT_NODE))
 		return;
-	if (Input[i]->Paranthesis_Type != '(')
-		return;
 	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
+	if (Input[i]->Paranthesis_Type == '(') {
 
 
-	//b++ + (b++ + 1)
-	IRGenerator g(Parent, Input[i]->Childs, Output);
+		//b++ + (b++ + 1)
+		IRGenerator g(Parent, Input[i]->Childs, Output);
 
-	if (g.Handle != nullptr)
-		Handle = g.Handle;
-	else {
-		//mov the variable into a reg.
-		Token* C = new Token(Input[i]->Find(Input[i]->Childs[0], Input[i]->Childs[0]->Scope));
-		if (C->is(TOKEN::CONTENT))
-			C = new Token(TOKEN::MEMORY, { C }, C->Get_Size(), C->Get_Name());
+		if (g.Handle != nullptr)
+			Handle = g.Handle;
+		else {
+			//mov the variable into a reg.
+			Token* C = new Token(Input[i]->Find(Input[i]->Childs[0], Input[i]->Childs[0]->Scope));
+			if (C->is(TOKEN::CONTENT))
+				C = new Token(TOKEN::MEMORY, { C }, C->Get_Size(), C->Get_Name());
 
-		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + C->Get_Name(), C->Get_Size());
-		//create the IR
-		Token* Opc = new Token(TOKEN::OPERATOR, "=");
-		IR* ir = new IR(Opc, { Reg, C }, Input[i]->Location);
+			Token* Reg = new Token(TOKEN::REGISTER, "REG_" + C->Get_Name(), C->Get_Size());
+			//create the IR
+			Token* Opc = new Token(TOKEN::OPERATOR, "=");
+			IR* ir = new IR(Opc, { Reg, C }, Input[i]->Location);
 
-		Handle = Reg;
-		Output->push_back(ir);
+			Handle = Reg;
+			Output->push_back(ir);
+		}
+	}
+	else if (Input[i]->Paranthesis_Type == '{') {
+		IRGenerator g(Parent, Input[i]->Childs, Output);
 	}
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
@@ -1631,6 +1637,8 @@ void IRGenerator::Parse_Loops(int i)
 	//content
 	//condition again
 	//end
+
+	Input[i]->Name += "_" + to_string(Label_Differential_ID++);
 
 	//make the condition
 	vector<Node*> Header;
