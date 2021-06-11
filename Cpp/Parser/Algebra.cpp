@@ -5,13 +5,16 @@
 #include <cmath>
 
 bool Optimized = false;
+long long Inlined_Function_Count = 0;
 
 void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
+		Function_Inliner(Input->at(i), i);
+	}
+	for (int i = 0; i < Input->size(); i++) {
 		Inline_Variables(i);
 		Set_Coefficient_Value(i);
-		//Function_Inliner(Input->at(i));
-		Prosess_Return(Input->at(i));
+		Prosess_Return(Input->at(i), i);
 		//Prosess_Paranthesis(Input->at(i));
 		Combine_Scattered(Input->at(i));
 		Set_Defining_Value(i);
@@ -99,110 +102,128 @@ vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
 	return Result;
 }
 
-void Algebra::Function_Inliner(Node* c)
+void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end, Node* Context)
 {
-	return;//TURN OFF
-	//if (banana(1, 2) + apple(1, 2, 3))
-	/*if (!c->is(CALL_NODE))
-		return;
-	if (c->is("ptr") != -1)
-		return;
-	//skip recusive functions, simply because theyr ass.
-	for (auto j : Get_all(c->Template_Function, CALL_NODE))
-		if (j->Name == c->Name)
+	if (n->Name == "return") {
+		if (Context != nullptr && Context->Get_Context_As("return", Context) != nullptr) {
 			return;
-	//TODO: make an exeption to ignore recursive functions!!!
-	//we want to inline the fucniton contentsand make the parameters into a local variables
-	//check if thos callation hasnt yet finded the template function.
-	if (c->Template_Function == nullptr) {
-		Report(Observation(ERROR, c->Name +" doesn't have constructor function.", *c->Location));
-		throw::runtime_error("ERROR");
+		}
+		else {
+			Node* Return_Paranthesis = new Node(CONTENT_NODE, n->Location);
+			Return_Paranthesis->Paranthesis_Type = '(';
+			Return_Paranthesis->Name = "Paranthesis";
+
+			if (Return_Value) {
+				Node* Assign = new Node(OPERATOR_NODE, n->Location);
+				Assign->Name = "=";
+
+				Node* Left = Return_Value->Copy_Node(Return_Value, n->Scope);
+				Left->Type = OBJECT_NODE;
+				Left->Context = Assign;
+
+				Node* Right = n->Copy_Node(n->Right, n->Scope);
+				Right->Context = Assign;
+
+				Assign->Left = Left;
+				Assign->Right = Right;
+
+				Return_Paranthesis->Childs.push_back(Assign);
+			}
+			Node* Return = new Node(FLOW_NODE, n->Location);
+			Return->Name = "jump";
+			Return->Right = end;
+
+			Return_Paranthesis->Childs.push_back(Return);
+
+			*n = *Return_Paranthesis;
+		}
 	}
-	//make a result variable that the return always return the value to.
-	vector<Node*> Inlined_Code;
-	Node* Result_Definition = new Node(OBJECT_DEFINTION_NODE, c->Location);
-	//make a custon name
-	Result_Definition->Name = c->Name;
-	for (auto j : c->Parameters)
-		Result_Definition->Name += "_" + j->Name;
-	Result_Definition->Inheritted = c->Template_Function->Inheritted;
-	Result_Definition->Update_Members_Size();
-	Result_Definition->Parent = c->Parent;
-	//add to later refrenses.
-	Result_Definition->Parent->Defined.push_back(Result_Definition);
+}
 
-	Node* Func = c->Copy_Node(c->Template_Function, c->Parent);
-	//rename all the inside variables
-	for (Node* n : Get_all(Func, OBJECT_NODE))
-		n->Name = "." + n->Name;
-	for (Node* n : Get_all(Func, PARAMETER_NODE))
-		n->Name = "." + n->Name;
+void Algebra::Function_Inliner(Node* c, int i)
+{
+	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") != -1)
+		return;
 
-	vector<Node*> Set_Val_For_Params;
-	for (int j = 0; j < Func->Parameters.size(); j++) {
-		Node* set = new Node(OPERATOR_NODE, Func->Parameters[j]->Location);
-		set->Name = "=";
-		//set the left
-		set->Left = Func->Copy_Node(Func->Parameters[j], c->Parent);
-		set->Left->Type = OBJECT_NODE;
-		//and then right
-		set->Right = c->Copy_Node(c->Parameters[j], c->Parent);
-		//then push it
-		Set_Val_For_Params.push_back(set);
+	//copy the nodes to a safe heaven
+	vector<Node*> Parameters;
+	vector<Node*> Defined;
+	vector<Node*> Childs;
+
+	for (auto i : c->Function_Implementation->Childs) {
+		Childs.push_back(c->Copy_Node(i, c->Scope));
 	}
-	//set the head
-	c->Append(Inlined_Code, Set_Val_For_Params);
 
-	Node* End_Of_Func = new Node(LABEL_NODE, c->Location);
-	End_Of_Func->Name = Result_Definition->Name + "_LABEL";
-	c->Parent->Defined.push_back(End_Of_Func);
+	//give the parameters a new name;
+	for (auto i : c->Function_Implementation->Parameters) {
+		Node* tmp = c->Copy_Node(i, c->Scope);
+		tmp->Name += "_" + to_string(Inlined_Function_Count);
+		Parameters.push_back(tmp);
+	}
 
-	//replace all return witha jump and a save the result if it returns enything.
-	for (Node* r : Get_all(Func, FLOW_NODE)) {
-		if (r->Name != "return")
-			continue;
-		Node* Content = new Node(CONTENT_NODE, r->Location);
-		Content->Paranthesis_Type = '(';
+	//generate the end_of_function_label
+	Node* End_of_Function_Label = new Node(LABEL_NODE, c->Location);
+	End_of_Function_Label->Name = ".Return_Here_" + to_string(Inlined_Function_Count);
 
-		if (r->Right != nullptr) {
-			Node* Result_N = Result_Definition->Copy_Node(Result_Definition, Result_Definition->Parent);
-			Result_N->Type = OBJECT_NODE;
+	Childs.push_back(End_of_Function_Label);
 
-			Node* Set = new Node(OPERATOR_NODE, r->Location);
-			Set->Name = "=";
-			Set->Left = Result_N;
-			Set->Right = r->Right;
+	Node* Return_Value = nullptr;
+	if (c->Context) {
+		Return_Value = new Node(OBJECT_DEFINTION_NODE, c->Location);
+		Return_Value->Name = ".Return_Value" + to_string(Inlined_Function_Count);
+	}
 
-			Content->Childs.push_back(Set);
+	//go thróugh all the children and update the names
+	//the defined also have the parameters so only here we need to go through all th childrens.
+	for (auto i : c->Function_Implementation->Defined) {
+		Node* tmp = c->Copy_Node(i, c->Scope);
+		string New_Name = tmp->Name + "_" + to_string(Inlined_Function_Count);
+
+		for (auto j : Childs) {
+			for (auto k : j->Get_all({PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, FLOW_NODE})) {
+				if (k->Name == i->Name)
+					k->Name = New_Name;	
+
+				//replace all the return statement with a jump to a end label command
+				Set_Return_To_Jump(k, Return_Value, End_of_Function_Label, c->Context);
+			}
 		}
 
-		Node* Label = new Node(LABEL_NODE, r->Location);
-		Label->Name = End_Of_Func->Name;
-
-		Node* jmp = new Node(FLOW_NODE, r->Location);
-		jmp->Name = "jump";
-		jmp->Right = Label;
-
-		Content->Childs.push_back(jmp);
-
-		*r = *Content;
+		tmp->Name = New_Name;
+		Defined.push_back(tmp);
 	}
-	c->Append(Inlined_Code, Func->Childs);
 
-	//now time to transfers
-	c->Parent->Append(c->Parent->Defined, Func->Defined);
+	//first anchor the parameters to setted with the value corresponding at the callers parameters.
+	for (int i = 0; i < Parameters.size(); i++) {
+		Node* Left_Side = Parameters[i]->Copy_Node(Parameters[i], Parameters[i]->Scope);
+		
+		Node* Right_Side = c->Copy_Node(c->Parameters[i], c->Scope);
 
-	//re make the callation into the result holding variable.
-	*c = *Result_Definition->Copy_Node(Result_Definition, Result_Definition->Parent);
-	c->Type = OBJECT_NODE;
+		Node* Operator = new Node(ASSIGN_OPERATOR_NODE, c->Parameters[i]->Location);
+		Operator->Name = "=";
+		Operator->Left = Left_Side;
+		Operator->Right = Right_Side;
 
-	//the later on this will be unwrapped.
-	c->Header = Inlined_Code;
+		Left_Side->Context = Operator;
+		Right_Side->Context = Operator;
+
+		Childs.insert(Childs.begin(), Operator);
+	}
+
+	Input->insert(Input->begin() + i, Childs.begin(), Childs.end());
+	c->Scope->Defined.insert(c->Scope->Defined.end(), Defined.begin(), Defined.end());
+
+	if (Return_Value)
+		*c = *Return_Value;
+	else
+		Input->erase(Input->begin() + Childs.size() + i);
+
+	Inlined_Function_Count++;
 
 	Optimized = true;
-
-	return;*/
 }
+
+
 
 vector<Node*> Algebra::Get_all(Node* n, int f)
 {
@@ -250,7 +271,7 @@ vector<Node*> Algebra::Get_all(Node* n, int f)
 	return Result;
 }
 
-void Algebra::Prosess_Return(Node* n)
+void Algebra::Prosess_Return(Node* n, int i)
 {
 	if (n->Name != "return")
 		return;
@@ -258,7 +279,13 @@ void Algebra::Prosess_Return(Node* n)
 		return;
 	vector<Node*> tmp = { n->Right };
 	Algebra a(n, &tmp);
-	n->Right = tmp.back();
+
+	if (tmp.size() == 1)
+		n->Right = tmp.back();
+	else {
+		Input->erase(Input->begin() + i);
+		Input->insert(Input->begin() + i, tmp.begin(), tmp.end());
+	}
 }
 
 void Algebra::Prosess_Call_Parameters(Node* n)

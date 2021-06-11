@@ -338,6 +338,10 @@ public:
 
 	Node* Get_Parent_As(int F, Node* Parent);
 
+	Node* Get_Context_As(int F, Node* Context);
+
+	Node* Get_Context_As(string n, Node* Context);
+
 	vector<Node*> Get_Scope_Path();
 
 	Node* Get_Right_Parent() {
@@ -515,6 +519,9 @@ public:
 		if (What_Node == nullptr)
 			return nullptr;
 
+		if (What_Node->is(FUNCTION_NODE))
+			return new Node(*What_Node);
+
 		Trace.push_back(What_Node);
 
 		for (int i = 0; i < Trace.size(); i++) {
@@ -532,7 +539,7 @@ public:
 
 		//lets start from defined
 		for (int i = 0; i < Result->Defined.size(); i++)
-			Result->Defined[i] = Copy_Node(Result->Defined[i], Result);
+				Result->Defined[i] = Copy_Node(Result->Defined[i], Result);
 
 		for (int i = 0; i < Result->Templates.size(); i++)
 			Result->Templates[i] = Copy_Node(Result->Templates[i], Result);

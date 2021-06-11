@@ -252,6 +252,24 @@ Node* Node::Get_Parent_As(int F, Node* parent) {
 	throw::runtime_error("ERROR!");
 }
 
+Node* Node::Get_Context_As(int F, Node* Context)
+{
+	if (Context->is(F))
+		return Context;
+	if (Context->Context)
+		return Get_Context_As(F, Context->Context);
+	return nullptr;
+}
+
+Node* Node::Get_Context_As(string n, Node* Context)
+{
+	if (Context->Name == n)
+		return Context;
+	if (Context->Context)
+		return Get_Context_As(n, Context->Context);
+	return nullptr;
+}
+
 /// <summary>
 /// Gets a list of all the upper parents that this is defined in, up to global scope :D
 /// </summary>

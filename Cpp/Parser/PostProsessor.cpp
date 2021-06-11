@@ -960,9 +960,13 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 				}
 			}
 
+			//this part is skipped if the function is a fuinction pointer.
 			if (!Skip_Name_Comparison) {
+				//check if the names are smae
 				if (Func->Name != caller->Name)
+					//if there is a mangled template name
 					if (New_Name != "") {
+						//check the mangled template name
 						if (New_Name != Func->Name)
 							continue;
 						else
@@ -970,6 +974,7 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 					}
 					else
 						continue;
+				//Check if the templates are temporarly made for just this instance.
 				else if (Func->Templates.size() == 0 && Can_Remove_Templates) {
 					caller->Templates.clear();
 				}
