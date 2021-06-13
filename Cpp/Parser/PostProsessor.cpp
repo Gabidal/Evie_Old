@@ -54,8 +54,6 @@ void PostProsessor::Factory() {
 		Combine_Condition(i);
 	for (int i = 0; i < Input.size(); i++)
 		Move_Global_Varibles_To_Header(i);
-	for (int i = 0; i < Input.size(); i++)
-		Algebra_Laucher(i);
 }
 
 void PostProsessor::Transform_Component_Into_Node()
@@ -462,7 +460,7 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 
 	Node* func = f;
 
-	Node* This = new Node(PARAMETER_NODE, "this", nullptr);
+	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { Scope->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
@@ -528,10 +526,15 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	
 	for (auto i : f->Childs)
 		for (auto j : Linearise(i)) {
+			if (!j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }))
+				continue;
 			Node* child = j->Find(j, j->Scope);
 			if (child != nullptr)
 				child->Current_Value = nullptr;
 		}
+
+	for (auto& v : f->Defined)
+		p.Destructor_Caller(v, f->Childs);
 
 	while (true) {
 		Algebra a(f, &f->Childs);
@@ -539,11 +542,6 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 			break;
 		Optimized = false;
 	}
-
-
-
-	for (auto& v : f->Defined)
-		p.Destructor_Caller(v, f->Childs);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);
@@ -568,6 +566,8 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 
 	//here we now postprosess also the insides of the condition
 	PostProsessor p(Input[i], Input[i]->Childs);
+
+	Algebra_Laucher(Input[i], Input[i]->Childs);
 
 	for (auto& v : Input[i]->Defined)
 		p.Destructor_Caller(v, Input[i]->Childs);
@@ -1231,6 +1231,8 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
 	PostProsessor p(Scope, Input[i]->Parameters);
 
+	Algebra_Laucher(Input[i], Input[i]->Parameters);
+
 	for (auto& v : Input[i]->Defined)
 		p.Destructor_Caller(v, Input);
 
@@ -1246,12 +1248,10 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 		}
 }
 
-void PostProsessor::Algebra_Laucher(int i)
+void PostProsessor::Algebra_Laucher(Node* Scope, vector<Node*> &List)
 {
-	if (!Input[i]->is(FUNCTION_NODE))
-		return;
 	while (true) {
-		Algebra a(Input[i], &Input[i]->Childs);
+		Algebra a(Scope, &List);
 		if (!Optimized)
 			break;
 		Optimized = false;
@@ -1572,6 +1572,8 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	PostProsessor post(Input[i]);
 	post.Input = Input[i]->Childs;
 
+	Algebra_Laucher(Input[i], Input[i]->Childs);
+
 	//NOTE: this defined sizes might be reduntant!
 	post.Define_Sizes(Input[i]);
 
@@ -1838,7 +1840,7 @@ bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
 vector<Node*> PostProsessor::Linearise(Node* ast)
 {
 	vector<Node*> Result;
-	if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE) || ast->is(ARRAY_NODE)) {
+	if (ast->Has({OPERATOR_NODE, ASSIGN_OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE})) {
 		vector<Node*> left = Linearise(ast->Left);
 		Result.insert(Result.end(), left.begin(), left.end());
 

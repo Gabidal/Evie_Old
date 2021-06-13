@@ -60,7 +60,7 @@ public:
 
 
 
-	void Algebra_Laucher(int i);					//utilisez algebra to optimize the code in the function.
+	void Algebra_Laucher(Node* Scope, vector<Node*> &List);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
 	void Combine_Condition(int i);					//combines the ifs and elses

@@ -1,6 +1,7 @@
 #include "../../H/Nodes/Token.h"
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/UI/Safe.h"
 
 extern Selector* selector;
 extern Usr* sys;
@@ -79,4 +80,7 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 		Name = n->Fetcher->Name + "_" + n->Name;
 
 	Parent = n->Scope;
+
+	if (Flags == 0)
+		Report(Observation(ERROR, "Internal error! Missing Flag in token " + Name, Position()));
 }

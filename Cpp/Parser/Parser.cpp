@@ -68,7 +68,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 
 void Parser::Combine_Dot_In_Member_Functions(int& i)
 {
-	if (Scope->is(FUNCTION_NODE) || (Scope->is(CLASS_NODE) && Scope->Name != "GLOBAL_SCOPE"))
+	if (Scope->Name != "GLOBAL_SCOPE")
 		return;
 	if (Input[i].Value != ".")
 		return;

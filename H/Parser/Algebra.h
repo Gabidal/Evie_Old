@@ -20,7 +20,7 @@ public:
 private:
 	Node* Parent;
 
-	void Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end, Node* Context);
+	void Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end);
 	void Function_Inliner(Node* c, int i);
 	vector<Node*> Get_all(Node* n, int Flag);
 	void Prosess_Return(Node* n, int i);

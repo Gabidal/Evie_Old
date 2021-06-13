@@ -6,6 +6,8 @@
 
 bool Optimized = false;
 long long Inlined_Function_Count = 0;
+long long Unique_ID_Count = 0;
+vector<string> Defined_Labels;
 
 void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
@@ -102,41 +104,39 @@ vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
 	return Result;
 }
 
-void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end, Node* Context)
+void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 {
 	if (n->Name == "return") {
-		if (Context != nullptr && Context->Get_Context_As("return", Context) != nullptr) {
-			return;
+		Node* Return_Paranthesis = new Node(CONTENT_NODE, n->Location);
+		Return_Paranthesis->Paranthesis_Type = '{';
+		Return_Paranthesis->Name = "Paranthesis";
+
+		if (Return_Value) {
+			Node* Assign = new Node(OPERATOR_NODE, n->Location);
+			Assign->Name = "=";
+			Assign->Scope = n->Scope;
+
+			Node* Left = Return_Value->Copy_Node(Return_Value, n->Scope);
+			Left->Type = OBJECT_NODE;
+			Left->Context = Assign;
+
+			Node* Right = n->Copy_Node(n->Right, n->Scope);
+			Right->Context = Assign;
+
+			Assign->Left = Left;
+			Assign->Right = Right;
+
+			Return_Paranthesis->Childs.push_back(Assign);
 		}
-		else {
-			Node* Return_Paranthesis = new Node(CONTENT_NODE, n->Location);
-			Return_Paranthesis->Paranthesis_Type = '{';
-			Return_Paranthesis->Name = "Paranthesis";
+		Node* Return = new Node(FLOW_NODE, n->Location);
+		Return->Name = "jump";
+		Return->Right = new Node(*end);
+		Return->Scope = end->Scope;
+		Return->Right->Context = Return;
 
-			if (Return_Value) {
-				Node* Assign = new Node(OPERATOR_NODE, n->Location);
-				Assign->Name = "=";
+		Return_Paranthesis->Childs.push_back(Return);
 
-				Node* Left = Return_Value->Copy_Node(Return_Value, n->Scope);
-				Left->Type = OBJECT_NODE;
-				Left->Context = Assign;
-
-				Node* Right = n->Copy_Node(n->Right, n->Scope);
-				Right->Context = Assign;
-
-				Assign->Left = Left;
-				Assign->Right = Right;
-
-				Return_Paranthesis->Childs.push_back(Assign);
-			}
-			Node* Return = new Node(FLOW_NODE, n->Location);
-			Return->Name = "jump";
-			Return->Right = end;
-
-			Return_Paranthesis->Childs.push_back(Return);
-
-			*n = *Return_Paranthesis;
-		}
+		*n = *Return_Paranthesis;
 	}
 }
 
@@ -157,35 +157,85 @@ void Algebra::Function_Inliner(Node* c, int i)
 	//give the parameters a new name;
 	for (auto i : c->Function_Implementation->Parameters) {
 		Node* tmp = c->Copy_Node(i, c->Scope);
+		tmp->Type = OBJECT_DEFINTION_NODE;
 		tmp->Name += "_" + to_string(Inlined_Function_Count);
 		Parameters.push_back(tmp);
 	}
 
+	while (true) {
+		bool Is_Unique = true;
+		for (auto i : Defined_Labels) {
+			if (i == ("Return_Here_" + to_string(Unique_ID_Count))) {
+				Unique_ID_Count++;
+				Is_Unique = false;
+			}
+		}
+		if (Is_Unique)
+			break;
+	}
+
 	//generate the end_of_function_label
 	Node* End_of_Function_Label = new Node(LABEL_NODE, c->Location);
-	End_of_Function_Label->Name = ".Return_Here_" + to_string(Inlined_Function_Count);
+	End_of_Function_Label->Name = "Return_Here_" + to_string(Unique_ID_Count);
+	End_of_Function_Label->Scope = c->Scope;
 
 	Childs.push_back(End_of_Function_Label);
+	Defined_Labels.push_back("Return_Here_" + to_string(Unique_ID_Count));
+	Defined_Labels.push_back("Return_Here_" + to_string(Unique_ID_Count+1));
 
 	Node* Return_Value = nullptr;
 	if (c->Context) {
 		Return_Value = new Node(OBJECT_DEFINTION_NODE, c->Location);
-		Return_Value->Name = ".Return_Value" + to_string(Inlined_Function_Count);
+		Return_Value->Name = "Return_Value" + to_string(Inlined_Function_Count);
+		Return_Value->Scope = c->Scope;
+		Return_Value->Inheritted = c->Inheritted;
 	}
 
 	//go thróugh all the children and update the names
 	//the defined also have the parameters so only here we need to go through all th childrens.
 	for (auto i : c->Function_Implementation->Defined) {
 		Node* tmp = c->Copy_Node(i, c->Scope);
+		tmp->Type = OBJECT_DEFINTION_NODE;
 		string New_Name = tmp->Name + "_" + to_string(Inlined_Function_Count);
 
 		for (auto j : Childs) {
-			for (auto k : j->Get_all({PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, FLOW_NODE})) {
-				if (k->Name == i->Name)
-					k->Name = New_Name;	
-
+			for (auto k : j->Get_all({PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, FLOW_NODE, LABEL_NODE})) {
 				//replace all the return statement with a jump to a end label command
-				Set_Return_To_Jump(k, Return_Value, End_of_Function_Label, c->Context);
+				Set_Return_To_Jump(k, Return_Value, End_of_Function_Label);
+			}
+			for (auto k : j->Get_all({ PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, FLOW_NODE, LABEL_NODE })) {
+				if (k->Name == i->Name) {
+					k->Name = New_Name;
+					if (k->is(PARAMETER_NODE))
+						k->Type = OBJECT_NODE;
+				}
+				else if (k->is(LABEL_NODE)) {
+
+					/*if (k->Context == nullptr) {
+						k->Name = "Return_Here_" + to_string(Unique_ID_Count++);
+					}
+					else {
+						k->Name = "Return_Here_" + to_string(Unique_ID_Count);
+					}*/
+					//increment the label unique ID
+					unsigned long long Unique_ID = atoll(k->Name.substr(string("Return_Here_").size()).c_str());
+					unsigned long long Previus_Unique_ID = Unique_ID;
+
+					Unique_ID += Unique_ID_Count + 1;
+
+					string Previus_Unique_ID_String = to_string(Previus_Unique_ID);
+
+					string Name = k->Name.substr(0, k->Name.size() - Previus_Unique_ID_String.size());
+
+					k->Name =  Name + to_string(Unique_ID);
+
+					/*string Scope_Name = k->Name.substr(k->Name.size() - c->Scope->Name.size());
+
+					if (Scope_Name == c->Scope->Name)
+						continue;
+
+					k->Name += c->Scope->Name;*/
+				}
 			}
 		}
 
@@ -213,9 +263,12 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 	Node* Scope = c->Scope;
 
+	if (Return_Value)
+		Scope->Defined.push_back(Return_Value);
+
 	c->Function_Implementation->Calling_Count--;
 	Input->insert(Input->begin() + i, Childs.begin(), Childs.end());
-	c->Scope->Defined.insert(c->Scope->Defined.end(), Defined.begin(), Defined.end());
+	Scope->Defined.insert(Scope->Defined.end(), Defined.begin(), Defined.end());
 
 	if (Return_Value)
 		*c = *Return_Value;
@@ -228,8 +281,6 @@ void Algebra::Function_Inliner(Node* c, int i)
 	Scope->Update_Defined_Stack_Offsets();
 	Scope->Update_Stack_Space_Size(Scope);
 }
-
-
 
 vector<Node*> Algebra::Get_all(Node* n, int f)
 {
@@ -289,7 +340,6 @@ void Algebra::Prosess_Return(Node* n, int i)
 	if (tmp.size() == 1)
 		n->Right = tmp.back();
 	else {
-		Input->erase(Input->begin() + i);
 		Input->insert(Input->begin() + i, tmp.begin(), tmp.end());
 	}
 }
@@ -335,7 +385,7 @@ void Algebra::Inline_Variables(int i)
 	}
 
 	for (Node* n : Linear_Ast) {
-		if (n->is(CALL_NODE))
+		if (!n->Has({OBJECT_NODE, OBJECT_DEFINTION_NODE}))
 			continue;
 		Node* d = Parent->Find(n->Name, Parent, OBJECT_DEFINTION_NODE);
 		//if this is nullptr is means it is defined outside this scope.
@@ -1159,7 +1209,7 @@ void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)
 	n->Coefficient = 1;
 
 	//transform the negative holder into positive operator
-	if (n->Context->Name == "-")
+	if (n->Context != nullptr && n->Context->Name == "-")
 		n->Context->Name = "+";
 
 	//combine

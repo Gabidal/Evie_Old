@@ -43,6 +43,7 @@ void IRGenerator::Factory()
 		Parse_PreFixes(i);
 		Parse_Return(i);
 		Parse_Jump(i);
+		Parse_Labels(i);
 	}
 	if (Parent->Name == "GLOBAL_SCOPE") {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
@@ -1276,6 +1277,14 @@ void IRGenerator::Parse_Jump(int i)
 
 	Output->push_back(Make_Jump("jump", Input[i]->Right->Name));
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+}
+
+void IRGenerator::Parse_Labels(int i)
+{
+	if (!Input[i]->is(LABEL_NODE))
+		return;
+
+	Output->push_back(new IR(new Token(TOKEN::LABEL, Input[i]->Name), {}, Input[i]->Location));
 }
 
 void IRGenerator::Parse_Parenthesis(int i)

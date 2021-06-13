@@ -592,6 +592,8 @@ public:
 			Result->Predecessor->Succsessor = Result->Succsessor;
 		}
 
+		if (Result->Location)
+			Result->Location = new Position(*Result->Location);
 
 		//The copying prosess must go downwards not upwards, otherwise it will loop forever!
 		//Result->Holder = Copy_Node(Result->Holder, p);
@@ -713,6 +715,11 @@ public:
 
 		if (is(f))
 			Result.push_back(this);
+
+		for (int i = 0; i < Result.size(); i++)
+			for (int j = 0; j < Result.size(); j++)
+				if (Result[i] == Result[j] && i != j)
+					Result.erase(Result.begin() + j--);
 
 		return Result;
 	}

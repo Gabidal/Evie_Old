@@ -46,6 +46,7 @@ public:
 	void Parse_Reference_Count_Increase(int i);
 
 	void Parse_Jump(int i);
+	void Parse_Labels(int i);
 	void Parse_Parenthesis(int i);
 	void Update_Operator(Node*n);
 
