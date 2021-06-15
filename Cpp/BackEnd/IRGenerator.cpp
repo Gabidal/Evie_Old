@@ -1655,15 +1655,15 @@ void IRGenerator::Parse_Loops(int i)
 		Header = { Input[i]->Parameters[0] };
 
 	vector<Node*> Header_Conditions;
-	Input[i]->Append(Header_Conditions, Node::Get_all(CONDITION_OPERATOR_NODE, Input[i]->Parameters));
-	Input[i]->Append(Header, Input[i]->Append(Header_Conditions, Node::Get_all(LOGICAL_OPERATOR_NODE, Input[i]->Parameters)));
+	Input[i]->Append(Header_Conditions, Get_all(CONDITION_OPERATOR_NODE, Input[i]->Parameters));
+	Input[i]->Append(Header, Input[i]->Append(Header_Conditions, Get_all(LOGICAL_OPERATOR_NODE, Input[i]->Parameters)));
 
-	vector<Node*> Footer = Node::Get_all(POSTFIX_NODE, Input[i]->Parameters);
+	vector<Node*> Footer = Get_all(POSTFIX_NODE, Input[i]->Parameters);
 	
 	if (Input[i]->Parameters[Input[i]->Parameters.size() - 1]->is(OPERATOR_NODE))
 		Input[i]->Append(Footer, { Input[i]->Parameters[Input[i]->Parameters.size() - 1] });
 	
-	Input[i]->Append(Footer, Node::Get_all(PREFIX_NODE, Input[i]->Parameters));
+	Input[i]->Append(Footer, Get_all(PREFIX_NODE, Input[i]->Parameters));
 
 	IRGenerator g(Input[i], Header, Output);
 

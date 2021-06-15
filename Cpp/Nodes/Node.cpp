@@ -49,7 +49,7 @@ Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 	Define_Index = i;
 	Var = v;
 
-	vector<Node*> Linear_Ast = Linearise(v, false);
+	vector<Node*> Linear_Ast = v->Get_all({OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE});
 	//for complex inlinings
 	for (int n = i; n < source.size(); n++) {
 		if (source[n]->is(ASSIGN_OPERATOR_NODE) || source[n]->is(POSTFIX_NODE)) {
@@ -591,4 +591,77 @@ void Node::Update_Stack_Space_Size(Node* f)
 		v->Scope->Local_Allocation_Space += v->Get_Size();
 		v->Requires_Address = true;
 	}
+}
+
+
+vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
+{
+
+	if (this->is(FUNCTION_NODE))
+		if (this->is(f))
+			return { this };
+		else
+			return {};
+
+	Trace.push_back(this);
+
+	for (int i = 0; i < Trace.size(); i++)
+		for (int j = 0; j < Trace.size(); j++)
+			if (Trace[i] == Trace[j] && i != j) {
+				Trace.pop_back();
+				if (this->is(f))
+					return { new Node(*this) };
+				return {};
+			}
+				
+
+	vector<Node*> Result;
+	if (Left != nullptr) {
+		vector<Node*> left = Left->Get_all(f, Trace);
+		Result.insert(Result.end(), left.begin(), left.end());
+	}
+	if (Right != nullptr) {
+		vector<Node*> right = Right->Get_all(f, Trace);
+		Result.insert(Result.end(), right.begin(), right.end());
+	}
+	if (Succsessor != nullptr) {
+		vector<Node*> Succsessors = Succsessor->Get_all(f, Trace);
+		Result.insert(Result.end(), Succsessors.begin(), Succsessors.end());
+	}
+	if (Predecessor != nullptr) {
+		vector<Node*> Predecessors = Predecessor->Get_all(f, Trace);
+		Result.insert(Result.end(), Predecessors.begin(), Predecessors.end());
+	}
+	if (Fetcher != nullptr) {
+		vector<Node*> Fetchers = Fetcher->Get_all(f, Trace);
+		Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+	}
+	for (Node* i : Header) {
+		vector<Node*> Headers = i->Get_all(f, Trace);
+		Result.insert(Result.end(), Headers.begin(), Headers.end());
+	}
+	for (Node* i : Childs) {
+		vector<Node*> childs = i->Get_all(f, Trace);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : Parameters) {
+		vector<Node*> childs = i->Get_all(f, Trace);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : Defined) {
+		vector<Node*> childs = i->Get_all(f, Trace);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+
+	if (is(f))
+		Result.push_back(this);
+
+	for (int i = 0; i < Result.size(); i++)
+		for (int j = 0; j < Result.size(); j++)
+			if (Result[i] == Result[j] && i != j)
+				Result.erase(Result.begin() + j--);
+
+	Trace.pop_back();
+
+	return Result;
 }

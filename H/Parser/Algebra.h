@@ -7,9 +7,6 @@
 
 using namespace std;
 
-
-vector<Node*> Linearise(Node* ast, bool Include_Operator);
-
 class Algebra {
 public:
 	vector<Node*>* Input = nullptr;

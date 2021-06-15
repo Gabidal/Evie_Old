@@ -39,70 +39,70 @@ void Algebra::Factory() {
 	Clean_Unused();
 }
 
-vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
-{
-		vector<Node*> Result;
-		if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE) || ast->is(ARRAY_NODE)) {
-			vector<Node*> left = Linearise(ast->Left);
-			Result.insert(Result.end(), left.begin(), left.end());
-
-			Result.push_back(ast);
-
-			vector<Node*> right = Linearise(ast->Right);
-			Result.insert(Result.end(), right.begin(), right.end());
-		}
-		else if (ast->is(PREFIX_NODE)) {
-			vector<Node*> right = Linearise(ast->Right);
-			Result.insert(Result.end(), right.begin(), right.end());
-		}
-		else if (ast->is(POSTFIX_NODE) || ast->is(NODE_CASTER)) {
-			vector<Node*> left = Linearise(ast->Left);
-			Result.insert(Result.end(), left.begin(), left.end());
-		}
-		else if (ast->is(CONTENT_NODE)) {
-			vector<Node*> childs;
-			for (auto c : ast->Childs) {
-				vector<Node*> tmp = Linearise(c);
-				childs.insert(childs.end(), tmp.begin(), tmp.end());
-			}
-			Result.insert(Result.end(), childs.begin(), childs.end());
-		}
-		else if (ast->Has({ IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE })) {
-			vector<Node*> childs;
-			for (auto c : ast->Parameters) {
-				vector<Node*> tmp = Linearise(c);
-				childs.insert(childs.end(), tmp.begin(), tmp.end());
-			}
-			for (auto c : ast->Childs) {
-				vector<Node*> tmp = Linearise(c);
-				childs.insert(childs.end(), tmp.begin(), tmp.end());
-			}
-			Result.insert(Result.end(), childs.begin(), childs.end());
-		}
-		else if (ast->is(CALL_NODE)) {
-			vector<Node*> childs;
-			for (auto c : ast->Parameters) {
-				vector<Node*> tmp = Linearise(c);
-				childs.insert(childs.end(), tmp.begin(), tmp.end());
-			}
-			Result.insert(Result.end(), childs.begin(), childs.end());
-
-			Result.push_back(ast);
-		}
-		else if (ast->Name == "return" && ast->Right != nullptr) {
-			for (auto c : Linearise(ast->Right))
-				Result.push_back(c);
-		}
-		else
-			Result.push_back(ast);
-
-	for (int i = 0; i < Result.size(); i++) {
-		if (Include_Operator && Result[i]->Has({ ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE }))
-			Result.erase(Result.begin() + i);
-	}
-
-	return Result;
-}
+//vector<Node*> Linearise(Node* ast, bool Include_Operator = false)
+//{
+//		vector<Node*> Result;
+//		if (ast->is(OPERATOR_NODE) || ast->is(CONDITION_OPERATOR_NODE) || ast->is(BIT_OPERATOR_NODE) || ast->is(ASSIGN_OPERATOR_NODE) || ast->is(ARRAY_NODE)) {
+//			vector<Node*> left = Linearise(ast->Left);
+//			Result.insert(Result.end(), left.begin(), left.end());
+//
+//			Result.push_back(ast);
+//
+//			vector<Node*> right = Linearise(ast->Right);
+//			Result.insert(Result.end(), right.begin(), right.end());
+//		}
+//		else if (ast->is(PREFIX_NODE)) {
+//			vector<Node*> right = Linearise(ast->Right);
+//			Result.insert(Result.end(), right.begin(), right.end());
+//		}
+//		else if (ast->is(POSTFIX_NODE) || ast->is(NODE_CASTER)) {
+//			vector<Node*> left = Linearise(ast->Left);
+//			Result.insert(Result.end(), left.begin(), left.end());
+//		}
+//		else if (ast->is(CONTENT_NODE)) {
+//			vector<Node*> childs;
+//			for (auto c : ast->Childs) {
+//				vector<Node*> tmp = Linearise(c);
+//				childs.insert(childs.end(), tmp.begin(), tmp.end());
+//			}
+//			Result.insert(Result.end(), childs.begin(), childs.end());
+//		}
+//		else if (ast->Has({ IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE })) {
+//			vector<Node*> childs;
+//			for (auto c : ast->Parameters) {
+//				vector<Node*> tmp = Linearise(c);
+//				childs.insert(childs.end(), tmp.begin(), tmp.end());
+//			}
+//			for (auto c : ast->Childs) {
+//				vector<Node*> tmp = Linearise(c);
+//				childs.insert(childs.end(), tmp.begin(), tmp.end());
+//			}
+//			Result.insert(Result.end(), childs.begin(), childs.end());
+//		}
+//		else if (ast->is(CALL_NODE)) {
+//			vector<Node*> childs;
+//			for (auto c : ast->Parameters) {
+//				vector<Node*> tmp = Linearise(c);
+//				childs.insert(childs.end(), tmp.begin(), tmp.end());
+//			}
+//			Result.insert(Result.end(), childs.begin(), childs.end());
+//
+//			Result.push_back(ast);
+//		}
+//		else if (ast->Name == "return" && ast->Right != nullptr) {
+//			for (auto c : Linearise(ast->Right))
+//				Result.push_back(c);
+//		}
+//		else
+//			Result.push_back(ast);
+//
+//	for (int i = 0; i < Result.size(); i++) {
+//		if (Include_Operator && Result[i]->Has({ ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE }))
+//			Result.erase(Result.begin() + i);
+//	}
+//
+//	return Result;
+//}
 
 void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 {
@@ -199,7 +199,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		string New_Name = tmp->Name + "_" + to_string(Inlined_Function_Count);
 
 		for (auto j : Childs) {
-			for (auto k : j->Get_all({PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, FLOW_NODE, LABEL_NODE})) {
+			for (auto k : j->Get_all({FLOW_NODE})) {
 				//replace all the return statement with a jump to a end label command
 				Set_Return_To_Jump(k, Return_Value, End_of_Function_Label);
 			}
@@ -278,8 +278,13 @@ void Algebra::Function_Inliner(Node* c, int i)
 	Inlined_Function_Count++;
 	Optimized = true;
 
+	for (auto& j : Scope->Defined) {
+		j->Update_Size();
+	}
+
 	Scope->Update_Defined_Stack_Offsets();
 	Scope->Update_Stack_Space_Size(Scope);
+
 }
 
 vector<Node*> Algebra::Get_all(Node* n, int f)
@@ -362,13 +367,13 @@ void Algebra::Inline_Variables(int i)
 	//</summary>
 
 	vector<Node*> Linear_Ast;
-	if (Input->at(i)->is(OPERATOR_NODE) || Input->at(i)->is(ASSIGN_OPERATOR_NODE) || Input->at(i)->is(BIT_OPERATOR_NODE)) {
+	if (Input->at(i)->Has({ASSIGN_OPERATOR_NODE, OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE })) {
 		if (Input->at(i)->Name != "=")
-			Linear_Ast = Linearise(Input->at(i));
+			Linear_Ast = Input->at(i)->Get_all({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, OBJECT_NODE, PARAMETER_NODE});
 		else {
 			if (Input->at(i)->is("ptr") != -1)
 				return;
-			Linear_Ast = Linearise(Input->at(i)->Right);
+			Linear_Ast = Input->at(i)->Right->Get_all({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, OBJECT_NODE, PARAMETER_NODE });
 		}
 	}
 	else {
@@ -378,7 +383,7 @@ void Algebra::Inline_Variables(int i)
 	for (int j = 0; j < Linear_Ast.size(); j++) {
 		if (Linear_Ast[j]->is(CALL_NODE)) {
 			for (auto k : Linear_Ast[j]->Parameters) {
-				vector<Node*> tmp = Linearise(k);
+				vector<Node*> tmp = k->Get_all({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE });
 				Linear_Ast.insert(Linear_Ast.end(), tmp.begin(), tmp.end());
 			}		
 		}
@@ -399,7 +404,7 @@ void Algebra::Inline_Variables(int i)
 				if (d->Current_Value->Expiring_Index >= i) {
 					//do unwrap manuever if content is optimized into singlurar content: (1 + 2) -> (3)
 					if (d->Current_Value->Var->is(CONTENT_NODE))
-						if (!d->Current_Value->Var->Childs[0]->is(OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(ASSIGN_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(CONDITION_OPERATOR_NODE) && !d->Current_Value->Var->Childs[0]->is(BIT_OPERATOR_NODE))
+						if (!d->Current_Value->Var->Childs[0]->Has({OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE}))
 							*d->Current_Value->Var = *d->Current_Value->Var->Childs[0];
 					//d->Current_Value->Var->Coefficient *= n->Coefficient;
 					d->Current_Value->Var->Context = n->Context;
@@ -420,7 +425,7 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 	if (!n->is(OPERATOR_NODE) && !n->is(CONDITION_OPERATOR_NODE) && !n->is(ASSIGN_OPERATOR_NODE))
 		return;
 	
-	vector<Node*> Variables = Linearise(n);			
+	vector<Node*> Variables = n->Get_all({OBJECT_NODE, PARAMETER_NODE});
 	// 2b^2 + b = b^2 + b
 	// 2b^2 + b - b = b^2
 	// 2b^2 - b^2 = 0
@@ -449,7 +454,7 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 					continue;
 				if ((v->Fetcher != nullptr && other->Fetcher != nullptr) && v->Fetcher->Name != other->Fetcher->Name)
 					continue;
-				if (v->Context->is(ASSIGN_OPERATOR_NODE) || other->Context->is(ASSIGN_OPERATOR_NODE))
+				if (v->Context == nullptr || v->Context->is(ASSIGN_OPERATOR_NODE) || other->Context->is(ASSIGN_OPERATOR_NODE))
 					continue;
 				//decide wich one is in wich side
 				Node* l = v;
@@ -530,10 +535,8 @@ void Algebra::Set_Defining_Value(int i)
 		return;
 
 	//callations sould not be inlined because theyre return value may vary.
-	for (auto j : Linearise(Input->at(i)->Right))
-		if (j->is(CALL_NODE))
-			return;
-	
+	if (Input->at(i)->Get_all(CALL_NODE).size() > 0)
+		return;
 
 	//if the right side is a operator wrap it in a parenthesis just because the '-' prefix!!
 	Node* right = Input->at(i)->Right;
@@ -559,10 +562,10 @@ void Algebra::Set_Coefficient_Value(int i)
 {
 	//a = x * 2
 	//b = x * 2 + a
-	if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE))
+	if (!Input->at(i)->Has({OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE}))
 		return;
 	//return;	//depricated
-	vector<Node*> linear_ast = Linearise(Input->at(i), true);
+	vector<Node*> linear_ast = Input->at(i)->Get_all({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE , OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE});
 
 	Node* Coefficient = nullptr;
 	Node* Variable = nullptr;
@@ -572,7 +575,7 @@ void Algebra::Set_Coefficient_Value(int i)
 	for (int j = 0; j < linear_ast.size(); j++) {
 		if (linear_ast[j]->is(NUMBER_NODE))
 			Coefficient = linear_ast[j];
-		else if (linear_ast[j]->is(OBJECT_NODE) || linear_ast[j]->is(PARAMETER_NODE) || linear_ast[j]->is(OBJECT_DEFINTION_NODE))
+		else if (linear_ast[j]->Has({OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE}))
 			Variable = linear_ast[j];
 		else if (linear_ast[j]->Name == "*")
 			Operator = linear_ast[j];
@@ -712,7 +715,7 @@ void Algebra::Clean_Unused()
 		else {
 			//the inlining value could not be made.
 			for (auto line : *Input) {
-				for (auto element : Linearise(line)) {
+				for (auto element : line->Get_all({OBJECT_NODE, OBJECT_DEFINTION_NODE})) {
 					if (element->Name == Parent->Defined[i]->Name)
 						Parent->Defined[i]->Calling_Count++;
 				}
@@ -802,14 +805,14 @@ void Algebra::Operate_Coefficient_Constants(Node* op)
 
 void Algebra::Operate_Distant_Coefficients(Node* op)
 {
-	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(CONDITION_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE))
+	if (!op->Has({OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE}))
 		return;
 
 	//((3 / b) - b) -> (3 / (b - b)) -> 3
 	//this function tryes to find next to eachother variables and computes the result
 
 
-	vector<Node*> Linear = Linearise(op, true);
+	vector<Node*> Linear = op->Get_all({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE , OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE });
 	vector<Node*> Coefficients;
 	Node* Operator = nullptr;
 	for (auto i : Linear) {
@@ -1080,7 +1083,7 @@ void Algebra::Combine_Scattered(Node* op) {
 	if (!op->is(OPERATOR_NODE) && !op->is(ASSIGN_OPERATOR_NODE) && !op->is(CONDITION_OPERATOR_NODE) && !op->is(BIT_OPERATOR_NODE))
 		return;
 
-	vector<Node*> list = Linearise(op, true);
+	vector<Node*> list = op->Get_all({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE , OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE });
 
 	vector<int> Number_Indices;
 

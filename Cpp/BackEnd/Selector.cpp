@@ -393,14 +393,21 @@ Token* Selector::Get_Register(Token* t)
 		if ((i.first != nullptr) && i.first->User == t->Get_Name()) {
 			if (i.second->Get_Size() == t->Get_Size())
 				return i.second;
+			else if (i.second->Get_Size() < t->Get_Size()) {
+				Token* Larger_Register = Get_Larger_Register(i.second, t);
+				for (auto& j : Registers)
+					if (Larger_Register->Get_Name() == j.second->Get_Name()) {
+						j.first = new Register_Descriptor(*i.first);
+						return j.second;
+					}
+			}
 			else {
-				if (i.second->Get_Size() < t->Get_Size()) {
-					for (auto& j : Registers)
-						if (i.second->Holder->Get_Name() == j.second->Get_Name()) {
-							j.first = new Register_Descriptor(*i.first);
-							return j.second;
-						}
-				}
+				Token* Smaller_Register = Get_Smaller_Register(i.second, t);
+				for (auto& j : Registers)
+					if (Smaller_Register->Get_Name() == j.second->Get_Name()) {
+						j.first = new Register_Descriptor(*i.first);
+						return j.second;
+					}
 			}
 		}
 	return nullptr;	//need to use Get_New_Reg();
@@ -613,6 +620,30 @@ vector<pair<Register_Descriptor*, Token*>> Selector::Get_Register_Type(long f)
 			Result.push_back(i);
 	}
 	return Result;
+}
+
+Token* Selector::Get_Larger_Register(Token* Reg, Token* token)
+{
+	if (Reg->Get_Size() == token->Get_Size())
+		return Reg;
+
+	if (Reg->Holder)
+		return Get_Larger_Register(Reg->Holder, token);
+
+	return nullptr;
+}
+
+Token* Selector::Get_Smaller_Register(Token* Reg, Token* token)
+{
+	if (Reg->Get_Size() == token->Get_Size())
+		return Reg;
+
+	for (auto i : Reg->Childs) {
+		if (Get_Smaller_Register(i, token))
+			return Get_Smaller_Register(i, token);
+	}
+
+	return nullptr;
 }
 
 void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)

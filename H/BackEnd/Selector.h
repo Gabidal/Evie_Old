@@ -74,6 +74,8 @@ public:
 	int Get_Floating_Parameter_Register_Count(vector<Node*> Parameters);
 	void Clean_Register_Holders();
 	vector<pair<Register_Descriptor*, Token*>> Get_Register_Type(long f);
+	Token* Get_Larger_Register(Token* Reg, Token* token);
+	Token* Get_Smaller_Register(Token* Reg, Token* token);
 
 	//STACK/HEAP:
 	//void Save(Token* id, Token* v, vector<IR*>* list, int i);

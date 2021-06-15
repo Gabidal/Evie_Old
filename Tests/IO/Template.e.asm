@@ -13,12 +13,15 @@ sub rsp, 144
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
-mov rcx, rcx
-mov dword ptr [rcx + 0 ], 1
-mov dword ptr [rcx + 4 ], 0
-jmp Return_Here_13
-Return_Here_13:
-mov ecx, 5
+mov rbx, rcx
+mov dword ptr [rbx + 0 ], 1
+mov dword ptr [rbx + 4 ], 0
+mov ecx, dword ptr [rbx + 0 ]
+mov ecx, ecx
+call ____Allocate_int_
+mov qword ptr [rbx + 8 ], rax
+jmp Return_Here_25
+Return_Here_25:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
@@ -29,33 +32,47 @@ mov r8d, dword ptr [rbx + 0 ]
 cmp ecx, r8d
 jl if_0_END
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 2
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov dword ptr [rbx + 0 ], ecx
 mov ecx, dword ptr [rbx + 0 ]
 mov ecx, ecx
 call ____Allocate_int_
 mov rdi, rax
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 4
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov esi, ecx
-mov rbp, rdi
+mov rcx, qword ptr [rbx + 8 ]
+mov rbp, rcx
 mov r12, rdi
-mov r13d, 0
-cmp r13d, esi
+cmp esi, 0
 jge while_1_END
 while_1:
 lea rcx, qword ptr [r12 + r13 * 4 ]
 mov r8d, dword ptr [rbp + r13 * 4 ]
 mov dword ptr [rcx ], r8d
 add r13d, 1
-cmp r13d, esi
+cmp esi, 0
 jge while_1_END
 jmp while_1
 while_1_END:
-jmp Return_Here_29
-Return_Here_29:
+jmp Return_Here_65
+Return_Here_65:
+mov qword ptr [rbx + 8 ], rdi
 if_0_END:
+mov rcx, qword ptr [rbx + 8 ]
+mov r8d, dword ptr [rbx + 4 ]
+lea rcx, qword ptr [rcx + r8 * 4 ]
+mov dword ptr [rcx ], 5
 add dword ptr [rbx + 4 ], 1
-Return_Here_26:
-mov ecx, 2
+Return_Here_44:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
@@ -66,38 +83,53 @@ mov r8d, dword ptr [rbx + 0 ]
 cmp ecx, r8d
 jl if_2_END
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 2
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov dword ptr [rbx + 0 ], ecx
 mov ecx, dword ptr [rbx + 0 ]
 mov ecx, ecx
 call ____Allocate_int_
 mov rdi, rax
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 4
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov esi, ecx
-mov rbp, rdi
+mov rcx, qword ptr [rbx + 8 ]
+mov rbp, rcx
 mov r12, rdi
-mov r13d, 0
-cmp r13d, esi
+cmp esi, 0
 jge while_3_END
 while_3:
 lea rcx, qword ptr [r12 + r13 * 4 ]
 mov r8d, dword ptr [rbp + r13 * 4 ]
 mov dword ptr [rcx ], r8d
 add r13d, 1
-cmp r13d, esi
+cmp esi, 0
 jge while_3_END
 jmp while_3
 while_3_END:
-jmp Return_Here_33
-Return_Here_33:
+jmp Return_Here_69
+Return_Here_69:
+mov qword ptr [rbx + 8 ], rdi
 if_2_END:
+mov rcx, qword ptr [rbx + 8 ]
+mov r8d, dword ptr [rbx + 4 ]
+lea rcx, qword ptr [rcx + r8 * 4 ]
+mov dword ptr [rcx ], 2
 add dword ptr [rbx + 4 ], 1
-Return_Here_32:
+Return_Here_50:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
 mov rcx, rcx
 sub dword ptr [rcx + 4 ], 1
-Return_Here_25:
+Return_Here_37:
 mov ecx, 0
 lea r8, qword ptr [rsp ]
 mov r8, r8
@@ -108,13 +140,13 @@ mov r9d, dword ptr [r8 + 4 ]
 cmp ecx, r9d
 jle if_4_END
 mov r9d, 0
-jmp Return_Here_44
+jmp Return_Here_62
 if_4_END:
 mov r8, qword ptr [r8 + 8 ]
 mov ecx, dword ptr [r8 + rcx * 4 ]
 mov r9d, ecx
-jmp Return_Here_44
-Return_Here_44:
+jmp Return_Here_62
+Return_Here_62:
 mov eax, r9d
 add rsp, 144
 pop rbx
@@ -145,12 +177,15 @@ sub rsp, 24
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
-mov rcx, rcx
-mov dword ptr [rcx + 0 ], 1
-mov dword ptr [rcx + 4 ], 0
-jmp Return_Here_183
-Return_Here_183:
-mov ecx, 5
+mov rbx, rcx
+mov dword ptr [rbx + 0 ], 1
+mov dword ptr [rbx + 4 ], 0
+mov ecx, dword ptr [rbx + 0 ]
+mov ecx, ecx
+call ____Allocate_int_
+mov qword ptr [rbx + 8 ], rax
+jmp Return_Here_255
+Return_Here_255:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
@@ -161,33 +196,47 @@ mov r8d, dword ptr [rbx + 0 ]
 cmp ecx, r8d
 jl if_5_END
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 2
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov dword ptr [rbx + 0 ], ecx
 mov ecx, dword ptr [rbx + 0 ]
 mov ecx, ecx
 call ____Allocate_int_
 mov rdi, rax
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 4
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov esi, ecx
-mov rbp, rdi
+mov rcx, qword ptr [rbx + 8 ]
+mov rbp, rcx
 mov r12, rdi
-mov r13d, 0
-cmp r13d, esi
+cmp esi, 0
 jge while_6_END
 while_6:
 lea rcx, qword ptr [r12 + r13 * 4 ]
 mov r8d, dword ptr [rbp + r13 * 4 ]
 mov dword ptr [rcx ], r8d
 add r13d, 1
-cmp r13d, esi
+cmp esi, 0
 jge while_6_END
 jmp while_6
 while_6_END:
-jmp Return_Here_199
-Return_Here_199:
+jmp Return_Here_295
+Return_Here_295:
+mov qword ptr [rbx + 8 ], rdi
 if_5_END:
+mov rcx, qword ptr [rbx + 8 ]
+mov r8d, dword ptr [rbx + 4 ]
+lea rcx, qword ptr [rcx + r8 * 4 ]
+mov dword ptr [rcx ], 5
 add dword ptr [rbx + 4 ], 1
-Return_Here_196:
-mov ecx, 2
+Return_Here_274:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
@@ -198,38 +247,53 @@ mov r8d, dword ptr [rbx + 0 ]
 cmp ecx, r8d
 jl if_7_END
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 2
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov dword ptr [rbx + 0 ], ecx
 mov ecx, dword ptr [rbx + 0 ]
 mov ecx, ecx
 call ____Allocate_int_
 mov rdi, rax
 mov ecx, dword ptr [rbx + 4 ]
+mov r8, rdx
+mov eax, 4
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov esi, ecx
-mov rbp, rdi
+mov rcx, qword ptr [rbx + 8 ]
+mov rbp, rcx
 mov r12, rdi
-mov r13d, 0
-cmp r13d, esi
+cmp esi, 0
 jge while_8_END
 while_8:
 lea rcx, qword ptr [r12 + r13 * 4 ]
 mov r8d, dword ptr [rbp + r13 * 4 ]
 mov dword ptr [rcx ], r8d
 add r13d, 1
-cmp r13d, esi
+cmp esi, 0
 jge while_8_END
 jmp while_8
 while_8_END:
-jmp Return_Here_203
-Return_Here_203:
+jmp Return_Here_299
+Return_Here_299:
+mov qword ptr [rbx + 8 ], rdi
 if_7_END:
+mov rcx, qword ptr [rbx + 8 ]
+mov r8d, dword ptr [rbx + 4 ]
+lea rcx, qword ptr [rcx + r8 * 4 ]
+mov dword ptr [rcx ], 2
 add dword ptr [rbx + 4 ], 1
-Return_Here_202:
+Return_Here_280:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 0 ], 1
 mov rcx, rcx
 sub dword ptr [rcx + 4 ], 1
-Return_Here_195:
+Return_Here_267:
 mov ecx, 0
 lea r8, qword ptr [rsp ]
 mov r8, r8
@@ -240,15 +304,15 @@ mov r9d, dword ptr [r8 + 4 ]
 cmp ecx, r9d
 jle if_9_END
 mov r9d, 0
-jmp Return_Here_214
+jmp Return_Here_292
 if_9_END:
 mov r8, qword ptr [r8 + 8 ]
 mov ecx, dword ptr [r8 + rcx * 4 ]
 mov r9d, ecx
-jmp Return_Here_214
-Return_Here_214:
-jmp Return_Here_186
-Return_Here_186:
+jmp Return_Here_292
+Return_Here_292:
+jmp Return_Here_252
+Return_Here_252:
 mov eax, 1
 add rsp, 24
 pop rbx
@@ -269,6 +333,11 @@ ret
 
 
 ____Allocate_int_:
+mov r8, rdx
+mov eax, 4
+mul ecx
+mov ecx, eax
+mov rdx, r8
 mov r8, rdx
 mov eax, 4
 mul ecx

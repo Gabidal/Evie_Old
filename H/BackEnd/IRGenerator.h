@@ -79,6 +79,13 @@ public:
 
 private:
 	bool Is_In_Left_Side_Of_Operator = false;
+	static vector<Node*> Get_all(int f, vector<Node*> l) {
+		vector<Node*> Result;
+		for (Node* n : l)
+			if (n->is(f))
+				Result.push_back(n);
+		return Result;
+	}
 };
 
 #endif

@@ -666,62 +666,11 @@ public:
 		return false;
 	}
 
-	vector<Node*> Get_all(int f)
-	{
 
-		if (this->is(FUNCTION_NODE))
-			if (this->is(f))
-				return { this };
-			else
-				return {};
+	vector<Node*> Get_all(int f, vector<Node*> Trace);
 
-		vector<Node*> Result;
-		if (Left != nullptr) {
-			vector<Node*> left = Left->Get_all(f);
-			Result.insert(Result.end(), left.begin(), left.end());
-		}
-		if (Right != nullptr) {
-			vector<Node*> right = Right->Get_all(f);
-			Result.insert(Result.end(), right.begin(), right.end());
-		}
-		if (Succsessor != nullptr) {
-			vector<Node*> Succsessors = Succsessor->Get_all(f);
-			Result.insert(Result.end(), Succsessors.begin(), Succsessors.end());
-		}
-		if (Predecessor != nullptr) {
-			vector<Node*> Predecessors = Predecessor->Get_all(f);
-			Result.insert(Result.end(), Predecessors.begin(), Predecessors.end());
-		}
-		if (Fetcher != nullptr) {
-			vector<Node*> Fetchers = Fetcher->Get_all(f);
-			Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
-		}
-		for (Node* i : Header) {
-			vector<Node*> Headers = i->Get_all(f);
-			Result.insert(Result.end(), Headers.begin(), Headers.end());
-		}
-		for (Node* i : Childs) {
-			vector<Node*> childs = i->Get_all(f);
-			Result.insert(Result.end(), childs.begin(), childs.end());
-		}
-		for (Node* i : Parameters) {
-			vector<Node*> childs = i->Get_all(f);
-			Result.insert(Result.end(), childs.begin(), childs.end());
-		}
-		for (Node* i : Defined) {
-			vector<Node*> childs = i->Get_all(f);
-			Result.insert(Result.end(), childs.begin(), childs.end());
-		}
-
-		if (is(f))
-			Result.push_back(this);
-
-		for (int i = 0; i < Result.size(); i++)
-			for (int j = 0; j < Result.size(); j++)
-				if (Result[i] == Result[j] && i != j)
-					Result.erase(Result.begin() + j--);
-
-		return Result;
+	vector<Node*> Get_all(int f) {
+		return Get_all(f, vector<Node*>());
 	}
 
 	vector<Node*> Get_all(vector<int> flags) {
@@ -744,13 +693,13 @@ public:
 		return Result;
 	}
 
-	static vector<Node*> Get_all(int f, vector<Node*> l) {
-		vector<Node*> Result;
-		for (Node* n : l)
-			if (n->is(f))
-				Result.push_back(n);
-		return Result;
-	}
+	//static vector<Node*> Get_all(int f, vector<Node*> l) {
+	//	vector<Node*> Result;
+	//	for (Node* n : l)
+	//		if (n->is(f))
+	//			Result.push_back(n);
+	//	return Result;
+	//}
 
 	bool Is_Decimal() {
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {

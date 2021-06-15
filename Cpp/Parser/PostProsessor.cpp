@@ -1616,12 +1616,12 @@ void PostProsessor::Templates(int i)
 
 void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 {
-	if (!v->is(OBJECT_DEFINTION_NODE) && !v->is(OBJECT_NODE) && !v->is(PARAMETER_NODE))
+	if (!v->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }))
 		return;
 
 	//if a variable is pointed to via a pointter or a function parameter address loader, use stack.
 	//Other than that use registers.
-	if (n->is(ASSIGN_OPERATOR_NODE) || n->is(OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE) || n->is(BIT_OPERATOR_NODE)) {
+	if (n->Has({ASSIGN_OPERATOR_NODE, OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE})) {
 		Analyze_Variable_Address_Pointing(v, n->Left);
 		if (v->Requires_Address)
 			return;
