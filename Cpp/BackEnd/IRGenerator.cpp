@@ -1203,7 +1203,7 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE) || Input[i]->Right->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE}))
 		return;
 	
-	if (MANGLER::Is_Based_On_Base_Type(Input[i]->Right))
+	if (MANGLER::Is_Based_On_Base_Type(Input[i]))
 		return;
 
 	int Combined_Ptr_Count = Input[i]->Left->Get_All("ptr") + Input[i]->Right->Get_All("ptr");
@@ -1222,9 +1222,12 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	PostProsessor P(Parent);
 
 	Node* tmp = new Node(OBJECT_DEFINTION_NODE, Input[i]->Location);
-	tmp->Name = "_" + to_string((long long)tmp);
+	tmp->Name = "_Reference" + to_string((long long)tmp);
 	tmp->Inheritted = Input[i]->Inheritted;
 	tmp->Scope = Parent;
+
+	tmp->Get_Inheritted_Class_Members();
+
 	Parent->Defined.push_back(tmp);
 
 	//update now the parent funcion to aling all the stack offset to right
@@ -1237,6 +1240,10 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	Set->Scope = Parent;
 	Set->Left = tmp;
 	Set->Right = Input[i]->Right;
+
+	Set->Left->Context = Set;
+	Set->Right->Context = Set;
+
 	Set->Parsed_By |= PARSED_BY::REFERENCE_COUNT_INCREASE;
 	Component Move("=", Flags::OPERATOR_COMPONENT);
 	Move.node = Set;

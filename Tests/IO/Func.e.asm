@@ -5,8 +5,8 @@
 main:
 lea rcx, qword ptr [rip + foo ]
 mov rcx, rcx
-jmp Return_Here_5
-Return_Here_5:
+jmp Return_Here_17
+Return_Here_17:
 mov eax, 1
 ret 
 ret 

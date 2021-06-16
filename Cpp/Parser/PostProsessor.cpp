@@ -116,7 +116,7 @@ void PostProsessor::Type_Definer(int i)
 
 	//infiltrate the class type and inject this behemoth
 	Node* Type = Scope->Defined[i];
-	if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
+	if ((MANGLER::Is_Base_Type(Type) == false) && (!MANGLER::Is_Based_On_Base_Type(Type) || Type->Defined.size() > 0) && sys->Info.Reference_Count_Size > 0) {
 		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
 		Reference_Count->Name = "Reference_Count";
 		Reference_Count->Scope = Type;
@@ -224,7 +224,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	if (sys->Info.Reference_Count_Size < 1)
 		return;
 
-	if (MANGLER::Is_Base_Type(Type))
+	if (MANGLER::Is_Base_Type(Type) || (MANGLER::Is_Based_On_Base_Type(Type) && Type->Defined.size() == 0))
 		return;
 	//[type].Destructor(){
 	//	if ([member] != 0->address && --[member].Reference_Count < 1){
@@ -1238,6 +1238,16 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 
 	Scope->Append(Output, p.Output);
 
+	for (auto j : Input[i]->Parameters) {
+		if (j->Header.size() > 0) {
+			Input[i]->Header.insert(Input[i]->Header.end(), j->Header.begin(), j->Header.end());
+			j->Header.clear();
+		}
+	}
+
+	if (Input[i]->Context == nullptr || !Input[i]->Context->Has({ CALL_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE, FLOW_NODE }))
+		Input.insert(Input.begin() + i, Input[i]->Header.begin(), Input[i]->Header.end());
+	
 	//use optimization into the parameters.
 	//Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
 
@@ -1455,6 +1465,19 @@ void PostProsessor::Determine_Return_Type(int i)
 		Input[i]->Inheritted = Input[i]->Left->Get_Inheritted(false, false);
 	else
 		Input[i]->Inheritted = Input[i]->Right->Get_Inheritted(false, false);
+
+	if (!Input[i]->is(PREFIX_NODE))
+		if (Input[i]->Left->Header.size() > 0) {
+			int Header_Size = Input[i]->Left->Header.size();
+			Input.insert(Input.begin() + i, Input[i]->Left->Header.begin(), Input[i]->Left->Header.end());
+			Input[i + Header_Size]->Left->Header.clear();
+		}
+	if (!Input[i]->is(POSTFIX_NODE))
+		if (Input[i]->Right->Header.size() > 0) {
+			int Header_Size = Input[i]->Right->Header.size();
+			Input.insert(Input.begin() + i, Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
+			Input[i + Header_Size]->Right->Header.clear();
+		}
 }
 
 void PostProsessor::Determine_Array_Type(int i)

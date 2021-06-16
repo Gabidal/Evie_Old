@@ -110,6 +110,8 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 		Node* Return_Paranthesis = new Node(CONTENT_NODE, n->Location);
 		Return_Paranthesis->Paranthesis_Type = '{';
 		Return_Paranthesis->Name = "Paranthesis";
+		Return_Paranthesis->Scope = n->Scope;
+		Return_Paranthesis->Context = n->Context;
 
 		if (Return_Value) {
 			Node* Assign = new Node(OPERATOR_NODE, n->Location);
@@ -196,51 +198,51 @@ void Algebra::Function_Inliner(Node* c, int i)
 	for (auto i : c->Function_Implementation->Defined) {
 		Node* tmp = c->Copy_Node(i, c->Scope);
 		tmp->Type = OBJECT_DEFINTION_NODE;
-		string New_Name = tmp->Name + "_" + to_string(Inlined_Function_Count);
+		tmp->Name += "_" + to_string(Inlined_Function_Count);
+		Defined.push_back(tmp);
+	}
 
-		for (auto j : Childs) {
-			for (auto k : j->Get_all({FLOW_NODE})) {
-				//replace all the return statement with a jump to a end label command
-				Set_Return_To_Jump(k, Return_Value, End_of_Function_Label);
-			}
-			for (auto k : j->Get_all({ PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, FLOW_NODE, LABEL_NODE })) {
+	for (auto j : Childs) {
+		for (auto k : j->Get_all({ FLOW_NODE })) {
+			//replace all the return statement with a jump to a end label command
+			Set_Return_To_Jump(k, Return_Value, End_of_Function_Label);
+		}
+		for (auto k : j->Get_all({ PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, FLOW_NODE, LABEL_NODE })) {
+			for (auto i : c->Function_Implementation->Defined) {
 				if (k->Name == i->Name) {
-					k->Name = New_Name;
+					k->Name += "_" + to_string(Inlined_Function_Count);
 					if (k->is(PARAMETER_NODE))
 						k->Type = OBJECT_NODE;
 				}
-				else if (k->is(LABEL_NODE)) {
+			}
+			if (k->is(LABEL_NODE)) {
 
-					/*if (k->Context == nullptr) {
-						k->Name = "Return_Here_" + to_string(Unique_ID_Count++);
-					}
-					else {
-						k->Name = "Return_Here_" + to_string(Unique_ID_Count);
-					}*/
-					//increment the label unique ID
-					unsigned long long Unique_ID = atoll(k->Name.substr(string("Return_Here_").size()).c_str());
-					unsigned long long Previus_Unique_ID = Unique_ID;
-
-					Unique_ID += Unique_ID_Count + 1;
-
-					string Previus_Unique_ID_String = to_string(Previus_Unique_ID);
-
-					string Name = k->Name.substr(0, k->Name.size() - Previus_Unique_ID_String.size());
-
-					k->Name =  Name + to_string(Unique_ID);
-
-					/*string Scope_Name = k->Name.substr(k->Name.size() - c->Scope->Name.size());
-
-					if (Scope_Name == c->Scope->Name)
-						continue;
-
-					k->Name += c->Scope->Name;*/
+				/*if (k->Context == nullptr) {
+					k->Name = "Return_Here_" + to_string(Unique_ID_Count++);
 				}
+				else {
+					k->Name = "Return_Here_" + to_string(Unique_ID_Count);
+				}*/
+				//increment the label unique ID
+				unsigned long long Unique_ID = atoll(k->Name.substr(string("Return_Here_").size()).c_str());
+				unsigned long long Previus_Unique_ID = Unique_ID;
+
+				Unique_ID += Unique_ID_Count + 1;
+
+				string Previus_Unique_ID_String = to_string(Previus_Unique_ID);
+
+				string Name = k->Name.substr(0, k->Name.size() - Previus_Unique_ID_String.size());
+
+				k->Name = Name + to_string(Unique_ID);
+
+				/*string Scope_Name = k->Name.substr(k->Name.size() - c->Scope->Name.size());
+
+				if (Scope_Name == c->Scope->Name)
+					continue;
+
+				k->Name += c->Scope->Name;*/
 			}
 		}
-
-		tmp->Name = New_Name;
-		Defined.push_back(tmp);
 	}
 
 	//first anchor the parameters to setted with the value corresponding at the callers parameters.
@@ -266,9 +268,15 @@ void Algebra::Function_Inliner(Node* c, int i)
 	if (Return_Value)
 		Scope->Defined.push_back(Return_Value);
 
-	c->Function_Implementation->Calling_Count--;
-	Input->insert(Input->begin() + i, Childs.begin(), Childs.end());
 	Scope->Defined.insert(Scope->Defined.end(), Defined.begin(), Defined.end());
+
+	c->Function_Implementation->Calling_Count--;
+
+	if (c->Context != nullptr && c->Context->is(CALL_NODE)) {
+		c->Context->Header.insert(c->Context->Header.end(), Childs.begin(), Childs.end());
+	}
+	else
+		Input->insert(Input->begin() + i, Childs.begin(), Childs.end());
 
 	if (Return_Value)
 		*c = *Return_Value;
