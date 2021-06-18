@@ -17,8 +17,6 @@ void IRGenerator::Factory()
 	if (Parent->Name == "GLOBAL_SCOPE") 
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
 	for (int i = 0; i < Input.size(); i++)
-		Un_Wrap_Inline(i);
-	for (int i = 0; i < Input.size(); i++)
 		Switch_To_Correct_Places(Input[i]);
 	for (auto i : Parent->Defined)
 		Parse_Function(i);
@@ -34,9 +32,9 @@ void IRGenerator::Factory()
 		Parse_Member_Fetch(Input[i]);
 		Parse_Calls(i);
 		Parse_Parenthesis(i);
+		Parse_Reference_Count_Increase(i);
 		Parse_Operators(i);
 		Parse_Logical_Conditions(i);
-		Parse_Reference_Count_Increase(i);
 		Parse_Pointers(i);
 		Parse_Conditional_Jumps(i);
 		Parse_PostFixes(i);
@@ -456,14 +454,6 @@ void IRGenerator::Parse_Conditional_Jumps(int i)
 	Output->push_back(Make_Jump(Condition, Next_Label));
 
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
-}
-
-void IRGenerator::Un_Wrap_Inline(int i)
-{
-	if (!(Input[i]->Header.size() > 0))
-		return;
-
-	IRGenerator g(Parent, Input[i]->Header, Output);
 }
 
 void IRGenerator::Parse_Logical_Conditions(int i)
@@ -1941,7 +1931,9 @@ void IRGenerator::Parse_Return(int i) {
 				Can_Modify_Last_Variable_Value = false;
 		}
 
-		IRGenerator g(Parent, { Input[i]->Right }, Output, Can_Modify_Last_Variable_Value);
+		IRGenerator g(Parent, Input[i]->Header, Output);
+
+		g.Generate({ Input[i]->Right }, Can_Modify_Last_Variable_Value);
 
 		Token* Return_Val = nullptr;
 		if (g.Handle != nullptr)

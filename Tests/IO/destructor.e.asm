@@ -14,13 +14,25 @@ sub rsp, 48
 mov ecx, 8
 call _V17internal_allocatex_rPh
 mov rcx, rax
+add qword ptr [rcx + 0 ], 1
+mov rcx, rcx
 jmp Return_Here_5
 Return_Here_5:
+mov r8, rcx
+add qword ptr [r8 + 0 ], 1
+mov r8, r8
+mov r8, rcx
+mov dword ptr [r8 + 0 ], 1
+mov dword ptr [r8 + 4 ], 2
+mov rcx, r8
+add qword ptr [rcx + 0 ], 1
 mov rcx, rcx
-call foo
-mov rcx, qword ptr [rax + 0 ]
-mov qword ptr [rsp + 0 ], rcx
-mov rcx, qword ptr [rax + 8 ]
+mov rcx, r8
+jmp Return_Here_9
+Return_Here_9:
+mov r8, qword ptr [rcx + 0 ]
+mov qword ptr [rsp + 0 ], r8
+mov rcx, qword ptr [rcx + 8 ]
 mov qword ptr [rsp + 8 ], rcx
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
@@ -28,27 +40,21 @@ add qword ptr [rcx + 0 ], 1
 mov rcx, rcx
 mov r8d, dword ptr [rcx + 12 ]
 mov ebx, r8d
-mov r8, rcx
 mov rcx, rcx
-add qword ptr [rcx + 0 ], 1
-mov r8, rcx
 if_0:
-cmp r8, 0
+cmp rcx, 0
 je if_0_END
-mov rcx, qword ptr [r8 + 0 ]
-sub rcx, 1
-cmp rcx, 1
+mov r8, qword ptr [rcx + 0 ]
+sub r8, 1
+cmp r8, 1
 jge if_0_END
-mov rcx, r8
-mov r8, r8
-add qword ptr [r8 + 0 ], 1
-mov rcx, r8
+mov rcx, rcx
 mov rcx, rcx
 mov edx, 8
 call _V19internal_deallocatePhx
-Return_Here_6:
+Return_Here_8:
 if_0_END:
-Return_Here_9:
+Return_Here_13:
 mov eax, ebx
 add rsp, 48
 pop rbx
@@ -102,8 +108,8 @@ ret
 
 BYTE_POINTER:
 mov r8, rcx
-jmp Return_Here_13
-Return_Here_13:
+jmp Return_Here_17
+Return_Here_17:
 mov rax, rcx
 ret 
 ret 

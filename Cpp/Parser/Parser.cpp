@@ -849,7 +849,7 @@ void Parser::Parenthesis_Pattern(int i)
 		if (j.node != nullptr) {
 			//j.node->Context = Paranthesis;
 			//j.node->Parent = Paranthesis;
-			Paranthesis->Childs.push_back(new Node(*j.node));
+			Paranthesis->Childs.push_back(j.node->Copy_Node(j.node, Scope));
 		}
 
 	Paranthesis->Paranthesis_Type = Input[i].Value[0];

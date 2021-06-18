@@ -14,10 +14,10 @@ void Algebra::Factory() {
 		Function_Inliner(Input->at(i), i);
 	}
 	for (int i = 0; i < Input->size(); i++) {
+		Prosess_Return(Input->at(i), i);
+		Prosess_Paranthesis(Input->at(i));
 		Inline_Variables(i);
 		Set_Coefficient_Value(i);
-		Prosess_Return(Input->at(i), i);
-		//Prosess_Paranthesis(Input->at(i));
 		Combine_Scattered(Input->at(i));
 		Set_Defining_Value(i);
 		Reset_Defining_Value(i);
@@ -114,7 +114,7 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 		Return_Paranthesis->Context = n->Context;
 
 		if (Return_Value) {
-			Node* Assign = new Node(OPERATOR_NODE, n->Location);
+			Node* Assign = new Node(ASSIGN_OPERATOR_NODE, n->Location);
 			Assign->Name = "=";
 			Assign->Scope = n->Scope;
 
@@ -144,7 +144,7 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 
 void Algebra::Function_Inliner(Node* c, int i)
 {
-	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") != -1)
+	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") != -1 || c->Function_Implementation->is("import") != -1)
 		return;
 
 	//copy the nodes to a safe heaven
@@ -190,6 +190,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		Return_Value = new Node(OBJECT_DEFINTION_NODE, c->Location);
 		Return_Value->Name = "Return_Value" + to_string(Inlined_Function_Count);
 		Return_Value->Scope = c->Scope;
+		Return_Value->Context = c->Context;
 		Return_Value->Inheritted = c->Inheritted;
 	}
 
@@ -270,9 +271,12 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 	Scope->Defined.insert(Scope->Defined.end(), Defined.begin(), Defined.end());
 
+	Scope->Defined.insert(Scope->Defined.end(), c->Defined.begin(), c->Defined.end());
+	c->Defined.clear();
+
 	c->Function_Implementation->Calling_Count--;
 
-	if (c->Context != nullptr && c->Context->is(CALL_NODE)) {
+	if (c->Context) {
 		c->Context->Header.insert(c->Context->Header.end(), Childs.begin(), Childs.end());
 	}
 	else
@@ -348,7 +352,17 @@ void Algebra::Prosess_Return(Node* n, int i)
 	if (n->Right == nullptr)
 		return;
 	vector<Node*> tmp = { n->Right };
-	Algebra a(n, &tmp);
+	while (true) {
+		Algebra a(n, &tmp);
+		if (!Optimized)
+			break;
+		Optimized = false;
+	}
+
+	if (n->Header.size() > 0) {
+		Input->insert(Input->begin() + i, n->Header.begin(), n->Header.end());
+		n->Header.clear();
+	}
 
 	if (tmp.size() == 1)
 		n->Right = tmp.back();
@@ -377,11 +391,11 @@ void Algebra::Inline_Variables(int i)
 	vector<Node*> Linear_Ast;
 	if (Input->at(i)->Has({ASSIGN_OPERATOR_NODE, OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE })) {
 		if (Input->at(i)->Name != "=")
-			Linear_Ast = Input->at(i)->Get_all({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, OBJECT_NODE, PARAMETER_NODE});
+			Linear_Ast = Input->at(i)->Get_all({OBJECT_NODE, OBJECT_DEFINTION_NODE});
 		else {
 			if (Input->at(i)->is("ptr") != -1)
 				return;
-			Linear_Ast = Input->at(i)->Right->Get_all({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, OBJECT_NODE, PARAMETER_NODE });
+			Linear_Ast = Input->at(i)->Right->Get_all({OBJECT_NODE, OBJECT_DEFINTION_NODE });
 		}
 	}
 	else {

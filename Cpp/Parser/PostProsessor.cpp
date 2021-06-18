@@ -363,6 +363,9 @@ vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* 
 
 		Node* Call = new Node(CALL_NODE, Class->Location);
 		Call->Parameters.push_back(This->Copy_Node(This, Funciton));
+
+		Call->Parameters.back()->Context = Call;
+
 		Call->Name = i;
 		Call->Scope = Funciton;
 
@@ -495,8 +498,6 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		if (j->is("type") != -1)
 			return;
 	*/
-
-
 
 	PostProsessor p(f);
 	p.Input = f->Childs;
@@ -1245,9 +1246,14 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 		}
 	}
 
-	if (Input[i]->Context == nullptr || !Input[i]->Context->Has({ CALL_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE, FLOW_NODE }))
+	if (Input[i]->Context == nullptr || !Input[i]->Context->Has({ CALL_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE, FLOW_NODE })) {
 		Input.insert(Input.begin() + i, Input[i]->Header.begin(), Input[i]->Header.end());
-	
+		Input[i]->Header.clear();
+	}
+	else if (Input[i]->Context) {
+		Input[i]->Context->Header.insert(Input[i]->Context->Header.end(), Input[i]->Header.begin(), Input[i]->Header.end());
+		Input[i]->Header.clear();
+	}
 	//use optimization into the parameters.
 	//Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
 
@@ -1424,6 +1430,16 @@ void PostProsessor::Determine_Return_Type(int i)
 		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right, Input[i]->Left });
 	}
 
+	vector<Node*> Tmp;
+
+	if (!Input[i]->is(PREFIX_NODE))
+		Tmp.push_back(Input[i]->Left);
+	if (!Input[i]->is(POSTFIX_NODE))
+		Tmp.push_back(Input[i]->Right);
+
+	Algebra_Laucher(Input[i], Tmp);
+
+
 	if (!Input[i]->Has({PREFIX_NODE, POSTFIX_NODE}))
 	//try to find a suitable operator overload if there is one
 		for (auto& overload : Input[i]->Left->Operator_Overloads) {
@@ -1469,15 +1485,32 @@ void PostProsessor::Determine_Return_Type(int i)
 	if (!Input[i]->is(PREFIX_NODE))
 		if (Input[i]->Left->Header.size() > 0) {
 			int Header_Size = Input[i]->Left->Header.size();
-			Input.insert(Input.begin() + i, Input[i]->Left->Header.begin(), Input[i]->Left->Header.end());
+
+			if (Input[i]->Context == nullptr)
+				Input.insert(Input.begin() + i, Input[i]->Left->Header.begin(), Input[i]->Left->Header.end());
+			else
+				Input[i]->Context->Header.insert(Input[i]->Context->Header.end(), Input[i]->Left->Header.begin(), Input[i]->Left->Header.end());
+
 			Input[i + Header_Size]->Left->Header.clear();
 		}
 	if (!Input[i]->is(POSTFIX_NODE))
 		if (Input[i]->Right->Header.size() > 0) {
 			int Header_Size = Input[i]->Right->Header.size();
-			Input.insert(Input.begin() + i, Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
+
+			if (Input[i]->Context == nullptr)
+				Input.insert(Input.begin() + i, Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
+			else
+				Input[i]->Context->Header.insert(Input[i]->Context->Header.end(), Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
+			
 			Input[i + Header_Size]->Right->Header.clear();
 		}
+
+	if ((Input[i]->Header.size() > 0) && (Input[i]->Context == nullptr)) {
+		int Header_Size = Input[i]->Header.size();
+		Input.insert(Input.begin() + i, Input[i]->Header.begin(), Input[i]->Header.end());
+
+		Input[i + Header_Size]->Header.clear();
+	}
 }
 
 void PostProsessor::Determine_Array_Type(int i)

@@ -2,43 +2,16 @@
 .global main
 .global Start_Test
 .section .text
-sum:
-add ecx, 3
-mov eax, ecx
-ret 
-ret 
-
-
 Start_Test:
-mov ecx, 1
-add ecx, 2
-mov ecx, ecx
-call sum
-mov ecx, eax
-mov r8, rdx
-mov eax, 0
-mul ecx
-mov ecx, eax
-mov rdx, r8
-mov eax, ecx
+jmp Return_Here_1
+Return_Here_1:
+mov eax, -6
 ret 
-mov ecx, 1075000115
+mov ecx, 1065353216
 movd xmm0, ecx
 movd ecx, xmm0
-mov r8d, 1067030938
-movd xmm0, r8d
-movd r8d, xmm0
-movd xmm0, ecx
-mov ecx, 4608083138725491507
-movd xmm1, ecx
-addss xmm0, xmm1
-subss xmm0, r8d
-mov ecx, -4614838538166547251
-movd xmm1, ecx
-subss xmm0, xmm1
-movd ecx, xmm0
-jmp Return_Here_61
-Return_Here_61:
+jmp Return_Here_5
+Return_Here_5:
 mov eax, ecx
 ret 
 mov eax, -6
@@ -47,32 +20,17 @@ ret
 
 
 main:
-mov ecx, 1
-add ecx, 2
-mov ecx, ecx
-call sum
-mov ecx, eax
-jmp Return_Here_65
-mov ecx, 1075000115
+jmp Return_Here_6
+Return_Here_6:
+jmp Return_Here_9
+mov ecx, 1065353216
 movd xmm0, ecx
 movd ecx, xmm0
-mov r8d, 1067030938
-movd xmm0, r8d
-movd r8d, xmm0
-movd xmm0, ecx
-mov ecx, 4608083138725491507
-movd xmm1, ecx
-addss xmm0, xmm1
-subss xmm0, r8d
-mov ecx, -4614838538166547251
-movd xmm1, ecx
-subss xmm0, xmm1
-movd ecx, xmm0
-jmp Return_Here_94
-Return_Here_94:
-jmp Return_Here_65
-jmp Return_Here_65
-Return_Here_65:
+jmp Return_Here_10
+Return_Here_10:
+jmp Return_Here_9
+jmp Return_Here_9
+Return_Here_9:
 mov eax, 1
 ret 
 ret 

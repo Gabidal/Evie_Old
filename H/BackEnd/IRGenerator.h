@@ -31,7 +31,6 @@ public:
 	void Parse_Calls(int i);
 	void Parse_If(int i);
 	void Loop_Elses(Node* e);
-	void Un_Wrap_Inline(int i);
 	void Parse_Loops(int i);
 	void Parse_Return(int i);
 
