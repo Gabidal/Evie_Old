@@ -16,6 +16,7 @@ void Algebra::Factory() {
 	for (int i = 0; i < Input->size(); i++) {
 		Prosess_Return(Input->at(i), i);
 		Prosess_Paranthesis(Input->at(i));
+		Prosess_Conditions(Input->at(i), i);
 		Inline_Variables(i);
 		Set_Coefficient_Value(i);
 		Combine_Scattered(Input->at(i));
@@ -152,13 +153,22 @@ void Algebra::Function_Inliner(Node* c, int i)
 	vector<Node*> Defined;
 	vector<Node*> Childs;
 
-	for (auto i : c->Function_Implementation->Childs) {
-		Childs.push_back(c->Copy_Node(i, c->Scope));
+	for (auto j : c->Function_Implementation->Childs){
+		for (auto k : j->Get_all(CALL_NODE)) {
+			k->Function_Implementation->Calling_Count++;	//increase the calling count
+			if (k->Function_Implementation == c->Function_Implementation)
+				return;	//disable recursive funktions
+		}
+			
+	}
+
+	for (auto j : c->Function_Implementation->Childs) {
+		Childs.push_back(c->Copy_Node(j, c->Scope));
 	}
 
 	//give the parameters a new name;
-	for (auto i : c->Function_Implementation->Parameters) {
-		Node* tmp = c->Copy_Node(i, c->Scope);
+	for (auto j : c->Function_Implementation->Parameters) {
+		Node* tmp = c->Copy_Node(j, c->Scope);
 		tmp->Type = OBJECT_DEFINTION_NODE;
 		tmp->Name += "_" + to_string(Inlined_Function_Count);
 		Parameters.push_back(tmp);
@@ -166,8 +176,8 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 	while (true) {
 		bool Is_Unique = true;
-		for (auto i : Defined_Labels) {
-			if (i == ("Return_Here_" + to_string(Unique_ID_Count))) {
+		for (auto j : Defined_Labels) {
+			if (j == ("Return_Here_" + to_string(Unique_ID_Count))) {
 				Unique_ID_Count++;
 				Is_Unique = false;
 			}
@@ -192,6 +202,8 @@ void Algebra::Function_Inliner(Node* c, int i)
 		Return_Value->Scope = c->Scope;
 		Return_Value->Context = c->Context;
 		Return_Value->Inheritted = c->Inheritted;
+
+		Return_Value->Get_Inheritted_Class_Members();
 	}
 
 	//go thróugh all the children and update the names
@@ -352,12 +364,15 @@ void Algebra::Prosess_Return(Node* n, int i)
 	if (n->Right == nullptr)
 		return;
 	vector<Node*> tmp = { n->Right };
+	bool TMP = Optimized;
+	Optimized = false;
 	while (true) {
 		Algebra a(n, &tmp);
 		if (!Optimized)
 			break;
 		Optimized = false;
 	}
+	Optimized = TMP;
 
 	if (n->Header.size() > 0) {
 		Input->insert(Input->begin() + i, n->Header.begin(), n->Header.end());
@@ -380,6 +395,40 @@ void Algebra::Prosess_Paranthesis(Node* n)
 	if (!n->is(CONTENT_NODE))
 		return;
 	Algebra a(n, &n->Childs);
+}
+
+void Algebra::Prosess_Conditions(Node* n, int i)
+{
+	if (!n->Has({ IF_NODE, ELSE_IF_NODE, ELSE_NODE }))
+		return;
+
+	bool TMP = Optimized;
+	if (!n->is(ELSE_NODE)) {
+		Optimized = false;
+		while (true) {
+			Algebra a(n->Parameters.back(), &n->Parameters);
+			if (!Optimized)
+				break;
+			Optimized = false;
+		}
+		Optimized = TMP;
+	}
+
+	TMP = Optimized;
+	Optimized = false;
+	while (true) {
+		Algebra a(n, &n->Childs);
+		if (!Optimized)
+			break;
+		Optimized = false;
+	}
+	Optimized = TMP;
+
+	for (auto& j : n->Parameters) {
+		if (j->Header.size() > 0) {
+			Input->insert(Input->begin() + i, j->Header.begin(), j->Header.end());
+		}
+	}
 }
 
 void Algebra::Inline_Variables(int i)

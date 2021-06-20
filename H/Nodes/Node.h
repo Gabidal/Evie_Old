@@ -37,6 +37,8 @@ namespace PARSED_BY {
 
 	constexpr long long DESTRUCTOR_CALLER				= 1 << 9;
 	constexpr long long REFERENCE_COUNT_INCREASE		= 1 << 10;
+	constexpr long long MEMBER_FUNCTION_DEFINED_INSIDE	= 1 << 11;
+	constexpr long long FUNCTION_PROSESSOR				= 1 << 12;
 }
 
 class Node {
@@ -520,7 +522,7 @@ public:
 			return nullptr;
 
 		if (What_Node->is(FUNCTION_NODE))
-			return new Node(*What_Node);
+			return What_Node;
 
 		Trace.push_back(What_Node);
 

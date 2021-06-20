@@ -276,13 +276,17 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	p.Factory();
 	Func->Childs.push_back(p.Input[0].node);
 
-	for (int i = 0; i < Func->Parameters.size(); i++)
+	Func->Childs = Insert_Dot(Func->Childs, Func, This);
+
+	/*for (int i = 0; i < Func->Parameters.size(); i++)
 		if (Func->Parameters[i] == This)
 			Func->Parameters.erase(Func->Parameters.begin() + i);
 
 	for (int i = 0; i < Func->Defined.size(); i++)
 		if (Func->Defined[i] == This)
-			Func->Defined.erase(Func->Defined.begin() + i);
+			Func->Defined.erase(Func->Defined.begin() + i);*/
+
+	Func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE;
 
 	Type->Defined.push_back(Func);
 }
@@ -307,11 +311,16 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 	PostProsessor P(v->Scope, p.Input);
 	//v->Append(Output, P.Input);
 
-	for (int i = 0; i < childs.size(); i++) {
-		if (childs[i]->Name == "return" && !childs[i]->is(PARSED_BY::DESTRUCTOR_CALLER)) {
-			childs[i]->Parsed_By |= PARSED_BY::DESTRUCTOR_CALLER;
+	bool There_Is_No_User_Defined_Return = true;
+	for (int i = childs.size()-1; i >= 0; i--) {
+		if (childs[i]->Name == "return") {
 			childs.insert(childs.begin() + i, P.Input.begin(), P.Input.end());
+			There_Is_No_User_Defined_Return = false;
 		}
+	}
+
+	if (There_Is_No_User_Defined_Return) {
+		childs.insert(childs.end(), P.Input.begin(), P.Input.end());
 	}
 }
 
@@ -460,6 +469,8 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 		return;
 	if (f->Fetcher != nullptr)
 		return;
+	if (f->is(PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE))
+		return;
 
 	Node* func = f;
 
@@ -479,6 +490,7 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 	*Scope->Find(func, Class, FUNCTION_NODE) = *func;
 
 	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
+	func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE;
 
 	return;
 }
@@ -491,6 +503,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		return;
 	if (f->Is_Template_Object)
 		return;
+	if (f->is(PARSED_BY::FUNCTION_PROSESSOR))
+		return;
 	for (auto j : f->Get_All_Fetchers())
 		if (j->Is_Template_Object)
 			return;
@@ -498,7 +512,7 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		if (j->is("type") != -1)
 			return;
 	*/
-
+	
 	PostProsessor p(f);
 	p.Input = f->Childs;
 
@@ -548,6 +562,7 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	Scope->Append(f->Childs, p.Output);
 
 	f->Parsed_By |= PARSED_BY::POSTPROSESSOR;
+	f->Parsed_By |= PARSED_BY::FUNCTION_PROSESSOR;
 	return;
 }
 
@@ -995,7 +1010,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 
 		//make the template ready for comparison.
 		if (Candidate.first->Is_Template_Object) {
-			Func = Candidate.first->Copy_Node(Candidate.first, Candidate.second);
+			Func = Candidate.first->Copy_Node(new Node(*Candidate.first), Candidate.second);
 
 			//this part is going to be really slow :/
 			for (int T = 0; T < Caller->Templates.size(); T++) {
@@ -1140,7 +1155,28 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 		Best_Candidate_Copy->Name = New_Name;
 
 		Node* Function = Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT });
-		if (Function != nullptr && Best_Candidate_Copy->Compare_Fetchers(Function)) {
+		if (Function != nullptr && Best_Candidate_Copy->Compare_Fetchers(Function) && (Function->Template_Children[1].Components.size() > 0 && Function->Childs.size() > 0)) {
+			
+			/*if (Function->Template_Children[1].Components.size() > 0 && Function->Childs.size() == 0) {
+				Parser parser(Function);
+				parser.Input = Function->Template_Children[1].Components;
+
+				for (auto component : parser.Input) {
+
+				}
+
+				parser.Factory();
+
+				for (auto I : parser.Input)
+					if (I.node)
+						Function->Childs.push_back(I.node);
+
+				Function->Is_Template_Object = false;
+
+				PostProsessor postprosessor(Function);
+				postprosessor.Open_Function_For_Prosessing(Function);
+			}*/
+			
 			Caller->Function_Implementation = Function;
 			Caller->Name = New_Name;
 			Caller->Templates.clear();
@@ -1229,13 +1265,30 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	if (!Input[i]->is(CALL_NODE))
 		return;
 
+	vector<Node*> Own_Defined = Input[i]->Defined;
+
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
 	PostProsessor p(Scope, Input[i]->Parameters);
 
 	Algebra_Laucher(Input[i], Input[i]->Parameters);
 
-	for (auto& v : Input[i]->Defined)
-		p.Destructor_Caller(v, Input);
+	//see what outside defined has been injected to this call.
+	for (int j = 0; j < Input[i]->Defined.size(); j++) {
+		bool Is_Own_Defined = false;
+		for (auto k : Own_Defined) {
+			if (Input[i]->Defined[j] == k) {
+				Is_Own_Defined = true;
+			}
+		}
+		if (!Is_Own_Defined) {
+			Input[i]->Scope->Defined.push_back(Input[i]->Defined[j]);
+			Input[i]->Defined[j]->Scope = Input[i]->Scope;
+			Input[i]->Defined.erase(Input[i]->Defined.begin() + j);
+		}
+	}
+
+	//for (auto& v : Input[i]->Defined)
+	//	p.Destructor_Caller(v, Input);
 
 	Scope->Append(Output, p.Output);
 

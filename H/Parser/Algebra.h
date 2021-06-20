@@ -23,6 +23,7 @@ private:
 	void Prosess_Return(Node* n, int i);
 	void Prosess_Call_Parameters(Node* n);
 	void Prosess_Paranthesis(Node* n);
+	void Prosess_Conditions(Node* n, int i);
 
 	void Set_Defining_Value(int i);
 	void Set_Coefficient_Value(int i);
