@@ -50,7 +50,7 @@ void Observation::Report()
 		cout << Head << Msg << endl;
 	if (Type == SOLUTION)
 		cout << "}" << endl;
-	if (Type == FAIL || Type == ERROR)
+	if ((Type == FAIL || Type == ERROR) && !Dont_Stop)
 		throw::runtime_error("ERROR");
 }
 
@@ -61,8 +61,21 @@ void Report(Observation o)
 
 void Report(vector<Observation> o)
 {
+	bool Needs_Stoppping = false;
+
+	for (int i = 0; i < o.size(); i++) {
+		if (o[i].Type == ERROR || o[i].Type == FAIL) {
+			o[i] = Observation(o[i], true);
+			Needs_Stoppping = true;
+		}
+	}
+
 	for (auto i : o)
 		i.Report();
+
+	if (Needs_Stoppping) {
+		throw::runtime_error("ERROR");
+	}
 }
 
 void Report(long type, Lexer_Expectation_Set expectation, string source, vector<Component> result) {
@@ -110,15 +123,21 @@ void Safe::Check_Return_Validity(Node* n)
 	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Scope);
 
 	if (n->Right != nullptr) {
-		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE })) {
+		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE})) {
+			
+			if (n->Right->is(CALL_NODE))
+				if (!n->Right->Function_Ptr)
+					goto Skip_Size_And_Inheritance;
 			n->Right->Size = n->Find(n->Right, n->Scope)->Size;
 			n->Right->Inheritted = n->Find(n->Right, n->Scope)->Inheritted;
+
+		Skip_Size_And_Inheritance:;
 		}
-		if (n->Right->Get_Size() == func->Get_Size() && n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
+		if (n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
 		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
-		else if (n->Right->Cast_Type != "" && n->Find(n->Right->Cast_Type, n)->Get_Size() == func->Get_Size() && n->Find(n->Right->Cast_Type, n)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
+		else if (n->Right->Cast_Type != nullptr && n->Find(n->Right->Cast_Type, n)->Get_Size() == func->Get_Size() && n->Find(n->Right->Cast_Type, n)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
 		else if (func->Get_Size() == 0) {
 			Report(Observation(ERROR, "Cant return value in non-returning funciton.", *n->Location));
@@ -127,8 +146,8 @@ void Safe::Check_Return_Validity(Node* n)
 		else {
 			Report({
 				Observation(ERROR, "Incorrect return type!", *n->Location),
-				Observation(WARNING, n->Right->Name + " does not match " + func->Name + " return type.", *n->Right->Location),
-				Observation(SOLUTION, "Try changing " + n->Right->Name + " type into " + func->Find(func->Get_Size(), func, CLASS_NODE, n->Right->Format)->Name + " or try casting it." , *n->Right->Location)
+				Observation(WARNING, "Return type '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' does not mach with '" + func->Get_Inheritted(" ", false, false, true) + " '.", *n->Right->Location),
+				Observation(SOLUTION, "Try casting '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' to '" + func->Get_Inheritted(" ", false, false, true) + " '." , *n->Right->Location)
 				});
 			Stop();
 		}
@@ -219,7 +238,7 @@ void Safe::Warn_Usage_Of_Depricated(Node* n)
 
 void Safe::Prefer_Class_Cast_Rather_Object_Cast(Node* n)
 {
-	if (n->Cast_Type == "" || n->Cast_Type == "address")
+	if (n->Cast_Type == nullptr || n->Cast_Type->Name == "address")
 		return;
 	//check here if the cast type is a class or a object
 	Node* Cast = n->Find(n->Cast_Type, n);

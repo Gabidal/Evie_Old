@@ -3,15 +3,16 @@
 .global Start_Test
 .section .text
 Start_Test:
-jmp Return_Here_1
-Return_Here_1:
+jmp Return_Here_9
+Return_Here_9:
 mov eax, -6
 ret 
 mov ecx, 1065353216
 movd xmm0, ecx
-movd ecx, xmm0
-jmp Return_Here_5
-Return_Here_5:
+movss xmm0, xmm0
+jmp Return_Here_13
+Return_Here_13:
+cvttss2si ecx, xmm0
 mov eax, ecx
 ret 
 mov eax, -6
@@ -20,17 +21,17 @@ ret
 
 
 main:
-jmp Return_Here_6
-Return_Here_6:
-jmp Return_Here_9
+jmp Return_Here_18
+Return_Here_18:
+jmp Return_Here_17
 mov ecx, 1065353216
 movd xmm0, ecx
-movd ecx, xmm0
-jmp Return_Here_10
-Return_Here_10:
-jmp Return_Here_9
-jmp Return_Here_9
-Return_Here_9:
+movss xmm0, xmm0
+jmp Return_Here_22
+Return_Here_22:
+jmp Return_Here_17
+jmp Return_Here_17
+Return_Here_17:
 mov eax, 1
 ret 
 ret 

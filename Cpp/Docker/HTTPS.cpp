@@ -1,14 +1,14 @@
 #include "../../H/Docker/HTTPS.h"
-
 #include "../../H/UI/Usr.h"
-#include "../../H/UI/Safe.h"
 #define CURL_STATICLIB
 #include "../../Dependencies/Curl/curl.h"
+#include "../../H/UI/Safe.h"
 #include <regex>
 
 extern Usr* sys;
 
 string HTTPS::File_Name;
+
 
 size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* userp) {
 	size_t realsize = size * nmemb;
@@ -131,7 +131,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 				res = curl_easy_perform(curl_handle);
 
 				if (res != CURLE_OK)
-					Report(Observation(1, curl_easy_strerror(res), Position()));
+					Report(Observation(ERROR, curl_easy_strerror(res), Position()));
 				else {
 					curl_easy_cleanup(curl_handle);
 					curl_handle = curl_easy_init();
@@ -148,13 +148,13 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 
 					res = curl_easy_perform(curl_handle);
 					if (res != CURLE_OK)
-						Report(Observation(1, curl_easy_strerror(res), Position()));
+						Report(Observation(ERROR, curl_easy_strerror(res), Position()));
 					else {
 						regex expression("\"positives\": [0-9]+");
 						smatch matches;
 						string Buffer = chunk.memory;
 						if (!regex_search(Buffer, matches, expression)) {
-							Report(Observation(1, "Could not get VT report.", Position()));
+							Report(Observation(ERROR, "Could not get VT report.", Position()));
 						}
 
 						int Positives = atoi(matches.str().substr(12).c_str());
@@ -179,12 +179,12 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 			res = curl_easy_perform(curl_handle);
 
 			if (res != CURLE_OK) {
-				Report(Observation(1, curl_easy_strerror(res), Position()));
+				Report(Observation(ERROR, curl_easy_strerror(res), Position()));
 			}
 			else {
 				ofstream o(Remote_Dir_Location + Name.c_str());
 				if (!o.is_open()) {
-					Report(Observation(1, "Could not save contents of " + Name, Position()));
+					Report(Observation(ERROR, "Could not save contents of " + Name, Position()));
 				}
 				o.write(chunk.memory, (unsigned long)chunk.size);
 				o.close();
@@ -227,12 +227,12 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 		string Make = "";
 		if (sys->Info.HOST_OS == "unix") {
 			if (system("which make") != 0)
-				Report(Observation(1, "Is make-utility installed and visible to this program?", Position()));
+				Report(Observation((MSG_Type)1, "Is make-utility installed and visible to this program?", Position()));
 			Make = "make";
 		}
 		else {
 			if (system(".\\Dependencies\\Mingw\\make.exe -v") != 0) {
-				Report(Observation(1, "nmake-utility is needed to be in the same folder or in environment varibles", Position()));
+				Report(Observation((MSG_Type)1, "nmake-utility is needed to be in the same folder or in environment varibles", Position()));
 			}
 			Make = ".\\Dependencies\\Mingw\\make.exe";
 		}
@@ -240,7 +240,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 
 		bool All_Argument_Made_It = false;
 		if (error != 0) {
-			Report(Observation(1, to_string(error) + " Could not build with default argument, going into fallback mode.", Position()));
+			Report(Observation((MSG_Type)1, to_string(error) + " Could not build with default argument, going into fallback mode.", Position()));
 		}
 		else
 			for (auto f : DOCKER::Get_File_List(Remote_Dir_Location + Dir))
@@ -249,7 +249,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 
 		if (!All_Argument_Made_It)
 			if (system((Make + " -B").c_str()) != 0) {
-				Report(Observation(1, "Make-utility build error, please fix the problems first.", Position()));
+				Report(Observation((MSG_Type)1, "Make-utility build error, please fix the problems first.", Position()));
 			}
 		DOCKER::FileName.back() = Remote_Dir_Location + Dir + File;
 		DOCKER::Output.erase(DOCKER::Output.rbegin()->first);

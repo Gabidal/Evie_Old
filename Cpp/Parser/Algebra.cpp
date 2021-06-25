@@ -153,8 +153,15 @@ void Algebra::Function_Inliner(Node* c, int i)
 	vector<Node*> Defined;
 	vector<Node*> Childs;
 
+	if (!c->Function_Implementation->is(PARSED_BY::FUNCTION_PROSESSOR)) {
+		PostProsessor p(c->Function_Implementation);
+		p.Open_Function_For_Prosessing(c->Function_Implementation);
+	}
+
 	for (auto j : c->Function_Implementation->Childs){
 		for (auto k : j->Get_all(CALL_NODE)) {
+			if (k->Function_Ptr)
+				continue;
 			k->Function_Implementation->Calling_Count++;	//increase the calling count
 			if (k->Function_Implementation == c->Function_Implementation)
 				return;	//disable recursive funktions
@@ -294,8 +301,10 @@ void Algebra::Function_Inliner(Node* c, int i)
 	else
 		Input->insert(Input->begin() + i, Childs.begin(), Childs.end());
 
-	if (Return_Value)
+	if (Return_Value) {
+		Return_Value->Cast_Type = c->Cast_Type;
 		*c = *Return_Value;
+	}
 	else
 		Input->erase(Input->begin() + Childs.size() + i);
 

@@ -345,13 +345,13 @@ void Producer::Assemble_Command()
             res = curl_easy_perform(curl);
             /* Check for errors */
             if (res != CURLE_OK)
-                Report(Observation(1, curl_easy_strerror(res), Position()));
+                Report(Observation(ERROR, curl_easy_strerror(res), Position()));
 
             regex expression("\"resource\": \"[a-f0-9]+\"");
             smatch matches;
             string Buffer = chunk.memory;
             if (!regex_search(Buffer, matches, expression)) {
-                Report(Observation(2, "Could not get VT report.", Position()));
+                Report(Observation(MSG_Type::WARNING, "Could not get VT report.", Position()));
             }
 
             Resource = matches.str().substr(13, matches.str().size() - 1 - 13);
@@ -377,18 +377,18 @@ void Producer::Assemble_Command()
 
         res = curl_easy_perform(curl);
         if (res != CURLE_OK)
-            Report(Observation(1, curl_easy_strerror(res), Position()));
+            Report(Observation(ERROR, curl_easy_strerror(res), Position()));
 
         regex expression("\"positives\": [0-9]+");
         smatch matches;
         string Buffer = chunk.memory;
         if (!regex_search(Buffer, matches, expression)) {
-            Report(Observation(2, "VT is in cooldown, please wait moment, then re-try.", Position()));
+            Report(Observation(MSG_Type::WARNING, "VT is in cooldown, please wait moment, then re-try.", Position()));
         }
         else {
             int Positives = atoi(matches.str().substr(12).c_str());
             if (Positives > 0) {
-                Report(Observation(1, "Dangereous binary detected " + Output_File, Position()));
+                Report(Observation(ERROR, "Dangereous binary detected " + Output_File, Position()));
             }
         }
     }

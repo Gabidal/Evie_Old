@@ -782,7 +782,7 @@ void Parser::Object_Pattern(int i)
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
-	Input[i].node = Scope->Copy_Node(Scope->Find(Input[i].Value, Scope, true), Scope);
+	Input[i].node = Scope->Copy_Node(new Node(*Scope->Find(Input[i].Value, Scope, true)), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
 
 	//List<int> a -> .List_int a

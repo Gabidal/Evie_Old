@@ -17,20 +17,28 @@ enum MSG_Type {
 	SUCCESS,
 };
 
+#define ERROR (MSG_Type)1
+
 class Observation {
 public:
-	Observation(int t, string msg, Position p) {
+	Observation(MSG_Type t, string msg, Position p) {
 		//External message request.
 		Type = t;
 		Msg = msg;
 		Pos = p;
 	}
 
+	Observation(Observation& O, bool Dont_Stop) {
+		*this = O;
+		this->Dont_Stop = Dont_Stop;
+	}
+
 	void Report();
+	MSG_Type Type = NORMAL;
 private:
-	int Type = NORMAL;
 	Position Pos;
 	string Msg = "";
+	bool Dont_Stop = false;
 };
 
 class Lexer_Expectation_Set;

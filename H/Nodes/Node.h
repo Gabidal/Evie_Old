@@ -103,6 +103,7 @@ public:
 	Node* Function_Implementation = nullptr;
 	int Calling_Count = 0;
 	bool Function_Ptr = false;
+	bool Function_Address_Giver = false;
 	//calling convension is stored in the inheritted list
 	//function prototype features
 	//the import has the flag to prototyping
@@ -112,7 +113,7 @@ public:
 	//Template object features.
 	bool Is_Template_Object = false;
 	//casting features
-	string Cast_Type = "";
+	Node* Cast_Type = nullptr;
 	//IR safe features
 	//bool Generated = false;
 	long long Parsed_By = PARSED_BY::NONE;
@@ -599,6 +600,9 @@ public:
 
 		if (Result->Location)
 			Result->Location = new Position(*Result->Location);
+
+		if (Result->Cast_Type)
+			Result->Cast_Type = Copy_Node(Result->Cast_Type, p);
 
 		//The copying prosess must go downwards not upwards, otherwise it will loop forever!
 		//Result->Holder = Copy_Node(Result->Holder, p);

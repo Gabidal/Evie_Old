@@ -135,7 +135,7 @@ void IRGenerator::Parse_Calls(int i)
 {
 	if (!Input[i]->is(CALL_NODE))
 		return;
-	if (Input[i]->Cast_Type != "")
+	if (Input[i]->Cast_Type != nullptr)
 		return;
 	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
@@ -1505,9 +1505,9 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	//first check is the n has a casting request, and its format casting, no other!
 	//int a
 	//return a->float
-	if (n->Cast_Type == "")
+	if (n->Cast_Type == nullptr)
 		return;
-	if (n->Cast_Type == "address")
+	if (n->Cast_Type->Name == "address")
 		return;
 	if (n->is(PARSED_BY::IRGENERATOR))
 		return;
@@ -1523,8 +1523,8 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 
 
 	//parse calls, arrays etc..
-	string cast_Type = n->Cast_Type;
-	n->Cast_Type = "";
+	Node* cast_Type = n->Cast_Type;
+	n->Cast_Type = nullptr;
 
 	int Last_Output_Size = Output->size();
 
@@ -1599,9 +1599,9 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 
 void IRGenerator::Parse_Dynamic_Casting(Node* n)
 {
-	if (n->Cast_Type == "")
+	if (n->Cast_Type == nullptr)
 		return;
-	if (n->Cast_Type != "address")
+	if (n->Cast_Type->Name != "address")
 		return;
 	if (n->is(PARSED_BY::IRGENERATOR))
 		return;

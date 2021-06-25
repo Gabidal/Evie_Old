@@ -388,7 +388,8 @@ void PostProsessor::Cast(Node* n)
 	if (!n->is(NODE_CASTER))
 		return;
 
-	n->Left->Cast_Type = n->Right->Name;
+	n->Left->Cast_Type = n->Right;
+	n->Left->Cast_Type->Type = OBJECT_NODE;
 	n->Left->Context = n->Context;
 
 	*n = *n->Left;
@@ -414,6 +415,8 @@ void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
 		f = n->Find(n->Name, n->Scope, FUNCTION_NODE);
 
 	f->Calling_Count++;
+
+	n->Function_Address_Giver = true;
 }
 
 void PostProsessor::Member_Function_Defined_Outside(Node* f)
@@ -508,6 +511,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	for (auto j : f->Get_All_Fetchers())
 		if (j->Is_Template_Object)
 			return;
+
+	f->Parsed_By |= PARSED_BY::FUNCTION_PROSESSOR;
 	/*for (auto j : Input[i]->Parameters)
 		if (j->is("type") != -1)
 			return;
@@ -526,14 +531,6 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	p.Factory();
 
 	f->Childs = p.Input;
-
-	for (auto& v : f->Defined) {
-		for (auto j : f->Childs) {
-			Analyze_Variable_Address_Pointing(v, j);
-			if (v->Requires_Address)
-				break;
-		}
-	}
 
 	//DEBUG
 	//if (sys->Info.Debug)
@@ -558,11 +555,20 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		Optimized = false;
 	}
 
+	Define_Sizes(f);
+
+	for (auto& v : f->Defined) {
+		for (auto j : f->Childs) {
+			Analyze_Variable_Address_Pointing(v, j);
+			if (v->Requires_Address)
+				break;
+		}
+	}
+
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);
 
 	f->Parsed_By |= PARSED_BY::POSTPROSESSOR;
-	f->Parsed_By |= PARSED_BY::FUNCTION_PROSESSOR;
 	return;
 }
 
@@ -605,9 +611,10 @@ void PostProsessor::Open_Paranthesis(int i)
 
 	Scope->Append(Input[i]->Childs, p.Output);
 
-	Input[i]->Inheritted.push_back(Input[i]->Childs.back()->Cast_Type);
+	if (Input[i]->Childs.back()->Cast_Type)
+		Input[i]->Inheritted.push_back(Input[i]->Childs.back()->Cast_Type->Name);
 
-	if (Input[i]->Inheritted.back() == "")
+	if (Input[i]->Inheritted.size() == 0)
 		Input[i]->Inheritted = Input[i]->Childs.back()->Inheritted;
 }
 
@@ -1512,7 +1519,7 @@ void PostProsessor::Determine_Return_Type(int i)
 				continue;
 			Left_Size += Scope->Find(j, Scope)->Get_Size();
 		}
-		if (Input[i]->Left->Cast_Type != "" && Input[i]->Left->Cast_Type != "address")
+		if (Input[i]->Left->Cast_Type != nullptr && Input[i]->Left->Cast_Type->Name != "address")
 			Left_Size = Scope->Find(Input[i]->Left->Cast_Type, Scope)->Get_Size();
 		if (Input[i]->Left->is("ptr") != -1)
 			Left_Size = _SYSTEM_BIT_SIZE_;
@@ -1524,18 +1531,21 @@ void PostProsessor::Determine_Return_Type(int i)
 				continue;
 			Right_Size += Scope->Find(j, Scope)->Get_Size();
 		}
-		if (Input[i]->Right->Cast_Type != "" && Input[i]->Right->Cast_Type != "address")
+		if (Input[i]->Right->Cast_Type != nullptr && Input[i]->Right->Cast_Type->Name != "address")
 			Right_Size = Scope->Find(Input[i]->Right->Cast_Type, Scope)->Get_Size();
 		if (Input[i]->Right->is("ptr") != -1)
 			Right_Size = _SYSTEM_BIT_SIZE_;
 	}
+
 
 	if (Left_Size >= Right_Size)
 		Input[i]->Inheritted = Input[i]->Left->Get_Inheritted(false, false);
 	else
 		Input[i]->Inheritted = Input[i]->Right->Get_Inheritted(false, false);
 
-	if (!Input[i]->is(PREFIX_NODE))
+	if (!Input[i]->is(PREFIX_NODE)) {
+		if (Input[i]->Left->Function_Address_Giver)
+			Input[i]->Left->Size = Left_Size;
 		if (Input[i]->Left->Header.size() > 0) {
 			int Header_Size = Input[i]->Left->Header.size();
 
@@ -1546,7 +1556,8 @@ void PostProsessor::Determine_Return_Type(int i)
 
 			Input[i + Header_Size]->Left->Header.clear();
 		}
-	if (!Input[i]->is(POSTFIX_NODE))
+	}
+	if (!Input[i]->is(POSTFIX_NODE)) {
 		if (Input[i]->Right->Header.size() > 0) {
 			int Header_Size = Input[i]->Right->Header.size();
 
@@ -1554,9 +1565,12 @@ void PostProsessor::Determine_Return_Type(int i)
 				Input.insert(Input.begin() + i, Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
 			else
 				Input[i]->Context->Header.insert(Input[i]->Context->Header.end(), Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
-			
+
 			Input[i + Header_Size]->Right->Header.clear();
 		}
+		if (Input[i]->Right->Function_Address_Giver)
+			Input[i]->Right->Size = Right_Size;
+	}
 
 	if ((Input[i]->Header.size() > 0) && (Input[i]->Context == nullptr)) {
 		int Header_Size = Input[i]->Header.size();
@@ -1803,7 +1817,7 @@ int PostProsessor::Get_Amount(string t, Node* n)
 		if (s == t)
 			result++;
 
-	if (n->Cast_Type != "" && n->Cast_Type != "address")
+	if (n->Cast_Type != nullptr && n->Cast_Type->Name != "address")
 		for (auto i : n->Find(n->Cast_Type, n)->Inheritted)
 			if (i == t)
 				result++;

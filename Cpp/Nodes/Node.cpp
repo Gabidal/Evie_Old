@@ -120,7 +120,7 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
 		return seperator + Name;
 	}
-	else if (is(NUMBER_NODE) && Cast_Type == "") {
+	else if (is(NUMBER_NODE) && Cast_Type == nullptr) {
 		//1.29348
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
@@ -135,9 +135,9 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 			return Find(4, Global_Scope, "integer")->Get_Inheritted(seperator, Skip_Prefixes, true);
 		}
 	}
-	else if (is(NUMBER_NODE) && Cast_Type != "") {
-		if (Cast_Type != "")
-			return seperator + Cast_Type;
+	else if (is(NUMBER_NODE) && Cast_Type != nullptr) {
+		if (Cast_Type != nullptr)
+			return seperator + Cast_Type->Name;
 	}
 	else {
 		string result = "";
@@ -148,8 +148,8 @@ string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name,
 				continue;
 			result += seperator + Inheritted[i];
 		}
-		if (Cast_Type != "")
-			result = seperator + Cast_Type;
+		if (Cast_Type != nullptr)
+			result = seperator + Cast_Type->Name;
 		return result;
 	}
 }
@@ -330,7 +330,7 @@ Node* Node::Find(Node* n, Node* s)
 	for (Node* i : s->Defined)
 		if (i->Templates.size() == n->Templates.size())
 			if (i->Name == n->Name) {
-				if (n->Cast_Type != "") {
+				if (n->Cast_Type != nullptr) {
 					Node* tmp = i->Copy_Node(i, i->Scope);
 					tmp->Cast_Type = n->Cast_Type;
 					return tmp;
@@ -343,7 +343,7 @@ Node* Node::Find(Node* n, Node* s)
 			return Find(n, s->Scope);
 
 	//IDK what this does, please explain!
-	if (s->Cast_Type != "")
+	if (s->Cast_Type != nullptr)
 		for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name)
@@ -385,7 +385,7 @@ Node* Node::Find(Node* n, Node* s, int f)
 		if (i->is(f))
 			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name) {
-					if (n->Cast_Type != "") {
+					if (n->Cast_Type != nullptr) {
 						Node* tmp = i->Copy_Node(i, i->Scope);
 						tmp->Cast_Type = n->Cast_Type;
 						return tmp;
@@ -398,7 +398,7 @@ Node* Node::Find(Node* n, Node* s, int f)
 			return Find(n, s->Scope, f);
 
 	//IDK what this does, please explain!
-	if (s->Cast_Type != "" && s->Cast_Type != n->Name)
+	if (s->Cast_Type != nullptr && s->Cast_Type->Name != n->Name)
 			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
 				if (i->is(f))
 					if (i->Templates.size() == n->Templates.size())
@@ -431,8 +431,8 @@ Node* Node::Find(string name, Node* s, int flags) {
 		if (Find(name, s->Scope, flags) != nullptr)
 			return Find(name, s->Scope, flags);
 
-	if (s->Cast_Type != "" && s->Cast_Type != name)
-			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+	if (s->Cast_Type != nullptr && s->Cast_Type->Name != name && s->Find(s->Cast_Type, s, flags) != nullptr)
+		for (auto& i : s->Find(s->Cast_Type, s, { CLASS_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE })->Defined)
 				if (i->Name == name)
 					return i;
 
@@ -466,8 +466,8 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 		if (Find(name, s->Scope, Need_Parent_existance) != nullptr)
 			return Find(name, s->Scope, Need_Parent_existance);
 
-	if (s->Cast_Type != "" && s->Cast_Type != name)
-			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+	if (s->Cast_Type != nullptr && s->Cast_Type->Name != name )
+		for (auto& i : s->Find(s->Cast_Type, s, { CLASS_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE })->Defined)
 				if (i->Name == name)
 					return i;
 
@@ -484,7 +484,11 @@ void Node::Get_Inheritted_Class_Members() {
 	for (auto Inherit : Inheritted) {
 		if (Lexer::GetComponent(Inherit).is(::Flags::KEYWORD_COMPONENT))
 			continue;
-		for (auto Member : Find(Inherit, Scope)->Defined)
+		vector<Node*> Inheritted_Members = Find(Inherit, Scope)->Defined;
+
+		reverse(Inheritted_Members.begin(), Inheritted_Members.end());
+
+		for (auto Member : Inheritted_Members)
 			if (Member->is("const") == -1)
 				if (Locate(Member->Name, Defined) == false)
 					Defined.insert(Defined.begin(), Member);
@@ -492,7 +496,7 @@ void Node::Get_Inheritted_Class_Members() {
 }
 
 void Node::Update_Inheritance() {
-	if (Cast_Type != "")
+	if (Cast_Type != nullptr)
 		return;
 	//save all keyword inheritances.
 	vector<string> Keyword_Inheritance;
@@ -502,7 +506,7 @@ void Node::Update_Inheritance() {
 	//remove all inheritances
 	Inheritted.clear();
 
-	Inheritted.push_back(Cast_Type);
+	Inheritted.push_back(Cast_Type->Name);
 	Inheritted.insert(Inheritted.end(), Keyword_Inheritance.begin(), Keyword_Inheritance.end());
 }
 
@@ -650,6 +654,10 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 	}
 	for (Node* i : Defined) {
 		vector<Node*> childs = i->Get_all(f, Trace);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	if (Cast_Type) {
+		vector<Node*> childs = Cast_Type->Get_all(f, Trace);
 		Result.insert(Result.end(), childs.begin(), childs.end());
 	}
 
