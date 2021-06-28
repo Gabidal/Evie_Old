@@ -607,17 +607,16 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 		else
 			return {};
 
-	Trace.push_back(this);
 
-	for (int i = 0; i < Trace.size(); i++)
-		for (int j = 0; j < Trace.size(); j++)
-			if (Trace[i] == Trace[j] && i != j) {
-				Trace.pop_back();
-				if (this->is(f))
-					return { new Node(*this) };
-				return {};
-			}
-				
+	for (int j = 0; j < Trace.size(); j++)
+		if (this == Trace[j]) {
+			Trace.pop_back();
+			if (this->is(f))
+				return { new Node(*this) };
+			return {};
+		}
+
+	Trace.push_back(this);
 
 	vector<Node*> Result;
 	if (Left != nullptr) {
@@ -637,8 +636,10 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 		Result.insert(Result.end(), Predecessors.begin(), Predecessors.end());
 	}
 	if (Fetcher != nullptr) {
-		vector<Node*> Fetchers = Fetcher->Get_all(f, Trace);
-		Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+		//vector<Node*> Fetchers = Fetcher->Get_all(f, Trace);
+		//Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+		if (Fetcher->is(f))
+			Result.push_back(Fetcher);
 	}
 	for (Node* i : Header) {
 		vector<Node*> Headers = i->Get_all(f, Trace);
@@ -657,8 +658,10 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 		Result.insert(Result.end(), childs.begin(), childs.end());
 	}
 	if (Cast_Type) {
-		vector<Node*> childs = Cast_Type->Get_all(f, Trace);
-		Result.insert(Result.end(), childs.begin(), childs.end());
+		//vector<Node*> childs = Cast_Type->Get_all(f, Trace);
+		//Result.insert(Result.end(), childs.begin(), childs.end());
+		if (Cast_Type->is(f))
+			Result.push_back(Cast_Type);
 	}
 
 	if (is(f))

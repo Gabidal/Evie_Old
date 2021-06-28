@@ -241,6 +241,12 @@ void Parser::Template_Type_Constructor(int i)
 
 	Node* Og_Type = Input[i].node->Find(Input[i].node, Scope, CLASS_NODE);
 	Node* Type = Scope->Copy_Node(Og_Type, Og_Type->Scope);
+
+	for (auto &i : Type->Defined) {
+		if (i->is(FUNCTION_NODE))
+			i = Scope->Copy_Node(new Node(*i), Type);
+	}
+
 	Type->Templates = Input[i].node->Templates;
 
 	//turn List<List<int>, int> into ____List_List_int

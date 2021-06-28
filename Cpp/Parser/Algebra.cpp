@@ -255,6 +255,15 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 				k->Name = Name + to_string(Unique_ID);
 
+				bool Is_Already_Defined = false;
+
+				for (auto Label : Defined_Labels)
+					if (Label == k->Name)
+						Is_Already_Defined = true;
+
+				if (!Is_Already_Defined)
+					Defined_Labels.push_back(k->Name);
+
 				/*string Scope_Name = k->Name.substr(k->Name.size() - c->Scope->Name.size());
 
 				if (Scope_Name == c->Scope->Name)
@@ -612,6 +621,9 @@ void Algebra::Set_Defining_Value(int i)
 		return;
 
 	if (Input->at(i)->Right->Get_All("ptr") != Input->at(i)->Left->Get_All("ptr"))
+		return;
+
+	if (Input->at(i)->Left->Fetcher != nullptr)
 		return;
 
 	//callations sould not be inlined because theyre return value may vary.

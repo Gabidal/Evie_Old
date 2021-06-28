@@ -202,6 +202,8 @@ void PostProsessor::Type_Definer(int i)
 
 	PostProsessor P(Function, Function->Childs);
 
+	Function->Childs = P.Input;
+
 	Scope->Append(Function->Childs, P.Output);
 
 	Global_Scope->Defined.push_back(Function);
@@ -584,10 +586,14 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 
 	if (!Input[i]->is(ELSE_NODE)) {
 		PostProsessor p(Input[i], Input[i]->Parameters);
+
+		Input[i]->Parameters = p.Input;
 	}
 
 	//here we now postprosess also the insides of the condition
 	PostProsessor p(Input[i], Input[i]->Childs);
+
+	Input[i]->Childs = p.Input;
 
 	Algebra_Laucher(Input[i], Input[i]->Childs);
 
@@ -605,6 +611,8 @@ void PostProsessor::Open_Paranthesis(int i)
 		return;
 
 	PostProsessor p(Input[i], Input[i]->Childs);
+
+	Input[i]->Childs = p.Input;
 
 	for (auto& v : Input[i]->Defined)
 		p.Destructor_Caller(v, Input[i]->Childs);
@@ -1277,6 +1285,8 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	//give the post prosessor a way to reach the parameters that might have member fetching/ math
 	PostProsessor p(Scope, Input[i]->Parameters);
 
+	Input[i]->Parameters = p.Input;
+
 	Algebra_Laucher(Input[i], Input[i]->Parameters);
 
 	//see what outside defined has been injected to this call.
@@ -1403,21 +1413,36 @@ Node* PostProsessor::Get_From_AST(Node* n)
 		//(a.b + a.c) 
 		//				n is parent because of the local scope
 		PostProsessor p(n, n->Childs);
+
+		n->Childs = p.Input;
+
 		return Get_From_AST(n->Childs[0]);
 	}
 	else if (n->is(OPERATOR_NODE)) {
-		PostProsessor p(Scope, { n });
+		vector<Node*> Change = { n };
+		PostProsessor p(Scope, Change);
+
+		if (Change.size() > 1)
+			Report(Observation(ERROR, "Un handled situation!", *n->Location));
+
 		return Get_From_AST(n);	//this call the same funciton again because the structure of the AST might have been changed.
 	}
 	else if (n->is(ARRAY_NODE)) {
-		PostProsessor p(Scope, { n });
+
+		vector<Node*> Change = { n };
+
+		PostProsessor p(Scope, Change);
+
+		if (Change.size() > 1)
+			Report(Observation(ERROR, "Un handled situation!", *n->Location));
+
 		return n->Get_Most_Left();
 	}
 	else if (n->is(CALL_NODE)) {
-		PostProsessor p(Scope, n->Parameters);	//prosess the parameters.
-		//update the return type of the funciton call
-		//if (n->Holder->Name == "return")
-		//	Analyze_Return_Value(n->Holder);
+		PostProsessor p(Scope, n->Parameters);
+
+		n->Parameters = p.Input;
+
 		Find_Call_Owner(n);
 		return n;
 	}
