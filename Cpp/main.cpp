@@ -18,6 +18,7 @@
 #include "../H/BackEnd/ARM.h"
 #include "../H/BackEnd/IRPostProsessor.h"
 #include "../H/BackEnd/DebugGenerator.h"
+#include "../H/UI/Satellite.h"
 
 #include <sstream>
 #include <iostream>
