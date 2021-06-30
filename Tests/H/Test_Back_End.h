@@ -42,6 +42,8 @@ public:
 
 class Back_End_Test  {
 private:
+	string Executable_Location;
+
 	vector<pair<Back_Expectation_Set, string>> Tests;
 	vector<Base*> Run(string);
 	void Factory();
@@ -56,7 +58,7 @@ private:
 public:
 	void Init();
 	Back_End_Test(vector<pair<Back_Expectation_Set, string>> t) : Tests(t) { Factory(); }
-	Back_End_Test() { Init(); Factory(); }
+	Back_End_Test(string Executable_Location) : Executable_Location(Executable_Location) { Init(); Factory(); }
 };
 
 #endif

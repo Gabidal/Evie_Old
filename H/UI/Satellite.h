@@ -43,10 +43,14 @@ public:
 	//Default Depedencies installation
 	Satellite() {
 		this->Installation_Type = INSTALL::DEFAULT;
+		Init_Wanted_Dependencies();
+		Factory();
 	}
 
 	Satellite(INSTALL Installation_Type) {
 		this->Installation_Type = Installation_Type;
+		Init_Wanted_Dependencies();
+		Factory();
 	}
 private:
 	INSTALL Installation_Type;

@@ -83,13 +83,13 @@ vector<Base*> Back_End_Test::Run(string File)
 	if (Generate_Debug) 
 		Use_Debug = "-d";
 	if (Use_ARM) {
-		argv = new const char* [9 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("dll"))->c_str(), (new string("-arch"))->c_str(), (new string("-arm"))->c_str(), Use_Debug.c_str() };
-		argc = 9 + (Use_Debug == "-d");
+		argv = new const char* [10 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("dll"))->c_str(), (new string("-arch"))->c_str(), (new string("-arm"))->c_str(), Use_Debug.c_str() };
+		argc = 10 + (Use_Debug == "-d");
 		Output = "";
 	}
 	else {
-		argv = new const char* [7 + (Use_Debug == "-d")] { (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("dll"))->c_str(), Use_Debug.c_str() };
-		argc = 7 + (Use_Debug == "-d");
+		argv = new const char* [8 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), (new string("/Tests"))->c_str(), (new string("-in"))->c_str(), File.c_str(), (new string("-out"))->c_str(), output.c_str(), (new string("-f"))->c_str(), (new string("dll"))->c_str(), Use_Debug.c_str() };
+		argc = 8 + (Use_Debug == "-d");
 		Output = ".intel_syntax noprefix\n";
 	}
 	

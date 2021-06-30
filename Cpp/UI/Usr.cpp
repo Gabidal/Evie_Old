@@ -141,7 +141,7 @@ void Usr::Find_Evie_Executable_Position()
 {
 	string Argv_0 = Input[0];
 
-	DOCKER::Update_Working_Dir(Argv_0, Info.Evie_Location);
+	DOCKER::Update_Working_Dir(DOCKER::ReplaceAll(Argv_0, "\\", "/"), Info.Evie_Location);
 }
 
 void output::Fill_Empty_Arguments()

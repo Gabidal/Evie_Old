@@ -1,5 +1,6 @@
 #include "../../H/Docker/Docker.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/UI/Usr.h"
 
 vector<string> DOCKER::Libs;
 vector<string> DOCKER::Assembly_Source_File;
@@ -15,6 +16,8 @@ vector<string> DOCKER::Included_Files;
 vector<bool> DOCKER::Is_Local;
 vector<string>(*DOCKER::Slicer)(string);
 bool DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
+
+extern Usr* sys;
 
 vector<string> DOCKER::Default_ASM_Header_Data = {
 	"func local = \"global\\ +([A-Za-z0-9_@]+)\"",
@@ -347,8 +350,15 @@ char* DOCKER::Read_Bin_File(string fileName)
 
 string DOCKER::Find(string File_Name)
 {
-	for (auto p : filesystem::directory_iterator(File_Name))
+	for (auto p : filesystem::directory_iterator(sys->Info.Evie_Location))
 	{
+		filesystem::path File_Path = p.path();
+		if (!DOCKER::Is_Folder(File_Path.string()))
+			if (File_Path.filename().string() == File_Name)
+				return sys->Info.Evie_Location;
+			else
+				continue;
+
 		string Folder = DOCKER::Find(File_Name, p);
 		if (Folder != "")
 			return Folder;
@@ -358,14 +368,14 @@ string DOCKER::Find(string File_Name)
 
 string DOCKER::Find(string File_Name, filesystem::directory_entry Folder)
 {
-	for (auto p : filesystem::directory_iterator(File_Name))
+	for (auto p : filesystem::directory_iterator(Folder))
 	{
-		string file_name = p.path().filename().string();
-		if (!DOCKER::Is_Folder(file_name))
-			if (file_name == File_Name)
-				return Folder.path().filename().string();
+		filesystem::path File_Path = p.path();
+		if (!DOCKER::Is_Folder(File_Path.string()))
+			if (File_Path.filename().string() == File_Name)
+				return Folder.path().string();
 			else
-				return "";
+				continue;
 
 		string Folder = DOCKER::Find(File_Name, p);
 		if (Folder != "")

@@ -14,7 +14,10 @@ int main(int argc, const char** argv) {
 	cout << Magenta << "Lexer tests:" << Reset << endl;
 	//Lexer_Test L_Test;
 	cout << Magenta << "\n\nBack end tests:" << Reset << endl;
-	Back_End_Test B_Test;
+
+	string Location = argv[0];
+
+	Back_End_Test B_Test(Location);
 	return 0;
 }
 #endif

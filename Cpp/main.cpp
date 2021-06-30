@@ -82,6 +82,8 @@ int Build(int argc, const char* argv[])
         Output = ".intel_syntax noprefix\n";
     string start_file = sys->Info.Source_File.c_str();
 
+    Satellite satellite;
+
     MANGLER::Add_ID("cpp", { "P",{MANGLER::PREFIX, "ptr"} });
     MANGLER::Add_ID("cpp", { "R",{MANGLER::PREFIX, "ref"} });
     MANGLER::Add_ID("cpp", { "c",{MANGLER::VARIABLE, "1 integer"} });

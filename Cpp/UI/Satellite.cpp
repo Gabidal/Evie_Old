@@ -16,7 +16,7 @@ void Satellite::Init_Wanted_Dependencies()
 			{OS::UNIX, INTRODUCE::CONSOLE, &sys->Info.Linker_Location, "ld"},
 
 			{OS::WIN, INTRODUCE::CONSOLE, nullptr, "git"},
-			{OS::WIN, INTRODUCE::LOCAL,   nullptr, "libcurl"},
+			{OS::WIN, INTRODUCE::LOCAL,   nullptr, "libcurl.lib"},
 			{OS::WIN, INTRODUCE::LOCAL, &sys->Info.Assembler_Location, "as"},
 		};
 
@@ -34,6 +34,7 @@ void Satellite::Factory()
 		//HOST_OS because in host we need to compile the source
 		if (Medium.Platform == sys->Info.HOST_OS) {
 			Process_Local_Dependencies(Medium);
+			Process_Console_Dependencies(Medium);
 		}
 	}
 }
@@ -55,7 +56,24 @@ void Satellite::Process_Local_Dependencies(Medium Medium)
 	Report(Observation(ERROR, "Dependency '" + Medium.Product_ID + "' is missing or unreachable to Evie!"));
 }
 
-void Satellite::Process_Console_Dependencies(Medium m)
+void Satellite::Process_Console_Dependencies(Medium Medium)
 {
-	
+	if (Medium.Introducer != INTRODUCE::CONSOLE)
+		return;
+
+	string Command;
+
+	if (Medium.Platform == OS::WIN) {
+		Command = Medium.Product_ID + " --version > $null";
+	}
+	else if (Medium.Platform == OS::UNIX) {
+		Command = "which " + Medium.Product_ID + " > /dev/null";
+	}
+
+	int Success = system(Command.c_str());
+
+	if (Success == 0)
+		return;
+
+	Report(Observation(ERROR, "Dependency '" + Medium.Product_ID + "' is missing or unreachable to Evie!"));
 }

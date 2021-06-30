@@ -29,9 +29,9 @@ string Producer::Get_Linker_Type()
     if (OS == "win")
     {
         if (arch == "x86")
-            return "Linkers\\x86_ld.exe ";
+            return sys->Info.Linker_Location + "x86_ld.exe ";
         else if (arch == "arm")
-            return "Linkers\\arm_ld.exe ";
+            return sys->Info.Linker_Location + "arm_ld.exe ";
     }
     else if (OS == "unix")
     {
@@ -45,9 +45,9 @@ string Producer::Get_Assembler()
     if (OS == "win")
     {
         if (arch == "x86")
-            return "Assemblers\\x86_as.exe --no-warn ";
+            return sys->Info.Assembler_Location + "x86_as.exe --no-warn ";
         else if (arch == "arm")
-            return "Assemblers\\arm_as.exe --no-warn ";
+            return sys->Info.Assembler_Location + "arm_as.exe --no-warn ";
     }
     else if (OS == "unix")
     {
