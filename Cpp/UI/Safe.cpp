@@ -44,10 +44,14 @@ void Observation::Report()
 	else if (Type == INFO)
 		Head = Green + "Notice" + Reset + ": ";
 
-	if (Pos.GetFilePath() != nullptr)
-		cout << Pos.GetFilePath() << ":" << Pos.GetFriendlyLine() << ":" << Pos.GetFriendlyCharacter() << ": " << Head << Msg << endl;
-	else
+	if (Pos.GetLine() != -1)
+		if (Pos.GetFilePath() != nullptr)
+			cout << Pos.GetFilePath() << ":" << Pos.GetFriendlyLine() << ":" << Pos.GetFriendlyCharacter() << ": " << Head << Msg << endl;
+		else
+			cout << Head << Msg << endl;
+	else 
 		cout << Head << Msg << endl;
+
 	if (Type == SOLUTION)
 		cout << "}" << endl;
 	if ((Type == FAIL || Type == ERROR) && !Dont_Stop)

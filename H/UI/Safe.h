@@ -28,6 +28,13 @@ public:
 		Pos = p;
 	}
 
+	Observation(MSG_Type t, string msg) {
+		//External message request.
+		Type = t;
+		Msg = msg;
+		Pos = Position(-1, -1);
+	}
+
 	Observation(Observation& O, bool Dont_Stop) {
 		*this = O;
 		this->Dont_Stop = Dont_Stop;

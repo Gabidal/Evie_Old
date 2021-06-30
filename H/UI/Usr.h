@@ -24,6 +24,11 @@ public:
 	bool Debug = false;
 	string VT_API = "";
 	int Reference_Count_Size = 0;
+
+	string Evie_Location = "";
+	string Assembler_Location = "";
+	string Linker_Location = "";
+
 	output() {
 		#if _WIN32
 			OS = "win";
@@ -75,6 +80,7 @@ private:
 	void Find_Debug_Type(int& i);
 	void Find_VT_API(int& i);
 	void Find_Reference_Count(int& i);
+	void Find_Evie_Executable_Position();
 };
 
 

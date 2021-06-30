@@ -345,6 +345,35 @@ char* DOCKER::Read_Bin_File(string fileName)
 	return Buffer;
 }
 
+string DOCKER::Find(string File_Name)
+{
+	for (auto p : filesystem::directory_iterator(File_Name))
+	{
+		string Folder = DOCKER::Find(File_Name, p);
+		if (Folder != "")
+			return Folder;
+	}
+	return "";
+}
+
+string DOCKER::Find(string File_Name, filesystem::directory_entry Folder)
+{
+	for (auto p : filesystem::directory_iterator(File_Name))
+	{
+		string file_name = p.path().filename().string();
+		if (!DOCKER::Is_Folder(file_name))
+			if (file_name == File_Name)
+				return Folder.path().filename().string();
+			else
+				return "";
+
+		string Folder = DOCKER::Find(File_Name, p);
+		if (Folder != "")
+			return Folder;
+	}
+	return "";
+}
+
 vector<string>& DOCKER::Append(vector<string>& d, vector<pair<string, string>> s) {
 	for (int i = 0; i < s.size(); i++) {
 		string r = s[i].first + " " + s[i].second;

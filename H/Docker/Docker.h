@@ -74,7 +74,8 @@ namespace DOCKER {
 	bool Is_Folder(string path);
 	bool Is_Same_File(string first, string second);
 	char* Read_Bin_File(string fileName);
-	
+	string Find(string File_Name);
+	string Find(string File_Name, filesystem::directory_entry Folder);
 }
 
 class Docker

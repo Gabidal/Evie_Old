@@ -1,4 +1,5 @@
 #include "../../H/UI/Usr.h"
+#include "../../H/Docker/Docker.h"
 #include <cstring>
 #include <iostream>
 #include <optional>
@@ -7,6 +8,8 @@
 //main -in ~/test.g -out ~/test.asm -os win32 -arch x86 -mode 32
 void Usr::Create_Argument_Stats()
 {
+	Find_Evie_Executable_Position();
+
 	for (int i = 1; i < Argument_Amount; i++) {
 		Find_Destination_File(i);
 		Find_Source_File(i);
@@ -132,6 +135,13 @@ void Usr::Find_Reference_Count(int& i)
 		Info.Reference_Count_Size = atoi(tmp.c_str());
 		i++;
 	}
+}
+
+void Usr::Find_Evie_Executable_Position()
+{
+	string Argv_0 = Input[0];
+
+	DOCKER::Update_Working_Dir(Argv_0, Info.Evie_Location);
 }
 
 void output::Fill_Empty_Arguments()
