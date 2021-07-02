@@ -311,6 +311,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		Operator->Left = Left_Side;
 		Operator->Right = Right_Side;
 		Operator->Scope = c->Scope;
+		Operator->Inheritted = Operator->Left->Inheritted;
 
 		Left_Side->Context = Operator;
 		Right_Side->Context = Operator;
@@ -646,7 +647,7 @@ void Algebra::Set_Defining_Value(int i)
 	if (Input->at(i)->Left->is(ARRAY_NODE))
 		return;
 
-	if (Input->at(i)->Right->Get_All("ptr") != Input->at(i)->Left->Get_All("ptr"))
+	if (Input->at(i)->is("ptr") != -1)
 		return;
 
 	if (Input->at(i)->Left->Fetcher != nullptr)
@@ -654,6 +655,9 @@ void Algebra::Set_Defining_Value(int i)
 
 	//callations sould not be inlined because theyre return value may vary.
 	if (Input->at(i)->Get_all(CALL_NODE).size() > 0)
+		return;
+
+	if (Is_Untrustworthy(Input->at(i)->Left))
 		return;
 
 	//if the right side is a operator wrap it in a parenthesis just because the '-' prefix!!
@@ -1279,6 +1283,21 @@ void Algebra::Un_Wrap_Parenthesis(Node* p)
 
 		//Optimized = true;
 	}
+}
+
+bool Algebra::Is_Untrustworthy(Node* v)
+{
+	if (!v->Scope->is(WHILE_NODE))
+		return false;
+
+	for (auto i : v->Scope->Parameters)
+		for (auto j : i->Get_all(OBJECT_NODE)) {
+			if (j->Context == nullptr)
+				continue;
+			else if (j->Context->Has({ POSTFIX_NODE, PREFIX_NODE }))
+				return true;
+		}
+	return false;
 }
 
 void Algebra::Fix_Coefficient_Into_Real_Operator(Node* n)

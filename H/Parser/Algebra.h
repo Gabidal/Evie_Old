@@ -46,6 +46,7 @@ private:
 	Node* Get_Other_Pair(Node* ast, Node* other);
 
 	void Un_Wrap_Parenthesis(Node* p);
+	bool Is_Untrustworthy(Node* v);
 };
 
 #endif
