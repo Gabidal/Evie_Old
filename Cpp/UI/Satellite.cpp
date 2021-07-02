@@ -17,14 +17,16 @@ void Satellite::Init_Wanted_Dependencies()
 
 			{OS::WIN, INTRODUCE::CONSOLE, nullptr, "git"},
 			{OS::WIN, INTRODUCE::LOCAL,   nullptr, "libcurl.lib"},
-			{OS::WIN, INTRODUCE::LOCAL, &sys->Info.Assembler_Location, "as"},
 		};
 
-		if (sys->Info.Architecture == ARCHITECTURE::X86)
-			Dependecies.push_back({ OS::WIN, INTRODUCE::CONSOLE, &sys->Info.Linker_Location, "x86_ld" });
-		
-		if (sys->Info.Architecture == ARCHITECTURE::ARM)
-			Dependecies.push_back({ OS::WIN, INTRODUCE::CONSOLE, &sys->Info.Linker_Location, "arm_ld" });
+		if (sys->Info.Architecture == ARCHITECTURE::X86) {
+			Dependecies.push_back({ OS::WIN, INTRODUCE::LOCAL, &sys->Info.Linker_Location, "x86_ld.exe" });
+			Dependecies.push_back({ OS::WIN, INTRODUCE::LOCAL, &sys->Info.Assembler_Location, "x86_as.exe" });
+		}
+		if (sys->Info.Architecture == ARCHITECTURE::ARM) {
+			Dependecies.push_back({ OS::WIN, INTRODUCE::LOCAL, &sys->Info.Linker_Location, "arm_ld.exe" });
+			Dependecies.push_back({ OS::WIN, INTRODUCE::LOCAL, &sys->Info.Assembler_Location, "arm_as.exe" });
+		}
 	}
 }
 

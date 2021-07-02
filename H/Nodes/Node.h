@@ -41,6 +41,12 @@ namespace PARSED_BY {
 	constexpr long long FUNCTION_PROSESSOR				= 1 << 12;
 }
 
+enum class LABEL_TYPE {
+	NON,
+	RETURN_LABEL,
+	CAN_MODIFY_ID,
+};
+
 class Node {
 public:
 	Node(int flag, Position* p) : Type(flag), Location(p) {}
@@ -117,6 +123,7 @@ public:
 	//IR safe features
 	//bool Generated = false;
 	long long Parsed_By = PARSED_BY::NONE;
+	LABEL_TYPE Inline_Return_Label = LABEL_TYPE::NON;
 
 	bool is(long long F) {
 		return (Parsed_By & F) == F;
@@ -132,6 +139,8 @@ public:
 				return i;
 		return -1;
 	}
+
+	bool is(LABEL_TYPE F) { return (F == Inline_Return_Label); }
 
 	int Calculate_Inheritted_Distance(Node* Val, Node* Loader, string type);
 

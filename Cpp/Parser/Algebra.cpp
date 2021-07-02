@@ -166,11 +166,17 @@ void Algebra::Function_Inliner(Node* c, int i)
 			if (k->Function_Implementation == c->Function_Implementation)
 				return;	//disable recursive funktions
 		}
-			
 	}
 
 	for (auto j : c->Function_Implementation->Childs) {
 		Childs.push_back(c->Copy_Node(j, c->Scope));
+	}
+
+	for (auto j : Childs) {
+		for (auto k : j->Get_all(LABEL_NODE)) {
+			if (k->Inline_Return_Label == LABEL_TYPE::RETURN_LABEL && k->Context == nullptr)
+				k->Inline_Return_Label = LABEL_TYPE::CAN_MODIFY_ID;
+		}
 	}
 
 	//give the parameters a new name;
@@ -182,25 +188,23 @@ void Algebra::Function_Inliner(Node* c, int i)
 	}
 
 	while (true) {
-		bool Is_Unique = true;
 		for (auto j : Defined_Labels) {
-			if (j == ("Return_Here_" + to_string(Unique_ID_Count))) {
-				Unique_ID_Count++;
-				Is_Unique = false;
-			}
+			if (j == ("Return_Here_" + to_string(Unique_ID_Count)))
+				goto Label_Already_Taken;
 		}
-		if (Is_Unique)
-			break;
+		break;
+	Label_Already_Taken:;
+		Unique_ID_Count++;
 	}
 
 	//generate the end_of_function_label
 	Node* End_of_Function_Label = new Node(LABEL_NODE, c->Location);
 	End_of_Function_Label->Name = "Return_Here_" + to_string(Unique_ID_Count);
 	End_of_Function_Label->Scope = c->Scope;
+	End_of_Function_Label->Inline_Return_Label = LABEL_TYPE::RETURN_LABEL;
 
 	Childs.push_back(End_of_Function_Label);
 	Defined_Labels.push_back("Return_Here_" + to_string(Unique_ID_Count));
-	Defined_Labels.push_back("Return_Here_" + to_string(Unique_ID_Count+1));
 
 	Node* Return_Value = nullptr;
 	if (c->Context) {
@@ -235,7 +239,29 @@ void Algebra::Function_Inliner(Node* c, int i)
 						k->Type = OBJECT_NODE;
 				}
 			}
-			if (k->is(LABEL_NODE)) {
+			if (k->Inline_Return_Label == LABEL_TYPE::CAN_MODIFY_ID) {
+				vector<Node*> Same_Named_Labels;
+				for (auto i : Childs) {
+					for (auto j : i->Get_all(LABEL_NODE))
+						if (j->Name == k->Name)
+							Same_Named_Labels.push_back(j);
+				}
+
+				while (true) {
+					for (auto j : Defined_Labels) {
+						if (j == ("Return_Here_" + to_string(Unique_ID_Count)))
+							goto Label_Already_Taken_1;
+					}
+					break;
+				Label_Already_Taken_1:;
+					Unique_ID_Count++;
+				}
+
+				for (auto i : Same_Named_Labels) {
+					i->Name = "Return_Here_" + to_string(Unique_ID_Count);
+				}
+
+				Defined_Labels.push_back("Return_Here_" + to_string(Unique_ID_Count));
 
 				/*if (k->Context == nullptr) {
 					k->Name = "Return_Here_" + to_string(Unique_ID_Count++);
@@ -244,14 +270,14 @@ void Algebra::Function_Inliner(Node* c, int i)
 					k->Name = "Return_Here_" + to_string(Unique_ID_Count);
 				}*/
 				//increment the label unique ID
-				unsigned long long Unique_ID = atoll(k->Name.substr(string("Return_Here_").size()).c_str());
+				/*unsigned long long Unique_ID = atoll(k->Name.substr(string("Return_Here_").size()).c_str());
 				unsigned long long Previus_Unique_ID = Unique_ID;
-
-				Unique_ID += Unique_ID_Count + 1;
 
 				string Previus_Unique_ID_String = to_string(Previus_Unique_ID);
 
 				string Name = k->Name.substr(0, k->Name.size() - Previus_Unique_ID_String.size());
+
+
 
 				k->Name = Name + to_string(Unique_ID);
 
@@ -263,7 +289,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 				if (!Is_Already_Defined)
 					Defined_Labels.push_back(k->Name);
-
+				*/
 				/*string Scope_Name = k->Name.substr(k->Name.size() - c->Scope->Name.size());
 
 				if (Scope_Name == c->Scope->Name)
