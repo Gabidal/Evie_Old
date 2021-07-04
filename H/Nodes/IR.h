@@ -26,6 +26,21 @@ public:
 	IR(string id, Token* opc, vector<vector<pair<Token*, pair<int, int>>>> order, vector<IR*> (*c)(vector<Token*>)) : ID(id), OPCODE(opc), Order(order), Complex(c) {}
 
 	bool is(int flag) { return OPCODE->is(flag); }
+	vector<Token*> Get_All(long long F)
+	{
+		vector<Token*> Result;
+		for (auto i : Arguments) {
+			vector<Token*> Tmp = i->Get_All(F);
+			Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+		}
+		if (OPCODE) {
+			vector<Token*> Tmp = OPCODE->Get_All(F);
+			Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+		}
+
+		return Result;
+	}
+
 };
 
 #endif

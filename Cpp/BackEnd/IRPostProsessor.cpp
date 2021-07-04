@@ -148,19 +148,16 @@ void IRPostProsessor::Clean_Selector(int& i)
 	//start from the bottom of the function and rise up until hit function start label.
 	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j--) {
 		for (auto& arg : Input->at(j)->Arguments)
-			for (auto& Child : arg->Get_All_Childs(arg))
-				if (Child->is(TOKEN::OFFSETTER) || Child->is(TOKEN::DEOFFSETTER))
-					if (Child->Left->is(TOKEN::STACK_POINTTER) && Child->Right->is(TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE)) {
-						int Current_Offset = atoi(Child->Right->Get_Name().c_str());
-						Current_Offset += New_Stack_Offset;
-						Child->Right->Set_Name(to_string(Current_Offset));
-					}
+			for (auto& Child : arg->Get_All(TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE)) {
+				int Current_Offset = atoi(Child->Get_Name().c_str());
+				Current_Offset += New_Stack_Offset;
+				Child->Set_Name(to_string(Current_Offset));
+			}
 	}
 
 	reverse(Push_Amount.begin(), Push_Amount.end());
 
 	//now do same but for the end of funciton
-	selector->Set_Stack_Start_Value(0);
 	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j -= 1) {
 		if (Input->at(j)->OPCODE->Get_Name() != "return")
 			continue;
@@ -176,13 +173,12 @@ void IRPostProsessor::Clean_Selector(int& i)
 		}
 		Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, ret->Get_Parent());
 		if (Parent->Size_of_Call_Space + Parent->Local_Allocation_Space > 0) {
-			selector->DeAllocate_Stack(Parent->Size_of_Call_Space + selector->Update_Stack_Size() + Parent->Local_Allocation_Space, Input, j);
+			selector->DeAllocate_Stack(Parent->Size_of_Call_Space + Parent->Local_Allocation_Space, Input, j);
 			for (auto k : Input->at(j)->Arguments)
 				Registerize(k, j);
 		}
 	}
 	selector->Clean_Register_Holders();
-	selector->Clean_Stack();
 	//find the current end of function location.
 	for (; !Input->at(i)->is(TOKEN::END_OF_FUNCTION); i++);
 }
@@ -192,7 +188,6 @@ void IRPostProsessor::Prepare_Function(int& i)
 	if (!Input->at(i)->is(TOKEN::START_OF_FUNCTION))
 		return;
 
-	selector->Set_Stack_Start_Value(_SYSTEM_BIT_SIZE_);
 	//selector->Allocate_Stack(Global_Scope->Find(Input->at(i)->OPCODE->Get_Name(), Global_Scope)->Max_Allocation_Space, Input, i + 1);
 	
 	Node* Scope = Input->at(i)->OPCODE->Get_Parent();
@@ -227,6 +222,8 @@ void IRPostProsessor::Handle_Labels(int i)
 		return;
 
 	selector->Allocate_Stack(Func->Size_of_Call_Space + Func->Local_Allocation_Space, Input, i + 1);
+
+	selector->Init_Stack(Func);
 }
 
 void IRPostProsessor::Handle_Stack_Usages(Token* t)

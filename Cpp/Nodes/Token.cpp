@@ -84,3 +84,39 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	if (Flags == 0)
 		Report(Observation(ERROR, "Internal error! Missing Flag in token " + Name, Position()));
 }
+
+vector<Token*> Token::Get_All(vector<long long> F)
+{
+	vector<Token*> Result;
+	for (auto i : F) {
+		vector<Token*> Tmp = Get_All(i);
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}
+	return Result;
+}
+
+vector<Token*> Token::Get_All(long long F)
+{
+	vector<Token*> Result;
+	for (auto i : Childs) {
+		vector<Token*> Tmp = i->Get_All(F);
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}	
+	for (auto i : Parameters) {
+		vector<Token*> Tmp = i->Get_All(F);
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}
+	if (Left) {
+		vector<Token*> Tmp = Left->Get_All(F);
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}
+	if (Right) {
+		vector<Token*> Tmp = Right->Get_All(F);
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}
+
+	if (this->is(F))
+		Result.push_back(this);
+
+	return Result;
+}

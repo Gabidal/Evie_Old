@@ -351,7 +351,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		j->Update_Size();
 	}
 
-	Scope->Update_Defined_Stack_Offsets();
+	//Scope->Update_Defined_Stack_Offsets();
 	Scope->Update_Stack_Space_Size(Scope);
 
 }

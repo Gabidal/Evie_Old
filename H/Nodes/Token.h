@@ -159,6 +159,8 @@ public:
 		}
 		return false;
 	}
+	vector<Token*> Get_All(vector<long long> F);
+	vector<Token*> Get_All(long long F);
 };
 
 #endif

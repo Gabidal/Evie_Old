@@ -130,7 +130,7 @@ Path* Selector::Get_Path_Info(vector<IR*> source, int i, Token* t) {
 	return p;
 }
 
-void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Register_Descriptor*, Token*> Current, pair<Register_Descriptor*, Token*> New, vector<IR*>* source, int i)
+void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Descriptor*, Token*> Current, pair<Descriptor*, Token*> New, vector<IR*>* source, int i)
 {
 	/*
 	mov rbx, [a]
@@ -206,12 +206,12 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 				continue;
 			if (r.first == nullptr || r.first->Last_Usage_Index <= p->Last_Usage) {
 				//no current owner
-				r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
+				r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
 				return r.second;
 			}
 			else if (r.first->Last_Usage_Index > p->Last_Usage){
 				//if the current register user is more superior register user than us, then we need to do a temporary save to stack 
-				Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Register_Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+				Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
 				//now the wanted register is solutioned :D
 				return r.second;
 			}
@@ -263,7 +263,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 					if (p->Intersects_Calls.size() > 0)
 						return Move_Parameter_Into_Non_Volatile({ p, t }, r.second, source, i);
 
-					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
+					r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
 
 					return r.second;
 				}
@@ -272,7 +272,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 				}
 				else if (r.first->Last_Usage_Index > p->Last_Usage) {
 					//if the current register user is more superior register user than us, then we need to do a temporary save to stack 
-					Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Register_Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+					Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
 					//now the wanted register is solutioned :D
 					return r.second;
 				}
@@ -304,7 +304,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i)
 							goto Wrong;
 				if (r.second->Get_Size() == t->Get_Size()) {
-					r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
+					r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
 					return r.second;
 				}
 			}
@@ -325,7 +325,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 			return r.second;
 		}
 		else if (Single_Register_Type && r.second->is(Reg_Type) && r.second->Get_Size() == t->Get_Size()) {
-			Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Register_Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+			Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
 			return r.second;
 		}
 		//still... checking names is wrong
@@ -397,7 +397,7 @@ Token* Selector::Get_Register(Token* t)
 				Token* Larger_Register = Get_Larger_Register(i.second, t);
 				for (auto& j : Registers)
 					if (Larger_Register->Get_Name() == j.second->Get_Name()) {
-						j.first = new Register_Descriptor(*i.first);
+						j.first = new Descriptor(*i.first);
 						return j.second;
 					}
 			}
@@ -405,7 +405,7 @@ Token* Selector::Get_Register(Token* t)
 				Token* Smaller_Register = Get_Smaller_Register(i.second, t);
 				for (auto& j : Registers)
 					if (Smaller_Register->Get_Name() == j.second->Get_Name()) {
-						j.first = new Register_Descriptor(*i.first);
+						j.first = new Descriptor(*i.first);
 						return j.second;
 					}
 			}
@@ -413,7 +413,7 @@ Token* Selector::Get_Register(Token* t)
 	return nullptr;	//need to use Get_New_Reg();
 }
 
-Token* Selector::Get_Register(long F, Register_Descriptor* user, int i, Token* t)
+Token* Selector::Get_Register(long F, Descriptor* user, int i, Token* t)
 {
 	bool Single_Register_Type = F == TOKEN::RETURNING || F == TOKEN::REMAINDER || F == TOKEN::QUOTIENT || F == TOKEN::STACK_POINTTER;
 
@@ -466,7 +466,7 @@ int Selector::Get_Largest_Register()
 	return Result;
 }
 
-Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
+Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 {
 	for (auto i : Registers) {
 		if (i.second->Get_Name() == r->Get_Name()) {
@@ -482,7 +482,7 @@ Register_Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 	throw::runtime_error("INTERNAL ERROR!");
 }
 
-Register_Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
+Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 {
 	for (auto i : Registers) {
 		//if (i.second->Get_Name() == r->Get_Name()) {
@@ -508,16 +508,24 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 			continue;
 		if (r.second->Get_Size() != t->Get_Size())
 			continue;
-		if (r.first == nullptr) {
-			r.first = new Register_Descriptor(i, p->Last_Usage, t->Get_Name());
-			return;
-		}
+		
+		//get the register owner
+		pair<Descriptor*, Token*>* Previus_User = Get_Register_User(Get_Larger_Register(t, t));
+		
+		if (Previus_User == nullptr)
+			Report(Observation(ERROR, "INTERNAL PROBLEM HAS OCCURED!!", Position()));
+
+		//we need to allocate some space for this NONVOLATILE previus owner.
+		Stack.push_back({Previus_User->first, new Memory(Previus_User->second->Get_Size(), ALLOCATED_FOR::REGISTER_SAVE_SPACE)});
+
+		Previus_User->first = nullptr;
+
 	}
 	cout << "allocation needed!" << endl;
 	throw::runtime_error("INTERNAL ERROR!");
 }
 
-void Selector::Pair_Up(Token* r, Register_Descriptor* t)
+void Selector::Pair_Up(Token* r, Descriptor* t)
 {
 	for (auto& i : Registers)
 		if (i.second->Get_Name() == r->Get_Name() || i.second->Get_Name() == r->ID) {
@@ -612,9 +620,9 @@ void Selector::Clean_Register_Holders()
 	}
 }
 
-vector<pair<Register_Descriptor*, Token*>> Selector::Get_Register_Type(long f)
+vector<pair<Descriptor*, Token*>> Selector::Get_Register_Type(long f)
 {
-	vector<pair<Register_Descriptor*, Token*>> Result;
+	vector<pair<Descriptor*, Token*>> Result;
 	for (auto& i : Registers) {
 		if (i.second->is(f))
 			Result.push_back(i);
@@ -650,29 +658,24 @@ void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//add rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK",  _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
+	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK",  _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM | TOKEN::STACK_ALLOCATION_CONSTANT, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
 }
 
 void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//sub rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "-"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
+	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "-"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM | TOKEN::STACK_ALLOCATION_CONSTANT, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
 }
 
-int Selector::Update_Stack_Size()
+void Selector::Init_Stack(Node* Func)
 {
-	//go through the stack variables, then return sum.
-	Stack_Size = 0;
-	for (auto i : Stack)
-		Stack_Size += i->Get_Size();
-	return Stack_Size + Start_Offset;
-}
+	
+	Stack.push_back({ nullptr, new Memory(Func->Local_Allocation_Space, ALLOCATED_FOR::LOCAL_VARIABLE_SCAPE)});
 
-void Selector::Clean_Stack()
-{
-	Stack.clear();
-	Start_Offset = 0;
+	Stack.push_back({ nullptr, new Memory(Func->Call_Space_Start_Address, ALLOCATED_FOR::CALL_PARAMETER_SPACE)});
+
+	
 }
 
 IR* Selector::Get_Opcode(IR* i)
@@ -735,5 +738,52 @@ string Selector::Get_Size_Identifier(int s)
 	}
 	Report(Observation(ERROR, "Size identifier for size of '" + to_string(s) + "' wasnt found!", Position()));
 	throw::runtime_error("Error!");
+}
+
+pair<long long, long long> Selector::Compute_Function_Territory(vector<IR*> Irs, long long i)
+{
+	pair<long long, long long> Result;
+	for (long long Current_Location = i; Current_Location > 0; Current_Location--)
+		if (Irs[Current_Location]->is(TOKEN::START_OF_FUNCTION)) {
+			Result.first = Current_Location;
+			break;
+		}
+
+	for (long long Current_Location = i; Current_Location < Irs.size(); Current_Location++)
+		if (Irs[Current_Location]->is(TOKEN::END_OF_FUNCTION)) {
+			Result.second = Current_Location;
+			break;
+		}
+
+	return Result;
+}
+
+vector<Token*> Selector::Get_Stack_Deallocators_And_Allocators(pair<long long, long long> Function_Territory, vector<IR*> Irs)
+{
+	vector<Token*> Result;
+
+	for (int i = Function_Territory.first; i < Function_Territory.second; i++) {
+		for (auto j : Irs[i]->Arguments)
+			for (auto k : j->Get_All(TOKEN::STACK_ALLOCATION_CONSTANT)) {
+				Result.push_back(k);
+			}
+	}
+
+	return Result;
+}
+
+pair<Descriptor*, Token*>* Selector::Get_Register_User(Token* R)
+{
+	for (auto &i : Registers) {
+		if (i.second == R) {
+			if (i.first)
+				return &i;
+			for (auto j : R->Childs) {
+				if (Get_Register_User(j))
+					return Get_Register_User(j);
+			}
+			return nullptr;
+		}
+	}
 }
 
