@@ -23,7 +23,7 @@ void Node::Update_Defined_Stack_Offsets()
 		if (i->is(OBJECT_NODE) || i->is(OBJECT_DEFINTION_NODE)) {
 			//every local variable is defined default as a value in a register.
 			if (i->Requires_Address) {
-				i->Memory_Offset = Local_Offset + Size_of_Call_Space;
+				i->Memory_Offset = Local_Offset/* + Size_of_Call_Space*/;
 				Local_Offset += i->Get_Size();
 			}
 		}
@@ -31,14 +31,14 @@ void Node::Update_Defined_Stack_Offsets()
 			if (Token(i, true).is(TOKEN::REGISTER)) {
 				//This happends when the parameter would be in a register but its in debug, so it uses stack
 				//we need to tell the system that it CAN use the Local_Offset as storing the parameter
-				i->Memory_Offset = Local_Offset + Size_of_Call_Space;
+				i->Memory_Offset = Local_Offset/* + Size_of_Call_Space*/;
 				Local_Offset += i->Get_Size();
 			}
 			else if (!Token(i).is(TOKEN::REGISTER)) {
 				//the parameters locate below the local variable space and the returning address 
 				//also, do remeber that, the pushes that the code needs for the nonvolatiles
 				//those come before the parameter space.
-				i->Memory_Offset = Parameter_Offset + Size_of_Call_Space;
+				i->Memory_Offset = Parameter_Offset/* + Size_of_Call_Space*/;
 				Parameter_Offset += i->Get_Size();
 			}
 		}

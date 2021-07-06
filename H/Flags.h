@@ -47,6 +47,12 @@ namespace TOKEN {
 	constexpr long long ADD_NON_VOLATILE_SPACE_NEEDS_HERE	 = (long long)1 << 32;
 	constexpr long long POSITION_INDEPENDENT_REGISTER		 = (long long)1 << 33;
 	constexpr long long STACK_ALLOCATION_CONSTANT			 = (long long)1 << 34;
+	constexpr long long UN_DECIDED							 = (long long)1 << 35;
+	constexpr long long PARAMETER_SPACE						 = (long long)1 << 36;
+	constexpr long long PUSH_SPACE							 = (long long)1 << 37;
+	constexpr long long LOCAL_VARIABLE_SCOPE				 = (long long)1 << 38;
+	constexpr long long REGISTER_SAVE_SPACE					 = (long long)1 << 39;
+	constexpr long long CALL_PARAMETER_SPACE				 = (long long)1 << 40;
 }
 
 namespace Flags{

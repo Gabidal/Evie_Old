@@ -78,10 +78,19 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 	//if (t->Get_Name() == ".RIP") {
 	//	cout << ".";
 	//}
-	if (selector->Get_Register(t) == nullptr)
-		if (selector->Get_New_Reg(Input, i, t) == nullptr)
-			selector->Allocate_Register(Input, i, t);
-	t->ID = selector->Get_Register(t)->Get_Name();
+	if (selector->Get_Memory_Location(t) == nullptr) {
+		if (selector->Get_Register(t) == nullptr)
+			if (selector->Get_New_Reg(Input, i, t) == nullptr) {
+				selector->Allocate_Register(Input, i, t);
+				goto Use_Memory_Instead_Of_Register;
+			}
+		t->ID = selector->Get_Register(t)->Get_Name();
+	}
+	else {
+	Use_Memory_Instead_Of_Register:;
+		*t = *selector->Get_Memory_Location(t);
+		Handle_Stack_Usages(t);
+	}
 	//if (t->Get_Name() == "REG_2") {
 	//	cout << ".";
 	//}
@@ -179,6 +188,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 		}
 	}
 	selector->Clean_Register_Holders();
+	selector->Clean_Stack();
 	//find the current end of function location.
 	for (; !Input->at(i)->is(TOKEN::END_OF_FUNCTION); i++);
 }
@@ -242,24 +252,31 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 		*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::POSITION_INDEPENDENT_REGISTER | TOKEN::REGISTER, ".RIP", _SYSTEM_BIT_SIZE_), new Token(TOKEN::GLOBAL_VARIABLE, t->Get_Name(), t->Get_Size()));
 	}
 	else {
-		//first update the stack offset.
-		Node* Function = t->Get_Parent();
+		if (t->Has({ TOKEN::REGISTER_SAVE_SPACE })) {
+			*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM, to_string(selector->Calculate_Memory_Address(t))));
+		}
+		else {
+			//first update the stack offset.
+			Node* Function = t->Get_Parent();
 
-		Function->Update_Defined_Stack_Offsets();
+			Function->Update_Defined_Stack_Offsets();
 
-		Node* og = Function->Find(t->Get_Name());
+			Node* og = Function->Find(t->Get_Name());
 
-		long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
-		if (og->is(PARAMETER_NODE) && !Token(og, true).is(TOKEN::REGISTER))
-			Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;
+			long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
+			if (og->is(PARAMETER_NODE) && !Token(og, true).is(TOKEN::REGISTER))
+				Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;
 
-		//Maybe we need to add the parameters addresses here?
-		if (og->Memory_Offset > 0 || og->is(PARAMETER_NODE))
-			*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
-		else if (og->Memory_Offset == 0)
-			*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
-		else if (og->Memory_Offset < 0)
-			*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset)));
+			long long Offset = selector->Calculate_Memory_Address(TOKEN::LOCAL_VARIABLE_SCOPE);
+
+			//Maybe we need to add the parameters addresses here?
+			if (og->Memory_Offset > 0 || og->is(PARAMETER_NODE))
+				*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset + Offset)));
+			else if (og->Memory_Offset + Offset == 0)
+				*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
+			else if (og->Memory_Offset < 0)
+				*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset + Offset)));
+		}
 	}
 }
 

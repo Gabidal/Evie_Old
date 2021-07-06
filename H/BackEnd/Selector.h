@@ -29,29 +29,14 @@ public:
 	int Last_Usage = 0;
 };
 
-enum class ALLOCATED_FOR {
-	UN_DECIDED,
-	PARAMETER_SPACE,
-	PUSH_SPACE,
-	LOCAL_VARIABLE_SCAPE,
-	REGISTER_SAVE_SPACE,
-	CALL_PARAMETER_SPACE,
-};
-
-class Memory {
-public:
-	long long Size = 0;
-	ALLOCATED_FOR Allocation_Type = ALLOCATED_FOR::UN_DECIDED;
-
-	bool is(ALLOCATED_FOR F) {
-		return Allocation_Type == F;
-	}
-
-	Memory(long long Size, ALLOCATED_FOR Type) {
-		this->Size = Size;
-		Allocation_Type = Type;
-	}
-};
+//enum class ALLOCATED_FOR {
+//	UN_DECIDED,
+//	PARAMETER_SPACE,
+//	PUSH_SPACE,
+//	LOCAL_VARIABLE_SCAPE,
+//	REGISTER_SAVE_SPACE,
+//	CALL_PARAMETER_SPACE,
+//};
 
 class Selector {
 private:
@@ -61,7 +46,7 @@ private:
 	bool Find(Token* n, Token* ast);
 	//registers
 	vector<pair<Descriptor*, Token*>> Registers;
-	vector<pair<Descriptor*, Memory*>> Stack;
+	vector<pair<Descriptor*, Token*>> Stack;
 	vector<vector<Token*>> Parameter_Registers;
 	vector<Token*> Transform(Token* parent);
 	int Current_Parameter_Register_Index = 0;
@@ -87,7 +72,7 @@ public:
 	void Reset_Parameter_Register_Count(IR* r);
 	Token* Get_Register(Token* t);
 	Token* Get_Register(long F, Descriptor* user, int i, Token* t);
-	int Get_Largest_Register();
+	int Get_Largest_Register_Size();
 	Descriptor* Check_If_Smaller_Register_Is_In_Use(Token* r);
 	Descriptor* Check_If_Larger_Register_Is_In_Use(Token* r);
 	void Allocate_Register(vector<IR*>* source, int i, Token* t);
@@ -99,6 +84,7 @@ public:
 	vector<pair<Descriptor*, Token*>> Get_Register_Type(long f);
 	Token* Get_Larger_Register(Token* Reg, Token* token);
 	Token* Get_Smaller_Register(Token* Reg, Token* token);
+	Token* Get_Largest_Register(Token* Reg);
 
 	//STACK/HEAP:
 	//void Save(Token* id, Token* v, vector<IR*>* list, int i);
@@ -106,6 +92,10 @@ public:
 	void DeAllocate_Stack(int Amount, vector<IR*>* list, int i);
 	void Allocate_Stack(int Amount, vector<IR*>* list, int i);
 	void Init_Stack(Node* Func);
+	Token* Get_Memory_Location(Token* v);
+	void Clean_Stack();
+	long long Calculate_Memory_Address(Token* m);
+	long long Calculate_Memory_Address(long long F);
 
 	//OPCODES:
 	IR* Get_Opcode(IR* i);

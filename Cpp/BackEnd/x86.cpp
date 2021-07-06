@@ -195,9 +195,12 @@ void x86_64::Init()
 		new Token(NUM, "4"),
 		new Token(NUM, "8")
 		}, "scaler");
-	Token* Const = new Token(NUM, "const");
+	Token* Const = new Token(NUM | STACK_ALLOCATION_CONSTANT, "const");
 	Token* Decimal = new Token(DECIMAL | NUM, "const");
-	Token* Memory = new Token(MEMORY, {
+
+	long long Additional_Memory_Info = CALL_PARAMETER_SPACE | PARAMETER_SPACE | PUSH_SPACE | REGISTER_SAVE_SPACE | LOCAL_VARIABLE_SCOPE;
+
+	Token* Memory = new Token(MEMORY | Additional_Memory_Info, {
 			{ new Token(REGISTER), 2},
 			{ new Token(SCALER | ALL_ARGS_SAME_SIZE, {
 				{{Register, {1, 8}}, {Scalar, {1, 8}}},
@@ -217,7 +220,7 @@ void x86_64::Init()
 				{{Const, {1, 8}}, {Const, {1, 8}}},
 				}), INT32_MAX}
 		}, "memory");
-	Token* Memory_Float = new Token(MEMORY | DECIMAL, {
+	Token* Memory_Float = new Token(MEMORY | DECIMAL | Additional_Memory_Info, {
 			{ new Token(REGISTER), 2},
 			{ new Token(SCALER | ALL_ARGS_SAME_SIZE, {
 				{{Register, {1, 8}}, {Scalar, {1, 8}}},

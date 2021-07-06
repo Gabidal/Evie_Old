@@ -457,7 +457,7 @@ Token* Selector::Get_Register(long F, Descriptor* user, int i, Token* t)
 	return nullptr;
 }
 
-int Selector::Get_Largest_Register()
+int Selector::Get_Largest_Register_Size()
 {
 	int Result = 0;
 	for (auto i : Registers)
@@ -510,15 +510,56 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 			continue;
 		
 		//get the register owner
-		pair<Descriptor*, Token*>* Previus_User = Get_Register_User(Get_Larger_Register(t, t));
+		pair<Descriptor*, Token*>* Previus_User = Get_Register_User(Get_Largest_Register(r.second));
 		
 		if (Previus_User == nullptr)
 			Report(Observation(ERROR, "INTERNAL PROBLEM HAS OCCURED!!", Position()));
 
-		//we need to allocate some space for this NONVOLATILE previus owner.
-		Stack.push_back({Previus_User->first, new Memory(Previus_User->second->Get_Size(), ALLOCATED_FOR::REGISTER_SAVE_SPACE)});
+		bool Used_Previus_Stack_Space = false;
 
-		Previus_User->first = nullptr;
+		long long Memory_Type = 0;
+		if (t->is(TOKEN::DECIMAL))
+			Memory_Type = TOKEN::DECIMAL;
+
+		Token* Memory_Location;
+
+		//check if there is some free space already allocated from previus allocations.
+		for (auto &j : Stack) {
+			if (j.second->is(TOKEN::REGISTER_SAVE_SPACE) && j.first->Last_Usage_Index < i && j.second->Get_Size() == Previus_User->second->Get_Size()) {
+				*j.first = *Previus_User->first;
+
+				j.second->Set_Name(Previus_User->first->User);
+				j.second->Childs.back()->Set_Name(Previus_User->first->User);
+				j.second->Childs.back()->Set_Parent(t->Get_Parent());
+
+				j.second->Set_Flags(TOKEN::MEMORY | Memory_Type);
+
+				Previus_User->first = nullptr;
+				Used_Previus_Stack_Space = true;
+
+				Memory_Location = j.second;
+			}
+		}
+
+		if (!Used_Previus_Stack_Space) {
+			//we need to allocate some space for this NONVOLATILE previus owner.
+			Stack.push_back({ Previus_User->first, new Token(TOKEN::MEMORY | Memory_Type, { new Token(TOKEN::CONTENT | TOKEN::REGISTER_SAVE_SPACE, t->Get_Name(), t->Get_Size())}, t->Get_Size(), t->Get_Name()) });
+
+
+			Stack.back().second->Childs.back()->Set_Parent(t->Get_Parent());
+
+			Previus_User->first = nullptr;
+
+			Memory_Location = Stack.back().second;
+		}
+
+		//make a move operator here:
+		source->insert(source->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {Memory_Location, Previus_User->second}, new Position()));
+
+		//now pair up the freed up register with the new user
+		r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
+
+		return;
 
 	}
 	cout << "allocation needed!" << endl;
@@ -654,6 +695,14 @@ Token* Selector::Get_Smaller_Register(Token* Reg, Token* token)
 	return nullptr;
 }
 
+Token* Selector::Get_Largest_Register(Token* Reg)
+{
+	if (Reg->Holder)
+		return Get_Largest_Register(Reg->Holder);
+
+	return Reg;
+}
+
 void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//add rsp, 123 * 16
@@ -670,12 +719,69 @@ void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
 
 void Selector::Init_Stack(Node* Func)
 {
-	
-	Stack.push_back({ nullptr, new Memory(Func->Local_Allocation_Space, ALLOCATED_FOR::LOCAL_VARIABLE_SCAPE)});
+	for (auto i : Func->Defined){
+		if (!i->Requires_Address && !sys->Info.Debug)
+			continue;
+		long long Memory_Type = 0;
+		if (i->Is_Decimal())
+			Memory_Type = TOKEN::DECIMAL;
 
-	Stack.push_back({ nullptr, new Memory(Func->Call_Space_Start_Address, ALLOCATED_FOR::CALL_PARAMETER_SPACE)});
+		Stack.push_back({ nullptr, new Token(TOKEN::MEMORY | Memory_Type | TOKEN::LOCAL_VARIABLE_SCOPE, { new Token(TOKEN::CONTENT, i->Name, i->Size)}, i->Size, i->Name)});
+	}
+
+	Stack.push_back({ nullptr, new Token(TOKEN::MEMORY | TOKEN::CALL_PARAMETER_SPACE, { new Token(TOKEN::CONTENT, ".CALL_PARAMETER_SPACE", Func->Size_of_Call_Space)}, Func->Size_of_Call_Space, ".CALL_PARAMETER_SPACE")});
 
 	
+}
+
+Token* Selector::Get_Memory_Location(Token* v)
+{
+	for (auto i : Stack) {
+		if (i.second->Get_Name() == v->Get_Name()) {
+			return new Token(*i.second);
+		}
+	}
+	return nullptr;
+}
+
+void Selector::Clean_Stack()
+{
+	Stack.clear();
+}
+
+long long Selector::Calculate_Memory_Address(Token* m)
+{
+	long long Result = 0;
+
+	for (auto i : { TOKEN::CALL_PARAMETER_SPACE, TOKEN::REGISTER_SAVE_SPACE, TOKEN::LOCAL_VARIABLE_SCOPE, TOKEN::PUSH_SPACE,  TOKEN::PARAMETER_SPACE})
+		for (auto j : Stack) {
+			//this may need flag checkings
+			if (j.second->Get_Name() == m->Get_Name() && m->is(i))
+				return Result;
+			if (j.second->is(i)) {
+				Result += j.second->Get_Size();
+			}
+		}
+
+	Report(Observation(ERROR, "INTERNAL ERROR WHILE TRYING TO FIND FROM STACK!!!", Position()));
+}
+
+long long Selector::Calculate_Memory_Address(long long F)
+{
+	long long Result = 0;
+
+	for (auto i : { TOKEN::CALL_PARAMETER_SPACE, TOKEN::REGISTER_SAVE_SPACE, TOKEN::LOCAL_VARIABLE_SCOPE, TOKEN::PUSH_SPACE,  TOKEN::PARAMETER_SPACE }) {
+		if ((F & i) == i)
+			return Result;
+		for (auto j : Stack) {
+			if (j.second->is(i)) {
+				Result += j.second->Get_Size();
+			}
+		}
+	}
+
+	Report(Observation(ERROR, "INTERNAL ERROR WHILE TRYING TO FIND FROM STACK!!!", Position()));
+
 }
 
 IR* Selector::Get_Opcode(IR* i)

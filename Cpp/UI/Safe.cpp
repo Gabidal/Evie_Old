@@ -173,7 +173,7 @@ void Safe::Disable_Non_Ptr_Class_Return(Node* n)
 	if (MANGLER::Is_Based_On_Base_Type(n))
 		return;
 
-	if (n->Find(n, n->Scope)->Size > selector->Get_Largest_Register()) {
+	if (n->Find(n, n->Scope)->Size > selector->Get_Largest_Register_Size()) {
 		Report({
 			Observation(ERROR, "Return object is bigger than: " + to_string(_SYSTEM_BIT_SIZE_ * 8), *n->Location),
 			Observation(SOLUTION, "Please return the object as a pointter", *n->Location)
