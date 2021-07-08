@@ -94,8 +94,6 @@ while_1:
 lea rcx, qword ptr [r14 + r15 * 4 ]
 mov r8d, dword ptr [r13 + r15 * 4 ]
 mov dword ptr [rcx ], r8d
-mov dword ptr [rsp + 0 ], 
-mov dword ptr [rsp + 0 ], r15d
 add r15d, 1
 cmp r15d, r12d
 jge while_1_END
@@ -103,19 +101,18 @@ jmp while_1
 while_1_END:
 jmp Return_Here_8
 Return_Here_8:
-mov qword ptr [rcx + 8 ], rbp
+mov qword ptr [rbx + 8 ], rbp
 if_0_END:
-mov r8, qword ptr [rcx + 8 ]
-mov r9d, dword ptr [rcx + 4 ]
-lea r8, qword ptr [r8 + r9 * 4 ]
-mov dword ptr [r8 ], 5
-add dword ptr [rcx + 4 ], 1
+mov rcx, qword ptr [rbx + 8 ]
+mov r8d, dword ptr [rbx + 4 ]
+lea rcx, qword ptr [rcx + r8 * 4 ]
+mov dword ptr [rcx ], 5
+add dword ptr [rbx + 4 ], 1
 Return_Here_6:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
-mov qword ptr [rsp + 0 ], 
-mov qword ptr [rsp + 0 ], rcx
+mov rbx, rcx
 if_2:
 mov ecx, dword ptr [rbx + 4 ]
 mov r8d, dword ptr [rbx + 0 ]
@@ -165,7 +162,6 @@ while_3:
 lea rcx, qword ptr [r14 + r15 * 4 ]
 mov r8d, dword ptr [r13 + r15 * 4 ]
 mov dword ptr [rcx ], r8d
-mov ecx, r15d
 add r15d, 1
 cmp r15d, r12d
 jge while_3_END
@@ -318,8 +314,6 @@ while_6:
 lea rcx, qword ptr [r14 + r15 * 4 ]
 mov r8d, dword ptr [r13 + r15 * 4 ]
 mov dword ptr [rcx ], r8d
-mov dword ptr [rsp + 0 ], 
-mov dword ptr [rsp + 0 ], r15d
 add r15d, 1
 cmp r15d, r12d
 jge while_6_END
@@ -327,19 +321,18 @@ jmp while_6
 while_6_END:
 jmp Return_Here_18
 Return_Here_18:
-mov qword ptr [rcx + 8 ], rbp
+mov qword ptr [rbx + 8 ], rbp
 if_5_END:
-mov r8, qword ptr [rcx + 8 ]
-mov r9d, dword ptr [rcx + 4 ]
-lea r8, qword ptr [r8 + r9 * 4 ]
-mov dword ptr [r8 ], 5
-add dword ptr [rcx + 4 ], 1
+mov rcx, qword ptr [rbx + 8 ]
+mov r8d, dword ptr [rbx + 4 ]
+lea rcx, qword ptr [rcx + r8 * 4 ]
+mov dword ptr [rcx ], 5
+add dword ptr [rbx + 4 ], 1
 Return_Here_19:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
-mov qword ptr [rsp + 0 ], 
-mov qword ptr [rsp + 0 ], rcx
+mov rbx, rcx
 if_7:
 mov ecx, dword ptr [rbx + 4 ]
 mov r8d, dword ptr [rbx + 0 ]
@@ -389,7 +382,6 @@ while_8:
 lea rcx, qword ptr [r14 + r15 * 4 ]
 mov r8d, dword ptr [r13 + r15 * 4 ]
 mov dword ptr [rcx ], r8d
-mov ecx, r15d
 add r15d, 1
 cmp r15d, r12d
 jge while_8_END

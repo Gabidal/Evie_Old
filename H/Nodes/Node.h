@@ -568,13 +568,11 @@ public:
 		for (int i = 0; i < Result->Operator_Overloads.size(); i++)
 			Result->Operator_Overloads[i] = Copy_Node(Result->Operator_Overloads[i], Result);
 
-		for (int i = 0; i < Result->Parameters.size(); i++) {/*
-			if (Result->is(CALL_NODE))
-				Result->Parameters[i] = Copy_Node(Result->Parameters[i], p);
-			else*/
+		for (int i = 0; i < Result->Parameters.size(); i++) {
 			Result->Parameters[i] = Copy_Node(Result->Parameters[i], Result);
 
-			Result->Parameters[i]->Context = Result;
+			if (Result->is(CALL_NODE))
+				Result->Parameters[i]->Context = Result;
 		}
 
 		for (int i = 0; i < Result->Header.size(); i++)

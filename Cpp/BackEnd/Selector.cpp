@@ -553,8 +553,11 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 			Memory_Location = Stack.back().second;
 		}
 
+		Token* New_Reg = new Token(*Previus_User->second);
+		New_Reg->ID = Previus_User->second->Get_Name();
+		New_Reg->Set_Flags(New_Reg->Get_Flags() | TOKEN::ALREADY_GIVEN_REGISTER_NAME);
 		//make a move operator here:
-		source->insert(source->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {Memory_Location, Previus_User->second}, new Position()));
+		source->insert(source->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {Memory_Location, New_Reg}, new Position()));
 
 		//now pair up the freed up register with the new user
 		r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());

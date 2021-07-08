@@ -53,6 +53,7 @@ namespace TOKEN {
 	constexpr long long LOCAL_VARIABLE_SCOPE				 = (long long)1 << 38;
 	constexpr long long REGISTER_SAVE_SPACE					 = (long long)1 << 39;
 	constexpr long long CALL_PARAMETER_SPACE				 = (long long)1 << 40;
+	constexpr long long ALREADY_GIVEN_REGISTER_NAME			 = (long long)1 << 41;
 }
 
 namespace Flags{

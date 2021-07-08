@@ -73,7 +73,7 @@ void IRPostProsessor::Registerize(Token* t, int i)
 
 void IRPostProsessor::Give_New_Register(Token* t, int i)
 {
-	if (!t->is(TOKEN::REGISTER))
+	if (!t->is(TOKEN::REGISTER) || t->is(TOKEN::ALREADY_GIVEN_REGISTER_NAME))
 		return;
 	//if (t->Get_Name() == ".RIP") {
 	//	cout << ".";
