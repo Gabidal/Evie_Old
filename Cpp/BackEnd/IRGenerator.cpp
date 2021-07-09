@@ -16,8 +16,8 @@ void IRGenerator::Factory()
 {
 	if (Parent->Name == "GLOBAL_SCOPE") 
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
-	for (int i = 0; i < Input.size(); i++)
-		Switch_To_Correct_Places(Input[i]);
+	/*for (int i = 0; i < Input.size(); i++)
+		Switch_To_Correct_Places(Input[i]);*/
 	for (auto i : Parent->Defined)
 		Parse_Function(i);
 	for (auto i : Parent->Defined)
@@ -1482,7 +1482,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	n->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
-void IRGenerator::Switch_To_Correct_Places(Node* o)
+/*void IRGenerator::Switch_To_Correct_Places(Node* o)
 {
 	if (!o->is(OPERATOR_NODE) && !o->is(ASSIGN_OPERATOR_NODE) && !o->is(CONDITION_OPERATOR_NODE) && !o->is(BIT_OPERATOR_NODE))
 		return;
@@ -1494,11 +1494,12 @@ void IRGenerator::Switch_To_Correct_Places(Node* o)
 
 	if (o->Left->is(NUMBER_NODE) && !o->Right->is(NUMBER_NODE)) {
 		//switch the left side with right side, what could possibly go wrong?
+		//yeah pretty much everythong bro.
 		Node* tmp = o->Left;
 		o->Left = o->Right;
 		o->Right = tmp;
 	}
-}
+}*/
 
 void IRGenerator::Parse_Static_Casting(Node* n)
 {

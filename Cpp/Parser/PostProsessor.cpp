@@ -1524,9 +1524,8 @@ void PostProsessor::Determine_Return_Type(int i)
 
 	Algebra_Laucher(Input[i], Tmp);
 
-
-	if (!Input[i]->Has({PREFIX_NODE, POSTFIX_NODE}))
-	//try to find a suitable operator overload if there is one
+	if (!Input[i]->Has({ PREFIX_NODE, POSTFIX_NODE })) {
+		//try to find a suitable operator overload if there is one
 		for (auto& overload : Input[i]->Left->Operator_Overloads) {
 			//the syntax still needs to be done!
 
@@ -1534,6 +1533,44 @@ void PostProsessor::Determine_Return_Type(int i)
 			Input[i]->Inheritted = overload->Inheritted;
 			return;
 		}
+
+		if (Input[i]->Left->is(NUMBER_NODE)) {
+			if (Input[i]->Name == "-" || Input[i]->Name == "/" || Input[i]->Name == "<" || Input[i]->Name == ">" || Input[i]->Name == "!<" || Input[i]->Name == "!>" || Input[i]->Name == "<=" || Input[i]->Name == ">=") {
+				//make a tmp variable and set the number constant into it
+				string Constant_Name = Input[i]->Left->Name + "_TMP";
+
+				Node* Constant_Tmp;
+
+				if (Input[i]->Find(Constant_Name)) {
+					Constant_Tmp = Input[i]->Find(Constant_Name);
+				}
+				else {
+					Constant_Tmp = new Node(OBJECT_DEFINTION_NODE, new Position());
+					Constant_Tmp->Name = Constant_Name;
+					Constant_Tmp->Scope = Input[i]->Scope;
+				}
+
+				//move the constant here.
+				Node* Move = new Node(ASSIGN_OPERATOR_NODE, new Position());
+				Move->Name = "=";
+				Move->Scope = Input[i]->Scope;
+
+				Move->Left = new Node(*Constant_Tmp);
+				Move->Left->Context = Move;
+
+				Move->Right = new Node(*Input[i]->Left);
+				Move->Right->Context = Move;
+
+				Input[i]->Header.insert(Input[i]->Header.begin(), Move);
+				*Input[i]->Left = *Move;
+			}
+			else {
+				Node* tmp = Input[i]->Left;
+				Input[i]->Left = Input[i]->Right;
+				Input[i]->Right = tmp;
+			}
+		}
+	}
 
 	int Left_Size = 0;
 	int Right_Size = 0;

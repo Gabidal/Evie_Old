@@ -512,6 +512,12 @@ void Algebra::Inline_Variables(int i)
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
 			if (d->Current_Value != nullptr) {
+				if (d->Current_Value->Var->is(NUMBER_NODE)) {
+					if (n->Context->Name == "-" || n->Context->Name == "/" || n->Context->Name == "<" || n->Context->Name == ">" || n->Context->Name == "!<" || n->Context->Name == "!>" || n->Context->Name == "<=" || n->Context->Name == ">=") {
+						d->Cant_Inline = true;
+						continue;
+					}
+				}
 				//set right current coefficient value
 				//n = -1
 				//a = -n
@@ -616,6 +622,8 @@ void Algebra::Clean_Inlined(int i)
 		return;
 	Node* l = Input->at(i)->Get_Most_Left();
 	if (Parent->Find(l->Name, l->Get_Most_Left()->Get_Right_Parent())->Inlined == false)
+		return;
+	if (Parent->Find(l->Name, l->Get_Most_Left()->Get_Right_Parent())->Cant_Inline)
 		return;
 
 	//!!! MUST COMBINE THE CALLATION AND THE CLASS FETCHER!!!

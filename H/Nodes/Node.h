@@ -103,6 +103,7 @@ public:
 	int Coefficient = 1;
 	Variable_Descriptor* Current_Value = nullptr;
 	bool Inlined = false;
+	bool Cant_Inline = false;
 	//fetching features
 	Node* Fetcher = nullptr;
 	//calling features

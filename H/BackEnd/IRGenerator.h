@@ -56,7 +56,7 @@ public:
 
 	void Parse_Member_Fetch(Node* n);
 
-	void Switch_To_Correct_Places(Node* o);
+	//void Switch_To_Correct_Places(Node* o);
 
 	void Parse_Static_Casting(Node* n);
 	void Parse_Dynamic_Casting(Node* n);
