@@ -536,8 +536,6 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 
 	//DEBUG
 	//if (sys->Info.Debug)
-	f->Update_Stack_Space_Size(f);
-	
 	for (auto i : f->Childs)
 		for (auto j : Linearise(i)) {
 			if (!j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }))
@@ -566,6 +564,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 				break;
 		}
 	}
+
+	f->Update_Stack_Space_Size(f);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);

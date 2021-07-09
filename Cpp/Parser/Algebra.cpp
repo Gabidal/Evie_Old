@@ -514,8 +514,15 @@ void Algebra::Inline_Variables(int i)
 			if (d->Current_Value != nullptr) {
 				if (d->Current_Value->Var->is(NUMBER_NODE)) {
 					if (n->Context->Name == "-" || n->Context->Name == "/" || n->Context->Name == "<" || n->Context->Name == ">" || n->Context->Name == "!<" || n->Context->Name == "!>" || n->Context->Name == "<=" || n->Context->Name == ">=") {
-						d->Cant_Inline = true;
-						continue;
+						bool Has_Other_Variables = false;
+						for (auto j : n->Context->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
+							if (j != n)
+								Has_Other_Variables = true;
+						}
+						if (Has_Other_Variables) {
+							d->Cant_Inline = true;
+							continue;
+						}
 					}
 				}
 				//set right current coefficient value
@@ -838,21 +845,21 @@ void Algebra::Clean_Unused()
 		if (Parent->Defined[i]->is(PARAMETER_NODE))
 			continue;
 		//check if the expiring index is same as the definition index
-		if (Parent->Defined[i]->Current_Value){
+		/*if (Parent->Defined[i]->Current_Value){
 			if (Parent->Defined[i]->Current_Value->Define_Index == Parent->Defined[i]->Current_Value->Expiring_Index)
 				Parent->Defined.erase(Parent->Defined.begin() + i);
 			}
-		else {
-			//the inlining value could not be made.
-			for (auto line : *Input) {
-				for (auto element : line->Get_all({OBJECT_NODE, OBJECT_DEFINTION_NODE})) {
-					if (element->Name == Parent->Defined[i]->Name)
-						Parent->Defined[i]->Calling_Count++;
-				}
+		else {*/
+		//the inlining value could not be made.
+		for (auto line : *Input) {
+			for (auto element : line->Get_all({ OBJECT_NODE, OBJECT_DEFINTION_NODE })) {
+				if (element->Name == Parent->Defined[i]->Name)
+					Parent->Defined[i]->Calling_Count++;
 			}
-			if (Parent->Defined[i]->Calling_Count < 1)
-				Parent->Defined.erase(Parent->Defined.begin() + i);
 		}
+		if (Parent->Defined[i]->Calling_Count < 1)
+			Parent->Defined.erase(Parent->Defined.begin() + i);
+		/*}*/
 
 	}
 }

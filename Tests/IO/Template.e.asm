@@ -11,7 +11,7 @@ push rbp
 push rsi
 push rdi
 push rbx
-sub rsp, 184
+sub rsp, 192
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
@@ -35,12 +35,12 @@ mov rdx, r8
 mov ecx, ecx
 call _V17internal_allocatex_rPh
 mov qword ptr [rsp + 24 ], rax
-jmp Return_Here_5
-Return_Here_5:
+jmp Return_Here_15
+Return_Here_15:
 mov rcx, qword ptr [rsp + 24 ]
 mov qword ptr [rbx + 8 ], rcx
-jmp Return_Here_4
-Return_Here_4:
+jmp Return_Here_14
+Return_Here_14:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
@@ -74,8 +74,8 @@ mov rdx, r8
 mov ecx, ecx
 call _V17internal_allocatex_rPh
 mov rsi, rax
-jmp Return_Here_7
-Return_Here_7:
+jmp Return_Here_17
+Return_Here_17:
 mov rbp, rsi
 mov ecx, dword ptr [rbx + 4 ]
 mov r8, rdx
@@ -99,8 +99,8 @@ cmp r15d, r12d
 jge while_1_END
 jmp while_1
 while_1_END:
-jmp Return_Here_8
-Return_Here_8:
+jmp Return_Here_18
+Return_Here_18:
 mov qword ptr [rbx + 8 ], rbp
 if_0_END:
 mov rcx, qword ptr [rbx + 8 ]
@@ -108,7 +108,7 @@ mov r8d, dword ptr [rbx + 4 ]
 lea rcx, qword ptr [rcx + r8 * 4 ]
 mov dword ptr [rcx ], 5
 add dword ptr [rbx + 4 ], 1
-Return_Here_6:
+Return_Here_16:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
@@ -142,8 +142,8 @@ mov rdx, r8
 mov ecx, ecx
 call _V17internal_allocatex_rPh
 mov rsi, rax
-jmp Return_Here_10
-Return_Here_10:
+jmp Return_Here_20
+Return_Here_20:
 mov rbp, rsi
 mov ecx, dword ptr [rbx + 4 ]
 mov r8, rdx
@@ -167,8 +167,8 @@ cmp r15d, r12d
 jge while_3_END
 jmp while_3
 while_3_END:
-jmp Return_Here_11
-Return_Here_11:
+jmp Return_Here_21
+Return_Here_21:
 mov qword ptr [rbx + 8 ], rbp
 if_2_END:
 mov rcx, qword ptr [rbx + 8 ]
@@ -176,13 +176,13 @@ mov r8d, dword ptr [rbx + 4 ]
 lea rcx, qword ptr [rcx + r8 * 4 ]
 mov dword ptr [rcx ], 2
 add dword ptr [rbx + 4 ], 1
-Return_Here_9:
+Return_Here_19:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
 mov rcx, rcx
 sub dword ptr [rcx + 4 ], 1
-Return_Here_12:
+Return_Here_22:
 mov ecx, 0
 lea r8, qword ptr [rsp ]
 mov r8, r8
@@ -193,15 +193,15 @@ mov r9d, dword ptr [r8 + 4 ]
 cmp ecx, r9d
 jle if_4_END
 mov ecx, 0
-jmp Return_Here_13
+jmp Return_Here_23
 if_4_END:
 mov r8, qword ptr [r8 + 8 ]
 mov r8d, dword ptr [r8 + 0 * 4 ]
 mov ecx, r8d
-jmp Return_Here_13
-Return_Here_13:
+jmp Return_Here_23
+Return_Here_23:
 mov eax, ecx
-add rsp, 184
+add rsp, 192
 pop rbx
 pop rdi
 pop rsi
@@ -211,7 +211,7 @@ pop r13
 pop r14
 pop r15
 ret 
-add rsp, 184
+add rsp, 192
 pop rbx
 pop rdi
 pop rsi
@@ -246,7 +246,7 @@ mov rbx, rcx
 mov rcx, rbx
 mov edx, 8
 call _V19internal_deallocatePhx
-Return_Here_3:
+Return_Here_13:
 mov rcx, rbx
 call Destructor
 if_5_END:

@@ -51,7 +51,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 	}
 
 	string Seperator = "";
-	if (Remote_Dir[0] != '/')
+	if (Remote_Dir[0] != '/' && DOCKER::Working_Dir.back().second.back() != '/')
 		Seperator = '/' + Seperator;
 	string Remote_Dir_Location = DOCKER::Working_Dir.back().second + Seperator + Remote_Dir;
 
@@ -85,6 +85,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 		//the i contains the reponame
 		if (i == Info[3]) {
 			New_Repo = false;
+			break;
 		}
 	}
 
