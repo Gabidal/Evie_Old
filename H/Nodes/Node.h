@@ -535,16 +535,13 @@ public:
 		if (What_Node->is(FUNCTION_NODE))
 			return What_Node;
 
-		Trace.push_back(What_Node);
-
-		for (int i = 0; i < Trace.size(); i++) {
-			for (int j = 0; j < Trace.size(); j++) {
-				if (Trace[i] == Trace[j] && i != j) {
-					Trace.pop_back();
-					return What_Node;
-				}
+		for (int j = 0; j < Trace.size(); j++) {
+			if (What_Node == Trace[j]) {
+				return What_Node;
 			}
 		}
+
+		Trace.push_back(What_Node);
 
 		//this will only copy the ptrs in list but we want to also copy what those ptr point to.
 		Node* Result = new Node(*What_Node);
@@ -600,10 +597,10 @@ public:
 
 
 		if (Result->Succsessor) {
-			Result->Succsessor->Predecessor = Result->Predecessor;
+			Result->Succsessor->Predecessor = Result;
 		}
 		if (Result->Predecessor) {
-			Result->Predecessor->Succsessor = Result->Succsessor;
+			Result->Predecessor->Succsessor = Result;
 		}
 
 		if (Result->Location)

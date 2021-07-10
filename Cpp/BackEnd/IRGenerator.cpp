@@ -342,9 +342,17 @@ void IRGenerator::Parse_If(int i)
 void IRGenerator::Loop_Elses(Node* e)
 {
 	//the if/else label
-	e->Name += "_" + to_string(Label_Differential_ID++);
+	if (e->Predecessor == nullptr)
+		e->Name += "_" + to_string(Label_Differential_ID++);
 	Node* tmp = new Node(e->Name, e->Location);
 	Output->push_back(Make_Label(tmp, false));
+
+	//init else names
+	Node* Else = e->Succsessor;
+	while (Else) {
+		Else->Name += "_" + to_string(Label_Differential_ID++);
+		Else = Else->Succsessor;
+	}
 
 	//do an subfunction that can handle coditions and gets the label data for the condition data from the Parent given.
 	IRGenerator p(e, e->Parameters, Output);
@@ -359,6 +367,7 @@ void IRGenerator::Loop_Elses(Node* e)
 				break;	//s is now last
 			s = s->Succsessor;
 		}
+
 		//the end of every conditon to true fall to
 		Output->push_back(Make_Jump("jump", s->Name + "_END"));
 
