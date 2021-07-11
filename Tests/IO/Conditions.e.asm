@@ -1,87 +1,87 @@
 .intel_syntax noprefix
-.global main
-.global Start_Test
+.global _Z4mainv
+.global _Z10Start_Testv
 .section .text
-Start_Test:
+_Z10Start_Testv:
 mov ecx, 0
 cmp ecx, 100
-jge while_0_END
-while_0:
+jge while_9_END
+while_9:
 add ecx, 1
 cmp ecx, 100
-jge while_0_END
-jmp while_0
-while_0_END:
-if_1:
+jge while_9_END
+jmp while_9
+while_9_END:
+if_10:
 cmp ecx, 100
-jne if_1_END
+jne if_10_END
 mov ecx, 10
-if_1_END:
-if_2:
-mov r8d, 10
-cmp r8d, 100
-jne else_3
-jmp else_3_END
-if_2_END:
-else_3:
-cmp r8d, 10
-jne else_3_END
-mov r8d, 100
-else_3_END:
+if_10_END:
+if_11:
+cmp ecx, 100
+jne else_12
+mov ecx, 100
+jmp else_12_END
+if_11_END:
+else_12:
+cmp ecx, 10
+jne else_12_END
+mov ecx, 100
+else_12_END:
 mov eax, ecx
 ret 
 mov ecx, 1
 cmp ecx, 2
-jge while_4_END
-while_4:
+jge while_13_END
+while_13:
 mov ecx, 1
 cmp ecx, 2
-jge while_4_END
-jmp while_4
-while_4_END:
+jge while_13_END
+jmp while_13
+while_13_END:
 mov eax, 0
 ret 
 ret 
 
 
-main:
+_Z4mainv:
 mov ecx, 0
 cmp ecx, 100
-jge while_5_END
-while_5:
+jge while_14_END
+while_14:
 add ecx, 1
 cmp ecx, 100
-jge while_5_END
-jmp while_5
-while_5_END:
-if_6:
-mov r8d, 100
-cmp r8d, 100
-jne if_6_END
-if_6_END:
-if_7:
-mov r8d, 10
-cmp r8d, 100
-jne else_3_8
-jmp else_3_8_END
-if_7_END:
-else_3_8:
-cmp ecx, 10
-jne else_3_8_END
+jge while_14_END
+jmp while_14
+while_14_END:
+if_15:
+cmp ecx, 100
+jne if_15_END
+mov ecx, 10
+if_15_END:
+if_16:
+cmp ecx, 100
+jne else_17
 mov ecx, 100
-else_3_8_END:
-jmp Return_Here_0
+jmp else_17_END
+if_16_END:
+else_17:
+cmp ecx, 10
+jne else_17_END
+mov ecx, 100
+else_17_END:
+jmp Return_Here_27
 mov ecx, 1
 cmp ecx, 2
-jge while_9_END
-while_9:
+jge while_18_END
+while_18:
 mov ecx, 1
 cmp ecx, 2
-jge while_9_END
-jmp while_9
-while_9_END:
-jmp Return_Here_0
-Return_Here_0:
+jge while_18_END
+jmp while_18
+while_18_END:
+jmp Return_Here_27
+Return_Here_27:
 mov eax, 1
 ret 
 ret 

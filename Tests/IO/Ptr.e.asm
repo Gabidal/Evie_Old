@@ -1,8 +1,8 @@
 .intel_syntax noprefix
-.global main
-.global Start_Test
+.global _Z4mainv
+.global _Z10Start_Testv
 .section .text
-Start_Test:
+_Z10Start_Testv:
 sub rsp, 44
 mov dword ptr [rsp ], 10
 lea rcx, qword ptr [rsp ]
@@ -46,14 +46,14 @@ add rsp, 44
 ret 
 
 
-main:
+_Z4mainv:
 sub rsp, 88
 mov dword ptr [rsp ], 10
 lea rcx, qword ptr [rsp ]
 mov qword ptr [rsp + 4 ], rcx
 lea rcx, qword ptr [rsp + 4 ]
 mov qword ptr [rsp + 12 ], rcx
-jmp Return_Here_41
+jmp Return_Here_53
 lea rcx, qword ptr [rsp + 12 ]
 mov qword ptr [rsp + 20 ], rcx
 lea rcx, qword ptr [rsp + 20 ]
@@ -62,12 +62,12 @@ lea rcx, qword ptr [rsp + 28 ]
 mov qword ptr [rsp + 36 ], rcx
 lea rcx, qword ptr [rsp + 36 ]
 mov rcx, rcx
-jmp Return_Here_41
+jmp Return_Here_53
 mov rcx, 123
-jmp Return_Here_41
+jmp Return_Here_53
 mov rcx, 1234
-jmp Return_Here_41
-Return_Here_41:
+jmp Return_Here_53
+Return_Here_53:
 mov eax, 1
 add rsp, 88
 ret 

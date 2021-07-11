@@ -1,8 +1,8 @@
 .intel_syntax noprefix
-.global main
-.global Start_Test
+.global _Z4mainv
+.global _Z10Start_Testv
 .section .text
-Start_Test:
+_Z10Start_Testv:
 sub rsp, 16
 mov ecx, 10
 mov r8d, ecx
@@ -20,8 +20,8 @@ mov rdx, r8
 mov ecx, ecx
 call _V17internal_allocatex_rPh
 mov qword ptr [rsp + 8 ], rax
-jmp Return_Here_0
-Return_Here_0:
+jmp Return_Here_29
+Return_Here_29:
 mov rcx, qword ptr [rsp + 8 ]
 mov qword ptr [rsp ], rcx
 lea rcx, qword ptr [rsp ]
@@ -39,7 +39,7 @@ add rsp, 16
 ret 
 
 
-main:
+_Z4mainv:
 mov eax, 1
 ret 
 ret 

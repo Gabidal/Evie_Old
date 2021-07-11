@@ -542,17 +542,17 @@ Node* Node::Get_Closest_Context(int Flags)
 	return nullptr;
 }
 
-vector<Node*> Trace;
+vector<Node*> Trace_Update_Size;
 int Node::Update_Size() {
 	if (is("const") != -1 && Size != 0)
 		return Size;
 
-	Trace.push_back(this);
+	Trace_Update_Size.push_back(this);
 
-	for (int i = 0; i < Trace.size(); i++)
-		for (int j = 0; j < Trace.size(); j++)
-			if (Trace[i] == Trace[j] && i != j) {
-				Trace.pop_back();
+	for (int i = 0; i < Trace_Update_Size.size(); i++)
+		for (int j = 0; j < Trace_Update_Size.size(); j++)
+			if (Trace_Update_Size[i] == Trace_Update_Size[j] && i != j) {
+				Trace_Update_Size.pop_back();
 				if (is("ptr") != -1 || is("func") != -1)
 					return _SYSTEM_BIT_SIZE_;
 				return Size;
@@ -580,7 +580,7 @@ int Node::Update_Size() {
 		else if (MANGLER::Is_Base_Type(Find(Inherit)))
 			Size += Find(Inherit)->Update_Size();
 	}
-	Trace.pop_back();
+	Trace_Update_Size.pop_back();
 	return Size;
 }
 
@@ -596,7 +596,6 @@ void Node::Update_Stack_Space_Size(Node* f)
 		v->Requires_Address = true;
 	}
 }
-
 
 vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 {
@@ -674,5 +673,97 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 
 	Trace.pop_back();
 
+	return Result;
+}
+
+//			old  , new
+vector<pair<Node*, Node*>> Trace;
+Node* Node::Copy_Node(Node* What_Node, Node* p)
+{
+	if (What_Node == nullptr)
+		return nullptr;
+
+	if (What_Node->is(FUNCTION_NODE))
+		return What_Node;
+
+	for (int j = 0; j < Trace.size(); j++) {
+		if (What_Node == Trace[j].first) {
+			return Trace[j].second;
+		}
+	}
+
+	//this will only copy the ptrs in list but we want to also copy what those ptr point to.
+	Node* Result = new Node(*What_Node);
+	Result->Scope = p;
+
+	Trace.push_back({ What_Node, Result });
+
+	//lets start from defined
+	for (int i = 0; i < Result->Defined.size(); i++)
+		Result->Defined[i] = Copy_Node(Result->Defined[i], Result);
+
+	for (int i = 0; i < Result->Templates.size(); i++)
+		Result->Templates[i] = Copy_Node(Result->Templates[i], Result);
+
+	for (int i = 0; i < Result->Childs.size(); i++)
+		if (Result->is(CONTENT_NODE))
+			Result->Childs[i] = Copy_Node(Result->Childs[i], p);
+		else
+			Result->Childs[i] = Copy_Node(Result->Childs[i], Result);
+
+	for (int i = 0; i < Result->Member_Functions.size(); i++)
+		Result->Member_Functions[i] = Copy_Node(Result->Member_Functions[i], Result);
+
+	for (int i = 0; i < Result->Operator_Overloads.size(); i++)
+		Result->Operator_Overloads[i] = Copy_Node(Result->Operator_Overloads[i], Result);
+
+	for (int i = 0; i < Result->Parameters.size(); i++) {
+		Result->Parameters[i] = Copy_Node(Result->Parameters[i], Result);
+
+		if (Result->is(CALL_NODE))
+			Result->Parameters[i]->Context = Result;
+	}
+
+	for (int i = 0; i < Result->Header.size(); i++)
+		Result->Header[i] = Copy_Node(Result->Header[i], p);
+
+
+	for (int i = 0; i < Result->Numerical_Return_Types.size(); i++)
+		Result->Numerical_Return_Types[i] = Copy_Node(Result->Numerical_Return_Types[i], p);
+
+	if (Result->Left) {
+		Result->Left = Copy_Node(Result->Left, p);
+		Result->Left->Context = Result;
+	}
+	if (Result->Right) {
+		Result->Right = Copy_Node(Result->Right, p);
+		Result->Right->Context = Result;
+	}
+
+	Result->Succsessor = Copy_Node(Result->Succsessor, p);
+	Result->Predecessor = Copy_Node(Result->Predecessor, p);
+
+	if (Result->Fetcher)
+		Result->Fetcher = Copy_Node(Result->Fetcher, p);
+
+
+	if (Result->Succsessor) {
+		Result->Succsessor->Predecessor = Result;
+	}
+	if (Result->Predecessor) {
+		Result->Predecessor->Succsessor = Result;
+	}
+
+	if (Result->Location)
+		Result->Location = new Position(*Result->Location);
+
+	if (Result->Cast_Type)
+		Result->Cast_Type = Copy_Node(Result->Cast_Type, p);
+
+	//The copying prosess must go downwards not upwards, otherwise it will loop forever!
+	//Result->Holder = Copy_Node(Result->Holder, p);
+
+	Trace.pop_back();
+	//now we have copyed every ptr into a new base to point.
 	return Result;
 }

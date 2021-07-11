@@ -27,7 +27,7 @@ int Back_End_Test::Run_Dll(string f) {
 	if (Handle == nullptr)
 		throw::runtime_error("INTERNAL ERROR!");
 
-	auto Func = (int(*)())GetProcAddress(Handle, "Start_Test");
+	auto Func = (int(*)())GetProcAddress(Handle, "_Z10Start_Testv");
 	//auto Func = (int(*)())GetProcAddress(Handle, "main");
 	if (Func == nullptr)
 		throw::runtime_error("INTERNAL ERROR!");
@@ -190,17 +190,17 @@ void Back_End_Test::Init()
 	//what we expect the function to return, file name
 	Tests = {
 		//{{1}, "Tests/IO/main"},
+		{{1}, "Tests/IO/Type.e"},
+		{{5}, "Tests/IO/Template.e"},
+		{{5}, "Tests/IO/Func.e"},
+		{{2}, "Tests/IO/Cast.e"},
 		{{100}, "Tests/IO/Conditions.e"},
 		{{1}, "Tests/IO/Array.e"},
 		{{-6}, "Tests/IO/Math.e"},
-		{{5}, "Tests/IO/Func.e"},
-		{{5}, "Tests/IO/Template.e"},
 		{{1}, "Tests/IO/Destructor.e"},
 		{{0}, "Tests/IO/NameSpace.e"},
 		{{10}, "Tests/IO/Ptr.e"},
 		{{1}, "Tests/IO/Comment.e"},
-		{{2}, "Tests/IO/Cast.e"},
-		{{1}, "Tests/IO/Type.e"},
 		{{4}, "Tests/IO/Global.e"},
 	};
 }

@@ -202,7 +202,7 @@ void IRPostProsessor::Prepare_Function(int& i)
 	
 	Node* Scope = Input->at(i)->OPCODE->Get_Parent();
 
-	Node* Func = Scope->Find(Input->at(i)->OPCODE->Get_Name());
+	Node* Func = Scope->Find(Input->at(i)->OPCODE->OG);
 
 	int Before_OpCode_Additions = Input->size();
 	for (auto p : Func->Defined) {
@@ -226,7 +226,7 @@ void IRPostProsessor::Handle_Labels(int i)
 
 	Node* Scope = Input->at(i)->OPCODE->Get_Parent();
 
-	Node* Func = Scope->Find(Input->at(i)->OPCODE->Get_Name(), Scope, FUNCTION_NODE);
+	Node* Func = Scope->Find(Input->at(i)->OPCODE->OG, Scope, FUNCTION_NODE);
 
 	if (Func->Size_of_Call_Space == 0 && Func->Local_Allocation_Space == 0)
 		return;

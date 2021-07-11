@@ -1,12 +1,12 @@
 .intel_syntax noprefix
-.global Start_Test
-.global main
+.global _Z10Start_Testv
+.global _Z4mainv
 .section .text
-main:
+_Z4mainv:
 lea rcx, qword ptr [rip + foo ]
 mov rcx, rcx
-jmp Return_Here_8
-Return_Here_8:
+jmp Return_Here_15
+Return_Here_15:
 mov eax, 1
 ret 
 ret 
@@ -18,7 +18,7 @@ ret
 ret 
 
 
-Start_Test:
+_Z10Start_Testv:
 lea rcx, qword ptr [rip + foo ]
 mov rcx, rcx
 call rcx

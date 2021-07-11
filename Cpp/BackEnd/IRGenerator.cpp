@@ -1280,8 +1280,14 @@ void IRGenerator::Parse_Jump(int i)
 	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
 
+	string Label_Name = Input[i]->Right->Name;
 
-	Output->push_back(Make_Jump("jump", Input[i]->Right->Name));
+	Node* Func = Parent->Find(Input[i]->Right->Name);
+
+	if (Func != nullptr && Func->Has({ FUNCTION_NODE, IMPORT, EXPORT, PROTOTYPE }))
+		Label_Name = Func->Mangled_Name;
+
+	Output->push_back(Make_Jump("jump", Label_Name));
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
 
@@ -1882,6 +1888,7 @@ IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 	if (Mangle)
 		name = MANGLER::Mangle(n, "");
 	Token* label_name = new Token(TOKEN::LABEL, name);
+	label_name->OG = n->Name;
 
 	Node* Scope_Path = Parent;
 	if (n->Fetcher != nullptr)

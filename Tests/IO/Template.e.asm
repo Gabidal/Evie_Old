@@ -1,8 +1,8 @@
 .intel_syntax noprefix
-.global main
-.global Start_Test
+.global _Z4mainv
+.global _Z10Start_Testv
 .section .text
-Start_Test:
+_Z10Start_Testv:
 push r15
 push r14
 push r13
@@ -35,12 +35,12 @@ mov rdx, r8
 mov ecx, ecx
 call _V17internal_allocatex_rPh
 mov qword ptr [rsp + 24 ], rax
-jmp Return_Here_15
-Return_Here_15:
+jmp Return_Here_5
+Return_Here_5:
 mov rcx, qword ptr [rsp + 24 ]
 mov qword ptr [rbx + 8 ], rcx
-jmp Return_Here_14
-Return_Here_14:
+jmp Return_Here_4
+Return_Here_4:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
@@ -74,8 +74,8 @@ mov rdx, r8
 mov ecx, ecx
 call _V17internal_allocatex_rPh
 mov rsi, rax
-jmp Return_Here_17
-Return_Here_17:
+jmp Return_Here_7
+Return_Here_7:
 mov rbp, rsi
 mov ecx, dword ptr [rbx + 4 ]
 mov r8, rdx
@@ -99,8 +99,8 @@ cmp r15d, r12d
 jge while_1_END
 jmp while_1
 while_1_END:
-jmp Return_Here_18
-Return_Here_18:
+jmp Return_Here_8
+Return_Here_8:
 mov qword ptr [rbx + 8 ], rbp
 if_0_END:
 mov rcx, qword ptr [rbx + 8 ]
@@ -108,7 +108,7 @@ mov r8d, dword ptr [rbx + 4 ]
 lea rcx, qword ptr [rcx + r8 * 4 ]
 mov dword ptr [rcx ], 5
 add dword ptr [rbx + 4 ], 1
-Return_Here_16:
+Return_Here_6:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
@@ -142,8 +142,8 @@ mov rdx, r8
 mov ecx, ecx
 call _V17internal_allocatex_rPh
 mov rsi, rax
-jmp Return_Here_20
-Return_Here_20:
+jmp Return_Here_10
+Return_Here_10:
 mov rbp, rsi
 mov ecx, dword ptr [rbx + 4 ]
 mov r8, rdx
@@ -167,8 +167,8 @@ cmp r15d, r12d
 jge while_3_END
 jmp while_3
 while_3_END:
-jmp Return_Here_21
-Return_Here_21:
+jmp Return_Here_11
+Return_Here_11:
 mov qword ptr [rbx + 8 ], rbp
 if_2_END:
 mov rcx, qword ptr [rbx + 8 ]
@@ -176,13 +176,13 @@ mov r8d, dword ptr [rbx + 4 ]
 lea rcx, qword ptr [rcx + r8 * 4 ]
 mov dword ptr [rcx ], 2
 add dword ptr [rbx + 4 ], 1
-Return_Here_19:
+Return_Here_9:
 lea rcx, qword ptr [rsp ]
 mov rcx, rcx
 add qword ptr [rcx + 16 ], 1
 mov rcx, rcx
 sub dword ptr [rcx + 4 ], 1
-Return_Here_22:
+Return_Here_12:
 mov ecx, 0
 lea r8, qword ptr [rsp ]
 mov r8, r8
@@ -193,13 +193,13 @@ mov r9d, dword ptr [r8 + 4 ]
 cmp ecx, r9d
 jle if_4_END
 mov ecx, 0
-jmp Return_Here_23
+jmp Return_Here_13
 if_4_END:
 mov r8, qword ptr [r8 + 8 ]
 mov r8d, dword ptr [r8 + 0 * 4 ]
 mov ecx, r8d
-jmp Return_Here_23
-Return_Here_23:
+jmp Return_Here_13
+Return_Here_13:
 mov eax, ecx
 add rsp, 192
 pop rbx
@@ -223,14 +223,14 @@ pop r15
 ret 
 
 
-main:
-jmp Start_Test
+_Z4mainv:
+jmp _Z10Start_Testv
 mov eax, 1
 ret 
 ret 
 
 
-Destructor:
+_ZN13____List_int_10DestructorEP13____List_int_:
 push rbx
 if_5:
 cmp rcx, 0
@@ -246,9 +246,9 @@ mov rbx, rcx
 mov rcx, rbx
 mov edx, 8
 call _V19internal_deallocatePhx
-Return_Here_13:
+Return_Here_3:
 mov rcx, rbx
-call Destructor
+call _ZN13____List_int_10DestructorEP13____List_int_
 if_5_END:
 pop rbx
 ret 

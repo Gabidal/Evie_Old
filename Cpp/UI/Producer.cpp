@@ -136,7 +136,7 @@ string Producer::Get_Added_Libs()
 
 string Producer::Get_Entry()
 {
-    return " -e main ";
+    return " -e _Z4mainv ";
 }
 
 string Producer::Get_System_Paths()

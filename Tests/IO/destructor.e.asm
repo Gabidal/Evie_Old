@@ -1,8 +1,8 @@
 .intel_syntax noprefix
-.global Start_Test
-.global main
+.global _Z10Start_Testv
+.global _Z4mainv
 .section .text
-main:
+_Z4mainv:
 push rsi
 push rdi
 push rbx
@@ -12,8 +12,8 @@ call _V17internal_allocatex_rPh
 mov rcx, rax
 add qword ptr [rcx + 8 ], 1
 mov rbx, rcx
-jmp Return_Here_29
-Return_Here_29:
+jmp Return_Here_41
+Return_Here_41:
 mov rcx, rbx
 add qword ptr [rcx + 8 ], 1
 mov rdi, rcx
@@ -24,8 +24,8 @@ mov rcx, rdi
 add qword ptr [rcx + 8 ], 1
 mov rsi, rcx
 mov rsi, rdi
-jmp Return_Here_30
-Return_Here_30:
+jmp Return_Here_42
+Return_Here_42:
 mov rcx, qword ptr [rsi + 0 ]
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsi + 8 ]
@@ -37,15 +37,15 @@ mov rcx, rcx
 mov r8d, dword ptr [rcx + 0 ]
 mov r8d, r8d
 mov rcx, rcx
-call Destructor
+call _ZN3foo10DestructorEP3foo
 mov rcx, rbx
-call Destructor
+call _ZN3foo10DestructorEP3foo
 mov rcx, rsi
-call Destructor
+call _ZN3foo10DestructorEP3foo
 mov rcx, rdi
-call Destructor
-jmp Return_Here_28
-Return_Here_28:
+call _ZN3foo10DestructorEP3foo
+jmp Return_Here_40
+Return_Here_40:
 mov eax, 1
 add rsp, 32
 pop rbx
@@ -59,7 +59,7 @@ pop rsi
 ret 
 
 
-Start_Test:
+_Z10Start_Testv:
 push rbp
 push rsi
 push rdi
@@ -70,8 +70,8 @@ call _V17internal_allocatex_rPh
 mov rcx, rax
 add qword ptr [rcx + 8 ], 1
 mov rbx, rcx
-jmp Return_Here_26
-Return_Here_26:
+jmp Return_Here_38
+Return_Here_38:
 mov rcx, rbx
 add qword ptr [rcx + 8 ], 1
 mov rdi, rcx
@@ -82,8 +82,8 @@ mov rcx, rdi
 add qword ptr [rcx + 8 ], 1
 mov rsi, rcx
 mov rsi, rdi
-jmp Return_Here_27
-Return_Here_27:
+jmp Return_Here_39
+Return_Here_39:
 mov rcx, qword ptr [rsi + 0 ]
 mov qword ptr [rsp + 0 ], rcx
 mov rcx, qword ptr [rsi + 8 ]
@@ -95,13 +95,13 @@ mov rcx, rcx
 mov r8d, dword ptr [rcx + 0 ]
 mov ebp, r8d
 mov rcx, rcx
-call Destructor
+call _ZN3foo10DestructorEP3foo
 mov rcx, rbx
-call Destructor
+call _ZN3foo10DestructorEP3foo
 mov rcx, rsi
-call Destructor
+call _ZN3foo10DestructorEP3foo
 mov rcx, rdi
-call Destructor
+call _ZN3foo10DestructorEP3foo
 mov eax, ebp
 add rsp, 32
 pop rbx
@@ -117,15 +117,15 @@ pop rbp
 ret 
 
 
-Destructor:
+_ZN3foo10DestructorEP3foo:
 push rbx
-if_6:
+if_19:
 cmp rcx, 0
-je if_6_END
+je if_19_END
 mov r8, qword ptr [rcx + 8 ]
 sub r8, 1
 cmp r8, 1
-jge if_6_END
+jge if_19_END
 mov r8, rcx
 add qword ptr [r8 + 8 ], 1
 mov rbx, r8
@@ -133,10 +133,10 @@ mov rbx, rcx
 mov rcx, rbx
 mov edx, 8
 call _V19internal_deallocatePhx
-Return_Here_25:
+Return_Here_37:
 mov rcx, rbx
-call Destructor
-if_6_END:
+call _ZN3foo10DestructorEP3foo
+if_19_END:
 pop rbx
 ret 
 

@@ -20,6 +20,7 @@ namespace MANGLER {
 	};
 	string Un_Mangle(string raw);
 	string Mangle(Node* raw, string Force_Complex);
+	string Get_Function_Name(string func);
 	bool Is_Base_Type(Node* n);
 	bool Is_Based_On_Base_Type(Node* n);
 	bool Is_Template(Node* n);

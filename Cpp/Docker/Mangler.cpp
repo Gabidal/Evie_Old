@@ -312,113 +312,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 {
 	string Result = "";
 
-	if ((raw->is("cpp") != -1) || (raw->Scope->is("cpp") != -1) || Force_Complex == "cpp") {
-		//if the function call uses the C standard.
-		//_import_func_cpp_internal_print__char__int to
-		//_Z14internal_printPci
-		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
-			Classes.clear();
-			Result = "_Z";
-
-			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE") {
-				Result += "N";
-
-				for (auto i : raw->Get_Scope_Path())
-					Result += to_string(i->Name.size()) + i->Name;
-
-				Result += to_string(raw->Name.size()) + raw->Name;
-
-				Result += "E";
-			}
-			else if (raw->Fetcher != nullptr) {
-				Result += "N";
-
-				for (auto i : raw->Get_All_Fetchers())
-					Result += to_string(i->Name.size()) + i->Name;
-
-
-				Result += to_string(raw->Name.size()) + raw->Name;
-
-				Result += "E";
-			}
-			else
-				Result += to_string(raw->Name.size()) + raw->Name;
-			
-
-			if (raw->Parameters.size() < 1)
-				Result += "v";
-
-			for (auto i : raw->Parameters) {
-				Result += Mangle(i, "cpp");
-			}
-		}
-		else if (raw->is(CLASS_NODE)) {
-			string p = "";
-			string r;
-			if (raw->is("ptr") != -1) {
-				for (auto i : raw->Inheritted) {
-					if (i == "ptr")
-						p += "P";
-				}
-				r = p + r;
-			}
-			if (Is_Base_Type(raw)) {
-				return p + string(raw->Name.data(), 1);
-			}
-			else {
-				if (Find_Classes(raw->Name) != -1) {
-					stringstream stream;
-					stream << hex << Find_Classes(raw->Name);
-					r = "S" + string(stream.str()) + "_";
-				}
-				else
-					r = to_string(raw->Name.size()) + raw->Name;
-				return r;
-			}
-		}
-		else if (raw->is(OBJECT_DEFINTION_NODE) || raw->is(OBJECT_NODE) || raw->is(PARAMETER_NODE)) {
-			int I = 0;
-			string p = "";
-			if (raw->is("ptr") != -1) {
-				for (auto i : raw->Inheritted) {
-					if (i == "ptr")
-						p += "P";
-				}
-			}
-			for (auto i : raw->Inheritted) {
-				if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
-					I++;
-				if (I > 1) {
-					//PcIic = char int char ptr a
-					//Evie engine 3.0.0 cannot export multi inheritted variables yet.
-					//TODO: Make that happen.
-					throw::runtime_error("Exporting multi inheritted variables is not yet supported.");
-				}
-			}
-			if (Is_Template(raw)) {
-				//uugabuuga?
-				Result = p + "t";
-			}
-			else if (Is_Based_On_Base_Type(raw)) {
-				//int a;
-				string Type = "";
-				for (auto i : raw->Inheritted)
-					if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
-						Type = i;
-				Result = p + string(Type.data(), 1);
-			}
-			else {
-				//banana a;
-				string Type = "";
-				for (auto i : raw->Inheritted)
-					if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
-						Type = i;
-				Result = p + to_string(Type.size()) + Type;
-			}
-		}
-		
-	}
-	else if ((raw->is("vivid") != -1) || (raw->Scope->is("vivid") != -1) || Force_Complex == "vivid") {
+	if ((raw->is("vivid") != -1) || (raw->Scope->is("vivid") != -1) || Force_Complex == "vivid") {
 
 		string STD = "vivid";
 		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
@@ -551,11 +445,124 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 	else if ((raw->is("evie") != -1) || (raw->Scope->is("evie") != -1)){
 		//if the function call uses the Evie standard.
 	}
-	else {
+	else if ((raw->is("plain") != -1) || (raw->Scope->is("plain") != -1)) {
 		//generic name labels for normal .
 		Result = raw->Name;
 	}
+	else /*((raw->is("cpp") != -1) || (raw->Scope->is("cpp") != -1) || Force_Complex == "cpp")*/ {
+		//if the function call uses the C standard.
+		//_import_func_cpp_internal_print__char__int to
+		//_Z14internal_printPci
+		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
+			Classes.clear();
+			Result = "_Z";
+
+			if (raw->Scope->is(CLASS_NODE) && raw->Scope->Name != "GLOBAL_SCOPE") {
+				Result += "N";
+
+				for (auto i : raw->Get_Scope_Path())
+					Result += to_string(i->Name.size()) + i->Name;
+
+				Result += to_string(raw->Name.size()) + raw->Name;
+
+				Result += "E";
+			}
+			else if (raw->Fetcher != nullptr) {
+				Result += "N";
+
+				for (auto i : raw->Get_All_Fetchers())
+					Result += to_string(i->Name.size()) + i->Name;
+
+
+				Result += to_string(raw->Name.size()) + raw->Name;
+
+				Result += "E";
+			}
+			else
+				Result += to_string(raw->Name.size()) + raw->Name;
+
+
+			if (raw->Parameters.size() < 1)
+				Result += "v";
+
+			for (auto i : raw->Parameters) {
+				Result += Mangle(i, "cpp");
+			}
+		}
+		else if (raw->is(CLASS_NODE)) {
+			string p = "";
+			string r;
+			if (raw->is("ptr") != -1) {
+				for (auto i : raw->Inheritted) {
+					if (i == "ptr")
+						p += "P";
+				}
+				r = p + r;
+			}
+			if (Is_Base_Type(raw)) {
+				return p + string(raw->Name.data(), 1);
+			}
+			else {
+				if (Find_Classes(raw->Name) != -1) {
+					stringstream stream;
+					stream << hex << Find_Classes(raw->Name);
+					r = "S" + string(stream.str()) + "_";
+				}
+				else
+					r = to_string(raw->Name.size()) + raw->Name;
+				return r;
+			}
+		}
+		else if (raw->is(OBJECT_DEFINTION_NODE) || raw->is(OBJECT_NODE) || raw->is(PARAMETER_NODE)) {
+			int I = 0;
+			string p = "";
+			if (raw->is("ptr") != -1) {
+				for (auto i : raw->Inheritted) {
+					if (i == "ptr")
+						p += "P";
+				}
+			}
+			for (auto i : raw->Inheritted) {
+				if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+					I++;
+				if (I > 1) {
+					//PcIic = char int char ptr a
+					//Evie engine 3.0.0 cannot export multi inheritted variables yet.
+					//TODO: Make that happen.
+					throw::runtime_error("Exporting multi inheritted variables is not yet supported.");
+				}
+			}
+			if (Is_Template(raw)) {
+				//uugabuuga?
+				Result = p + "t";
+			}
+			else if (Is_Based_On_Base_Type(raw)) {
+				//int a;
+				string Type = "";
+				for (auto i : raw->Inheritted)
+					if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+						Type = i;
+				Result = p + string(Type.data(), 1);
+			}
+			else {
+				//banana a;
+				string Type = "";
+				for (auto i : raw->Inheritted)
+					if (!Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT))
+						Type = i;
+				Result = p + to_string(Type.size()) + Type;
+			}
+		}
+
+	}
 	return Result;
+}
+
+string MANGLER::Get_Function_Name(string func)
+{	//int ptr Start_Test()
+	int Paranthesis_Index = func.find_first_of('(');
+	int Name_Index = func.substr(0, Paranthesis_Index).find_last_of(" ") + 1;
+	return func.substr(Name_Index, Paranthesis_Index - Name_Index);
 }
 
 bool MANGLER::Is_Base_Type(Node* n)

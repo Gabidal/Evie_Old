@@ -451,7 +451,7 @@ void Algebra::Prosess_Conditions(Node* n, int i)
 	if (!n->is(ELSE_NODE)) {
 		Optimized = false;
 		while (true) {
-			Algebra a(n->Parameters.back(), &n->Parameters);
+			Algebra a(n, &n->Parameters);
 			if (!Optimized)
 				break;
 			Optimized = false;
@@ -512,6 +512,8 @@ void Algebra::Inline_Variables(int i)
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
 			if (d->Current_Value != nullptr) {
+				if (Parent->Find(d->Current_Value->Var->Scope, Parent) == nullptr)
+					continue;
 				if (d->Current_Value->Var->is(NUMBER_NODE)) {
 					if (n->Context->Name == "-" || n->Context->Name == "/" || n->Context->Name == "<" || n->Context->Name == ">" || n->Context->Name == "!<" || n->Context->Name == "!>" || n->Context->Name == "<=" || n->Context->Name == ">=") {
 						bool Has_Other_Variables = false;

@@ -6,9 +6,11 @@ export int main(){
 	return 1
 }
 
-int foo(){
+int plain foo(int ,int){
 	return 5
 }
+
+#void* (*)(int, int) = foo
 
 export int Start_Test(){
 	int ptr fuz = foo

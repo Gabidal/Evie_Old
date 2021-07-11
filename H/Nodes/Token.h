@@ -17,12 +17,12 @@ private:
 	int Size = 0;
 	bool Has_Floating_Point_Value = false;
 	string Name = "";
-	string OG = "";	//REG_a_Parameter og is a
 	vector<pair<Token*, int>> Resources;
 	vector<vector<pair<Token*, pair<int, int>>>> Combinations;
 
 	Node* Parent = nullptr;
 public:
+	string OG = "";	//REG_a_Parameter og is a
 	//for return
 	bool Is_Initted = false;
 	//for register parents
