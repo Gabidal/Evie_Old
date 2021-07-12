@@ -137,7 +137,7 @@ void PostProsessor::Type_Definer(int i)
 		else
 			Reference_Count->Inheritted.push_back(Size_Representer->Name);
 
-		Type->Defined.push_back(Reference_Count);
+		Type->Defined.insert(Type->Defined.begin(), Reference_Count);
 	}
 
 	Destructor_Generator(Scope->Defined[i]);

@@ -4,8 +4,8 @@
 .section .text
 _Z10Start_Testv:
 mov ecx, 6
-jmp Return_Here_31
-Return_Here_31:
+jmp Return_Here_44
+Return_Here_44:
 mov r8d, ecx
 mov r9, rdx
 mov eax, 3
@@ -27,8 +27,8 @@ ret
 mov ecx, 1065353216
 movd xmm0, ecx
 movss xmm0, xmm0
-jmp Return_Here_32
-Return_Here_32:
+jmp Return_Here_45
+Return_Here_45:
 cvttss2si ecx, xmm0
 mov eax, ecx
 ret 
@@ -39,8 +39,8 @@ ret
 
 _Z4mainv:
 mov ecx, 6
-jmp Return_Here_34
-Return_Here_34:
+jmp Return_Here_47
+Return_Here_47:
 mov r8d, ecx
 mov r9, rdx
 mov eax, 3
@@ -54,15 +54,15 @@ mov eax, r8d
 div ecx
 mov r8d, eax
 mov ecx, r8d
-jmp Return_Here_33
+jmp Return_Here_46
 mov ecx, 1065353216
 movd xmm0, ecx
 movss xmm0, xmm0
-jmp Return_Here_35
-Return_Here_35:
-jmp Return_Here_33
-jmp Return_Here_33
-Return_Here_33:
+jmp Return_Here_48
+Return_Here_48:
+jmp Return_Here_46
+jmp Return_Here_46
+Return_Here_46:
 mov eax, 1
 ret 
 ret 

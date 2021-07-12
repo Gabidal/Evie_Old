@@ -5,8 +5,8 @@
 _Z4mainv:
 lea rcx, qword ptr [rip + foo ]
 mov rcx, rcx
-jmp Return_Here_15
-Return_Here_15:
+jmp Return_Here_28
+Return_Here_28:
 mov eax, 1
 ret 
 ret 
