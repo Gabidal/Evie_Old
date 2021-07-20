@@ -668,4 +668,9 @@ pair<int, string>* MANGLER::Find(string Key, vector<pair<string, pair<int, strin
 	return nullptr;
 }
 
+void MANGLER::Clear_Class_Zipping_List()
+{
+	Classes.clear();
+}
+
 

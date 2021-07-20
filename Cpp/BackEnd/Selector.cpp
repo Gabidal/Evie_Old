@@ -206,12 +206,12 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 				continue;
 			if (r.first == nullptr || r.first->Last_Usage_Index <= p->Last_Usage) {
 				//no current owner
-				r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
+				r.first = new Descriptor(i, p->Last_Usage, t->Get_Name(), t->Get_Parent());
 				return r.second;
 			}
 			else if (r.first->Last_Usage_Index > p->Last_Usage){
 				//if the current register user is more superior register user than us, then we need to do a temporary save to stack 
-				Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+				Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name(), t->Get_Parent()), t }, source, i);
 				//now the wanted register is solutioned :D
 				return r.second;
 			}
@@ -263,7 +263,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 					if (p->Intersects_Calls.size() > 0)
 						return Move_Parameter_Into_Non_Volatile({ p, t }, r.second, source, i);
 
-					r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
+					r.first = new Descriptor(i, p->Last_Usage, t->Get_Name(), t->Get_Parent());
 
 					return r.second;
 				}
@@ -272,7 +272,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 				}
 				else if (r.first->Last_Usage_Index > p->Last_Usage) {
 					//if the current register user is more superior register user than us, then we need to do a temporary save to stack 
-					Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+					Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name(), t->Get_Parent()), t }, source, i);
 					//now the wanted register is solutioned :D
 					return r.second;
 				}
@@ -304,7 +304,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 						if (Check_If_Larger_Register_Is_In_Use(r.second->Holder)->Last_Usage_Index > i)
 							goto Wrong;
 				if (r.second->Get_Size() == t->Get_Size()) {
-					r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
+					r.first = new Descriptor(i, p->Last_Usage, t->Get_Name(), t->Get_Parent());
 					return r.second;
 				}
 			}
@@ -325,7 +325,7 @@ Token* Selector::Get_New_Reg(vector<IR*>* source, int i, Token* t, Path* path)
 			return r.second;
 		}
 		else if (Single_Register_Type && r.second->is(Reg_Type) && r.second->Get_Size() == t->Get_Size()) {
-			Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name()), t }, source, i);
+			Make_Solution_For_Crossed_Register_Usages({ r.first, r.second }, { new Descriptor(i, p->Last_Usage, t->Get_Name(), t->Get_Parent()), t }, source, i);
 			return r.second;
 		}
 		//still... checking names is wrong
@@ -534,6 +534,8 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 
 				j.second->Set_Flags(TOKEN::MEMORY | Memory_Type);
 
+				j.second->Set_Parent(Previus_User->first->Scope);
+
 				Previus_User->first = nullptr;
 				Used_Previus_Stack_Space = true;
 
@@ -560,7 +562,7 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 		source->insert(source->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {Memory_Location, New_Reg}, new Position()));
 
 		//now pair up the freed up register with the new user
-		r.first = new Descriptor(i, p->Last_Usage, t->Get_Name());
+		r.first = new Descriptor(i, p->Last_Usage, t->Get_Name(), t->Get_Parent());
 
 		return;
 
@@ -723,13 +725,13 @@ void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
 void Selector::Init_Stack(Node* Func)
 {
 	for (auto i : Func->Defined){
-		if (!i->Requires_Address && !sys->Info.Debug)
+		if (!i->Requires_Address /* && !sys->Info.Debug --> no need the memory needing variables are already need_address = true*/ )
 			continue;
 		long long Memory_Type = 0;
 		if (i->Is_Decimal())
 			Memory_Type = TOKEN::DECIMAL;
 
-		Stack.push_back({ nullptr, new Token(TOKEN::MEMORY | Memory_Type | TOKEN::LOCAL_VARIABLE_SCOPE, { new Token(TOKEN::CONTENT, i->Name, i->Size)}, i->Size, i->Name)});
+		Stack.push_back({ nullptr, new Token(TOKEN::MEMORY | Memory_Type | TOKEN::LOCAL_VARIABLE_SCOPE, { new Token(TOKEN::CONTENT, i->Name, i->Size, i->Scope)}, i->Size, i->Name, i->Scope)});
 	}
 
 	Stack.push_back({ nullptr, new Token(TOKEN::MEMORY | TOKEN::CALL_PARAMETER_SPACE, { new Token(TOKEN::CONTENT, ".CALL_PARAMETER_SPACE", Func->Size_of_Call_Space)}, Func->Size_of_Call_Space, ".CALL_PARAMETER_SPACE")});

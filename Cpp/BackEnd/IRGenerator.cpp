@@ -14,13 +14,13 @@ unsigned long long Label_Differential_ID = 0;
 
 void IRGenerator::Factory()
 {
-	if (Parent->Name == "GLOBAL_SCOPE") 
+	if (Scope->Name == "GLOBAL_SCOPE") 
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
 	/*for (int i = 0; i < Input.size(); i++)
 		Switch_To_Correct_Places(Input[i]);*/
-	for (auto i : Parent->Defined)
+	for (auto i : Scope->Defined)
 		Parse_Function(i);
-	for (auto i : Parent->Defined)
+	for (auto i : Scope->Defined)
 		Parse_Member_Functions(i);
 
 	for (int i = 0; i < Input.size(); i++) {
@@ -43,11 +43,11 @@ void IRGenerator::Factory()
 		Parse_Jump(i);
 		Parse_Labels(i);
 	}
-	if (Parent->Name == "GLOBAL_SCOPE") {
+	if (Scope->Name == "GLOBAL_SCOPE") {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
-		for (auto i : Parent->Header)
+		for (auto i : Scope->Header)
 			Parse_Global_Variables(i);
-		for (auto i : Parent->Defined)
+		for (auto i : Scope->Defined)
 			Parse_Static_Variables(i);
 	}
 }
@@ -66,15 +66,15 @@ void IRGenerator::Parse_Function(Node* Func)
 		if (j->is("type") != -1 || j->Inherits_Template_Type())
 			return;	//skip template functions.
 
-	Node* Scope = Parent;
+	Node* Function_Scope = Scope;
 	if (Func->Fetcher != nullptr)
-		Scope = Func->Fetcher;
+		Function_Scope = Func->Fetcher;
 
-	if ((Scope->Find(Func->Name, Scope, FUNCTION_NODE)->Calling_Count == 0) && Scope->Find(Func->Name, Scope, FUNCTION_NODE)->is("export") == -1)
+	if ((Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->Calling_Count == 0) && Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->is("export") == -1)
 		return;
 
 	if (Func->is("export") != -1)
-		Scope->Header.push_back(Func);
+		Function_Scope->Header.push_back(Func);
 
 	//label
 	IR* Label = Make_Label(Func, true);
@@ -92,7 +92,7 @@ void IRGenerator::Parse_Function(Node* Func)
 				//first make a register representive out of the parameter.
 				Token* Register = new Token(Func->Parameters[j], true);
 				//then declare that the parameter now needs memory
-				Scope->Find(Func->Name, Scope, Func->Type)->Parameters[j]->Requires_Address = true;
+				Function_Scope->Find(Func->Name, Function_Scope, Func->Type)->Parameters[j]->Requires_Address = true;
 				//now the new token that is created is a memory representive of the original parameter.
 				Token* Memory = new Token(TOKEN::MEMORY, { new Token(Func->Parameters[j]) }, Register->Get_Size(), Register->Get_Name());
 
@@ -106,11 +106,11 @@ void IRGenerator::Parse_Function(Node* Func)
 
 
 	Token* ret = new Token(TOKEN::FLOW, "return");
-	ret->Set_Parent(Scope->Find(Func->Name, Scope, FUNCTION_NODE));
+	ret->Set_Parent(Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE));
 	Output->push_back(new IR(ret, {}, nullptr));
 
 	//make the end of funciton like End Proc like label
-	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, Func->Name), {}, nullptr));
+	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, MANGLER::Mangle(Func, "")), {}, nullptr));
 }
 
 void IRGenerator::Parse_Member_Functions(Node* Class)
@@ -141,7 +141,7 @@ void IRGenerator::Parse_Calls(int i)
 		return;
 
 
-	IRGenerator g(Parent, Output);
+	IRGenerator g(Scope, Output);
 
 	//do the parameters
 	//no ur wrong m8!
@@ -390,7 +390,7 @@ void IRGenerator::Parse_Conditional_Jumps(int i)
 	//NOTICE: this must happen after all operator is created as IR!!!
 	if (!Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
-	if (!Parent->is(IF_NODE) && !Parent->is(ELSE_IF_NODE) && !Parent->is(WHILE_NODE))
+	if (!Scope->is(IF_NODE) && !Scope->is(ELSE_IF_NODE) && !Scope->is(WHILE_NODE))
 		// a = b * c < d
 		//...
 		return;
@@ -449,9 +449,9 @@ void IRGenerator::Parse_Conditional_Jumps(int i)
 	IR* ir = new IR(cmp, { Left, Right });
 	Output->push_back(ir);
 	*/
-	string Next_Label = Parent->Name + "_END";
-	if (Parent->Succsessor != nullptr)
-		Next_Label = Parent->Succsessor->Name;
+	string Next_Label = Scope->Name + "_END";
+	if (Scope->Succsessor != nullptr)
+		Next_Label = Scope->Succsessor->Name;
 
 	//jmp if not correct
 	string Condition = Get_Inverted_Condition(Input[i]->Name, Input[i]->Location);
@@ -491,11 +491,11 @@ void IRGenerator::Parse_Logical_Conditions(int i)
 	// 	   ..
 	// end_of_if_children:
 
-	IRGenerator g(Parent, { Input[i]->Left, Input[i]->Right }, Output);
+	IRGenerator g(Scope, { Input[i]->Left, Input[i]->Right }, Output);
 
-	string Next_Label = Parent->Name + "_END";
-	if (Parent->Succsessor)
-		Next_Label = Parent->Succsessor->Name;
+	string Next_Label = Scope->Name + "_END";
+	if (Scope->Succsessor)
+		Next_Label = Scope->Succsessor->Name;
 
 	if (Input[i]->Name == "||") {
 		Output->push_back(Make_Jump("jump", Next_Label));
@@ -512,7 +512,7 @@ void IRGenerator::Parse_Cloning(int i)
 	//object non-ptr x = object ptr y
 
 	Token* Right;
-	IRGenerator g(Parent, { Input[i]->Right }, Output);
+	IRGenerator g(Scope, { Input[i]->Right }, Output);
 	if (g.Handle != nullptr)
 		Right = g.Handle;
 	else 
@@ -579,7 +579,7 @@ void IRGenerator::Parse_Operators(int i)
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
 	
-	if (Parent->Name == "GLOBAL_SCOPE")
+	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
 	if (Input[i]->Name == ".")
 		return;
@@ -589,7 +589,7 @@ void IRGenerator::Parse_Operators(int i)
 	Input[i]->Update_Format();
 
 	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE, PREFIX_NODE, POSTFIX_NODE }))
-		Input[i]->Left->Size = Parent->Find(Input[i]->Left, Parent)->Size;
+		Input[i]->Left->Size = Scope->Find(Input[i]->Left, Scope)->Size;
 
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
 		Parse_Cloning(i);
@@ -604,10 +604,10 @@ void IRGenerator::Parse_Operators(int i)
 	Token* Left = nullptr;
 	Token* Right = nullptr;
 
-	IRGenerator g(Parent, { Input[i]->Left }, Output, Input[i]->is(ASSIGN_OPERATOR_NODE) || Is_In_Left_Side_Of_Operator);
+	IRGenerator g(Scope, { Input[i]->Left }, Output, Input[i]->is(ASSIGN_OPERATOR_NODE) || Is_In_Left_Side_Of_Operator);
 
 	vector<IR*> tmp;
-	IRGenerator g2(Parent, { Input[i]->Right }, &tmp);
+	IRGenerator g2(Scope, { Input[i]->Right }, &tmp);
 
 	//if (Input[i]->Generated)
 	//	return;
@@ -730,7 +730,7 @@ void IRGenerator::Parse_Pointers(int i)
 		return;
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
-	if (Parent->Name == "GLOBAL_SCOPE")
+	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
 	if (Input[i]->Name == ".")
 		return;
@@ -738,7 +738,7 @@ void IRGenerator::Parse_Pointers(int i)
 
 	Update_Operator(Input[i]);
 	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE, PREFIX_NODE, POSTFIX_NODE }))
-		Input[i]->Left->Size = Parent->Find(Input[i]->Left, Parent)->Size;
+		Input[i]->Left->Size = Scope->Find(Input[i]->Left, Scope)->Size;
 
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Get_Size() > _SYSTEM_BIT_SIZE_) {
 		//this has been already made in cloning objects
@@ -756,7 +756,7 @@ void IRGenerator::Parse_Pointers(int i)
 	//	return;
 	
 	//handle complex Right
-	IRGenerator g(Parent, { Input[i]->Right }, Output);
+	IRGenerator g(Scope, { Input[i]->Right }, Output);
 	if (g.Handle != nullptr)
 		Right = g.Handle;
 	else
@@ -829,7 +829,7 @@ void IRGenerator::Parse_Arrays(int i)
 {
 	if (!Input[i]->is(ARRAY_NODE))
 		return;
-	if (Parent->Name == "GLOBAL_SCOPE")
+	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
 	if (Input[i]->is(PARSED_BY::IRGENERATOR))
 		return;
@@ -839,7 +839,7 @@ void IRGenerator::Parse_Arrays(int i)
 	Token* Right = nullptr;
 
 	//the left side contains the owner from the offsetting happends
-	IRGenerator g(Parent, { Input[i]->Left }, Output);
+	IRGenerator g(Scope, { Input[i]->Left }, Output);
 	if (g.Handle != nullptr)
 		Left = g.Handle;
 	else
@@ -1121,7 +1121,7 @@ void IRGenerator::Parse_PreFixes(int i)
 
 
 	//++i
-	IRGenerator g(Parent, { Input[i]->Right }, Output);
+	IRGenerator g(Scope, { Input[i]->Right }, Output);
 
 	Token* Right = nullptr;
 
@@ -1155,7 +1155,7 @@ void IRGenerator::Parse_PostFixes(int i)
 		return;
 
 	//i++
-	IRGenerator g(Parent, { Input[i]->Left }, Output, true);
+	IRGenerator g(Scope, { Input[i]->Left }, Output, true);
 
 	Token* Left = nullptr;
 
@@ -1218,25 +1218,25 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	// tmp01.Reference_Count++
 	// [operator left side] = tmp01
 
-	PostProsessor P(Parent);
+	PostProsessor P(Scope);
 
 	Node* tmp = new Node(OBJECT_DEFINTION_NODE, Input[i]->Location);
 	tmp->Name = "_Reference" + to_string((long long)tmp);
 	tmp->Inheritted = Input[i]->Inheritted;
-	tmp->Scope = Parent;
+	tmp->Scope = Scope;
 
 	tmp->Get_Inheritted_Class_Members();
 
-	Parent->Defined.push_back(tmp);
+	Scope->Defined.push_back(tmp);
 
 	//update now the parent funcion to aling all the stack offset to right
-	P.Define_Sizes(Parent);
+	P.Define_Sizes(Scope);
 
 	//the move from right to tmp needs to be hand made, because we dont have call to string functions.
 
 	Node* Set = new Node(ASSIGN_OPERATOR_NODE, Input[i]->Location);
 	Set->Name = "=";
-	Set->Scope = Parent;
+	Set->Scope = Scope;
 	Set->Left = tmp;
 	Set->Right = Input[i]->Right;
 
@@ -1247,13 +1247,13 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	Component Move("=", Flags::OPERATOR_COMPONENT);
 	Move.node = Set;
 
-	Parser p(Parent);
+	Parser p(Scope);
 	p.Input.push_back(Move);
 	tmp->Append(p.Input,Lexer::GetComponents("\n" + tmp->Name + ".Reference_Count++\n"));
 
 	Set = new Node(ASSIGN_OPERATOR_NODE, Input[i]->Location);
 	Set->Name = "=";
-	Set->Scope = Parent;
+	Set->Scope = Scope;
 	Set->Left = Input[i]->Left;
 	Set->Right = tmp;
 	Set->Parsed_By |= PARSED_BY::REFERENCE_COUNT_INCREASE;
@@ -1270,7 +1270,7 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	P.Components = p.Input;
 	P.Factory();
 
-	IRGenerator g(Parent, P.Input, Output);
+	IRGenerator g(Scope, P.Input, Output);
 }
 
 void IRGenerator::Parse_Jump(int i)
@@ -1282,7 +1282,7 @@ void IRGenerator::Parse_Jump(int i)
 
 	string Label_Name = Input[i]->Right->Name;
 
-	Node* Func = Parent->Find(Input[i]->Right->Name);
+	Node* Func = Scope->Find(Input[i]->Right->Name);
 
 	if (Func != nullptr && Func->Has({ FUNCTION_NODE, IMPORT, EXPORT, PROTOTYPE }))
 		Label_Name = Func->Mangled_Name;
@@ -1309,7 +1309,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 
 
 		//b++ + (b++ + 1)
-		IRGenerator g(Parent, Input[i]->Childs, Output);
+		IRGenerator g(Scope, Input[i]->Childs, Output);
 
 		if (g.Handle != nullptr)
 			Handle = g.Handle;
@@ -1329,7 +1329,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 		}
 	}
 	else if (Input[i]->Paranthesis_Type == '{') {
-		IRGenerator g(Parent, Input[i]->Childs, Output);
+		IRGenerator g(Scope, Input[i]->Childs, Output);
 	}
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
@@ -1370,7 +1370,7 @@ void IRGenerator::Generate_Global_Variable(string Variable_Name, int Size)
 
 void IRGenerator::Parse_Global_Variables(Node* n)
 {
-	if (Parent->Name != "GLOBAL_SCOPE")
+	if (Scope->Name != "GLOBAL_SCOPE")
 		return;
 
 	if (!n->is(ASSIGN_OPERATOR_NODE))
@@ -1419,7 +1419,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 
 
 	if (n->is("static") != -1 || n->Fetcher->is("static") != -1) {
-		if (Parent->is(FUNCTION_NODE)) {
+		if (Scope->is(FUNCTION_NODE)) {
 			//this now namespace if the condition above yelds true.
 			bool Load_To_Reg = true;
 
@@ -1836,7 +1836,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 						}
 					}
 					else
-						Reg_Size += Global_Scope->Find(Type_Trace[s], Parent)->Size;
+						Reg_Size += Global_Scope->Find(Type_Trace[s], Scope)->Size;
 				}
 
 			}
@@ -1890,7 +1890,7 @@ IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
 	Token* label_name = new Token(TOKEN::LABEL, name);
 	label_name->OG = n->Name;
 
-	Node* Scope_Path = Parent;
+	Node* Scope_Path = Scope;
 	if (n->Fetcher != nullptr)
 		Scope_Path = n->Fetcher;
 
@@ -1948,7 +1948,7 @@ void IRGenerator::Parse_Return(int i) {
 				Can_Modify_Last_Variable_Value = false;
 		}
 
-		IRGenerator g(Parent, Input[i]->Header, Output);
+		IRGenerator g(Scope, Input[i]->Header, Output);
 
 		g.Generate({ Input[i]->Right }, Can_Modify_Last_Variable_Value);
 
@@ -2007,7 +2007,7 @@ void IRGenerator::Parse_Return(int i) {
 	}
 	//let the postprosessor to handle stack emptying!
 	Token* ret = new Token(TOKEN::FLOW, "return");
-	ret->Set_Parent(Parent);
+	ret->Set_Parent(Scope);
 	Output->push_back(new IR(ret, vector<Token*>{}, Input[i]->Location));
 
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;

@@ -78,7 +78,7 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 	//if (t->Get_Name() == ".RIP") {
 	//	cout << ".";
 	//}
-	if (selector->Get_Memory_Location(t) == nullptr) {
+	if (selector->Get_Memory_Location(t) == nullptr || !t->is(TOKEN::REGISTER_SAVE_SPACE)) {
 		if (selector->Get_Register(t) == nullptr)
 			if (selector->Get_New_Reg(Input, i, t) == nullptr) {
 				selector->Allocate_Register(Input, i, t);

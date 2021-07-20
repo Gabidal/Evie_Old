@@ -17,8 +17,9 @@ public:
 	int Last_Usage_Index = 0;
 
 	string User = "";
+	Node* Scope = nullptr;
 
-	Descriptor(int first, int last, string usr) : First_Usage_Index(first), Last_Usage_Index(last), User(usr){}
+	Descriptor(int first, int last, string usr, Node* Scope) : First_Usage_Index(first), Last_Usage_Index(last), User(usr), Scope(Scope){}
 };
 
 class Path {

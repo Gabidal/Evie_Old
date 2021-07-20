@@ -34,6 +34,8 @@ namespace MANGLER {
 	string Get_Key(string Val, string Lang);
 	vector<pair<string, pair<int, string>>>* Find_STD_List(string Lang);
 	pair<int, string>* Find(string Key, vector<pair<string, pair<int, string>>>* Current_IDS);
+	void Clear_Class_Zipping_List();
+
 }
 
 #endif

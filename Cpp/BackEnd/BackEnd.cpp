@@ -32,12 +32,14 @@ void BackEnd::Init()
 
 void BackEnd::Factory()
 {
+	int j = 0;
 	for (auto i : Input) {
 		Label_Builder(i);
 		Global_Builder(i);
 		Operator_Builder(i);
 		End_Of_Function_Builder(i);
 		Call_Builder(i);
+		j++;
 	}
 }
 

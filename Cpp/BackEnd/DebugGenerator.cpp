@@ -265,16 +265,16 @@ void DebugGenerator::Construct_Debug_Abbrev()
     DW_FORM_Strp;
     Debug_Abbrev.push_back(DW_FORM_Strp);
     //The base address of a compilation unit
-    IR* DW_AT_Low_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "17", 1) }, nullptr);
+    IR* DW_AT_Low_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Low_pc), 1) }, nullptr);
     Debug_Abbrev.push_back(DW_AT_Low_Pc);
     //Represented as an object of appropriate size to hold an address.
-    IR* DW_FORM_Addr = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "1", 1) }, nullptr);
+    IR* DW_FORM_Addr = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Addr), 1) }, nullptr);
     Debug_Abbrev.push_back(DW_FORM_Addr);
     //addresses of a debugging information entry.
-    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Ranges), 1) }, nullptr);
+    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::High_pc), 1) }, nullptr);
     Debug_Abbrev.push_back(DW_AT_High_Pc);
     //Add a new attribute form for section offsets.
-    IR* DW_FORM_Data4 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Sec_offset), 1) }, nullptr);
+    IR* DW_FORM_Data4 = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data4), 1) }, nullptr);
     Debug_Abbrev.push_back(DW_FORM_Data4);
     //End of marker
     IR* EOM = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, "0", 1) }, nullptr);
@@ -340,7 +340,7 @@ void DebugGenerator::Construct_Debug_Info()
     IR* DW_AT_Low_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Code_Start", 8) }, nullptr);
     Debug_Info.push_back(DW_AT_Low_Pc);
     //End of the all asm code
-    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Code_End-Code_Start", 4) }, nullptr);
+    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Code_End", 4) }, nullptr);
     Debug_Info.push_back(DW_AT_High_Pc);
 
     int j = 0;
@@ -359,7 +359,10 @@ void DebugGenerator::Construct_Debug_Info()
             continue;
 
         Info_Generator(i);
-    }
+    }        
+    
+    Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
+
     //This label indicates the section start point.
     IR* Ldebug_Info_Start0 = new IR(new Token(TOKEN::LABEL, "Debug_Info_End"), {}, nullptr);
     Debug_Info.push_back(Ldebug_Info_Start0);
@@ -654,6 +657,7 @@ void DebugGenerator::Insert_Stack_Info(vector<IR*> &Input)
 void DebugGenerator::Info_Generator(Node* n)
 {
     Abbrev_Type Info(n);
+    string Mangled_Name;
     if (Info.TAG == -1)
         return;
     if (n->is(FUNCTION_NODE))
@@ -662,30 +666,36 @@ void DebugGenerator::Info_Generator(Node* n)
 
     bool Skip_Scope_Generation = false;
     for (auto i : Genrated_Info)
-        if ((i == n->Name || i == MANGLER::Mangle(n, "")) && !n->is(OBJECT_DEFINTION_NODE)) {
+        if ((i == n->Name /*|| i == MANGLER::Mangle(n, "")*/) && !n->is(OBJECT_DEFINTION_NODE)) {
             Skip_Scope_Generation = true;
             goto Go_Straight_To_Childs;
         }
 
-    Genrated_Info.push_back(n->Name);
-    Genrated_Info.push_back(MANGLER::Mangle(n, ""));
+    if (!Skip_Scope_Generation) {
+        Genrated_Info.push_back(n->Name);
+        //Genrated_Info.push_back(MANGLER::Mangle(n, ""));
+    }
+
+    Mangled_Name = n->Name;
+    if (n->is(CLASS_NODE) && !MANGLER::Is_Base_Type(n))
+        Mangled_Name = MANGLER::Mangle(n, "");
 
     if (n->is(CLASS_NODE))
-        Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + n->Name + "_START"), {}, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::LABEL, "_" + Mangled_Name + "_START"), {}, nullptr));
 
     Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Get_Abbrovation_Index(n)), 1) }, nullptr));
     if (Info.CALLING_CONVENTION) {
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(1), 1) }, nullptr));
     }
     if (Info.STACK_FRAME_LOCATION) {
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 1) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Memory_Offset), 2) }, nullptr));
     }
     if (Info.START)
         //The label that is in the start of the function
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_START", 8) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, MANGLER::Mangle(n, "") + "_START", 8)}, nullptr));
     if (Info.END)
         //The label that is in the end of the function
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, n->Name + "_END-" + n->Name + "_START", 4) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, MANGLER::Mangle(n, "") + "_END", 4) }, nullptr));
     if (Info.MEMORY_LOCATION) {
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(2), 1) }, nullptr));
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(145), 1) }, nullptr));
@@ -725,20 +735,36 @@ void DebugGenerator::Info_Generator(Node* n)
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr));
     //Return type declaration address
     if (Info.TYPE) {
-        string Inheritted = n->Get_Inheritted("_", true, false, true);
+        string Inheritted;
+        //purify the inheritted.
+        for (auto i : n->Inheritted) {
+            if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
+                continue;
+
+            string Base_Type = MANGLER::Mangle(n->Find(i, n, CLASS_NODE), "");
+
+            if (MANGLER::Is_Base_Type(n->Find(i, n, CLASS_NODE)))
+                Base_Type = i;
+
+            Inheritted = "_" + Base_Type;
+            break;
+        }
+        MANGLER::Clear_Class_Zipping_List();
+        /*= n->Get_Inheritted("_", true, false, true);
         if (Inheritted == "")
-            Inheritted = n->Get_Inheritted("_", true, false, false);
+            Inheritted = n->Get_Inheritted("_", true, false, false);*/
         IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 4) }, nullptr);
         Debug_Info.push_back(DW_AT_Type);
     }
 Go_Straight_To_Childs:;
-    for (auto v : n->Defined) {
-        if (v->is("const") != -1)
-            continue;
-        if (v->is(FUNCTION_NODE))
-            continue;
-        Info_Generator(v);
-    }
+    if (!n->is(OBJECT_DEFINTION_NODE))
+        for (auto v : n->Defined) {
+            if (v->is("const") != -1)
+                continue;
+            if (v->is(FUNCTION_NODE))
+                continue;
+            Info_Generator(v);
+        }
     if (Info.HAS_CHILDREN && !Skip_Scope_Generation)
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
 }

@@ -12,17 +12,17 @@ using namespace std;
 
 class IRGenerator {
 public:
-	Node* Parent = nullptr;
+	Node* Scope = nullptr;
 	Token* Handle = nullptr;
 
 	vector<IR*>* Output;
 	vector<Node*> Input;
 
-	IRGenerator(Node* p) : Parent(p) { Output = new vector<IR*>; }
-	IRGenerator(Node* p, vector<Node*> in) : Parent(p), Input(in) { Output = new vector<IR*>; }
-	IRGenerator(Node* p, vector<Node*> in, vector<IR*>* Out) : Parent(p), Input(in), Output(Out) { Factory(); }
-	IRGenerator(Node* p, vector<Node*> in, vector<IR*>* Out, bool assign) : Parent(p), Input(in), Output(Out), Is_In_Left_Side_Of_Operator(assign) { Factory(); }
-	IRGenerator(Node* p, vector<IR*>* Out) : Parent(p), Output(Out){}
+	IRGenerator(Node* p) : Scope(p) { Output = new vector<IR*>; }
+	IRGenerator(Node* p, vector<Node*> in) : Scope(p), Input(in) { Output = new vector<IR*>; }
+	IRGenerator(Node* p, vector<Node*> in, vector<IR*>* Out) : Scope(p), Input(in), Output(Out) { Factory(); }
+	IRGenerator(Node* p, vector<Node*> in, vector<IR*>* Out, bool assign) : Scope(p), Input(in), Output(Out), Is_In_Left_Side_Of_Operator(assign) { Factory(); }
+	IRGenerator(Node* p, vector<IR*>* Out) : Scope(p), Output(Out){}
 	void Generate(vector<Node*> in, bool set_insert_mode) { Handle = nullptr; Input = in; Is_In_Left_Side_Of_Operator = set_insert_mode; Factory(); }
 
 	void Factory();
