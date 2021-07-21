@@ -1221,7 +1221,7 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	PostProsessor P(Scope);
 
 	Node* tmp = new Node(OBJECT_DEFINTION_NODE, Input[i]->Location);
-	tmp->Name = "_Reference" + to_string((long long)tmp);
+	tmp->Name = Input[i]->Right->Name + "_TMP_" + to_string((long long)tmp);
 	tmp->Inheritted = Input[i]->Inheritted;
 	tmp->Scope = Scope;
 

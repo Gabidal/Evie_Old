@@ -262,40 +262,6 @@ void Algebra::Function_Inliner(Node* c, int i)
 				}
 
 				Defined_Labels.push_back("Return_Here_" + to_string(Unique_ID_Count));
-
-				/*if (k->Context == nullptr) {
-					k->Name = "Return_Here_" + to_string(Unique_ID_Count++);
-				}
-				else {
-					k->Name = "Return_Here_" + to_string(Unique_ID_Count);
-				}*/
-				//increment the label unique ID
-				/*unsigned long long Unique_ID = atoll(k->Name.substr(string("Return_Here_").size()).c_str());
-				unsigned long long Previus_Unique_ID = Unique_ID;
-
-				string Previus_Unique_ID_String = to_string(Previus_Unique_ID);
-
-				string Name = k->Name.substr(0, k->Name.size() - Previus_Unique_ID_String.size());
-
-
-
-				k->Name = Name + to_string(Unique_ID);
-
-				bool Is_Already_Defined = false;
-
-				for (auto Label : Defined_Labels)
-					if (Label == k->Name)
-						Is_Already_Defined = true;
-
-				if (!Is_Already_Defined)
-					Defined_Labels.push_back(k->Name);
-				*/
-				/*string Scope_Name = k->Name.substr(k->Name.size() - c->Scope->Name.size());
-
-				if (Scope_Name == c->Scope->Name)
-					continue;
-
-				k->Name += c->Scope->Name;*/
 			}
 		}
 	}
@@ -351,9 +317,9 @@ void Algebra::Function_Inliner(Node* c, int i)
 		j->Update_Size();
 	}
 
-	//Scope->Update_Defined_Stack_Offsets();
-	Scope->Update_Stack_Space_Size(Scope);
+	Scope->Update_Local_Variable_Mem_Offsets();
 
+	Scope->Update_Member_Variable_Offsets(Scope);
 }
 
 vector<Node*> Algebra::Get_all(Node* n, int f)

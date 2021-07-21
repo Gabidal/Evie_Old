@@ -534,8 +534,7 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 
 	f->Childs = p.Input;
 
-	//DEBUG
-	//if (sys->Info.Debug)
+	//clear from nested scopes current value.
 	for (auto i : f->Childs)
 		for (auto j : Linearise(i)) {
 			if (!j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }))
@@ -564,8 +563,6 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 				break;
 		}
 	}
-
-	f->Update_Stack_Space_Size(f);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);
@@ -1459,8 +1456,9 @@ void PostProsessor::Define_Sizes(Node* p)
 	for (Node* d : p->Defined) {
 		d->Get_Inheritted_Class_Members();
 		d->Update_Size();
-		d->Update_Members_Mem_Offset();
+		d->Update_Local_Variable_Mem_Offsets();
 		d->Update_Format();
+		d->Update_Member_Variable_Offsets(d);
 	}
 }
 
@@ -1689,7 +1687,7 @@ void PostProsessor::Type_Size_Definer(int i)
 	Scope->Defined[i]->Update_Size();
 
 	//update the member stack offsets
-	Scope->Defined[i]->Update_Members_Mem_Offset();
+	Scope->Defined[i]->Update_Local_Variable_Mem_Offsets();
 
 	//update format
 	Scope->Defined[i]->Update_Format();

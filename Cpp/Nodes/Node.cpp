@@ -584,19 +584,6 @@ int Node::Update_Size() {
 	return Size;
 }
 
-void Node::Update_Stack_Space_Size(Node* f)
-{
-	for (auto& v : f->Defined) {
-		if (v->is(PARAMETER_NODE) && !sys->Info.Debug)
-			continue;
-		else if (v->Size <= _SYSTEM_BIT_SIZE_ && !v->Requires_Address)
-			continue;
-		v->Memory_Offset = v->Scope->Local_Allocation_Space;
-		v->Scope->Local_Allocation_Space += v->Get_Size();
-		v->Requires_Address = true;
-	}
-}
-
 vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 {
 

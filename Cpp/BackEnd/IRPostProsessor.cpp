@@ -105,7 +105,6 @@ void IRPostProsessor::Handle_Global_Labels()
 			Input->insert(Input->begin(), new IR(new Token(TOKEN::GLOBAL_LABEL, "global"), { new Token(TOKEN::LABEL,  MANGLER::Mangle(i, "")) }, nullptr));
 
 	}
-	
 }
 
 void IRPostProsessor::Clean_Selector(int& i)
@@ -161,6 +160,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 				int Current_Offset = atoi(Child->Get_Name().c_str());
 				Current_Offset += New_Stack_Offset;
 				Child->Set_Name(to_string(Current_Offset));
+
 			}
 	}
 
@@ -187,6 +187,17 @@ void IRPostProsessor::Clean_Selector(int& i)
 				Registerize(k, j);
 		}
 	}
+
+	for (int j = i + (int)Push_Amount.size() + Additional_Changes; j > Start_Of_Function; j--) {
+		for (auto& arg : Input->at(j)->Arguments)
+			for (auto& Child : arg->Get_All(TOKEN::LOCAL_VARIABLE_SCOPE)) {
+				int Current_Offset = atoi(Child->Get_Name().c_str());
+				Current_Offset += selector->Calculate_Memory_Address(TOKEN::LOCAL_VARIABLE_SCOPE);
+				Child->Set_Name(to_string(Current_Offset));
+
+			}
+	}
+
 	selector->Clean_Register_Holders();
 	selector->Clean_Stack();
 	//find the current end of function location.
@@ -263,17 +274,21 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 
 			Node* og = Function->Find(t->Get_Name());
 
+			//this is for memory usage parameters
 			long long Pushes_Also_Determine_The_Parameter_Location = TOKEN::NUM;
 			if (og->is(PARAMETER_NODE) && !Token(og, true).is(TOKEN::REGISTER))
 				Pushes_Also_Determine_The_Parameter_Location |= TOKEN::ADD_NON_VOLATILE_SPACE_NEEDS_HERE;
+			else
+				Pushes_Also_Determine_The_Parameter_Location |= TOKEN::LOCAL_VARIABLE_SCOPE;
 
-			long long Offset = selector->Calculate_Memory_Address(TOKEN::LOCAL_VARIABLE_SCOPE);
+
+			long long Offset = 0;// = selector->Calculate_Memory_Address(TOKEN::LOCAL_VARIABLE_SCOPE);
 
 			//Maybe we need to add the parameters addresses here?
-			if (og->Memory_Offset > 0 || og->is(PARAMETER_NODE))
+			if (og->Memory_Offset >= 0 || og->is(PARAMETER_NODE))
 				*t = Token(TOKEN::OFFSETTER, "+", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset + Offset)));
-			else if (og->Memory_Offset + Offset == 0)
-				*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);
+			/*else if (og->Memory_Offset + Offset == 0)
+				*t = Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_);*/
 			else if (og->Memory_Offset < 0)
 				*t = Token(TOKEN::DEOFFSETTER, "-", new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(Pushes_Also_Determine_The_Parameter_Location, to_string(og->Memory_Offset + Offset)));
 		}

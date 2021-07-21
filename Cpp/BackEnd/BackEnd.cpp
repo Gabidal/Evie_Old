@@ -60,7 +60,16 @@ void BackEnd::Operator_Builder(IR* i)
 		}
 	}
 	//set up the next line
-	*Output += "\n";
+
+	string Comment = "\t\t#";
+
+	for (int j = 0; j < i->Arguments.size(); j++) {
+		Comment += i->Arguments[j]->Get_Name();
+		if (j != i->Arguments.size() - 1)
+			Comment += ", ";
+	}
+
+	*Output += Comment + "\n";
 }
 
 void BackEnd::Label_Builder(IR* i)

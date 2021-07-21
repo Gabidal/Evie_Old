@@ -488,15 +488,54 @@ public:
 		Update_Size();
 	}*/
 
-	void Update_Members_Mem_Offset() {
-		int Offset = 0;
+	void Update_Local_Variable_Mem_Offsets() {
+		Local_Allocation_Space = 0;
 		for (auto i : Defined) {
-			if (i->is(FUNCTION_NODE))
+			if (i->is(FUNCTION_NODE) || !i->Requires_Address)
 				continue;
-			i->Memory_Offset = Offset;
-			Offset += i->Size;
+			i->Memory_Offset = Local_Allocation_Space;
+			Local_Allocation_Space += i->Size;
+		}
+
+		for (auto i : Childs) {
+			for (auto j : i->Get_all({ IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE })) {
+				j->Update_Local_Variable_Mem_Offsets(&Local_Allocation_Space);
+			}
 		}
 		return;
+	}
+
+	void Update_Local_Variable_Mem_Offsets(int* Current_Allocation_Space) {
+		for (auto i : Defined) {
+			if (i->is(FUNCTION_NODE) || (!i->Requires_Address && !i->Scope->is(OBJECT_DEFINTION_NODE)))
+				continue;
+			i->Memory_Offset = *Current_Allocation_Space;
+			*Current_Allocation_Space += i->Size;
+		}
+
+		for (auto i : Childs) {
+			for (auto j : i->Get_all({ IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE })) {
+				j->Update_Local_Variable_Mem_Offsets(Current_Allocation_Space);
+			}
+		}
+		return;
+	}
+
+	void Update_Member_Variable_Offsets(Node* obj) {
+		int Current_Offset = 0;
+		for (auto i : obj->Defined) {
+			if (i->is(FUNCTION_NODE))
+				continue;
+
+			if (!obj->is(FUNCTION_NODE)) {
+				i->Memory_Offset = Current_Offset;
+				Current_Offset += i->Get_Size();
+			}
+
+			if (i->Defined.size() > 0) {
+				Update_Member_Variable_Offsets(i);
+			}
+		}
 	}
 
 	void Update_Defined_Stack_Offsets();
@@ -699,8 +738,6 @@ public:
 	}
 
 	Node* Get_Closest_Context(int Flags);
-
-	void Update_Stack_Space_Size(Node* f);
 };
 
 #endif
