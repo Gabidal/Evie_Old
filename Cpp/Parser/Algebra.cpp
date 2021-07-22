@@ -317,9 +317,9 @@ void Algebra::Function_Inliner(Node* c, int i)
 		j->Update_Size();
 	}
 
-	Scope->Update_Local_Variable_Mem_Offsets();
+	/*Scope->Update_Local_Variable_Mem_Offsets();
 
-	Scope->Update_Member_Variable_Offsets(Scope);
+	Scope->Update_Member_Variable_Offsets(Scope);*/
 }
 
 vector<Node*> Algebra::Get_all(Node* n, int f)

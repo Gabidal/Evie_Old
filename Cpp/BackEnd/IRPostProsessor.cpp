@@ -270,7 +270,7 @@ void IRPostProsessor::Handle_Stack_Usages(Token* t)
 			//first update the stack offset.
 			Node* Function = t->Get_Parent();
 
-			Function->Update_Defined_Stack_Offsets();
+			/*Function->Update_Defined_Stack_Offsets();*/
 
 			Node* og = Function->Find(t->Get_Name());
 

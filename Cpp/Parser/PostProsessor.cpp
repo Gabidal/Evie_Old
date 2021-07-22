@@ -554,8 +554,6 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		Optimized = false;
 	}
 
-	Define_Sizes(f);
-
 	for (auto& v : f->Defined) {
 		for (auto j : f->Childs) {
 			Analyze_Variable_Address_Pointing(v, j);
@@ -563,6 +561,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 				break;
 		}
 	}
+
+	Define_Sizes(f);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);
@@ -1456,10 +1456,12 @@ void PostProsessor::Define_Sizes(Node* p)
 	for (Node* d : p->Defined) {
 		d->Get_Inheritted_Class_Members();
 		d->Update_Size();
-		d->Update_Local_Variable_Mem_Offsets();
 		d->Update_Format();
-		d->Update_Member_Variable_Offsets(d);
 	}
+
+	p->Update_Local_Variable_Mem_Offsets();
+	p->Update_Member_Variable_Offsets(p);
+
 }
 
 void PostProsessor::Combine_Condition(int i)
