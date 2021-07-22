@@ -435,7 +435,7 @@ void Parser::Definition_Pattern(int i)
 	vector<int> Words = Get_Amount_Of(i, { Flags::KEYWORD_COMPONENT, Flags::TEXT_COMPONENT, Flags::TEMPLATE_COMPONENT });
 	//object definition needs atleast one type and one raw text
 	if (Words.size() > 0 && Input[Words.back()].is(Flags::TEMPLATE_COMPONENT))
-		Words.pop_back();	
+		Words.pop_back();
 	if (Words.size() < 2)
 		return;
 	//the last word must be a raw text not a keyword to be defined as a new object
@@ -449,7 +449,7 @@ void Parser::Definition_Pattern(int i)
 
 	//int ptr a
 	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE, new Position(Input[Words[0]].Location));
-	
+
 	if (i - 1 >= 0 && Input[i - 1].is(Flags::COMMENT_COMPONENT)) {
 		New_Defined_Object->Comment = Input[i - 1].Value;
 
@@ -457,7 +457,7 @@ void Parser::Definition_Pattern(int i)
 	}
 
 	//transform the indecies into strings, and the -1 means that we want to skip the last element in the list (the name)
-	for (int j = 0; j < Words.size() -1; j++) {
+	for (int j = 0; j < Words.size() - 1; j++) {
 		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
 			//List<List<int>> a
 			//-> .List_List_int a 
@@ -467,16 +467,26 @@ void Parser::Definition_Pattern(int i)
 			New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
 			New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
 		}
-		else if (j+1 < Words.size() && !Input[Words[j+1]].is(Flags::TEMPLATE_COMPONENT))
+		else if (j + 1 < Words.size() && !Input[Words[j + 1]].is(Flags::TEMPLATE_COMPONENT))
 			New_Defined_Object->Inheritted.push_back(Input[Words[j]].Value);
 	}
 
 	New_Defined_Object->Name = Input[Words.back()].Value;
 	New_Defined_Object->Scope = Scope;
 
-
-
-	Scope->Defined.push_back(New_Defined_Object);
+	//Namespace combination system 2000 (:
+	//if the current made object already exists
+	Node* Namespace = Scope->Find(New_Defined_Object, Scope);
+	if (Namespace != nullptr && (Namespace->is(CLASS_NODE) || ((Get_Amount_Of(Words.back() + 1, {Flags::PAREHTHESIS_COMPONENT}, false).size() == 1) && (Input[Words.back() + 1].Value[0] == '{'))) && Namespace->is("static") != -1)
+		New_Defined_Object = Namespace;
+	else if (Namespace != nullptr && Namespace->is(CLASS_NODE) && Namespace->is("static") == -1)
+		Report(Observation(ERROR, "Cannot combine non static classes as namespaces!", *New_Defined_Object->Location));
+	else if (Namespace != nullptr && !Namespace->Has({ IMPORT, EXPORT, FUNCTION_NODE }) && !Input[Words.back() + 1].is(CONTENT_NODE)) {
+		if (!Input[Words.back() + 1].is(CONTENT_NODE))
+			Report(Observation(ERROR, "'" + New_Defined_Object->Name + "' is already defined at '" + Namespace->Location->ToString() + "'", *New_Defined_Object->Location));
+	}
+	else
+		Scope->Defined.push_back(New_Defined_Object);
 
 	//for later AST use:int ptr a = 123
 	Input[Words.back()].node = New_Defined_Object;
@@ -1361,7 +1371,8 @@ void Parser::Type_Pattern(int i)
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
 
-	Type->Childs = p.Input[0].node->Childs;
+	Type->Append(Type->Childs, p.Input[0].node->Childs);
+
 	p.Input.clear();
 
 	//infiltrate the class type and inject this behemoth

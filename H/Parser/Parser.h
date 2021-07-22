@@ -24,7 +24,6 @@ public:
 	//POST-PREPROSESSOR PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Combine_Dot_In_Member_Functions(int& i);
-
 	void Template_Pattern(int& i);
 	void Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Component& i);
 	void Operator_Combinator(int i);
@@ -71,11 +70,14 @@ public:
 	void Size_Pattern(int i);									//if (contidion){..}
 	void Format_Pattern(int i);									//format = decimal
 	void Member_Function_Pattern(int i);						//return_type class_name.funcname(){}
-	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Combine_Namespaces(int i);
+
 	//Pattern Users
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Operator_Order();
 	void Factory();
 private:
 };
 
 #endif
+

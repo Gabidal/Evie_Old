@@ -27,6 +27,10 @@ static Apple{
 	int Y = 3
 }
 
+static Apple{
+	int Z = 3
+}
+
 export int Start_Test(){
 	Banana b.Banana()
 	int B_X = b.Get() + b.Set(1)

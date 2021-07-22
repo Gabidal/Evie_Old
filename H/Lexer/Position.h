@@ -1,6 +1,9 @@
 #ifndef _POSITION_H_
 #define _POSITION_H_
 
+#include <string>
+
+using namespace std;
 
 class Position
 {
@@ -73,6 +76,11 @@ public:
 	{
 		return Position(Line, Character, Local, Absolute);
 	}
+
+    string ToString() const 
+    {
+        return (string(File_Name) + ":" + to_string(GetFriendlyLine()) + ":" + to_string(GetFriendlyCharacter()));
+    }
 };
 
 #endif
