@@ -100,6 +100,10 @@ public:
 
 	void Cast(Node* n);
 	void Increase_Calling_Number_For_Function_Address_Givers(Node* n);
+
+	//Namespace inlining properties
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	//void Handle_Namespace_Inlining(int i);
 private:
 };
 

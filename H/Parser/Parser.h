@@ -70,12 +70,15 @@ public:
 	void Size_Pattern(int i);									//if (contidion){..}
 	void Format_Pattern(int i);									//format = decimal
 	void Member_Function_Pattern(int i);						//return_type class_name.funcname(){}
-	void Combine_Namespaces(int i);
 
 	//Pattern Users
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Operator_Order();
 	void Factory();
+
+	//Namespace patterns
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Use_Pattern(int i);
 private:
 };
 

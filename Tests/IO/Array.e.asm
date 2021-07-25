@@ -4,26 +4,26 @@
 .section .text		#.text
 _Z10Start_Testv:
 sub rsp, 16		#.STACK, 16
-mov ecx, 10		#Size_86, 10
-mov r8d, ecx		#REG_Size_860, Size_86
-mov r9, rdx		#REG_Size_860_REMAINDER24946, REMAINDER_27506
-mov eax, 4		#4_QUOTIENT6422, 4
-mul r8d		#REG_Size_860
-mov r8d, eax		#REG_Size_860, 4_QUOTIENT6422
-mov rdx, r9		#REMAINDER_27506, REG_Size_860_REMAINDER24946
-mov ecx, ecx		#REG_Size_861, Size_86
-mov r8, rdx		#REG_Size_861_REMAINDER16413, REMAINDER_29168
-mov eax, 4		#4_QUOTIENT13030, 4
-mul ecx		#REG_Size_861
-mov ecx, eax		#REG_Size_861, 4_QUOTIENT13030
-mov rdx, r8		#REMAINDER_29168, REG_Size_861_REMAINDER16413
-mov ecx, ecx		#REG_REG_Size_861_Parameter18588, REG_Size_861
+mov ecx, 10		#Size_92, 10
+mov r8d, ecx		#REG_Size_920, Size_92
+mov r9, rdx		#REG_Size_920_REMAINDER18762, REMAINDER_1655
+mov eax, 4		#4_QUOTIENT32591, 4
+mul r8d		#REG_Size_920
+mov r8d, eax		#REG_Size_920, 4_QUOTIENT32591
+mov rdx, r9		#REMAINDER_1655, REG_Size_920_REMAINDER18762
+mov ecx, ecx		#REG_Size_921, Size_92
+mov r8, rdx		#REG_Size_921_REMAINDER6359, REMAINDER_27624
+mov eax, 4		#4_QUOTIENT17410, 4
+mul ecx		#REG_Size_921
+mov ecx, eax		#REG_Size_921, 4_QUOTIENT17410
+mov rdx, r8		#REMAINDER_27624, REG_Size_921_REMAINDER6359
+mov ecx, ecx		#REG_REG_Size_921_Parameter900, REG_Size_921
 call _V17internal_allocatex_rPh
 mov qword ptr [rsp + 8 ], rax		#.STACK_8, RetREG_2
-jmp Return_Here_120		#Return_Here_120
-Return_Here_120:
-mov rcx, qword ptr [rsp + 8 ]		#REG_Return_Value863, .STACK_8
-mov qword ptr [rsp + 0 ], rcx		#.STACK_0, REG_Return_Value863
+jmp Return_Here_129		#Return_Here_129
+Return_Here_129:
+mov rcx, qword ptr [rsp + 8 ]		#REG_Return_Value923, .STACK_8
+mov qword ptr [rsp + 0 ], rcx		#.STACK_0, REG_Return_Value923
 lea rcx, qword ptr [rsp + 0 ]		#a_REG4, .STACK_0
 mov rcx, rcx		#b, a_REG4
 mov r8, qword ptr [rcx + 0 * 8 ]		#b_REG5, *

@@ -68,14 +68,12 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 
 void Parser::Combine_Dot_In_Member_Functions(int& i)
 {
-	if (Scope->Name != "GLOBAL_SCOPE")
+	if (!Scope->is(CLASS_NODE) || Scope->is("static") == -1)
 		return;
 	if (Input[i].Value != ".")
 		return;
 
 	Math_Pattern(i, { "." }, OPERATOR_NODE, true);
-
-	
 }
 
 void Parser::Template_Pattern(int& i)
@@ -294,7 +292,11 @@ void Parser::Template_Type_Constructor(int i)
 	Type->Defined.clear();
 	Type->Childs.clear();
 
-	Parser p(Type->Scope);
+	//the constructed template class members are pushed to the old namespace altough the namespace has vbeen inlined
+
+	Node* Closest_Namespace = Scope->Get_Parent_As(CLASS_NODE, Scope);
+
+	Parser p(Closest_Namespace);
 	p.Input = New_Constructed_Template_Code;
 	p.Factory();
 	
@@ -444,7 +446,7 @@ void Parser::Definition_Pattern(int i)
 	//this is because of the syntax of label jumping exmp: "jump somewhere" is same as a variable declaration exmp: "int somename".
 	for (auto j : Words)
 		//import keywords have theyre own function to parse theyre own patterns.
-		if (Input[j].Value == "jump" || Input[j].Value == "return")
+		if (Input[j].Value == "jump" || Input[j].Value == "return" || Input[j].Value == "use")
 			return;
 
 	//int ptr a
@@ -507,7 +509,7 @@ void Parser::Constructor_Pattern(int i)
 		return;	//the name must be same as some class name to represent as the constructor of that class
 
 	for (auto j : ReturnType) {
-		if (j.Value == "return" || j.Value == "jump")
+		if (j.Value == "return" || j.Value == "jump" || j.Value == "use")
 			return;
 	}
 
@@ -543,7 +545,7 @@ void Parser::Prototype_Pattern(int i)
 	//label get_jump(int x)
 	//jump get_jump(123);
 	for (auto c : Words)
-		if (Input[c].Value == "jump" || Input[c].Value == "return" || Input[c].Value == "import")
+		if (Input[c].Value == "jump" || Input[c].Value == "return" || Input[c].Value == "import" || Input[c].Value == "use")
 			return;
 
 	Node* New_Defined_Object = new Node(PROTOTYPE, new Position(Input[Words.back()].Location));
@@ -849,9 +851,9 @@ void Parser::Parenthesis_Pattern(int i)
 	if (!Input[i].is(Flags::PAREHTHESIS_COMPONENT))
 		return;
 
-	if (Input[i].Value[0] == '{')
-		if (Scope == Global_Scope)
-			return;		//this is for member functions
+	//if (Input[i].Value[0] == '{')
+	//	if (Scope->is(CLASS_NODE) && Scope->is("static") != -1)
+	//		return;		//this is for member functions
 
 	//create an content Node and output will be in the same input.
 	Node* Paranthesis = new Node(CONTENT_NODE, new Position(Input[i].Location));
@@ -1713,8 +1715,10 @@ void Parser::Member_Function_Pattern(int i)
 	if (Input[i].Value != ".")
 		return;
 
+	//the name must be connected with the fethcer already by the dot operator.
+
 	int Paranthesis_Offset = 1;
-	if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
+	if (i + Paranthesis_Offset < Input.size() && Input[i + Paranthesis_Offset].is(Flags::TEMPLATE_COMPONENT))
 		Paranthesis_Offset = 2;
 
 	vector<int> Parenthesis_Indexes = Get_Amount_Of(i + Paranthesis_Offset, Flags::PAREHTHESIS_COMPONENT, false);
@@ -1774,6 +1778,54 @@ void Parser::Member_Function_Pattern(int i)
 
 }
 
+void Parser::Use_Pattern(int i)
+{
+	//use foo
+	if ((size_t)i + 1 >= Input.size())
+		return;
+	if (Input[i].Value != "use")
+		return;
+	if (!Input[(size_t)i + 1].is(Flags::TEXT_COMPONENT))
+		return;
+
+	Node* Namespace = Scope->Find(Input[(size_t)i + 1].Value);
+
+	if (Namespace == nullptr)
+		return;
+
+	if (Namespace->is("static") == -1 || !Namespace->is(CLASS_NODE))
+		return;
+
+	vector<Node*> Inlined = Namespace->Defined;
+
+	Scope->Append(Inlined, Namespace->Inlined_Items);
+
+	Node* Closest_Namespace = Scope->Get_Parent_As(CLASS_NODE, Scope);
+
+	for (auto &j : Inlined) {
+		Node* n = j;
+		if (j->is(FUNCTION_NODE))
+			n = new Node(*n);
+
+		j = j->Copy_Node(n, Closest_Namespace);
+	}
+
+	for (auto &i : Inlined) {
+		if (i->Fetcher)
+			continue;
+
+		i->Fetcher = Namespace;
+	}
+
+	for (auto &i : Inlined) {
+		i->Update_Size();
+	}
+
+	Closest_Namespace->Append(Closest_Namespace->Inlined_Items, Inlined);
+
+	Input.erase(Input.begin() + i, Input.begin() + i + 2);
+}
+
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Comment(i);
@@ -1799,6 +1851,7 @@ void Parser::Factory() {
 		Type_Pattern(i);		//class constructor
 		if (Input.size() == 0)
 			break;
+		Use_Pattern(i);
 		Inject_Template_Into_Member_Function_Fetcher(i);
 		Nodize_Template_Pattern(i);
 		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
@@ -1832,3 +1885,4 @@ void Parser::Factory() {
 	}
 
 }
+

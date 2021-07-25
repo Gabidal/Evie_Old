@@ -312,6 +312,30 @@ Node* Node::Find(Node* n, Node* s)
 
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
+	//Normal current and above going scope search algorithm
+	for (Node* i : s->Defined)
+		if (i->Templates.size() == n->Templates.size())
+			if (i->Name == n->Name) {
+				if (n->Cast_Type != nullptr) {
+					Node* tmp = i->Copy_Node(i, i->Scope);
+					tmp->Cast_Type = n->Cast_Type;
+					return tmp;
+				}
+				return i;
+			}
+
+	for (Node* i : s->Inlined_Items) {
+		if (i->Templates.size() == n->Templates.size())
+			if (i->Name == n->Name) {
+				if (n->Cast_Type != nullptr) {
+					Node* tmp = i->Copy_Node(i, i->Scope);
+					tmp->Cast_Type = n->Cast_Type;
+					return tmp;
+				}
+				return i;
+			}
+	}
+
 	if (n->Fetcher != nullptr)
 		if (n->Fetcher != s)
 			for (auto& i : Find_Scope(n)->Defined)
@@ -326,17 +350,6 @@ Node* Node::Find(Node* n, Node* s)
 					if (i->Name == n->Name)
 						return i;
 
-	//Normal current and above going scope search algorithm
-	for (Node* i : s->Defined)
-		if (i->Templates.size() == n->Templates.size())
-			if (i->Name == n->Name) {
-				if (n->Cast_Type != nullptr) {
-					Node* tmp = i->Copy_Node(i, i->Scope);
-					tmp->Cast_Type = n->Cast_Type;
-					return tmp;
-				}
-				return i;
-			}
 	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
 	if (s->Scope != nullptr)
 		if (Find(n, s->Scope) != nullptr)
@@ -373,13 +386,6 @@ Node* Node::Find(Node* n, Node* s, int f)
 
 	//The feching find that finds the Scope_Path, algorithm will be start before normal search-
 	//because of same named objects in the current scope.
-	if (n->Fetcher != nullptr)
-		for (auto& i : Find_Scope(n)->Defined)
-			if (i->is(f))
-				if (i->Templates.size() == n->Templates.size())
-					if (i->Name == n->Name)
-						return i;
-
 	//Normal current and above going scope search algorithm
 	for (Node* i : s->Defined)
 		if (i->is(f))
@@ -392,6 +398,27 @@ Node* Node::Find(Node* n, Node* s, int f)
 					}
 					return i;
 				}
+
+	for (Node* i : s->Inlined_Items) {
+		if (i->is(f))
+			if (i->Templates.size() == n->Templates.size())
+				if (i->Name == n->Name) {
+					if (n->Cast_Type != nullptr) {
+						Node* tmp = i->Copy_Node(i, i->Scope);
+						tmp->Cast_Type = n->Cast_Type;
+						return tmp;
+					}
+					return i;
+				}
+	}
+
+	if (n->Fetcher != nullptr)
+		for (auto& i : Find_Scope(n)->Defined)
+			if (i->is(f))
+				if (i->Templates.size() == n->Templates.size())
+					if (i->Name == n->Name)
+						return i;
+
 	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
 	if (s->Scope != nullptr)
 		if (Find(n, s->Scope, f) != nullptr)
@@ -423,6 +450,11 @@ Node* Node::Find(string name, Node* s, int flags) {
 				return i;
 
 	for (Node* i : s->Defined)
+		if (i->is(flags))
+			if (i->Name == name)
+				return i;
+
+	for (Node* i : s->Inlined_Items)
 		if (i->is(flags))
 			if (i->Name == name)
 				return i;
@@ -459,6 +491,10 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 			return i;
 
 	for (Node* i : s->Defined)
+		if (i->Name == name)
+			return i;
+
+	for (Node* i : s->Inlined_Items)
 		if (i->Name == name)
 			return i;
 
@@ -544,7 +580,7 @@ Node* Node::Get_Closest_Context(int Flags)
 
 vector<Node*> Trace_Update_Size;
 int Node::Update_Size() {
-	if (is("const") != -1 && Size != 0)
+	if (is("const") != -1 && Size != 0 || Is_Template_Object)
 		return Size;
 
 	Trace_Update_Size.push_back(this);

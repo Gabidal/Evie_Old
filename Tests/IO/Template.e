@@ -1,5 +1,7 @@
 use "../../IO/cstd.e"
 
+use std
+
 export int Start_Test(){
 	List<int> a.List<int>()
 	a.Add(5)

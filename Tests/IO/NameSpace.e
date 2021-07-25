@@ -32,9 +32,10 @@ static Apple{
 }
 
 export int Start_Test(){
+	use Apple
 	Banana b.Banana()
 	int B_X = b.Get() + b.Set(1)
-	return Banana.Y + Apple.Y - B_X
+	return Banana.Y + Y - B_X
 }
 
 export int main(){

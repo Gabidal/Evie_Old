@@ -6,9 +6,9 @@ _Z10Start_Testv:
 push rbx		#rbx
 sub rsp, 32		#.STACK, 32
 lea rcx, qword ptr [rsp + 0 ]		#a_REG0, .STACK_0
-mov rcx, rcx		#a_TMP_2787280706224, a_REG0
-add qword ptr [rcx + 0 ], 1		#a_TMP_2787280706224_0, 1
-mov rbx, rcx		#this_109, a_TMP_2787280706224
+mov rcx, rcx		#a_TMP_2097139710016, a_REG0
+add qword ptr [rcx + 0 ], 1		#a_TMP_2097139710016_0, 1
+mov rbx, rcx		#this_109, a_TMP_2097139710016
 mov dword ptr [rbx + 8 ], 1		#this_109_8, 1
 mov dword ptr [rbx + 12 ], 0		#this_109_12, 0
 mov ecx, dword ptr [rbx + 8 ]		#this_109_8_REG1, this_109_8
@@ -61,9 +61,9 @@ mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
 sub r8, 1		#this_0_REG0, 1
 cmp r8, 1		#this_0_REG0, 1
 jge if_45_END		#if_45_END
-mov r8, rcx		#this_TMP_2787280734512, this
-add qword ptr [r8 + 0 ], 1		#this_TMP_2787280734512_0, 1
-mov rbx, r8		#Address_108, this_TMP_2787280734512
+mov r8, rcx		#this_TMP_2097139704832, this
+add qword ptr [r8 + 0 ], 1		#this_TMP_2097139704832_0, 1
+mov rbx, r8		#Address_108, this_TMP_2097139704832
 mov rbx, rcx		#Address_108, this
 mov rcx, rbx		#REG_Address_108_Parameter14893, Address_108
 mov edx, 8		#REG_8_Parameter24648, 8

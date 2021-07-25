@@ -78,6 +78,8 @@ public:
 	vector<Node*> Member_Functions;
 	vector<Node*> Operator_Overloads;
 	int Call_Space_Start_Address = 0;
+	//namespace inlining features
+	vector<Node*> Inlined_Items;
 	//for maximus parametrus usagus.
 	int Size_of_Call_Space = 0;
 	//for local variables.
@@ -309,20 +311,34 @@ public:
 	}
 	
 	Node* Find(int size, Node* parent, string f) {
+
 		for (Node* i : parent->Defined)
 			if (i->Size == size)
 				if (i->Format == f)
 					return i;
+
+		for (Node* i : parent->Inlined_Items)
+			if (i->Size == size)
+				if (i->Format == f)
+					return i;
+
 		if (parent->Scope != nullptr)
 			return Find(size, parent->Scope, f);
 		return nullptr;
 	}	
 
 	Node* Find(int size, Node* parent, int flags, string f) {
+
 		for (Node* i : parent->Defined)
 			if (i->is(flags) && (i->Size == size))
 				if (i->Format == f)
 					return i;
+
+		for (Node* i : parent->Inlined_Items)
+			if (i->is(flags) && (i->Size == size))
+				if (i->Format == f)
+					return i;
+
 		if (parent->Scope != nullptr)
 			return Find(size, parent->Scope, flags, f);
 		return nullptr;
@@ -491,7 +507,7 @@ public:
 	void Update_Local_Variable_Mem_Offsets() {
 		Local_Allocation_Space = 0;
 		for (auto i : Defined) {
-			if (i->is(FUNCTION_NODE) || !i->Requires_Address)
+			if (i->is(FUNCTION_NODE) || !i->Requires_Address || i->Is_Template_Object)
 				continue;
 			i->Memory_Offset = Local_Allocation_Space;
 			Local_Allocation_Space += i->Size;
@@ -544,6 +560,8 @@ public:
 		if (this->is(NUMBER_NODE))
 			return;
 		if (this->is("const") != -1 && this->Name == "format")
+			return;
+		if (Is_Template_Object)
 			return;
 		Format = "integer";
 		for (string s : Inheritted) {

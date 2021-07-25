@@ -1,3 +1,4 @@
+
 char ptr BYTE_POINTER{}
 
 T ptr Allocate<T>(int Size){

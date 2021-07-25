@@ -4,9 +4,9 @@
 .section .text		#.text
 _Z4mainv:
 lea rcx, qword ptr [rip + foo ]		#foo_REG0, .RIP_foo
-mov rcx, rcx		#fuz_74, foo_REG0
-jmp Return_Here_106		#Return_Here_106
-Return_Here_106:
+mov rcx, rcx		#fuz_80, foo_REG0
+jmp Return_Here_115		#Return_Here_115
+Return_Here_115:
 mov eax, 1		#Returning_REG1, 1
 ret 		#
 ret 		#

@@ -288,7 +288,8 @@ void DebugGenerator::Construct_Debug_Abbrev()
             continue;
         Generate_Abbrev(Abbrev_Type(i));
         for (auto j : i->Defined)
-            Generate_Abbrev(Abbrev_Type(j));
+            if (!j->Is_Template_Object)
+                Generate_Abbrev(Abbrev_Type(j));
     }
     EOM;
     Debug_Abbrev.push_back(EOM);
@@ -759,7 +760,7 @@ void DebugGenerator::Info_Generator(Node* n)
 Go_Straight_To_Childs:;
     if (!n->is(OBJECT_DEFINTION_NODE))
         for (auto v : n->Defined) {
-            if (v->is("const") != -1)
+            if (v->is("const") != -1 || v->Is_Template_Object)
                 continue;
             if (v->is(FUNCTION_NODE))
                 continue;

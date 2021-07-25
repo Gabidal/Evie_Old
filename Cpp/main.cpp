@@ -132,6 +132,7 @@ int Build(int argc, const char* argv[])
 
     Global_Scope = new Node(CLASS_NODE, new Position());
     Global_Scope->Name = "GLOBAL_SCOPE";
+    Global_Scope->Inheritted.push_back("static");
 
     selector = new Selector();
 

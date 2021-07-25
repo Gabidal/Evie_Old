@@ -30,6 +30,7 @@ void PostProsessor::Factory() {
 	}
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
+		//Handle_Namespace_Inlining(i);
 		Cast(Input[i]);
 		Open_Paranthesis(i);
 		Operator_Overload(i);
@@ -94,8 +95,17 @@ void PostProsessor::Type_Definer(int i)
 	*/
 
 	//If this is a namespace skip the default constructor builder
-	if (Scope->Defined[i]->is("static") != -1)
+	if (Scope->Defined[i]->is("static") != -1) {
+
+		/*for (auto& j : Scope->Defined[i]->Defined) {
+			if (j->is("static") != -1)
+				continue;
+
+			j->Inheritted.insert(j->Inheritted.begin(), "static");
+		}*/
+
 		return;
+	}
 
 	/*for (auto& j : Scope->Defined[i]->Defined)
 		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] != Scope->Defined[i]->Name)) {
