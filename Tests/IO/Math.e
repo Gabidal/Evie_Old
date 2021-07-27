@@ -1,4 +1,4 @@
-use "../../IO/cstd.e"
+use "../../STD/cstd.e"
 
 int sum(int a){
 	return 3 + a

@@ -1,4 +1,4 @@
-use "../../IO/cstd.e"
+use "../../STD/cstd.e"
 
 int a = 1
 int b = 3

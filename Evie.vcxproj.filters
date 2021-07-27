@@ -169,6 +169,7 @@
     </None>
     <None Include="Tests\IO\Destructor.e" />
     <None Include="IO\string.e" />
+    <None Include="IO\Console.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="h\Flags.h">

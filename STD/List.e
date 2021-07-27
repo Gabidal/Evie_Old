@@ -31,4 +31,14 @@ static std{
 		}
 		return Array[i]
 	}
+
+	func List<T>.Reverse<T>(){
+		while (int i = 0; i < this.Size; i++){
+			T Tmp = this.Array[this.Size - 1 - i]
+
+			this.Array[this.Size - 1 - i] = this.Array[i]
+
+			this.Array[i] = Tmp
+		}
+	}
 }

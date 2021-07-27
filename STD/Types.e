@@ -1,5 +1,3 @@
-use "sys.e"
-
 type char{
 	size = 1
 }
@@ -25,5 +23,3 @@ type double{
 	size = 8
 	format = decimal
 }
-
-use "STD.e"

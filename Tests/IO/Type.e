@@ -1,4 +1,4 @@
-use "../../IO/cstd.e"
+use "../../STD/cstd.e"
 
 type Fruit{
 	int Type = 3

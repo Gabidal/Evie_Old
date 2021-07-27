@@ -1,4 +1,4 @@
-use "../../IO/cstd.e"
+use "../../STD/cstd.e"
 
 export int Start_Test(){
 	int ptr a = Allocate<int>(10)

@@ -239,6 +239,7 @@
     <None Include="Tests\IO\Cast.e.asm" />
     <None Include="Tests\IO\Conditions.e" />
     <None Include="Tests\IO\Conditions.e.asm" />
+    <None Include="IO\Console.e" />
     <None Include="Tests\IO\Destructor.e" />
     <None Include="Tests\IO\destructor.e.asm" />
     <None Include="Tests\IO\Func.e" />
