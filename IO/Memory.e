@@ -26,3 +26,10 @@ func Deallocate<T>(T ptr Address, long Size){
 T ptr New<T>(){
 	return (internal_allocate(T.size)->BYTE_POINTER)->T	
 }
+
+func memcpy<T>(T ptr dest, T ptr source, int Size){
+    while (int i = 0, i < Size, i++){
+        dest[i] = source[i]
+    }
+    return
+}

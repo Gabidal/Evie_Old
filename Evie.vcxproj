@@ -228,6 +228,7 @@
     <None Include="IO\List.e" />
     <None Include="IO\Memory.e" />
     <None Include="IO\STD.e" />
+    <None Include="IO\string.e" />
     <None Include="IO\test.e" />
     <None Include="IO\test.e.asm" />
     <None Include="io\unix.asm" />

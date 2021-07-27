@@ -371,6 +371,45 @@ void x86_64::Init()
 		}
 	);
 
+	IR* C_MOD = new IR("%", new Token(OPERATOR), {
+		//accepted arguments
+		{{Register, {1, 8}}, {Memory, {1, 8}} },
+		{{Memory, {1, 8}}, {Register, {1, 8}} },
+		{{Register, {1, 8}}, {Register, {1, 8}} },
+		{{Const, {1, 8}}, {Register, {1, 8}} },
+		{{Const, {1, 8}}, {Memory, {1, 8}} },
+		{{Register, {1, 8}}, {Const, {1, 8}} },
+		{{Memory, {1, 8}}, {Const, {1, 8}} },
+		},
+		[](vector<Token*> args) {
+			vector<IR*> Result;
+			Token* eax = nullptr;
+			Token* div = nullptr;
+			if (args[1]->is(NUM)) {
+				eax = args[1];
+				div = args[0];
+			}
+			else {
+				eax = args[0];
+				div = args[1];
+			}
+			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT" + to_string(rand()), eax->Get_Size());
+			Token* Remainder = new Token(REMAINDER | REGISTER, eax->Get_Name() + "_REMAINDER" + to_string(rand()), eax->Get_Size());
+			if (div->is(NUM)) {
+				//you cant give mul a num as a arg so move it to a register.
+				Token* tmp = div;
+				div = new Token(REGISTER, div->Get_Name() + "_REG" + to_string(rand()), div->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { div, tmp }, nullptr));
+			}
+			//\u00a4
+			Result.push_back(new IR(new Token(OPERATOR, "�"), { Remainder, Remainder }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "div"), { div }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], Remainder }, nullptr));
+			return Result;
+		}
+	);
+
 	IR* C_DIV = new IR("/", new Token(OPERATOR), {
 		//accepted arguments
 		{{Register, {1, 8}}, {Memory, {1, 8}} },
@@ -384,27 +423,27 @@ void x86_64::Init()
 		[](vector<Token*> args) {
 			vector<IR*> Result;
 			Token* eax = nullptr;
-			Token* mul = nullptr;
+			Token* div = nullptr;
 			if (args[1]->is(NUM)) {
 				eax = args[1];
-				mul = args[0];
+				div = args[0];
 			}
 			else {
 				eax = args[0];
-				mul = args[1];
+				div = args[1];
 			}
 			Token* quotient = new Token(QUOTIENT | REGISTER, eax->Get_Name() + "_QUOTIENT" + to_string(rand()), eax->Get_Size());
 			Token* Remainder = new Token(REMAINDER | REGISTER, eax->Get_Name() + "_REMAINDER" + to_string(rand()), eax->Get_Size());
-			if (mul->is(NUM)) {
+			if (div->is(NUM)) {
 				//you cant give mul a num as a arg so move it to a register.
-				Token* tmp = mul;
-				mul = new Token(REGISTER, mul->Get_Name() + "_REG" + to_string(rand()), mul->Get_Size());
-				Result.push_back(new IR(new Token(OPERATOR, "="), { mul, tmp }, nullptr));
+				Token* tmp = div;
+				div = new Token(REGISTER, div->Get_Name() + "_REG" + to_string(rand()), div->Get_Size());
+				Result.push_back(new IR(new Token(OPERATOR, "="), { div, tmp }, nullptr));
 			}
 			//\u00a4
 			Result.push_back(new IR(new Token(OPERATOR, "�"), { Remainder, Remainder }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "="), { quotient, eax }, nullptr));
-			Result.push_back(new IR(new Token(OPERATOR, "div"), { mul }, nullptr));
+			Result.push_back(new IR(new Token(OPERATOR, "div"), { div }, nullptr));
 			Result.push_back(new IR(new Token(OPERATOR, "="), { args[0], quotient }, nullptr));
 			return Result;
 		}
@@ -880,6 +919,7 @@ void x86_64::Init()
 		C_MUL,
 		DIV,
 		C_DIV,
+		C_MOD,
 		CMP,
 		XOR,
 		JMP,
