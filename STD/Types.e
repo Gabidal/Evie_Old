@@ -2,6 +2,10 @@ type char{
 	size = 1
 }
 
+type bool{
+	size = 1
+}
+
 type short{
 	size = 2
 }

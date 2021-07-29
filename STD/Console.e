@@ -1,4 +1,5 @@
 static std{
+
 	long MAX_CONCOLE_BUFFER_LENGHT = 4096
 
 	func Print(string x){
@@ -11,7 +12,7 @@ static std{
 		Result.Characters.Array = Allocate<char>(MAX_CONCOLE_BUFFER_LENGHT)
 
 		Result.Characters.Size = internal_read(Buffer, MAX_CONCOLE_BUFFER_LENGHT)
-	
+		
 		Result.Characters.Capacity = MAX_CONCOLE_BUFFER_LENGHT
 
 		result Result

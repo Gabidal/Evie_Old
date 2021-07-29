@@ -10,12 +10,12 @@ using namespace std;
 class Algebra {
 public:
 	vector<Node*>* Input = nullptr;
-	Algebra(Node* parent) : Parent(parent) {}
-	Algebra(Node* parent, vector<Node*>* in) : Input(in), Parent(parent) { Factory(); }
+	Algebra(Node* parent) : Scope(parent) {}
+	Algebra(Node* parent, vector<Node*>* in) : Input(in), Scope(parent) { Factory(); }
 
 	void Factory();
 private:
-	Node* Parent;
+	Node* Scope;
 
 	void Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end);
 	void Function_Inliner(Node* c, int i);

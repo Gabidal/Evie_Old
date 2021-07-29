@@ -124,7 +124,7 @@ void Safe::Check_Return_Validity(Node* n)
 {
 	if (n->Name != "return")
 		return;
-	Node* func = n->Get_Parent_As(FUNCTION_NODE, n->Scope);
+	Node* func = n->Get_Scope_As(FUNCTION_NODE, n->Scope);
 
 	if (n->Right != nullptr) {
 		if (!n->Right->Has({ OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE})) {

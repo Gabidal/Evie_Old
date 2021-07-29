@@ -1,4 +1,4 @@
-use "../../STD/cstd.e"
+use "../../STD/STD.e"
 
 export int Start_Test(){
 	int i

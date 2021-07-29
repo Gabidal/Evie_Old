@@ -246,13 +246,28 @@ vector<Node*> Node::Get_All_Fetchers()
 	return Result;
 }
 
-Node* Node::Get_Parent_As(int F, Node* parent) {
-	if (parent->is(F))
-		return parent;
-	if (parent->Scope != nullptr)
-		return Get_Parent_As(F, parent->Scope);
+Node* Node::Get_Scope_As(int F, Node* scope) {
+	if (scope->is(F))
+		return scope;
+	if (scope->Scope != nullptr)
+		return Get_Scope_As(F, scope->Scope);
 	Report(Observation(ERROR, "Parent NULL!!", *Location));
 	throw::runtime_error("ERROR!");
+}
+
+Node* Node::Get_Scope_As(int F, vector<string> inheritted, Node* scope)
+{
+	if (!scope->is(F))
+		return Get_Scope_As(F, inheritted, scope->Scope);
+
+	for (auto i : inheritted)
+		if (scope->is(i) == -1)
+			goto Not_Right_Scope;
+
+	return scope;
+	
+	Not_Right_Scope:;
+	return Get_Scope_As(F, inheritted, scope->Scope);
 }
 
 Node* Node::Get_Context_As(int F, Node* Context)
@@ -741,7 +756,7 @@ Node* Node::Copy_Node(Node* What_Node, Node* p)
 		Result->Operator_Overloads[i] = Copy_Node(Result->Operator_Overloads[i], Result);
 
 	for (int i = 0; i < Result->Parameters.size(); i++) {
-		Result->Parameters[i] = Copy_Node(Result->Parameters[i], Result);
+		Result->Parameters[i] = Copy_Node(Result->Parameters[i], Result->Scope);
 
 		if (Result->is(CALL_NODE))
 			Result->Parameters[i]->Context = Result;

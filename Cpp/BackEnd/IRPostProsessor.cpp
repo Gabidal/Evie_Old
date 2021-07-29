@@ -180,7 +180,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }, Input->at(i)->Location));
 			Parse_Complex(Input->at(j), j, true);
 		}
-		Node* Parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, ret->Get_Parent());
+		Node* Parent = Global_Scope->Get_Scope_As(FUNCTION_NODE, ret->Get_Parent());
 		if (Parent->Size_of_Call_Space + Parent->Local_Allocation_Space > 0) {
 			selector->DeAllocate_Stack(Parent->Size_of_Call_Space + Parent->Local_Allocation_Space, Input, j);
 			for (auto k : Input->at(j)->Arguments)

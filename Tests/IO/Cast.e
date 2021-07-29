@@ -1,4 +1,4 @@
-use "../../STD/cstd.e"
+use "../../STD/STD.e"
 
 type Base{
 	int Type = 0

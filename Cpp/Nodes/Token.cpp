@@ -29,17 +29,17 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	}
 	else if (n->is(PARAMETER_NODE)) {
 		//first get the index this paremet is
-		int Max_Integer_Registers = selector->Get_Numerical_Parameter_Register_Count(n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Parameters);
+		int Max_Integer_Registers = selector->Get_Numerical_Parameter_Register_Count(n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters);
 		int Current_Integer_Register_Count = 0;
-		int Max_Floating_Registers = selector->Get_Floating_Parameter_Register_Count(n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Parameters);
+		int Max_Floating_Registers = selector->Get_Floating_Parameter_Register_Count(n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters);
 		int Current_Float_Register_Count = 0;
 
 		bool Requires_Address = n->Find(n, n->Scope)->Requires_Address && !Skip_Needed_Address_Protocol;
 
 		//find the curresponding register
-		for (int i = 0; i < n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Parameters.size(); i++) {
-			if (n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name == n->Name) {
-				if (n->Find(n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name)->Format == "decimal") {
+		for (int i = 0; i < n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters.size(); i++) {
+			if (n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name == n->Name) {
+				if (n->Find(n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name)->Format == "decimal") {
 					if (Current_Float_Register_Count < Max_Floating_Registers && !Requires_Address) {
 						Flags = TOKEN::REGISTER | TOKEN::DECIMAL | TOKEN::PARAMETER;
 						Parameter_Index = i;
@@ -58,7 +58,7 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 					break;
 				}
 			}
-			if (n->Find(n->Get_Parent_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name)->Format == "decimal")
+			if (n->Find(n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name)->Format == "decimal")
 				Current_Float_Register_Count++;
 			else
 				Current_Integer_Register_Count++;

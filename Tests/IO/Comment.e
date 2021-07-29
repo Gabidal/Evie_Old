@@ -1,4 +1,4 @@
-use "https://github.com/Gabidal/Evie/STD/cstd.e"
+use "https://github.com/Gabidal/Evie/STD/STD.e"
 
 #info
 #this function is ....

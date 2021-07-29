@@ -339,38 +339,39 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)
 {
 	vector<Node*> Result;
-	for (auto c : Childs) {
-		Update_Operator_Inheritance(c);
-		if (c->is("const") != -1)
+	for (auto Child : Childs) {
+		Update_Operator_Inheritance(Child);
+		if (Child->is("const") != -1)
 			continue;
-		if (c->is("static") != -1)
+		if (Child->is("static") != -1)
 			continue;
-		if (c->is(FUNCTION_NODE))
+		if (Child->is(FUNCTION_NODE))
 			continue;
-		Node* c_copy = c->Copy_Node(c, Function);
+		Node* Child_Copy = Child->Copy_Node(Child, Function);
 		//insert this. infront of every member
-		for (auto& linear_n : Linearise(c_copy)) {
-			if (linear_n->is(NUMBER_NODE) || linear_n->is(FUNCTION_NODE) || (linear_n->is("const") != -1) || MANGLER::Is_Base_Type(linear_n))
-				continue;
-			if ((linear_n->is(OBJECT_DEFINTION_NODE) || linear_n->is(OBJECT_NODE)) && This->Find(linear_n, This) != nullptr) {
-				//Node* define = c->Find(linear_n, Function);
-				Node* Dot = new Node(OPERATOR_NODE, Function->Location);
-				Dot->Name = ".";
-				Dot->Scope = linear_n->Scope;
+			for (auto& Object : Child_Copy->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE })) {
+				if (Object->is(NUMBER_NODE) || Object->is(FUNCTION_NODE) || (Object->is("const") != -1) || MANGLER::Is_Base_Type(Object))
+					continue;
+				if ((Object->is(OBJECT_DEFINTION_NODE) || Object->is(OBJECT_NODE)) && This->Find(Object, This) != nullptr && !Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
+					//Node* define = c->Find(linear_n, Function);
+					Node* Dot = new Node(OPERATOR_NODE, Function->Location);
+					Dot->Name = ".";
+					Dot->Scope = Object->Scope;
 
-				Dot->Left = This->Copy_Node(This, This->Scope);
+					Dot->Left = This->Copy_Node(This, This->Scope);
 
-				Dot->Right = new Node(*linear_n);
+					Dot->Right = new Node(*Object);
+					Dot->Right->Parsed_By |= PARSED_BY::THIS_AND_DOT_INSERTER;
 
-				Dot->Context = linear_n->Context;
+					Dot->Context = Object->Context;
 
-				*linear_n = *Dot;
+					*Object = *Dot;
+				}
+				else if (Object->is(CALL_NODE)) {
+					Object->Parameters = Insert_Dot(Object->Parameters, Function, This);
+				}
 			}
-			else if (linear_n->is(CALL_NODE)) {
-				linear_n->Parameters = Insert_Dot(linear_n->Parameters, Function, This);
-			}
-		}
-		Result.push_back(c_copy);
+		Result.push_back(Child_Copy);
 	}
 	return Result;
 }
@@ -545,14 +546,10 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	f->Childs = p.Input;
 
 	//clear from nested scopes current value.
-	for (auto i : f->Childs)
-		for (auto j : Linearise(i)) {
-			if (!j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }))
-				continue;
-			Node* child = j->Find(j, j->Scope);
-			if (child != nullptr)
-				child->Current_Value = nullptr;
-		}
+	for (auto &i : f->Childs)
+		for (auto &j : i->Get_all({IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE}))
+			for (auto& k : j->Defined)
+				k->Current_Value = nullptr;
 
 	for (auto& v : f->Defined)
 		p.Destructor_Caller(v, f->Childs);
@@ -952,8 +949,8 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 		}*/
 		Scopes.push_back(caller->Find(caller->Fetcher, caller->Scope));
 	}
-	else if (caller->Get_Parent_As(CLASS_NODE, caller) != Global_Scope) {
-		Scopes.push_back(caller->Get_Parent_As(CLASS_NODE, caller));
+	else if (caller->Get_Scope_As(CLASS_NODE, caller) != Global_Scope) {
+		Scopes.push_back(caller->Get_Scope_As(CLASS_NODE, caller));
 	}
 	//Get_Scope_Path() doesnt give us Global_Scope, so lets add it manually.
 	Scopes.push_back(Global_Scope);
@@ -1220,7 +1217,7 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 		Caller->Templates.clear();
 
 		if (!Caller->Function_Implementation->is(PARSED_BY::POSTPROSESSOR)) {
-			if (Caller->Function_Implementation->Fetcher != nullptr || Caller->Function_Implementation->Get_Parent_As(CLASS_NODE, Caller->Function_Implementation) != Global_Scope) {
+			if (Caller->Function_Implementation->Fetcher != nullptr || Caller->Function_Implementation->Get_Scope_As(CLASS_NODE, Caller->Function_Implementation) != Global_Scope) {
 				Member_Function_Defined_Inside(Caller->Function_Implementation);
 				Member_Function_Defined_Outside(Caller->Function_Implementation);
 			}
@@ -1862,7 +1859,7 @@ void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
 		for (auto i : n->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
 			if (i->Name == v->Name)
 				if (i->Context == n) {
-					Node* func = n->Get_Parent_As(FUNCTION_NODE, n);
+					Node* func = n->Get_Scope_As(FUNCTION_NODE, n);
 					int Func_ptr = Get_Amount("ptr", func);
 					int V_ptr = Get_Amount("ptr", i);
 					if (Func_ptr > V_ptr)
@@ -2030,65 +2027,6 @@ bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
 		}
 	}
 	return true;
-}
-
-vector<Node*> PostProsessor::Linearise(Node* ast)
-{
-	vector<Node*> Result;
-	if (ast->Has({OPERATOR_NODE, ASSIGN_OPERATOR_NODE, ARRAY_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE})) {
-		vector<Node*> left = Linearise(ast->Left);
-		Result.insert(Result.end(), left.begin(), left.end());
-
-		vector<Node*> right = Linearise(ast->Right);
-		Result.insert(Result.end(), right.begin(), right.end());
-	}
-	else if (ast->is(PREFIX_NODE)) {
-		vector<Node*> right = Linearise(ast->Right);
-		Result.insert(Result.end(), right.begin(), right.end());
-	}
-	else if (ast->is(POSTFIX_NODE) || ast->is(NODE_CASTER)) {
-		vector<Node*> left = Linearise(ast->Left);
-		Result.insert(Result.end(), left.begin(), left.end());
-	}
-	else if (ast->is(CONTENT_NODE)) {
-		vector<Node*> childs;
-		for (auto c : ast->Childs) {
-			vector<Node*> tmp = Linearise(c);
-			childs.insert(childs.end(), tmp.begin(), tmp.end());
-		}
-		Result.insert(Result.end(), childs.begin(), childs.end());
-	}
-	else if (ast->Has({IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE})) {
-		vector<Node*> childs;
-		for (auto c : ast->Parameters) {
-			vector<Node*> tmp = Linearise(c);
-			childs.insert(childs.end(), tmp.begin(), tmp.end());
-		}
-		for (auto c : ast->Childs) {
-			vector<Node*> tmp = Linearise(c);
-			childs.insert(childs.end(), tmp.begin(), tmp.end());
-		}
-		Result.insert(Result.end(), childs.begin(), childs.end());
-	}
-	else if (ast->is(CALL_NODE)) {
-		vector<Node*> childs;
-		for (auto c : ast->Parameters) {
-			vector<Node*> tmp = Linearise(c);
-			childs.insert(childs.end(), tmp.begin(), tmp.end());
-		}
-		Result.insert(Result.end(), childs.begin(), childs.end());
-
-		//Result.push_back(ast);
-	}
-	else if (ast->Name == "return" && ast->Right != nullptr) {
-		for (auto c : Linearise(ast->Right))
-			Result.push_back(c);
-	}
-	else
-		Result.push_back(ast);
-
-	return Result;
-
 }
 
 void PostProsessor::Open_Safe(vector<Node*> n)

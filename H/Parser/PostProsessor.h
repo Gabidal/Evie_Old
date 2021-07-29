@@ -90,8 +90,6 @@ public:
 
 	void Open_Safe(vector<Node*> n);
 
-	vector<Node*> Linearise(Node*);
-
 	void Update_Operator_Inheritance(Node* n);
 	void Analyze_Return_Value(Node* n);
 

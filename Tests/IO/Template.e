@@ -1,4 +1,4 @@
-use "../../STD/cstd.e"
+use "../../STD/STD.e"
 
 use std
 

@@ -252,7 +252,7 @@ void IRGenerator::Parse_Calls(int i)
 
 	//reverse(Reversable_Pushes.begin(), Reversable_Pushes.end());
 
-	Node* parent = Global_Scope->Get_Parent_As(FUNCTION_NODE, Input[i]);
+	Node* parent = Global_Scope->Get_Scope_As(FUNCTION_NODE, Input[i]);
 
 	/*int allocation = 0;
 	if (sys->Info.Debug) {
@@ -1958,7 +1958,7 @@ void IRGenerator::Parse_Return(int i) {
 		else
 			Return_Val = new Token(Input[i]->Right);
 
-		Node* p = Input[i]->Get_Parent_As(FUNCTION_NODE, Input[i]);
+		Node* p = Input[i]->Get_Scope_As(FUNCTION_NODE, Input[i]);
 
 		int Returning_Reg_Size = 0;
 		for (auto& j : p->Inheritted) {

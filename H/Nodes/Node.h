@@ -39,6 +39,8 @@ namespace PARSED_BY {
 	constexpr long long REFERENCE_COUNT_INCREASE		= 1 << 10;
 	constexpr long long MEMBER_FUNCTION_DEFINED_INSIDE	= 1 << 11;
 	constexpr long long FUNCTION_PROSESSOR				= 1 << 12;
+	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 13;
+
 }
 
 enum class LABEL_TYPE {
@@ -365,7 +367,9 @@ public:
 
 	vector<Node*> Get_All_Fetchers();
 
-	Node* Get_Parent_As(int F, Node* Parent);
+	Node* Get_Scope_As(int F, Node* Parent);
+
+	Node* Get_Scope_As(int F, vector<string> Inhritted, Node* Parent);
 
 	Node* Get_Context_As(int F, Node* Context);
 

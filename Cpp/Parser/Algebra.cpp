@@ -474,11 +474,11 @@ void Algebra::Inline_Variables(int i)
 	for (Node* n : Linear_Ast) {
 		if (!n->Has({OBJECT_NODE, OBJECT_DEFINTION_NODE}))
 			continue;
-		Node* d = Parent->Find(n->Name, Parent, OBJECT_DEFINTION_NODE);
+		Node* d = Scope->Find(n->Name, Scope, OBJECT_DEFINTION_NODE);
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
 			if (d->Current_Value != nullptr) {
-				if (Parent->Find(d->Current_Value->Var->Scope, Parent) == nullptr)
+				if (Scope->Find(d->Current_Value->Var->Scope, Scope) == nullptr)
 					continue;
 				if (d->Current_Value->Var->is(NUMBER_NODE)) {
 					if (n->Context->Name == "-" || n->Context->Name == "/" || n->Context->Name == "<" || n->Context->Name == ">" || n->Context->Name == "!<" || n->Context->Name == "!>" || n->Context->Name == "<=" || n->Context->Name == ">=") {
@@ -596,9 +596,9 @@ void Algebra::Clean_Inlined(int i)
 	if (Input->at(i)->Name != "=")
 		return;
 	Node* l = Input->at(i)->Get_Most_Left();
-	if (Parent->Find(l->Name, l->Get_Most_Left()->Get_Right_Parent())->Inlined == false)
+	if (Scope->Find(l->Name, l->Get_Most_Left()->Get_Right_Parent())->Inlined == false)
 		return;
-	if (Parent->Find(l->Name, l->Get_Most_Left()->Get_Right_Parent())->Cant_Inline)
+	if (Scope->Find(l->Name, l->Get_Most_Left()->Get_Right_Parent())->Cant_Inline)
 		return;
 
 	//!!! MUST COMBINE THE CALLATION AND THE CLASS FETCHER!!!
@@ -658,7 +658,7 @@ void Algebra::Set_Defining_Value(int i)
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
 	Variable_Descriptor* description = new Variable_Descriptor(right, i, *Input);
-	Parent->Find(Input->at(i)->Left->Name, Input->at(i)->Left)->Current_Value = description;
+	Scope->Find(Input->at(i)->Left->Name, Input->at(i)->Left)->Current_Value = description;
 
 	return;
 }
@@ -727,107 +727,22 @@ void Algebra::Reset_Defining_Value(int i)
 	if (Modified->Has({ OPERATOR_NODE, ARRAY_NODE }))
 		Modified = Modified->Get_Most_Right();
 
-	Parent->Find(Modified, Modified->Scope)->Current_Value = nullptr;
+	Scope->Find(Modified, Modified->Scope)->Current_Value = nullptr;
 }
 
 void Algebra::Clean_Unused()
 {
-	/*for (int d = 0; d < Parent->Defined.size(); d++) {
-		if (Parent->Defined[d]->is("ptr") != -1)
-			if (Parent->Defined[d]->is(PARAMETER_NODE))
-				continue;
-		if (Parent->Defined[d]->is("const") != -1)
+	for (int i = 0; i < Scope->Defined.size(); i++) {
+		if (Scope->Defined[i]->is(PARAMETER_NODE))
 			continue;
-		//update the calling count.
-		Parent->Defined[d]->Calling_Count = 0;
 
-		for (int i = 0; i < Input->size(); i++) {
-			if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(BIT_OPERATOR_NODE)) {
-				if (Input->at(i)->Name == "return") {
-					if (Input->at(i)->Right == nullptr)	//void return
-						continue;
-					vector<Node*> tmp = Linearise({ Input->at(i)->Right });
-					for (int j = 0; j < tmp.size(); j++)
-						if (Parent->Defined[d]->Name == tmp[j]->Name) {
-							if ((size_t)j + 1 < tmp.size()) {
-								if (!tmp[(size_t)j + 1]->is(ASSIGN_OPERATOR_NODE))
-									Parent->Defined[d]->Calling_Count++;
-							}
-							else
-								Parent->Defined[d]->Calling_Count++;
-						}
-				}
-				else if (Input->at(i)->Childs.size() > 0) {
-					for (auto c : Input->at(i)->Childs) {
-						vector<Node*> tmp = Linearise(c);
-						for (int j = 0; j < tmp.size(); j++)
-							if (Parent->Defined[d]->Name == tmp[j]->Name) {
-								if ((size_t)j + 1 < tmp.size()) {
-									if (!tmp[(size_t)j + 1]->is(ASSIGN_OPERATOR_NODE))
-										Parent->Defined[d]->Calling_Count++;
-								}
-								else
-									Parent->Defined[d]->Calling_Count++;
-							}
-					}
-				}
-				else
-					continue;
-			}
-			vector<Node*> linear = Linearise(Input->at(i), true);
-			for (int l = 0; l < linear.size(); l++) {
-				if (Parent->Defined[d]->Name == linear[l]->Name) {
-					if ((size_t)l + 1 < linear.size()) {
-						if (!linear[(size_t)l + 1]->is(ASSIGN_OPERATOR_NODE))
-							Parent->Defined[d]->Calling_Count++;
-					}
-					else
-						Parent->Defined[d]->Calling_Count++;
-				}
-			}
-		}
-	}
-	for (int d = 0; d < Parent->Defined.size(); d++) {
-		if (Parent->Defined[d]->is("ptr") != -1)
-			if (Parent->Defined[d]->is(PARAMETER_NODE))
-				continue;
-		if (Parent->Defined[d]->is("const") != -1)
-			continue;
-		for (int i = 0; i < Input->size(); i++) {
-			if (!Input->at(i)->is(OPERATOR_NODE) && !Input->at(i)->is(ASSIGN_OPERATOR_NODE) && !Input->at(i)->is(CONDITION_OPERATOR_NODE) && !Input->at(i)->is(BIT_OPERATOR_NODE))
-				continue;
-			vector<Node*> linear = Linearise(Input->at(i), false);
-			for (int l = 0; l < linear.size(); l++) {
-				if (Parent->Defined[d]->Name == linear[l]->Name) {
-					if (Parent->Defined[d]->Calling_Count < 1) {
-						Input->erase(Input->begin() + i--);
-						Parent->Defined.erase(Parent->Defined.begin() + d);
-						Optimized = true;
-						break;
-					}
-				}
-			}
-		}
-	}*/
-	for (int i = 0; i < Parent->Defined.size(); i++) {
-		if (Parent->Defined[i]->is(PARAMETER_NODE))
-			continue;
-		//check if the expiring index is same as the definition index
-		/*if (Parent->Defined[i]->Current_Value){
-			if (Parent->Defined[i]->Current_Value->Define_Index == Parent->Defined[i]->Current_Value->Expiring_Index)
-				Parent->Defined.erase(Parent->Defined.begin() + i);
-			}
-		else {*/
-		//the inlining value could not be made.
-		for (auto line : *Input) {
-			for (auto element : line->Get_all({ OBJECT_NODE, OBJECT_DEFINTION_NODE })) {
-				if (element->Name == Parent->Defined[i]->Name)
-					Parent->Defined[i]->Calling_Count++;
-			}
-		}
-		if (Parent->Defined[i]->Calling_Count < 1)
-			Parent->Defined.erase(Parent->Defined.begin() + i);
-		/*}*/
+		for (auto& j : Scope->Childs)	//							   this is for function pointters
+			for (auto& k : j->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE }))
+				if (k->Name == Scope->Defined[i]->Name)
+					Scope->Defined[i]->Calling_Count++;
+
+		if (Scope->Defined[i]->Calling_Count == 0)
+			Scope->Defined.erase(Scope->Defined.begin() + i);
 
 	}
 }

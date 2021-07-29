@@ -1,4 +1,4 @@
-use "../../STD/cstd.e"
+use "../../STD/STD.e"
 
 #cumulatie type or perhaps cum type? this joke was brought to you by lehtojo 25/3/2021/13:18.
 #Go and vote for the keyword to be used for using/inlining namespaces :D

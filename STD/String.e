@@ -1,6 +1,6 @@
 static std{
 	type string{
-		List<char> ptr Characters.List<int>()
+		List<char> ptr Characters.List<char>()
 	}
 
 	int string.Size(){
@@ -39,5 +39,7 @@ static std{
 
 			Result = Result * 10 + Character
 		}
+
+		return Result
 	}
 }

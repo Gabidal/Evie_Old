@@ -4,12 +4,12 @@ if (OS == "win"){
 		use "https://github.com/lehtojo/vivid/Vivid/libv/windows_x64/math.asm"
 		use "https://github.com/lehtojo/vivid/Vivid/libv/windows_x64/memory.asm"
 		use "https://github.com/lehtojo/vivid/Vivid/libv/windows_x64/system.asm"
+		use "Win/File.e"
 	}
 }
 
 if (OS == "unix"){
 	if (ARCHITECTURE == "x86"){
-		#use "unix.asm"
 		use "https://github.com/lehtojo/vivid/Vivid/libv/linux_x64/memory.asm"
 		use "https://github.com/lehtojo/vivid/Vivid/libv/linux_x64/math.asm"
 		use "https://github.com/lehtojo/vivid/Vivid/libv/linux_x64/console.asm"

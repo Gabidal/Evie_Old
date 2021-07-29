@@ -294,7 +294,7 @@ void Parser::Template_Type_Constructor(int i)
 
 	//the constructed template class members are pushed to the old namespace altough the namespace has vbeen inlined
 
-	Node* Closest_Namespace = Scope->Get_Parent_As(CLASS_NODE, Scope);
+	Node* Closest_Namespace = Scope->Get_Scope_As(CLASS_NODE, {"static"}, Scope);
 
 	Parser p(Closest_Namespace);
 	p.Input = New_Constructed_Template_Code;
@@ -1800,7 +1800,7 @@ void Parser::Use_Pattern(int i)
 
 	Scope->Append(Inlined, Namespace->Inlined_Items);
 
-	Node* Closest_Namespace = Scope->Get_Parent_As(CLASS_NODE, Scope);
+	Node* Closest_Namespace = Scope->Get_Scope_As(CLASS_NODE, Scope);
 
 	for (auto &j : Inlined) {
 		Node* n = j;

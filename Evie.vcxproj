@@ -224,11 +224,13 @@
     <ClCompile Include="Cpp\BackEnd\IRPostProsessor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="IO\cstd.e" />
-    <None Include="IO\List.e" />
-    <None Include="IO\Memory.e" />
-    <None Include="IO\STD.e" />
-    <None Include="IO\string.e" />
+    <None Include="STD\sys.e" />
+    <None Include="STD\Win\File.e" />
+    <None Include="STD\Types.e" />
+    <None Include="STD\List.e" />
+    <None Include="STD\Memory.e" />
+    <None Include="STD\STD.e" />
+    <None Include="STD\String.e" />
     <None Include="IO\test.e" />
     <None Include="IO\test.e.asm" />
     <None Include="io\unix.asm" />
@@ -239,7 +241,7 @@
     <None Include="Tests\IO\Cast.e.asm" />
     <None Include="Tests\IO\Conditions.e" />
     <None Include="Tests\IO\Conditions.e.asm" />
-    <None Include="IO\Console.e" />
+    <None Include="STD\Console.e" />
     <None Include="Tests\IO\Destructor.e" />
     <None Include="Tests\IO\destructor.e.asm" />
     <None Include="Tests\IO\Func.e" />
