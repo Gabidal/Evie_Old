@@ -11,6 +11,6 @@ export int Start_Test(){
 }
 
 export int main(){
-	#jump Start_Test
+	jump Start_Test
 	return 1
 }

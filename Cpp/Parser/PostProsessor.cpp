@@ -644,9 +644,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		return;
 	if (n->Function_Implementation != nullptr)
 		return;
-	//<summary>
 	//this function tryes to find the function to call
-	//</summary>
 	//first try to find if this fucntion is a virtual function
 	//Node* defition = Parent->Find(n->Name, Parent);
 	//other wise we have normal functions
@@ -1220,7 +1218,13 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 		P.Input = P.Template_Function_Constructor(Best_Candidate_Copy, Best_Candidate->Templates, Caller->Templates);
 		P.Factory();
 
-		Caller->Function_Implementation = Scope->Defined.back();
+		for (int i = Scope->Defined.size() - 1; i >= 0; i--) {
+			if (Scope->Defined[i]->is(FUNCTION_NODE) && Scope->Defined[i]->Name == New_Name){
+				Caller->Function_Implementation = Scope->Defined[i];
+				break;
+			}
+		}
+
 		Caller->Name = New_Name;
 		Caller->Templates.clear();
 

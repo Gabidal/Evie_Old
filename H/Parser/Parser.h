@@ -49,6 +49,7 @@ public:
 	void Constructor_Pattern(int i);							//foo ptr foo(foo ptr){..}
 	void Prototype_Pattern(int i);								//int main()\n
 	void Object_Pattern(int i);									//a
+	void Complex_Cast(int i);
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int& i, vector<string> Operator, int Flag, bool Change_Index = false);			//a = b + c * d, a.b.c.d()
 	void Number_Pattern(int i);									//123
@@ -79,6 +80,10 @@ public:
 	//Namespace patterns
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Use_Pattern(int i);
+
+	//Complex Cast
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	Component* Construct_Virtual_Class_For_Complex_Cast(Component Parenthesis);
 private:
 };
 

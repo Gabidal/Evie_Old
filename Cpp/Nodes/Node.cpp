@@ -598,17 +598,15 @@ int Node::Update_Size() {
 	if (is("const") != -1 && Size != 0 || Is_Template_Object)
 		return Size;
 
+	for (int j = 0; j < Trace_Update_Size.size(); j++)
+		if (this == Trace_Update_Size[j]) {
+			Trace_Update_Size.pop_back();
+			if (is("ptr") != -1 || is("func") != -1)
+				return _SYSTEM_BIT_SIZE_;
+			return Size;
+		}
+
 	Trace_Update_Size.push_back(this);
-
-	for (int i = 0; i < Trace_Update_Size.size(); i++)
-		for (int j = 0; j < Trace_Update_Size.size(); j++)
-			if (Trace_Update_Size[i] == Trace_Update_Size[j] && i != j) {
-				Trace_Update_Size.pop_back();
-				if (is("ptr") != -1 || is("func") != -1)
-					return _SYSTEM_BIT_SIZE_;
-				return Size;
-			}
-
 
 	Size = 0;
 	if (!is(FUNCTION_NODE))

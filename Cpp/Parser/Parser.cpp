@@ -841,6 +841,21 @@ void Parser::Object_Pattern(int i)
 	return;
 }
 
+void Parser::Complex_Cast(int i)
+{
+	//this needs to be called before any paranthesis parser
+	//x->(T ptr ptr)
+	//this function creates a new virtual class that repesents the cast types
+	if (i - 1 < 0)
+		return;
+	if (!Input[i].is(Flags::PAREHTHESIS_COMPONENT))
+		return;
+	if (Input[i - 1].Value != "->")
+		return;
+
+	Input[i] = *Construct_Virtual_Class_For_Complex_Cast(Input[i]);
+}
+
 void Parser::Parenthesis_Pattern(int i)
 {
 	// a = (a + b) * c
@@ -1826,6 +1841,38 @@ void Parser::Use_Pattern(int i)
 	Input.erase(Input.begin() + i, Input.begin() + i + 2);
 }
 
+Component* Parser::Construct_Virtual_Class_For_Complex_Cast(Component Parenthesis)
+{
+	Node* Virtual_Class = new Node(CLASS_NODE, new Position(Parenthesis.Location));
+
+	for (auto i : Parenthesis.Components) {
+		Virtual_Class->Inheritted.push_back(i.Value);
+	}
+
+	string Virtual_Class_Name = "____VIRTUAL_CLASS";
+
+	for (auto i : Virtual_Class->Get_Inheritted())
+		Virtual_Class_Name += "_" + i;
+
+	Component *Cast = new Component(Virtual_Class_Name, Flags::TEXT_COMPONENT);
+
+	if (Scope->Find(Virtual_Class_Name)) {
+		Cast->node = Scope->Copy_Node(Scope->Find(Virtual_Class_Name), Scope->Find(Virtual_Class_Name)->Scope);
+		return Cast;
+	}
+
+	Virtual_Class->Name = Virtual_Class_Name;
+	Virtual_Class->Scope = Scope->Get_Scope_As(CLASS_NODE, {"static"}, Scope);
+
+	Virtual_Class->Update_Size();
+
+	Virtual_Class->Scope->Defined.push_back(Scope->Copy_Node(Virtual_Class, Virtual_Class->Scope));
+
+	Cast->node = Virtual_Class;
+
+	return Cast;
+}
+
 void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Comment(i);
@@ -1866,6 +1913,7 @@ void Parser::Factory() {
 		//prepreattor for math operator AST combinator.
 		Object_Pattern(i);
 		Template_Type_Constructor(i);
+		Complex_Cast(i);
 		Parenthesis_Pattern(i);
 		String_Pattern(i);
 		Number_Pattern(i);
