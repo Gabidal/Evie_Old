@@ -341,19 +341,26 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 	vector<Node*> Result;
 	for (auto Child : Childs) {
 		Update_Operator_Inheritance(Child);
+		//this is for the size and format to not be included in the default constructor.
 		if (Child->is("const") != -1)
 			continue;
-		if (Child->is("static") != -1)
-			continue;
+		/*if (Child->is("static") != -1)
+			continue;*/
+
+		//this is for the class constructor to not include functions as a dottize operation.
 		if (Child->is(FUNCTION_NODE))
 			continue;
+
+		//Because the child in question is the highest in the ast towards tyhe function as a child.
 		Node* Child_Copy = Child->Copy_Node(Child, Function);
+
 		//insert this. infront of every member
 			for (auto& Object : Child_Copy->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE })) {
 				if (Object->is(NUMBER_NODE) || Object->is(FUNCTION_NODE) || (Object->is("const") != -1) || MANGLER::Is_Base_Type(Object))
 					continue;
 				if ((Object->is(OBJECT_DEFINTION_NODE) || Object->is(OBJECT_NODE)) && This->Find(Object, This) != nullptr && !Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
 					//Node* define = c->Find(linear_n, Function);
+
 					Node* Dot = new Node(OPERATOR_NODE, Function->Location);
 					Dot->Name = ".";
 					Dot->Scope = Object->Scope;
@@ -368,7 +375,8 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 					*Object = *Dot;
 				}
 				else if (Object->is(CALL_NODE)) {
-					Object->Parameters = Insert_Dot(Object->Parameters, Function, This);
+					//because this insert_dot is called upon a non hight AST member it needs to use the dynamic scope above.
+					Object->Parameters = Insert_Dot(Object->Parameters, Object->Scope, This);
 				}
 			}
 		Result.push_back(Child_Copy);
@@ -1752,8 +1760,6 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 {
 	if (!Input[i]->is(WHILE_NODE))
 		return;
-	//this add the L number to it
-	//Input[i]->Name += to_string(LNumber++);
 
 	//while (a + 1 < a * 2){..}
 	//while (int i = 0, a + i < a * i*2, i++){..}

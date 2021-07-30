@@ -756,7 +756,11 @@ Node* Node::Copy_Node(Node* What_Node, Node* p)
 		Result->Operator_Overloads[i] = Copy_Node(Result->Operator_Overloads[i], Result);
 
 	for (int i = 0; i < Result->Parameters.size(); i++) {
-		Result->Parameters[i] = Copy_Node(Result->Parameters[i], Result->Scope);
+		Node* scope = Result;
+		if (Result->is(CALL_NODE))
+			scope = Result->Scope;
+
+		Result->Parameters[i] = Copy_Node(Result->Parameters[i], scope);
 
 		if (Result->is(CALL_NODE))
 			Result->Parameters[i]->Context = Result;
