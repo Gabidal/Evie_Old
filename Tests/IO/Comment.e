@@ -8,6 +8,8 @@ int banana(){
 	return 1
 }
 
+use std
+
 export int Start_Test(){
 	List<int> a.List<int>()
 

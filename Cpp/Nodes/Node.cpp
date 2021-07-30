@@ -492,7 +492,7 @@ Node* Node::Find(string name, Node* s, int flags) {
 	return nullptr;
 }
 
-Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
+Node* Node::Find(string name, Node* s, bool Need_Parent_existence) {
 	if (name == "\n")
 		return nullptr;
 	if (s == nullptr /*&& Need_Parent_existance*/) {
@@ -514,8 +514,8 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 			return i;
 
 	if (s->Scope != nullptr)
-		if (Find(name, s->Scope, Need_Parent_existance) != nullptr)
-			return Find(name, s->Scope, Need_Parent_existance);
+		if (Find(name, s->Scope, Need_Parent_existence) != nullptr)
+			return Find(name, s->Scope, Need_Parent_existence);
 
 	if (s->Cast_Type != nullptr && s->Cast_Type->Name != name )
 		for (auto& i : s->Find(s->Cast_Type, s, { CLASS_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE })->Defined)
@@ -525,8 +525,8 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existance) {
 	if (s->Fetcher != nullptr) {
 		Node* F = Find_Scope(s);
 		if (F != nullptr)
-			if (Find(name, F, Need_Parent_existance) != nullptr)
-				return Find(name, F, Need_Parent_existance);
+			if (Find(name, F, Need_Parent_existence) != nullptr)
+				return Find(name, F, Need_Parent_existence);
 	}
 	return nullptr;
 }

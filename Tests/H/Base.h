@@ -27,7 +27,7 @@ public:
 
 class Text_Info : public Base {
 public:
-	string Val = "";
+	string Val;
 	Text_Info(initializer_list<pair<long, string>> l) : Base(TEXT_INFO, l.begin()->first) {
 		Val = l.begin()->second;
 	}
@@ -38,7 +38,7 @@ public:
 
 class Numeric_Info : public Base {
 public:
-	long long Val = 0;
+	long long Val;
 	Numeric_Info(initializer_list<pair<long, long long>> l) : Base(NUMERIC_INFO, l.begin()->first) {
 		Val = l.begin()->second;
 	}
