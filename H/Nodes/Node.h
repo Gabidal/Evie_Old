@@ -145,6 +145,17 @@ public:
 		return -1;
 	}
 
+	bool is(vector<string> s) {
+		bool Is = true;
+		for (auto i : s)
+			if (is(i) == -1) {
+				Is = false;
+				break;
+			}
+
+		return Is;
+	}
+
 	bool is(LABEL_TYPE F) { return (F == Inline_Return_Label); }
 
 	int Calculate_Inheritted_Distance(Node* Val, Node* Loader, string type);
@@ -655,7 +666,7 @@ public:
 
 	vector<Node*> Get_all(int f, vector<Node*> Trace);
 
-	vector<Node*> Get_all(int f) {
+	vector<Node*> Get_all(int f = -1) {
 		return Get_all(f, vector<Node*>());
 	}
 

@@ -50,7 +50,7 @@ void PostProsessor::Factory() {
 		Open_PreFix_Operator(i);
 		Open_PostFix_Operator(i);
 	}
-	Open_Safe(Input);
+	//Open_Safe(Input);
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
 	for (int i = 0; i < Input.size(); i++)
@@ -440,6 +440,77 @@ void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
 	n->Function_Address_Giver = true;
 }
 
+void PostProsessor::Process_Function_Pointters(Node* scope)
+{
+	//first we need to identify all function pointters
+	//the identification of a function pointter is:
+	//func ptr X
+	for (auto& Defined : scope->Defined) {
+		if (!Defined->is(vector<string>{"func", "ptr"}))
+			return;
+
+			Defined->Function_Ptr = true;	
+			
+			//letus find the function adress giver
+			for (int Line = 0; Line < scope->Childs.size(); Line++) {
+				for (auto& Operator : scope->Childs[Line]->Get_all()) {//we dont want to filter the get all beacuse the get all will sort the returned items
+					if (Operator->is(ASSIGN_OPERATOR_NODE) && Operator->Left->Name == Defined->Name && Operator->Right->is(OBJECT_NODE)) {
+						if (Operator->Find(Operator->Right, Operator->Right)->Has({ IMPORT, FUNCTION_NODE })) {
+							string Function_Name = Operator->Right->Name;
+							Node* First_Call_Type = nullptr;
+							//Now that we know the function name we need to know what function 
+							//overload we want to call.
+							for (int i = Line; i < scope->Childs.size(); i++) {
+								for (auto& j : scope->Childs[i]->Get_all()) {
+									if (j->is(ASSIGN_OPERATOR_NODE) && j->Left->Name == Defined->Name)
+										goto quit;
+
+									if (j->is(CALL_NODE)) {
+										Node* Call = new Node(CALL_NODE, j->Location);
+										Call->Name = Function_Name;
+										Call->Parameters = j->Parameters;
+
+										Update_Operator_Inheritance(j->Context);
+										Call->Inheritted = j->Context->Inheritted;
+
+										Find_Call_Owner(Call);
+
+										if (First_Call_Type == nullptr)
+											First_Call_Type = Call;
+										else if (First_Call_Type->Function_Implementation != Call->Function_Implementation) {
+											Node* Assing = new Node(ASSIGN_OPERATOR_NODE, j->Location);
+											Assing->Name = "=";
+											Assing->Scope = j->Scope;
+
+											Assing->Left = new Node(*Defined);
+											Assing->Right = new Node(OBJECT_NODE, j->Location);
+											Assing->Right->Name = Function_Name;
+
+											Assing->Left->Context = Assing;
+											Assing->Right->Context = Assing;
+
+											j->Header.push_back(Assing);
+											goto quit;
+										}
+
+									}
+								}
+							}
+						quit:;
+						}
+						else {
+							//this happends when a function pointter is passed to another one
+							Report(Observation(ERROR, "YEET"));
+						}
+					}
+
+				}
+			}
+	}
+
+
+}
+
 void PostProsessor::Member_Function_Defined_Outside(Node* f)
 {
 	//<summary>
@@ -548,6 +619,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	f->Update_Format();
 
 	f->Update_Size();
+
+	Open_Safe({ f });
 
 	p.Factory();
 
@@ -681,6 +754,10 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	if (It_Is_A_Function_Pointter == false) {
 		n->Function_Implementation->Calling_Count++;
 		n->Inheritted = n->Function_Implementation->Inheritted;
+	}
+	else {
+		n->Size = n->Find(n, n)->Size;
+		n->Inheritted = n->Find(n, n)->Inheritted;
 	}
 
 

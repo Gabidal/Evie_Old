@@ -6,13 +6,34 @@ export int main(){
 	return 1
 }
 
-int plain foo(int ,int){
+int foo(int ,int){
 	return 5
 }
 
-#void* (*)(int, int) = foo
+int foo(float, float){
+	
+}
+
+int bar(int, int){
+	
+}
 
 export int Start_Test(){
-	int ptr fuz = foo
+	func ptr fuz
+
+	if (bababui){
+		fuz = foo
+	}
+	else (express){
+		fuz = bar
+	}
+
+	if (alibaba){
+		return fuz(1, 1)
+	}
+	else (joonas){
+		return fuz(1, 1)
+	}
+
 	return fuz()
 }

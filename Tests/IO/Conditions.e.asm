@@ -45,32 +45,32 @@ ret 		#
 
 
 _Z4mainv:
-mov ecx, 0		#i_97, 0
-cmp ecx, 100		#i_97, 100
+mov ecx, 0		#i_94, 0
+cmp ecx, 100		#i_94, 100
 jge while_40_END		#while_40_END
 while_40:
-add ecx, 1		#i_97, 1
-cmp ecx, 100		#i_97, 100
+add ecx, 1		#i_94, 1
+cmp ecx, 100		#i_94, 100
 jge while_40_END		#while_40_END
 jmp while_40		#while_40
 while_40_END:
 if_41:
-cmp ecx, 100		#i_97, 100
+cmp ecx, 100		#i_94, 100
 jne if_41_END		#if_41_END
-mov ecx, 10		#i_97, 10
+mov ecx, 10		#i_94, 10
 if_41_END:
 if_42:
-cmp ecx, 100		#i_97, 100
+cmp ecx, 100		#i_94, 100
 jne else_43		#else_43
-mov ecx, 100		#i_97, 100
+mov ecx, 100		#i_94, 100
 jmp else_43_END		#else_43_END
 if_42_END:
 else_43:
-cmp ecx, 10		#i_97, 10
+cmp ecx, 10		#i_94, 10
 jne else_43_END		#else_43_END
-mov ecx, 100		#i_97, 100
+mov ecx, 100		#i_94, 100
 else_43_END:
-jmp Return_Here_135		#Return_Here_135
+jmp Return_Here_132		#Return_Here_132
 mov ecx, 1		#REG_10, 1
 cmp ecx, 2		#REG_10, 2
 jge while_44_END		#while_44_END
@@ -80,8 +80,8 @@ cmp ecx, 2		#REG_11, 2
 jge while_44_END		#while_44_END
 jmp while_44		#while_44
 while_44_END:
-jmp Return_Here_135		#Return_Here_135
-Return_Here_135:
+jmp Return_Here_132		#Return_Here_132
+Return_Here_132:
 mov eax, 1		#Returning_REG2, 1
 ret 		#
 ret 		#

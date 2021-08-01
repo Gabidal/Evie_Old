@@ -9,43 +9,43 @@ push rbx		#rbx
 sub rsp, 16		#.STACK, 16
 mov ecx, 8		#REG_8_Parameter3788, 8
 call _V17internal_allocatex_rPh
-mov rcx, rax		#internal_allocate_TMP_1542002326240, RetREG_0
-add qword ptr [rcx + 0 ], 1		#internal_allocate_TMP_1542002326240_0, 1
-mov rbx, rcx		#Return_Value106_108, internal_allocate_TMP_1542002326240
-jmp Return_Here_149		#Return_Here_149
-Return_Here_149:
-mov rcx, rbx		#Return_Value106_108_TMP_1542002327104, Return_Value106_108
-add qword ptr [rcx + 0 ], 1		#Return_Value106_108_TMP_1542002327104_0, 1
-mov rdi, rcx		#this_107_108, Return_Value106_108_TMP_1542002327104
-mov rdi, rbx		#this_107_108, Return_Value106_108
-mov dword ptr [rdi + 8 ], 1		#this_107_108_8, 1
-mov dword ptr [rdi + 12 ], 2		#this_107_108_12, 2
-mov rcx, rdi		#this_107_108_TMP_1542002331424, this_107_108
-add qword ptr [rcx + 0 ], 1		#this_107_108_TMP_1542002331424_0, 1
-mov rsi, rcx		#Return_Value107_108, this_107_108_TMP_1542002331424
-mov rsi, rdi		#Return_Value107_108, this_107_108
-jmp Return_Here_150		#Return_Here_150
-Return_Here_150:
-mov rcx, qword ptr [rsi + 0 ]		#REG_Return_Value107_10808, Return_Value107_108_0
-mov qword ptr [rsp + 0 + 0 ], rcx		#+_0, REG_Return_Value107_10808
-mov rcx, qword ptr [rsi + 8 ]		#REG_Return_Value107_10818, Return_Value107_108_8
-mov qword ptr [rsp + 0 + 8 ], rcx		#+_8, REG_Return_Value107_10818
-lea rcx, qword ptr [rsp + 0 ]		#F_108_REG1, .STACK_0
-mov rcx, rcx		#F_108_TMP_1542002369440, F_108_REG1
-add qword ptr [rcx + 0 ], 1		#F_108_TMP_1542002369440_0, 1
-mov rcx, rcx		#handle_1_108, F_108_TMP_1542002369440
-mov r8d, dword ptr [rcx + 8 ]		#handle_1_108_8_REG2, handle_1_108_8
-mov r8d, r8d		#x_108, handle_1_108_8_REG2
-mov rcx, rcx		#REG_handle_1_108_Parameter18127, handle_1_108
+mov rcx, rax		#internal_allocate_TMP_1722852226448, RetREG_0
+add qword ptr [rcx + 0 ], 1		#internal_allocate_TMP_1722852226448_0, 1
+mov rbx, rcx		#Return_Value100_102, internal_allocate_TMP_1722852226448
+jmp Return_Here_143		#Return_Here_143
+Return_Here_143:
+mov rcx, rbx		#Return_Value100_102_TMP_1722852230768, Return_Value100_102
+add qword ptr [rcx + 0 ], 1		#Return_Value100_102_TMP_1722852230768_0, 1
+mov rdi, rcx		#this_101_102, Return_Value100_102_TMP_1722852230768
+mov rdi, rbx		#this_101_102, Return_Value100_102
+mov dword ptr [rdi + 8 ], 1		#this_101_102_8, 1
+mov dword ptr [rdi + 12 ], 2		#this_101_102_12, 2
+mov rcx, rdi		#this_101_102_TMP_1722852247184, this_101_102
+add qword ptr [rcx + 0 ], 1		#this_101_102_TMP_1722852247184_0, 1
+mov rsi, rcx		#Return_Value101_102, this_101_102_TMP_1722852247184
+mov rsi, rdi		#Return_Value101_102, this_101_102
+jmp Return_Here_144		#Return_Here_144
+Return_Here_144:
+mov rcx, qword ptr [rsi + 0 ]		#REG_Return_Value101_10208, Return_Value101_102_0
+mov qword ptr [rsp + 0 + 0 ], rcx		#+_0, REG_Return_Value101_10208
+mov rcx, qword ptr [rsi + 8 ]		#REG_Return_Value101_10218, Return_Value101_102_8
+mov qword ptr [rsp + 0 + 8 ], rcx		#+_8, REG_Return_Value101_10218
+lea rcx, qword ptr [rsp + 0 ]		#F_102_REG1, .STACK_0
+mov rcx, rcx		#F_102_TMP_1722852245456, F_102_REG1
+add qword ptr [rcx + 0 ], 1		#F_102_TMP_1722852245456_0, 1
+mov rcx, rcx		#handle_1_102, F_102_TMP_1722852245456
+mov r8d, dword ptr [rcx + 8 ]		#handle_1_102_8_REG2, handle_1_102_8
+mov r8d, r8d		#x_102, handle_1_102_8_REG2
+mov rcx, rcx		#REG_handle_1_102_Parameter18127, handle_1_102
 call _ZN3foo10DestructorEP3foo
-mov rcx, rbx		#REG_Return_Value106_108_Parameter467, Return_Value106_108
+mov rcx, rbx		#REG_Return_Value100_102_Parameter467, Return_Value100_102
 call _ZN3foo10DestructorEP3foo
-mov rcx, rsi		#REG_Return_Value107_108_Parameter3728, Return_Value107_108
+mov rcx, rsi		#REG_Return_Value101_102_Parameter3728, Return_Value101_102
 call _ZN3foo10DestructorEP3foo
-mov rcx, rdi		#REG_this_107_108_Parameter14893, this_107_108
+mov rcx, rdi		#REG_this_101_102_Parameter14893, this_101_102
 call _ZN3foo10DestructorEP3foo
-jmp Return_Here_148		#Return_Here_148
-Return_Here_148:
+jmp Return_Here_142		#Return_Here_142
+Return_Here_142:
 mov eax, 1		#Returning_REG7, 1
 add rsp, 16		#.STACK, 16
 pop rbx		#rbx
@@ -67,40 +67,40 @@ push rbx		#rbx
 sub rsp, 16		#.STACK, 16
 mov ecx, 8		#REG_8_Parameter24648, 8
 call _V17internal_allocatex_rPh
-mov rcx, rax		#internal_allocate_TMP_1542003214960, RetREG_0
-add qword ptr [rcx + 0 ], 1		#internal_allocate_TMP_1542003214960_0, 1
-mov rbx, rcx		#Return_Value106, internal_allocate_TMP_1542003214960
-jmp Return_Here_146		#Return_Here_146
-Return_Here_146:
-mov rcx, rbx		#Return_Value106_TMP_1542003218416, Return_Value106
-add qword ptr [rcx + 0 ], 1		#Return_Value106_TMP_1542003218416_0, 1
-mov rdi, rcx		#this_107, Return_Value106_TMP_1542003218416
-mov rdi, rbx		#this_107, Return_Value106
-mov dword ptr [rdi + 8 ], 1		#this_107_8, 1
-mov dword ptr [rdi + 12 ], 2		#this_107_12, 2
-mov rcx, rdi		#this_107_TMP_1542003227920, this_107
-add qword ptr [rcx + 0 ], 1		#this_107_TMP_1542003227920_0, 1
-mov rsi, rcx		#Return_Value107, this_107_TMP_1542003227920
-mov rsi, rdi		#Return_Value107, this_107
-jmp Return_Here_147		#Return_Here_147
-Return_Here_147:
-mov rcx, qword ptr [rsi + 0 ]		#REG_Return_Value10708, Return_Value107_0
-mov qword ptr [rsp + 0 + 0 ], rcx		#+_0, REG_Return_Value10708
-mov rcx, qword ptr [rsi + 8 ]		#REG_Return_Value10718, Return_Value107_8
-mov qword ptr [rsp + 0 + 8 ], rcx		#+_8, REG_Return_Value10718
+mov rcx, rax		#internal_allocate_TMP_1722852261872, RetREG_0
+add qword ptr [rcx + 0 ], 1		#internal_allocate_TMP_1722852261872_0, 1
+mov rbx, rcx		#Return_Value100, internal_allocate_TMP_1722852261872
+jmp Return_Here_140		#Return_Here_140
+Return_Here_140:
+mov rcx, rbx		#Return_Value100_TMP_1722852280880, Return_Value100
+add qword ptr [rcx + 0 ], 1		#Return_Value100_TMP_1722852280880_0, 1
+mov rdi, rcx		#this_101, Return_Value100_TMP_1722852280880
+mov rdi, rbx		#this_101, Return_Value100
+mov dword ptr [rdi + 8 ], 1		#this_101_8, 1
+mov dword ptr [rdi + 12 ], 2		#this_101_12, 2
+mov rcx, rdi		#this_101_TMP_1722852251504, this_101
+add qword ptr [rcx + 0 ], 1		#this_101_TMP_1722852251504_0, 1
+mov rsi, rcx		#Return_Value101, this_101_TMP_1722852251504
+mov rsi, rdi		#Return_Value101, this_101
+jmp Return_Here_141		#Return_Here_141
+Return_Here_141:
+mov rcx, qword ptr [rsi + 0 ]		#REG_Return_Value10108, Return_Value101_0
+mov qword ptr [rsp + 0 + 0 ], rcx		#+_0, REG_Return_Value10108
+mov rcx, qword ptr [rsi + 8 ]		#REG_Return_Value10118, Return_Value101_8
+mov qword ptr [rsp + 0 + 8 ], rcx		#+_8, REG_Return_Value10118
 lea rcx, qword ptr [rsp + 0 ]		#F_REG1, .STACK_0
-mov rcx, rcx		#F_TMP_1542003207184, F_REG1
-add qword ptr [rcx + 0 ], 1		#F_TMP_1542003207184_0, 1
-mov rcx, rcx		#handle_1, F_TMP_1542003207184
+mov rcx, rcx		#F_TMP_1722852259280, F_REG1
+add qword ptr [rcx + 0 ], 1		#F_TMP_1722852259280_0, 1
+mov rcx, rcx		#handle_1, F_TMP_1722852259280
 mov r8d, dword ptr [rcx + 8 ]		#handle_1_8_REG2, handle_1_8
 mov ebp, r8d		#x, handle_1_8_REG2
 mov rcx, rcx		#REG_handle_1_Parameter22483, handle_1
 call _ZN3foo10DestructorEP3foo
-mov rcx, rbx		#REG_Return_Value106_Parameter17807, Return_Value106
+mov rcx, rbx		#REG_Return_Value100_Parameter17807, Return_Value100
 call _ZN3foo10DestructorEP3foo
-mov rcx, rsi		#REG_Return_Value107_Parameter2421, Return_Value107
+mov rcx, rsi		#REG_Return_Value101_Parameter2421, Return_Value101
 call _ZN3foo10DestructorEP3foo
-mov rcx, rdi		#REG_this_107_Parameter14310, this_107
+mov rcx, rdi		#REG_this_101_Parameter14310, this_101
 call _ZN3foo10DestructorEP3foo
 mov eax, ebp		#Returning_REG7, x
 add rsp, 16		#.STACK, 16
@@ -126,15 +126,15 @@ mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
 sub r8, 1		#this_0_REG0, 1
 cmp r8, 1		#this_0_REG0, 1
 jge if_45_END		#if_45_END
-mov r8, rcx		#this_TMP_1542003250384, this
-add qword ptr [r8 + 0 ], 1		#this_TMP_1542003250384_0, 1
-mov rbx, r8		#Address_105, this_TMP_1542003250384
-mov rbx, rcx		#Address_105, this
-mov rcx, rbx		#REG_Address_105_Parameter6617, Address_105
+mov r8, rcx		#this_TMP_1722852292112, this
+add qword ptr [r8 + 0 ], 1		#this_TMP_1722852292112_0, 1
+mov rbx, r8		#Address_99, this_TMP_1722852292112
+mov rbx, rcx		#Address_99, this
+mov rcx, rbx		#REG_Address_99_Parameter6617, Address_99
 mov edx, 8		#REG_8_Parameter22813, 8
 call _V19internal_deallocatePhx
-Return_Here_145:
-mov rcx, rbx		#REG_Address_105_Parameter9514, Address_105
+Return_Here_139:
+mov rcx, rbx		#REG_Address_99_Parameter9514, Address_99
 call _ZN3foo10DestructorEP3foo
 if_45_END:
 pop rbx		#rbx

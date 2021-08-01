@@ -637,7 +637,7 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 {
 
 	if (this->is(FUNCTION_NODE))
-		if (this->is(f))
+		if (this->is(f) || f == -1)
 			return { this };
 		else
 			return {};
@@ -699,7 +699,7 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 			Result.push_back(Cast_Type);
 	}
 
-	if (is(f))
+	if (is(f) || f == -1)
 		Result.push_back(this);
 
 	for (int i = 0; i < Result.size(); i++)
