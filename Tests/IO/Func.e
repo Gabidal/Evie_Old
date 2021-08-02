@@ -1,39 +1,39 @@
-#use "../../STD/STD.e"
-use "https://github.com/Gabidal/Evie/STD/STD.e"
+use "../../STD/STD.e"
+#use "https://github.com/Gabidal/Evie/STD/STD.e"
 
 export int main(){
 	Start_Test()
 	return 1
 }
 
-int foo(int ,int){
+int foo(int x,int y){
 	return 5
 }
 
-int foo(float, float){
-	
+int foo(float x, float y){
+	return 1
 }
 
-int bar(int, int){
-	
+int bar(int x, int y){
+	return 2
 }
 
 export int Start_Test(){
-	func ptr fuz
+	func ptr fuz = foo
 
-	if (bababui){
-		fuz = foo
-	}
-	else (express){
-		fuz = bar
-	}
+	#if (bababui){
+	#	fuz = foo
+	#}
+	#else (express){
+	#	fuz = bar
+	#}
+	#
+	#if (alibaba){
+	#	return fuz(1, 1)
+	#}
+	#else (joonas){
+	#	return fuz(1, 1)
+	#}
 
-	if (alibaba){
-		return fuz(1, 1)
-	}
-	else (joonas){
-		return fuz(1, 1)
-	}
-
-	return fuz()
+	return fuz(1, 1)
 }

@@ -91,6 +91,7 @@ public:
 	void Open_Safe(vector<Node*> n);
 
 	void Update_Operator_Inheritance(Node* n);
+	void Update_Inheritance(Node* n);
 	void Analyze_Return_Value(Node* n);
 
 	vector<Node*> Insert_Dot(vector<Node*> Childs, Node* Function, Node* This);

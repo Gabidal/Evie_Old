@@ -460,7 +460,7 @@ void PostProsessor::Process_Function_Pointters(Node* scope)
 							Node* First_Call_Type = nullptr;
 							//Now that we know the function name we need to know what function 
 							//overload we want to call.
-							for (int i = Line; i < scope->Childs.size(); i++) {
+							for (int i = Line + 1; i < scope->Childs.size(); i++) {
 								for (auto& j : scope->Childs[i]->Get_all()) {
 									if (j->is(ASSIGN_OPERATOR_NODE) && j->Left->Name == Defined->Name)
 										goto quit;
@@ -469,12 +469,13 @@ void PostProsessor::Process_Function_Pointters(Node* scope)
 										Node* Call = new Node(CALL_NODE, j->Location);
 										Call->Name = Function_Name;
 										Call->Parameters = j->Parameters;
+										Call->Scope = j->Scope;
 
-										Update_Operator_Inheritance(j->Context);
-										Call->Inheritted = j->Context->Inheritted;
+										Update_Inheritance(j);
+										Call->Inheritted = j->Inheritted;
 
 										Find_Call_Owner(Call);
-
+										 
 										if (First_Call_Type == nullptr)
 											First_Call_Type = Call;
 										else if (First_Call_Type->Function_Implementation != Call->Function_Implementation) {
@@ -497,6 +498,10 @@ void PostProsessor::Process_Function_Pointters(Node* scope)
 								}
 							}
 						quit:;
+
+							if (First_Call_Type) {
+								Operator->Right->Function_Implementation = First_Call_Type;
+							}
 						}
 						else {
 							//this happends when a function pointter is passed to another one
@@ -622,6 +627,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 
 	Open_Safe({ f });
 
+	Process_Function_Pointters(f);
+
 	p.Factory();
 
 	f->Childs = p.Input;
@@ -674,6 +681,8 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 
 		Input[i]->Parameters = p.Input;
 	}
+
+	Process_Function_Pointters(Input[i]);
 
 	//here we now postprosess also the insides of the condition
 	PostProsessor p(Input[i], Input[i]->Childs);
@@ -1856,6 +1865,8 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	//NOTE: this defined sizes might be reduntant!
 	post.Define_Sizes(Input[i]);
 
+	Process_Function_Pointters(Input[i]);
+
 	//haha brain go brr
 	post.Factory();
 
@@ -2166,6 +2177,17 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 				//both cannot be numbers, because otherwise algebra would have optimized it away.
 				n->Inheritted = n->Right->Scope->Find(n->Right, n->Right->Scope)->Inheritted;
 		}
+	}
+}
+
+void PostProsessor::Update_Inheritance(Node* n)
+{
+	if (n->Context->Name == "return") {
+		n->Inheritted = n->Get_Scope_As(FUNCTION_NODE, n)->Inheritted;
+	}
+	else {
+		Update_Operator_Inheritance(n->Context);
+		n->Inheritted = n->Context->Inheritted;
 	}
 }
 
