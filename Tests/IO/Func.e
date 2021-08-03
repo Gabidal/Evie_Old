@@ -2,7 +2,7 @@ use "../../STD/STD.e"
 #use "https://github.com/Gabidal/Evie/STD/STD.e"
 
 export int main(){
-	Start_Test()
+	jump Start_Test
 	return 1
 }
 

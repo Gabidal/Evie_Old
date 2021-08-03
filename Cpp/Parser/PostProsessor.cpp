@@ -475,6 +475,8 @@ void PostProsessor::Process_Function_Pointters(Node* scope)
 										Call->Inheritted = j->Inheritted;
 
 										Find_Call_Owner(Call);
+
+										j->Function_Implementation = Call->Function_Implementation;
 										 
 										if (First_Call_Type == nullptr)
 											First_Call_Type = Call;
@@ -500,7 +502,7 @@ void PostProsessor::Process_Function_Pointters(Node* scope)
 						quit:;
 
 							if (First_Call_Type) {
-								Operator->Right->Function_Implementation = First_Call_Type;
+								Operator->Right->Function_Implementation = First_Call_Type->Function_Implementation;
 							}
 						}
 						else {

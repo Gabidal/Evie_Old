@@ -361,6 +361,13 @@ void DebugGenerator::Construct_Debug_Info()
 
         Info_Generator(i);
     }        
+
+    //Generate abref info for the void consept.
+    Node* Void = new Node(CLASS_NODE, Global_Scope->Location);
+    Void->Name = "func";
+    Void->Scope = Global_Scope;
+
+    Info_Generator(Void);
     
     Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 1) }, nullptr));
 
@@ -736,7 +743,7 @@ void DebugGenerator::Info_Generator(Node* n)
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Location->GetFriendlyLine()), 1) }, nullptr));
     //Return type declaration address
     if (Info.TYPE) {
-        string Inheritted;
+        string Inheritted = "";
         //purify the inheritted.
         for (auto i : n->Inheritted) {
             if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
@@ -749,6 +756,14 @@ void DebugGenerator::Info_Generator(Node* n)
 
             Inheritted = "_" + Base_Type;
             break;
+        }
+        if (Inheritted == "") {
+            for (auto i : n->Inheritted) {
+                if (i == "func") {
+                    Inheritted = "_func";
+                    break;
+                }
+            }
         }
         MANGLER::Clear_Class_Zipping_List();
         /*= n->Get_Inheritted("_", true, false, true);

@@ -2,13 +2,14 @@
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/UI/Usr.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/Docker/Mangler.h"
 
 extern Selector* selector;
 extern Usr* sys;
 
 Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
-		if (n->Find(n, n->Scope)->Scope->Name == "GLOBAL_SCOPE" || n->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1) || n->Find(n, n->Scope)->Has({FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT}))
+		if (n->Find(n, n->Scope)->Scope->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1) || n->Find(n, n->Scope)->Has({FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT}))
 			Flags = TOKEN::GLOBAL_VARIABLE | TOKEN::CONTENT;
 		else if (n->Find(n, n->Scope)->Requires_Address)
 			Flags = TOKEN::CONTENT;
@@ -76,8 +77,11 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 
 	Name = n->Name;
 
+	if (n->Find(n, n->Scope)->Has({ FUNCTION_NODE, IMPORT, EXPORT }))
+		Name = MANGLER::Mangle(n->Function_Implementation, "");
+
 	if (n->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1))
-		Name = n->Fetcher->Name + "_" + n->Name;
+		Name = n->Fetcher->Name + "_" + Name;
 
 	Parent = n->Scope;
 
