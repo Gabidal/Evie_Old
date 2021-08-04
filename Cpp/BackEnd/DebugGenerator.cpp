@@ -341,7 +341,7 @@ void DebugGenerator::Construct_Debug_Info()
     IR* DW_AT_Low_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Code_Start", 8) }, nullptr);
     Debug_Info.push_back(DW_AT_Low_Pc);
     //End of the all asm code
-    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Code_End", 4) }, nullptr);
+    IR* DW_AT_High_Pc = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, "Code_End", 8) }, nullptr);
     Debug_Info.push_back(DW_AT_High_Pc);
 
     int j = 0;
@@ -575,7 +575,7 @@ void DebugGenerator::Generate_Abbrev(Abbrev_Type abbrev)
     }
     if (abbrev.BYTE_SIZE) {
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Byte_size), 1) }, nullptr));
-        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data1), 1) }, nullptr));
+        Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_FORM::Data8), 1) }, nullptr));
     }
     if (abbrev.SOURCE_FILE) {
         Debug_Abbrev.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(DW_AT::Decl_file), 1) }, nullptr));
@@ -703,7 +703,7 @@ void DebugGenerator::Info_Generator(Node* n)
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, MANGLER::Mangle(n, "") + "_START", 8)}, nullptr));
     if (Info.END)
         //The label that is in the end of the function
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, MANGLER::Mangle(n, "") + "_END", 4) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, MANGLER::Mangle(n, "") + "_END", 8) }, nullptr));
     if (Info.MEMORY_LOCATION) {
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(2), 1) }, nullptr));
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(145), 1) }, nullptr));
@@ -733,7 +733,7 @@ void DebugGenerator::Info_Generator(Node* n)
         Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(Encoding), 1) }, nullptr));
     }
     if (Info.BYTE_SIZE) {
-        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(n->Size), 1) }, nullptr));
+        Debug_Info.push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::NUM, to_string(0), 8) }, nullptr));
     }
     if (Info.SOURCE_FILE)
         //The source file

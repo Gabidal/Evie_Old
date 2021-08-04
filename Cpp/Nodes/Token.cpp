@@ -9,7 +9,7 @@ extern Usr* sys;
 
 Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
-		if (n->Find(n, n->Scope)->Scope->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1) || n->Find(n, n->Scope)->Has({FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT}))
+		if (n->Find(n, n->Scope)->Scope->is("static") != -1 || n->is("static") != -1 || (n->Fetcher != nullptr && n->Fetcher->is("static") != -1) || n->Find(n, n->Scope)->Has({FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT}))
 			Flags = TOKEN::GLOBAL_VARIABLE | TOKEN::CONTENT;
 		else if (n->Find(n, n->Scope)->Requires_Address)
 			Flags = TOKEN::CONTENT;

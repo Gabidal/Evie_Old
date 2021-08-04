@@ -11,8 +11,8 @@ ret 		#
 
 
 _Z4mainv:
-jmp Return_Here_147		#Return_Here_147
-Return_Here_147:
+jmp Return_Here_139		#Return_Here_139
+Return_Here_139:
 mov eax, 1		#Returning_REG0, 1
 ret 		#
 ret 		#
