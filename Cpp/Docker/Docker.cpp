@@ -9,8 +9,8 @@ vector<string> DOCKER::FileName;
 vector<pair<string, string>> DOCKER::Working_Dir;
 vector<string> DOCKER::Priority_Type; 
 map<string, vector<string>> DOCKER::Output;
-//map<ID, function ID>
-vector<pair<string, void (*)(vector<string>&)>> DOCKER::Translators;
+//vector<ID, function ID>
+vector<pair<Location, pair<string, void (*)(vector<string>&)>>> DOCKER::Translators;
 void (*DOCKER::Default)(vector<string>&) = nullptr;
 vector<string> DOCKER::Included_Files;
 vector<bool> DOCKER::Is_Local;
@@ -37,6 +37,10 @@ void DOCKER::Start_Analyzer()
 		Report(Observation(ERROR, "The default translator is missing!", Position()));
 		return;
 	}
+
+	//file type  calculation.
+	int Dot_Location = FileName.back().find_last_of('.');
+	string File_Type = FileName.back().substr(Dot_Location + 1);
 	
 	char Buffer[16];
 	//read Max_ID size into a buffer
@@ -48,15 +52,17 @@ void DOCKER::Start_Analyzer()
 	bool Wrong_Type = false;
 	//iterate every map ID in Translators map
 	for (auto i : Translators) {
-		if (strncmp(Buffer, i.first.c_str(), i.first.size()) == 0) {
-			Wrong_Type = false;
-			if (Priority_Type.back() == "txt") {
-				Wrong_Type = true;
-				continue;
+		if (i.first == Location::Header) {
+			if (strncmp(Buffer, i.second.first.c_str(), i.second.first.size()) == 0) {
+				Wrong_Type = false;
+				if (Priority_Type.back() == "txt") {
+					Wrong_Type = true;
+					continue;
+				}
+				i.second.second(Output[FileName.back()]);
+				//sys->Info.Libs.push_back(Working_Dir + FileName);
+				return;
 			}
-			i.second(Output[FileName.back()]);
-			//sys->Info.Libs.push_back(Working_Dir + FileName);
-			return;
 		}
 	}
 	if (Wrong_Type) {
@@ -77,19 +83,28 @@ void DOCKER::Start_Analyzer()
 		//safe check
 		//read Max_ID size into a buffer
 		file.read(Buffer, 16);
-		//for not overlapping wrong file type into lexer
 
+		//for not overlapping wrong file type into lexer
 		Wrong_Type = false;
+
 		//iterate every map ID in Translators map
 		for (auto i : Translators) {
-			if (strncmp(Buffer, i.first.c_str(), i.first.size()) == 0) {
-				Wrong_Type = false;
-				if (Priority_Type.back() == "txt") {
-					Wrong_Type = true;
-					continue;
+			if (i.first == Location::Header) {
+				if (strncmp(Buffer, i.second.first.c_str(), i.second.first.size()) == 0) {
+					Wrong_Type = false;
+					if (Priority_Type.back() == "txt") {
+						Wrong_Type = true;
+						continue;
+					}
+					i.second.second(Output[FileName.back()]);
+					//sys->Info.Libs.push_back(Working_Dir + FileName);
+					return;
 				}
-				i.second(Output[FileName.back()]);
-				//sys->Info.Libs.push_back(Working_Dir + FileName);
+			}
+			//check if the file name type is same as the translator filter
+			else if (i.second.first == File_Type) {
+				i.second.second(Output[FileName.back()]);
+
 				return;
 			}
 		}
@@ -207,8 +222,8 @@ string DOCKER::ReplaceAll(string str, const string& from, const string& to) {
 	return str;
 }
 
-void DOCKER::Add_Translator(string id, void (*f)(vector<string>&)) {
-	Translators.push_back({ id, f });
+void DOCKER::Add_Translator(Location filter_location, string id, void (*f)(vector<string>&)) {
+	Translators.push_back({ filter_location, { id, f } });
 }
 
 void DOCKER::Set_Default_Translator(void (*f)(vector<string>&)) {

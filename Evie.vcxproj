@@ -297,6 +297,7 @@
     <ClInclude Include="h\ui\Usr.h" />
     <ClInclude Include="IO\_asm.h" />
     <ClInclude Include="io\general.h" />
+    <ClInclude Include="Tests\IO\Operator_Overload.e" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

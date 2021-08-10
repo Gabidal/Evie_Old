@@ -16,6 +16,11 @@
 
 using namespace std;
 
+enum class Location {
+	Header,
+	File_Name,
+};
+
 namespace DOCKER {
 	//filename, mangled name
 	extern map<string, vector<string>> Output;
@@ -28,7 +33,7 @@ namespace DOCKER {
 	extern vector<pair<string, string>> Working_Dir;
 	extern vector<string> Priority_Type;
 	//map<ID, function ID>
-	extern vector<pair<string, void (*)(vector<string>&)>> Translators;
+	extern vector<pair<Location, pair<string, void (*)(vector<string>&)>>> Translators;
 	extern void (*Default)(vector<string>&);
 	extern vector<string>(*Slicer)(string);
 	extern vector<string> Included_Files;
@@ -46,7 +51,7 @@ namespace DOCKER {
 	vector<pair<string, string>> Separate_Identification_Patterns(vector<string> Tokens);
 	//open file to constexpr char buffer
 	vector<unsigned char> Get_Char_Buffer_From_File(string FN, string WD);
-	void Add_Translator(string id, void (*f)(vector<string>&));
+	void Add_Translator(Location filter_Location, string id, void (*f)(vector<string>&));
 	void Set_Default_Translator(void (*f)(vector<string>&));
 	//open the file and look for the identifier of the file header
 	void Start_Analyzer(); 

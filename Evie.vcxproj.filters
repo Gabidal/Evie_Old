@@ -282,5 +282,8 @@
     <ClInclude Include="H\UI\Satellite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tests\IO\Operator_Overload.e">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
