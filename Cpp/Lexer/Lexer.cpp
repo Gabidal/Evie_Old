@@ -14,10 +14,12 @@
 #include <fstream>
 #include <cmath>
 #include "../../H/UI/Safe.h"
+#include "../../H/UI/Usr.h"
 
 constexpr char LineEnding = '\n';
 constexpr char BITWISE_XOR = '\xa4';
 
+extern Usr* sys;
 
 char Lexer::SingleLineCommentIdentifier = 0;
 char Lexer::StringIdentifier = 0;
@@ -71,8 +73,6 @@ char GetParenthesisClosing(char opening, Position p)
     }
 
     Report(Observation(ERROR, "Unrecognized parenthesis opening '" + opening + (string)"'", p));
-
-    throw::runtime_error("ERROR");
 }
 
 /// <summary>
@@ -258,8 +258,12 @@ Position SkipParenthesis(const string &text, const Position &start)
         }
     }
 
-    Report(Observation(ERROR, "Couldn't find closing parenthesis", start));
-    throw::runtime_error("ERROR!");
+    MSG_Type Terminate = ERROR;
+
+    if (sys->Info.Is_Service)
+        Terminate = WARNING;
+
+    Report(Observation(Terminate, "Couldn't find closing parenthesis", start));
 }
 
 Position SkipComment(const string &text, const Position &start)
@@ -285,7 +289,12 @@ Position SkipString(const string &text, const Position &start)
 
     if (i == -1 || j != -1 && j < i)
     {
-        Report(Observation(ERROR, "Couldn't find the end of the string", start));
+        MSG_Type Terminate = ERROR;
+
+        if (sys->Info.Is_Service)
+            Terminate = WARNING;
+
+        Report(Observation(Terminate, "Couldn't find the end of the string", start));
     }
 
     int length = i + 1 - start.GetLocal();
@@ -353,10 +362,10 @@ optional<Area> GetNextComponent(const string &text, Position start)
         if (IsParenthesis(current_symbol))
         {
             // There cannot be number and content tokens side by side 1(
-            if (area.Type == Type::NUMBER)
+            /*if (area.Type == Type::NUMBER)
             {
                 Report(Observation(ERROR, "Missing operator between number and parenthesis", position));
-            }
+            }*/
 
             break;
         }
@@ -456,9 +465,11 @@ int GetExponent(const string& text, Position p)
         // Ensure that there's the exponent value
         if (index == text.size())
         {
-            Report(Observation(ERROR,  "Invalid number exponent '" + text + "'", p));
+            MSG_Type Terminate = ERROR;
 
-            throw::runtime_error("ERROR");
+            if (sys->Info.Is_Service)
+                Terminate = WARNING;
+            Report(Observation(Terminate,  "Invalid number exponent '" + text + "'", p));
         }
 
         // Skip the potential exponent sign
@@ -469,9 +480,11 @@ int GetExponent(const string& text, Position p)
             // Ensure that there's the exponent value
             if (index == text.size())
             {
-                Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
+                MSG_Type Terminate = ERROR;
 
-                throw::runtime_error("ERROR");
+                if (sys->Info.Is_Service)
+                    Terminate = WARNING;
+                Report(Observation(Terminate, "Invalid number exponent '" + text + "'", p));
             }
         }
 
@@ -487,8 +500,6 @@ int GetExponent(const string& text, Position p)
         else
         {
             Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
-
-            throw::runtime_error("ERROR");
         }
     }
 }
@@ -515,8 +526,6 @@ Component CreateNumberComponent(string text, const Position& position)
         {
             string s = "Invalid decimal number '" + text + "'";
             Report(Observation(ERROR, s, position));
-
-            throw::runtime_error("ERROR");
         }
     }
     else
@@ -532,7 +541,6 @@ Component CreateNumberComponent(string text, const Position& position)
             string s = "Invalid integer number '" + text + "'";
 
             Report(Observation(ERROR, s, position)); 
-            throw::runtime_error("ERROR");
         }
     }
 }
@@ -570,7 +578,6 @@ Component ParseComponent(const Area& area)
         string s = "Unrecognized token '" + area.Text + "'";
 
         Report(Observation(ERROR, s, area.Start));
-        throw::runtime_error("ERROR");
     }
 
     }
@@ -619,7 +626,11 @@ Component Lexer::GetComponent(string text)
 
     if (!area)
     {
-        Report(Observation(ERROR, "Could not generate component from string '" + text + "'.", position));
+        MSG_Type Terminate = ERROR;
+
+        if (sys->Info.Is_Service)
+            Terminate = WARNING;
+        Report(Observation(Terminate, "Could not generate component from string '" + text + "'.", position));
     }
 
     Component component = ParseComponent(area.value());
@@ -641,8 +652,6 @@ vector<Component> Lexer::GetComponentsFromFile(string file)
     {
         stringstream message;
         Report(Observation(ERROR, "Couldn't find or open file '" + file + "'", Position()));
-
-        throw::runtime_error("ERROR");
     }
 
     string text;
