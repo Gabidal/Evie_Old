@@ -114,6 +114,9 @@
     <ClCompile Include="Cpp\UI\Satellite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\UI\Service.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\unix.asm">
@@ -283,6 +286,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tests\IO\Operator_Overload.e">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\UI\Service.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Json\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

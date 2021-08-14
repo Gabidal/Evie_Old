@@ -24,6 +24,7 @@ public:
 	bool Debug = false;
 	string VT_API = "";
 	int Reference_Count_Size = 0;
+	bool Is_Service = false;
 
 	string Evie_Location = "";
 	string Assembler_Location = "";
@@ -81,6 +82,7 @@ private:
 	void Find_VT_API(int& i);
 	void Find_Reference_Count(int& i);
 	void Find_Evie_Executable_Position();
+	void Find_Service(int& i);
 };
 
 

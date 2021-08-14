@@ -217,6 +217,7 @@
     <ClCompile Include="Cpp\Parser\PostProsessor.cpp" />
     <ClCompile Include="cpp\preprosessor\PreProsessor.cpp" />
     <ClCompile Include="Cpp\UI\Satellite.cpp" />
+    <ClCompile Include="Cpp\UI\Service.cpp" />
     <ClCompile Include="Tests\Cpp\Base.cpp" />
     <ClCompile Include="Tests\Cpp\Test_Back_End.cpp" />
     <ClCompile Include="Tests\Unit_Tests.cpp" />
@@ -261,6 +262,7 @@
     <None Include="Tests\IO\Type.e.asm" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\Json\json.hpp" />
     <ClInclude Include="H\BackEnd\ARM.h" />
     <ClInclude Include="H\BackEnd\BackEnd.h" />
     <ClInclude Include="H\BackEnd\DebugGenerator.h" />
@@ -289,6 +291,7 @@
     <ClInclude Include="H\Parser\PostProsessor.h" />
     <ClInclude Include="h\preprosessor\PreProsessor.h" />
     <ClInclude Include="H\UI\Satellite.h" />
+    <ClInclude Include="H\UI\Service.h" />
     <ClInclude Include="Tests\H\Base.h" />
     <ClInclude Include="Tests\H\Test_Back_End.h" />
     <ClInclude Include="Tests\H\Test_Lexer.h" />

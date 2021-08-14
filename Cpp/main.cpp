@@ -63,6 +63,7 @@ int Build(int argc, const char* argv[])
             "]\n";
         cout << "-vt [virus total API-key]\n";
         cout << "-reference-count-size [reference count size]\n";
+        cout << "-service [starts Evie as a service with a port returned in standard out]\n";
         cout << endl;
         return -1;
     }

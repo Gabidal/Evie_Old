@@ -21,6 +21,7 @@ void Usr::Create_Argument_Stats()
 		Find_Format(i);
 		Find_Lib(i);
 		Find_VT_API(i);
+		Find_Service(i);
 	}
 }
 
@@ -142,6 +143,15 @@ void Usr::Find_Evie_Executable_Position()
 	string Argv_0 = Input[0];
 
 	DOCKER::Update_Working_Dir(DOCKER::ReplaceAll(Argv_0, "\\", "/"), Info.Evie_Location);
+}
+
+void Usr::Find_Service(int& i)
+{
+	string a = string(Input[i]);
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-service") == 0)
+	{
+		Info.Is_Service = true;
+	}
 }
 
 void output::Fill_Empty_Arguments()
