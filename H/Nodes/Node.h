@@ -374,6 +374,8 @@ public:
 
 	Node* Find_Scope(Node* n);
 
+	Node* Find(Position& location);
+
 	bool Compare_Fetchers(Node* other);
 
 	vector<Node*> Get_All_Fetchers();

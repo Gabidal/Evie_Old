@@ -16,6 +16,8 @@ const string Cyan = "\x1b[1;36m";
 const string White = "\x1b[1;37m";
 const string Reset = "\x1b[1;0m";
 
+vector<Observation> Notices;
+
 void Safe::Factory()
 {
 	for (auto i : Input) {

@@ -198,6 +198,80 @@ Node* Node::Find_Scope(Node* n)
 	return Current_Scope;
 }
 
+Node* is(Node* Result) {
+	if (Result) {
+		return Result;
+	}
+
+	//out of bounds
+	else if (Result == nullptr) {
+		return 0;
+	}
+}
+
+#define ERROR_404 (Node*)1
+
+#define OUT_BOUND nullptr
+
+//this algorithm is optimized by starting from low-hi.
+//because this system ingnores automatically if the node is already beoynd the line and character number.
+//Returns 1 if not found and returns 0 if the node is beyond the location.
+Node* Node::Find(Position& location)
+{
+	if (Location->GetAbsolute() > location.GetAbsolute()) {
+		return nullptr;
+	}
+	else if (Location->GetAbsolute() < location.GetAbsolute()) {
+
+		vector<Node*> Defined_Reversed = Defined;
+		reverse(Defined_Reversed.begin(), Defined_Reversed.end());
+
+		/*return += { 
+			reverse(Defined.begin(), Defined.end());
+		}*/
+		for (auto& i : Defined) {
+			Node* Result = i->Find(location);
+
+			if (Result != ERROR_404 && Result != OUT_BOUND)
+				return Result;
+
+			//out of bounds
+			else if (Result == OUT_BOUND)
+				break;
+		}
+
+		if (Left) {
+			Node* Result = Left->Find(location);
+
+			if (Result != ERROR_404)
+				return Result;
+		}
+		else if (Right) {
+			Node* Result = Right->Find(location);
+
+			if (Result != ERROR_404)
+				return Result;
+		}
+		else if (Fetcher) {
+			Node* Result = Fetcher->Find(location);
+
+			if (Result != ERROR_404)
+				return Result;
+		}
+		else if (Cast_Type) {
+			Node* Result = Cast_Type->Find(location);
+
+			if (Result != ERROR_404)
+				return Result;
+		}
+	}
+	else {
+		return this;
+	}
+
+	return (Node*)1;
+}
+
 bool Node::Compare_Fetchers(Node* other)
 {
 	string This_Fethcers = "";
