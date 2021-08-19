@@ -230,8 +230,22 @@ void Service::Determine_Completion_Type(Proxy* cursor)
 
 	}
 	else if (Location->Current->Has({Flags::KEYWORD_COMPONENT, Flags::TEXT_COMPONENT})) {
-
+		
 	}
+}
+
+void Service::Handle_Word_Completion(Cursor* c)
+{
+	//we can check if the current word is a midway keyword.
+	for (auto i : Lexer::Keywords) {
+		if (Percentage_Compare(i, c->Current->Value) > Sensitivity) {
+			Output.push_back(new Node(KEYWORD_NODE, i, &c->Current->Location));
+		}
+	}
+}
+
+void Service::Handle_Member_Completion(Cursor* c)
+{
 }
 
 //Returns fixed location of the start of the word that the cursor resides in.
@@ -310,6 +324,18 @@ vector<Component*> Service::Linearise(vector<Component>& Tree)
 		else {
 			Result.push_back(&i);
 		}
+	}
+
+	return Result;
+}
+
+int Service::Percentage_Compare(string X, string Y)
+{
+	int Result = 0; //0%
+
+	for (int i = 0; i < min(X.size(), Y.size()); i++) {
+		if (X[i] == Y[i])
+			Result++; //+ 1%
 	}
 
 	return Result;

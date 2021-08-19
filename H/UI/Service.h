@@ -13,6 +13,8 @@ using namespace std;
 extern Usr* sys;
 extern vector<Observation> Notices;
 
+int Sensitivity = 50; //the higher the value is the lower the sens is.
+
 class Cursor {
 public:
 	vector<Component*> Previus;
@@ -89,6 +91,7 @@ public:
 	UDP_Server Code_Completion_Handle = UDP_Server();
 	string Working_Dir = "";
 	Node* AST = new Node(CLASS_NODE, new Position());
+	vector<Node*> Output;
 
 	Service() {
 
@@ -103,10 +106,13 @@ public:
 
 	void Handle_Auto_Completion(Proxy* i);
 	void Determine_Completion_Type(Proxy* cursor);
+	void Handle_Word_Completion(Cursor* c);
+	void Handle_Member_Completion(Cursor* c);
 
 	Cursor* Search(int Absolute, vector<Component> Raw);
 	Cursor* Search_Absolute(int Line, int Character, string Raw);
 	int Calculate_Absolute_Position(int Line, int Character, string Raw);
 
 	vector<Component*> Linearise(vector<Component>& Tree);
+	int Percentage_Compare(string X, string Y);
 };
