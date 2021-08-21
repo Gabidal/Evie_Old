@@ -90,10 +90,14 @@ class Service
 public:
 	UDP_Server Code_Completion_Handle = UDP_Server();
 	string Working_Dir = "";
-	Node* AST = new Node(CLASS_NODE, new Position());
+	Node* Multifile_AST = new Node(CLASS_NODE, new Position());
+	Node* Singlefile_AST = new Node(CLASS_NODE, new Position());
 	vector<Node*> Output;
 
+	vector<Node*> Cache;
+
 	Service() {
+		Singlefile_AST->Scope = Multifile_AST;
 
 		//Recieve the 
 		Working_Dir = Code_Completion_Handle.Receive()->Find_Location_Of_Uri();
@@ -106,8 +110,7 @@ public:
 
 	void Handle_Auto_Completion(Proxy* i);
 	void Determine_Completion_Type(Proxy* cursor);
-	void Handle_Word_Completion(Cursor* c);
-	void Handle_Member_Completion(Cursor* c);
+	Node* Find_Cursor_From_AST(Cursor* c);
 
 	Cursor* Search(int Absolute, vector<Component> Raw);
 	Cursor* Search_Absolute(int Line, int Character, string Raw);

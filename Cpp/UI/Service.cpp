@@ -176,21 +176,20 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 
 		vector<Component> Components = Lexer::GetComponents(Source_Code);
 
-		Node* AST_Tmp = new Node(CLASS_NODE, new Position());
 		//this stops from the new source code touching the real AST but it can still find it if needed.
 		//It is like a read only
-		AST_Tmp->Scope = AST;
+		Singlefile_AST->Clean();
 
-		Parser parser = Parser(AST_Tmp);
+		Parser parser = Parser(Singlefile_AST);
 		parser.Input = Components;
 		parser.Factory();
 		//The parser automatically saves the new AST buided into the AST variable.
 	
 		//Add new definitions to the real AST
-		for (auto i : AST_Tmp->Defined) {
+		for (auto i : Singlefile_AST->Defined) {
 			bool Is_Defined = false;
 
-			for (auto j : AST->Defined) {
+			for (auto j : Multifile_AST->Defined) {
 				if (j->Name == i->Name)
 					if (j->Get_Inheritted() == i->Get_Inheritted()) {
 
@@ -211,12 +210,12 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 			Next:;
 			}
 			if (!Is_Defined) {
-				AST->Defined.push_back(i);
+				Multifile_AST->Defined.push_back(i);
 			}
 		}
 
-		//now that we have saved the new defined we can start to find the cursors position in the AST.
-
+		//This function chooses which type of completion we must use in this case.
+		Determine_Completion_Type(proxy);
 	}
 	catch (exception) {
 		Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
@@ -225,27 +224,34 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 
 void Service::Determine_Completion_Type(Proxy* cursor)
 {
-	Cursor* Location = Search_Absolute(cursor->Location.GetLine(), cursor->Location.GetCharacter(), cursor->Word);
-	if (Location->Current->Value == ".") {
+	Cursor* C = Search_Absolute(cursor->Location.GetLine(), cursor->Location.GetCharacter(), cursor->Word);
+	Node * Location = Find_Cursor_From_AST(C);
 
-	}
-	else if (Location->Current->Has({Flags::KEYWORD_COMPONENT, Flags::TEXT_COMPONENT})) {
-		
-	}
-}
-
-void Service::Handle_Word_Completion(Cursor* c)
-{
-	//we can check if the current word is a midway keyword.
-	for (auto i : Lexer::Keywords) {
-		if (Percentage_Compare(i, c->Current->Value) > Sensitivity) {
-			Output.push_back(new Node(KEYWORD_NODE, i, &c->Current->Location));
+	if (Location) {
+		for (auto i : Location->Find(Location, Location->Scope)->Defined) {
+			Output.push_back(i);
 		}
 	}
+	else if (C->Current->is(Flags::KEYWORD_COMPONENT)) {
+		for (auto i : Lexer::Keywords)
+			if (Percentage_Compare(i, C->Current->Value) > Sensitivity)
+				Output.push_back(new Node(KEYWORD_NODE, i, &C->Current->Location));
+	}
 }
 
-void Service::Handle_Member_Completion(Cursor* c)
+Node* Service::Find_Cursor_From_AST(Cursor* c)
 {
+	Node* Result = nullptr;
+
+	Result = Singlefile_AST->Find(c->Current->Location);
+
+	if (!Result && c->Previus.size() > 0)
+		Result = Singlefile_AST->Find(c->Previus.back()->Location);
+
+	if (!Result && c->Next.size() > 0)
+		Result = Singlefile_AST->Find(c->Next.back()->Location);
+
+	return Result;
 }
 
 //Returns fixed location of the start of the word that the cursor resides in.
@@ -332,7 +338,6 @@ vector<Component*> Service::Linearise(vector<Component>& Tree)
 int Service::Percentage_Compare(string X, string Y)
 {
 	int Result = 0; //0%
-
 	for (int i = 0; i < min(X.size(), Y.size()); i++) {
 		if (X[i] == Y[i])
 			Result++; //+ 1%

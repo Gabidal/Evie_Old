@@ -229,7 +229,35 @@ Node* Node::Find(Position& location)
 		/*return += { 
 			reverse(Defined.begin(), Defined.end());
 		}*/
-		for (auto& i : Defined) {
+		for (auto& i : Defined_Reversed) {
+			Node* Result = i->Find(location);
+
+			if (Result != ERROR_404 && Result != OUT_BOUND)
+				return Result;
+
+			//out of bounds
+			else if (Result == OUT_BOUND)
+				break;
+		}
+
+		vector<Node*> Childs_Reversed = Childs;
+		reverse(Childs_Reversed.begin(), Childs_Reversed.end());
+
+		for (auto& i : Childs_Reversed) {
+			Node* Result = i->Find(location);
+
+			if (Result != ERROR_404 && Result != OUT_BOUND)
+				return Result;
+
+			//out of bounds
+			else if (Result == OUT_BOUND)
+				break;
+		}
+
+		vector<Node*> Parameter_Reversed = Parameters;
+		reverse(Parameter_Reversed.begin(), Parameter_Reversed.end());
+
+		for (auto& i : Parameter_Reversed) {
 			Node* Result = i->Find(location);
 
 			if (Result != ERROR_404 && Result != OUT_BOUND)
@@ -665,6 +693,18 @@ Node* Node::Get_Closest_Context(int Flags)
 		return Closest_Context;
 
 	return nullptr;
+}
+
+void Node::Clean()
+{
+	Defined.clear();
+	Parameters.clear();
+	Childs.clear();
+	Inlined_Items.clear();
+	Member_Functions.clear();
+	Operator_Overloads.clear();
+	Templates.clear();
+	Inheritable_templates.clear();
 }
 
 vector<Node*> Trace_Update_Size;
