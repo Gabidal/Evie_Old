@@ -1,5 +1,17 @@
 #include "../../H/UI/Service.h"
 #include "../../H/Parser/Parser.h"
+#include "../../H/UI/Safe.h"
+
+extern vector<Observation> Notices;
+
+Proxy::Proxy(string raw) {
+	Notices.clear();
+
+	//this function transforms the raw string data into a Proxy data class.
+	Input = Lexer::GetComponents(raw);
+
+	Factory();
+}
 
 void Proxy::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
@@ -9,7 +21,7 @@ void Proxy::Factory() {
 	}
 }
 
-int Proxy::Parse_Num(int i) {
+void Proxy::Parse_Num(int i) {
 	//"Label name": 123
 	if (i + 2 >= Input.size())
 		return;
@@ -20,7 +32,7 @@ int Proxy::Parse_Num(int i) {
 	Type = (Document_Request_Type)atoi(Input[i + 2].Value.c_str());
 }
 
-string Proxy::Parse_String(int i) {
+void Proxy::Parse_String(int i) {
 	//"Label name": "ABC"
 	if (i + 2 >= Input.size())
 		return;
@@ -34,7 +46,7 @@ string Proxy::Parse_String(int i) {
 		Uri = Input[i + 2].Value;
 }
 
-Position Proxy::Parse_Position(int i) {
+void Proxy::Parse_Position(int i) {
 	//"Label Name": {
 	//	"Member1": Value,
 	//	"Member2": Value2,
@@ -121,6 +133,19 @@ void UDP_Server::Send(char* Data, int Length) {
 	}
 }
 
+void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
+{
+	string Result = "Wellfare: " + to_string(Wellfare) + "\n[";
+
+	for (auto i : MSG) {
+		Result += i->Name + ",\n";
+	}
+
+	Result += "\n]";
+
+	Send(Result);
+}
+
 UDP_Server::UDP_Server() {
 	sockaddr_in local;
 
@@ -156,10 +181,14 @@ void Service::Factory()
 
 	//Letus loopatus infinitus
 	while (true) {
+		Output.clear();
+
 		//wait for the next instruction from VSC
 		Proxy* Handle = Code_Completion_Handle.Receive();
 
 		Handle_Auto_Completion(Handle);
+
+		Code_Completion_Handle.Send(MSG_Type::SUCCESS, Output);
 	}
 }
 

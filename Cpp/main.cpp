@@ -19,6 +19,7 @@
 #include "../H/BackEnd/IRPostProsessor.h"
 #include "../H/BackEnd/DebugGenerator.h"
 #include "../H/UI/Satellite.h"
+#include "../H/UI/Service.h"
 
 #include <sstream>
 #include <iostream>
@@ -150,6 +151,12 @@ int Build(int argc, const char* argv[])
         {"true",                Component("1", Flags::NUMBER_COMPONENT)},
         {"false",               Component("0", Flags::NUMBER_COMPONENT)},
     };
+    
+    if (sys->Info.Is_Service) {
+        Service service = Service();
+        return 0;
+    }
+    
     preprosessor.Factory();
 
     Parser p(Global_Scope);

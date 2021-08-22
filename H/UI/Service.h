@@ -7,11 +7,11 @@
 #include "../../H/Lexer/Lexer.h"
 #include "../../H/Lexer/Component.h"
 #include "../../H/Nodes/Node.h"
-#include "../../H/UI/Safe.h"
 
 using namespace std;
 extern Usr* sys;
-extern vector<Observation> Notices;
+
+extern enum MSG_Type;
 
 int Sensitivity = 50; //the higher the value is the lower the sens is.
 
@@ -34,9 +34,32 @@ enum class Document_Request_Type
 	FIND_REFERENCES
 };
 
-enum class Completion_Type {
-	NAME,
-	PARAMETERS,
+enum CompletionItemKind {
+	Text,
+	Method,
+	Function,
+	Constructor,
+	Field,
+	Variable,
+	Class,
+	Interface,
+	Module,
+	Property,
+	Unit,
+	Value,
+	Enum,
+	Keyword,
+	Snippet,
+	Color,
+	Reference,
+	File,
+	Folder,
+	EnumMember,
+	Constant,
+	Struct,
+	Event,
+	Operator,
+	TypeParameter,
 };
 
 class Proxy {
@@ -51,19 +74,12 @@ public:
 	Position Location = Position();
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
-	Proxy(string raw) {
-		Notices.clear();
-
-		//this function transforms the raw string data into a Proxy data class.
-		Input = Lexer::GetComponents(raw);
-
-		Factory();
-	}
+	Proxy(string raw);
 	void Factory();
 
-	int Parse_Num(int i);
-	string Parse_String(int i);
-	Position Parse_Position(int i);
+	void Parse_Num(int i);
+	void Parse_String(int i);
+	void Parse_Position(int i);
 
 	string Find_Location_Of_Uri();
 };
@@ -80,6 +96,8 @@ public:
 	void Send(string Data) {
 		Send(Data.data(), Data.size());
 	}
+
+	void Send(MSG_Type Wellfare, vector<Node*> MSG);
 
 	UDP_Server();
 	~UDP_Server();
@@ -104,6 +122,8 @@ public:
 		
 		//send the system generated port number to stdout, for VSC to read it.
 		cout << Code_Completion_Handle.Port << endl;
+
+		Factory();
 	}
 
 	void Factory();
