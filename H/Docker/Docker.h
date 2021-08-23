@@ -81,6 +81,7 @@ namespace DOCKER {
 	char* Read_Bin_File(string fileName);
 	string Find(string File_Name);
 	string Find(string File_Name, filesystem::directory_entry Folder);
+	vector<string> Get_System_Paths();
 }
 
 class Docker

@@ -1,3 +1,6 @@
+#ifndef __SAFE_H__
+#define __SAFE_H__
+
 #include "../Nodes/Node.h"
 #include "../Lexer/Position.h"
 #include <vector>
@@ -80,3 +83,5 @@ private:
 	void Warn_Usage_Before_Definition(Node* n);
 	vector<Node*> Input;
 };
+
+#endif

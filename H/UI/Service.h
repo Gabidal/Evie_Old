@@ -7,13 +7,12 @@
 #include "../../H/Lexer/Lexer.h"
 #include "../../H/Lexer/Component.h"
 #include "../../H/Nodes/Node.h"
+#include "../../H/UI/Safe.h"
 
 using namespace std;
 extern Usr* sys;
-
-extern enum MSG_Type;
-
-int Sensitivity = 50; //the higher the value is the lower the sens is.
+extern int Sensitivity;
+//extern enum MSG_Type;
 
 class Cursor {
 public:
@@ -117,12 +116,12 @@ public:
 	Service() {
 		Singlefile_AST->Scope = Multifile_AST;
 
-		//Recieve the 
-		Working_Dir = Code_Completion_Handle.Receive()->Find_Location_Of_Uri();
-		
 		//send the system generated port number to stdout, for VSC to read it.
 		cout << Code_Completion_Handle.Port << endl;
 
+		//Recieve the 
+		Working_Dir = Code_Completion_Handle.Receive()->Find_Location_Of_Uri();
+		
 		Factory();
 	}
 

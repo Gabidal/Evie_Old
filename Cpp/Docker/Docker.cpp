@@ -365,18 +365,32 @@ char* DOCKER::Read_Bin_File(string fileName)
 
 string DOCKER::Find(string File_Name)
 {
-	for (auto p : filesystem::directory_iterator(sys->Info.Evie_Location))
-	{
-		filesystem::path File_Path = p.path();
-		if (!DOCKER::Is_Folder(File_Path.string()))
-			if (File_Path.filename().string() == File_Name)
-				return sys->Info.Evie_Location;
-			else
-				continue;
+	string Result = "";
 
-		string Folder = DOCKER::Find(File_Name, p);
-		if (Folder != "")
-			return Folder;
+	vector<string> Locations = { sys->Info.Evie_Location };
+
+	for (auto i : DOCKER::Get_System_Paths())
+		Locations.push_back(i);
+
+	for (auto i : Locations) {
+		try {
+			for (auto p : filesystem::directory_iterator(i))
+			{
+				filesystem::path File_Path = p.path();
+				if (!DOCKER::Is_Folder(File_Path.string()))
+					if (File_Path.filename().string() == File_Name)
+						return sys->Info.Evie_Location;
+					else
+						continue;
+
+				string Folder = DOCKER::Find(File_Name, p);
+				if (Folder != "")
+					return Folder;
+			}
+		}
+		catch (...) {
+			continue;
+		}
 	}
 	return "";
 }
@@ -397,6 +411,43 @@ string DOCKER::Find(string File_Name, filesystem::directory_entry Folder)
 			return Folder;
 	}
 	return "";
+}
+
+vector<string> DOCKER::Get_System_Paths()
+{
+
+	char Path_Seperator = ';';
+	if (sys->Info.OS == "unix")
+		Path_Seperator = ':';
+
+	string Result = "";
+
+	const char* Path_Type = "Path";
+	if (sys->Info.OS == "unix")
+		Path_Type = "PATH";
+
+	char* Path = getenv(Path_Type);
+	if (Path == nullptr) {
+		throw::runtime_error("Cannot get environment variable '" + (string)Path_Type + "'!");
+	}
+	string List = string(Path);
+
+	vector<string> Paths;
+	string tmp = "";
+	for (auto i : List) {
+		if (i == '\\')
+			i = '/';
+		if (i == Path_Seperator) {
+			if (tmp == "")
+				continue;
+			Paths.push_back(tmp);
+			tmp = "";
+		}
+		else
+			tmp += i;
+	}
+
+	return Paths;
 }
 
 vector<string>& DOCKER::Append(vector<string>& d, vector<pair<string, string>> s) {

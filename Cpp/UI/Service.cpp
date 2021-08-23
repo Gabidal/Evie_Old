@@ -1,6 +1,7 @@
 #include "../../H/UI/Service.h"
 #include "../../H/Parser/Parser.h"
-#include "../../H/UI/Safe.h"
+
+int Sensitivity = 50; //the higher the value is the lower the sens is.
 
 extern vector<Observation> Notices;
 
@@ -103,13 +104,17 @@ Proxy* UDP_Server::Receive() {
 	int Error = 0;
 	unsigned int Size = 0;
 
+	sockaddr Sender;
+
+	int Size_Of_Sender = sizeof(Sender);
+
 	//recieve the upcoming file size
-	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
+	Error = recvfrom(Socket, (char*)&Size, sizeof(Size), 0, &Sender, &Size_Of_Sender);
 
 	vector<char> Buffer = vector<char>(Size);
 
 	//this recieves the file content
-	Error = recv(Socket, Buffer.data(), Buffer.size(), 0);
+	Error = recvfrom(Socket, Buffer.data(), Buffer.size(), 0, &Sender, &Size_Of_Sender);
 
 	Proxy* Result = new Proxy(string(Buffer.data()));
 
@@ -154,11 +159,21 @@ UDP_Server::UDP_Server() {
 	WSAStartup(MAKEWORD(2, 2), &data);
 
 	local.sin_family = AF_INET;
-	local.sin_addr.s_addr = inet_addr("localhost");
-	local.sin_port = 0; // let OS decide
+	local.sin_addr.s_addr = inet_addr("127.0.0.1");
+	local.sin_port = 1111; // let OS decide
 
 	// create the socket
 	Socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+	int Result = bind(Socket, (sockaddr*)&local, sizeof(local));
+
+	int Length = sizeof(local);
+
+	getsockname(Socket, (sockaddr*)&local, &Length);
+
+	int Error = WSAGetLastError();
+
+	Port = local.sin_port;
 }
 
 UDP_Server::~UDP_Server() {

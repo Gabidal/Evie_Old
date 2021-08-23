@@ -6,6 +6,7 @@
 #include <regex>
 #include "../../H/Docker/HTTPS.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/Docker/Docker.h"
 
 
 string Produce_Working_Dir = "";
@@ -141,38 +142,9 @@ string Producer::Get_Entry()
 
 string Producer::Get_System_Paths()
 {
-
-    char Path_Seperator = ';';
-    if (OS == "unix")
-        Path_Seperator = ':';
-
     string Result = "";
 
-    const char* Path_Type = "Path";
-    if (OS == "unix")
-        Path_Type = "PATH";
-
-    char* Path = getenv(Path_Type);
-    if (Path == nullptr) {
-        throw::runtime_error("Cannot get environment variable '" + (string)Path_Type + "'!");
-    }
-    string List = string(Path);
-
-    vector<string> Paths;
-    string tmp = "";
-    for (auto i : List) {
-        if (i == '\\')
-            i = '/';
-        if (i == Path_Seperator) {
-            if (tmp == "")
-                continue;
-            Paths.push_back(tmp);
-            tmp = "";
-        }
-        else
-            tmp += i;
-    }
-    for (auto i : Paths)
+    for (auto i : DOCKER::Get_System_Paths())
         Result += " -L \"" + i + "\"";
 
     return Result;
