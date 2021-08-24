@@ -127,11 +127,16 @@ Proxy* UDP_Server::Receive() {
 void UDP_Server::Send(char* Data, int Length) {
 	int Error = 0;
 
+	sockaddr_in Dest;
+	Dest.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+	Dest.sin_port = 1234;
+	Dest.sin_family = AF_INET;
+
 	//send the upcoming file size
-	Error = send(Socket, (char*)&Length, sizeof(Length), 0);
+	Error = sendto(Socket, (char*)&Length, sizeof(Length), 0, (sockaddr*)&Dest, sizeof(Dest));
 
 	//this sends the file content
-	Error = send(Socket, Data, Length, 0);
+	Error = sendto(Socket, Data, Length, 0, (sockaddr*)&Dest, sizeof(Dest));
 
 	if (Error <= 0) {
 		//we could stop the service here

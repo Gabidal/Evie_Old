@@ -119,8 +119,12 @@ public:
 		//send the system generated port number to stdout, for VSC to read it.
 		cout << Code_Completion_Handle.Port << endl;
 
+		Code_Completion_Handle.Send("Haloo?");
+
 		//Recieve the 
 		Working_Dir = Code_Completion_Handle.Receive()->Find_Location_Of_Uri();
+
+
 		
 		Factory();
 	}
