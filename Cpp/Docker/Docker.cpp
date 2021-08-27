@@ -415,7 +415,6 @@ string DOCKER::Find(string File_Name, filesystem::directory_entry Folder)
 
 vector<string> DOCKER::Get_System_Paths()
 {
-
 	char Path_Seperator = ';';
 	if (sys->Info.OS == "unix")
 		Path_Seperator = ':';
@@ -446,6 +445,8 @@ vector<string> DOCKER::Get_System_Paths()
 		else
 			tmp += i;
 	}
+	if (tmp != "")
+		Paths.push_back(tmp);
 
 	return Paths;
 }

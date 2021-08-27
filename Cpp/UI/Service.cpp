@@ -98,23 +98,20 @@ string Proxy::Find_Location_Of_Uri()
 
 #ifdef _WIN32
 #include <WinSock2.h>
+#include <WS2tcpip.h>
 #define ERROR (MSG_Type)1
 
 Proxy* UDP_Server::Receive() {
 	int Error = 0;
 	unsigned int Size = 0;
 
-	sockaddr Sender;
-
-	int Size_Of_Sender = sizeof(Sender);
-
 	//recieve the upcoming file size
-	Error = recvfrom(Socket, (char*)&Size, sizeof(Size), 0, &Sender, &Size_Of_Sender);
+	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
 
 	vector<char> Buffer = vector<char>(Size);
 
 	//this recieves the file content
-	Error = recvfrom(Socket, Buffer.data(), Buffer.size(), 0, &Sender, &Size_Of_Sender);
+	Error = recv(Socket, Buffer.data(), Buffer.size(), 0);
 
 	Proxy* Result = new Proxy(string(Buffer.data()));
 
@@ -127,9 +124,9 @@ Proxy* UDP_Server::Receive() {
 void UDP_Server::Send(char* Data, int Length) {
 	int Error = 0;
 
-	sockaddr_in Dest;
+	sockaddr_in Dest = { 0 };
 	Dest.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-	Dest.sin_port = 1234;
+	Dest.sin_port = htons(Port);
 	Dest.sin_family = AF_INET;
 
 	//send the upcoming file size
@@ -157,28 +154,32 @@ void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
 }
 
 UDP_Server::UDP_Server() {
-	sockaddr_in local;
+	WSADATA wsadata = WSADATA();
+	WSAStartup(MAKEWORD(4, 4), &wsadata);
 
-	//Start the socket interface from windows
-	WSAData data;
-	WSAStartup(MAKEWORD(2, 2), &data);
+	auto handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (handle == INVALID_SOCKET)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
 
-	local.sin_family = AF_INET;
-	local.sin_addr.s_addr = inet_addr("127.0.0.1");
-	local.sin_port = 1111; // let OS decide
+	sockaddr_in bind_address = { 0 };
+	bind_address.sin_family = AF_INET;
+	//bind_address.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-	// create the socket
-	Socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
 
-	int Result = bind(Socket, (sockaddr*)&local, sizeof(local));
+	bind_address.sin_port = htons(Port);
 
-	int Length = sizeof(local);
+	if (bind(handle, (sockaddr*)&bind_address, sizeof(sockaddr_in)) < 0) return;
 
-	getsockname(Socket, (sockaddr*)&local, &Length);
+	if (listen(handle, 5) < 0)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
 
-	int Error = WSAGetLastError();
+	sockaddr_in client_address = { 0 };
+	int length = sizeof(sockaddr);
+	auto client = accept(handle, (sockaddr*)&client_address, (int*)&length);
 
-	Port = local.sin_port;
+	if (client == INVALID_SOCKET)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
 }
 
 UDP_Server::~UDP_Server() {
