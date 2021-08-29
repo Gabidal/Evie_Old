@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 #include "Usr.h"
 #include "../../H/Lexer/Position.h"
@@ -77,7 +78,7 @@ public:
 	void Factory();
 
 	void Parse_Num(int i);
-	void Parse_String(int i);
+	void Parse_String(int& i);
 	void Parse_Position(int i);
 
 	string Find_Location_Of_Uri();
@@ -109,6 +110,7 @@ public:
 	UDP_Server Code_Completion_Handle = UDP_Server();
 	string Working_Dir = "";
 	Node* Multifile_AST = new Node(CLASS_NODE, new Position());
+	mutex Multifile_Lock; 
 	Node* Singlefile_AST = new Node(CLASS_NODE, new Position());
 	vector<Node*> Output;
 
@@ -117,13 +119,10 @@ public:
 	Service() {
 		Singlefile_AST->Scope = Multifile_AST;
 
-		//send the system generated port number to stdout, for VSC to read it.
-		cout << Code_Completion_Handle.Port << endl;
+		//lock_guard<mutex> Lock(Multifile_Lock);
 
 		//Recieve the 
 		Working_Dir = Code_Completion_Handle.Receive()->Find_Location_Of_Uri();
-
-
 		
 		Factory();
 	}

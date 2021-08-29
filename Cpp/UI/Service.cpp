@@ -9,7 +9,7 @@ Proxy::Proxy(string raw) {
 	Notices.clear();
 
 	//this function transforms the raw string data into a Proxy data class.
-	Input = Lexer::GetComponents(raw);
+	Input = Lexer::GetComponent(raw).Components;
 
 	Factory();
 }
@@ -33,18 +33,27 @@ void Proxy::Parse_Num(int i) {
 	Type = (Document_Request_Type)atoi(Input[i + 2].Value.c_str());
 }
 
-void Proxy::Parse_String(int i) {
+void Proxy::Parse_String(int& i) {
 	//"Label name": "ABC"
 	if (i + 2 >= Input.size())
+		return;
+
+	if (!Input[i].is(Flags::STRING_COMPONENT))
 		return;
 
 	if (!Input[i + 2].is(Flags::STRING_COMPONENT))
 		return;
 
-	if (Word == "")
-		Word = Input[i + 2].Value;
-	else
+	if (Uri == "")
 		Uri = Input[i + 2].Value;
+	else
+		Word = Input[i + 2].Value;
+
+	Input.erase(Input.begin() + i);
+	Input.erase(Input.begin() + i);
+	Input.erase(Input.begin() + i);
+
+	i -= 3;
 }
 
 void Proxy::Parse_Position(int i) {
@@ -59,14 +68,26 @@ void Proxy::Parse_Position(int i) {
 	if (!Input[i + 2].is(Flags::PAREHTHESIS_COMPONENT))
 		return;
 
+	for (int j = 0; j < Input[i + 2].Components.size(); j++) {
+		if (!Input[i + 2].Components[j].is(Flags::NUMBER_COMPONENT))
+			continue;
+
+		if (j - 1 < 1)
+			continue;
+
+		if (Input[i + 2].Components[j - 1].Value != "-")
+			continue;
+
+		Input[i + 2].Components.erase(Input[i + 2].Components.begin() + j - 1);
+		Input[i + 2].Components[j - 1].Value = to_string(atoi(Input[i + 2].Components[j - 1].Value.c_str()) * -1);
+	}
+
 	//here we get from the paranthesis that resides in index i + 2
 	//the components, every component is same as the ValueX above
 	//"Member name": ValueX,
 	Location = Position(
 		atoi(Input[i + 2].Components[2].Value.c_str()),
-		atoi(Input[i + 2].Components[6].Value.c_str()),
-		atoi(Input[i + 2].Components[10].Value.c_str()),
-		atoi(Input[i + 2].Components[14].Value.c_str())
+		atoi(Input[i + 2].Components[6].Value.c_str())
 	);
 }
 
@@ -104,16 +125,20 @@ string Proxy::Find_Location_Of_Uri()
 Proxy* UDP_Server::Receive() {
 	int Error = 0;
 	unsigned int Size = 0;
+	int Mega_Byte = 1000000;
 
 	//recieve the upcoming file size
 	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
+
+	if (Size < 1 || Size > Mega_Byte * 100)
+		Report(Observation(ERROR, "Received message size is incorrect: '" + to_string(Mega_Byte) + "B'."));
 
 	vector<char> Buffer = vector<char>(Size);
 
 	//this recieves the file content
 	Error = recv(Socket, Buffer.data(), Buffer.size(), 0);
 
-	Proxy* Result = new Proxy(string(Buffer.data()));
+	Proxy* Result = new Proxy(string(Buffer.data(), Size));
 
 	if (Error <= 0)
 		return nullptr;
@@ -124,16 +149,11 @@ Proxy* UDP_Server::Receive() {
 void UDP_Server::Send(char* Data, int Length) {
 	int Error = 0;
 
-	sockaddr_in Dest = { 0 };
-	Dest.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-	Dest.sin_port = htons(Port);
-	Dest.sin_family = AF_INET;
-
 	//send the upcoming file size
-	Error = sendto(Socket, (char*)&Length, sizeof(Length), 0, (sockaddr*)&Dest, sizeof(Dest));
+	Error = send(Socket, (char*)&Length, sizeof(Length), 0);
 
 	//this sends the file content
-	Error = sendto(Socket, Data, Length, 0, (sockaddr*)&Dest, sizeof(Dest));
+	Error = send(Socket, Data, Length, 0);
 
 	if (Error <= 0) {
 		//we could stop the service here
@@ -157,8 +177,8 @@ UDP_Server::UDP_Server() {
 	WSADATA wsadata = WSADATA();
 	WSAStartup(MAKEWORD(4, 4), &wsadata);
 
-	auto handle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (handle == INVALID_SOCKET)
+	Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (Socket == INVALID_SOCKET)
 		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
 
 	sockaddr_in bind_address = { 0 };
@@ -167,16 +187,29 @@ UDP_Server::UDP_Server() {
 
 	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
 
-	bind_address.sin_port = htons(Port);
+	bind_address.sin_port = htons(1111/*Port*/);
 
-	if (bind(handle, (sockaddr*)&bind_address, sizeof(sockaddr_in)) < 0) return;
+	if (bind(Socket, (sockaddr*)&bind_address, sizeof(sockaddr_in)) < 0)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
 
-	if (listen(handle, 5) < 0)
+	int length = sizeof(sockaddr_in);
+	if (getsockname(Socket, (sockaddr*)&bind_address, &length) < 0)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
+
+	Port = bind_address.sin_port;
+
+	cout << Port << endl;
+
+	if (listen(Socket, 5) < 0)
 		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
 
 	sockaddr_in client_address = { 0 };
-	int length = sizeof(sockaddr);
-	auto client = accept(handle, (sockaddr*)&client_address, (int*)&length);
+	length = sizeof(sockaddr);
+	auto client = accept(Socket, (sockaddr*)&client_address, (int*)&length);
+
+	closesocket(Socket);
+
+	Socket = client;
 
 	if (client == INVALID_SOCKET)
 		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
