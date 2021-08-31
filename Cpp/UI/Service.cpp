@@ -8,8 +8,16 @@ extern vector<Observation> Notices;
 Proxy::Proxy(string raw) {
 	Notices.clear();
 
+	Clean(raw);
+
 	//this function transforms the raw string data into a Proxy data class.
-	Input = Lexer::GetComponent(raw).Components;
+	vector<Component> Tmp = Lexer::GetComponents(raw);
+
+	Input = Tmp[0].Components;
+
+	//construct the source code
+	for (int i = 1; i < Tmp.size(); i++)
+		Word += Tmp[i].Value;
 
 	Factory();
 }
@@ -41,13 +49,16 @@ void Proxy::Parse_String(int& i) {
 	if (!Input[i].is(Flags::STRING_COMPONENT))
 		return;
 
+	if (Input[i].Value != "\"Uri\"")
+		return;
+
 	if (!Input[i + 2].is(Flags::STRING_COMPONENT))
 		return;
 
-	if (Uri == "")
+	if (Uri == "") {
 		Uri = Input[i + 2].Value;
-	else
-		Word = Input[i + 2].Value;
+		Uri = Uri.substr(1, Uri.size() - 2);
+	}
 
 	Input.erase(Input.begin() + i);
 	Input.erase(Input.begin() + i);
@@ -87,7 +98,9 @@ void Proxy::Parse_Position(int i) {
 	//"Member name": ValueX,
 	Location = Position(
 		atoi(Input[i + 2].Components[2].Value.c_str()),
-		atoi(Input[i + 2].Components[6].Value.c_str())
+		atoi(Input[i + 2].Components[6].Value.c_str()),
+		atoi(Input[i + 2].Components[10].Value.c_str()),
+		atoi(Input[i + 2].Components[14].Value.c_str())
 	);
 }
 
@@ -104,17 +117,57 @@ string Proxy::Find_Location_Of_Uri()
 			Uri = Uri.substr(i.size());
 	}
 
+	Uri.erase(Uri.begin());
+	Uri[0] = toupper(Uri[0]);
+
 	//letus makus newus replaSUS.
 	for (int i = 0; i < Uri.size(); i++) {
-		if (strncmp(&Uri[i], "%3A", 3)) {
+		if (strncmp(&Uri[i], "%3A", 3) == 0) {
 			Uri.erase(Uri.begin() + i);
 			Uri.erase(Uri.begin() + i);
 
 			Uri[i] = ':';
+			break;
 		}
 	}
 
 	return Uri;
+}
+
+void Proxy::Clean(string& raw)
+{
+	for (int i = raw.size() - 1; i > 0; i--) {
+		if (raw[i] != 'n' && raw[i] != 'r' && raw[i] != 't' && raw[i] != '\'' && raw[i] != '\"')
+			continue;
+
+		if (raw[i - 1] != '\\')
+			continue;
+
+		if (i - 2 < 1 || raw[i - 2] == '\\')
+			continue;
+
+
+		switch (raw[i])
+		{
+		case 'n':
+			raw[i - 1] = '\n';
+			break;
+		case 'r':
+			raw[i - 1] = '\r';
+			break;
+		case 't':
+			raw[i - 1] = '\t';
+			break;
+		case '\'':
+			raw[i - 1] = '\'';
+			break;
+		case '\"':
+			raw[i - 1] = '\"';
+			break;
+		}
+
+		raw.erase(raw.begin() + i);
+	}
 }
 
 #ifdef _WIN32
@@ -252,19 +305,13 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 		return;
 	//try to generate the AST and try to lacte the Position of the cursor from the AST.
 	try {
-		//Remove the \" from start and end of the string Word.
-		string Source_Code = proxy->Word.substr(1, proxy->Word.size() - 2);
-
-		proxy->Word = Source_Code;
-
-		vector<Component> Components = Lexer::GetComponents(Source_Code);
 
 		//this stops from the new source code touching the real AST but it can still find it if needed.
 		//It is like a read only
 		Singlefile_AST->Clean();
 
 		Parser parser = Parser(Singlefile_AST);
-		parser.Input = Components;
+		parser.Input = Lexer::GetComponents(proxy->Word);
 		parser.Factory();
 		//The parser automatically saves the new AST buided into the AST variable.
 	
@@ -307,7 +354,7 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 
 void Service::Determine_Completion_Type(Proxy* cursor)
 {
-	Cursor* C = Search_Absolute(cursor->Location.GetLine(), cursor->Location.GetCharacter(), cursor->Word);
+	Cursor* C = Search_Absolute(cursor->Location.GetLine(), cursor->Location.GetCharacter(), cursor->Word, {});
 	Node * Location = Find_Cursor_From_AST(C);
 
 	if (Location) {
@@ -338,14 +385,14 @@ Node* Service::Find_Cursor_From_AST(Cursor* c)
 }
 
 //Returns fixed location of the start of the word that the cursor resides in.
-Cursor* Service::Search(int Absolute, vector<Component> Raw)
+Cursor* Service::Search(int Absolute, vector<Component>* Raw)
 {
 
 	Cursor* Result = new Cursor();
 
 	int i = 0;
 
-	vector<Component*> Linearised_Raw = Linearise(Raw);
+	vector<Component*> Linearised_Raw = Linearise(*Raw);
 
 	for (i = 0; i < Linearised_Raw.size() && Linearised_Raw[i]->Location.GetAbsolute() <= Absolute; i++);
 
@@ -368,13 +415,14 @@ Cursor* Service::Search(int Absolute, vector<Component> Raw)
 	}
 }
 
-Cursor* Service::Search_Absolute(int Line, int Character, string Raw)
+Cursor* Service::Search_Absolute(int Line, int Character, string Source, vector<Component>* Components)
 {
-	string Source_Code = Raw.substr(1, Raw.size() - 2);
-	int Absolute = Calculate_Absolute_Position(Line, Character, Raw);
+	int Absolute = Calculate_Absolute_Position(Line, Character, Source);
 
+	if (Components->size() == 0)
+		Components = new vector<Component>(Lexer::GetComponents(Source));
 
-	return Search(Absolute, Lexer::GetComponents(Source_Code));
+	return Search(Absolute, Components);
 }
 
 int Service::Calculate_Absolute_Position(int Line, int Character, string Raw)

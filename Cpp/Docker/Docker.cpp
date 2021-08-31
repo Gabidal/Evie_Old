@@ -367,7 +367,21 @@ string DOCKER::Find(string File_Name)
 {
 	string Result = "";
 
-	vector<string> Locations = { sys->Info.Evie_Location };
+	vector<string> Locations;
+
+	//try check if the env are already cached for us.
+	string Cache = Open_File(sys->Info.Evie_Location + ".Chached_Env_Paths.txt");
+	//transform into a vector of paths.
+	//"abc//",
+	//"cbd//",
+	//...
+	vector<string> Chached_Paths;
+	for (auto i : Lexer::GetComponents(Cache)) {
+		Locations.push_back(i.Value.substr(1, i.Value.size() - 2));
+		Chached_Paths.push_back(i.Value.substr(1, i.Value.size() - 2));
+	}
+
+	Locations.push_back(sys->Info.Evie_Location);
 
 	for (auto i : DOCKER::Get_System_Paths())
 		Locations.push_back(i);
@@ -378,8 +392,17 @@ string DOCKER::Find(string File_Name)
 			{
 				filesystem::path File_Path = p.path();
 				if (!DOCKER::Is_Folder(File_Path.string()))
-					if (File_Path.filename().string() == File_Name)
-						return sys->Info.Evie_Location;
+					if (File_Path.filename().string() == File_Name) {
+						//find recursively in the Evie folder location
+						//return sys->Info.Evie_Location;
+						bool Found = false;
+						for (auto j : Chached_Paths)
+							if (j == File_Path.remove_filename().string())
+								Found = true;
+						if (!Found)
+							Write_File(sys->Info.Evie_Location + ".Chached_Env_Paths.txt", "\"" + File_Path.remove_filename().string() + "\"\n");
+						return File_Path.string();
+					}
 					else
 						continue;
 
@@ -449,6 +472,36 @@ vector<string> DOCKER::Get_System_Paths()
 		Paths.push_back(tmp);
 
 	return Paths;
+}
+
+string DOCKER::Open_File(string File_Name)
+{
+	fstream file(File_Name, std::ios::in | std::ios::out | std::ios::app | std::ios::binary);
+
+	file.seekg(0, ios_base::end);
+	long long size = file.tellg();
+	char* Buffer = new char[size];
+	file.seekg(0, ios_base::beg);
+	file.read(Buffer, size);
+	file.close();
+
+	return string(Buffer, size);
+}
+
+void DOCKER::Write_File(string File_Name, string Buffer)
+{
+	string File_Remains = Open_File(File_Name);
+
+	std::ofstream ofs(File_Name);
+	ofs << File_Remains + Buffer;
+	ofs.close();
+}
+
+void DOCKER::Clear_File(string File_Name)
+{
+	std::ofstream ofs(File_Name);
+	ofs << "";
+	ofs.close();
 }
 
 vector<string>& DOCKER::Append(vector<string>& d, vector<pair<string, string>> s) {

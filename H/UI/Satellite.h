@@ -53,6 +53,8 @@ public:
 		Factory();
 	}
 private:
+	vector<string> Chache;
+
 	INSTALL Installation_Type;
 
 	vector<Medium> Dependecies;
@@ -62,4 +64,6 @@ private:
 
 	void Process_Local_Dependencies(Medium m);
 	void Process_Console_Dependencies(Medium m);
+
+	void Save_To_Cache(Medium m);
 };

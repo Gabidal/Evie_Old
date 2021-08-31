@@ -82,6 +82,7 @@ public:
 	void Parse_Position(int i);
 
 	string Find_Location_Of_Uri();
+	void Clean(string& raw);
 };
 
 class UDP_Server {
@@ -133,9 +134,9 @@ public:
 	void Determine_Completion_Type(Proxy* cursor);
 	Node* Find_Cursor_From_AST(Cursor* c);
 
-	Cursor* Search(int Absolute, vector<Component> Raw);
-	Cursor* Search_Absolute(int Line, int Character, string Raw);
-	int Calculate_Absolute_Position(int Line, int Character, string Raw);
+	Cursor* Search(int Absolute, vector<Component>* Raw);
+	Cursor* Search_Absolute(int Line, int Character, string Source, vector<Component>* Components);
+	int Calculate_Absolute_Position(int Line, int Character, string Source);
 
 	vector<Component*> Linearise(vector<Component>& Tree);
 	int Percentage_Compare(string X, string Y);

@@ -82,6 +82,10 @@ namespace DOCKER {
 	string Find(string File_Name);
 	string Find(string File_Name, filesystem::directory_entry Folder);
 	vector<string> Get_System_Paths();
+
+	string Open_File(string File_Name);
+	void Write_File(string File_Name, string Buffer);
+	void Clear_File(string File_Name);
 }
 
 class Docker
