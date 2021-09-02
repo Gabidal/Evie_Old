@@ -13,6 +13,7 @@
 using namespace std;
 extern Usr* sys;
 extern int Sensitivity;
+extern Node* Global_Scope;
 //extern enum MSG_Type;
 
 class Cursor {
@@ -110,7 +111,6 @@ class Service
 public:
 	UDP_Server Code_Completion_Handle = UDP_Server();
 	string Working_Dir = "";
-	Node* Multifile_AST = new Node(CLASS_NODE, new Position());
 	mutex Multifile_Lock; 
 	Node* Singlefile_AST = new Node(CLASS_NODE, new Position());
 	vector<Node*> Output;
@@ -118,12 +118,10 @@ public:
 	vector<Node*> Cache;
 
 	Service() {
-		Singlefile_AST->Scope = Multifile_AST;
+		Singlefile_AST->Scope = Global_Scope;
 
-		//lock_guard<mutex> Lock(Multifile_Lock);
-
-		//Recieve the 
-		Working_Dir = Code_Completion_Handle.Receive()->Find_Location_Of_Uri();
+		//Recieve the working dir from the VSC
+		Working_Dir = Code_Completion_Handle.Receive()->Uri;
 		
 		Factory();
 	}

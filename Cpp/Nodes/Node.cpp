@@ -209,9 +209,9 @@ Node* is(Node* Result) {
 	}
 }
 
-#define ERROR_404 (Node*)1
+#define TOO_BIG (Node*)1
 
-#define OUT_BOUND nullptr
+#define TOO_SMOLL nullptr
 
 //this algorithm is optimized by starting from low-hi.
 //because this system ingnores automatically if the node is already beoynd the line and character number.
@@ -219,7 +219,7 @@ Node* is(Node* Result) {
 Node* Node::Find(Position& location)
 {
 	if (Location->GetAbsolute() > location.GetAbsolute()) {
-		return nullptr;
+		return TOO_BIG;
 	}
 	else if (Location->GetAbsolute() < location.GetAbsolute()) {
 
@@ -232,12 +232,11 @@ Node* Node::Find(Position& location)
 		for (auto& i : Defined_Reversed) {
 			Node* Result = i->Find(location);
 
-			if (Result != ERROR_404 && Result != OUT_BOUND)
-				return Result;
+			if (Result == TOO_BIG)
+				continue;
 
-			//out of bounds
-			else if (Result == OUT_BOUND)
-				break;
+			if (Result == TOO_SMOLL)
+				break;	//we have gone over the result
 		}
 
 		vector<Node*> Childs_Reversed = Childs;
@@ -246,12 +245,11 @@ Node* Node::Find(Position& location)
 		for (auto& i : Childs_Reversed) {
 			Node* Result = i->Find(location);
 
-			if (Result != ERROR_404 && Result != OUT_BOUND)
-				return Result;
+			if (Result == TOO_BIG)
+				continue;
 
-			//out of bounds
-			else if (Result == OUT_BOUND)
-				break;
+			if (Result == TOO_SMOLL)
+				break;	//we have gone over the result
 		}
 
 		vector<Node*> Parameter_Reversed = Parameters;
@@ -260,36 +258,35 @@ Node* Node::Find(Position& location)
 		for (auto& i : Parameter_Reversed) {
 			Node* Result = i->Find(location);
 
-			if (Result != ERROR_404 && Result != OUT_BOUND)
-				return Result;
+			if (Result == TOO_BIG)
+				continue;
 
-			//out of bounds
-			else if (Result == OUT_BOUND)
-				break;
+			if (Result == TOO_SMOLL)
+				break;	//we have gone over the result
 		}
 
 		if (Left) {
 			Node* Result = Left->Find(location);
 
-			if (Result != ERROR_404)
+			if (Result != TOO_BIG && Result != TOO_SMOLL)
 				return Result;
 		}
 		else if (Right) {
 			Node* Result = Right->Find(location);
 
-			if (Result != ERROR_404)
+			if (Result != TOO_BIG && Result != TOO_SMOLL)
 				return Result;
 		}
 		else if (Fetcher) {
 			Node* Result = Fetcher->Find(location);
 
-			if (Result != ERROR_404)
+			if (Result != TOO_BIG && Result != TOO_SMOLL)
 				return Result;
 		}
 		else if (Cast_Type) {
 			Node* Result = Cast_Type->Find(location);
 
-			if (Result != ERROR_404)
+			if (Result != TOO_BIG && Result != TOO_SMOLL)
 				return Result;
 		}
 	}
@@ -297,7 +294,7 @@ Node* Node::Find(Position& location)
 		return this;
 	}
 
-	return (Node*)1;
+	return TOO_SMOLL;
 }
 
 bool Node::Compare_Fetchers(Node* other)

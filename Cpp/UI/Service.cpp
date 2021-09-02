@@ -1,9 +1,11 @@
 #include "../../H/UI/Service.h"
 #include "../../H/Parser/Parser.h"
+#include "../../H/Docker/Docker.h"
 
 int Sensitivity = 50; //the higher the value is the lower the sens is.
 
 extern vector<Observation> Notices;
+extern string* FileName;
 
 Proxy::Proxy(string raw) {
 	Notices.clear();
@@ -17,7 +19,7 @@ Proxy::Proxy(string raw) {
 
 	//construct the source code
 	for (int i = 1; i < Tmp.size(); i++)
-		Word += Tmp[i].Value;
+		Word += Tmp[i].Value.substr(1, Tmp[i].Value.size() - 2);
 
 	Factory();
 }
@@ -58,6 +60,7 @@ void Proxy::Parse_String(int& i) {
 	if (Uri == "") {
 		Uri = Input[i + 2].Value;
 		Uri = Uri.substr(1, Uri.size() - 2);
+		Uri = Find_Location_Of_Uri();
 	}
 
 	Input.erase(Input.begin() + i);
@@ -242,7 +245,9 @@ UDP_Server::UDP_Server() {
 
 	bind_address.sin_port = htons(1111/*Port*/);
 
-	if (bind(Socket, (sockaddr*)&bind_address, sizeof(sockaddr_in)) < 0)
+	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
+
+	if (Error < 0)
 		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
 
 	int length = sizeof(sockaddr_in);
@@ -304,22 +309,26 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 	if (proxy->Type != Document_Request_Type::COMPLETIONS)
 		return;
 	//try to generate the AST and try to lacte the Position of the cursor from the AST.
-	try {
+	//try {
 
 		//this stops from the new source code touching the real AST but it can still find it if needed.
 		//It is like a read only
 		Singlefile_AST->Clean();
+		DOCKER::FileName.push_back(proxy->Uri);
+		FileName = new string(DOCKER::FileName.back());
 
 		Parser parser = Parser(Singlefile_AST);
 		parser.Input = Lexer::GetComponents(proxy->Word);
 		parser.Factory();
+
+		DOCKER::FileName.pop_back();
 		//The parser automatically saves the new AST buided into the AST variable.
 	
 		//Add new definitions to the real AST
 		for (auto i : Singlefile_AST->Defined) {
 			bool Is_Defined = false;
 
-			for (auto j : Multifile_AST->Defined) {
+			for (auto j : Global_Scope->Defined) {
 				if (j->Name == i->Name)
 					if (j->Get_Inheritted() == i->Get_Inheritted()) {
 
@@ -340,16 +349,16 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 			Next:;
 			}
 			if (!Is_Defined) {
-				Multifile_AST->Defined.push_back(i);
+				Global_Scope->Defined.push_back(i);
 			}
 		}
 
 		//This function chooses which type of completion we must use in this case.
 		Determine_Completion_Type(proxy);
-	}
-	catch (exception) {
+	//}
+	/*catch (exception) {
 		Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
-	}
+	}*/
 }
 
 void Service::Determine_Completion_Type(Proxy* cursor)
@@ -394,7 +403,10 @@ Cursor* Service::Search(int Absolute, vector<Component>* Raw)
 
 	vector<Component*> Linearised_Raw = Linearise(*Raw);
 
-	for (i = 0; i < Linearised_Raw.size() && Linearised_Raw[i]->Location.GetAbsolute() <= Absolute; i++);
+	for (i = 0; i < Linearised_Raw.size() && Linearised_Raw[i]->Location.GetAbsolute() < Absolute; i++);
+
+	if (Linearised_Raw[i]->is(Flags::END_COMPONENT))
+		i--;
 
 	try {
 
@@ -419,7 +431,7 @@ Cursor* Service::Search_Absolute(int Line, int Character, string Source, vector<
 {
 	int Absolute = Calculate_Absolute_Position(Line, Character, Source);
 
-	if (Components->size() == 0)
+	if (Components == nullptr || Components->size() == 0)
 		Components = new vector<Component>(Lexer::GetComponents(Source));
 
 	return Search(Absolute, Components);
@@ -429,11 +441,12 @@ int Service::Calculate_Absolute_Position(int Line, int Character, string Raw)
 {
 	int Result = 0;
 
-	if (Raw[Result] == '\"')
-		Result++;
+	//make the VSC line and character into friendly types.
+	int Current_Line = 1;
+	int Current_Character = 1;
 
-	int Current_Line = 0;
-	int Current_Character = 0;
+	Line++;
+	Character++;
 
 	for (Result = 0; Result < Raw.size(); Result++) {
 		if (Current_Line == Line && Current_Character == Character)
@@ -442,7 +455,7 @@ int Service::Calculate_Absolute_Position(int Line, int Character, string Raw)
 		if (Raw[Result] == '\n') {
 			Current_Line++;
 			//new line new character counts
-			Current_Character = 0;
+			Current_Character = 1;
 		}
 		else
 			Current_Character++;

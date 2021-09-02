@@ -5,7 +5,7 @@ export int Start_Test(){
 	int ptr ptr b = a
 	b[0, 1] = 1
 	int c = b[0, 1]
-	return cc
+	return c
 }
 
 export int main(){

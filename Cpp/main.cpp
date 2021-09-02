@@ -132,7 +132,6 @@ int Build(int argc, const char* argv[])
 
     vector<Component> Input;
     PreProsessor preprosessor(Input);
-    preprosessor.Include(sys->Info.Source_File.c_str());
 
     Global_Scope = new Node(CLASS_NODE, new Position());
     Global_Scope->Name = "GLOBAL_SCOPE";
@@ -156,6 +155,8 @@ int Build(int argc, const char* argv[])
         Service service = Service();
         return 0;
     }
+
+    preprosessor.Include(sys->Info.Source_File.c_str());
     
     preprosessor.Factory();
 
