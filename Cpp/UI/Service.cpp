@@ -187,7 +187,7 @@ Proxy* UDP_Server::Receive() {
 	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
 
 	if (Size < 1 || Size > Mega_Byte * 100)
-		Report(Observation(ERROR, "Received message size is incorrect: '" + to_string(Mega_Byte) + "B'."));
+		Report(Observation(ERROR, "Received message size is incorrect: '" + to_string(Size) + "B'."));
 
 	vector<char> Buffer = vector<char>(Size);
 
@@ -206,7 +206,7 @@ void UDP_Server::Send(char* Data, int Length) {
 	int Error = 0;
 
 	//send the upcoming file size
-	Error = send(Socket, (char*)&Length, sizeof(Length), 0);
+	//Error = send(Socket, (char*)&Length, sizeof(Length), 0);
 
 	//this sends the file content
 	Error = send(Socket, Data, Length, 0);
@@ -218,13 +218,15 @@ void UDP_Server::Send(char* Data, int Length) {
 
 void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
 {
-	string Result = "Wellfare: " + to_string(Wellfare) + "\n[";
+	string Result = "{\"Status\": " + to_string(Wellfare) + ",\"Elements\": \"[";
 
 	for (auto i : MSG) {
-		Result += i->Name + ",\n";
+		Result += "\\\"" +  i->Name + "\\\",";
 	}
 
-	Result += "\n]";
+	Result = Result.substr(0, Result.size() - 1);
+
+	Result += "]\"}";
 
 	Send(Result);
 }
@@ -243,7 +245,7 @@ UDP_Server::UDP_Server() {
 
 	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
 
-	bind_address.sin_port = htons(1111/*Port*/);
+	bind_address.sin_port = htons(Port);
 
 	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
 
@@ -256,7 +258,7 @@ UDP_Server::UDP_Server() {
 
 	Port = bind_address.sin_port;
 
-	cout << Port << endl;
+	cout << htons(Port) << endl;
 
 	if (listen(Socket, 5) < 0)
 		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
@@ -367,7 +369,7 @@ void Service::Determine_Completion_Type(Proxy* cursor)
 	Node * Location = Find_Cursor_From_AST(C);
 
 	if (Location) {
-		for (auto i : Location->Find(Location, Location->Scope)->Defined) {
+		for (auto i : Location->Scope->Defined) {
 			Output.push_back(i);
 		}
 	}

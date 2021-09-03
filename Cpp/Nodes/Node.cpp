@@ -235,8 +235,11 @@ Node* Node::Find(Position& location)
 			if (Result == TOO_BIG)
 				continue;
 
-			if (Result == TOO_SMOLL)
+			else if (Result == TOO_SMOLL)
 				break;	//we have gone over the result
+
+			else
+				return Result;
 		}
 
 		vector<Node*> Childs_Reversed = Childs;
@@ -248,8 +251,11 @@ Node* Node::Find(Position& location)
 			if (Result == TOO_BIG)
 				continue;
 
-			if (Result == TOO_SMOLL)
+			else if (Result == TOO_SMOLL)
 				break;	//we have gone over the result
+
+			else
+				return Result;
 		}
 
 		vector<Node*> Parameter_Reversed = Parameters;
@@ -261,8 +267,11 @@ Node* Node::Find(Position& location)
 			if (Result == TOO_BIG)
 				continue;
 
-			if (Result == TOO_SMOLL)
+			else if (Result == TOO_SMOLL)
 				break;	//we have gone over the result
+
+			else
+				return Result;
 		}
 
 		if (Left) {
