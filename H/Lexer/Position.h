@@ -7,13 +7,12 @@ using namespace std;
 
 class Position
 {
-private:
+public:
     int Line = 0;
     int Character = 0;
     int Local = 0;
     int Absolute = 0;
     const char* File_Name = "";
-public:
 
     Position(int line = 0, int character = 0, int local = 0, int absolute = 0);
 

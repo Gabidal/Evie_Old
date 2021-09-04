@@ -10,6 +10,8 @@ void PreProsessor::Factory() {
 		Include(i);
 		Detect_Directory_Usage_End(i);
 	}
+
+	Re_Arrnage_Components();
 	return;
 }
 
@@ -91,6 +93,37 @@ void PreProsessor::Detect_Directory_Usage_End(int i)
 		if (j.first == Input[i].Value)
 			DOCKER::Working_Dir.pop_back();
 	}
+}
+
+void PreProsessor::Re_Arrnage_Components()
+{
+	vector<Component*> Linear_Input = Linearise(Input);
+	long long Line = 0;
+	long long Character = 0;
+
+	for (auto& i : Linear_Input) {
+		if (i->is(Flags::END_COMPONENT))
+			Line++;
+
+		
+	}
+}
+
+vector<Component*> PreProsessor::Linearise(vector<Component>& Tree)
+{
+	vector<Component*> Result;
+
+	for (auto& i : Tree) {
+		if (i.is(Flags::PAREHTHESIS_COMPONENT)) {
+			vector<Component*> Tmp = Linearise(i.Components);
+			Result.insert(Result.end(), Tmp.begin(), Tmp.end());
+		}
+		else {
+			Result.push_back(&i);
+		}
+	}
+
+	return Result;
 }
 
 void PreProsessor::If(int i)

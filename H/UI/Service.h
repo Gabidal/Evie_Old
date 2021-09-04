@@ -12,7 +12,7 @@
 
 using namespace std;
 extern Usr* sys;
-extern int Sensitivity;
+extern double Sensitivity;
 extern Node* Global_Scope;
 //extern enum MSG_Type;
 
@@ -112,13 +112,13 @@ public:
 	UDP_Server Code_Completion_Handle = UDP_Server();
 	string Working_Dir = "";
 	mutex Multifile_Lock; 
-	Node* Singlefile_AST = new Node(CLASS_NODE, new Position());
+	Node* Singlefile_AST;// = new Node(CLASS_NODE, new Position());
 	vector<Node*> Output;
 
 	vector<Node*> Cache;
 
 	Service() {
-		Singlefile_AST->Scope = Global_Scope;
+		Singlefile_AST = Global_Scope;
 
 		//Recieve the working dir from the VSC
 		Working_Dir = Code_Completion_Handle.Receive()->Uri;
@@ -137,5 +137,5 @@ public:
 	int Calculate_Absolute_Position(int Line, int Character, string Source);
 
 	vector<Component*> Linearise(vector<Component>& Tree);
-	int Percentage_Compare(string X, string Y);
+	double Percentage_Compare(string X, string Y);
 };

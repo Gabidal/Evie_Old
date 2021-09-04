@@ -224,7 +224,8 @@ Node* Node::Find(Position& location)
 	else if (Location->GetAbsolute() < location.GetAbsolute()) {
 
 		vector<Node*> Defined_Reversed = Defined;
-		reverse(Defined_Reversed.begin(), Defined_Reversed.end());
+
+		::sort(Defined_Reversed.begin(), Defined_Reversed.end(), [](Node* a, Node* b) { return a->Location->GetAbsolute() < b->Location->GetAbsolute(); });
 
 		/*return += { 
 			reverse(Defined.begin(), Defined.end());

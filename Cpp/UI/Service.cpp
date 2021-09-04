@@ -1,8 +1,11 @@
 #include "../../H/UI/Service.h"
 #include "../../H/Parser/Parser.h"
 #include "../../H/Docker/Docker.h"
+#include "../../H/PreProsessor/PreProsessor.h"
 
-int Sensitivity = 50; //the higher the value is the lower the sens is.
+#include <math.h>
+
+double Sensitivity = 50.0 / 100.0; //the higher the value is the lower the sens is.
 
 extern vector<Observation> Notices;
 extern string* FileName;
@@ -245,7 +248,7 @@ UDP_Server::UDP_Server() {
 
 	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
 
-	bind_address.sin_port = htons(Port);
+	bind_address.sin_port = htons(1111/*Port*/);
 
 	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
 
@@ -315,19 +318,30 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 
 		//this stops from the new source code touching the real AST but it can still find it if needed.
 		//It is like a read only
+		MANGLER::IDS.clear();
+		DOCKER::Working_Dir.clear();
+		DOCKER::Included_Files.clear();
+		DOCKER::Assembly_Source_File.clear();
 		Singlefile_AST->Clean();
+
 		DOCKER::FileName.push_back(proxy->Uri);
 		FileName = new string(DOCKER::FileName.back());
+		DOCKER::Update_Working_Dir(*FileName);
+
+		vector<Component> Input = Lexer::GetComponents(proxy->Word);
+
+		PreProsessor Preprosessor(Input);
+		Preprosessor.Factory();
 
 		Parser parser = Parser(Singlefile_AST);
-		parser.Input = Lexer::GetComponents(proxy->Word);
+		parser.Input = Input;
 		parser.Factory();
 
 		DOCKER::FileName.pop_back();
 		//The parser automatically saves the new AST buided into the AST variable.
 	
 		//Add new definitions to the real AST
-		for (auto i : Singlefile_AST->Defined) {
+		/*for (auto i : Singlefile_AST->Defined) {
 			bool Is_Defined = false;
 
 			for (auto j : Global_Scope->Defined) {
@@ -353,7 +367,7 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 			if (!Is_Defined) {
 				Global_Scope->Defined.push_back(i);
 			}
-		}
+		}*/
 
 		//This function chooses which type of completion we must use in this case.
 		Determine_Completion_Type(proxy);
@@ -369,15 +383,29 @@ void Service::Determine_Completion_Type(Proxy* cursor)
 	Node * Location = Find_Cursor_From_AST(C);
 
 	if (Location) {
-		for (auto i : Location->Scope->Defined) {
-			Output.push_back(i);
+		if (Location->Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE })) {
+			for (auto i : Location->Scope->Defined) {
+				Output.push_back(i);
+			}
+		}
+		//a->int
+		else if (Location->is(NODE_CASTER)) {
+			//find the right side as an class type
+			for (auto i : Location->Get_Scope_As(CLASS_NODE, { "static" }, Location)->Defined)
+				if (i->is(CLASS_NODE))
+					Output.push_back(i);
+		}
+		//a.x
+		else if (Location->Name == ".") {
+			for (auto i : Location->Find(Location->Left, Location)->Defined)
+				Output.push_back(i);
 		}
 	}
-	else if (C->Current->is(Flags::KEYWORD_COMPONENT)) {
+	//if (C->Current->is(Flags::KEYWORD_COMPONENT)) {
 		for (auto i : Lexer::Keywords)
-			if (Percentage_Compare(i, C->Current->Value) > Sensitivity)
+			//if (Percentage_Compare(i, C->Current->Value) > Sensitivity)
 				Output.push_back(new Node(KEYWORD_NODE, i, &C->Current->Location));
-	}
+	//}
 }
 
 Node* Service::Find_Cursor_From_AST(Cursor* c)
@@ -409,6 +437,8 @@ Cursor* Service::Search(int Absolute, vector<Component>* Raw)
 
 	if (Linearised_Raw[i]->is(Flags::END_COMPONENT))
 		i--;
+
+	for (; i > 0 && Linearised_Raw[i]->Value == "\n"; i--);
 
 	try {
 
@@ -481,13 +511,13 @@ vector<Component*> Service::Linearise(vector<Component>& Tree)
 	return Result;
 }
 
-int Service::Percentage_Compare(string X, string Y)
+double Service::Percentage_Compare(string X, string Y)
 {
-	int Result = 0; //0%
+	double Result = 0; //0%
 	for (int i = 0; i < min(X.size(), Y.size()); i++) {
 		if (X[i] == Y[i])
-			Result++; //+ 1%
+			Result += 1; //+ 1%
 	}
 
-	return Result;
+	return round(Result / max(X.size(), Y.size()));
 }
