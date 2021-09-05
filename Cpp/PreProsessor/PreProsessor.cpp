@@ -11,7 +11,7 @@ void PreProsessor::Factory() {
 		Detect_Directory_Usage_End(i);
 	}
 
-	Re_Arrnage_Components();
+	//Re_Arrnage_Components();
 	return;
 }
 
@@ -95,19 +95,19 @@ void PreProsessor::Detect_Directory_Usage_End(int i)
 	}
 }
 
-void PreProsessor::Re_Arrnage_Components()
-{
-	vector<Component*> Linear_Input = Linearise(Input);
-	long long Line = 0;
-	long long Character = 0;
-
-	for (auto& i : Linear_Input) {
-		if (i->is(Flags::END_COMPONENT))
-			Line++;
-
-		
-	}
-}
+//void PreProsessor::Re_Arrnage_Components()
+//{
+//	vector<Component*> Linear_Input = Linearise(Input);
+//	long long Line = 0;
+//	long long Character = 0;
+//
+//	for (auto& i : Linear_Input) {
+//		if (i->is(Flags::END_COMPONENT))
+//			Line++;
+//
+//		
+//	}
+//}
 
 vector<Component*> PreProsessor::Linearise(vector<Component>& Tree)
 {

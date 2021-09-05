@@ -1,4 +1,5 @@
 #include "../../H/UI/Safe.h"
+#include "../../H/UI/Usr.h"
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../Tests/H/Test_Lexer.h"
@@ -6,6 +7,7 @@
 #include "../../H/Parser/Algebra.h"
 
 extern Selector* selector;
+extern Usr* sys;
 
 const string Red = "\x1B[1;31m";
 const string Green = "\x1b[1;32m";
@@ -57,7 +59,8 @@ void Observation::Report()
 	if (Type == SOLUTION)
 		cout << "}" << endl;
 	if ((Type == FAIL || Type == ERROR) && !Dont_Stop)
-		throw::runtime_error("ERROR");
+		//if (!sys->Info.Is_Service)
+			throw::runtime_error("ERROR");
 }
 
 void Report(Observation o)

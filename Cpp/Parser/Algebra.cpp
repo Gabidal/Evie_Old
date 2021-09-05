@@ -1,5 +1,6 @@
 #include "../../H/Parser/Algebra.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/UI/Usr.h"
 #include "../../H/Parser/PostProsessor.h"
 
 #include <cmath>
@@ -9,7 +10,12 @@ long long Inlined_Function_Count = 0;
 long long Unique_ID_Count = 0;
 vector<string> Defined_Labels;
 
+extern Usr* sys;
+
 void Algebra::Factory() {
+	if (sys->Info.Is_Service)
+		return;
+
 	for (int i = 0; i < Input->size(); i++) {
 		Function_Inliner(Input->at(i), i);
 	}

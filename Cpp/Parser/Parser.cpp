@@ -923,7 +923,7 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 		Operator->Left = Input[(size_t)i - 1].node;
 	else {
 		//Dont worry about function calls
-		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[(size_t)i + 1].Location));
 		new_member->Name = Input[(size_t)i - 1].Value;
 		new_member->Scope = Operator->Scope;
 
@@ -938,7 +938,7 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 		//test.a.m //these a.m are in different localscope.
 		//the right side does not need to be determined as well the left.
 		//Dont worry about function calls
-		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[i].Location));
+		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[(size_t)i + 1].Location));
 		new_member->Name = Input[(size_t)i + 1].Value;
 		new_member->Scope = Operator->Scope;
 

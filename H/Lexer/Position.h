@@ -80,6 +80,8 @@ public:
     {
         return (string(File_Name) + ":" + to_string(GetFriendlyLine()) + ":" + to_string(GetFriendlyCharacter()));
     }
+
+    int GetFileIndex();
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include "../../H/Parser/Parser.h"
 #include "../../H/Docker/Docker.h"
 #include "../../H/PreProsessor/PreProsessor.h"
+#include "../../H/Parser/PostProsessor.h"
 
 #include <math.h>
 
@@ -9,6 +10,7 @@ double Sensitivity = 50.0 / 100.0; //the higher the value is the lower the sens 
 
 extern vector<Observation> Notices;
 extern string* FileName;
+extern vector<Node*> Find_Trace;
 
 Proxy::Proxy(string raw) {
 	Notices.clear();
@@ -248,7 +250,7 @@ UDP_Server::UDP_Server() {
 
 	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
 
-	bind_address.sin_port = htons(1111/*Port*/);
+	bind_address.sin_port = htons(Port);
 
 	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
 
@@ -314,7 +316,7 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 	if (proxy->Type != Document_Request_Type::COMPLETIONS)
 		return;
 	//try to generate the AST and try to lacte the Position of the cursor from the AST.
-	//try {
+	try {
 
 		//this stops from the new source code touching the real AST but it can still find it if needed.
 		//It is like a read only
@@ -337,44 +339,17 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 		parser.Input = Input;
 		parser.Factory();
 
+		PostProsessor postprosessor(Singlefile_AST, parser.Input);
+
 		DOCKER::FileName.pop_back();
 		//The parser automatically saves the new AST buided into the AST variable.
-	
-		//Add new definitions to the real AST
-		/*for (auto i : Singlefile_AST->Defined) {
-			bool Is_Defined = false;
-
-			for (auto j : Global_Scope->Defined) {
-				if (j->Name == i->Name)
-					if (j->Get_Inheritted() == i->Get_Inheritted()) {
-
-						if (i->is(FUNCTION_NODE) && j->is(FUNCTION_NODE)) {
-							if (i->Parameters.size() == j->Parameters.size()) {
-
-								for (int p = 0; p < i->Parameters.size(); p++)
-									if (i->Parameters[p]->Get_Inheritted() != j->Parameters[p]->Get_Inheritted())
-										goto Next;
-								Is_Defined = true;
-							}
-							else
-								goto Next;
-						}
-						else
-							Is_Defined = true;
-					}
-			Next:;
-			}
-			if (!Is_Defined) {
-				Global_Scope->Defined.push_back(i);
-			}
-		}*/
 
 		//This function chooses which type of completion we must use in this case.
 		Determine_Completion_Type(proxy);
-	//}
-	/*catch (exception) {
-		Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
-	}*/
+	}
+	catch (exception) {
+		//Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
+	}
 }
 
 void Service::Determine_Completion_Type(Proxy* cursor)
@@ -412,13 +387,19 @@ Node* Service::Find_Cursor_From_AST(Cursor* c)
 {
 	Node* Result = nullptr;
 
+	Find_Trace.clear();
+
 	Result = Singlefile_AST->Find(c->Current->Location);
 
-	if (!Result && c->Previus.size() > 0)
+	if (!Result && c->Previus.size() > 0) {
+		Find_Trace.clear();
 		Result = Singlefile_AST->Find(c->Previus.back()->Location);
+	}
 
-	if (!Result && c->Next.size() > 0)
+	if (!Result && c->Next.size() > 0) {
+		Find_Trace.clear();
 		Result = Singlefile_AST->Find(c->Next.back()->Location);
+	}
 
 	return Result;
 }

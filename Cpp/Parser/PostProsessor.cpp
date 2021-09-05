@@ -28,6 +28,10 @@ void PostProsessor::Factory() {
 		Member_Function_Defined_Inside(i);
 		Open_Function_For_Prosessing(i);
 	}
+
+	if (sys->Info.Is_Service)
+		return;
+
 	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
 		//Handle_Namespace_Inlining(i);
@@ -651,13 +655,14 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		Optimized = false;
 	}
 
-	for (auto& v : f->Defined) {
-		for (auto j : f->Childs) {
-			Analyze_Variable_Address_Pointing(v, j);
-			if (v->Requires_Address)
-				break;
+	if (!sys->Info.Is_Service)
+		for (auto& v : f->Defined) {
+			for (auto j : f->Childs) {
+				Analyze_Variable_Address_Pointing(v, j);
+				if (v->Requires_Address)
+					break;
+			}
 		}
-	}
 
 	Define_Sizes(f);
 

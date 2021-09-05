@@ -216,16 +216,33 @@ Node* is(Node* Result) {
 //this algorithm is optimized by starting from low-hi.
 //because this system ingnores automatically if the node is already beoynd the line and character number.
 //Returns 1 if not found and returns 0 if the node is beyond the location.
+vector<Node*> Find_Trace;
 Node* Node::Find(Position& location)
 {
+	for (int j = 0; j < Find_Trace.size(); j++) {
+		if (this == Find_Trace[j]) {
+			return TOO_BIG;
+		}
+	}
+
+	Find_Trace.push_back(this);
+
 	if (Location->GetAbsolute() > location.GetAbsolute()) {
+		Find_Trace.pop_back();
 		return TOO_BIG;
 	}
 	else if (Location->GetAbsolute() < location.GetAbsolute()) {
 
 		vector<Node*> Defined_Reversed = Defined;
 
-		::sort(Defined_Reversed.begin(), Defined_Reversed.end(), [](Node* a, Node* b) { return a->Location->GetAbsolute() < b->Location->GetAbsolute(); });
+		::sort(Defined_Reversed.begin(), Defined_Reversed.end(), [](Node* a, Node* b) { 
+			return ((a->Location->GetFileIndex() > b->Location->GetFileIndex())
+				|| (a->Location->GetFileIndex() == b->Location->GetFileIndex()
+					&& a->Location->GetLine() > b->Location->GetLine()
+					));
+
+			//!((file1 > file2) || (file1 == file2 && line1 > line))
+		});
 
 		/*return += { 
 			reverse(Defined.begin(), Defined.end());
@@ -239,12 +256,22 @@ Node* Node::Find(Position& location)
 			else if (Result == TOO_SMOLL)
 				break;	//we have gone over the result
 
-			else
+			else {
+				Find_Trace.pop_back();
 				return Result;
+			}
 		}
 
-		vector<Node*> Childs_Reversed = Childs;
-		reverse(Childs_Reversed.begin(), Childs_Reversed.end());
+		vector<Node*> Childs_Reversed = Childs; 
+		
+		::sort(Childs_Reversed.begin(), Childs_Reversed.end(), [](Node* a, Node* b) {
+			return ((a->Location->GetFileIndex() > b->Location->GetFileIndex())
+				|| (a->Location->GetFileIndex() == b->Location->GetFileIndex()
+					&& a->Location->GetLine() > b->Location->GetLine()
+					));
+
+			//!((file1 > file2) || (file1 == file2 && line1 > line))
+			});
 
 		for (auto& i : Childs_Reversed) {
 			Node* Result = i->Find(location);
@@ -255,8 +282,10 @@ Node* Node::Find(Position& location)
 			else if (Result == TOO_SMOLL)
 				break;	//we have gone over the result
 
-			else
+			else {
+				Find_Trace.pop_back();
 				return Result;
+			}
 		}
 
 		vector<Node*> Parameter_Reversed = Parameters;
@@ -271,39 +300,51 @@ Node* Node::Find(Position& location)
 			else if (Result == TOO_SMOLL)
 				break;	//we have gone over the result
 
-			else
+			else {
+				Find_Trace.pop_back();
 				return Result;
+			}
 		}
 
 		if (Left) {
 			Node* Result = Left->Find(location);
 
-			if (Result != TOO_BIG && Result != TOO_SMOLL)
+			if (Result != TOO_BIG && Result != TOO_SMOLL) {
+				Find_Trace.pop_back();
 				return Result;
+			}
 		}
-		else if (Right) {
+		if (Right) {
 			Node* Result = Right->Find(location);
 
-			if (Result != TOO_BIG && Result != TOO_SMOLL)
+			if (Result != TOO_BIG && Result != TOO_SMOLL) {
+				Find_Trace.pop_back();
 				return Result;
+			}
 		}
-		else if (Fetcher) {
+		if (Fetcher) {
 			Node* Result = Fetcher->Find(location);
 
-			if (Result != TOO_BIG && Result != TOO_SMOLL)
+			if (Result != TOO_BIG && Result != TOO_SMOLL) {
+				Find_Trace.pop_back();
 				return Result;
+			}
 		}
-		else if (Cast_Type) {
+		if (Cast_Type) {
 			Node* Result = Cast_Type->Find(location);
 
-			if (Result != TOO_BIG && Result != TOO_SMOLL)
+			if (Result != TOO_BIG && Result != TOO_SMOLL) {
+				Find_Trace.pop_back();
 				return Result;
+			}
 		}
 	}
 	else {
+		Find_Trace.pop_back();
 		return this;
 	}
 
+	Find_Trace.pop_back();
 	return TOO_SMOLL;
 }
 
