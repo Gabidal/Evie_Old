@@ -15,6 +15,10 @@ extern vector<Observation> Notices;
 extern string* FileName;
 extern vector<Node*> Find_Trace;
 extern string Output;
+extern unsigned long long Reg_Random_ID_Addon;
+extern unsigned long long Label_Differential_ID;
+extern long long Inlined_Function_Count;
+extern long long Unique_ID_Count;
 
 Proxy::Proxy(string raw) {
 	Notices.clear();
@@ -345,6 +349,10 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 		DOCKER::Included_Files.clear();
 		DOCKER::Assembly_Source_File.clear();
 		Singlefile_AST->Clean();
+		Reg_Random_ID_Addon = 0;
+		Label_Differential_ID = 0;
+		Inlined_Function_Count = 0;
+		Unique_ID_Count = 0;
 
 		DOCKER::FileName.push_back(proxy->Uri);
 		FileName = new string(DOCKER::FileName.back());
@@ -396,6 +404,10 @@ void Service::Handle_Code_Generation(Proxy* proxy)
 		DOCKER::Included_Files.clear();
 		DOCKER::Assembly_Source_File.clear();
 		Singlefile_AST->Clean();
+		Reg_Random_ID_Addon = 0;
+		Label_Differential_ID = 0;
+		Inlined_Function_Count = 0;
+		Unique_ID_Count = 0;
 
 		DOCKER::FileName.push_back(proxy->Uri);
 		FileName = new string(DOCKER::FileName.back());
@@ -430,10 +442,10 @@ void Service::Handle_Code_Generation(Proxy* proxy)
 
 		PostProsessor postprosessor(Singlefile_AST, parser.Input);
 
-		Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
+		Singlefile_AST->Append(Singlefile_AST->Childs, postprosessor.Input);
 
 		vector<IR*> IRs;
-		IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
+		IRGenerator g(Singlefile_AST, Singlefile_AST->Childs, &IRs);
 
 		IRPostProsessor IRpost(&IRs);
 

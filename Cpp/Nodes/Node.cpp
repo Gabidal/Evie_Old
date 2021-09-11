@@ -745,6 +745,7 @@ Node* Node::Get_Closest_Context(int Flags)
 
 void Node::Clean()
 {
+	Header.clear();
 	Defined.clear();
 	Parameters.clear();
 	Childs.clear();
@@ -753,6 +754,8 @@ void Node::Clean()
 	Operator_Overloads.clear();
 	Templates.clear();
 	Inheritable_templates.clear();
+	Template_Children.clear();
+	Numerical_Return_Types.clear();
 }
 
 vector<Node*> Trace_Update_Size;
