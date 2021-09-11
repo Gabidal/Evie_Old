@@ -3,6 +3,9 @@
 #include "../../H/Docker/Docker.h"
 #include "../../H/PreProsessor/PreProsessor.h"
 #include "../../H/Parser/PostProsessor.h"
+#include "../../H/BackEnd/IRGenerator.h"
+#include "../../H/BackEnd/IRPostProsessor.h"
+#include "../../H/BackEnd/BackEnd.h"
 
 #include <math.h>
 
@@ -11,6 +14,7 @@ double Sensitivity = 50.0 / 100.0; //the higher the value is the lower the sens 
 extern vector<Observation> Notices;
 extern string* FileName;
 extern vector<Node*> Find_Trace;
+extern string Output;
 
 Proxy::Proxy(string raw) {
 	Notices.clear();
@@ -226,7 +230,23 @@ void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
 	string Result = "{\"Status\": " + to_string(Wellfare) + ",\"Elements\": \"[";
 
 	for (auto i : MSG) {
-		Result += "\\\"" +  i->Name + "\\\",";
+		string Purified_Name = i->Name;
+
+		for (int i = 0; i < Purified_Name.size(); i++) {
+			if (Purified_Name[i] == '\n') {
+				Purified_Name[i] = 'n';
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+			if (Purified_Name[i] == '\t') {
+				Purified_Name[i] = 't';
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+			if (Purified_Name[i] == '\"') {
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+		}
+
+		Result += "\\\"" +  Purified_Name + "\\\",";
 	}
 
 	Result = Result.substr(0, Result.size() - 1);
@@ -306,6 +326,7 @@ void Service::Factory()
 		Proxy* Handle = Code_Completion_Handle.Receive();
 
 		Handle_Auto_Completion(Handle);
+		Handle_Code_Generation(Handle);
 
 		Code_Completion_Handle.Send(MSG_Type::SUCCESS, Output);
 	}
@@ -320,7 +341,6 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 
 		//this stops from the new source code touching the real AST but it can still find it if needed.
 		//It is like a read only
-		MANGLER::IDS.clear();
 		DOCKER::Working_Dir.clear();
 		DOCKER::Included_Files.clear();
 		DOCKER::Assembly_Source_File.clear();
@@ -333,6 +353,18 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 		vector<Component> Input = Lexer::GetComponents(proxy->Word);
 
 		PreProsessor Preprosessor(Input);
+		Preprosessor.Defined_Constants =
+		{
+			{"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
+			{"DESTINATION_FILE",    Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
+			{"OS",                  Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
+			{"ARCHITECTURE",        Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
+			{"FORMAT",              Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
+			{"BITS_MODE",           Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
+			{"true",                Component("1", Flags::NUMBER_COMPONENT)},
+			{"false",               Component("0", Flags::NUMBER_COMPONENT)},
+		};
+
 		Preprosessor.Factory();
 
 		Parser parser = Parser(Singlefile_AST);
@@ -346,6 +378,75 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 
 		//This function chooses which type of completion we must use in this case.
 		Determine_Completion_Type(proxy);
+	}
+	catch (exception) {
+		//Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
+	}
+}
+
+void Service::Handle_Code_Generation(Proxy* proxy)
+{
+	if (proxy->Type != Document_Request_Type::ASM)
+		return;
+	try {
+
+		//this stops from the new source code touching the real AST but it can still find it if needed.
+		//It is like a read only
+		DOCKER::Working_Dir.clear();
+		DOCKER::Included_Files.clear();
+		DOCKER::Assembly_Source_File.clear();
+		Singlefile_AST->Clean();
+
+		DOCKER::FileName.push_back(proxy->Uri);
+		FileName = new string(DOCKER::FileName.back());
+		DOCKER::Update_Working_Dir(*FileName);
+
+		sys->Service_Info = proxy->Type;
+
+		if (sys->Info.Architecture == "x86")
+			::Output = ".intel_syntax noprefix\n";
+		else
+			::Output = "";
+
+		vector<Component> Input = Lexer::GetComponents(proxy->Word);
+
+		PreProsessor Preprosessor(Input);
+		Preprosessor.Defined_Constants =
+		{
+			{"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
+			{"DESTINATION_FILE",    Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
+			{"OS",                  Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
+			{"ARCHITECTURE",        Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
+			{"FORMAT",              Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
+			{"BITS_MODE",           Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
+			{"true",                Component("1", Flags::NUMBER_COMPONENT)},
+			{"false",               Component("0", Flags::NUMBER_COMPONENT)},
+		};
+		Preprosessor.Factory();
+
+		Parser parser = Parser(Singlefile_AST);
+		parser.Input = Input;
+		parser.Factory();
+
+		PostProsessor postprosessor(Singlefile_AST, parser.Input);
+
+		Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
+
+		vector<IR*> IRs;
+		IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
+
+		IRPostProsessor IRpost(&IRs);
+
+		/*if (sys->Info.Debug)
+			DebugGenerator DG(IRs);*/
+
+		BackEnd Back(IRs, ::Output);
+
+		DOCKER::FileName.pop_back();
+
+		Node* Result = new Node(CLASS_NODE, ::Output, nullptr);
+		
+		Output.push_back(Result);
 	}
 	catch (exception) {
 		//Report(Observation(ERROR, "Cannot parse the code", proxy->Location));

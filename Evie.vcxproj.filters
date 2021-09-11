@@ -294,5 +294,8 @@
     <ClInclude Include="Dependencies\Json\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="H\UI\Document_Request_Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

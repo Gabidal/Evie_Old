@@ -296,6 +296,7 @@
     <ClInclude Include="H\Parser\Algebra.h" />
     <ClInclude Include="H\Parser\PostProsessor.h" />
     <ClInclude Include="h\preprosessor\PreProsessor.h" />
+    <ClInclude Include="H\UI\Document_Request_Type.h" />
     <ClInclude Include="H\UI\Satellite.h" />
     <ClInclude Include="H\UI\Service.h" />
     <ClInclude Include="Tests\H\Base.h" />

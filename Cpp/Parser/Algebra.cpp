@@ -13,7 +13,7 @@ vector<string> Defined_Labels;
 extern Usr* sys;
 
 void Algebra::Factory() {
-	if (sys->Info.Is_Service)
+	if (sys->Info.Is_Service && sys->Service_Info != Document_Request_Type::ASM)
 		return;
 
 	for (int i = 0; i < Input->size(); i++) {

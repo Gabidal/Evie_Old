@@ -6,6 +6,8 @@
 #include <optional>
 #include <algorithm>
 #include <iostream>
+
+#include "Document_Request_Type.h"
 using namespace std;
 
 class output{
@@ -49,6 +51,7 @@ class Usr
 {
 public:
 	output Info;
+	Document_Request_Type Service_Info = Document_Request_Type::NONE;
 	Usr(const char** in, int count)
 	{
 		Input = in;

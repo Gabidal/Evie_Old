@@ -9,6 +9,7 @@
 #include "../../H/Lexer/Component.h"
 #include "../../H/Nodes/Node.h"
 #include "../../H/UI/Safe.h"
+#include "Document_Request_Type.h"
 
 using namespace std;
 extern Usr* sys;
@@ -21,18 +22,6 @@ public:
 	vector<Component*> Previus;
 	Component* Current;
 	vector<Component*> Next;
-};
-
-enum class Document_Request_Type
-{
-	NONE,
-	COMPLETIONS,
-	SIGNATURES,
-	DIAGNOSE,
-	OPEN,
-	DEFINITION,
-	INFORMATION,
-	FIND_REFERENCES
 };
 
 enum CompletionItemKind {
@@ -129,6 +118,8 @@ public:
 	void Factory();
 
 	void Handle_Auto_Completion(Proxy* i);
+	void Handle_Code_Generation(Proxy* i);
+
 	void Determine_Completion_Type(Proxy* cursor);
 	Node* Find_Cursor_From_AST(Cursor* c);
 

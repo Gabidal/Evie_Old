@@ -29,7 +29,7 @@ void PostProsessor::Factory() {
 		Open_Function_For_Prosessing(i);
 	}
 
-	if (sys->Info.Is_Service)
+	if (sys->Info.Is_Service && sys->Service_Info != Document_Request_Type::ASM)
 		return;
 
 	//Define_Sizes(Parent);
@@ -655,7 +655,7 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		Optimized = false;
 	}
 
-	if (!sys->Info.Is_Service)
+	if (!sys->Info.Is_Service || sys->Service_Info == Document_Request_Type::ASM)
 		for (auto& v : f->Defined) {
 			for (auto j : f->Childs) {
 				Analyze_Variable_Address_Pointing(v, j);
