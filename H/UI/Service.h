@@ -123,6 +123,8 @@ public:
 	void Determine_Completion_Type(Proxy* cursor);
 	Node* Find_Cursor_From_AST(Cursor* c);
 
+	void Parse_Code(Proxy* proxy);
+
 	Cursor* Search(int Absolute, vector<Component>* Raw);
 	Cursor* Search_Absolute(int Line, int Character, string Source, vector<Component>* Components);
 	int Calculate_Absolute_Position(int Line, int Character, string Source);

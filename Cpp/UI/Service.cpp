@@ -274,7 +274,7 @@ UDP_Server::UDP_Server() {
 
 	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
 
-	bind_address.sin_port = htons(Port);
+	bind_address.sin_port = htons(1111/*Port*/);
 
 	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
 
@@ -340,70 +340,25 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 {
 	if (proxy->Type != Document_Request_Type::COMPLETIONS)
 		return;
-	//try to generate the AST and try to lacte the Position of the cursor from the AST.
-	try {
 
-		//this stops from the new source code touching the real AST but it can still find it if needed.
-		//It is like a read only
-		DOCKER::Working_Dir.clear();
-		DOCKER::Included_Files.clear();
-		DOCKER::Assembly_Source_File.clear();
-		Singlefile_AST->Clean();
-		Reg_Random_ID_Addon = 0;
-		Label_Differential_ID = 0;
-		Inlined_Function_Count = 0;
-		Unique_ID_Count = 0;
+	Parse_Code(proxy);
 
-		DOCKER::FileName.push_back(proxy->Uri);
-		FileName = new string(DOCKER::FileName.back());
-		DOCKER::Update_Working_Dir(*FileName);
-
-		vector<Component> Input = Lexer::GetComponents(proxy->Word);
-
-		PreProsessor Preprosessor(Input);
-		Preprosessor.Defined_Constants =
-		{
-			{"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
-			{"DESTINATION_FILE",    Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
-			{"OS",                  Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
-			{"ARCHITECTURE",        Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
-			{"FORMAT",              Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
-			{"BITS_MODE",           Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
-			{"true",                Component("1", Flags::NUMBER_COMPONENT)},
-			{"false",               Component("0", Flags::NUMBER_COMPONENT)},
-		};
-
-		Preprosessor.Factory();
-
-		Parser parser = Parser(Singlefile_AST);
-		parser.Input = Input;
-		parser.Factory();
-
-		PostProsessor postprosessor(Singlefile_AST, parser.Input);
-
-		DOCKER::FileName.pop_back();
-		//The parser automatically saves the new AST buided into the AST variable.
-
-		//This function chooses which type of completion we must use in this case.
-		Determine_Completion_Type(proxy);
-	}
-	catch (exception) {
-		//Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
-	}
+	//This function chooses which type of completion we must use in this case.
+	Determine_Completion_Type(proxy);
 }
 
-void Service::Handle_Code_Generation(Proxy* proxy)
+void Service::Parse_Code(Proxy* proxy)
 {
-	if (proxy->Type != Document_Request_Type::ASM)
-		return;
+	//try to generate the AST and try to lacte the Position of the cursor from the AST.
 	try {
-
 		//this stops from the new source code touching the real AST but it can still find it if needed.
-		//It is like a read only
+			//It is like a read only
 		DOCKER::Working_Dir.clear();
-		DOCKER::Included_Files.clear();
+		if (proxy->Type == Document_Request_Type::ASM) {
+			Singlefile_AST->Clean();
+			DOCKER::Included_Files.clear();
+		}
 		DOCKER::Assembly_Source_File.clear();
-		Singlefile_AST->Clean();
 		Reg_Random_ID_Addon = 0;
 		Label_Differential_ID = 0;
 		Inlined_Function_Count = 0;
@@ -441,20 +396,34 @@ void Service::Handle_Code_Generation(Proxy* proxy)
 		parser.Factory();
 
 		PostProsessor postprosessor(Singlefile_AST, parser.Input);
+		if (proxy->Type == Document_Request_Type::ASM) {
+			Singlefile_AST->Append(Singlefile_AST->Childs, postprosessor.Input);
 
-		Singlefile_AST->Append(Singlefile_AST->Childs, postprosessor.Input);
+			vector<IR*> IRs;
+			IRGenerator g(Singlefile_AST, Singlefile_AST->Childs, &IRs);
 
-		vector<IR*> IRs;
-		IRGenerator g(Singlefile_AST, Singlefile_AST->Childs, &IRs);
+			IRPostProsessor IRpost(&IRs);
 
-		IRPostProsessor IRpost(&IRs);
+			/*if (sys->Info.Debug)
+				DebugGenerator DG(IRs);*/
 
-		/*if (sys->Info.Debug)
-			DebugGenerator DG(IRs);*/
-
-		BackEnd Back(IRs, ::Output);
+			BackEnd Back(IRs, ::Output);
+		}
 
 		DOCKER::FileName.pop_back();
+		//The parser automatically saves the new AST buided into the AST variable.
+	}
+	catch (exception) {
+	}
+}
+
+void Service::Handle_Code_Generation(Proxy* proxy)
+{
+	if (proxy->Type != Document_Request_Type::ASM)
+		return;
+	try {
+
+		Parse_Code(proxy);
 
 		Node* Result = new Node(CLASS_NODE, ::Output, nullptr);
 		
