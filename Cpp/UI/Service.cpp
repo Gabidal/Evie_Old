@@ -350,7 +350,7 @@ void Service::Handle_Auto_Completion(Proxy* proxy)
 void Service::Parse_Code(Proxy* proxy)
 {
 	//try to generate the AST and try to lacte the Position of the cursor from the AST.
-	try {
+	//try {
 		//this stops from the new source code touching the real AST but it can still find it if needed.
 			//It is like a read only
 		DOCKER::Working_Dir.clear();
@@ -412,9 +412,9 @@ void Service::Parse_Code(Proxy* proxy)
 
 		DOCKER::FileName.pop_back();
 		//The parser automatically saves the new AST buided into the AST variable.
-	}
+	/*}
 	catch (exception) {
-	}
+	}*/
 }
 
 void Service::Handle_Code_Generation(Proxy* proxy)

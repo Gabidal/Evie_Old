@@ -1896,10 +1896,10 @@ void Parser::Factory() {
 		//multiline AST stuff
 		Combine_Dot_In_Member_Functions(i);
 		Type_Pattern(i);		//class constructor
-		if (Input.size() == 0)
-			break;
 		Use_Pattern(i);
 		Inject_Template_Into_Member_Function_Fetcher(i);
+		if (Input.size() == 0 || i >= Input.size())
+			break;
 		Nodize_Template_Pattern(i);
 		Constructor_Pattern(i);	//constructor needs the type to be defined as a class 
 		Member_Function_Pattern(i);
