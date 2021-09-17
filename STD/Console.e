@@ -15,7 +15,7 @@ static std{
 		
 		Result.Characters.Capacity = MAX_CONCOLE_BUFFER_LENGHT
 
-		result Result
+		return Result
 	}
 
 }

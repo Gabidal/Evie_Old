@@ -543,17 +543,17 @@ void Service::Handle_Code_Generation(Proxy* proxy)
 {
 	if (proxy->Type != Document_Request_Type::ASM)
 		return;
-	try {
+	//try {
 
 		Parse_Code(proxy);
 
 		Node* Result = new Node(CLASS_NODE, ::Output, nullptr);
 		
 		Output.push_back(Result);
-	}
-	catch (exception) {
-		//Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
-	}
+	//}
+	//catch (exception) {
+	//	//Report(Observation(ERROR, "Cannot parse the code", proxy->Location));
+	//}
 }
 
 void Service::Determine_Completion_Type(Proxy* cursor)

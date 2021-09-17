@@ -73,6 +73,10 @@ void Report(long type, Back_Expectation_Set expectation, string source, vector<B
 class Safe {
 public:
 	Safe(vector<Node*> i) : Input(i) { Factory(); }
+	Safe(){}
+	//single uses
+	void Check_For_Undefined_Inheritance(Node* n);
+
 private:
 	void Factory();
 	void Check_Return_Validity(Node* n);

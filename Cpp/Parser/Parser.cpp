@@ -421,7 +421,8 @@ void Parser::Remove_All_Excess_Comments(int i)
 {
 	if (!Input[i].is(Flags::COMMENT_COMPONENT))
 		return;
-	Input.erase(Input.begin() + i);
+
+	Input.erase(Input.begin() + i--);
 
 	Remove_All_Excess_Comments(i);
 }
@@ -479,10 +480,16 @@ void Parser::Definition_Pattern(int i)
 	//Namespace combination system 2000 (:
 	//if the current made object already exists
 	Node* Namespace = Scope->Find(New_Defined_Object, Scope);
+	//if the namespace is already a static class type and this one too then combine
 	if (Namespace != nullptr && (Namespace->is(CLASS_NODE) || ((Get_Amount_Of(Words.back() + 1, {Flags::PAREHTHESIS_COMPONENT}, false).size() == 1) && (Input[Words.back() + 1].Value[0] == '{'))) && Namespace->is("static") != -1)
 		New_Defined_Object = Namespace;
-	else if (Namespace != nullptr && Namespace->is(CLASS_NODE) && Namespace->is("static") == -1)
-		Report(Observation(ERROR, "Cannot combine non static classes as namespaces!", *New_Defined_Object->Location));
+	//if the namespace is already a static class but this is not a static class or both are non static.
+	else if (Namespace != nullptr && Namespace->is(CLASS_NODE) && Namespace->is("static") == -1) {
+		vector<int> Parenthesises = Get_Amount_Of(Words.back() + 1, { Flags::PAREHTHESIS_COMPONENT }, false);
+		if ((Parenthesises.size() == 2) && (Input[Parenthesises[0]].Value[0] == '(') && (Input[Parenthesises[1]].Value[0] == '{')) {}
+		else
+			Report(Observation(ERROR, "Cannot combine non static classes as namespaces!", *New_Defined_Object->Location));
+	}
 	else if (Namespace != nullptr && !Namespace->Has({ IMPORT, EXPORT, FUNCTION_NODE }) && !Input[Words.back() + 1].is(CONTENT_NODE)) {
 		if (!Input[Words.back() + 1].is(CONTENT_NODE))
 			Report(Observation(ERROR, "'" + New_Defined_Object->Name + "' is already defined at '" + Namespace->Location->ToString() + "'", *New_Defined_Object->Location));
@@ -1318,6 +1325,11 @@ void Parser::Function_Pattern(int i)
 		func->Childs = p.Input[0].node->Childs;
 		p.Input.clear();
 
+		for (auto j : func->Defined) {
+			Safe s;
+			s.Check_For_Undefined_Inheritance(j);
+		}
+
 		func->Mangled_Name = MANGLER::Mangle(func, "");
 	}
 
@@ -1387,6 +1399,11 @@ void Parser::Type_Pattern(int i)
 	Parser p(Type);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
+
+	for (auto j : Type->Defined) {
+		Safe s;
+		s.Check_For_Undefined_Inheritance(j);
+	}
 
 	Type->Append(Type->Childs, p.Input[0].node->Childs);
 

@@ -29,6 +29,7 @@ void Safe::Factory()
 		Warn_Usage_Of_Depricated(i);
 		Prefer_Class_Cast_Rather_Object_Cast(i);
 		Warn_Usage_Before_Definition(i);
+		Check_For_Undefined_Inheritance(i);
 	}
 }
 
@@ -270,5 +271,27 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 
 	if (Definition->Location->GetAbsolute() > n->Location->GetFriendlyAbsolute() && Definition->Location->GetFilePath() == n->Location->GetFilePath()) {
 		Report(Observation(ERROR, "Usage of local variable '" + n->Name + "' before definition at line '" + to_string(Definition->Location->GetFriendlyLine()) + "'.", *n->Location));
+	}
+}
+
+void Safe::Check_For_Undefined_Inheritance(Node* n)
+{
+	for (auto i : n->Inheritted) {
+		//ignore keywords
+		for (auto j : Lexer::Keywords)
+			if (i == j)
+				goto Next;
+		//ignore template inheritances
+		for (auto j : n->Templates)
+			if (i == j->Name)
+				goto Next;
+		for (auto j : n->Inheritable_templates)
+			if (i == j->Name)
+				goto Next;
+		//
+		if (n->Find(i, n) == nullptr) {
+			Report(Observation(ERROR, "Usage of un-declared type '" + i + "'.", *n->Location));
+		}
+	Next:;
 	}
 }
