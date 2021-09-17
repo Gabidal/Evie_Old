@@ -186,7 +186,7 @@ void Proxy::Clean(string& raw)
 	}
 }
 
-#ifdef _WIN33
+#ifdef _WIN32
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #define ERROR (MSG_Type)1
