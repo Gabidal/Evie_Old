@@ -790,6 +790,8 @@ int DebugGenerator::Get_Index_From_File(string s)
     for (auto i : Files)
         if (i.first == s)
             return i.second;
+    if (s == "No File")
+        return 1;
     throw::runtime_error("ERROR!");
 }
 

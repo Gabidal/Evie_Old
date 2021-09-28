@@ -212,12 +212,24 @@ void Parser::Nodize_Template_Pattern(int i)
 	Input[i].node = new Node(TEMPLATE_NODE, "<>", &Input[i].Location);
 
 	//List<List<int>, List<int>>
-	for (auto T : Input[i].Components) {
-		Parser p(Scope);
-		p.Input = { T };
-		p.Factory();
+	for (auto& T : Input[i].Components) {
+		if (Scope->Find(T.Value)) {
+			Parser p(Scope);
+			p.Input = { T };
+			p.Factory();
+			Input[i].node->Templates.push_back(p.Input.back().node);
+		}
+		else if (Scope->is("static") != -1 && Scope->is(CLASS_NODE)) {
+			Node* Template_Type = new Node(OBJECT_NODE, &T.Location);
+			Template_Type->Name = T.Value;
+			Template_Type->Scope = Scope;
 
-		Input[i].node->Templates.push_back(p.Input.back().node);
+			Input[i].node->Templates.push_back(Template_Type);
+		}
+		else {
+			Report(Observation(ERROR, "Uknown template type", T.Location));
+		}
+
 	}
 
 }
@@ -236,18 +248,21 @@ void Parser::Template_Type_Constructor(int i)
 		Input[i].Value = New_Name;
 		return;
 	}
-
+	//Search the original template class
 	Node* Og_Type = Input[i].node->Find(Input[i].node, Scope, CLASS_NODE);
+	//copy this template class to be non template
 	Node* Type = Scope->Copy_Node(Og_Type, Og_Type->Scope);
 
-	for (auto &i : Type->Defined) {
-		if (i->is(FUNCTION_NODE))
-			i = Scope->Copy_Node(new Node(*i), Type);
+	//copy all functions becuase the copy_node by default skips function copying
+	for (auto &j : Type->Defined) {
+		if (j->is(FUNCTION_NODE))
+			j = Scope->Copy_Node(new Node(*j), Type);
 	}
 
+	//give the templates back to this new template class for template type refilling
 	Type->Templates = Input[i].node->Templates;
 
-	//turn List<List<int>, int> into ____List_List_int
+	//turns List<T> into List<int>
 	for (int T = 0; T < Input[i].node->Templates.size(); T++) {
 		string T_Arg = Og_Type->Templates[T]->Name;
 		string T_Type = Type->Templates[T]->Name;
@@ -257,13 +272,22 @@ void Parser::Template_Type_Constructor(int i)
 				if (n->Value == T_Arg)
 					n->Value = T_Type;
 		}
+		for (auto& Inheritted : Type->Un_Initialized_Template_Inheritance) {
+			for (auto n : Inheritted.Get_all())
+				if (n->Value == T_Arg)
+					n->Value = T_Type;
+		}
 	}
 
 	vector<Component> New_Constructed_Template_Code;
 
-	//Construct the class
+	//re-Construct the class
+	for (auto j : Type->Un_Initialized_Template_Inheritance)
+		New_Constructed_Template_Code.push_back(j);
+
 	for (auto j : Type->Inheritted)
 		New_Constructed_Template_Code.push_back(Component(j, *Type->Location, Lexer::GetComponent(j).Flags));
+	
 	New_Constructed_Template_Code.push_back(Component(New_Name, *Type->Location, Flags::TEXT_COMPONENT));
 	Component Content = Component("{", *Type->Location, Flags::PAREHTHESIS_COMPONENT);
 	Content.Components = Type->Template_Children;
@@ -323,6 +347,7 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 	}
 	if (!Func->is(FUNCTION_NODE))
 		return New_Constructed_Template_Code;
+
 	vector<Component> Return_Type;
 	for (auto& Inheritted : Func->Inheritted) {
 		for (int T = 0; T < T_Args.size(); T++) {
@@ -335,6 +360,19 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 			}
 		}
 		Return_Type.push_back(Lexer::GetComponent(Inheritted));
+	}
+
+	for (auto& Inheritted : Func->Un_Initialized_Template_Inheritance) {
+		for (int T = 0; T < T_Args.size(); T++) {
+			string T_Arg = T_Args[T]->Name;
+			string T_Type = T_Types[T]->Name;
+			for (auto& j : Inheritted.Get_all())
+				if (Inheritted.Value == T_Arg) {
+					Inheritted.Value = T_Type;
+					Func->Is_Template_Object = true;
+				}
+		}
+		Return_Type.push_back(Inheritted);
 	}
 
 	vector<Component> Fetchers;
@@ -424,7 +462,8 @@ void Parser::Remove_All_Excess_Comments(int i)
 
 	Input.erase(Input.begin() + i--);
 
-	Remove_All_Excess_Comments(i);
+	if (i >= 0)
+		Remove_All_Excess_Comments(i);
 }
 
 void Parser::Definition_Pattern(int i)
@@ -459,6 +498,9 @@ void Parser::Definition_Pattern(int i)
 		replace(New_Defined_Object->Comment.begin(), New_Defined_Object->Comment.end(), '#', ' ');
 	}
 
+	New_Defined_Object->Name = Input[Words.back()].Value;
+	New_Defined_Object->Scope = Scope;
+
 	//transform the indecies into strings, and the -1 means that we want to skip the last element in the list (the name)
 	for (int j = 0; j < Words.size() - 1; j++) {
 		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
@@ -467,15 +509,18 @@ void Parser::Definition_Pattern(int i)
 			Parser p(Scope);
 			p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
 			p.Factory();
-			New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
-			New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
+
+			if (Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) {
+				New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
+				New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
+			}
+			else {
+				New_Defined_Object->Un_Initialized_Template_Inheritance.push_back(p.Input.back());
+			}
 		}
 		else if (j + 1 < Words.size() && !Input[Words[j + 1]].is(Flags::TEMPLATE_COMPONENT))
 			New_Defined_Object->Inheritted.push_back(Input[Words[j]].Value);
 	}
-
-	New_Defined_Object->Name = Input[Words.back()].Value;
-	New_Defined_Object->Scope = Scope;
 
 	//Namespace combination system 2000 (:
 	//if the current made object already exists
@@ -821,16 +866,24 @@ void Parser::Object_Pattern(int i)
 		Input.erase(Input.begin() + i + 1);
 	}
 	else if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
-		for (auto T : Input[i + 1].Components)
-			Input[i].node->Templates.push_back(T.node);
+		//check if the current scope is a namespace or global scope
+		if (Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) {
+			for (auto T : Input[i + 1].Components)
+				Input[i].node->Templates.push_back(T.node);
 
-		if (Scope->Find(Input[i].node, Scope) == nullptr){
-			Report(Observation(ERROR, "This object does not take template arguments '" + Input[i].Value + "'", Input[i].Location));
-		}							 //this object does not take template arguments
-									 //This object does not have a base template on which to build a template type
-									 //There is no template to base of this object's templating
-		Input[i].node = Scope->Find(Input[i].node, Scope);
-		Input[i].node->Templates = Input[i + 1].node->Templates;
+			if (Scope->Find(Input[i].node, Scope) == nullptr) {
+				Report(Observation(ERROR, "This object does not take template arguments '" + Input[i].Value + "'", Input[i].Location));
+			}
+
+			Input[i].node = Scope->Find(Input[i].node, Scope);
+			Input[i].node->Templates = Input[i + 1].node->Templates;
+		}
+		else {
+			//List<T> a -> List<T> a
+			//this will conserve the template as source code for the template manifestation
+			Input[i] = Component("Un_initialized", Flags::UN_INITIALIZED_TEMPLATES, { Input[i], Input[i + 1] });
+		}
+
 
 		Input.erase(Input.begin() + i + 1);
 	}

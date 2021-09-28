@@ -61,6 +61,7 @@ extern int arg_count;
 extern vector<pair<string, vector<pair<string, pair<int, string>>>>> MANGLER::IDS;
 extern vector<pair<string, string>> DOCKER::Working_Dir;
 extern int ID;
+extern string* FileName;
 
 extern int Build(int argc, const char* argv[]);
 
@@ -75,6 +76,7 @@ vector<Base*> Back_End_Test::Run(string File)
 	sys = nullptr;
 	selector = nullptr;
 	ID = 2;
+	FileName = new string("No File");
 
 	string output = File +".asm";
 	const char** argv; 
@@ -190,10 +192,10 @@ void Back_End_Test::Init()
 	Tests = {
 		//{{1}, "Tests/IO/main"},	
 		{{0}, "Tests/IO/NameSpace.e"},
+		{{1}, "Tests/IO/Comment.e"},
 		{{5}, "Tests/IO/Func.e"},
 		{{1}, "Tests/IO/Type.e"},
 		{{5}, "Tests/IO/Template.e"},
-		{{1}, "Tests/IO/Comment.e"},
 		{{2}, "Tests/IO/Cast.e"},
 		{{100}, "Tests/IO/Conditions.e"},
 		{{1}, "Tests/IO/Array.e"},

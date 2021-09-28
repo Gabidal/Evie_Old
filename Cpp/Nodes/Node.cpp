@@ -348,6 +348,22 @@ Node* Node::Find(Position& location)
 	return TOO_SMOLL;
 }
 
+Node* Node::Find_Template(Node* T)
+{
+	for (auto i : Templates)
+		if (i->Name == T->Name)
+			return i;
+
+	for (auto i : Inheritable_templates)
+		if (i->Name == T->Name)
+			return i;
+
+	if (Scope)
+		return Scope->Find_Template(T);
+
+	return nullptr;
+}
+
 bool Node::Compare_Fetchers(Node* other)
 {
 	string This_Fethcers = "";

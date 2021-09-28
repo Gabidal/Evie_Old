@@ -69,7 +69,7 @@ ret 		#
 
 
 .section .data		#.data
-std_MAX_CONCOLE_BUFFER_LENGHT:
+std_MAX_CONSOLE_BUFFER_LENGHT:
 .long 4096		#4096
 std_GENERIC_WRITE:
 .long 1073741824		#1073741824

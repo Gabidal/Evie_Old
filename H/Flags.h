@@ -70,6 +70,7 @@ namespace Flags{
 	constexpr long END_OF_DIRECTIVE_CHANGING_FILE		= 1 << 9;
 	constexpr long TEMPLATE_COMPONENT					= 1 << 10;
 	constexpr long NUMERICAL_TYPE_COMPONENT				= 1 << 11;
+	constexpr long UN_INITIALIZED_TEMPLATES				= 1 << 12;
 }
 
 enum Node_Type {

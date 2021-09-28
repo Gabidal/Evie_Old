@@ -129,7 +129,7 @@ string Proxy::Find_Location_Of_Uri()
 	
 	//we dont like vsc file headers.
 	for (auto i : Exess_Headers) {
-		if (Uri.starts_with(i))
+		if (Uri._Starts_with(i))
 			Uri = Uri.substr(i.size());
 	}
 

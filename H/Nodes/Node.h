@@ -68,6 +68,7 @@ public:
 	bool Requires_Address = false;	//for optimisation pusrposes.
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
+	vector<Component> Un_Initialized_Template_Inheritance;
 	vector<Node*> Templates;
 	vector<Node*> Inheritable_templates;
 	vector<Component> Template_Children;
@@ -282,6 +283,8 @@ public:
 	Node* Find_Scope(Node* n);
 
 	Node* Find(Position& location);
+
+	Node* Find_Template(Node* T);
 
 	bool Compare_Fetchers(Node* other);
 
