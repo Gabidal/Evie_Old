@@ -733,12 +733,14 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		return;
 	if (n->Function_Implementation != nullptr)
 		return;
-	//this function tryes to find the function to call
-	//first try to find if this fucntion is a virtual function
-	//Node* defition = Parent->Find(n->Name, Parent);
-	//other wise we have normal functions
-	//now lets check for template arguments-
-	//as parameters on the function this callation calls
+
+	//stuff that this function chekcs
+	// 
+	// Differential parametric count analyzation
+	// Differential return type analyzation
+	// Differential template inserion analysis
+	// Differential template class insertion analysis
+	// 
 
 	vector<pair<Node*, Node*>> Candidates;
 	bool It_Is_A_Function_Pointter = false;
@@ -1126,21 +1128,66 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 
 		Node* Func = Candidate.first;
 
+		//banana<int>(...)
 		//make the template ready for comparison.
 		if (Candidate.first->Is_Template_Object) {
 			Func = Candidate.first->Copy_Node(new Node(*Candidate.first), Candidate.second);
 
-			//this part is going to be really slow :/
 			for (int T = 0; T < Caller->Templates.size(); T++) {
-				//find and replace the template arg with the callers template type.
-				for (auto& I : Func->Inheritted)
-					if (I == Candidate.first->Templates[T]->Name)
-						I = Caller->Templates[T]->Name;
 
-				for (auto& P : Func->Parameters) {
-					for (auto& I : P->Inheritted)
-						if (I == Candidate.first->Templates[T]->Name)
-							I = Caller->Templates[T]->Name;
+				//T ptr banana<T>() -> int ptr banana<int>()
+				for (auto& Return_Type : Func->Inheritted) {
+					if (Return_Type == Func->Templates[T]->Name)
+						Return_Type = Caller->Templates[T]->Name;
+				}
+
+				//List<T> banana<T>() -> List<int> banana<int>()
+				for (auto& Return_Type : Func->Un_Initialized_Template_Inheritance) {
+					for (auto& Template : Return_Type.first.Components[0].Get_all()) {
+						if (Template->Value == Func->Templates[T]->Name)
+							Template->Value = Caller->Templates[T]->Name;
+					}
+				}
+
+				//func banana<T>(T a)
+				for (auto& Parameter : Func->Parameters) {
+					for (auto& Inherit : Parameter->Inheritted) {
+						if (Inherit == Func->Templates[T]->Name)
+							Inherit = Caller->Templates[T]->Name;
+					}
+				}
+
+				//func banana<T>(List<T> a)
+				for (auto& Parameter : Func->Parameters) {
+					for (auto& Template : Parameter->Un_Initialized_Template_Inheritance) {
+						for (auto& Nested_Template : Template.first.Get_all()) {
+							if (Nested_Template->Value == Func->Templates[T]->Name)
+								Nested_Template->Value = Caller->Templates[T]->Name;
+						}
+					}
+				}
+			}
+
+			//Now flatten the Un_initialized_Templates list into Inheritances
+			for (auto Return_Type : Func->Un_Initialized_Template_Inheritance) {
+				string Flatten = Return_Type.first.To_String();
+
+				Parser p(Scope);
+				p.Input = Lexer::GetComponents(Flatten);
+
+
+
+				Func->Inheritted.insert(Func->Inheritted.begin() + Return_Type.second, Flatten);
+			}
+
+			
+
+			//Now flatten the Un_Initialized_Templates from Parameters
+			for (auto Parameter : Func->Parameters) {
+				for (auto Return_Type : Parameter->Un_Initialized_Template_Inheritance) {
+					string Flatten = Return_Type.first.To_String();
+
+					Parameter->Inheritted.insert(Parameter->Inheritted.begin() + Return_Type.second, Flatten);
 				}
 			}
 		}

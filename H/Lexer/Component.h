@@ -42,6 +42,31 @@ public:
 
         return Result;
     }
+    string To_String() {
+        string Result = Value;
+
+        char End = 0;
+
+        if (Value[0] == '(' || Value[0] == '{' || Value[0] == '[' || Value[0] == '<') {
+            Value = to_string(Value[0]);
+            Result = Value;
+
+            if (Value[0] == '(')
+                End = ')';
+            else
+                End = Value[0] + 2;
+        }
+
+        for (auto i : Components) {
+            Result += i.To_String();
+        }
+
+        if (End != 0)
+            Result += to_string(End);
+
+
+        return Result;
+    }
 };
 
 #endif

@@ -138,7 +138,7 @@ int Build(int argc, const char* argv[])
     Global_Scope->Inheritted.push_back("static");
 
     selector = new Selector();
-
+    
     preprosessor.Defined_Constants =
     {
         {"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},

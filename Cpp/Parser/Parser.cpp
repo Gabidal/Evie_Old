@@ -213,19 +213,20 @@ void Parser::Nodize_Template_Pattern(int i)
 
 	//List<List<int>, List<int>>
 	for (auto& T : Input[i].Components) {
-		if (Scope->Find(T.Value)) {
+		//check that the value is defined not as a template but as a class.
+		if (Scope->Find(T.Value) && Scope->Find_Template(T.Value) == nullptr) {
 			Parser p(Scope);
 			p.Input = { T };
 			p.Factory();
 			Input[i].node->Templates.push_back(p.Input.back().node);
 		}
-		else if (Scope->is("static") != -1 && Scope->is(CLASS_NODE)) {
+		/*else if (Scope->is("static") != -1 && Scope->is(CLASS_NODE)) {
 			Node* Template_Type = new Node(OBJECT_NODE, &T.Location);
 			Template_Type->Name = T.Value;
 			Template_Type->Scope = Scope;
 
 			Input[i].node->Templates.push_back(Template_Type);
-		}
+		}*/
 		else {
 			Report(Observation(ERROR, "Uknown template type", T.Location));
 		}
@@ -272,18 +273,18 @@ void Parser::Template_Type_Constructor(int i)
 				if (n->Value == T_Arg)
 					n->Value = T_Type;
 		}
-		for (auto& Inheritted : Type->Un_Initialized_Template_Inheritance) {
-			for (auto n : Inheritted.Get_all())
+		/*for (auto& Inheritted : Type->Un_Initialized_Template_Inheritance) {
+			for (auto n : Inheritted.first.Get_all())
 				if (n->Value == T_Arg)
 					n->Value = T_Type;
-		}
+		}*/
 	}
 
 	vector<Component> New_Constructed_Template_Code;
 
 	//re-Construct the class
-	for (auto j : Type->Un_Initialized_Template_Inheritance)
-		New_Constructed_Template_Code.push_back(j);
+	/*for (auto j : Type->Un_Initialized_Template_Inheritance)
+		New_Constructed_Template_Code.push_back(j.first);*/
 
 	for (auto j : Type->Inheritted)
 		New_Constructed_Template_Code.push_back(Component(j, *Type->Location, Lexer::GetComponent(j).Flags));
@@ -366,13 +367,14 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 		for (int T = 0; T < T_Args.size(); T++) {
 			string T_Arg = T_Args[T]->Name;
 			string T_Type = T_Types[T]->Name;
-			for (auto& j : Inheritted.Get_all())
-				if (Inheritted.Value == T_Arg) {
-					Inheritted.Value = T_Type;
+			for (auto& j : Inheritted.first.Get_all())
+				if (Inheritted.first.Value == T_Arg) {
+					Inheritted.first.Value = T_Type;
 					Func->Is_Template_Object = true;
 				}
 		}
-		Return_Type.push_back(Inheritted);
+		Return_Type.insert(Return_Type.begin() + Inheritted.second, Inheritted.first);
+		Return_Type.insert(Return_Type.begin() + Inheritted.second + 1, Inheritted.first.Components[0]);
 	}
 
 	vector<Component> Fetchers;
@@ -503,19 +505,44 @@ void Parser::Definition_Pattern(int i)
 
 	//transform the indecies into strings, and the -1 means that we want to skip the last element in the list (the name)
 	for (int j = 0; j < Words.size() - 1; j++) {
+		//is the define is something like tihs:
+		//T a
+		//then there would be no problem because the T would have been found by the Find function
+		//The issue here is if there is template construction like:
+		//List<T> a
+		//that will construct a new List class that type is T, and that is wrong.
 		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
-			//List<List<int>> a
-			//-> .List_List_int a 
-			Parser p(Scope);
-			p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
-			p.Factory();
-
-			if (Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) {
-				New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
-				New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
+			//insure that this isn't a template parameter
+			bool Template_Type_Is_Defined = true;
+			for (auto T : Input[Words[j]].Components)
+				if (Scope->Find_Template(T.Value))
+					//this means that the template type is not a class
+					Template_Type_Is_Defined = false;
+			
+			if (Template_Type_Is_Defined) {
+				//normal 'T a' will not trigger this code because the T is not wrapped into a <>
+				Input[Words[j - 1]].Components.push_back(Input[Words[j]]);
+				
+				New_Defined_Object->Un_Initialized_Template_Inheritance.push_back({ Input[Words[j - 1]] , j - 1 });
 			}
 			else {
-				New_Defined_Object->Un_Initialized_Template_Inheritance.push_back(p.Input.back());
+				//List<List<int>> a
+				//-> .List_List_int a 
+				Parser p(Scope);
+				p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
+				p.Factory();
+				
+				if (Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) {
+					New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
+					New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
+				}
+				else {
+					//This is for if the function return a templated return type like:
+					//List<T> a
+					//because the upper scope is not same as the function that this return type belongs to the upper code will not work
+					//and thats why this is here.
+					New_Defined_Object->Un_Initialized_Template_Inheritance.push_back(p.Input.back());
+				}
 			}
 		}
 		else if (j + 1 < Words.size() && !Input[Words[j + 1]].is(Flags::TEMPLATE_COMPONENT))
@@ -877,15 +904,16 @@ void Parser::Object_Pattern(int i)
 
 			Input[i].node = Scope->Find(Input[i].node, Scope);
 			Input[i].node->Templates = Input[i + 1].node->Templates;
+			Input.erase(Input.begin() + i + 1);
 		}
 		else {
 			//List<T> a -> List<T> a
 			//this will conserve the template as source code for the template manifestation
-			Input[i] = Component("Un_initialized", Flags::UN_INITIALIZED_TEMPLATES, { Input[i], Input[i + 1] });
+			//Input[i] = Component("Un_initialized", Flags::UN_INITIALIZED_TEMPLATES, { Input[i], Input[i + 1] });
+			Input[i].Components.push_back(Input[i + 1]);
+			Input.erase(Input.begin() + i + 1);
+			return;
 		}
-
-
-		Input.erase(Input.begin() + i + 1);
 	}
 
 	if (Input[i].node->is(OBJECT_DEFINTION_NODE))
@@ -1361,6 +1389,7 @@ void Parser::Function_Pattern(int i)
 		func->Is_Template_Object = true;
 	}
 
+	//if the functoin is a template typed, then we must be carefull with the parameters that use the template too
 	Parser p(func);
 	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
 	p.Factory();
