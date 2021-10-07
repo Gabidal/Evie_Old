@@ -101,6 +101,7 @@
     <OutDir>$(SolutionDir)</OutDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <ClangTidyChecks>-*, -Wc++2a-compat</ClangTidyChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>C:\Users\GabenRTX\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>

@@ -63,11 +63,11 @@ char GetParenthesisClosing(char opening, Position p)
     {
         return ')';
     }
-    else if (opening == '[')
+    if (opening == '[')
     {
         return ']';
     }
-    else if (opening == '{')
+    if (opening == '{')
     {
         return '}';
     }
@@ -142,27 +142,27 @@ Type GetType(char c)
     {
         return Type::TEXT;
     }
-    else if (IsDigit(c))
+    if (IsDigit(c))
     {
         return Type::NUMBER;
     }
-    else if (IsParenthesis(c))
+    if (IsParenthesis(c))
     {
         return Type::PARENTHESIS;
     }
-    else if (IsOperator(c))
+    if (IsOperator(c))
     {
         return Type::OPERATOR;
     }
-    else if (IsComment(c))
+    if (IsComment(c))
     {
         return Type::COMMENT;
     }
-    else if (IsString(c))
+    if (IsString(c))
     {
         return Type::STRING;
     }
-    else if (c == LineEnding)
+    if (c == LineEnding)
     {
         return Type::END;
     }
@@ -213,10 +213,7 @@ Position SkipSpaces(const string &text, Position &position)
         {
             break;
         }
-        else
-        {
-            position.NextCharacter();
-        }
+        position.NextCharacter();
     }
 
     return position;
@@ -261,13 +258,12 @@ Position SkipParenthesis(const string &text, const Position &start)
 
     MSG_Type Terminate = ERROR;
 
-    if (sys->Info.Is_Service)
-        Terminate = WARNING;
+    if (sys->Info.Is_Service) Terminate = WARNING;
 
     Report(Observation(Terminate, "Couldn't find closing parenthesis", start));
 }
 
-Position SkipComment(const string &text, const Position &start)
+Position SkipComment(const string& text, const Position& start)
 {
     int i = (int)text.find(LineEnding, start.GetLocal());
 
@@ -276,11 +272,8 @@ Position SkipComment(const string &text, const Position &start)
         int length = i - start.GetLocal();
         return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, i).NextLine();
     }
-    else
-    {
-        int length = (int)text.size() - start.GetLocal();
-        return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, (int)text.size());
-    }
+    int length = (int)text.size() - start.GetLocal();
+    return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, (int)text.size());
 }
 
 Position SkipString(const string &text, const Position &start)
@@ -292,8 +285,7 @@ Position SkipString(const string &text, const Position &start)
     {
         MSG_Type Terminate = ERROR;
 
-        if (sys->Info.Is_Service)
-            Terminate = WARNING;
+        if (sys->Info.Is_Service) Terminate = WARNING;
 
         Report(Observation(Terminate, "Couldn't find the end of the string", start));
     }
@@ -394,14 +386,11 @@ Component ParseTextComponent(string text)
     {
         return Component(text, Flags::OPERATOR_COMPONENT);
     }
-    else if (Exists(Lexer::Keywords, text))
+    if (Exists(Lexer::Keywords, text))
     {
         return Component(text, Flags::KEYWORD_COMPONENT);
     }
-    else
-    {
-        return Component(text, Flags::TEXT_COMPONENT);
-    }
+    return Component(text, Flags::TEXT_COMPONENT);
 }
 
 optional<int> TryParseInt(string text)
@@ -457,52 +446,44 @@ int GetExponent(const string& text, Position p)
     {
         return 0;
     }
-    else
-    {
-        exponent_start++;
+    exponent_start++;
 
-        int index = exponent_start;
+    int index = exponent_start;
+
+    // Ensure that there's the exponent value
+    if (index == text.size())
+    {
+        MSG_Type Terminate = ERROR;
+
+        if (sys->Info.Is_Service) Terminate = WARNING;
+        Report(Observation(Terminate, "Invalid number exponent '" + text + "'", p));
+    }
+
+    // Skip the potential exponent sign
+    if (text[(size_t)index + 1] == '+' || text[(size_t)index + 1] == '-')
+    {
+        index++;
 
         // Ensure that there's the exponent value
         if (index == text.size())
         {
             MSG_Type Terminate = ERROR;
 
-            if (sys->Info.Is_Service)
-                Terminate = WARNING;
-            Report(Observation(Terminate,  "Invalid number exponent '" + text + "'", p));
-        }
-
-        // Skip the potential exponent sign
-        if (text[(size_t)index + 1] == '+' || text[(size_t)index + 1] == '-')
-        {
-            index++;
-
-            // Ensure that there's the exponent value
-            if (index == text.size())
-            {
-                MSG_Type Terminate = ERROR;
-
-                if (sys->Info.Is_Service)
-                    Terminate = WARNING;
-                Report(Observation(Terminate, "Invalid number exponent '" + text + "'", p));
-            }
-        }
-
-        int exponent_end = index;
-
-        // Get the exponent value's end index
-        for (; exponent_end < text.size() && IsDigit(text[exponent_end]); exponent_end++);
-
-        if (auto exponent = TryParseInt(text.substr(exponent_start, exponent_end)))
-        {
-            return exponent.value();
-        }
-        else
-        {
-            Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
+            if (sys->Info.Is_Service) Terminate = WARNING;
+            Report(Observation(Terminate, "Invalid number exponent '" + text + "'", p));
         }
     }
+
+    int exponent_end = index;
+
+    // Get the exponent value's end index
+    for (; exponent_end < text.size() && IsDigit(text[exponent_end]); exponent_end++);
+
+    if (auto exponent = TryParseInt(text.substr(exponent_start, exponent_end)))
+    {
+        return exponent.value();
+    }
+    Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
 }
 
 bool IsDecimal(string text)
@@ -523,11 +504,8 @@ Component CreateNumberComponent(string text, const Position& position)
 
             return Component(to_string(value), Flags::NUMBER_COMPONENT);
         }
-        else
-        {
-            string s = "Invalid decimal number '" + text + "'";
-            Report(Observation(ERROR, s, position));
-        }
+        string s = "Invalid decimal number '" + text + "'";
+        Report(Observation(ERROR, s, position));
     }
     else
     {
@@ -537,12 +515,9 @@ Component CreateNumberComponent(string text, const Position& position)
 
             return Component(to_string(value), Flags::NUMBER_COMPONENT);
         }
-        else
-        {
-            string s = "Invalid integer number '" + text + "'";
+        string s = "Invalid integer number '" + text + "'";
 
-            Report(Observation(ERROR, s, position)); 
-        }
+        Report(Observation(ERROR, s, position));
     }
 }
 
@@ -629,8 +604,7 @@ Component Lexer::GetComponent(string text)
     {
         MSG_Type Terminate = ERROR;
 
-        if (sys->Info.Is_Service)
-            Terminate = WARNING;
+        if (sys->Info.Is_Service) Terminate = WARNING;
         Report(Observation(Terminate, "Could not generate component from string '" + text + "'.", position));
     }
 

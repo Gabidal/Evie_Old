@@ -541,7 +541,7 @@ void Parser::Definition_Pattern(int i)
 					//List<T> a
 					//because the upper scope is not same as the function that this return type belongs to the upper code will not work
 					//and thats why this is here.
-					New_Defined_Object->Un_Initialized_Template_Inheritance.push_back(p.Input.back());
+					New_Defined_Object->Un_Initialized_Template_Inheritance.push_back({ p.Input.back(), j});
 				}
 			}
 		}
@@ -573,7 +573,6 @@ void Parser::Definition_Pattern(int i)
 	Input[Words.back()].node = New_Defined_Object;
 
 	Input.erase(Input.begin() + i, Input.begin() + Words.back());
-	return;
 }
 
 void Parser::Constructor_Pattern(int i)

@@ -1170,12 +1170,13 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 
 			//Now flatten the Un_initialized_Templates list into Inheritances
 			for (auto Return_Type : Func->Un_Initialized_Template_Inheritance) {
+				//construct a plain string from the component.
 				string Flatten = Return_Type.first.To_String();
 
+				//insert the flatten text into parser that there is a class to reference to.
 				Parser p(Scope);
 				p.Input = Lexer::GetComponents(Flatten);
-
-
+				p.Factory();
 
 				Func->Inheritted.insert(Func->Inheritted.begin() + Return_Type.second, Flatten);
 			}
@@ -1185,7 +1186,13 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 			//Now flatten the Un_Initialized_Templates from Parameters
 			for (auto Parameter : Func->Parameters) {
 				for (auto Return_Type : Parameter->Un_Initialized_Template_Inheritance) {
+					//construct a plain string from the component.
 					string Flatten = Return_Type.first.To_String();
+
+					//insert the flatten text into parser that there is a class to reference to.
+					Parser p(Scope);
+					p.Input = Lexer::GetComponents(Flatten);
+					p.Factory();
 
 					Parameter->Inheritted.insert(Parameter->Inheritted.begin() + Return_Type.second, Flatten);
 				}
@@ -1197,6 +1204,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 		if (Func->Get_Inheritted("_", true, false, true) == Caller->Get_Inheritted("_", true, false, true))
 			Accuracity++;
 
+		//checks basetype casting in parameters.
 		bool All_Parameters_Match = true;
 		for (int i = 0; i < Func->Parameters.size(); i++) {
 			if (Func->Parameters[i]->Get_Inheritted("_", true, false, true) != Caller->Parameters[i]->Get_Inheritted("_", true, false, true))
@@ -1948,14 +1956,6 @@ void PostProsessor::Update_Used_Object_Info(Node* n)
 void PostProsessor::Operator_Overload(int i)
 {
 	//todo: make the override syntax
-}
-
-void PostProsessor::Template_Parameter(int i)
-{
-}
-
-void PostProsessor::Templates(int i)
-{
 }
 
 void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)

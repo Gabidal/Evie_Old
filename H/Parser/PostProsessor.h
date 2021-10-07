@@ -75,8 +75,6 @@ public:
 	Node* Get_From_AST(Node* n);
 		
 	void Operator_Overload(int i);					//makes new instance of using different operators
-	void Template_Parameter(int i);					//dynamic parameters
-	void Templates(int i);
 
 	void Analyze_Variable_Address_Pointing(Node* v, Node* n);
 	int Get_Amount(string t, Node* n);
