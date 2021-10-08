@@ -616,6 +616,13 @@ Node* Node::Find(Node* n, Node* s, int f)
 					if (i->Name == n->Name)
 						return i;
 
+	if (s->Fetcher != nullptr) {
+		Node* F = Find_Scope(s);
+		if (F != nullptr)
+			if (Find(n, F, f) != nullptr)
+				return Find(n, F, f);
+	}
+
 	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
 	if (s->Scope != nullptr)
 		if (Find(n, s->Scope, f) != nullptr)
@@ -656,6 +663,13 @@ Node* Node::Find(string name, Node* s, int flags) {
 			if (i->Name == name)
 				return i;
 
+	if (s->Fetcher != nullptr) {
+		Node* F = Find_Scope(s);
+		if (F != nullptr)
+			if (Find(name, F, flags) != nullptr)
+				return Find(name, F, flags);
+	}
+
 	if (s->Scope != nullptr)
 		if (Find(name, s->Scope, flags) != nullptr)
 			return Find(name, s->Scope, flags);
@@ -665,12 +679,12 @@ Node* Node::Find(string name, Node* s, int flags) {
 				if (i->Name == name)
 					return i;
 
-	if (s->Fetcher != nullptr) {
-		Node* F = Find_Scope(s);
-		if (F != nullptr)
-			if (Find(name, F, flags) != nullptr)
-				return Find(name, F, flags);
-	}
+	//if (s->Fetcher != nullptr) {
+	//	Node* F = Find_Scope(s);
+	//	if (F != nullptr)
+	//		if (Find(name, F, flags) != nullptr)
+	//			return Find(name, F, flags);
+	//}
 	return nullptr;
 }
 
@@ -695,6 +709,13 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existence) {
 		if (i->Name == name)
 			return i;
 
+	if (s->Fetcher != nullptr) {
+		Node* F = Find_Scope(s);
+		if (F != nullptr)
+			if (Find(name, F, Need_Parent_existence) != nullptr)
+				return Find(name, F, Need_Parent_existence);
+	}
+
 	if (s->Scope != nullptr)
 		if (Find(name, s->Scope, Need_Parent_existence) != nullptr)
 			return Find(name, s->Scope, Need_Parent_existence);
@@ -704,12 +725,12 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existence) {
 				if (i->Name == name)
 					return i;
 
-	if (s->Fetcher != nullptr) {
-		Node* F = Find_Scope(s);
-		if (F != nullptr)
-			if (Find(name, F, Need_Parent_existence) != nullptr)
-				return Find(name, F, Need_Parent_existence);
-	}
+	//if (s->Fetcher != nullptr) {
+	//	Node* F = Find_Scope(s);
+	//	if (F != nullptr)
+	//		if (Find(name, F, Need_Parent_existence) != nullptr)
+	//			return Find(name, F, Need_Parent_existence);
+	//}
 	return nullptr;
 }
 

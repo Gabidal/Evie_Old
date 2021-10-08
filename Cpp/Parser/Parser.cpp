@@ -214,21 +214,18 @@ void Parser::Nodize_Template_Pattern(int i)
 	//List<List<int>, List<int>>
 	for (auto& T : Input[i].Components) {
 		//check that the value is defined not as a template but as a class.
-		if (Scope->Find(T.Value) && Scope->Find_Template(T.Value) == nullptr) {
+		//Or. If the current scope is a namespace (for template class definitions)
+		if (Scope->Find_Template(T.Value) || (Scope->is("static") != -1 && Scope->is(CLASS_NODE))) {
+			return;
+		}
+		else if (Scope->Find(T.Value)) {
 			Parser p(Scope);
 			p.Input = { T };
 			p.Factory();
 			Input[i].node->Templates.push_back(p.Input.back().node);
 		}
-		/*else if (Scope->is("static") != -1 && Scope->is(CLASS_NODE)) {
-			Node* Template_Type = new Node(OBJECT_NODE, &T.Location);
-			Template_Type->Name = T.Value;
-			Template_Type->Scope = Scope;
-
-			Input[i].node->Templates.push_back(Template_Type);
-		}*/
 		else {
-			Report(Observation(ERROR, "Uknown template type", T.Location));
+			Report(Observation(ERROR, "Uknown template type '" + T.Value + "'", T.Location));
 		}
 
 	}
@@ -513,13 +510,13 @@ void Parser::Definition_Pattern(int i)
 		//that will construct a new List class that type is T, and that is wrong.
 		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
 			//insure that this isn't a template parameter
-			bool Template_Type_Is_Defined = true;
+			bool Template_Type_Is_Class = true;
 			for (auto T : Input[Words[j]].Components)
 				if (Scope->Find_Template(T.Value))
 					//this means that the template type is not a class
-					Template_Type_Is_Defined = false;
+					Template_Type_Is_Class = false;
 			
-			if (Template_Type_Is_Defined) {
+			if (Template_Type_Is_Class == false) {
 				//normal 'T a' will not trigger this code because the T is not wrapped into a <>
 				Input[Words[j - 1]].Components.push_back(Input[Words[j]]);
 				
@@ -1373,10 +1370,11 @@ void Parser::Function_Pattern(int i)
 
 	//Template Fucntions.
 	for (auto T : func->Inheritted)
-		if (func->Find(T, func, TEMPLATE_NODE) != nullptr) {
+		if (func->Find_Template(T)) {
 			func->Is_Template_Object = true;
 			break;
 		}
+	//construct nodes from the component templates.
 	if (Paranthesis_Offset == 2) {
 		for (auto T : Input[i + 1].Components) {
 			Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
