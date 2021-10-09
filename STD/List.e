@@ -52,7 +52,7 @@ static std{
 	}
 
 	List<T> ptr List<T>.Reverse<T>(){
-		List<T> ptr Result = New<List<T>>.List<T>()
+		List<T> ptr Result = New<List<T>>().List<T>()
 		Result.Resize(this.Size())
 		
 		while (int i = 0; i < this.Size(); i++){

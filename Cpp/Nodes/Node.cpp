@@ -190,7 +190,7 @@ Node* Node::Find_Scope(Node* n)
 		if (Fetchers.size() == 0)
 			break;
 		if (Current_Scope->Scope == nullptr)
-			Report(Observation(ERROR, "Scope not found", *n->Location));
+			return nullptr;
 
 		Current_Scope = Current_Scope->Scope;
 	}
@@ -709,6 +709,7 @@ Node* Node::Find(string name, Node* s, bool Need_Parent_existence) {
 		if (i->Name == name)
 			return i;
 
+	//List<T>.Foo(){}
 	if (s->Fetcher != nullptr) {
 		Node* F = Find_Scope(s);
 		if (F != nullptr)
@@ -937,8 +938,10 @@ Node* Node::Copy_Node(Node* What_Node, Node* p)
 	if (What_Node == nullptr)
 		return nullptr;
 
-	if (What_Node->is(FUNCTION_NODE))
-		return What_Node;
+	//disable recursive funciton copying
+	if (Trace.size() > 0)
+		if (What_Node->is(FUNCTION_NODE))
+			return What_Node;
 
 	for (int j = 0; j < Trace.size(); j++) {
 		if (What_Node == Trace[j].first) {

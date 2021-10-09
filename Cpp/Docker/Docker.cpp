@@ -8,6 +8,7 @@ vector<string> DOCKER::FileName;
 //			Directive changing FileName, directive.
 vector<pair<string, string>> DOCKER::Working_Dir;
 vector<string> DOCKER::Priority_Type; 
+//TODO: make own implemitation of STD::MAP for vivid
 map<string, vector<string>> DOCKER::Output;
 //vector<ID, function ID>
 vector<pair<Location, pair<string, void (*)(vector<string>&)>>> DOCKER::Translators;
@@ -21,6 +22,7 @@ extern Usr* sys;
 
 vector<string> DOCKER::Default_ASM_Header_Data = {
 	"func local = \"global\\ +([A-Za-z0-9_@]+)\"",
+	"func local = \"export\\ +([A-Za-z0-9_@]+)\"",
 	//func local = "global\ +([A-Za-z0-9_@]+)"
 };
 

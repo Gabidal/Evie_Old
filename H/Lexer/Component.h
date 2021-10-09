@@ -34,11 +34,10 @@ public:
 
         Result.push_back(this);
 
-        if (is(::Flags::PAREHTHESIS_COMPONENT))
-            for (auto& i : Components) {
-                vector<Component*> tmp = i.Get_all();
-                Result.insert(Result.end(), tmp.begin(), tmp.end());
-            }
+        for (auto& i : Components) {
+            vector<Component*> tmp = i.Get_all();
+            Result.insert(Result.end(), tmp.begin(), tmp.end());
+        }
 
         return Result;
     }
@@ -67,6 +66,7 @@ public:
 
         return Result;
     }
+    Component* Copy_Component();
 };
 
 #endif

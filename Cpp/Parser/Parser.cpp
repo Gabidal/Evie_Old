@@ -365,8 +365,8 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 			string T_Arg = T_Args[T]->Name;
 			string T_Type = T_Types[T]->Name;
 			for (auto& j : Inheritted.first.Get_all())
-				if (Inheritted.first.Value == T_Arg) {
-					Inheritted.first.Value = T_Type;
+				if (j->Value == T_Arg) {
+					j->Value = T_Type;
 					Func->Is_Template_Object = true;
 				}
 		}
@@ -510,13 +510,21 @@ void Parser::Definition_Pattern(int i)
 		//that will construct a new List class that type is T, and that is wrong.
 		if (Input[Words[j]].is(Flags::TEMPLATE_COMPONENT)) {
 			//insure that this isn't a template parameter
-			bool Template_Type_Is_Class = true;
+			//<int, T, R>
+
+			//check that all the templates are defined as a classes
+			bool All_Templates_Are_Defined_As_Classes = true;
+			for (auto T : Input[Words[j]].Components)
+				if (Scope->Find(T.Value) == nullptr)
+					All_Templates_Are_Defined_As_Classes = false;
+
+			//insire that all of the templates are from scopes templates and not classes
 			for (auto T : Input[Words[j]].Components)
 				if (Scope->Find_Template(T.Value))
 					//this means that the template type is not a class
-					Template_Type_Is_Class = false;
+					All_Templates_Are_Defined_As_Classes = false;
 			
-			if (Template_Type_Is_Class == false) {
+			if (All_Templates_Are_Defined_As_Classes == false) {
 				//normal 'T a' will not trigger this code because the T is not wrapped into a <>
 				Input[Words[j - 1]].Components.push_back(Input[Words[j]]);
 				
@@ -529,7 +537,7 @@ void Parser::Definition_Pattern(int i)
 				p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
 				p.Factory();
 				
-				if (Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) {
+				if ((Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) || All_Templates_Are_Defined_As_Classes) {
 					New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
 					New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
 				}
@@ -1854,14 +1862,18 @@ void Parser::Member_Function_Pattern(int i)
 		if (Ghost_Definition == Scope->Defined[j])
 			Scope->Defined.erase(Scope->Defined.begin() + j);
 
-
+	//unwrap the . operator
 	Input[i].node->Right->Context = Input[i].node->Context;
 	Input[i].node->Right->Scope = Input[i].node->Scope;
 	Input[i].node = Input[i].node->Right;
 	Input[i].Value = Input[i].node->Name;
 
+	//port foward the fetcher magnetized inheritance to this function
 	Input[i].node->Inheritted = Input[i].node->Fetcher->Inheritted;
+	Input[i].node->Un_Initialized_Template_Inheritance = Input[i].node->Fetcher->Un_Initialized_Template_Inheritance;
+	//clear exess stuff
 	Input[i].node->Fetcher->Inheritted.clear();
+	Input[i].node->Fetcher->Un_Initialized_Template_Inheritance.clear();
 
 	//replace all the class named fetchers by the Class node for future referencing.
 	//this code break c++ XD
@@ -1929,7 +1941,8 @@ void Parser::Use_Pattern(int i)
 	}
 
 	for (auto &i : Inlined) {
-		i->Update_Size();
+		if (i->Is_Template_Object)
+			i->Update_Size();
 	}
 
 	Closest_Namespace->Append(Closest_Namespace->Inlined_Items, Inlined);
