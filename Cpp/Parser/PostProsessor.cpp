@@ -1512,6 +1512,23 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 {
 	if (n->Name != ".")
 		return;
+
+	//this is for the manual writation usage of this.X
+	for (auto* i : n->Get_all()) {
+		if (i->is(CALL_NODE))
+			continue;
+
+		if (i->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
+			Node* Definition = i->Find(i, i, i->Type);
+
+			if (Definition->Is_Template_Object)
+				continue;
+
+			i->Inheritted = Definition->Inheritted;
+			i->Defined = Definition->Defined;
+		}
+	}
+
 	if (n->Right->is(CALL_NODE)) {
 		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
 		n->Right->Context = n->Context;

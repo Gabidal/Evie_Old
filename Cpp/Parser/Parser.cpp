@@ -215,14 +215,15 @@ void Parser::Nodize_Template_Pattern(int i)
 	for (auto& T : Input[i].Components) {
 		//check that the value is defined not as a template but as a class.
 		//Or. If the current scope is a namespace (for template class definitions)
-		if (Scope->Find_Template(T.Value) || (Scope->is("static") != -1 && Scope->is(CLASS_NODE))) {
-			return;
-		}
-		else if (Scope->Find(T.Value)) {
+
+		if (Scope->Find(T.Value)) {
 			Parser p(Scope);
 			p.Input = { T };
 			p.Factory();
 			Input[i].node->Templates.push_back(p.Input.back().node);
+		}
+		else if (Scope->Find_Template(T.Value) || (Scope->is("static") != -1 && Scope->is(CLASS_NODE))) {
+			return;
 		}
 		else {
 			Report(Observation(ERROR, "Uknown template type '" + T.Value + "'", T.Location));
