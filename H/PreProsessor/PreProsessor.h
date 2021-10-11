@@ -29,6 +29,7 @@ public:
 	void Replace_Const_Name_With_Value(vector<Component> &in);
 	void Syntax_Correcter(vector<string> symbols, string type, int i);
 	void Detect_Directory_Usage_End(int i);
+	void Detect_String_Macros(int i);
 	//void Re_Arrnage_Components();
 	vector<Component*> Linearise(vector<Component>& Tree);
 

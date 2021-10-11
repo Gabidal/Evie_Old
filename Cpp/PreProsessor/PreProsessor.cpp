@@ -95,19 +95,25 @@ void PreProsessor::Detect_Directory_Usage_End(int i)
 	}
 }
 
-//void PreProsessor::Re_Arrnage_Components()
-//{
-//	vector<Component*> Linear_Input = Linearise(Input);
-//	long long Line = 0;
-//	long long Character = 0;
-//
-//	for (auto& i : Linear_Input) {
-//		if (i->is(Flags::END_COMPONENT))
-//			Line++;
-//
-//		
-//	}
-//}
+void PreProsessor::Detect_String_Macros(int i)
+{
+	if (!Input[i].is(Flags::STRING_COMPONENT))
+		return;
+
+	//loop through all the characters
+	//'\n' == 10
+
+	for (int i = 0; i < Input[i].Value.size(); i++) {
+		// \n
+		if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == 'n') {
+			Input[i].Value.erase(Input[i].Value.begin() + i);
+			Input[i].Value[i] = 10;
+		}
+		else if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == '\\') {
+
+		}
+	}
+}
 
 vector<Component*> PreProsessor::Linearise(vector<Component>& Tree)
 {
