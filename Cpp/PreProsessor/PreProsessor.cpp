@@ -9,6 +9,7 @@ void PreProsessor::Factory() {
 		If(i);
 		Include(i);
 		Detect_Directory_Usage_End(i);
+		Detect_String_Macros(i);
 	}
 
 	//Re_Arrnage_Components();
@@ -99,20 +100,47 @@ void PreProsessor::Detect_String_Macros(int i)
 {
 	if (!Input[i].is(Flags::STRING_COMPONENT))
 		return;
+	if (Input[i].is(Flags::PROCESSED_STRING))
+		return;
 
 	//loop through all the characters
 	//'\n' == 10
+	//		  start, end
+	vector<pair<int, int>> Prosessed_Indecies;
 
 	for (int i = 0; i < Input[i].Value.size(); i++) {
+		for (auto j : Prosessed_Indecies)
+			// i == [start, end]
+			if (i <= j.first && i >= j.second)
+				goto Skip;
+
 		// \n
 		if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == 'n') {
 			Input[i].Value.erase(Input[i].Value.begin() + i);
 			Input[i].Value[i] = 10;
-		}
-		else if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == '\\') {
 
+			//add the edited area to the Prosessed indecees.
+			Prosessed_Indecies.push_back({ i, i });
 		}
+		// \\ 
+		else if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == '\\') {
+			Input[i].Value.erase(Input[i].Value.begin() + i);
+
+			//add the edited area to the Prosessed indecees.
+			Prosessed_Indecies.push_back({ i, i });
+		}
+		// \t
+		else if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == 't') {
+			Input[i].Value.erase(Input[i].Value.begin() + i);
+			Input[i].Value[i] = 9;
+
+			//add the edited area to the Prosessed indecees.
+			Prosessed_Indecies.push_back({ i, i });
+		}
+	Skip:;
 	}
+
+	Input[i].Flags |= Flags::PROCESSED_STRING;
 }
 
 vector<Component*> PreProsessor::Linearise(vector<Component>& Tree)
