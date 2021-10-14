@@ -169,7 +169,7 @@ void PreProsessor::Detect_String_Macros(int i)
 			for (auto Char : Raw) {
 				for (int j = 0; j < 16; j++) {
 					if (Char == Hex[j]) {
-						Value = Value * 10 + j;
+						Value = Value * 16 + j;
 					}
 				}
 			}
