@@ -245,6 +245,11 @@ void Parser::Template_Type_Constructor(int i)
 	string New_Name = Input[i].node->Construct_Template_Type_Name();
 	if (Scope->Find(New_Name) != nullptr) {
 		Input[i].Value = New_Name;
+
+		Node* Constructed_Template_Class = Scope->Find(New_Name, Scope, CLASS_NODE);
+
+		if (Constructed_Template_Class)
+			Input[i].node->Inheritable_templates = Constructed_Template_Class->Inheritable_templates;
 		return;
 	}
 	//Search the original template class
@@ -278,6 +283,8 @@ void Parser::Template_Type_Constructor(int i)
 		}*/
 	}
 
+	vector<Component> New_Constructed_Template_Class_Code;
+
 	vector<Component> New_Constructed_Template_Code;
 
 	//re-Construct the class
@@ -285,13 +292,13 @@ void Parser::Template_Type_Constructor(int i)
 		New_Constructed_Template_Code.push_back(j.first);*/
 
 	for (auto j : Type->Inheritted)
-		New_Constructed_Template_Code.push_back(Component(j, *Type->Location, Lexer::GetComponent(j).Flags));
+		New_Constructed_Template_Class_Code.push_back(Component(j, *Type->Location, Lexer::GetComponent(j).Flags));
 	
-	New_Constructed_Template_Code.push_back(Component(New_Name, *Type->Location, Flags::TEXT_COMPONENT));
+	New_Constructed_Template_Class_Code.push_back(Component(New_Name, *Type->Location, Flags::TEXT_COMPONENT));
 	Component Content = Component("{", *Type->Location, Flags::PAREHTHESIS_COMPONENT);
 	Content.Components = Type->Template_Children;
-	New_Constructed_Template_Code.push_back(Content); 
-	New_Constructed_Template_Code.push_back(Lexer::GetComponent("\n"));
+	New_Constructed_Template_Class_Code.push_back(Content);
+	New_Constructed_Template_Class_Code.push_back(Lexer::GetComponent("\n"));
 
 	//now Construct all member funcitons as well.
 	for (auto& Func : Type->Defined) {
@@ -320,12 +327,17 @@ void Parser::Template_Type_Constructor(int i)
 	Node* Closest_Namespace = Scope->Get_Scope_As(CLASS_NODE, {"static"}, Scope);
 
 	Parser p(Closest_Namespace);
-	p.Input = New_Constructed_Template_Code;
+	p.Input = New_Constructed_Template_Class_Code;
 	p.Factory();
-	
+
 	Type->Scope->Find(Type->Name)->Inheritable_templates = Input[i].node->Templates;
 	Input[i].node->Inheritable_templates = Input[i].node->Templates;
 	Input[i].node->Templates.clear();
+
+	p = Parser(Closest_Namespace);
+	p.Input = New_Constructed_Template_Code;
+	p.Factory();
+	
 
 	//for erasing the <>
 	//Input.erase(Input.begin() + i + 1);
@@ -376,24 +388,26 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 	}
 
 	vector<Component> Fetchers;
-	if (Func->Fetcher != nullptr)
-		for (auto* Fetcher : Func->Get_All_Fetchers()) {
+	if (Func->Fetcher) {
+		//How TF can there be more than one fetcher Gabe?
+		//for (auto* Fetcher : Func->Get_All_Fetchers()) {
+		Node* Fetcher = Func->Fetcher;
 
-			Node* New_Fetcher = Fetcher->Copy_Node(Fetcher, Fetcher->Scope);
+		Node* New_Fetcher = Fetcher->Copy_Node(Fetcher, Fetcher->Scope);
 
-			for (int T = 0; T < T_Args.size(); T++) {
-				string T_Arg = T_Args[T]->Name;
-				string T_Type = T_Types[T]->Name;
+		for (int T = 0; T < T_Args.size(); T++) {
+			string T_Arg = T_Args[T]->Name;
+			string T_Type = T_Types[T]->Name;
 
-				for (auto& t : New_Fetcher->Templates)
-					if (t->Name == T_Arg)
-						t->Name = T_Type;
+			for (auto& t : New_Fetcher->Templates)
+				if (t->Name == T_Arg)
+					t->Name = T_Type;
 
-			}
-			Component Fetcher_Component = Lexer::GetComponent(New_Fetcher->Construct_Template_Type_Name());
-			Fetchers.push_back(Fetcher_Component);
-			Fetchers.push_back(Lexer::GetComponent("."));
 		}
+		Component Fetcher_Component = Lexer::GetComponent(New_Fetcher->Construct_Template_Type_Name());
+		Fetchers.push_back(Fetcher_Component);
+		Fetchers.push_back(Lexer::GetComponent("."));
+	}
 
 	for (int T = 0; T < T_Args.size(); T++)
 		for (auto& Defined : Func->Template_Children)
@@ -503,7 +517,7 @@ void Parser::Definition_Pattern(int i)
 
 	//transform the indecies into strings, and the -1 means that we want to skip the last element in the list (the name)
 	for (int j = 0; j < Words.size() - 1; j++) {
-		//is the define is something like tihs:
+		//the define is something like tihs:
 		//T a
 		//then there would be no problem because the T would have been found by the Find function
 		//The issue here is if there is template construction like:
@@ -563,10 +577,15 @@ void Parser::Definition_Pattern(int i)
 		New_Defined_Object = Namespace;
 	//if the namespace is already a static class but this is not a static class or both are non static.
 	else if (Namespace != nullptr && Namespace->is(CLASS_NODE) && Namespace->is("static") == -1) {
-		vector<int> Parenthesises = Get_Amount_Of(Words.back() + 1, { Flags::PAREHTHESIS_COMPONENT }, false);
-		if ((Parenthesises.size() == 2) && (Input[Parenthesises[0]].Value[0] == '(') && (Input[Parenthesises[1]].Value[0] == '{')) {}
-		else
+		bool Skip_Templates = false;
+		if (Words.back() + 1 < Input.size() && Input[Words.back() + 1].is(Flags::TEMPLATE_COMPONENT))
+			Skip_Templates = true;
+
+		vector<int> Parenthesises = Get_Amount_Of(Words.back() + 1 + Skip_Templates, { Flags::PAREHTHESIS_COMPONENT }, false);
+		if ((Parenthesises.size() == 1) && (Input[Parenthesises[0]].Value[0] == '{'))
 			Report(Observation(ERROR, "Cannot combine non static classes as namespaces!", *New_Defined_Object->Location));
+		else
+			Scope->Defined.push_back(New_Defined_Object);
 	}
 	else if (Namespace != nullptr && !Namespace->Has({ IMPORT, EXPORT, FUNCTION_NODE }) && !Input[Words.back() + 1].is(CONTENT_NODE)) {
 		if (!Input[Words.back() + 1].is(CONTENT_NODE))

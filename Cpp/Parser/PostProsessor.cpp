@@ -542,11 +542,14 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 
 	Node* func = f;
 
+	Node* Class = func->Find(func->Fetcher->Name, func, CLASS_NODE);
+
 	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { func->Fetcher->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
-	This->Defined = func->Find(func->Fetcher->Name, func, CLASS_NODE)->Defined;
+	This->Defined = Class->Defined;
+	This->Inheritable_templates = Class->Inheritable_templates;
 
 	func->Defined.push_back(This);
 
@@ -554,11 +557,11 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 
 	func->Childs = Insert_Dot(func->Childs, func, This);
 
-	Node* Class = func->Find_Scope(func);
+	Node* Fetcher = func->Find_Scope(func);
 
-	func->Fetcher = Class;
+	func->Fetcher = Fetcher;
 
-	*func->Fetcher->Find(func, Class, FUNCTION_NODE) = *func;
+	*func->Fetcher->Find(func, Fetcher, FUNCTION_NODE) = *func;
 	
 	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
 
@@ -580,10 +583,15 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 
 	Node* func = f;
 
+	Node* Class = func->Find(func->Fetcher->Name, func, CLASS_NODE);
+
 	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { Scope->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
+	This->Defined = Class->Defined;
+	This->Inheritable_templates = Class->Inheritable_templates;
+
 
 	func->Defined.push_back(This);
 
@@ -591,9 +599,9 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 
 	func->Childs = Insert_Dot(func->Childs, func, This);
 
-	Node* Class = Scope->Find(Scope->Name, Scope, CLASS_NODE);
+	Node* scope = Scope->Find(Scope->Name, Scope, CLASS_NODE);
 
-	*Scope->Find(func, Class, FUNCTION_NODE) = *func;
+	*Scope->Find(func, scope, FUNCTION_NODE) = *func;
 
 	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
 	func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE;
@@ -1519,7 +1527,19 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 			continue;
 
 		if (i->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
-			Node* Definition = i->Find(i, i, i->Type);
+			Node* Definition = nullptr;
+
+			for (auto j : { OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }) {
+				Definition = i->Find(i, i, j);
+
+				//if the current flag isin't it then try another one
+				if (Definition)
+					break;
+			}
+
+			//if all flags dont match, then break process
+			if (Definition == nullptr)
+				continue;	//this can occur if the definition points to the rght side of the dot
 
 			if (Definition->Is_Template_Object)
 				continue;

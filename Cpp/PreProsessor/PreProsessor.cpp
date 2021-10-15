@@ -143,26 +143,24 @@ void PreProsessor::Detect_String_Macros(int i)
 			string Raw = "";
 
 			char Hex[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'};
-
+			
 			//calculate the number lenght
 			for (int j = i+2; j < Input[i].Value.size(); j++) {
 				if ((Input[i].Value[j] >= 48 && Input[i].Value[j] <= 57) || (Input[i].Value[j] >= 65 && Input[i].Value[j] <= 70)) {
 					 Raw += Input[i].Value[j];
 				}
 				else if (Input[i].Value[j] >= 97 && Input[i].Value[j] <= 102) {
-					Report(Observation(ERROR, "Non upper case letter at index '" + to_string(j) + "'."));
+					Report(Observation(ERROR, "Non upper case letter at index '" + to_string(j) + "'.", Input[i].Location));
 				}
 				else if (j == i) {
 					//it is the start of the index right after the x character but there is no number
-					// \xA
-					Report(Observation(ERROR, "Incorrect Hexdecimal usage in index of '" + to_string(j) + "'.", Input[i].Location));
+					// \xSXy
+					Report(Observation(ERROR, "Incorrect Hexdecimal usage at index '" + to_string(j) + "'.", Input[i].Location));
 				}
 				else {
 					break;
 				}
 			}
-
-			reverse(Raw.begin(), Raw.end());
 
 			char Value = 0;
 
@@ -173,6 +171,10 @@ void PreProsessor::Detect_String_Macros(int i)
 					}
 				}
 			}
+			//											\x     ,					    \x
+			Input[i].Value.erase(Input[i].Value.begin() + i + 1, Input[i].Value.begin() + i + 1 + Raw.size() - 1);
+
+			Input[i].Value[i] = Value;
 
 			//add the edited area to the Prosessed indecees.
 			Prosessed_Indecies.push_back({ i, i });
