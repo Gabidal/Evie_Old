@@ -1,7 +1,7 @@
 ifeq ($(OS), Windows_NT)
 	Additional_Flags += -lkernel32 -lWs2_32 -lWldap32 -lcrypt32 -ladvapi32 -lmsvcrt -o Evie -L"Dependencies/Curl/"
 else
-	Additional_Flags += -lm -ldl -lstdc++ -o Evie 
+	Additional_Flags += -lm -lpthread -ldl -lstdc++ -o Evie
 endif
 
 Debuggarna:

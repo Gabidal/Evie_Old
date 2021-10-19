@@ -523,10 +523,10 @@ Component CreateNumberComponent(string text, const Position& position)
 
 vector<Component> GetComponents(string text, Position anc);
 
-Component CreateParenthesisComponent(string text, const Position& position)
+Component CreateParenthesisComponent(string text, Position position)
 {
     Component component(text, Flags::PAREHTHESIS_COMPONENT);
-    component.Components = GetComponents(text.substr(1, text.size() - 2), position);
+    component.Components = GetComponents(text.substr(1, text.size() - 2), position.NextCharacter());
 
     return component;
 }
