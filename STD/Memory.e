@@ -22,7 +22,7 @@ T ptr New<T>(){
 	return (internal_allocate(T.size)->(char ptr))->T	
 }
 
-func memcpy<T>(T ptr dest, T ptr source, int Size){
+func Memcpy<T>(T ptr dest, T ptr source, int Size){
     while (int i = 0, i < Size, i++){
         dest[i] = source[i]
     }

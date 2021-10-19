@@ -782,6 +782,9 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		n->Inheritted = n->Function_Implementation->Inheritted;
 	}
 	else {
+		if (n->Find(n, n) == nullptr) {
+			Report(Observation(ERROR, "Usage of un-defined caller '" + n->Name + "'.", *n->Location));
+		}
 		n->Size = n->Find(n, n)->Size;
 		n->Inheritted = n->Find(n, n)->Inheritted;
 	}
@@ -1489,12 +1492,18 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 	}
 
 	if (Input[i]->Context == nullptr || !Input[i]->Context->Has({ CALL_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ARRAY_NODE, FLOW_NODE })) {
+		Node* Header_Giver = Input[i];
+		
 		Input.insert(Input.begin() + i, Input[i]->Header.begin(), Input[i]->Header.end());
-		Input[i]->Header.clear();
+		
+		Header_Giver->Header.clear();
 	}
 	else if (Input[i]->Context) {
+		Node* Header_Giver = Input[i];
+
 		Input[i]->Context->Header.insert(Input[i]->Context->Header.end(), Input[i]->Header.begin(), Input[i]->Header.end());
-		Input[i]->Header.clear();
+
+		Header_Giver->Header.clear();
 	}
 	//use optimization into the parameters.
 	//Algebra a(Input[i], &Input[i]->Parameters);	//Algebra has already optimized this!
@@ -1696,7 +1705,7 @@ void PostProsessor::Combine_Condition(int i)
 
 void PostProsessor::Determine_Return_Type(int i)
 {
-	if (!Input[i]->Has({ASSIGN_OPERATOR_NODE, OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE}))
+	if (!Input[i]->Has({ ASSIGN_OPERATOR_NODE, OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE }))
 		return;
 
 	if (Input[i]->is(PREFIX_NODE)) {
@@ -1739,7 +1748,14 @@ void PostProsessor::Determine_Return_Type(int i)
 		}
 
 		if (Input[i]->Left->is(NUMBER_NODE)) {
-			if (Input[i]->Name == "-" || Input[i]->Name == "/" || Input[i]->Name == "<" || Input[i]->Name == ">" || Input[i]->Name == "!<" || Input[i]->Name == "!>" || Input[i]->Name == "<=" || Input[i]->Name == ">=") {
+			//Some operators cannot be swapped, like - and /
+			if (Input[i]->Name == "+" || Input[i]->Name == "*" || Input[i]->Name == "==" || Input[i]->Name == "!=") {
+				//these can be switched whitout any consequenses.
+				Node* tmp = Input[i]->Left;
+				Input[i]->Left = Input[i]->Right;
+				Input[i]->Right = tmp;
+			}
+			else {
 				//make a tmp variable and set the number constant into it
 				string Constant_Name = Input[i]->Left->Name + "_TMP";
 
@@ -1749,9 +1765,11 @@ void PostProsessor::Determine_Return_Type(int i)
 					Constant_Tmp = Input[i]->Find(Constant_Name);
 				}
 				else {
-					Constant_Tmp = new Node(OBJECT_DEFINTION_NODE, new Position());
+					Constant_Tmp = new Node(OBJECT_DEFINTION_NODE, Input[i]->Left->Location);
 					Constant_Tmp->Name = Constant_Name;
 					Constant_Tmp->Scope = Input[i]->Scope;
+
+					Scope->Defined.push_back(Constant_Tmp);
 				}
 
 				//move the constant here.
@@ -1766,12 +1784,7 @@ void PostProsessor::Determine_Return_Type(int i)
 				Move->Right->Context = Move;
 
 				Input[i]->Header.insert(Input[i]->Header.begin(), Move);
-				*Input[i]->Left = *Move;
-			}
-			else {
-				Node* tmp = Input[i]->Left;
-				Input[i]->Left = Input[i]->Right;
-				Input[i]->Right = tmp;
+				*Input[i]->Left = *Constant_Tmp;
 			}
 		}
 	}
@@ -1813,36 +1826,37 @@ void PostProsessor::Determine_Return_Type(int i)
 		if (Input[i]->Left->Function_Address_Giver)
 			Input[i]->Left->Size = Left_Size;
 		if (Input[i]->Left->Header.size() > 0) {
-			int Header_Size = Input[i]->Left->Header.size();
+			Node* Header_Giver = Input[i]->Left;
 
 			if (Input[i]->Context == nullptr)
 				Input.insert(Input.begin() + i, Input[i]->Left->Header.begin(), Input[i]->Left->Header.end());
 			else
 				Input[i]->Context->Header.insert(Input[i]->Context->Header.end(), Input[i]->Left->Header.begin(), Input[i]->Left->Header.end());
 
-			Input[i + Header_Size]->Left->Header.clear();
+			Header_Giver->Header.clear();
 		}
 	}
 	if (!Input[i]->is(POSTFIX_NODE)) {
 		if (Input[i]->Right->Header.size() > 0) {
-			int Header_Size = Input[i]->Right->Header.size();
+			Node* Header_Giver = Input[i]->Right;
 
 			if (Input[i]->Context == nullptr)
 				Input.insert(Input.begin() + i, Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
 			else
 				Input[i]->Context->Header.insert(Input[i]->Context->Header.end(), Input[i]->Right->Header.begin(), Input[i]->Right->Header.end());
 
-			Input[i + Header_Size]->Right->Header.clear();
+			Header_Giver->Header.clear();
 		}
 		if (Input[i]->Right->Function_Address_Giver)
 			Input[i]->Right->Size = Right_Size;
 	}
 
 	if ((Input[i]->Header.size() > 0) && (Input[i]->Context == nullptr)) {
-		int Header_Size = Input[i]->Header.size();
+		Node* Header_Giver = Input[i];
+
 		Input.insert(Input.begin() + i, Input[i]->Header.begin(), Input[i]->Header.end());
 
-		Input[i + Header_Size]->Header.clear();
+		Header_Giver->Header.clear();
 	}
 }
 

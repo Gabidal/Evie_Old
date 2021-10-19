@@ -11,7 +11,7 @@ static std{
 			Capacity = Size * 2
 			T ptr tmp = Allocate<T>(Capacity)
 
-			memcpy<T>(tmp, Array, Size)
+			Memcpy<T>(tmp, Array, Size)
 
 			#deallocate(Array)
 
@@ -43,7 +43,7 @@ static std{
 
 		T ptr tmp = Allocate<T>(New_Size)
 
-		memcpy<T>(tmp, Array, Size)
+		Memcpy<T>(tmp, Array, Size)
 
 		Array = tmp
 
@@ -108,7 +108,7 @@ static std{
 				}
 			}
 			else{
-				if (Compare(Target, this.At(i))){
+				if (Compare(Target, this.At(i)) == true){
 					return i
 				}
 			}

@@ -557,7 +557,7 @@ void Algebra::Reduce_Operator_Operations(Node* n)
 					continue;
 				if ((v->Fetcher != nullptr && other->Fetcher != nullptr) && v->Fetcher->Name != other->Fetcher->Name)
 					continue;
-				if (v->Context == nullptr || v->Context->is(ASSIGN_OPERATOR_NODE) || other->Context->is(ASSIGN_OPERATOR_NODE))
+				if (v->Context == nullptr || other->Context == nullptr || v->Context->is(ASSIGN_OPERATOR_NODE) || other->Context->is(ASSIGN_OPERATOR_NODE))
 					continue;
 				//decide wich one is in wich side
 				Node* l = v;
@@ -743,6 +743,12 @@ void Algebra::Clean_Unused()
 			continue;
 
 		for (auto& j : Scope->Childs)	//							   this is for function pointters
+			for (auto& k : j->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE }))
+				if (k->Name == Scope->Defined[i]->Name)
+					Scope->Defined[i]->Calling_Count++;
+
+		//because the inlined code can also exist in parameters go and search it too.
+		for (auto& j : Scope->Parameters)	//							   this is for function pointters
 			for (auto& k : j->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE }))
 				if (k->Name == Scope->Defined[i]->Name)
 					Scope->Defined[i]->Calling_Count++;
