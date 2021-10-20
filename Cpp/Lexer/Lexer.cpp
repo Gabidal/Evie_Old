@@ -38,6 +38,7 @@ enum class Type
     PARENTHESIS,
     OPERATOR,
     STRING,
+    HEXADECIMAL,
     END
 };
 
@@ -111,6 +112,11 @@ bool IsOperator(char c)
     return ((c >= 33 && c <= 47) || (c >= 58 && c <= 64) || c == '^' || c == '|' || c == BITWISE_XOR) && c != Lexer::SingleLineCommentIdentifier && c != Lexer::StringIdentifier ;
 }
 
+bool IsStartOfHexadecimal(char current, char next)
+{
+    return current == '0' && next == 'x';
+}
+
 bool IsDigit(char c)
 {
     return c >= '0' && c <= '9';
@@ -136,66 +142,41 @@ bool IsString(char c)
     return c == Lexer::StringIdentifier;
 }
 
-Type GetType(char c)
+Type GetType(char current, char next)
 {
-    if (IsText(c))
-    {
-        return Type::TEXT;
-    }
-    if (IsDigit(c))
-    {
-        return Type::NUMBER;
-    }
-    if (IsParenthesis(c))
-    {
-        return Type::PARENTHESIS;
-    }
-    if (IsOperator(c))
-    {
-        return Type::OPERATOR;
-    }
-    if (IsComment(c))
-    {
-        return Type::COMMENT;
-    }
-    if (IsString(c))
-    {
-        return Type::STRING;
-    }
-    if (c == LineEnding)
-    {
-        return Type::END;
-    }
+    if (IsText(current)) return Type::TEXT;
+    if (IsStartOfHexadecimal(current, next)) return Type::HEXADECIMAL;
+    if (IsDigit(current))  return Type::NUMBER;
+    if (IsParenthesis(current)) return Type::PARENTHESIS;
+    if (IsOperator(current)) return Type::OPERATOR;
+    if (IsComment(current)) return Type::COMMENT;
+    if (IsString(current)) return Type::STRING;
+    if (current == LineEnding) return Type::END;
 
     return Type::UNSPECIFIED;
 }
 
-bool IsPartOf(Type previous, Type current, char previous_symbol, char current_symbol)
+bool IsPartOf(Type previous_type, Type current_type, char previous, char current, char next)
 {
     // Ensure the previous and the current character mix
-    if (!Mixes(previous_symbol, current_symbol))
-    {
-        return false;
-    }
+    if (!Mixes(previous, current)) return false;
 
-    if (current == previous || previous == Type::UNSPECIFIED)
-    {
-        return true;
-    }
+    if (current_type == previous_type || previous_type == Type::UNSPECIFIED) return true;
 
-    switch (previous)
+    switch (previous_type)
     {
 
-    case Type::TEXT:
-    {
-        return current == Type::NUMBER;
-    }
+    case Type::TEXT: return current_type == Type::NUMBER;
+
+    case Type::HEXADECIMAL: return current_type == Type::NUMBER || 
+            (previous == '0' && current == 'x') ||
+            (current >= 'a' && current <= 'f') || (current >= 'A' && current <= 'F');
 
     case Type::NUMBER:
     {
-        return current_symbol == Lexer::DecimalSeparator ||                                                       // Example: 7.0
-               current_symbol == Lexer::ExponentSeparator ||                                                      // Example: 100e0
-               (previous_symbol == Lexer::ExponentSeparator && (current_symbol == '+' || current_symbol == '-')); // Examples: 3.14159e+10, 10e-10
+        return (current == Lexer::DecimalSeparator && IsDigit(next)) || // Example: 7.0
+               current == Lexer::ExponentSeparator || // Example: 100e0
+               (previous == Lexer::ExponentSeparator && (current == '+' || current == '-')); // Examples: 3.14159e+10, 10e-10
     }
 
     default:
@@ -207,60 +188,13 @@ Position SkipSpaces(const string &text, Position &position)
 {
     while (position.GetLocal() < text.size())
     {
-        char c = text[position.GetLocal()];
+        char current = text[position.GetLocal()];
+        if (current != ' ') break;
 
-        if (c != ' ')
-        {
-            break;
-        }
         position.NextCharacter();
     }
 
     return position;
-}
-
-Position SkipParenthesis(const string &text, const Position &start)
-{
-    Position position = start.Clone();
-
-    char opening = text[position.GetLocal()];
-    char closing = GetParenthesisClosing(opening, start);
-
-    int count = 0;
-
-    while (position.GetLocal() < text.size())
-    {
-        char c = text[position.GetLocal()];
-
-        if (c == LineEnding)
-        {
-            position.NextLine();
-        }
-        else
-        {
-            if (c == opening)
-            {
-                count++;
-            }
-            else if (c == closing)
-            {
-                count--;
-            }
-
-            position.NextCharacter();
-        }
-
-        if (count == 0)
-        {
-            return position;
-        }
-    }
-
-    MSG_Type Terminate = ERROR;
-
-    if (sys->Info.Is_Service) Terminate = WARNING;
-
-    Report(Observation(Terminate, "Couldn't find closing parenthesis", start));
 }
 
 Position SkipComment(const string& text, const Position& start)
@@ -295,20 +229,63 @@ Position SkipString(const string &text, const Position &start)
     return Position(start.GetLine(), start.GetCharacter() + length, start.GetLocal() + length, i + 1);
 }
 
+Position SkipParenthesis(const string &text, const Position &start)
+{
+    Position position = start.Clone();
+
+    char opening = text[position.GetLocal()];
+    char closing = GetParenthesisClosing(opening, start);
+
+    int count = 0;
+
+    while (position.GetLocal() < text.size())
+    {
+        char current = text[position.GetLocal()];
+
+        if (current == LineEnding)
+        {
+            position.NextLine();
+        }
+        else if (current == Lexer::SingleLineCommentIdentifier)
+        {
+            position = SkipComment(text, position);
+        }
+        else if (current == Lexer::StringIdentifier)
+        {
+            position = SkipString(text, position);
+        }
+        else
+        {
+            if (current == opening) { count++; }
+            else if (current == closing) { count--; }
+
+            position.NextCharacter();
+        }
+
+        if (count == 0) return position;
+    }
+
+    MSG_Type Terminate = ERROR;
+
+    if (sys->Info.Is_Service) Terminate = WARNING;
+
+    Report(Observation(Terminate, "Couldn't find closing parenthesis", start));
+}
+
 optional<Area> GetNextComponent(const string &text, Position start)
 {
     // Firsly the spaces must be skipped to find the next token
     Position position = SkipSpaces(text, start);
 
     // Verify there's text to iterate
-    if (position.GetLocal() == text.size())
-    {
-        return nullopt;
-    }
+    if (position.GetLocal() == text.size()) return nullopt;
+
+    char current = text[position.GetLocal()];
+    char next = position.Local + 1 < text.size() ? text[position.GetLocal() + 1] : (char)0;
 
     Area area;
     area.Start = position.Clone();
-    area.Type = GetType(text[position.GetLocal()]);
+    area.Type = GetType(current, next);
 
     switch (area.Type)
     {
@@ -350,26 +327,16 @@ optional<Area> GetNextComponent(const string &text, Position start)
     // Possible types are now: TEXT, NUMBER, OPERATOR
     while (position.GetLocal() < text.size())
     {
-        char current_symbol = text[position.GetLocal()];
+        char previous = current;
+        current = next;
+        next = position.GetLocal() + 1 < text.size() ? text[position.GetLocal() + 1] : (char)0;
 
-        if (IsParenthesis(current_symbol))
-        {
-            // There cannot be number and content tokens side by side 1(
-            /*if (area.Type == Type::NUMBER)
-            {
-                Report(Observation(ERROR, "Missing operator between number and parenthesis", position));
-            }*/
+        if (IsParenthesis(current)) break;
 
-            break;
-        }
+        // Determine what area type the current character represents
+        Type type = GetType(current, next);
 
-        Type type = GetType(current_symbol);
-        char previous_symbol = position.GetLocal() == 0 ? (char)0 : text[(size_t)position.GetLocal() - 1];
-
-        if (!IsPartOf(area.Type, type, previous_symbol, current_symbol))
-        {
-            break;
-        }
+        if (!IsPartOf(area.Type, type, previous, current, next)) break;
 
         position.NextCharacter();
     }
@@ -531,6 +498,21 @@ Component CreateParenthesisComponent(string text, Position position)
     return component;
 }
 
+unsigned long long ParseHexadecimal(const Area& area)
+{
+    char* end;
+    auto text = area.Text.c_str() + 2;
+    auto value = strtoull(text, &end, 16);
+
+    if (*end != 0)
+    {
+        string s = "Invalid hexadecimal number '" + area.Text + "'";
+        Report(Observation(ERROR, s, area.Start));
+    }
+
+    return value;
+}
+
 Component ParseComponent(const Area& area)
 {
     switch (area.Type)
@@ -549,6 +531,8 @@ Component ParseComponent(const Area& area)
         return Component(area.Text, Flags::STRING_COMPONENT);
     case Type::COMMENT:
         return Component(area.Text, Flags::COMMENT_COMPONENT);
+    case Type::HEXADECIMAL:
+        return Component(to_string(ParseHexadecimal(area)), Flags::NUMBER_COMPONENT);
     default:
     {
         string s = "Unrecognized token '" + area.Text + "'";
@@ -571,10 +555,7 @@ vector<Component> GetComponents(string text, Position anchor)
     {
         optional<Area> area = GetNextComponent(text, position);
 
-        if (!area)
-        {
-            break;
-        }
+        if (!area) break;
 
         Component component = ParseComponent(area.value());
         component.Location = area->Start;
