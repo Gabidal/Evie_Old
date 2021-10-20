@@ -230,8 +230,14 @@ p(Scope->Defined[i], { j });
 			PostProsessor p(Scope->Defined[i]);
 			p.Member_Function_Defined_Inside(j);
 			p.Member_Function_Defined_Outside(j);
+		}
+
+	for (auto& j : Scope->Defined[i]->Defined)
+		if (j->is(FUNCTION_NODE)) {
+			PostProsessor p(Scope->Defined[i]);
 			p.Open_Function_For_Prosessing(j);
 		}
+
 
 	return;
 }
