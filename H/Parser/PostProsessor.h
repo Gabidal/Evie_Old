@@ -22,6 +22,17 @@ public:
 
 	PostProsessor(Node* p) : Scope(p){}
 	PostProsessor(Node* p, vector<Node*> in) : Scope(p), Input(in) { Factory(); }
+	PostProsessor(Node* p, vector<Node**> in) {
+		Scope = p;
+		for (auto **i : in) {
+			Input.push_back(*i);
+		}
+		Factory();
+
+		for (int i = 0; i < in.size(); i++) {
+			*in[i] = Input[i];
+		}
+	}
 	PostProsessor(Node* p, vector<Component> in) : Scope(p), Components(in) { Factory(); }
 	PostProsessor(){}
 	~PostProsessor(){}
@@ -61,7 +72,7 @@ public:
 
 
 	void Algebra_Laucher(Node* Scope, vector<Node*> &List);					//utilisez algebra to optimize the code in the function.
-	void Combine_Member_Fetching(Node* n);			//combines the fether into the fetching member
+	void Combine_Member_Fetching(Node*& n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
 	void Combine_Condition(int i);					//combines the ifs and elses
 	void Determine_Return_Type(int i);				//open the operator and determined the types basen on the left and right side

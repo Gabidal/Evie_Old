@@ -113,7 +113,8 @@ void PostProsessor::Type_Definer(int i)
 
 	/*for (auto& j : Scope->Defined[i]->Defined)
 		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] != Scope->Defined[i]->Name)) {
-			PostProsessor p(Scope->Defined[i], { j });
+			
+p(Scope->Defined[i], { j });
 			//p.Input = { j };
 			//p.Member_Function_Defined_Inside(0);
 			//j = p.Output[0];
@@ -788,264 +789,6 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		n->Size = n->Find(n, n)->Size;
 		n->Inheritted = n->Find(n, n)->Inheritted;
 	}
-
-
-
-	/*Node* Scope = Global_Scope;
-	if (n->Fetcher != nullptr) {
-		if (n->Fetcher->is(CLASS_NODE))
-			Scope = n->Fetcher->Find(n->Fetcher->Name, n, CLASS_NODE);
-		else
-			Scope = n->Fetcher->Find(n->Fetcher->Inheritted[0], n, CLASS_NODE);
-	}
-
-	//now that the scope is resolved we can finaly construct the template functions inners properly.
-	if (n->Templates.size() > 0) {
-		string New_Name = "." + n->Construct_Template_Type_Name();
-		Parser P(Scope->Get_Parent_As(CLASS_NODE, Scope));
-
-		Node* tmp_Current_Func = n->Copy_Node(n, n->Scope);
-		tmp_Current_Func->Name = New_Name;
-
-		if (Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }) != nullptr && tmp_Current_Func->Compare_Fetchers(Scope->Find(New_Name, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))) {
-			n->Name = New_Name;
-			n->Templates.clear();
-		}
-		else if (Scope->Find(n, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })) {
-			Node* Func = Scope->Copy_Node(Scope->Find(n, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }), Scope->Find(n, Scope, { FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT })->Scope);
-			vector<Node*> Args = Func->Templates;
-			Func->Templates = n->Templates;
-
-			Parser P(Scope->Get_Parent_As(CLASS_NODE, Scope));
-			P.Input = P.Template_Function_Constructor(Func, Args, n->Templates);
-			P.Factory();
-
-			n->Name = New_Name;
-			n->Templates.clear();
-		}
-		else if (Scope->Find(n, Scope, CLASS_NODE)) {
-			//Constructors
-			n->Name = New_Name;
-			n->Templates.clear();
-		}
-	}
-
-	Node* OgFunc = nullptr;
-	//also the returning type of this callation is not made,
-	//we can determine it by the operations other side objects type.
-	//this prosess is made for operator in Determine_Return_Type().
-	//but it wont work if the call is inside another call
-	if (n->Context != nullptr && n->Context->is(CALL_NODE)) {
-		int Parameter_Index = 0;
-		for (auto p : n->Context->Parameters)
-			if (p == n)//check the pointer address
-				break;
-			else
-				Parameter_Index++;
-		//the holder callation does not have template function.
-		//this posible to make only this way:
-		//if there are only one funciton named as the holder,
-		//if not the this function return type must NOT be a Base type.
-		if (MANGLER::Is_Based_On_Base_Type(n)) {
-			//this happends when the n return a template type.
-			//there can be only one template function.
-			vector<int> callation;
-			for (int c = 0; c < Scope->Defined.size(); c++) {
-				if (Scope->Defined[c]->is(FUNCTION_NODE) && (Scope->Defined[c]->Name == n->Context->Name)) {
-					if (Scope->Defined[c]->Parameters.size() == n->Context->Parameters.size())
-						callation.push_back(c);
-				}
-			}
-			if (callation.size() > 1){
-				Report({
-					Observation(ERROR, "Cannot decide, " + n->Context->Name + " has too many similar overloads.", *n->Context->Location),
-					Observation(SOLUTION, "Solution: Please cast " + n->Name + " into desired type.", *n->Location)
-					});
-				throw::runtime_error("Error!");
-			}
-			n->Inheritted = Scope->Defined[callation[0]]->Parameters[Parameter_Index]->Inheritted;
-		}
-
-	}
-
-	
-	bool Skip_Name_Checking_For_Func_Ptr = false;
-Try_Again:;
-	//first ignore the template parameters for now
-	for (int f = 0; f < Scope->Defined.size(); f++) {
-		if (!Skip_Name_Checking_For_Func_Ptr)
-			if (Scope->Defined[f]->Name != n->Name)
-				continue;
-		if (Scope->Defined[f]->is(CLASS_NODE))
-			continue;	//this is for constructors
-		//check for template return types.
-		if (!Check_If_Template_Function_Is_Right_One(Scope->Defined[f], n))
-			continue;
-		if (Scope->Defined[f]->Parameters.size() != n->Parameters.size())
-			continue;
-		int g_i = -1;
-		bool Has_Template_Parameters = false;
-		for (auto g : Scope->Defined[f]->Parameters) {
-			g_i++;
-
-			if (g->Is_Template_Object) {
-				Has_Template_Parameters = true;
-				if (!Check_If_Template_Function_Is_Right_One(g, n->Parameters[g_i]))
-					goto Wrong_Template_Function;
-				else
-					continue;
-			}
-			else if (n->Parameters[g_i]->is("type") != -1) {
-				if (!Check_If_Template_Function_Is_Right_One(n->Parameters[g_i], g))
-					goto Wrong_Template_Function;
-				else
-					continue;
-			}
-			else if (g->Get_Inheritted("_", true, false) == n->Parameters[g_i]->Get_Inheritted("_", true, false))
-				continue;
-			
-			for (auto g_h : g->Get_Inheritted(true, false)) {
-				//banana --> fruit
-				if (Find_Castable_Inheritance(n->Parameters[g_i]->Get_Inheritted(true, false), g_h))
-					continue;
-				//fruit <-- banana
-				for (auto n_h : n->Parameters[g_i]->Get_Inheritted(true, false)) {
-					if (Find_Castable_Inheritance(g->Get_Inheritted(true, false), n_h))
-						goto Right_Type;
-				}
-				goto Wrong_Template_Function;
-			Right_Type:;
-			}
-		}
-		if (Has_Template_Parameters && !Scope->Defined[f]->is(IMPORT)) {
-			OgFunc = Scope->Defined[f];
-			goto Non_Imported_Template_Function_Usage;
-		}
-		if (Skip_Name_Checking_For_Func_Ptr) {
-			n->Function_Ptr = true;	//this caller is a function pointter.
-			n->Inheritted = n->Find(n, n->Scope)->Inheritted;
-			//remove one pointter
-			vector<string> New_Inheritance;
-			bool Removed_Ptr = false;
-			for (auto inherit : n->Inheritted) {
-				if (inherit == "ptr" && !Removed_Ptr) {
-					Removed_Ptr = true;
-					continue;
-				}
-				New_Inheritance.push_back(inherit);
-			}
-			n->Inheritted = New_Inheritance;
-		}
-		n->Function_Implementation = Scope->Defined[f];
-		if (!Skip_Name_Checking_For_Func_Ptr) {
-			n->Function_Implementation->Calling_Count++;
-
-			if ((MANGLER::Is_Based_On_Base_Type(n->Function_Implementation) == false) || n->Inheritted.size() == 0)
-				n->Inheritted = n->Function_Implementation->Inheritted;
-		}
-		return;
-		Wrong_Template_Function:;
-	}
-	Non_Imported_Template_Function_Usage:;
-	//if the code gets here it means the og-function has template paramters!
-	//and its not external fucntion.
-	/*for (auto f : Global_Scope->Defined) {
-		if (!f->is(FUNCTION_NODE) && !f->is(PROTOTYPE) && !f->is(IMPORT))
-			continue;
-		if (n->is("ptr") == -1)
-			if (f->Name != n->Name)
-				continue;
-		bool Direct_Type = false;
-		if (f->is(IMPORT))
-			Direct_Type = true;
-		if (f->Parameters.size() != n->Parameters.size())
-			continue;
-		if (f->Get_Inheritted("", false, true) != n->Get_Inheritted("", false, true))
-			continue;
-		for (int p = 0; p < f->Parameters.size(); p++) {
-			if (Direct_Type && f->Parameters[p]->Name == "type")
-				continue;
-			else if (!Direct_Type && f->Parameters[p]->is("type") != -1)
-				continue;	//just ignore the template parameters for now.
-			//here we will determine if this function is the og-fucntion or not.
-			else if (Direct_Type && (f->Parameters[p]->Name != n->Parameters[p]->Get_Inheritted((string)"")))
-				goto Next_Function;
-			else if (!Direct_Type && f->Parameters[p]->Get_Inheritted("") != n->Parameters[p]->Get_Inheritted("")) {
-				goto Next_Function;
-			}
-		}
-		//here if we get this function is the og-function.
-		OgFunc = f;
-		break;
-	Next_Function:;
-	}
-	if (OgFunc == nullptr && n->Scope->Find(n, n->Scope)->is("ptr") != -1)
-		if (Skip_Name_Checking_For_Func_Ptr == false) {
-			Skip_Name_Checking_For_Func_Ptr = true;
-			goto Try_Again;
-	}
-
-	if (OgFunc == nullptr && Scope != Global_Scope) {
-		Scope = Global_Scope;
-		goto Try_Again;
-	}
-
-	if (OgFunc == nullptr) {
-		string s = "";
-		for (int j = 0; j < n->Parameters.size(); j++) {
-			s += "  " + n->Parameters[j]->Name + "\n";
-		}
-		Report(Observation(ERROR, "Can't find suitable funciton to call " + n->Name + " with parameters:" + s, *n->Location));
-		throw::runtime_error("Error!");
-	}
-
-	if (OgFunc->is(PROTOTYPE))
-		for (auto j : OgFunc->Parameters)
-			if (j->Name == "type") {		//REMEBER THE DIRECT TYPING!!	
-				Report(Observation(ERROR, "Can't copy a foreingh function " + OgFunc->Name + ".", *OgFunc->Location));
-				throw::runtime_error("Error!");
-			}
-
-	Node* func = nullptr;
-	if (!OgFunc->is(PROTOTYPE)) {
-		//now we want to copy that function again but this time we will put the called parameter types
-		func = OgFunc->Copy_Node(OgFunc, Parent);
-
-		//now we want to through the templates and put on them the right parameter infos
-		for (int p = 0; p < func->Parameters.size(); p++) {
-			vector<string> tmp = func->Parameters[p]->Inheritted;
-			//update the parent
-			func->Parameters[p]->Scope = func;
-
-			func->Parameters[p]->Inheritted = n->Parameters[p]->Inheritted;
-			//now iterate the leftover types like ptr
-			for (string s : tmp) {
-				if (s == "type")
-					continue;
-				if (func->Parameters[p]->is(s) == -1)
-					func->Parameters[p]->Inheritted.push_back(s);
-			}
-			//alsoset the defined types into right inheritance.
-			func->Find(func->Parameters[p]->Name, func)->Inheritted = func->Parameters[p]->Inheritted;
-		}
-	}
-	else {
-		func = OgFunc;
-	}
-	n->Function_Implementation = func;
-	func->Mangled_Name = func->Get_Mangled_Name();
-	
-	PostProsessor p(func);
-	p.Input = func->Childs;
-	p.Factory();
-
-	Update_Used_Object_Info(func);
-
-	//now we want to inject it to global scope to be reached next time.
-	Scope->Childs.push_back(func);
-	Scope->Defined.push_back(func);
-
-	return;*/
 }
 
 vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison)
@@ -1525,10 +1268,14 @@ void PostProsessor::Algebra_Laucher(Node* Scope, vector<Node*> &List)
 	}
 }
 
-void PostProsessor::Combine_Member_Fetching(Node* n)
+void PostProsessor::Combine_Member_Fetching(Node*& n)
 {
 	if (n->Name != ".")
 		return;
+
+	Cast(n->Left);
+	Cast(n->Right);
+	Combine_Member_Fetching(n->Left);
 
 	//this is for the manual writation usage of this.X
 	for (auto* i : n->Get_all()) {
@@ -1562,15 +1309,15 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
 		n->Right->Context = n->Context;
 		n->Right->Fetcher = n->Left;
-		*n = *n->Right;
+		n = n->Copy_Node(n->Right, n->Scope);
 	}
 	else {
 		//Remember: Dot is constructed as any normal operator.
 		//((((a.b).c[..]).d()).e) = 123
 		//We have to go first to the most left sided operator.
-		Cast(n->Left);
+		/*Cast(n->Left);
 		Cast(n->Right);
-		Combine_Member_Fetching(n->Left);
+		Combine_Member_Fetching(n->Left);*/
 		//set the left side
 		Node* Left = Scope->Find(Get_From_AST(n->Left), Scope);
 		//we must also update the current left side to inherit the members from the inherit list
@@ -1591,11 +1338,11 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 			}
 			else
 				//load the needed information from the parent
-				*Right = *n->Find(Right, Left);
+				Right = n->Copy_Node(n->Find(Right, Left), Scope);
 		}
 		else
 			//load the needed information from the parent
-			*Right = *n->Find(Right, Left);
+			Right = n->Copy_Node(n->Find(Right, Left), Scope);
 
 		//set the parent as a fechable
 		Right->Fetcher = Left;
@@ -1607,11 +1354,14 @@ void PostProsessor::Combine_Member_Fetching(Node* n)
 		//a.Array[1]
 		//put the a.Array as the left side of the array operator
 		if (n->Right->is(ARRAY_NODE)) {
-			*n->Right->Left = *Right;
-			*n = *n->Right;
+			//first move to the right nodes
+			//and then make copy_node to re-adjust the memebr variable touchings
+			n->Right->Left = Right->Copy_Node(Right, Right->Scope);
+
+			n = n->Copy_Node(n->Right, n->Scope);
 		}
 		else
-			*n = *Right;
+			n = Right->Copy_Node(Right, Right->Scope);
 	}
 }
 
@@ -1629,7 +1379,7 @@ Node* PostProsessor::Get_From_AST(Node* n)
 		return Get_From_AST(n->Childs[0]);
 	}
 	else if (n->is(OPERATOR_NODE)) {
-		vector<Node*> Change = { n };
+		vector<Node**> Change = { &n };
 		PostProsessor p(Scope, Change);
 
 		if (Change.size() > 1)
@@ -1639,7 +1389,7 @@ Node* PostProsessor::Get_From_AST(Node* n)
 	}
 	else if (n->is(ARRAY_NODE)) {
 
-		vector<Node*> Change = { n };
+		vector<Node**> Change = { &n };
 
 		PostProsessor p(Scope, Change);
 
@@ -1709,23 +1459,23 @@ void PostProsessor::Determine_Return_Type(int i)
 		return;
 
 	if (Input[i]->is(PREFIX_NODE)) {
-		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right});
+		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right});
 	}
 	else if (Input[i]->is(POSTFIX_NODE)) {
-		PostProsessor r(Scope, vector<Node*>{ Input[i]->Left});
+		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Left});
 	}
 	else if (Input[i]->Right->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Right)) {
-		PostProsessor l(Scope, vector<Node*>{Input[i]->Left });
+		PostProsessor l(Scope, vector<Node**>{ &Input[i]->Left });
 		Input[i]->Right->Inheritted = Input[i]->Left->Inheritted;
-		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right});
+		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right});
 	}
 	else if (Input[i]->Left->is(CALL_NODE) && MANGLER::Is_Based_On_Base_Type(Input[i]->Left)) {
-		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right});
+		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right});
 		Input[i]->Left->Inheritted = Input[i]->Right->Inheritted;
-		PostProsessor l(Scope, vector<Node*>{Input[i]->Left });
+		PostProsessor l(Scope, vector<Node**>{ &Input[i]->Left });
 	}
 	else {
-		PostProsessor r(Scope, vector<Node*>{ Input[i]->Right, Input[i]->Left });
+		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right, &Input[i]->Left });
 	}
 
 	vector<Node*> Tmp;
@@ -1865,7 +1615,7 @@ void PostProsessor::Determine_Array_Type(int i)
 	if (!Input[i]->is(ARRAY_NODE))
 		return;
 
-	PostProsessor r(Scope, vector<Node*>{ Input[i]->Right, Input[i]->Left });
+	PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right, &Input[i]->Left });
 
 	//Who is gay and does not pay taxes also farts in public 
 	for (auto& overload : Input[i]->Left->Operator_Overloads) {
@@ -1885,7 +1635,7 @@ void PostProsessor::Open_PreFix_Operator(int i)
 	if (!Input[i]->is(PREFIX_NODE))
 		return;
 
-	PostProsessor p(Scope, { Input[i]->Right });
+	PostProsessor p(Scope, vector<Node**>{ &Input[i]->Right });
 }
 
 void PostProsessor::Open_PostFix_Operator(int i)
@@ -1894,7 +1644,7 @@ void PostProsessor::Open_PostFix_Operator(int i)
 		return;
 
 
-	PostProsessor p(Scope, { Input[i]->Left });
+	PostProsessor p(Scope, vector<Node**>{ &Input[i]->Left });
 }
 
 void PostProsessor::Type_Size_Definer(int i)
@@ -2303,7 +2053,7 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 	if (n->Right == nullptr)
 		return;
 
-	PostProsessor p(n, { n->Right });
+	PostProsessor p(n, vector<Node**>{ &n->Right });
 
 	for (auto& v : n->Right->Defined)
 		p.Destructor_Caller(v, Input);

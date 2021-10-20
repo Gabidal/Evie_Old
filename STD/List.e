@@ -108,9 +108,9 @@ static std{
 				}
 			}
 			else{
-				if (Compare(Target, this.At(i)) == true){
+				#if (Compare(Target, this.At(i)) == true){
 					return i
-				}
+				#}
 			}
 		}
 		return -1
