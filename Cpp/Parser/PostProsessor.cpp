@@ -568,8 +568,6 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 
 	func->Fetcher = Fetcher;
 
-	*func->Fetcher->Find(func, Fetcher, FUNCTION_NODE) = *func;
-	
 	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
 
 	return;
@@ -607,8 +605,6 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 	func->Childs = Insert_Dot(func->Childs, func, This);
 
 	Node* scope = Scope->Find(Scope->Name, Scope, CLASS_NODE);
-
-	*Scope->Find(func, scope, FUNCTION_NODE) = *func;
 
 	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
 	func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE;
@@ -660,6 +656,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 			for (auto& k : j->Defined)
 				k->Current_Value = nullptr;
 
+	//NOTE: This might not be able to detect nested scope members that might return
+	//this implies that the nested scope needs to also deduce the destructors of the main scope defined
 	for (auto& v : f->Defined)
 		p.Destructor_Caller(v, f->Childs);
 
@@ -1738,6 +1736,8 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 
 	//haha brain go brr
 	post.Factory();
+
+	Input[i]->Childs = post.Input;
 
 	for (auto& v : Input[i]->Defined)
 		post.Destructor_Caller(v, Input[i]->Childs);
