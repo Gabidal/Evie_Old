@@ -1,0 +1,512 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/main.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/main.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/BackEnd/ARM.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/BackEnd/ARM.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/BackEnd/BackEnd.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/BackEnd/BackEnd.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/BackEnd/DebugGenerator.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/BackEnd/DebugGenerator.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/BackEnd/IRGenerator.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/BackEnd/IRGenerator.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/BackEnd/IRPostProsessor.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/BackEnd/IRPostProsessor.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/BackEnd/Selector.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/BackEnd/Selector.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/BackEnd/x86.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/BackEnd/x86.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/ASM.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/ASM.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/Docker.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/Docker.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/ELF.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/ELF.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/HTTPS.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/HTTPS.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/LIB.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/LIB.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/Mangler.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/Mangler.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/OBJ.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/OBJ.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Docker/TXT.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Docker/TXT.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Lexer/Component.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Lexer/Component.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Lexer/Lexer.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Lexer/Lexer.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Lexer/Position.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Lexer/Position.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Nodes/Node.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Nodes/Node.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Nodes/Token.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Nodes/Token.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Parser/Algebra.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Parser/Algebra.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Parser/Parser.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Parser/Parser.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/Parser/PostProsessor.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/Parser/PostProsessor.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/PreProsessor/PreProsessor.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/PreProsessor/PreProsessor.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/UI/Producer.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/UI/Producer.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/UI/Safe.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/UI/Safe.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/UI/Satellite.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/UI/Satellite.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/UI/Service.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/UI/Service.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Cpp/UI/Usr.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Cpp/UI/Usr.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Tests/Unit_Tests.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Tests/Unit_Tests.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Tests/Cpp/Base.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Tests/Cpp/Base.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Tests/Cpp/Test_Back_End.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Tests/Cpp/Test_Back_End.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  },
+  {
+    "arguments": [
+      "/usr/bin/clang",
+      "-c",
+      "--std=c++20",
+      "-g",
+      "-fpermissive",
+      "-o",
+      "Evie",
+      "Tests/Cpp/Test_Lexer.cpp"
+    ],
+    "directory": "/home/lehtojo/Downloads/Evie",
+    "file": "/home/lehtojo/Downloads/Evie/Tests/Cpp/Test_Lexer.cpp",
+    "output": "/home/lehtojo/Downloads/Evie/Evie"
+  }
+]

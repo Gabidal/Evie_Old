@@ -117,6 +117,9 @@
     <ClCompile Include="Cpp\UI\Service.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\Parser\Analyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\unix.asm">
@@ -295,6 +298,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\UI\Document_Request_Type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Parser\Analyzer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

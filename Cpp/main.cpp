@@ -1,10 +1,13 @@
 #include "../H/UI/Usr.h"
+#include "../H/UI/Safe.h"
+#include "../H/UI/Producer.h"
+#include "../H/UI/Satellite.h"
+#include "../H/UI/Service.h"
 #include "../H/Lexer/Lexer.h"
 #include "../H/PreProsessor/PreProsessor.h"
 #include "../H/Parser/Parser.h"
 #include "../H/Parser/PostProsessor.h"
-#include "../H/UI/Safe.h"
-#include "../H/UI/Producer.h"
+#include "../H/Parser/Analyzer.h"
 #include "../H/Nodes/Node.h"
 #include "../H/Flags.h"
 #include "../H/Docker/Mangler.h"
@@ -18,8 +21,6 @@
 #include "../H/BackEnd/ARM.h"
 #include "../H/BackEnd/IRPostProsessor.h"
 #include "../H/BackEnd/DebugGenerator.h"
-#include "../H/UI/Satellite.h"
-#include "../H/UI/Service.h"
 
 #include <sstream>
 #include <iostream>
@@ -168,6 +169,8 @@ int Build(int argc, const char* argv[])
     postprosessor.Components = p.Input;
     postprosessor.Factory();
     Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
+
+    Analyzer analyzer = Analyzer();
 
     vector<IR*> IRs;
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);

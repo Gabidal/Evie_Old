@@ -244,6 +244,7 @@ p(Scope->Defined[i], { j });
 
 void PostProsessor::Destructor_Generator(Node* Type)
 {
+	return;
 	if (sys->Info.Reference_Count_Size < 1)
 		return;
 
@@ -316,6 +317,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 
 void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 {
+	return;
 	if (!v->is(OBJECT_DEFINTION_NODE))
 		return;
 	if (MANGLER::Is_Based_On_Base_Type(v))
@@ -588,7 +590,7 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 
 	Node* func = f;
 
-	Node* Class = func->Find(func->Fetcher->Name, func, CLASS_NODE);
+	Node* Class = func->Find(Scope->Name, func, CLASS_NODE);
 
 	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
 	This->Inheritted = { Scope->Name, "ptr" };
@@ -783,7 +785,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	}
 	//the incerement of all func ptr candidates calling count happends at Choose_Most_Suited_Function_Candidate()
 	if (It_Is_A_Function_Pointter == false) {
-		n->Function_Implementation->Calling_Count++;
+		//n->Function_Implementation->Calling_Count++;
 		n->Inheritted = n->Function_Implementation->Inheritted;
 	}
 	else {
@@ -1111,7 +1113,7 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 			Caller->Function_Implementation = Function;
 			Caller->Name = New_Name;
 			Caller->Templates.clear();
-			Function->Calling_Count++;
+			//Function->Calling_Count++;
 			return 0;
 		}
 

@@ -18,10 +18,12 @@ void IRGenerator::Factory()
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
 	/*for (int i = 0; i < Input.size(); i++)
 		Switch_To_Correct_Places(Input[i]);*/
-	for (auto i : Scope->Defined)
-		Parse_Function(i);
-	for (auto i : Scope->Defined)
-		Parse_Member_Functions(i);
+	if (Scope->is(CLASS_NODE)) {
+		for (auto i : Scope->Defined)
+			Parse_Function(i);
+		for (auto i : Scope->Defined)
+			Parse_Member_Functions(i);
+	}
 
 	for (int i = 0; i < Input.size(); i++) {
 		Parse_Dynamic_Casting(Input[i]);
@@ -794,7 +796,7 @@ void IRGenerator::Parse_Pointers(int i)
 			int Keep_Last_Address = 0;
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 				Keep_Last_Address = 1;
-			Left = Operate_Pointter(Left, Level_Difference - Keep_Last_Address, false, Left->is(TOKEN::MEMORY));
+			Left = Operate_Pointter(Left, Level_Difference - Keep_Last_Address, false, Left->is(TOKEN::MEMORY), Input[i]->Left->Inheritted);
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 				Left = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_);
 		}

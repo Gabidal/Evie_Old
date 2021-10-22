@@ -220,6 +220,7 @@
     <ClCompile Include="cpp\main.cpp" />
     <ClCompile Include="Cpp\Nodes\Node.cpp" />
     <ClCompile Include="Cpp\Nodes\Token.cpp" />
+    <ClCompile Include="Cpp\Parser\Analyzer.cpp" />
     <ClCompile Include="cpp\parser\Parser.cpp" />
     <ClCompile Include="Cpp\Parser\Algebra.cpp" />
     <ClCompile Include="Cpp\Parser\PostProsessor.cpp" />
@@ -294,6 +295,7 @@
     <ClInclude Include="H\Nodes\IR.h" />
     <ClInclude Include="h\nodes\Node.h" />
     <ClInclude Include="H\Nodes\Token.h" />
+    <ClInclude Include="H\Parser\Analyzer.h" />
     <ClInclude Include="h\parser\Parser.h" />
     <ClInclude Include="H\Parser\Algebra.h" />
     <ClInclude Include="H\Parser\PostProsessor.h" />

@@ -168,7 +168,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		for (auto k : j->Get_all(CALL_NODE)) {
 			if (k->Function_Ptr)
 				continue;
-			k->Function_Implementation->Calling_Count++;	//increase the calling count
+			//k->Function_Implementation->Calling_Count++;	//increase the calling count
 			if (k->Function_Implementation == c->Function_Implementation)
 				return;	//disable recursive funktions
 		}
@@ -301,7 +301,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 	Scope->Defined.insert(Scope->Defined.end(), c->Defined.begin(), c->Defined.end());
 	c->Defined.clear();
 
-	c->Function_Implementation->Calling_Count--;
+	//c->Function_Implementation->Calling_Count--;
 
 	if (c->Context) {
 		c->Context->Header.insert(c->Context->Header.end(), Childs.begin(), Childs.end());
