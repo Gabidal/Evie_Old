@@ -151,6 +151,7 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 
 void Algebra::Function_Inliner(Node* c, int i)
 {
+	//return;
 	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") != -1 || c->Function_Implementation->is("import") != -1)
 		return;
 

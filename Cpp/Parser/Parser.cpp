@@ -1916,7 +1916,7 @@ void Parser::Member_Function_Pattern(int i)
 		Input[i].node->Fetcher = Fethcer;
 	}
 	//Input[i].node->Fetcher = Fethcer;
-	else if (Input[i].node->Fetcher = Fethcer; Input[i].node->Compare_Fetchers(Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE)))
+	else if (Input[i].node->Fetcher = Fethcer; !Input[i].node->Compare_Fetchers(Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE)))
 		Class->Scope->Defined.push_back(Input[i].node);
 
 }

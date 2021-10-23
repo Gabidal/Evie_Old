@@ -50,10 +50,8 @@ void Analyzer::Calling_Count_Incrementer(Node* f)
 	f->Calling_Count++;
 
 	for (auto* c : f->Childs) {
-		for (auto* i : c->Get_all()) {
-			if (i->is(CALL_NODE)) {
-				Calling_Count_Incrementer(i->Function_Implementation);
-			}
+		for (auto* i : c->Get_all({CALL_NODE})) {
+			Calling_Count_Incrementer(i->Function_Implementation);
 		}
 	}
 

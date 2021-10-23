@@ -244,7 +244,6 @@ p(Scope->Defined[i], { j });
 
 void PostProsessor::Destructor_Generator(Node* Type)
 {
-	return;
 	if (sys->Info.Reference_Count_Size < 1)
 		return;
 
@@ -264,6 +263,8 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	//}
 
 	for (auto Member : Type->Defined) {
+		if (Member->is(FUNCTION_NODE))
+			continue;
 		if ((Member->is("ptr") == -1) || MANGLER::Is_Base_Type(Member) || MANGLER::Is_Based_On_Base_Type(Member))
 			continue;
 
@@ -317,7 +318,6 @@ void PostProsessor::Destructor_Generator(Node* Type)
 
 void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 {
-	return;
 	if (!v->is(OBJECT_DEFINTION_NODE))
 		return;
 	if (MANGLER::Is_Based_On_Base_Type(v))
