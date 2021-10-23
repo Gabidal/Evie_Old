@@ -24,12 +24,12 @@ ret 		#
 _Z10Start_Testv:
 lea rcx, qword ptr [rip + _Z3fooii ]		#_Z3fooii_REG0, .RIP__Z3fooii
 mov rcx, rcx		#fuz, _Z3fooii_REG0
-mov ecx, 1		#y_65, 1
-mov ecx, 1		#x_65, 1
-mov ecx, 5		#Return_Value65, 5
-jmp Return_Here_84		#Return_Here_84
-Return_Here_84:
-mov eax, ecx		#Returning_REG1, Return_Value65
+mov ecx, 1		#y_82, 1
+mov ecx, 1		#x_82, 1
+mov ecx, 5		#Return_Value82, 5
+jmp Return_Here_106		#Return_Here_106
+Return_Here_106:
+mov eax, ecx		#Returning_REG1, Return_Value82
 ret 		#
 ret 		#
 

@@ -3,34 +3,34 @@
 .global _Z10Start_Testv
 .section .text		#.text
 _Z10Start_Testv:
-mov ecx, 6		#Return_Value94, 6
-jmp Return_Here_126		#Return_Here_126
-Return_Here_126:
-mov r8d, ecx		#REG_Return_Value940, Return_Value94
-mov r9, rdx		#REG_Return_Value940_REMAINDER10291, REMAINDER_30836
-mov eax, 3		#3_QUOTIENT24350, 3
-mul r8d		#REG_Return_Value940
-mov r8d, eax		#REG_Return_Value940, 3_QUOTIENT24350
-mov rdx, r9		#REMAINDER_30836, REG_Return_Value940_REMAINDER10291
-mov r8d, r8d		#c, REG_Return_Value940
+mov ecx, 6		#Return_Value100, 6
+jmp Return_Here_132		#Return_Here_132
+Return_Here_132:
+mov r8d, ecx		#REG_Return_Value1000, Return_Value100
+mov r9, rdx		#REG_Return_Value1000_REMAINDER28253, REMAINDER_6868
+mov eax, 3		#3_QUOTIENT7711, 3
+mul r8d		#REG_Return_Value1000
+mov r8d, eax		#REG_Return_Value1000, 3_QUOTIENT7711
+mov rdx, r9		#REMAINDER_6868, REG_Return_Value1000_REMAINDER28253
+mov r8d, r8d		#c, REG_Return_Value1000
 mov r9d, r8d		#REG_c1, c
-xor edx, edx		#REG_c1_REMAINDER11020, REG_c1_REMAINDER11020
-mov eax, r9d		#REG_c1_QUOTIENT9374, REG_c1
-div ecx		#Return_Value94
-mov r9d, eax		#REG_c1, REG_c1_QUOTIENT9374
+xor edx, edx		#REG_c1_REMAINDER27644, REG_c1_REMAINDER27644
+mov eax, r9d		#REG_c1_QUOTIENT25547, REG_c1
+div ecx		#Return_Value100
+mov r9d, eax		#REG_c1, REG_c1_QUOTIENT25547
 mov ecx, r9d		#d, REG_c1
 add ecx, 3		#d, 3
 add ecx, 6		#d, 6
 sub ecx, r8d		#d, c
 mov eax, ecx		#Returning_REG2, d
 ret 		#
-mov ecx, 1065353216		#REG_1065357812, 1065353216
-movd xmm0, ecx		#MEDIA_1065377237, REG_1065357812
-movss xmm0, xmm0		#Return_Value95, MEDIA_1065377237
-jmp Return_Here_127		#Return_Here_127
-Return_Here_127:
-cvttss2si ecx, xmm0		#REG_Return_Value953, Return_Value95
-mov eax, ecx		#Returning_REG4, REG_Return_Value953
+mov ecx, 1065353216		#REG_1065385878, 1065353216
+movd xmm0, ecx		#MEDIA_1065385973, REG_1065385878
+movss xmm0, xmm0		#Return_Value101, MEDIA_1065385973
+jmp Return_Here_133		#Return_Here_133
+Return_Here_133:
+cvttss2si ecx, xmm0		#REG_Return_Value1013, Return_Value101
+mov eax, ecx		#Returning_REG4, REG_Return_Value1013
 ret 		#
 mov eax, -6		#Returning_REG5, -6
 ret 		#
@@ -38,31 +38,31 @@ ret 		#
 
 
 _Z4mainv:
-mov ecx, 6		#Return_Value94_96, 6
-jmp Return_Here_129		#Return_Here_129
-Return_Here_129:
-mov r8d, ecx		#REG_Return_Value94_960, Return_Value94_96
-mov r9, rdx		#REG_Return_Value94_960_REMAINDER23199, REMAINDER_19668
-mov eax, 3		#3_QUOTIENT27348, 3
-mul r8d		#REG_Return_Value94_960
-mov r8d, eax		#REG_Return_Value94_960, 3_QUOTIENT27348
-mov rdx, r9		#REMAINDER_19668, REG_Return_Value94_960_REMAINDER23199
-mov r8d, r8d		#c_96, REG_Return_Value94_960
-mov r8d, r8d		#REG_c_961, c_96
-xor edx, edx		#REG_c_961_REMAINDER8281, REG_c_961_REMAINDER8281
-mov eax, r8d		#REG_c_961_QUOTIENT24484, REG_c_961
-div ecx		#Return_Value94_96
-mov r8d, eax		#REG_c_961, REG_c_961_QUOTIENT24484
-mov ecx, r8d		#d_96, REG_c_961
-jmp Return_Here_128		#Return_Here_128
-mov ecx, 1065353216		#REG_1065357950, 1065353216
-movd xmm0, ecx		#MEDIA_1065353269, REG_1065357950
-movss xmm0, xmm0		#Return_Value95_96, MEDIA_1065353269
-jmp Return_Here_130		#Return_Here_130
-Return_Here_130:
-jmp Return_Here_128		#Return_Here_128
-jmp Return_Here_128		#Return_Here_128
-Return_Here_128:
+mov ecx, 6		#Return_Value100_102, 6
+jmp Return_Here_135		#Return_Here_135
+Return_Here_135:
+mov r8d, ecx		#REG_Return_Value100_1020, Return_Value100_102
+mov r9, rdx		#REG_Return_Value100_1020_REMAINDER12859, REMAINDER_8723
+mov eax, 3		#3_QUOTIENT20037, 3
+mul r8d		#REG_Return_Value100_1020
+mov r8d, eax		#REG_Return_Value100_1020, 3_QUOTIENT20037
+mov rdx, r9		#REMAINDER_8723, REG_Return_Value100_1020_REMAINDER12859
+mov r8d, r8d		#c_102, REG_Return_Value100_1020
+mov r8d, r8d		#REG_c_1021, c_102
+xor edx, edx		#REG_c_1021_REMAINDER27529, REG_c_1021_REMAINDER27529
+mov eax, r8d		#REG_c_1021_QUOTIENT9741, REG_c_1021
+div ecx		#Return_Value100_102
+mov r8d, eax		#REG_c_1021, REG_c_1021_QUOTIENT9741
+mov ecx, r8d		#d_102, REG_c_1021
+jmp Return_Here_134		#Return_Here_134
+mov ecx, 1065353216		#REG_1065353994, 1065353216
+movd xmm0, ecx		#MEDIA_1065365532, REG_1065353994
+movss xmm0, xmm0		#Return_Value101_102, MEDIA_1065365532
+jmp Return_Here_136		#Return_Here_136
+Return_Here_136:
+jmp Return_Here_134		#Return_Here_134
+jmp Return_Here_134		#Return_Here_134
+Return_Here_134:
 mov eax, 1		#Returning_REG2, 1
 ret 		#
 ret 		#

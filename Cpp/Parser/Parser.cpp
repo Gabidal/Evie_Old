@@ -569,7 +569,8 @@ void Parser::Definition_Pattern(int i)
 			New_Defined_Object->Inheritted.push_back(Input[Words[j]].Value);
 	}
 
-	//Namespace combination system 2000 (:
+	//Almost Namespace combination system 2000 (:
+	// The rest is made in the Type_Pattern dude
 	//if the current made object already exists
 	Node* Namespace = Scope->Find(New_Defined_Object, Scope);
 	//if the namespace is already a static class type and this one too then combine
@@ -1512,6 +1513,20 @@ void Parser::Type_Pattern(int i)
 		s.Check_For_Undefined_Inheritance(j);
 	}
 
+	//This means that the class is a namespace
+	//Namespace Combination system 5000
+	if (Type->is("static") != -1) {
+
+		for (auto& j : Type->Defined) {
+			if (j->is("static") != -1)
+				continue;
+			if (j->Has({ FUNCTION_NODE, CLASS_NODE }))
+				continue;
+
+			j->Inheritted.insert(j->Inheritted.begin(), "static");
+		}
+	}
+
 	Type->Append(Type->Childs, p.Input[0].node->Childs);
 
 	p.Input.clear();
@@ -1953,16 +1968,20 @@ void Parser::Use_Pattern(int i)
 		j = j->Copy_Node(n, Closest_Namespace);
 	}
 
-	for (auto &i : Inlined) {
-		if (i->Fetcher)
+	for (auto &j : Inlined) {
+		if (j->Fetcher)
 			continue;
 
-		i->Fetcher = Namespace;
+		j->Fetcher = Namespace;
 	}
 
-	for (auto &i : Inlined) {
-		if (i->Is_Template_Object)
-			i->Update_Size();
+	for (auto &j : Inlined) {
+		if (j->Is_Template_Object)
+			continue;
+		if (j->Has({ FUNCTION_NODE, CLASS_NODE }))
+			continue;
+
+		j->Update_Size();
 	}
 
 	Closest_Namespace->Append(Closest_Namespace->Inlined_Items, Inlined);

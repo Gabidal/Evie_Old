@@ -4,23 +4,23 @@
 .section .text		#.text
 _Z10Start_Testv:
 sub rsp, 16		#.STACK, 16
-Return_Here_117:
+Return_Here_123:
 lea rcx, qword ptr [rsp + 0 ]		#m_REG0, .STACK_0
-mov rcx, rcx		#m_TMP_1710157753024, m_REG0
-add qword ptr [rcx + 0 ], 1		#m_TMP_1710157753024_0, 1
-mov rcx, rcx		#this_89, m_TMP_1710157753024
-mov r8, rcx		#this_89_TMP_1710157758400, this_89
-add qword ptr [r8 + 0 ], 1		#this_89_TMP_1710157758400_0, 1
-mov r8, r8		#this_88_89, this_89_TMP_1710157758400
-mov r8, rcx		#this_88_89, this_89
-mov dword ptr [r8 + 8 ], 0		#this_88_89_8, 0
-jmp Return_Here_120		#Return_Here_120
-Return_Here_120:
-mov dword ptr [rcx + 8 ], 1		#this_89_8, 1
-mov r8d, 1074261268		#REG_1074267627, 1074261268
-mov dword ptr [rcx + 12 ], r8d		#this_89_12, REG_1074267627
-jmp Return_Here_119		#Return_Here_119
-Return_Here_119:
+mov rcx, rcx		#m_TMP_2242033719216, m_REG0
+add qword ptr [rcx + 0 ], 1		#m_TMP_2242033719216_0, 1
+mov rcx, rcx		#this_95, m_TMP_2242033719216
+mov r8, rcx		#this_95_TMP_2242033705776, this_95
+add qword ptr [r8 + 0 ], 1		#this_95_TMP_2242033705776_0, 1
+mov r8, r8		#this_94_95, this_95_TMP_2242033705776
+mov r8, rcx		#this_94_95, this_95
+mov dword ptr [r8 + 8 ], 0		#this_94_95_8, 0
+jmp Return_Here_126		#Return_Here_126
+Return_Here_126:
+mov dword ptr [rcx + 8 ], 1		#this_95_8, 1
+mov r8d, 1074261268		#REG_1074271162, 1074261268
+mov dword ptr [rcx + 12 ], r8d		#this_95_12, REG_1074271162
+jmp Return_Here_125		#Return_Here_125
+Return_Here_125:
 movss xmm0, dword ptr [rsp + 0 + 12 ]		#m_12_REG1, +_12
 cvttss2si ecx, xmm0		#REG_feature2, m_12_REG1
 mov eax, ecx		#Returning_REG3, REG_feature2
@@ -33,78 +33,6 @@ ret 		#
 _Z4mainv:
 mov eax, 1		#Returning_REG0, 1
 ret 		#
-ret 		#
-
-
-_ZN4Base10DestructorEP4Base:
-push rbx		#rbx
-if_32:
-cmp rcx, 0		#this, 0
-je if_32_END		#if_32_END
-mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
-sub r8, 1		#this_0_REG0, 1
-cmp r8, 1		#this_0_REG0, 1
-jge if_32_END		#if_32_END
-mov r8, rcx		#this_TMP_1710157532608, this
-add qword ptr [r8 + 0 ], 1		#this_TMP_1710157532608_0, 1
-mov rbx, r8		#Address_84, this_TMP_1710157532608
-mov rbx, rcx		#Address_84, this
-mov rcx, rbx		#REG_Address_84_Parameter27506, Address_84
-mov edx, 8		#REG_8_Parameter13030, 8
-call _V19internal_deallocatePhx
-Return_Here_114:
-mov rcx, rbx		#REG_Address_84_Parameter16413, Address_84
-call _ZN4Base10DestructorEP4Base
-if_32_END:
-pop rbx		#rbx
-ret 		#
-
-
-_ZN3Mid10DestructorEP3Mid:
-push rbx		#rbx
-if_33:
-cmp rcx, 0		#this, 0
-je if_33_END		#if_33_END
-mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
-sub r8, 1		#this_0_REG0, 1
-cmp r8, 1		#this_0_REG0, 1
-jge if_33_END		#if_33_END
-mov r8, rcx		#this_TMP_1710157534400, this
-add qword ptr [r8 + 0 ], 1		#this_TMP_1710157534400_0, 1
-mov rbx, r8		#Address_85, this_TMP_1710157534400
-mov rbx, rcx		#Address_85, this
-mov rcx, rbx		#REG_Address_85_Parameter29168, Address_85
-mov edx, 8		#REG_8_Parameter900, 8
-call _V19internal_deallocatePhx
-Return_Here_115:
-mov rcx, rbx		#REG_Address_85_Parameter32591, Address_85
-call _ZN3Mid10DestructorEP3Mid
-if_33_END:
-pop rbx		#rbx
-ret 		#
-
-
-_ZN3Top10DestructorEP3Top:
-push rbx		#rbx
-if_34:
-cmp rcx, 0		#this, 0
-je if_34_END		#if_34_END
-mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
-sub r8, 1		#this_0_REG0, 1
-cmp r8, 1		#this_0_REG0, 1
-jge if_34_END		#if_34_END
-mov r8, rcx		#this_TMP_1710157547840, this
-add qword ptr [r8 + 0 ], 1		#this_TMP_1710157547840_0, 1
-mov rbx, r8		#Address_86, this_TMP_1710157547840
-mov rbx, rcx		#Address_86, this
-mov rcx, rbx		#REG_Address_86_Parameter18762, Address_86
-mov edx, 8		#REG_8_Parameter1655, 8
-call _V19internal_deallocatePhx
-Return_Here_116:
-mov rcx, rbx		#REG_Address_86_Parameter17410, Address_86
-call _ZN3Top10DestructorEP3Top
-if_34_END:
-pop rbx		#rbx
 ret 		#
 
 

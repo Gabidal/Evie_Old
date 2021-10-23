@@ -100,14 +100,6 @@ void PostProsessor::Type_Definer(int i)
 
 	//If this is a namespace skip the default constructor builder
 	if (Scope->Defined[i]->is("static") != -1) {
-
-		/*for (auto& j : Scope->Defined[i]->Defined) {
-			if (j->is("static") != -1)
-				continue;
-
-			j->Inheritted.insert(j->Inheritted.begin(), "static");
-		}*/
-
 		return;
 	}
 

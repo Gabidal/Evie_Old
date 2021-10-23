@@ -4,44 +4,44 @@
 .section .text		#.text
 _Z10Start_Testv:
 push rbx		#rbx
-sub rsp, 32		#.STACK, 32
+sub rsp, 28		#.STACK, 28
 lea rcx, qword ptr [rsp + 0 ]		#a_REG0, .STACK_0
-mov rcx, rcx		#a_TMP_1710120792368, a_REG0
-add qword ptr [rcx + 0 ], 1		#a_TMP_1710120792368_0, 1
-mov rbx, rcx		#this_61, a_TMP_1710120792368
-mov dword ptr [rbx + 8 ], 1		#this_61_8, 1
-mov dword ptr [rbx + 12 ], 0		#this_61_12, 0
-mov ecx, dword ptr [rbx + 8 ]		#this_61_8_REG1, this_61_8
-mov ecx, ecx		#Size_57_61, this_61_8_REG1
-mov r8d, ecx		#REG_Size_57_612, Size_57_61
-mov r9, rdx		#REG_Size_57_612_REMAINDER31673, REMAINDER_22386
-mov eax, 4		#4_QUOTIENT2306, 4
-mul r8d		#REG_Size_57_612
-mov r8d, eax		#REG_Size_57_612, 4_QUOTIENT2306
-mov rdx, r9		#REMAINDER_22386, REG_Size_57_612_REMAINDER31673
-mov ecx, ecx		#REG_Size_57_613, Size_57_61
-mov r8, rdx		#REG_Size_57_613_REMAINDER28745, REMAINDER_26924
-mov eax, 4		#4_QUOTIENT5021, 4
-mul ecx		#REG_Size_57_613
-mov ecx, eax		#REG_Size_57_613, 4_QUOTIENT5021
-mov rdx, r8		#REMAINDER_26924, REG_Size_57_613_REMAINDER28745
-mov ecx, ecx		#REG_REG_Size_57_613_Parameter29658, REG_Size_57_613
+mov rcx, rcx		#a_TMP_2241996320048, a_REG0
+add qword ptr [rcx + 0 ], 1		#a_TMP_2241996320048_0, 1
+mov rbx, rcx		#this_78, a_TMP_2241996320048
+mov dword ptr [rbx + 8 ], 1		#this_78_8, 1
+mov dword ptr [rbx + 12 ], 0		#this_78_12, 0
+mov ecx, dword ptr [rbx + 8 ]		#this_78_8_REG1, this_78_8
+mov ecx, ecx		#Size_45_78, this_78_8_REG1
+mov r8d, ecx		#REG_Size_45_782, Size_45_78
+mov r9, rdx		#REG_Size_45_782_REMAINDER1869, REMAINDER_19912
+mov eax, 4		#4_QUOTIENT11538, 4
+mul r8d		#REG_Size_45_782
+mov r8d, eax		#REG_Size_45_782, 4_QUOTIENT11538
+mov rdx, r9		#REMAINDER_19912, REG_Size_45_782_REMAINDER1869
+mov ecx, ecx		#REG_Size_45_783, Size_45_78
+mov r8, rdx		#REG_Size_45_783_REMAINDER26299, REMAINDER_17035
+mov eax, 4		#4_QUOTIENT25667, 4
+mul ecx		#REG_Size_45_783
+mov ecx, eax		#REG_Size_45_783, 4_QUOTIENT25667
+mov rdx, r8		#REMAINDER_17035, REG_Size_45_783_REMAINDER26299
+mov ecx, ecx		#REG_REG_Size_45_783_Parameter14771, REG_Size_45_783
 call _V17internal_allocatex_rPh
-mov qword ptr [rsp + 24 ], rax		#.STACK_24, RetREG_4
-jmp Return_Here_80		#Return_Here_80
-Return_Here_80:
-mov rcx, qword ptr [rsp + 24 ]		#REG_Return_Value57_615, .STACK_24
-mov qword ptr [rbx + 16 ], rcx		#this_61_16, REG_Return_Value57_615
-jmp Return_Here_79		#Return_Here_79
-Return_Here_79:
-mov ecx, 1		#Return_Value62, 1
-jmp Return_Here_81		#Return_Here_81
-Return_Here_81:
-mov eax, ecx		#Returning_REG6, Return_Value62
-add rsp, 32		#.STACK, 32
+mov qword ptr [rsp + 20 ], rax		#.STACK_20, RetREG_4
+jmp Return_Here_102		#Return_Here_102
+Return_Here_102:
+mov rcx, qword ptr [rsp + 20 ]		#REG_Return_Value45_785, .STACK_20
+mov qword ptr [rbx + 16 ], rcx		#this_78_16, REG_Return_Value45_785
+jmp Return_Here_101		#Return_Here_101
+Return_Here_101:
+mov ecx, 1		#Return_Value79, 1
+jmp Return_Here_103		#Return_Here_103
+Return_Here_103:
+mov eax, ecx		#Returning_REG6, Return_Value79
+add rsp, 28		#.STACK, 28
 pop rbx		#rbx
 ret 		#
-add rsp, 32		#.STACK, 32
+add rsp, 28		#.STACK, 28
 pop rbx		#rbx
 ret 		#
 
@@ -49,30 +49,6 @@ ret 		#
 _Z4mainv:
 mov eax, 1		#Returning_REG0, 1
 ret 		#
-ret 		#
-
-
-_ZN13____List_int_10DestructorEP13____List_int_:
-push rbx		#rbx
-if_24:
-cmp rcx, 0		#this, 0
-je if_24_END		#if_24_END
-mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
-sub r8, 1		#this_0_REG0, 1
-cmp r8, 1		#this_0_REG0, 1
-jge if_24_END		#if_24_END
-mov r8, rcx		#this_TMP_1710120794160, this
-add qword ptr [r8 + 0 ], 1		#this_TMP_1710120794160_0, 1
-mov rbx, r8		#Address_60, this_TMP_1710120794160
-mov rbx, rcx		#Address_60, this
-mov rcx, rbx		#REG_Address_60_Parameter22704, Address_60
-mov edx, 8		#REG_8_Parameter9930, 8
-call _V19internal_deallocatePhx
-Return_Here_78:
-mov rcx, rbx		#REG_Address_60_Parameter13977, Address_60
-call _ZN13____List_int_10DestructorEP13____List_int_
-if_24_END:
-pop rbx		#rbx
 ret 		#
 
 

@@ -49,25 +49,25 @@ ret 		#
 _Z4mainv:
 sub rsp, 44		#.STACK, 44
 mov dword ptr [rsp + 0 ], 10		#.STACK_0, 10
-lea rcx, qword ptr [rsp + 0 ]		#val_102_REG0, .STACK_0
-mov qword ptr [rsp + 4 ], rcx		#.STACK_4, val_102_REG0
-lea rcx, qword ptr [rsp + 4 ]		#a_102_REG1, .STACK_4
-mov qword ptr [rsp + 12 ], rcx		#.STACK_12, a_102_REG1
-jmp Return_Here_138		#Return_Here_138
-lea rcx, qword ptr [rsp + 12 ]		#b_102_REG2, .STACK_12
-mov qword ptr [rsp + 20 ], rcx		#.STACK_20, b_102_REG2
-lea rcx, qword ptr [rsp + 20 ]		#c_102_REG3, .STACK_20
-mov qword ptr [rsp + 28 ], rcx		#.STACK_28, c_102_REG3
-lea rcx, qword ptr [rsp + 28 ]		#d_102_REG4, .STACK_28
-mov qword ptr [rsp + 36 ], rcx		#.STACK_36, d_102_REG4
-lea rcx, qword ptr [rsp + 36 ]		#e_102_REG5, .STACK_36
-mov rcx, rcx		#f_102, e_102_REG5
-jmp Return_Here_138		#Return_Here_138
-mov rcx, 123		#Normal_Cast_needing_Var_102, 123
-jmp Return_Here_138		#Return_Here_138
-mov rcx, 1234		#Dynamic_needing_Var_102, 1234
-jmp Return_Here_138		#Return_Here_138
-Return_Here_138:
+lea rcx, qword ptr [rsp + 0 ]		#val_108_REG0, .STACK_0
+mov qword ptr [rsp + 4 ], rcx		#.STACK_4, val_108_REG0
+lea rcx, qword ptr [rsp + 4 ]		#a_108_REG1, .STACK_4
+mov qword ptr [rsp + 12 ], rcx		#.STACK_12, a_108_REG1
+jmp Return_Here_144		#Return_Here_144
+lea rcx, qword ptr [rsp + 12 ]		#b_108_REG2, .STACK_12
+mov qword ptr [rsp + 20 ], rcx		#.STACK_20, b_108_REG2
+lea rcx, qword ptr [rsp + 20 ]		#c_108_REG3, .STACK_20
+mov qword ptr [rsp + 28 ], rcx		#.STACK_28, c_108_REG3
+lea rcx, qword ptr [rsp + 28 ]		#d_108_REG4, .STACK_28
+mov qword ptr [rsp + 36 ], rcx		#.STACK_36, d_108_REG4
+lea rcx, qword ptr [rsp + 36 ]		#e_108_REG5, .STACK_36
+mov rcx, rcx		#f_108, e_108_REG5
+jmp Return_Here_144		#Return_Here_144
+mov rcx, 123		#Normal_Cast_needing_Var_108, 123
+jmp Return_Here_144		#Return_Here_144
+mov rcx, 1234		#Dynamic_needing_Var_108, 1234
+jmp Return_Here_144		#Return_Here_144
+Return_Here_144:
 mov eax, 1		#Returning_REG6, 1
 add rsp, 44		#.STACK, 44
 ret 		#
