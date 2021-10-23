@@ -1978,7 +1978,7 @@ void Parser::Use_Pattern(int i)
 	for (auto &j : Inlined) {
 		if (j->Is_Template_Object)
 			continue;
-		if (j->Has({ FUNCTION_NODE, CLASS_NODE }))
+		if (j->Has({ FUNCTION_NODE, CLASS_NODE })) 
 			continue;
 
 		j->Update_Size();
