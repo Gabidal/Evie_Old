@@ -40,6 +40,7 @@ namespace PARSED_BY {
 	constexpr long long MEMBER_FUNCTION_DEFINED_INSIDE	= 1 << 11;
 	constexpr long long FUNCTION_PROSESSOR				= 1 << 12;
 	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 13;
+	constexpr long long TYPE_DEFINER					= 1 << 14;
 
 }
 
@@ -264,6 +265,8 @@ public:
 			return Find(size, parent->Scope, flags, f);
 		return nullptr;
 	}
+
+	Node* Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_Base_Type);
 
 	Node* Find(Node* n, Node* p);
 

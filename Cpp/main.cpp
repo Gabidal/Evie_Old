@@ -165,6 +165,9 @@ int Build(int argc, const char* argv[])
     p.Input = Input;
     p.Factory();
 
+    Safe s;
+    s.Parser_Factory();
+
     PostProsessor postprosessor(Global_Scope);
     postprosessor.Components = p.Input;
     postprosessor.Factory();

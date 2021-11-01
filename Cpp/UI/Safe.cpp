@@ -5,9 +5,11 @@
 #include "../../Tests/H/Test_Lexer.h"
 #include "../../Tests/H/Test_Back_End.h"
 #include "../../H/Parser/Algebra.h"
+#include "../../H/Nodes/Node.h"
 
 extern Selector* selector;
 extern Usr* sys;
+extern Node* Global_Scope;
 
 const string Red = "\x1B[1;31m";
 const string Green = "\x1b[1;32m";
@@ -20,7 +22,7 @@ const string Reset = "\x1b[1;0m";
 
 vector<Observation> Notices;
 
-void Safe::Factory()
+void Safe::PostProsessor_Factory()
 {
 	for (auto i : Input) {
 		Check_Return_Validity(i);
@@ -271,6 +273,23 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 
 	if (Definition->Location->GetAbsolute() > n->Location->GetFriendlyAbsolute() && Definition->Location->GetFilePath() == n->Location->GetFilePath()) {
 		Report(Observation(ERROR, "Usage of local variable '" + n->Name + "' before definition at line '" + to_string(Definition->Location->GetFriendlyLine()) + "'.", *n->Location));
+	}
+}
+
+void Safe::Parser_Factory()
+{
+	Reference_Count_Type_Un_Availability();
+}
+
+void Safe::Reference_Count_Type_Un_Availability()
+{
+	Node* Reference_Count_Type = Global_Scope->Find(sys->Info.Reference_Count_Size, Global_Scope, CLASS_NODE, "integer", true);
+
+	if (Reference_Count_Type == nullptr) {
+		Report({
+			Observation(ERROR, "Not found an integer at size '" + to_string(sys->Info.Reference_Count_Size) + "'.", Position()),
+			Observation(SOLUTION, "type [name]{\n    size = " + to_string(sys->Info.Reference_Count_Size) + "\n  }", Position())
+		});
 	}
 }
 

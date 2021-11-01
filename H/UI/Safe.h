@@ -72,19 +72,22 @@ void Report(long type, Back_Expectation_Set expectation, string source, vector<B
 
 class Safe {
 public:
-	Safe(vector<Node*> i) : Input(i) { Factory(); }
+	Safe(vector<Node*> i) : Input(i) { PostProsessor_Factory(); }
 	Safe(){}
 	//single uses
 	void Check_For_Undefined_Inheritance(Node* n);
 
+	void Parser_Factory();
 private:
-	void Factory();
+	void PostProsessor_Factory();
 	void Check_Return_Validity(Node* n);
 	void Disable_Non_Ptr_Class_Return(Node* n);
 	void Check_For_Unitialized_Objects(Node* func);
 	void Warn_Usage_Of_Depricated(Node* n);
 	void Prefer_Class_Cast_Rather_Object_Cast(Node* n);
 	void Warn_Usage_Before_Definition(Node* n);
+
+	void Reference_Count_Type_Un_Availability();
 	vector<Node*> Input;
 };
 

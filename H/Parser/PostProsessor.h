@@ -47,11 +47,12 @@ public:
 
 	//Class handlers
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-	void Type_Definer(int i);						//defines all the members of type
+	void Type_Definer(Node* t);						//defines all the members of type
 	void Destructor_Generator(Node* Type);			//creates the destructor pipeline
 	void Destructor_Caller(Node* v, vector<Node*>& childs);
 	void Member_Function_Defined_Outside(Node* f);	//puts the func into parenting type class
 	void Member_Function_Defined_Inside(Node* f);		//
+	void Update_Template_Member_Members(Node* f);
 
 
 	//void Combine_Conditions(int i);				//combines the if and else

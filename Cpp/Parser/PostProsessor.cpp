@@ -20,7 +20,7 @@ void PostProsessor::Factory() {
 		Handle_Imports(i);
 	}
 	for (int i = 0; i < Scope->Defined.size(); i++) {
-		Type_Definer(i);
+		Type_Definer(Scope->Defined[i]);
 	}
 	for (auto& i : Scope->Defined) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
@@ -75,31 +75,21 @@ void PostProsessor::Transform_Component_Into_Node()
 	return;
 }
 
-void PostProsessor::Type_Definer(int i)
+void PostProsessor::Type_Definer(Node* type)
 {
 	//<summary>
 	//stack type info
 	//</summary>
-	if (Scope->Defined[i]->Type != CLASS_NODE)
+	if (type->Type != CLASS_NODE)
 		return;
-	if (Scope->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
+	if (type->Templates.size() > 0)	//template types are constructed elsewhere.
 		return;
-	/*//update members sizes
-	Parent->Defined[i]->Update_Size();
-
-	//update the member stack offsets
-	Parent->Defined[i]->Update_Members_Mem_Offset();
-
-	//update format
-	Parent->Defined[i]->Update_Format();
-
-	//update all member formats as well
-	for (auto& i : Parent->Defined[i]->Defined)
-		i->Update_Format();
-	*/
+	if (type->is(PARSED_BY::TYPE_DEFINER))
+		return;
+	type->Parsed_By |= PARSED_BY::TYPE_DEFINER;
 
 	//If this is a namespace skip the default constructor builder
-	if (Scope->Defined[i]->is("static") != -1) {
+	if (type->is("static") != -1) {
 		return;
 	}
 
@@ -113,22 +103,22 @@ p(Scope->Defined[i], { j });
 		}*/
 
 	//check for static members and move them into Header section to be labelazed
-	for (auto& j : Scope->Defined[i]->Childs)
+	for (auto& j : type->Childs)
 		if (j->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
-			if (j->Left->is("static") != -1 && Node::Has(Scope->Defined[i]->Header, j->Left) == false)
-				Scope->Defined[i]->Header.push_back(j);
+			if (j->Left->is("static") != -1 && Node::Has(type->Header, j->Left) == false)
+				type->Header.push_back(j);
 		}
-		else if (j->is("static") != -1 && Node::Has(Scope->Defined[i]->Header, j) == false)
-				Scope->Defined[i]->Header.push_back(j);
+		else if (j->is("static") != -1 && Node::Has(type->Header, j) == false)
+			type->Header.push_back(j);
 
 	//infiltrate the class type and inject this behemoth
-	Node* Type = Scope->Defined[i];
+	Node* Type = type;
 	if ((MANGLER::Is_Base_Type(Type) == false) && (!MANGLER::Is_Based_On_Base_Type(Type) || Type->Defined.size() > 0) && sys->Info.Reference_Count_Size > 0) {
 		Node* Reference_Count = new Node(OBJECT_DEFINTION_NODE, Type->Location);
 		Reference_Count->Name = "Reference_Count";
 		Reference_Count->Scope = Type;
 
-		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type, CLASS_NODE, "integer");
+		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type->Get_Scope_As(CLASS_NODE, {"static"}, Type), CLASS_NODE, "integer");
 
 		if (Size_Representer == nullptr) {
 			Report(Observation(WARNING, "Cannot find suitable size type for the reference countter", *Type->Location));
@@ -147,23 +137,28 @@ p(Scope->Defined[i], { j });
 		Type->Defined.insert(Type->Defined.begin(), Reference_Count);
 	}
 
-	Destructor_Generator(Scope->Defined[i]);
+	//constructed template classes are defined later on in the scope, so theyre memebrs are not defined properly
+	for (auto& i : type->Defined) {
+		Update_Template_Member_Members(i);
+	}
+
+	Destructor_Generator(type);
 
 	//DISABLE default constructor if user has already defined one.
 	for (auto j : Scope->Defined) {
 		if (!j->is(FUNCTION_NODE))
 			continue;
-		if (j->Name != Scope->Defined[i]->Name)
+		if (j->Name != type->Name)
 			continue;
 
 		if (j->is("ptr") == -1)
 			continue;	//constructor must return a ptr
-		if (j->is(Scope->Defined[i]->Name) == -1)
+		if (j->is(type->Name) == -1)
 			continue;	//constructor must return its self typed class type ptr.
 
 		if (j->Parameters.size() != 1)
 			continue;
-		if (j->Parameters[0]->is(Scope->Defined[i]->Name) == -1)
+		if (j->Parameters[0]->is(type->Name) == -1)
 			continue;
 		if (j->Parameters[0]->is("ptr") == -1)
 			continue;	//constructor must take itself as a ptr.
@@ -172,15 +167,15 @@ p(Scope->Defined[i], { j });
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
-	Node* Function = new Node(FUNCTION_NODE, Scope->Defined[i]->Location);
-	Function->Name = Scope->Defined[i]->Name;
-	Function->Inheritted = { Scope->Defined[i]->Name, "ptr" };
+	Node* Function = new Node(FUNCTION_NODE, type->Location);
+	Function->Name = type->Name;
+	Function->Inheritted = { type->Name, "ptr" };
 	Function->Scope = Global_Scope;
 
-	Node* This = new Node(PARAMETER_NODE, Scope->Defined[i]->Location);
-	This->Inheritted = {Scope->Defined[i]->Name, "ptr"};
+	Node* This = new Node(PARAMETER_NODE, type->Location);
+	This->Inheritted = { type->Name, "ptr"};
 	This->Name = "this";
-	This->Defined = Scope->Defined[i]->Defined;
+	This->Defined = type->Defined;
 	This->Scope = Function;
 	This->Update_Size();
 
@@ -189,19 +184,19 @@ p(Scope->Defined[i], { j });
 
 	Function->Update_Size();
 
-	Node* p = Scope->Defined[i];
+	Node* p = type;
 	if (p->Has({ "cpp", "evie", "vivid" }) != -1)
 		Function->Inheritted.push_back(p->Inheritted[p->Has({ "cpp", "evie", "vivid" })]);
 
-	Function->Childs = Insert_Dot(Scope->Defined[i]->Childs, Function, This);
+	Function->Childs = Insert_Dot(type->Childs, Function, This);
 
 	//call all the inheritted default or overrided constructor calls.
-	vector<Node*> tmp = Dottize_Inheritanse(Scope->Defined[i], This, Function);
+	vector<Node*> tmp = Dottize_Inheritanse(type, This, Function);
 
 	Function->Childs.insert(Function->Childs.begin(), tmp.begin(), tmp.end());
 
 	//make the return of this pointter
-	Node* ret = new Node(FLOW_NODE, Scope->Defined[i]->Location);
+	Node* ret = new Node(FLOW_NODE, type->Location);
 	ret->Name = "return";
 	ret->Right = new Node(*This);
 	ret->Scope = Function;
@@ -217,16 +212,16 @@ p(Scope->Defined[i], { j });
 	Global_Scope->Childs.push_back(Function);
 
 
-	for (auto& j : Scope->Defined[i]->Defined)
+	for (auto& j : type->Defined)
 		if (j->is(FUNCTION_NODE) /* && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] == Scope->Defined[i]->Name) */ ) {
-			PostProsessor p(Scope->Defined[i]);
+			PostProsessor p(type);
 			p.Member_Function_Defined_Inside(j);
 			p.Member_Function_Defined_Outside(j);
 		}
 
-	for (auto& j : Scope->Defined[i]->Defined)
+	for (auto& j : type->Defined)
 		if (j->is(FUNCTION_NODE)) {
-			PostProsessor p(Scope->Defined[i]);
+			PostProsessor p(type);
 			p.Open_Function_For_Prosessing(j);
 		}
 
@@ -604,6 +599,22 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 	func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE;
 
 	return;
+}
+
+void PostProsessor::Update_Template_Member_Members(Node* n)
+{
+	//this n represents a member in a class that inherits a template type
+	PostProsessor p(Scope);
+
+	//no need to trace this, because the type_definer marks it's procecced
+	for (auto inheritted : n->Inheritted) {
+		if (Lexer::GetComponent(inheritted).is(Flags::KEYWORD_COMPONENT))
+			continue;
+
+		Node* Inheritted_Type = n->Find(inheritted, n, CLASS_NODE);
+
+		p.Type_Definer(Inheritted_Type);
+	}
 }
 
 void PostProsessor::Open_Function_For_Prosessing(Node* f)

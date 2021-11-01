@@ -562,6 +562,27 @@ Node* Node::Find(Node* n, Node* s)
 	return nullptr;
 }
 
+Node* Node::Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_Base_Type) {
+
+	for (Node* i : parent->Defined)
+		if (i->is(flags) && (i->Size == size))
+			if (i->Format == f)
+				if (Needs_To_Be_Base_Type && MANGLER::Is_Base_Type(i))
+					return i;
+
+	for (Node* i : parent->Inlined_Items)
+		if (i->is(flags) && (i->Size == size))
+			if (i->Format == f)
+				if (Needs_To_Be_Base_Type && MANGLER::Is_Base_Type(i))
+					return i;
+
+	if (parent->Scope != nullptr) {
+		return Find(size, parent->Scope, flags, f, Needs_To_Be_Base_Type);
+	}
+
+	return nullptr;
+}
+
 Node* Node::Find(Node* n, Node* s, int f)
 {
 	//some criteria

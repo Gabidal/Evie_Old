@@ -124,7 +124,7 @@ bool IsDigit(char c)
 
 bool IsText(char c)
 {
-    return c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '_';
+    return c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '_' || c == '@';
 }
 
 bool IsParenthesis(char c)

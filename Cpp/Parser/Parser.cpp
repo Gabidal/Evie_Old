@@ -256,6 +256,7 @@ void Parser::Template_Type_Constructor(int i)
 	Node* Og_Type = Input[i].node->Find(Input[i].node, Scope, CLASS_NODE);
 	//copy this template class to be non template
 	Node* Type = Scope->Copy_Node(Og_Type, Og_Type->Scope);
+	Type->Parsed_By = 0;	//reset the parsed flags
 
 	//copy all functions becuase the copy_node by default skips function copying
 	for (auto &j : Type->Defined) {
@@ -1386,7 +1387,6 @@ void Parser::Function_Pattern(int i)
 		func = Scope->Find(Input[i].Value, Scope, true);
 	if (func == nullptr) {
 		Report(Observation(ERROR, "Parser didnt find " + Input[i].node->Name + " constructor!", Input[i].Location));
-		throw::runtime_error("ERROR!");
 	}
 	//override the object definition node flag
 	func->Type = FUNCTION_NODE;
