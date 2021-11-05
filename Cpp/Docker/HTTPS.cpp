@@ -1,9 +1,9 @@
-#include "../../H/Docker/HTTPS.h"
-#include "../../H/UI/Usr.h"
 #define CURL_STATICLIB
 #include "../../Dependencies/Curl/curl.h"
 #include "../../H/UI/Safe.h"
 #include <regex>
+#include "../../H/Docker/HTTPS.h"
+#include "../../H/UI/Usr.h"
 
 extern Usr* sys;
 

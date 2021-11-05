@@ -1,18 +1,6 @@
-type int{
-	size = 4
-}
+use "../STD/STD.e"
 
-type char{
-	size = 1
-}
-
-type List<T>{
-	
-}
-
-type String{
-		List<char> ptr Data.List<char>()
-}
+use std
 
 export int main(){
 	String a.String()

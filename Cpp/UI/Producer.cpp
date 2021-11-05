@@ -1,12 +1,13 @@
 //WHAT EVER YOU THINK, WHAT EVER YOU WANT
 //DONT!! FUCKING CHANGE THE ORDER OF THESE FUCKING HEADER DECLARATIONS YOU NOBNOB.
-#include "../../H/UI/Producer.h"
-#define CURL_STATICLIB  
+#define CURL_STATICLIB
 #include "../../Dependencies/Curl/curl.h"
 #include <regex>
 #include "../../H/Docker/HTTPS.h"
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Docker.h"
+#include "../../H/UI/Producer.h"
+
 
 
 string Produce_Working_Dir = "";

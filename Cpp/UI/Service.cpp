@@ -1,3 +1,6 @@
+#ifdef _WIN32
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include "../../H/UI/Service.h"
 #include "../../H/Parser/Parser.h"
 #include "../../H/Docker/Docker.h"
@@ -8,6 +11,262 @@
 #include "../../H/BackEnd/BackEnd.h"
 
 #include <math.h>
+#define ERROR (MSG_Type)1
+
+Proxy* UDP_Server::Receive() {
+	int Error = 0;
+	unsigned int Size = 0;
+	int Mega_Byte = 1000000;
+
+	//recieve the upcoming file size
+	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
+
+	if (Size < 1 || Size > Mega_Byte * 100)
+		Report(Observation(ERROR, "Received message size is incorrect: '" + to_string(Size) + "B'."));
+
+	vector<char> Buffer = vector<char>(Size);
+
+	//this recieves the file content
+	Error = recv(Socket, Buffer.data(), Buffer.size(), 0);
+
+	Proxy* Result = new Proxy(string(Buffer.data(), Size));
+
+	if (Error <= 0)
+		return nullptr;
+	else
+		return Result;
+}
+
+void UDP_Server::Send(char* Data, int Length) {
+	int Error = 0;
+
+	//send the upcoming file size
+	//Error = send(Socket, (char*)&Length, sizeof(Length), 0);
+
+	//this sends the file content
+	Error = send(Socket, Data, Length, 0);
+
+	if (Error <= 0) {
+		//we could stop the service here
+	}
+}
+
+void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
+{
+	string Result = "{\"Status\": " + to_string(Wellfare) + ",\"Elements\": \"[";
+
+	for (auto i : MSG) {
+		string Purified_Name = i->Name;
+
+		for (int i = 0; i < Purified_Name.size(); i++) {
+			if (Purified_Name[i] == '\n') {
+				Purified_Name[i] = 'n';
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+			if (Purified_Name[i] == '\t') {
+				Purified_Name[i] = 't';
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+			if (Purified_Name[i] == '\"') {
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+		}
+
+		Result += "\\\"" + Purified_Name + "\\\",";
+	}
+
+	Result = Result.substr(0, Result.size() - 1);
+
+	Result += "]\"}";
+
+	Send(Result);
+}
+
+UDP_Server::UDP_Server() {
+	WSADATA wsadata = WSADATA();
+	WSAStartup(MAKEWORD(4, 4), &wsadata);
+
+	Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (Socket == INVALID_SOCKET)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
+
+	sockaddr_in bind_address = { 0 };
+	bind_address.sin_family = AF_INET;
+	//bind_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
+
+	bind_address.sin_port = htons(1111/*Port*/);
+
+	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
+
+	if (Error < 0)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
+
+	int length = sizeof(sockaddr_in);
+	if (getsockname(Socket, (sockaddr*)&bind_address, &length) < 0)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
+
+	Port = bind_address.sin_port;
+
+	cout << htons(Port) << endl;
+
+	if (listen(Socket, 5) < 0)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
+
+	sockaddr_in client_address = { 0 };
+	length = sizeof(sockaddr);
+	auto client = accept(Socket, (sockaddr*)&client_address, (int*)&length);
+
+	closesocket(Socket);
+
+	Socket = client;
+
+	if (client == INVALID_SOCKET)
+		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
+}
+
+UDP_Server::~UDP_Server() {
+	closesocket(Socket);
+}
+
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include "../../H/UI/Service.h"
+#include "../../H/Parser/Parser.h"
+#include "../../H/Docker/Docker.h"
+#include "../../H/PreProsessor/PreProsessor.h"
+#include "../../H/Parser/PostProsessor.h"
+#include "../../H/BackEnd/IRGenerator.h"
+#include "../../H/BackEnd/IRPostProsessor.h"
+#include "../../H/BackEnd/BackEnd.h"
+
+#include <math.h>
+Proxy* UDP_Server::Receive() {
+	int Error = 0;
+	unsigned int Size = 0;
+	int Mega_Byte = 1000000;
+
+	//recieve the upcoming file size
+	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
+
+	if (Size < 1 || Size > Mega_Byte * 100)
+		Report(Observation(ERROR, "Received message size is incorrect: '" + to_string(Size) + "B'."));
+
+	vector<char> Buffer = vector<char>(Size);
+
+	//this recieves the file content
+	Error = recv(Socket, Buffer.data(), Buffer.size(), 0);
+
+	Proxy* Result = new Proxy(string(Buffer.data(), Size));
+
+	if (Error <= 0)
+		return nullptr;
+	else
+		return Result;
+}
+
+void UDP_Server::Send(char* Data, int Length) {
+	int Error = 0;
+
+	//send the upcoming file size
+	//Error = send(Socket, (char*)&Length, sizeof(Length), 0);
+
+	//this sends the file content
+	Error = send(Socket, Data, Length, 0);
+
+	if (Error <= 0) {
+		//we could stop the service here
+	}
+}
+
+void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
+{
+	string Result = "{\"Status\": " + to_string(Wellfare) + ",\"Elements\": \"[";
+
+	for (auto i : MSG) {
+		string Purified_Name = i->Name;
+
+		for (int i = 0; i < Purified_Name.size(); i++) {
+			if (Purified_Name[i] == '\n') {
+				Purified_Name[i] = 'n';
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+			if (Purified_Name[i] == '\t') {
+				Purified_Name[i] = 't';
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+			if (Purified_Name[i] == '\"') {
+				Purified_Name.insert(Purified_Name.begin() + i, '\\');
+			}
+		}
+
+		Result += "\\\"" + Purified_Name + "\\\",";
+	}
+
+	Result = Result.substr(0, Result.size() - 1);
+
+	Result += "]\"}";
+
+	Send(Result);
+}
+
+UDP_Server::UDP_Server() {
+	//WSADATA wsadata = WSADATA();
+	//WSAStartup(MAKEWORD(4, 4), &wsadata);
+
+	Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (Socket == -1)
+		Report(Observation(ERROR, "Invalid socket"));
+
+	sockaddr_in bind_address = { 0 };
+	bind_address.sin_family = AF_INET;
+	//bind_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
+
+	bind_address.sin_port = htons(1111/*Port*/);
+
+	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
+
+	if (Error < 0)
+		Report(Observation(ERROR, "Invalid socket"));
+
+	int length = sizeof(sockaddr_in);
+	if (getsockname(Socket, (sockaddr*)&bind_address, &length) < 0)
+		Report(Observation(ERROR, "Invalid socket"));
+
+	Port = bind_address.sin_port;
+
+	cout << htons(Port) << endl;
+
+	if (listen(Socket, 5) < 0)
+		Report(Observation(ERROR, "Invalid socket"));
+
+	sockaddr_in client_address = { 0 };
+	length = sizeof(sockaddr);
+	auto client = accept(Socket, (sockaddr*)&client_address, (int*)&length);
+
+	close(Socket);
+
+	Socket = client;
+
+	if (client == -1)
+		Report(Observation(ERROR, "Invalid socket"));
+}
+
+UDP_Server::~UDP_Server() {
+	close(Socket);
+}
+
+
+#endif
+
+
 
 double Sensitivity = 50.0 / 100.0; //the higher the value is the lower the sens is.
 
@@ -186,253 +445,6 @@ void Proxy::Clean(string& raw)
 	}
 }
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#include <WS2tcpip.h>
-#define ERROR (MSG_Type)1
-
-Proxy* UDP_Server::Receive() {
-	int Error = 0;
-	unsigned int Size = 0;
-	int Mega_Byte = 1000000;
-
-	//recieve the upcoming file size
-	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
-
-	if (Size < 1 || Size > Mega_Byte * 100)
-		Report(Observation(ERROR, "Received message size is incorrect: '" + to_string(Size) + "B'."));
-
-	vector<char> Buffer = vector<char>(Size);
-
-	//this recieves the file content
-	Error = recv(Socket, Buffer.data(), Buffer.size(), 0);
-
-	Proxy* Result = new Proxy(string(Buffer.data(), Size));
-
-	if (Error <= 0)
-		return nullptr;
-	else
-		return Result;
-}
-
-void UDP_Server::Send(char* Data, int Length) {
-	int Error = 0;
-
-	//send the upcoming file size
-	//Error = send(Socket, (char*)&Length, sizeof(Length), 0);
-
-	//this sends the file content
-	Error = send(Socket, Data, Length, 0);
-
-	if (Error <= 0) {
-		//we could stop the service here
-	}
-}
-
-void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
-{
-	string Result = "{\"Status\": " + to_string(Wellfare) + ",\"Elements\": \"[";
-
-	for (auto i : MSG) {
-		string Purified_Name = i->Name;
-
-		for (int i = 0; i < Purified_Name.size(); i++) {
-			if (Purified_Name[i] == '\n') {
-				Purified_Name[i] = 'n';
-				Purified_Name.insert(Purified_Name.begin() + i, '\\');
-			}
-			if (Purified_Name[i] == '\t') {
-				Purified_Name[i] = 't';
-				Purified_Name.insert(Purified_Name.begin() + i, '\\');
-			}
-			if (Purified_Name[i] == '\"') {
-				Purified_Name.insert(Purified_Name.begin() + i, '\\');
-			}
-		}
-
-		Result += "\\\"" +  Purified_Name + "\\\",";
-	}
-
-	Result = Result.substr(0, Result.size() - 1);
-
-	Result += "]\"}";
-
-	Send(Result);
-}
-
-UDP_Server::UDP_Server() {
-	WSADATA wsadata = WSADATA();
-	WSAStartup(MAKEWORD(4, 4), &wsadata);
-
-	Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (Socket == INVALID_SOCKET)
-		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
-
-	sockaddr_in bind_address = { 0 };
-	bind_address.sin_family = AF_INET;
-	//bind_address.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
-
-	bind_address.sin_port = htons(1111/*Port*/);
-
-	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
-
-	if (Error < 0)
-		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
-
-	int length = sizeof(sockaddr_in);
-	if (getsockname(Socket, (sockaddr*)&bind_address, &length) < 0)
-		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
-
-	Port = bind_address.sin_port;
-
-	cout << htons(Port) << endl;
-
-	if (listen(Socket, 5) < 0)
-		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
-
-	sockaddr_in client_address = { 0 };
-	length = sizeof(sockaddr);
-	auto client = accept(Socket, (sockaddr*)&client_address, (int*)&length);
-
-	closesocket(Socket);
-
-	Socket = client;
-
-	if (client == INVALID_SOCKET)
-		Report(Observation(ERROR, "Invalid socket" + to_string(WSAGetLastError())));
-}
-
-UDP_Server::~UDP_Server() {
-	closesocket(Socket);
-}
-
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-Proxy* UDP_Server::Receive() {
-	int Error = 0;
-	unsigned int Size = 0;
-	int Mega_Byte = 1000000;
-
-	//recieve the upcoming file size
-	Error = recv(Socket, (char*)&Size, sizeof(Size), 0);
-
-	if (Size < 1 || Size > Mega_Byte * 100)
-		Report(Observation(ERROR, "Received message size is incorrect: '" + to_string(Size) + "B'."));
-
-	vector<char> Buffer = vector<char>(Size);
-
-	//this recieves the file content
-	Error = recv(Socket, Buffer.data(), Buffer.size(), 0);
-
-	Proxy* Result = new Proxy(string(Buffer.data(), Size));
-
-	if (Error <= 0)
-		return nullptr;
-	else
-		return Result;
-}
-
-void UDP_Server::Send(char* Data, int Length) {
-	int Error = 0;
-
-	//send the upcoming file size
-	//Error = send(Socket, (char*)&Length, sizeof(Length), 0);
-
-	//this sends the file content
-	Error = send(Socket, Data, Length, 0);
-
-	if (Error <= 0) {
-		//we could stop the service here
-	}
-}
-
-void UDP_Server::Send(MSG_Type Wellfare, vector<Node*> MSG)
-{
-	string Result = "{\"Status\": " + to_string(Wellfare) + ",\"Elements\": \"[";
-
-	for (auto i : MSG) {
-		string Purified_Name = i->Name;
-
-		for (int i = 0; i < Purified_Name.size(); i++) {
-			if (Purified_Name[i] == '\n') {
-				Purified_Name[i] = 'n';
-				Purified_Name.insert(Purified_Name.begin() + i, '\\');
-			}
-			if (Purified_Name[i] == '\t') {
-				Purified_Name[i] = 't';
-				Purified_Name.insert(Purified_Name.begin() + i, '\\');
-			}
-			if (Purified_Name[i] == '\"') {
-				Purified_Name.insert(Purified_Name.begin() + i, '\\');
-			}
-		}
-
-		Result += "\\\"" + Purified_Name + "\\\",";
-	}
-
-	Result = Result.substr(0, Result.size() - 1);
-
-	Result += "]\"}";
-
-	Send(Result);
-}
-
-UDP_Server::UDP_Server() {
-	//WSADATA wsadata = WSADATA();
-	//WSAStartup(MAKEWORD(4, 4), &wsadata);
-
-	Socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (Socket == -1)
-		Report(Observation(ERROR, "Invalid socket"));
-
-	sockaddr_in bind_address = { 0 };
-	bind_address.sin_family = AF_INET;
-	//bind_address.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-	int Error = inet_pton(AF_INET, "localhost", &bind_address.sin_addr.s_addr);
-
-	bind_address.sin_port = htons(1111/*Port*/);
-
-	Error = ::bind(Socket, (sockaddr*)&bind_address, (int)sizeof(sockaddr_in));
-
-	if (Error < 0)
-		Report(Observation(ERROR, "Invalid socket"));
-
-	int length = sizeof(sockaddr_in);
-	if (getsockname(Socket, (sockaddr*)&bind_address, &length) < 0)
-		Report(Observation(ERROR, "Invalid socket"));
-
-	Port = bind_address.sin_port;
-
-	cout << htons(Port) << endl;
-
-	if (listen(Socket, 5) < 0)
-		Report(Observation(ERROR, "Invalid socket"));
-
-	sockaddr_in client_address = { 0 };
-	length = sizeof(sockaddr);
-	auto client = accept(Socket, (sockaddr*)&client_address, (int*)&length);
-
-	close(Socket);
-
-	Socket = client;
-
-	if (client == -1)
-		Report(Observation(ERROR, "Invalid socket"));
-}
-
-UDP_Server::~UDP_Server() {
-	close(Socket);
-}
-
-
-#endif
 
 void Code_Analyzer(string Working_Dir) {
 

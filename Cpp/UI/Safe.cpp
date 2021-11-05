@@ -283,6 +283,12 @@ void Safe::Parser_Factory()
 
 void Safe::Reference_Count_Type_Un_Availability()
 {
+	for (auto& i : Global_Scope->Defined) {
+		if (MANGLER::Is_Base_Type(i)) {
+			i->Update_Size();
+		}
+	}
+
 	Node* Reference_Count_Type = Global_Scope->Find(sys->Info.Reference_Count_Size, Global_Scope, CLASS_NODE, "integer", true);
 
 	if (Reference_Count_Type == nullptr) {
