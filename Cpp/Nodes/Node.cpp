@@ -840,7 +840,7 @@ int Node::Update_Size() {
 
 	for (int j = 0; j < Trace_Update_Size.size(); j++)
 		if (this == Trace_Update_Size[j]) {
-			Trace_Update_Size.pop_back();
+			//Trace_Update_Size.pop_back();
 			if (is("ptr") != -1 || is("func") != -1)
 				return _SYSTEM_BIT_SIZE_;
 			return Size;
@@ -871,6 +871,34 @@ int Node::Update_Size() {
 	}
 	Trace_Update_Size.pop_back();
 	return Size;
+}
+
+vector<Node*> Trace_Update_Member_Variable;
+void Node::Update_Member_Variable_Offsets(Node* obj) {
+
+	for (int j = 0; j < Trace_Update_Member_Variable.size(); j++)
+		if (obj == Trace_Update_Member_Variable[j]) {
+			return;
+		}
+
+	Trace_Update_Member_Variable.push_back(obj);
+
+	int Current_Offset = 0;
+	for (auto i : obj->Defined) {
+		if (i->is(FUNCTION_NODE))
+			continue;
+
+		if (!obj->is(FUNCTION_NODE)) {
+			i->Memory_Offset = Current_Offset;
+			Current_Offset += i->Get_Size();
+		}
+
+		if (i->Defined.size() > 0) {
+			Update_Member_Variable_Offsets(i);
+		}
+	}
+
+	Trace_Update_Member_Variable.pop_back();
 }
 
 vector<Node*> Node::Get_all(int f, vector<Node*> Trace)

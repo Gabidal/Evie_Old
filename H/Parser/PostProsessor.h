@@ -60,6 +60,10 @@ public:
 	void Open_Condition_For_Prosessing(int i);		//just opens the condition insides for post prosessor.
 	void Open_Paranthesis(int i);					//(..)
 
+	//Sanitizers
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Reduntant_Paranthesis_Cleaner(int i);
+
 	//Callation handlers
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Open_Call_Parameters_For_Prosessing(int i);//open the calls parameters to do postprosessing
@@ -71,7 +75,8 @@ public:
 	void Find_Call_Owner(Node* n);					//justifyes the fucntion to call
 
 
-
+	//Misc
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Algebra_Laucher(Node* Scope, vector<Node*> &List);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node*& n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
@@ -80,7 +85,6 @@ public:
 	void Determine_Array_Type(int i);				//
 	void Open_PreFix_Operator(int i);
 	void Open_PostFix_Operator(int i);
-										
 	void Open_Loop_For_Prosessing(int i);
 	void Update_Used_Object_Info(Node* n);
 

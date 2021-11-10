@@ -1,5 +1,4 @@
-use "../../STD/STD.e"
-#use "https://github.com/Gabidal/Evie/STD/STD.e"
+use "https://github.com/Gabidal/std/std.e"
 
 export int main(){
 	jump Start_Test

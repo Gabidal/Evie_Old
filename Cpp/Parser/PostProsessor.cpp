@@ -36,7 +36,10 @@ void PostProsessor::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		//Handle_Namespace_Inlining(i);
 		Cast(Input[i]);
+		//Never ever duper gever seperate these two funktions from each others, or modify this order.
 		Open_Paranthesis(i);
+		Reduntant_Paranthesis_Cleaner(i);
+		//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 		Operator_Overload(i);
 		Open_Condition_For_Prosessing(i);
 		Open_Loop_For_Prosessing(i);
@@ -745,6 +748,20 @@ void PostProsessor::Open_Paranthesis(int i)
 		Input[i]->Inheritted = Input[i]->Childs.back()->Inheritted;
 }
 
+void PostProsessor::Reduntant_Paranthesis_Cleaner(int i)
+{
+	if (!Input[i]->is(CONTENT_NODE))
+		return;
+
+	//((123))->address
+	if (Input[i]->Childs.size() == 1) {
+		if (Input[i]->Cast_Type)
+			Input[i]->Childs[0]->Cast_Type = Input[i]->Cast_Type;
+		Input[i]->Childs[0]->Context = Input[i]->Context;
+		Input[i] = Input[i]->Childs[0];
+	}
+}
+
 void PostProsessor::Find_Call_Owner(Node* n)
 {
 	if (!n->is(CALL_NODE))
@@ -808,10 +825,15 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	vector<Node*> Scopes;
 
 	if (caller->Fetcher) {
-		/*if (caller->Fetcher->Defined.size() == 0) {
-			caller->Fetcher->Defined = caller->Find(caller->Fetcher, caller->Scope)->Defined;
-		}*/
-		Scopes.push_back(caller->Find(caller->Fetcher, caller->Scope));
+		//loop through the fetchers inherits
+		for (auto i : caller->Fetcher->Inheritted) {
+			if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
+				continue;
+
+			Node* Inheritted = Scope->Find(i, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
+
+			Scopes.push_back(Inheritted);
+		}
 	}
 	else if (caller->Get_Scope_As(CLASS_NODE, caller) != Global_Scope) {
 		Scopes.push_back(caller->Get_Scope_As(CLASS_NODE, caller));
@@ -1282,9 +1304,22 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 	if (n->Name != ".")
 		return;
 
-	Cast(n->Left);
-	Cast(n->Right);
-	Combine_Member_Fetching(n->Left);
+	//need to go recursive here, simply because otherwise this fetcher is just put as a tail behind the fetched.
+	//This in turn will disable complex structures.
+
+	//all of the casts and left side member computing is done in this one line.
+	PostProsessor p(Scope, vector<Node**>{&n->Left});
+
+	if (n->Right->is(CALL_NODE)) {
+		Cast(n->Right);
+	}
+	else {
+		p = PostProsessor(Scope, vector<Node*>{n->Right});
+	}
+
+	//Cast(n->Left);
+	//Cast(n->Right);
+	//Combine_Member_Fetching(n->Left);
 
 	//this is for the manual writation usage of this.X
 	for (auto* i : n->Get_all()) {

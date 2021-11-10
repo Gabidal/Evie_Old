@@ -1,4 +1,4 @@
-use "../../STD/STD.e"
+use "https://github.com/Gabidal/std/std.e"
 
 export int Start_Test(){
 	int i

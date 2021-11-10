@@ -469,22 +469,7 @@ public:
 		return;
 	}
 
-	void Update_Member_Variable_Offsets(Node* obj) {
-		int Current_Offset = 0;
-		for (auto i : obj->Defined) {
-			if (i->is(FUNCTION_NODE))
-				continue;
-
-			if (!obj->is(FUNCTION_NODE)) {
-				i->Memory_Offset = Current_Offset;
-				Current_Offset += i->Get_Size();
-			}
-
-			if (i->Defined.size() > 0) {
-				Update_Member_Variable_Offsets(i);
-			}
-		}
-	}
+	void Update_Member_Variable_Offsets(Node* obj);
 
 	void Update_Defined_Stack_Offsets();
 

@@ -1,4 +1,4 @@
-use "../../STD/STD.e"
+use "https://github.com/Gabidal/std/std.e"
 
 int sum(int a){
 	return 3 + a
