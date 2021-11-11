@@ -1960,6 +1960,13 @@ void Parser::Use_Pattern(int i)
 
 	Node* Closest_Namespace = Scope->Get_Scope_As(CLASS_NODE, Scope);
 
+	//check if the same namespace is already inlined to this exact scope.
+	for (auto n : Closest_Namespace->Inlined_Namespaces)
+		if (n == Namespace || n->Name == Namespace->Name)
+			return;
+
+	Closest_Namespace->Inlined_Namespaces.push_back(Namespace);
+
 	for (auto &j : Inlined) {
 		Node* n = j;
 		if (j->is(FUNCTION_NODE))

@@ -84,6 +84,7 @@ public:
 	int Call_Space_Start_Address = 0;
 	//namespace inlining features
 	vector<Node*> Inlined_Items;
+	vector<Node*> Inlined_Namespaces;
 	//for maximus parametrus usagus.
 	int Size_of_Call_Space = 0;
 	//for local variables.

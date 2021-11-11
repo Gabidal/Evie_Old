@@ -11,18 +11,22 @@ extern Usr* sys;
 
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node(); 
-	for (int i = 0; i < Scope->Defined.size(); i++) {
+
+	vector<Node*> All_Defined = Scope->Defined;
+	Scope->Append(All_Defined, Scope->Inlined_Items);
+
+	for (int i = 0; i < All_Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
-		Type_Size_Definer(i);
+		Type_Size_Definer(All_Defined[i]);
 	}
-	for (int i = 0; i < Scope->Defined.size(); i++) {
+	for (int i = 0; i < All_Defined.size(); i++) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
-		Handle_Imports(i);
+		Handle_Imports(All_Defined[i]);
 	}
-	for (int i = 0; i < Scope->Defined.size(); i++) {
-		Type_Definer(Scope->Defined[i]);
+	for (int i = 0; i < All_Defined.size(); i++) {
+		Type_Definer(All_Defined[i]);
 	}
-	for (auto& i : Scope->Defined) {
+	for (auto& i : All_Defined) {
 		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
 		Member_Function_Defined_Outside(i);
 		Member_Function_Defined_Inside(i);
@@ -121,7 +125,7 @@ p(Scope->Defined[i], { j });
 		Reference_Count->Name = "Reference_Count";
 		Reference_Count->Scope = Type;
 
-		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type->Get_Scope_As(CLASS_NODE, {"static"}, Type), CLASS_NODE, "integer");
+		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type->Get_Scope_As(CLASS_NODE, {"static"}, Type), CLASS_NODE, "integer", true);
 
 		if (Size_Representer == nullptr) {
 			Report(Observation(WARNING, "Cannot find suitable size type for the reference countter", *Type->Location));
@@ -148,7 +152,9 @@ p(Scope->Defined[i], { j });
 	Destructor_Generator(type);
 
 	//DISABLE default constructor if user has already defined one.
-	for (auto j : Scope->Defined) {
+	vector<Node*> All_Defined = Scope->Defined;
+	Scope->Append(All_Defined, Scope->Inlined_Items);
+	for (auto j : All_Defined) {
 		if (!j->is(FUNCTION_NODE))
 			continue;
 		if (j->Name != type->Name)
@@ -173,7 +179,7 @@ p(Scope->Defined[i], { j });
 	Node* Function = new Node(FUNCTION_NODE, type->Location);
 	Function->Name = type->Name;
 	Function->Inheritted = { type->Name, "ptr" };
-	Function->Scope = Global_Scope;
+	Function->Scope = Scope->Get_Scope_As(CLASS_NODE, {"static"}, Scope);
 
 	Node* This = new Node(PARAMETER_NODE, type->Location);
 	This->Inheritted = { type->Name, "ptr"};
@@ -211,8 +217,8 @@ p(Scope->Defined[i], { j });
 
 	Scope->Append(Function->Childs, P.Output);
 
-	Global_Scope->Defined.push_back(Function);
-	Global_Scope->Childs.push_back(Function);
+	Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Defined.push_back(Function);
+	Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Childs.push_back(Function);
 
 
 	for (auto& j : type->Defined)
@@ -1691,36 +1697,36 @@ void PostProsessor::Open_PostFix_Operator(int i)
 	PostProsessor p(Scope, vector<Node**>{ &Input[i]->Left });
 }
 
-void PostProsessor::Type_Size_Definer(int i)
+void PostProsessor::Type_Size_Definer(Node* t)
 {
-	if (Scope->Defined[i]->Type != CLASS_NODE)
+	if (t->Type != CLASS_NODE)
 		return;
-	if (Scope->Defined[i]->Templates.size() > 0)	//template types are constructed elsewhere.
+	if (t->Templates.size() > 0)	//template types are constructed elsewhere.
 		return;
 	//update members sizes
-	Scope->Defined[i]->Update_Size();
+	t->Update_Size();
 
 	//update the member stack offsets
-	Scope->Defined[i]->Update_Local_Variable_Mem_Offsets();
+	t->Update_Local_Variable_Mem_Offsets();
 
 	//update format
-	Scope->Defined[i]->Update_Format();
+	t->Update_Format();
 
 	//update all member formats as well
-	for (auto& i : Scope->Defined[i]->Defined)
+	for (auto& i : t->Defined)
 		i->Update_Format();
 }
 
-void PostProsessor::Handle_Imports(int i)
+void PostProsessor::Handle_Imports(Node* i)
 {
-	if (!Scope->Defined[i]->is(IMPORT))
+	if (!i->is(IMPORT))
 		return;
 	//import func new (4, ABC)
 	//all numbers need to be redefined by type size.
 	//and all other text is already classes.
 	//pointters are inside the parameter as inheritance.
 	bool Parse_Returning_Numerical_Types = false;
-	vector<Node*> Numerical_Types = Scope->Defined[i]->Parameters;
+	vector<Node*> Numerical_Types = i->Parameters;
 Again:;
 	for (int j = 0; j < Numerical_Types.size(); j++) {
 		vector<string> Inheritted = Numerical_Types[j]->Inheritted;
@@ -1737,16 +1743,16 @@ Again:;
 			Numerical_Types[j]->Inheritted.insert(Numerical_Types[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
 		}
 	}
-	if (Parse_Returning_Numerical_Types == false && Scope->Defined[i]->Numerical_Return_Types.size() > 0) {
+	if (Parse_Returning_Numerical_Types == false && i->Numerical_Return_Types.size() > 0) {
 		Parse_Returning_Numerical_Types = true;
-		Numerical_Types = Scope->Defined[i]->Numerical_Return_Types;
+		Numerical_Types = i->Numerical_Return_Types;
 		goto Again;
 	}
 	else if (Parse_Returning_Numerical_Types) {
 		for (auto j : Numerical_Types) {
-			Scope->Defined[i]->Inheritted.push_back(j->Name);
+			i->Inheritted.push_back(j->Name);
 		}
-		Scope->Defined[i]->Numerical_Return_Types.clear();
+		i->Numerical_Return_Types.clear();
 	}
 	//TODO: Re-order all return types and parameter types into a logical order.
 	//now all types are good to go.

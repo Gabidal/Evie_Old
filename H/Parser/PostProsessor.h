@@ -42,8 +42,8 @@ public:
 	
 	//Import handlers
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-	void Type_Size_Definer(int i);
-	void Handle_Imports(int i);					//here we can redefine the types given to parameters.
+	void Type_Size_Definer(Node* t);
+	void Handle_Imports(Node* i);					//here we can redefine the types given to parameters.
 
 	//Class handlers
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
