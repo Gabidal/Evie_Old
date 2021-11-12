@@ -112,45 +112,55 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip
 				continue;
 			Result.push_back(Inheritted[i]);
 		}
+		if (Cast_Type != nullptr) {
+			if (MANGLER::Is_Base_Type(Cast_Type))
+				Result.push_back(Cast_Type->Name);
+			else
+				Result = Cast_Type->Get_Inheritted(Skip_Prefixes, Get_Name, Skip_Keywords);
+		}
 		return Result;
 	}
 }
 
-string Node::Get_Inheritted(string seperator, bool Skip_Prefixes, bool Get_Name, bool skip_keywords) {
+string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name, bool Skip_Keywords) {
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
-		return seperator + Name;
+		return Seperator + Name;
 	}
 	else if (is(NUMBER_NODE) && Cast_Type == nullptr) {
 		//1.29348
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
-				return Find(4, Global_Scope, "decimal")->Get_Inheritted(seperator, Skip_Prefixes, true);
+				return Find(4, Global_Scope, "decimal")->Get_Inheritted(Seperator, Skip_Prefixes, true);
 			else
-				return Find(8, Global_Scope, "decimal")->Get_Inheritted(seperator,  Skip_Prefixes, true);
+				return Find(8, Global_Scope, "decimal")->Get_Inheritted(Seperator,  Skip_Prefixes, true);
 		}
 		else {
 			if (atoll(Name.c_str()) > INT_MAX) {
-				return Find(8, Global_Scope, "integer")->Get_Inheritted(seperator, Skip_Prefixes, true);
+				return Find(8, Global_Scope, "integer")->Get_Inheritted(Seperator, Skip_Prefixes, true);
 			}
-			return Find(4, Global_Scope, "integer")->Get_Inheritted(seperator, Skip_Prefixes, true);
+			return Find(4, Global_Scope, "integer")->Get_Inheritted(Seperator, Skip_Prefixes, true);
 		}
 	}
 	else if (is(NUMBER_NODE) && Cast_Type != nullptr) {
 		if (Cast_Type != nullptr)
-			return seperator + Cast_Type->Name;
+			return Seperator + Cast_Type->Name;
 	}
 	else {
-		string result = "";
+		string Result = "";
 		for (int i = 0; i < Inheritted.size(); i++) {
 			if (Skip_Prefixes && ((Inheritted[i] == "ptr") || (Inheritted[i] == "ref")))
 				continue;
-			else if (skip_keywords && Lexer::GetComponents(Inheritted[i])[0].is(Flags::KEYWORD_COMPONENT))
+			else if (Skip_Keywords && Lexer::GetComponents(Inheritted[i])[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
-			result += seperator + Inheritted[i];
+			Result += Seperator + Inheritted[i];
 		}
-		if (Cast_Type != nullptr)
-			result = seperator + Cast_Type->Name;
-		return result;
+		if (Cast_Type != nullptr) {
+			if (MANGLER::Is_Base_Type(Cast_Type))
+				Result = Seperator + Cast_Type->Name;
+			else
+				Result = Cast_Type->Get_Inheritted(Seperator, Skip_Prefixes, Get_Name, Skip_Keywords);
+		}
+		return Result;
 	}
 }
 
@@ -567,13 +577,21 @@ Node* Node::Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_B
 	for (Node* i : parent->Defined)
 		if (i->is(flags) && (i->Size == size))
 			if (i->Format == f)
-				if (Needs_To_Be_Base_Type && MANGLER::Is_Base_Type(i))
+				if (Needs_To_Be_Base_Type) {
+					if (MANGLER::Is_Base_Type(i))
+						return i;
+				}
+				else
 					return i;
 
 	for (Node* i : parent->Inlined_Items)
 		if (i->is(flags) && (i->Size == size))
 			if (i->Format == f)
-				if (Needs_To_Be_Base_Type && MANGLER::Is_Base_Type(i))
+				if (Needs_To_Be_Base_Type) {
+					if (MANGLER::Is_Base_Type(i))
+						return i;
+				}
+				else
 					return i;
 
 	if (parent->Scope != nullptr) {

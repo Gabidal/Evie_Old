@@ -44,6 +44,7 @@ public:
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Type_Size_Definer(Node* t);
 	void Handle_Imports(Node* i);					//here we can redefine the types given to parameters.
+	Node* Construct_Node_From_Numerical_Info(Node* n, Node_Type Flag);
 
 	//Class handlers
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-

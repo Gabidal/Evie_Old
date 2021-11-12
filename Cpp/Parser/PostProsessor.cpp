@@ -1195,6 +1195,17 @@ int PostProsessor::Get_Casting_Distance(Node* a, Node* b, bool Layer)
 	if (Current->Get_Inheritted("_", true, false, true) == Goal->Get_Inheritted("_", true, false, true))
 		return Result + Layer;
 
+	/*
+	There are atm two different types of basetype complexes
+
+	The Legacy:
+	ptr char{}
+
+	The Tneplate system:
+	ptr char __VIRTUAL_CLASS_CHAR_PTR__{}
+
+	*/
+
 	if (!MANGLER::Is_Base_Type(Current))
 		for (auto I : Current->Get_Inheritted(true, false, true)) {
 			//try to chack if this inheritted is connected to the goal type.
@@ -1725,11 +1736,8 @@ void PostProsessor::Handle_Imports(Node* i)
 	//all numbers need to be redefined by type size.
 	//and all other text is already classes.
 	//pointters are inside the parameter as inheritance.
-	bool Parse_Returning_Numerical_Types = false;
-	vector<Node*> Numerical_Types = i->Parameters;
-Again:;
-	for (int j = 0; j < Numerical_Types.size(); j++) {
-		vector<string> Inheritted = Numerical_Types[j]->Inheritted;
+	for (int j = 0; j < i->Parameters.size(); j++) {
+		/*vector<string> Inheritted = Numerical_Types[j]->Inheritted;
 		if (Numerical_Types[j]->is(NUMBER_NODE)) {
 			*Numerical_Types[j] = *Global_Scope->Find(atoi(Numerical_Types[j]->Name.c_str()), Global_Scope, CLASS_NODE, Numerical_Types[j]->Format);
 			Numerical_Types[j]->Inheritted.insert(Numerical_Types[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
@@ -1741,22 +1749,43 @@ Again:;
 				continue;
 			*Numerical_Types[j] = *Global_Scope->Find(Numerical_Types[j]->Name, Global_Scope, CLASS_NODE);
 			Numerical_Types[j]->Inheritted.insert(Numerical_Types[j]->Inheritted.end(), Inheritted.begin(), Inheritted.end());
-		}
+		}*/
+		i->Parameters[j] = Construct_Node_From_Numerical_Info(i->Parameters[j], PARAMETER_NODE);
 	}
-	if (Parse_Returning_Numerical_Types == false && i->Numerical_Return_Types.size() > 0) {
-		Parse_Returning_Numerical_Types = true;
+	if (i->Numerical_Return_Types.size() > 0) {
+		/*Parse_Returning_Numerical_Types = true;
 		Numerical_Types = i->Numerical_Return_Types;
-		goto Again;
-	}
-	else if (Parse_Returning_Numerical_Types) {
-		for (auto j : Numerical_Types) {
-			i->Inheritted.push_back(j->Name);
+		goto Again;*/
+		for (int j = 0; j < i->Numerical_Return_Types.size(); j++) {
+			Node* Inheritted = Construct_Node_From_Numerical_Info(i->Numerical_Return_Types[j], OBJECT_DEFINTION_NODE);
+			for (auto inherit : Inheritted->Inheritted)
+				i->Inheritted.push_back(inherit);
+
+			i->Numerical_Return_Types.clear();
 		}
-		i->Numerical_Return_Types.clear();
 	}
-	//TODO: Re-order all return types and parameter types into a logical order.
-	//now all types are good to go.
-	//although function calling might get tricky with just types as the parameters.
+}
+
+long long Construct_Node_From_Numerical_Info_Name_ID = 0;
+Node* PostProsessor::Construct_Node_From_Numerical_Info(Node* n, Node_Type Flag)
+{
+	if (n->is(NUMBER_NODE)) {
+		//n == ptr 1 integer
+		Node* Result = new Node(Flag, n->Location);
+		Result->Name = "____VIRTUAL_CLASS_" + to_string(Construct_Node_From_Numerical_Info_Name_ID++);
+		Result->Inheritted = n->Inheritted;
+		Result->Scope = n->Scope;
+		Result->Inheritted.push_back(Scope->Find(atoi(n->Name.c_str()), Scope, CLASS_NODE, n->Format)->Name);
+
+		return Result;
+	}
+	else if (!MANGLER::Is_Base_Type(n))
+		return n;	//normal user defined prototype/import
+	else {
+		//all base types should BE numericalized
+		Report(Observation(ERROR, "WTF?", *n->Location));
+		return nullptr;
+	}
 }
 
 void PostProsessor::Open_Loop_For_Prosessing(int i)

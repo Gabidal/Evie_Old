@@ -784,7 +784,7 @@ void Parser::Import_Pattern(int i)
 
 	if (Input[Words.back()].is(Flags::TEMPLATE_COMPONENT)) {
 		for (auto T : Input[Words.back()].Components) {
-			Node* Template = new Node(TEMPLATE_NODE, T.Value, &T.Location);
+			Node* Template = new Node(TEMPLATE_NODE, T.Value, new Position(T.Location));
 
 			Template->Inheritted.push_back("type");
 
@@ -822,9 +822,9 @@ void Parser::Import_Pattern(int i)
 			}
 			Node* p;
 			if (Types.back().is(Flags::NUMBER_COMPONENT))
-				p = new Node(NUMBER_NODE, &j.Location, Format);
+				p = new Node(NUMBER_NODE, new Position(j.Location), Format);
 			else
-				p = new Node(OBJECT_DEFINTION_NODE, &j.Location, Format);
+				p = new Node(OBJECT_DEFINTION_NODE, new Position(j.Location), Format);
 
 			if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 				p->Name = "ARG" + to_string(arg_count++);
@@ -859,9 +859,9 @@ void Parser::Import_Pattern(int i)
 		}
 		Node* p = nullptr;
 		if (Types.back().is(Flags::NUMBER_COMPONENT))
-			p = new Node(NUMBER_NODE, &Types.back().Location, Format);
+			p = new Node(NUMBER_NODE, new Position(Types.back().Location), Format);
 		else
-			p = new Node(OBJECT_DEFINTION_NODE, &Types.back().Location);
+			p = new Node(OBJECT_DEFINTION_NODE, new Position(Types.back().Location));
 
 		if (Types.back().is(Flags::KEYWORD_COMPONENT)) {
 			p->Name = "ARG" + to_string(arg_count++);
