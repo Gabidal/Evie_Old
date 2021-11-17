@@ -73,7 +73,7 @@ char GetParenthesisClosing(char opening, Position p)
         return '}';
     }
 
-    Report(Observation(ERROR, "Unrecognized parenthesis opening '" + opening + (string)"'", p));
+    Report(Observation(ERROR, (string)"'" + opening + (string)"'", p, "Unrecognized parenthesis opening"));
 }
 
 /// <summary>
@@ -217,11 +217,7 @@ Position SkipString(const string &text, const Position &start)
 
     if (i == -1 || j != -1 && j < i)
     {
-        MSG_Type Terminate = ERROR;
-
-        if (sys->Info.Is_Service) Terminate = WARNING;
-
-        Report(Observation(Terminate, "Couldn't find the end of the string", start));
+        Report(Observation(ERROR, "Couldn't find the end of the string", start, ""));
     }
 
     int length = i + 1 - start.GetLocal();
@@ -265,11 +261,7 @@ Position SkipParenthesis(const string &text, const Position &start)
         if (count == 0) return position;
     }
 
-    MSG_Type Terminate = ERROR;
-
-    if (sys->Info.Is_Service) Terminate = WARNING;
-
-    Report(Observation(Terminate, "Couldn't find closing parenthesis", start));
+    Report(Observation(ERROR, (string)"'" + closing + (string)"'", start, "Couldn't find closing parenthesis"));
 }
 
 optional<Area> GetNextComponent(const string &text, Position start)
@@ -420,10 +412,7 @@ int GetExponent(const string& text, Position p)
     // Ensure that there's the exponent value
     if (index == text.size())
     {
-        MSG_Type Terminate = ERROR;
-
-        if (sys->Info.Is_Service) Terminate = WARNING;
-        Report(Observation(Terminate, "Invalid number exponent '" + text + "'", p));
+        Report(Observation(ERROR, text, p, "Invalid number exponent"));
     }
 
     // Skip the potential exponent sign
@@ -437,7 +426,7 @@ int GetExponent(const string& text, Position p)
             MSG_Type Terminate = ERROR;
 
             if (sys->Info.Is_Service) Terminate = WARNING;
-            Report(Observation(Terminate, "Invalid number exponent '" + text + "'", p));
+            Report(Observation(Terminate, "Invalid number exponent '" + text + "'", p, "Invalid number exponent"));
         }
     }
 
@@ -450,7 +439,7 @@ int GetExponent(const string& text, Position p)
     {
         return exponent.value();
     }
-    Report(Observation(ERROR, "Invalid number exponent '" + text + "'", p));
+    Report(Observation(ERROR, "'" + text + "'", p, "Invalid number exponent"));
 }
 
 bool IsDecimal(string text)
@@ -471,8 +460,7 @@ Component CreateNumberComponent(string text, const Position& position)
 
             return Component(to_string(value), Flags::NUMBER_COMPONENT);
         }
-        string s = "Invalid decimal number '" + text + "'";
-        Report(Observation(ERROR, s, position));
+        Report(Observation(ERROR, "'" + text + "'", position, "Invalid decimal number"));
     }
     else
     {
@@ -482,9 +470,7 @@ Component CreateNumberComponent(string text, const Position& position)
 
             return Component(to_string(value), Flags::NUMBER_COMPONENT);
         }
-        string s = "Invalid integer number '" + text + "'";
-
-        Report(Observation(ERROR, s, position));
+        Report(Observation(ERROR, "'" + text + "'", position, "Invalid integer number"));
     }
 }
 
@@ -506,8 +492,7 @@ unsigned long long ParseHexadecimal(const Area& area)
 
     if (*end != 0)
     {
-        string s = "Invalid hexadecimal number '" + area.Text + "'";
-        Report(Observation(ERROR, s, area.Start));
+        Report(Observation(ERROR, "'" + area.Text + "'", area.Start, "Invalid hexadecimal number"));
     }
 
     return value;
@@ -517,28 +502,26 @@ Component ParseComponent(const Area& area)
 {
     switch (area.Type)
     {
-    case Type::TEXT:
-        return ParseTextComponent(area.Text);
-    case Type::NUMBER:
-        return CreateNumberComponent(area.Text, area.Start);
-    case Type::OPERATOR:
-        return Component(area.Text, Flags::OPERATOR_COMPONENT);
-    case Type::PARENTHESIS:
-        return CreateParenthesisComponent(area.Text, area.Start);
-    case Type::END:
-        return Component("\n", Flags::END_COMPONENT);
-    case Type::STRING:
-        return Component(area.Text, Flags::STRING_COMPONENT);
-    case Type::COMMENT:
-        return Component(area.Text, Flags::COMMENT_COMPONENT);
-    case Type::HEXADECIMAL:
-        return Component(to_string(ParseHexadecimal(area)), Flags::NUMBER_COMPONENT);
-    default:
-    {
-        string s = "Unrecognized token '" + area.Text + "'";
-
-        Report(Observation(ERROR, s, area.Start));
-    }
+        case Type::TEXT:
+            return ParseTextComponent(area.Text);
+        case Type::NUMBER:
+            return CreateNumberComponent(area.Text, area.Start);
+        case Type::OPERATOR:
+            return Component(area.Text, Flags::OPERATOR_COMPONENT);
+        case Type::PARENTHESIS:
+            return CreateParenthesisComponent(area.Text, area.Start);
+        case Type::END:
+            return Component("\n", Flags::END_COMPONENT);
+        case Type::STRING:
+            return Component(area.Text, Flags::STRING_COMPONENT);
+        case Type::COMMENT:
+            return Component(area.Text, Flags::COMMENT_COMPONENT);
+        case Type::HEXADECIMAL:
+            return Component(to_string(ParseHexadecimal(area)), Flags::NUMBER_COMPONENT);
+        default:
+        {
+            Report(Observation(ERROR, "'" + area.Text + "'", area.Start, "Unrecognized token"));
+        }
 
     }
 }
@@ -583,10 +566,7 @@ Component Lexer::GetComponent(string text)
 
     if (!area)
     {
-        MSG_Type Terminate = ERROR;
-
-        if (sys->Info.Is_Service) Terminate = WARNING;
-        Report(Observation(Terminate, "Could not generate component from string '" + text + "'.", position));
+        Report(Observation(ERROR, "Could not generate component from string '" + text + "'.", position, ""));
     }
 
     Component component = ParseComponent(area.value());
@@ -599,7 +579,7 @@ vector<Component> Lexer::GetComponentsFromFile(string file)
 {
     if (Lexer::SingleLineCommentIdentifier == 0 || Lexer::StringIdentifier == 0 || Lexer::DecimalSeparator == 0 || Lexer::ExponentSeparator == 0)
     {
-        Report(Observation(ERROR, "Please configure all the identifiers and separators needed by the lexer", Position()));
+        Report(Observation(ERROR, "Please configure all the identifiers and separators needed by the lexer", Position(), ""));
     }
 
     ifstream stream(file);
@@ -607,7 +587,7 @@ vector<Component> Lexer::GetComponentsFromFile(string file)
     if (!stream.is_open())
     {
         stringstream message;
-        Report(Observation(ERROR, "Couldn't find or open file '" + file + "'", Position()));
+        Report(Observation(ERROR, "Couldn't find or open file '" + file + "'", Position(), ""));
     }
 
     string text;

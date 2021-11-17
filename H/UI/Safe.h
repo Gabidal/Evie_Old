@@ -24,18 +24,34 @@ enum MSG_Type {
 
 class Observation {
 public:
-	Observation(MSG_Type t, string msg, Position p) {
+	Observation(MSG_Type t, string msg, Position p, string cause = "", bool dont_stop = true) {
 		//External message request.
 		Type = t;
 		Msg = msg;
 		Pos = p;
+		Cause = cause;
+		Dont_Stop = dont_stop;
+
+		if (cause == "")
+			Cause = Msg;
+
+		if (Type == ERROR || Type == FAIL)
+			Dont_Stop = false;
 	}
 
-	Observation(MSG_Type t, string msg) {
+	Observation(MSG_Type t, string msg, string cause = "", bool dont_stop = true) {
 		//External message request.
 		Type = t;
 		Msg = msg;
 		Pos = Position(-1, -1);
+		Cause = cause;
+		Dont_Stop = dont_stop;
+
+		if (cause == "")
+			Cause = Msg;
+
+		if (Type == ERROR || Type == FAIL)
+			Dont_Stop = false;
 	}
 
 	Observation(Observation& O, bool Dont_Stop) {
@@ -43,12 +59,13 @@ public:
 		this->Dont_Stop = Dont_Stop;
 	}
 
-	void Report();
+	void Report(bool last = true);
 	MSG_Type Type = NORMAL;
 private:
 	Position Pos;
 	string Msg = "";
-	bool Dont_Stop = false;
+	string Cause = "";
+	bool Dont_Stop = true;
 };
 
 class Lexer_Expectation_Set;

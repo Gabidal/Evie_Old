@@ -815,11 +815,16 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		n->Inheritted = n->Function_Implementation->Inheritted;
 	}
 	else {
-		if (n->Find(n, n) == nullptr) {
-			Report(Observation(ERROR, "Usage of un-defined caller '" + n->Name + "'.", *n->Location));
+		if (n->is("ptr") != -1 && n->is("func") != -1) {
+			if (n->Find(n, n) == nullptr) {
+				Report(Observation(ERROR, "Usage of un-defined caller '" + n->Name + "'.", *n->Location));
+			}
+			n->Size = n->Find(n, n)->Size;
+			n->Inheritted = n->Find(n, n)->Inheritted;
 		}
-		n->Size = n->Find(n, n)->Size;
-		n->Inheritted = n->Find(n, n)->Inheritted;
+		else {
+			Report(Observation(ERROR, "Usage of non 'func ptr' as function pointter prohibited!", *n->Location));
+		}
 	}
 }
 

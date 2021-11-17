@@ -270,7 +270,7 @@ UDP_Server::~UDP_Server() {
 
 double Sensitivity = 50.0 / 100.0; //the higher the value is the lower the sens is.
 
-extern vector<Observation> Notices;
+extern vector<pair<string, vector<Observation>>> Notices;
 extern string* FileName;
 extern vector<Node*> Find_Trace;
 extern string Output;

@@ -20,7 +20,9 @@ const string Cyan = "\x1b[1;36m";
 const string White = "\x1b[1;37m";
 const string Reset = "\x1b[1;0m";
 
-vector<Observation> Notices;
+//gather here all the warnings and push them out when a error occurs
+//			Cause , Observation
+vector<pair<string, vector<Observation>>> Notices;
 
 void Safe::PostProsessor_Factory()
 {
@@ -39,9 +41,9 @@ void Stop() {
 	throw::runtime_error("ERROR!");
 }
 
-void Observation::Report()
+void Observation::Report(bool Last)
 {
-	string Head;
+	/*string Head;
 	if (Type == ERROR)
 		Head = Red + "Error" + Reset + ": ";
 	else if (Type == WARNING)
@@ -56,14 +58,76 @@ void Observation::Report()
 			cout << Pos.GetFilePath() << ":" << Pos.GetFriendlyLine() << ":" << Pos.GetFriendlyCharacter() << ": " << Head << Msg << endl;
 		else
 			cout << Head << Msg << endl;
-	else 
+	else
 		cout << Head << Msg << endl;
 
 	if (Type == SOLUTION)
 		cout << "}" << endl;
 	if ((Type == FAIL || Type == ERROR) && !Dont_Stop)
-		//if (!sys->Info.Is_Service)
-			throw::runtime_error("ERROR");
+			throw::runtime_error("ERROR");*/
+
+	//try to find same category of cause
+	bool Found_Own_Category = false;
+	for (auto& i : Notices) {
+		if (i.first == this->Cause) {
+			i.second.push_back(*this);
+			Found_Own_Category = true;
+		}
+	}
+	//if not found, then create a new category of cause
+	if (Found_Own_Category == false) {
+		Notices.push_back({ this->Cause, {*this} });
+	}
+	if (Type == ERROR || Type == FAIL || (sys->Service_Info == Document_Request_Type::ASM && Last)) {
+		//flush here:
+		for (auto N : Notices) {
+			string Result = "";
+			//Tell the Severity of this Report.
+			if (N.second[0].Type == ERROR)
+				Result = Red + "Error" + Reset + ": ";
+			else if (N.second[0].Type == WARNING)
+				Result = Yellow + "Warning" + Reset + ": ";
+			else if (N.second[0].Type == SOLUTION)
+				Result = Green + "Solution" + Reset + ": ";
+			else if (N.second[0].Type == INFO)
+				Result = Green + "Notice" + Reset + ": ";
+
+			string Header = "";
+			bool Single_Line_Report = false;
+
+			if (N.second.size() == 1 && N.second[0].Msg == N.first) {
+				Single_Line_Report = true;
+				Header = string(N.second[0].Pos.GetFilePath()) + ":" + to_string(N.second[0].Pos.GetFriendlyLine()) + ":" + to_string(N.second[0].Pos.GetFriendlyCharacter()) + ": ";
+			}
+
+			//Tell the Cause of this report.
+			Result += Header + N.first;
+
+			if (!Single_Line_Report)
+				Result += " {";
+
+			//List all the reporters and their locations.
+			for (auto O : N.second) {
+				if (O.Msg == N.first)
+					continue;
+
+				Result += "\n  " + string(O.Pos.GetFilePath()) + ":" + to_string(O.Pos.GetFriendlyLine()) + ":" + to_string(O.Pos.GetFriendlyCharacter()) + ": ";
+
+				Result += O.Msg;
+			}
+
+			if (!Single_Line_Report)
+				Result += "\n}\n";;
+
+			cout << Result << endl;
+		}
+
+		Notices.clear();
+	}
+
+	if (!Dont_Stop) {
+		Stop();
+	}
 }
 
 void Report(Observation o)
@@ -73,21 +137,15 @@ void Report(Observation o)
 
 void Report(vector<Observation> o)
 {
-	bool Needs_Stoppping = false;
-
 	for (int i = 0; i < o.size(); i++) {
 		if (o[i].Type == ERROR || o[i].Type == FAIL) {
 			o[i] = Observation(o[i], true);
-			Needs_Stoppping = true;
 		}
 	}
 
-	for (auto i : o)
-		i.Report();
+	for (int i = 0; i < o.size(); i++)
+		o[i].Report(i == o.size() - 1);
 
-	if (Needs_Stoppping) {
-		throw::runtime_error("ERROR");
-	}
 }
 
 void Report(long type, Lexer_Expectation_Set expectation, string source, vector<Component> result) {
@@ -152,21 +210,18 @@ void Safe::Check_Return_Validity(Node* n)
 		else if (n->Right->Cast_Type != nullptr && n->Find(n->Right->Cast_Type, n)->Get_Size() == func->Get_Size() && n->Find(n->Right->Cast_Type, n)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
 		else if (func->Get_Size() == 0) {
-			Report(Observation(ERROR, "Cant return value in non-returning funciton.", *n->Location));
-			Stop();
+			Report(Observation(ERROR, "Can't return '" + n->Right->Get_Inheritted(" ", false, false, true) + "' in function '" + func->Name + "'.", *n->Location, "Value return in non-returning funciton."));
 		}
 		else {
 			Report({
-				Observation(ERROR, "Incorrect return type!", *n->Location),
-				Observation(WARNING, "Return type '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' does not mach with '" + func->Get_Inheritted(" ", false, false, true) + " '.", *n->Right->Location),
-				Observation(SOLUTION, "Try casting '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' to '" + func->Get_Inheritted(" ", false, false, true) + " '." , *n->Right->Location)
+				Observation(ERROR, "Incorrect return type!", *n->Location, "Incorrect return type!"),
+				//Observation(WARNING, "Return type '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' does not mach with '" + func->Get_Inheritted(" ", false, false, true) + " '.", *n->Right->Location, "Incorrect return type!"),
+				Observation(SOLUTION, "Try casting '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' to '" + func->Get_Inheritted(" ", false, false, true) + " '." , *n->Right->Location, "Incorrect return type!")
 				});
-			Stop();
 		}
 	}
 	else if (func->Get_Size() != 0 && func->is("func") == -1){
-		Report(Observation(ERROR, "Non-void function needs returning value.", *n->Location));
-		Stop();
+		Report(Observation(ERROR, func->Name + " needs to return something", *n->Location, "Non-void function needs returning value."));
 	}
 }
 
@@ -182,11 +237,7 @@ void Safe::Disable_Non_Ptr_Class_Return(Node* n)
 		return;
 
 	if (n->Find(n, n->Scope)->Size > selector->Get_Largest_Register_Size()) {
-		Report({
-			Observation(ERROR, "Return object is bigger than: " + to_string(_SYSTEM_BIT_SIZE_ * 8), *n->Location),
-			Observation(SOLUTION, "Please return the object as a pointter", *n->Location)
-			});
-		throw::runtime_error("ERROR!");
+		Report(Observation(ERROR, n->Name, *n->Location, "non-ptr return exeeds size of " + to_string(_SYSTEM_BIT_SIZE_) + " Bits."));
 	}
 }
 
@@ -215,8 +266,8 @@ void Safe::Check_For_Unitialized_Objects(Node* func)
 
 		
 		Report({
-			Observation(WARNING, "Usage of uninitialized object is dangerous!", *v->Location),
-			Observation(SOLUTION, "Call constructor of '" + v->Name + "' to initialize it.", *v->Location),
+			Observation(WARNING, "Usage of uninitialized object is dangerous!", *v->Location, ""),
+			Observation(SOLUTION, "Call constructor of '" + v->Name + "' to initialize it.", *v->Location, "Usage of uninitialized object is dangerous!"),
 		});
 
 	Next_Variable:;
@@ -243,7 +294,7 @@ void Safe::Warn_Usage_Of_Depricated(Node* n)
 	string Buffer = Comment;
 	if (regex_search(Buffer, matches, expression)) {
 		for (auto i : matches) {
-			Report(Observation(WARNING, i.str(), *n->Location));
+			Report(Observation(WARNING, i.str(), *n->Location, i.str()));
 		}
 	}
 }
@@ -255,10 +306,7 @@ void Safe::Prefer_Class_Cast_Rather_Object_Cast(Node* n)
 	//check here if the cast type is a class or a object
 	Node* Cast = n->Find(n->Cast_Type, n);
 	if (!Cast->is(CLASS_NODE)) {
-		Report({
-			Observation(WARNING, "Usage of non-class definition as a cast type is not recomended!", *n->Location),
-			Observation(SOLUTION, "Prefer class typed cast 'type " + Cast->Get_Inheritted(" ", false, false, false) + " " + Cast->Name + "{}'", *Cast->Location)
-			});
+		Report(Observation(WARNING, "Cast" + n->Name +  " with 'type " + Cast->Get_Inheritted(" ", false, false, false) + " " + Cast->Name + "{}'", *Cast->Location, "Non-Class based casting"));
 	}
 }
 
@@ -272,7 +320,7 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 		return;
 
 	if (Definition->Location->GetAbsolute() > n->Location->GetFriendlyAbsolute() && Definition->Location->GetFilePath() == n->Location->GetFilePath()) {
-		Report(Observation(ERROR, "Usage of local variable '" + n->Name + "' before definition at line '" + to_string(Definition->Location->GetFriendlyLine()) + "'.", *n->Location));
+		Report(Observation(ERROR, "Usage of local variable '" + n->Name + "' before definition at line '" + to_string(Definition->Location->GetFriendlyLine()) + "'.", *n->Location, "Usage of variable before its definition"));
 	}
 }
 
@@ -293,8 +341,8 @@ void Safe::Reference_Count_Type_Un_Availability()
 
 	if (Reference_Count_Type == nullptr) {
 		Report({
-			Observation(ERROR, "Not found an integer at size '" + to_string(sys->Info.Reference_Count_Size) + "'.", Position()),
-			Observation(SOLUTION, "type [name]{\n    size = " + to_string(sys->Info.Reference_Count_Size) + "\n  }", Position())
+			Observation(ERROR, "Not found an integer at size '" + to_string(sys->Info.Reference_Count_Size) + "' for Reference_Count.", Position(), "Not found an integer at size '" + to_string(sys->Info.Reference_Count_Size) + "' for Reference_Count."),
+			Observation(SOLUTION, "type [name]{\n    size = " + to_string(sys->Info.Reference_Count_Size) + "\n  }", Position(), "Not found an integer at size '" + to_string(sys->Info.Reference_Count_Size) + "' for Reference_Count.")
 		});
 	}
 }
@@ -315,7 +363,7 @@ void Safe::Check_For_Undefined_Inheritance(Node* n)
 				goto Next;
 		//
 		if (n->Find(i, n) == nullptr) {
-			Report(Observation(ERROR, "Usage of un-declared type '" + i + "'.", *n->Location));
+			Report(Observation(ERROR, "Usage of un-declared type '" + i + "'.", *n->Location, ""));
 		}
 	Next:;
 	}

@@ -150,12 +150,12 @@ void PreProsessor::Detect_String_Macros(int i)
 					 Raw += Input[i].Value[j];
 				}
 				else if (Input[i].Value[j] >= 97 && Input[i].Value[j] <= 102) {
-					Report(Observation(ERROR, "Non upper case letter at index '" + to_string(j) + "'.", Input[i].Location));
+					Report(Observation(ERROR, "Non upper case letter at index '" + to_string(j) + "'.", Input[i].Location, ""));
 				}
 				else if (j == i) {
 					//it is the start of the index right after the x character but there is no number
 					// \xSXy
-					Report(Observation(ERROR, "Incorrect Hexdecimal usage at index '" + to_string(j) + "'.", Input[i].Location));
+					Report(Observation(ERROR, "Incorrect Hexdecimal usage at index '" + to_string(j) + "'.", Input[i].Location, ""));
 				}
 				else {
 					break;

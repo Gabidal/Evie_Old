@@ -112,7 +112,8 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip
 				continue;
 			Result.push_back(Inheritted[i]);
 		}
-		if (Cast_Type != nullptr) {
+		//when using the address cast the inheritant of the casted is not changes so use that.
+		if (Cast_Type != nullptr && Cast_Type->Name != "address") {
 			if (MANGLER::Is_Base_Type(Cast_Type))
 				Result.push_back(Cast_Type->Name);
 			else
@@ -154,7 +155,8 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 				continue;
 			Result += Seperator + Inheritted[i];
 		}
-		if (Cast_Type != nullptr) {
+		//when using the address cast the inheritant of the casted is not changes so use that.
+		if (Cast_Type != nullptr && Cast_Type->Name != "address") {
 			if (MANGLER::Is_Base_Type(Cast_Type))
 				Result = Seperator + Cast_Type->Name;
 			else

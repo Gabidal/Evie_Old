@@ -226,7 +226,7 @@ void Parser::Nodize_Template_Pattern(int i)
 			return;
 		}
 		else {
-			Report(Observation(ERROR, "Uknown template type '" + T.Value + "'", T.Location));
+			Report(Observation(ERROR, "Uknown template type '" + T.Value + "'", T.Location, ""));
 		}
 
 	}
@@ -577,6 +577,13 @@ void Parser::Definition_Pattern(int i)
 	//if the namespace is already a static class type and this one too then combine
 	if (Namespace != nullptr && (Namespace->is(CLASS_NODE) || ((Get_Amount_Of(Words.back() + 1, {Flags::PAREHTHESIS_COMPONENT}, false).size() == 1) && (Input[Words.back() + 1].Value[0] == '{'))) && Namespace->is("static") != -1)
 		New_Defined_Object = Namespace;
+	//if the object is static and the namespace is not
+	else if (Namespace != nullptr && New_Defined_Object->is("static") != -1 && Namespace->is("static") == -1) {
+		Report({
+			Observation(ERROR, "'" + New_Defined_Object->Name + "'", *New_Defined_Object->Location, "Colliding definitions of"),
+			Observation(ERROR, "'" + Namespace->Name + "'", *Namespace->Location, "Colliding definitions of")
+		});
+	}
 	//if the namespace is already a static class but this is not a static class or both are non static.
 	else if (Namespace != nullptr && Namespace->is(CLASS_NODE) && Namespace->is("static") == -1) {
 		bool Skip_Templates = false;
@@ -584,14 +591,24 @@ void Parser::Definition_Pattern(int i)
 			Skip_Templates = true;
 
 		vector<int> Parenthesises = Get_Amount_Of(Words.back() + 1 + Skip_Templates, { Flags::PAREHTHESIS_COMPONENT }, false);
-		if ((Parenthesises.size() == 1) && (Input[Parenthesises[0]].Value[0] == '{'))
-			Report(Observation(ERROR, "Cannot combine non static classes as namespaces!", *New_Defined_Object->Location));
+		if ((Parenthesises.size() == 1) && (Input[Parenthesises[0]].Value[0] == '{')) {
+			//check if the other one is namespace and the other not
+			if (New_Defined_Object->is("static") != -1) {
+				Report(Observation(ERROR, "Cannot combine non static classes as namespaces!", *Namespace->Location, ""));
+			}
+			else {
+				Report({ 
+					Observation(ERROR, "'" + New_Defined_Object->Name + "'", *New_Defined_Object->Location, "Colliding definitions of"),
+					Observation(ERROR, "'" + Namespace->Name + "'", *Namespace->Location, "Colliding definitions of")
+					});
+			}
+		}
 		else
 			Scope->Defined.push_back(New_Defined_Object);
 	}
 	else if (Namespace != nullptr && !Namespace->Has({ IMPORT, EXPORT, FUNCTION_NODE }) && !Input[Words.back() + 1].is(CONTENT_NODE)) {
 		if (!Input[Words.back() + 1].is(CONTENT_NODE))
-			Report(Observation(ERROR, "'" + New_Defined_Object->Name + "' is already defined at '" + Namespace->Location->ToString() + "'", *New_Defined_Object->Location));
+			Report(Observation(ERROR, "'" + New_Defined_Object->Name + "' is already defined at '" + Namespace->Location->ToString() + "'", *New_Defined_Object->Location, "Colliding definitions of"));
 	}
 	else
 		Scope->Defined.push_back(New_Defined_Object);
@@ -912,7 +929,7 @@ void Parser::Object_Pattern(int i)
 	if (Input[i].node->Templates.size() > 0) {
 		//this means that the next element is a template
 		if (i+1 >= Input.size() || !Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
-			Report(Observation(ERROR, "Inheritted type " + Input[i].Value + " needs a template argument!", Input[i].Location));
+			Report(Observation(ERROR, Input[i].Value, Input[i].Location, "Missing template arguments"));
 
 		Input[i].node->Templates = Input[i + 1].node->Templates;
 
@@ -925,7 +942,7 @@ void Parser::Object_Pattern(int i)
 				Input[i].node->Templates.push_back(T.node);
 
 			if (Scope->Find(Input[i].node, Scope) == nullptr) {
-				Report(Observation(ERROR, "This object does not take template arguments '" + Input[i].Value + "'", Input[i].Location));
+				Report(Observation(ERROR, "This object does not take template arguments '" + Input[i].Value + "'", Input[i].Location, ""));
 			}
 
 			Input[i].node = Scope->Find(Input[i].node, Scope);
