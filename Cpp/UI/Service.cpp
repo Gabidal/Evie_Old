@@ -388,7 +388,11 @@ string Proxy::Find_Location_Of_Uri()
 	
 	//we dont like vsc file headers.
 	for (auto i : Exess_Headers) {
+#if _WIN32
 		if (Uri._Starts_with(i))
+#else
+		if (Uri.Starts_with(i)))
+#endif
 			Uri = Uri.substr(i.size());
 	}
 

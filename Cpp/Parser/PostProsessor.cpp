@@ -100,15 +100,6 @@ void PostProsessor::Type_Definer(Node* type)
 		return;
 	}
 
-	/*for (auto& j : Scope->Defined[i]->Defined)
-		if (j->is(FUNCTION_NODE) && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] != Scope->Defined[i]->Name)) {
-			
-p(Scope->Defined[i], { j });
-			//p.Input = { j };
-			//p.Member_Function_Defined_Inside(0);
-			//j = p.Output[0];
-		}*/
-
 	//check for static members and move them into Header section to be labelazed
 	for (auto& j : type->Childs)
 		if (j->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
@@ -329,7 +320,7 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 
 	v->Parsed_By |= PARSED_BY::DESTRUCTOR_CALLER;
 
-	PostProsessor P(v->Scope, p.Input);
+	PostProsessor P(v, p.Input);
 	//v->Append(Output, P.Input);
 
 	bool There_Is_No_User_Defined_Return = true;
@@ -816,14 +807,11 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	}
 	else {
 		if (n->is("ptr") != -1 && n->is("func") != -1) {
-			if (n->Find(n, n) == nullptr) {
-				Report(Observation(ERROR, "Usage of un-defined caller '" + n->Name + "'.", *n->Location));
-			}
 			n->Size = n->Find(n, n)->Size;
 			n->Inheritted = n->Find(n, n)->Inheritted;
 		}
 		else {
-			Report(Observation(ERROR, "Usage of non 'func ptr' as function pointter prohibited!", *n->Location));
+			Report(Observation(ERROR, "Can't find the function '" + n->Print() + "' calls to.", *n->Location));
 		}
 	}
 }

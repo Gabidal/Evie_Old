@@ -575,6 +575,8 @@ bool MANGLER::Is_Base_Type(Node* n)
 			continue;
 		else if (i->Name == "format" && i->is("const") != -1)
 			continue;
+		else if (i->is(FUNCTION_NODE))
+			continue;
 		Result = false;	//because base types do not have any other member other than the Size.
 		break;
 	}

@@ -853,6 +853,23 @@ void Node::Clean()
 	Numerical_Return_Types.clear();
 }
 
+string Node::Print()
+{
+	string Result = "";
+
+	if (is(CALL_NODE)) {
+		Result += Get_Inheritted(" ", false, false, false) + " " + Name + "(";
+		for (int i = 0; i < Parameters.size(); i++) {
+			string Seperator = ",";
+			if (i == Parameters.size() - 1) {
+				Seperator = ")";
+			}
+			Result += Parameters[i]->Get_Inheritted(" ", false, false, false) + Seperator;
+		}
+	}
+	return Result;
+}
+
 vector<Node*> Trace_Update_Size;
 int Node::Update_Size() {
 	if (is("const") != -1 && Size != 0 || Is_Template_Object)

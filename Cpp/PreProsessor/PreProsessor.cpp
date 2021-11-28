@@ -115,31 +115,31 @@ void PreProsessor::Detect_String_Macros(int i)
 			if (i <= j.first && i >= j.second)
 				goto Skip;
 
-		// \n
 		if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == 'n') {
+			// \n
 			Input[i].Value.erase(Input[i].Value.begin() + i);
 			Input[i].Value[i] = 10;
 
 			//add the edited area to the Prosessed indecees.
 			Prosessed_Indecies.push_back({ i, i });
 		}
-		// \\ 
 		else if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == '\\') {
+			// \\ 
 			Input[i].Value.erase(Input[i].Value.begin() + i);
 
 			//add the edited area to the Prosessed indecees.
 			Prosessed_Indecies.push_back({ i, i });
 		}
-		// \t
 		else if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == 't') {
+			// \t
 			Input[i].Value.erase(Input[i].Value.begin() + i);
 			Input[i].Value[i] = 9;
 
 			//add the edited area to the Prosessed indecees.
 			Prosessed_Indecies.push_back({ i, i });
 		}
-		//	\x123
 		else if (i + 1 < Input[i].Value.size() && Input[i].Value[i] == '\\' && Input[i].Value[i + 1] == 'x') {
+			//	\x123
 			string Raw = "";
 
 			char Hex[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'A', 'B', 'C', 'D', 'E', 'F'};

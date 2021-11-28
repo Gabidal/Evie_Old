@@ -676,6 +676,8 @@ public:
 	Node* Get_Closest_Context(int Flags);
 
 	void Clean();
+
+	string Print();
 };
 
 #endif
