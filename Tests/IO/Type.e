@@ -1,4 +1,4 @@
-use "https://github.com/Gabidal/std/std.e"
+use "https://github.com/Gabidal/std/blob/main/std.e"
 
 type Fruit{
 	int Type = 3
