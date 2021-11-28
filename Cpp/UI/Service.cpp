@@ -391,7 +391,7 @@ string Proxy::Find_Location_Of_Uri()
 #if _WIN32
 		if (Uri._Starts_with(i))
 #else
-		if (Uri.starts_with(i)))
+		if (Uri.starts_with(i))
 #endif
 			Uri = Uri.substr(i.size());
 	}
