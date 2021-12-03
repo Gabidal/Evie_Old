@@ -68,7 +68,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 
 void Parser::Combine_Dot_In_Member_Functions(int& i)
 {
-	if (!Scope->is(CLASS_NODE) || Scope->is("static") == -1)
+	if (!Scope->is(CLASS_NODE) || !Scope->is("static"))
 		return;
 	if (Input[i].Value != ".")
 		return;
@@ -85,11 +85,13 @@ void Parser::Template_Pattern(int& i)
 	int This_Scopes_Open_Template_Operators = 1;
 	while (Input[j].Value != ">" || This_Scopes_Open_Template_Operators > 0) {
 		j++;
+		if (j > Input.size() - 1)
+			break;
 		if (Input[j].Value == "<")
 			This_Scopes_Open_Template_Operators++;
 		if (Input[j].Value == ">")
 			This_Scopes_Open_Template_Operators--;
-		//																																			
+																																			
 		else if (Input[j].Value != ">" && Input[j].Value != "<" && !Input[j].is(Flags::TEXT_COMPONENT) && !Input[j].is(Flags::KEYWORD_COMPONENT) )
 			break;
 	}
@@ -222,7 +224,7 @@ void Parser::Nodize_Template_Pattern(int i)
 			p.Factory();
 			Input[i].node->Templates.push_back(p.Input.back().node);
 		}
-		else if (Scope->Find_Template(T.Value) || (Scope->is("static") != -1 && Scope->is(CLASS_NODE))) {
+		else if (Scope->Find_Template(T.Value) || (Scope->is("static") && Scope->is(CLASS_NODE))) {
 			return;
 		}
 		else {
@@ -553,7 +555,7 @@ void Parser::Definition_Pattern(int i)
 				p.Input = { Input[Words[j - 1]],  Input[Words[j]] };
 				p.Factory();
 				
-				if ((Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) || All_Templates_Are_Defined_As_Classes) {
+				if ((!Scope->is("static") || !Scope->is(CLASS_NODE)) || All_Templates_Are_Defined_As_Classes) {
 					New_Defined_Object->Inheritted.push_back(p.Input.back().Value);
 					New_Defined_Object->Inheritable_templates = p.Input.back().node->Inheritable_templates;
 				}
@@ -575,17 +577,17 @@ void Parser::Definition_Pattern(int i)
 	//if the current made object already exists
 	Node* Namespace = Scope->Find(New_Defined_Object, Scope);
 	//if the namespace is already a static class type and this one too then combine
-	if (Namespace != nullptr && (Namespace->is(CLASS_NODE) || ((Get_Amount_Of(Words.back() + 1, {Flags::PAREHTHESIS_COMPONENT}, false).size() == 1) && (Input[Words.back() + 1].Value[0] == '{'))) && Namespace->is("static") != -1)
+	if (Namespace != nullptr && (Namespace->is(CLASS_NODE) || ((Get_Amount_Of(Words.back() + 1, {Flags::PAREHTHESIS_COMPONENT}, false).size() == 1) && (Input[Words.back() + 1].Value[0] == '{'))) && Namespace->is("static"))
 		New_Defined_Object = Namespace;
 	//if the object is static and the namespace is not
-	else if (Namespace != nullptr && New_Defined_Object->is("static") != -1 && Namespace->is("static") == -1) {
+	else if (Namespace != nullptr && New_Defined_Object->is("static") && !Namespace->is("static")) {
 		Report({
 			Observation(ERROR, "'" + New_Defined_Object->Name + "'", *New_Defined_Object->Location, "Colliding definitions of"),
 			Observation(ERROR, "'" + Namespace->Name + "'", *Namespace->Location, "Colliding definitions of")
 		});
 	}
 	//if the namespace is already a static class but this is not a static class or both are non static.
-	else if (Namespace != nullptr && Namespace->is(CLASS_NODE) && Namespace->is("static") == -1) {
+	else if (Namespace != nullptr && Namespace->is(CLASS_NODE) && !Namespace->is("static")) {
 		bool Skip_Templates = false;
 		if (Words.back() + 1 < Input.size() && Input[Words.back() + 1].is(Flags::TEMPLATE_COMPONENT))
 			Skip_Templates = true;
@@ -593,7 +595,7 @@ void Parser::Definition_Pattern(int i)
 		vector<int> Parenthesises = Get_Amount_Of(Words.back() + 1 + Skip_Templates, { Flags::PAREHTHESIS_COMPONENT }, false);
 		if ((Parenthesises.size() == 1) && (Input[Parenthesises[0]].Value[0] == '{')) {
 			//check if the other one is namespace and the other not
-			if (New_Defined_Object->is("static") != -1) {
+			if (New_Defined_Object->is("static")) {
 				Report(Observation(ERROR, "Cannot combine non static classes as namespaces!", *Namespace->Location, ""));
 			}
 			else {
@@ -649,7 +651,7 @@ void Parser::Constructor_Pattern(int i)
 
 void Parser::Prototype_Pattern(int i)
 {
-	if (!(Scope->is(CLASS_NODE) && ((Scope->is("static") != -1) || Scope->Name == "GLOBAL_SCOPE")))
+	if (!(Scope->is(CLASS_NODE) && ((Scope->is("static")) || Scope->Name == "GLOBAL_SCOPE")))
 		return;
 	//func banana(int, short)\n
 	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT });
@@ -714,7 +716,7 @@ void Parser::Prototype_Pattern(int i)
 			for (auto k : Types)
 				p->Inheritted.push_back(k.Value);
 
-			if (p->is("type") != -1)
+			if (p->is("type"))
 				p->Is_Template_Object = true;
 
 			New_Defined_Object->Parameters.push_back(p);
@@ -740,7 +742,7 @@ void Parser::Prototype_Pattern(int i)
 		for (auto k : Types)
 			p->Inheritted.push_back(k.Value);
 
-		if (p->is("type") != -1)
+		if (p->is("type"))
 			p->Is_Template_Object = true;
 
 		New_Defined_Object->Parameters.push_back(p);
@@ -855,7 +857,7 @@ void Parser::Import_Pattern(int i)
 			for (auto k : Types)
 				p->Inheritted.push_back(k.Value);
 
-			if (p->is("type") != -1)
+			if (p->is("type"))
 				p->Is_Template_Object = true;
 
 			New_Defined_Object->Parameters.push_back(p);
@@ -892,7 +894,7 @@ void Parser::Import_Pattern(int i)
 		for (auto k : Types)
 			p->Inheritted.push_back(k.Value);
 
-		if (p->is("type") != -1)
+		if (p->is("type"))
 			p->Is_Template_Object = true;
 
 		New_Defined_Object->Parameters.push_back(p);
@@ -937,7 +939,7 @@ void Parser::Object_Pattern(int i)
 	}
 	else if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT)) {
 		//check if the current scope is a namespace or global scope
-		if (Scope->is("static") == -1 || !Scope->is(CLASS_NODE)) {
+		if (!Scope->is("static") || !Scope->is(CLASS_NODE)) {
 			for (auto T : Input[i + 1].Components)
 				Input[i].node->Templates.push_back(T.node);
 
@@ -1118,10 +1120,24 @@ void Parser::Number_Pattern(int i)
 			break;
 		}
 
-	if (atoll(Num->Name.c_str()) > INT32_MAX)
-		Num->Size = 8;
-	else
-		Num->Size = 4;
+	if (Num->Format == "decimal") {
+		int Dot_Index = Num->Name.find_first_of('.');
+
+		int Decimal_Precission = Num->Name.substr(Dot_Index, Num->Name.size() - 1).size();
+
+		if (Decimal_Precission > 8) {
+			Num->Size = 8;
+		}
+		else {
+			Num->Size = 4;
+		}
+	}
+	else {
+		if (atoll(Num->Name.c_str()) > INT32_MAX)
+			Num->Size = 8;
+		else
+			Num->Size = 4;
+	}
 
 	Input[i].node = Num;
 	return;
@@ -1532,10 +1548,10 @@ void Parser::Type_Pattern(int i)
 
 	//This means that the class is a namespace
 	//Namespace Combination system 5000
-	if (Type->is("static") != -1) {
+	if (Type->is("static")) {
 
 		for (auto& j : Type->Defined) {
-			if (j->is("static") != -1)
+			if (j->is("static"))
 				continue;
 			if (j->Has({ FUNCTION_NODE, CLASS_NODE }))
 				continue;
@@ -1968,7 +1984,7 @@ void Parser::Use_Pattern(int i)
 	if (Namespace == nullptr)
 		return;
 
-	if (Namespace->is("static") == -1 || !Namespace->is(CLASS_NODE))
+	if (!Namespace->is("static") || !Namespace->is(CLASS_NODE))
 		return;
 
 	vector<Node*> Inlined = Namespace->Defined;

@@ -46,26 +46,32 @@ int Build(int argc, const char* argv[])
 {
     if (argc == 1) {
         //this happends when no parameter are given
+        cout << "No arguments detected. Starting help...\n\n";
         cout << "Argument types are: \n";
-        cout << "-in [relative path/source file]\n";
-        cout << "-out [relative path/output file name]\n";
-        cout << "-os [target operating system (win32/unix)]\n";
-        cout << "-host [the host operating system (win32/unix)]\n";
-        cout << "-arch [output assembly type (x86/arm)]\n";
-        cout << "-lib [relative path/lib name]\n";
-        cout << "-repo-dir [relative/absolute path for saving git repos]\n";
-        cout << (string)"-f [\n  supported output file formats are:\n" +
-            "  exe(executable (works for unix as well)),\n" +
-            "  lib(static lib),\n" +
-            "  dll(dynamic library (support is not made yet!))\n" +
-            "]\n";
-        cout << "-mode [bit mode for assembly output (32/64)]\n";
-        cout << (string)"-debug [\n supported debug symbol types:\n" +
-            "  dwarf2\n" +
-            "]\n";
-        cout << "-vt [virus total API-key]\n";
-        cout << "-reference-count-size [reference count size]\n";
-        cout << "-service [starts Evie as a service with a port returned in standard out]\n";
+        cout << "  -in ----------------- [relative path/source file]\n";
+        cout << "  -out ---------------- [relative path/output file name]\n";
+        cout << "  -os ----------------- [target operating system (win32/unix)]\n";
+        cout << "  -host --------------- [the host operating system (win32/unix)]\n";
+        cout << "  -arch --------------- [output assembly type (x86/arm)]\n";
+        cout << "  -lib ---------------- [relative path/lib name]\n";
+        cout << "  -repo-dir ----------- [relative/absolute path for saving git repos]\n";
+        cout << "  -f ------------------ [ supported output file formats are:\n";
+        cout << "                          exe(executable (works for unix as well)),\n";
+        cout << "                          lib(static lib),\n";
+        cout << "                          dll(dynamic library (support is not made yet!))\n";
+        cout << "                        ]\n";
+        cout << "  -mode --------------- [bit mode for assembly output (32/64)]\n";
+        cout << "  -debug -------------- [ supported debug symbol types:\n";
+        cout << "                          dwarf2\n";
+        cout << "                        ]\n";
+        cout << "  -vt ----------------- [virus total API-key]\n";
+        cout << "  -reference-count-size [reference count size]\n";
+        cout << "  -service ------------ [starts Evie as a service with a port returned in standard out]\n";
+
+        cout << "\nQuick usage:\n";
+        cout << "  ./Evie -in foo/bar/baz.e\n";
+
+        cout << "\nRemember to set up an environment path named: \'Repo-Dir\'\n";
         cout << endl;
         return -1;
     }

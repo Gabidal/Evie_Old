@@ -312,7 +312,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 {
 	string Result = "";
 
-	if ((raw->is("vivid") != -1) || (raw->Scope->is("vivid") != -1) || Force_Complex == "vivid") {
+	if (raw->is("vivid") || raw->Scope->is("vivid") || Force_Complex == "vivid") {
 
 		string STD = "vivid";
 		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
@@ -379,7 +379,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 		else if (raw->is(CLASS_NODE)) {
 			string p = "";
 			string r;
-			if (raw->is("ptr") != -1) {
+			if (raw->is("ptr")) {
 				for (auto i : raw->Inheritted) {
 					if (i == "ptr")
 						p += "P";
@@ -403,7 +403,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 		else if (raw->is(OBJECT_DEFINTION_NODE) || raw->is(OBJECT_NODE) || raw->is(PARAMETER_NODE)) {
 			int I = 0;
 			string p = "";
-			if (raw->is("ptr") != -1) {
+			if (raw->is("ptr")) {
 				for (auto i : raw->Inheritted) {
 					if (i == "ptr")
 						p += "P";
@@ -442,10 +442,10 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 		}
 
 	}
-	else if ((raw->is("evie") != -1) || (raw->Scope->is("evie") != -1)){
+	else if (raw->is("evie") || raw->Scope->is("evie")){
 		//if the function call uses the Evie standard.
 	}
-	else if ((raw->is("plain") != -1) || (raw->Scope->is("plain") != -1)) {
+	else if (raw->is("plain") || raw->Scope->is("plain")) {
 		//generic name labels for normal .
 		Result = raw->Name;
 	}
@@ -492,7 +492,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 		else if (raw->is(CLASS_NODE)) {
 			string p = "";
 			string r;
-			if (raw->is("ptr") != -1) {
+			if (raw->is("ptr")) {
 				for (auto i : raw->Inheritted) {
 					if (i == "ptr")
 						p += "P";
@@ -516,7 +516,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 		else if (raw->is(OBJECT_DEFINTION_NODE) || raw->is(OBJECT_NODE) || raw->is(PARAMETER_NODE)) {
 			int I = 0;
 			string p = "";
-			if (raw->is("ptr") != -1) {
+			if (raw->is("ptr")) {
 				for (auto i : raw->Inheritted) {
 					if (i == "ptr")
 						p += "P";
@@ -571,9 +571,9 @@ bool MANGLER::Is_Base_Type(Node* n)
 		return false;
 	bool Result = true;
 	for (auto i : n->Childs) {
-		if (i->Name == "size" && i->is("const") != -1)
+		if (i->Name == "size" && i->is("const"))
 			continue;
-		else if (i->Name == "format" && i->is("const") != -1)
+		else if (i->Name == "format" && i->is("const"))
 			continue;
 		else if (i->is(FUNCTION_NODE))
 			continue;

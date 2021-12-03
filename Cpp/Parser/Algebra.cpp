@@ -149,10 +149,11 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 	}
 }
 
+vector<Node*> Trace_Function_Inlined;
 void Algebra::Function_Inliner(Node* c, int i)
 {
 	//return;
-	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") != -1 || c->Function_Implementation->is("import") != -1)
+	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") || c->Function_Implementation->is("import"))
 		return;
 
 	//copy the nodes to a safe heaven
@@ -160,18 +161,27 @@ void Algebra::Function_Inliner(Node* c, int i)
 	vector<Node*> Defined;
 	vector<Node*> Childs;
 
+	//check if this function is somehow related to its self.
+	for (auto& T : Trace_Function_Inlined)
+		if (T == c->Function_Implementation)
+			return;
+
+	Trace_Function_Inlined.push_back(c->Function_Implementation);
+
 	if (!c->Function_Implementation->is(PARSED_BY::FUNCTION_PROSESSOR)) {
 		PostProsessor p(c->Function_Implementation);
 		p.Open_Function_For_Prosessing(c->Function_Implementation);
 	}
-
+	
 	for (auto j : c->Function_Implementation->Childs){
 		for (auto k : j->Get_all(CALL_NODE)) {
 			if (k->Function_Ptr)
 				continue;
 			//k->Function_Implementation->Calling_Count++;	//increase the calling count
-			if (k->Function_Implementation == c->Function_Implementation)
+			if (k->Function_Implementation == c->Function_Implementation) {
+				Trace_Function_Inlined.pop_back();
 				return;	//disable recursive funktions
+			}
 		}
 	}
 
@@ -324,9 +334,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		j->Update_Size();
 	}
 
-	/*Scope->Update_Local_Variable_Mem_Offsets();
-
-	Scope->Update_Member_Variable_Offsets(Scope);*/
+	Trace_Function_Inlined.pop_back();
 }
 
 vector<Node*> Algebra::Get_all(Node* n, int f)
@@ -460,7 +468,7 @@ void Algebra::Inline_Variables(int i)
 		if (Input->at(i)->Name != "=")
 			Linear_Ast = Input->at(i)->Get_all({OBJECT_NODE, OBJECT_DEFINTION_NODE});
 		else {
-			if (Input->at(i)->is("ptr") != -1)
+			if (Input->at(i)->is("ptr"))
 				return;
 			Linear_Ast = Input->at(i)->Right->Get_all({OBJECT_NODE, OBJECT_DEFINTION_NODE });
 		}
@@ -637,7 +645,7 @@ void Algebra::Set_Defining_Value(int i)
 	if (Input->at(i)->Left->is(ARRAY_NODE))
 		return;
 
-	if (Input->at(i)->is("ptr") != -1)
+	if (Input->at(i)->is("ptr"))
 		return;
 
 	if (Input->at(i)->Left->Fetcher != nullptr)

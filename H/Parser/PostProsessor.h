@@ -118,6 +118,11 @@ public:
 	//Function Pointter
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Process_Function_Pointters(Node* Scope);
+
+
+	//Lambda bodies
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	//bool Filter
 private:
 };
 

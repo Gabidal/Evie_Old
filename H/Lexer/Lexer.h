@@ -1,6 +1,9 @@
 #ifndef _LEXER_H_
 #define _LEXER_H_
 
+#include <sstream>
+#include <iomanip>
+
 #include "Component.h"
 #include "..//Flags.h"
 

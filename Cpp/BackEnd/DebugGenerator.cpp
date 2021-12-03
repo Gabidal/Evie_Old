@@ -669,7 +669,7 @@ void DebugGenerator::Info_Generator(Node* n)
     if (Info.TAG == -1)
         return;
     if (n->is(FUNCTION_NODE))
-        if (n->Calling_Count == 0 && n->is("export") == -1)
+        if (n->Calling_Count == 0 && !n->is("export"))
             return;
 
     bool Skip_Scope_Generation = false;
@@ -726,7 +726,7 @@ void DebugGenerator::Info_Generator(Node* n)
         int Encoding = DW_ATE_signed;
         if (n->Format == "decimal")
             Encoding = DW_ATE_float;
-        else if (n->is("ptr") != -1)
+        else if (n->is("ptr"))
             Encoding = DW_ATE_address;
         else if (n->Size == 1)
             Encoding = DW_ATE_signed_char;
@@ -775,7 +775,7 @@ void DebugGenerator::Info_Generator(Node* n)
 Go_Straight_To_Childs:;
     if (!n->is(OBJECT_DEFINTION_NODE))
         for (auto v : n->Defined) {
-            if (v->is("const") != -1 || v->Is_Template_Object)
+            if (v->is("const") || v->Is_Template_Object)
                 continue;
             if (v->is(FUNCTION_NODE))
                 continue;
@@ -853,7 +853,7 @@ Abbrev_Type::Abbrev_Type(Node* n)
             CALLING_CONVENTION = true;
         }
     }
-    if (n->is("export") != -1) {
+    if (n->is("export")) {
         EXTERNAL = true;
         MANGLED_NAME = true;
     }

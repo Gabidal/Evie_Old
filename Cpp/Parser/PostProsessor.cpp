@@ -96,17 +96,17 @@ void PostProsessor::Type_Definer(Node* type)
 	type->Parsed_By |= PARSED_BY::TYPE_DEFINER;
 
 	//If this is a namespace skip the default constructor builder
-	if (type->is("static") != -1) {
+	if (type->is("static")) {
 		return;
 	}
 
 	//check for static members and move them into Header section to be labelazed
 	for (auto& j : type->Childs)
 		if (j->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
-			if (j->Left->is("static") != -1 && Node::Has(type->Header, j->Left) == false)
+			if (j->Left->is("static") && Node::Has(type->Header, j->Left) == false)
 				type->Header.push_back(j);
 		}
-		else if (j->is("static") != -1 && Node::Has(type->Header, j) == false)
+		else if (j->is("static") && Node::Has(type->Header, j) == false)
 			type->Header.push_back(j);
 
 	//infiltrate the class type and inject this behemoth
@@ -151,16 +151,16 @@ void PostProsessor::Type_Definer(Node* type)
 		if (j->Name != type->Name)
 			continue;
 
-		if (j->is("ptr") == -1)
+		if (!j->is("ptr"))
 			continue;	//constructor must return a ptr
-		if (j->is(type->Name) == -1)
+		if (!j->is(type->Name))
 			continue;	//constructor must return its self typed class type ptr.
 
 		if (j->Parameters.size() != 1)
 			continue;
-		if (j->Parameters[0]->is(type->Name) == -1)
+		if (!j->Parameters[0]->is(type->Name))
 			continue;
-		if (j->Parameters[0]->is("ptr") == -1)
+		if (!j->Parameters[0]->is("ptr"))
 			continue;	//constructor must take itself as a ptr.
 		return;	//the user has already defined the default constructor for us.
 	}
@@ -252,7 +252,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	for (auto Member : Type->Defined) {
 		if (Member->is(FUNCTION_NODE))
 			continue;
-		if ((Member->is("ptr") == -1) || MANGLER::Is_Base_Type(Member) || MANGLER::Is_Based_On_Base_Type(Member))
+		if (!Member->is("ptr") || MANGLER::Is_Base_Type(Member) || MANGLER::Is_Based_On_Base_Type(Member))
 			continue;
 
 		string Member_Types = "";
@@ -309,7 +309,7 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 		return;
 	if (MANGLER::Is_Based_On_Base_Type(v))
 		return;
-	if (v->is("ptr") == -1)
+	if (!v->is("ptr"))
 		return;
 	if (v->is(PARSED_BY::DESTRUCTOR_CALLER))
 		return;
@@ -342,7 +342,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 	for (auto Child : Childs) {
 		Update_Operator_Inheritance(Child);
 		//this is for the size and format to not be included in the default constructor.
-		if (Child->is("const") != -1)
+		if (Child->is("const"))
 			continue;
 		/*if (Child->is("static") != -1)
 			continue;*/
@@ -351,12 +351,13 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 		if (Child->is(FUNCTION_NODE))
 			continue;
 
-		//Because the child in question is the highest in the ast towards tyhe function as a child.
+		//Because the child in question is the highest in the ast towards the function as a child.
 		Node* Child_Copy = Child->Copy_Node(Child, Function);
 
+		vector<Node*> Objects = Child_Copy->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE }, [](Node* n) { if (n->Name == "this") return true; return false; });
 		//insert this. infront of every member
-			for (auto& Object : Child_Copy->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE })) {
-				if (Object->is(NUMBER_NODE) || Object->is(FUNCTION_NODE) || (Object->is("const") != -1) || MANGLER::Is_Base_Type(Object))
+		for (auto& Object : Objects) {
+				if (Object->is(NUMBER_NODE) || Object->is(FUNCTION_NODE) || Object->is("const") || MANGLER::Is_Base_Type(Object))
 					continue;
 				if ((Object->is(OBJECT_DEFINTION_NODE) || Object->is(OBJECT_NODE)) && This->Find(Object, This) != nullptr && !Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
 					//Node* define = c->Find(linear_n, Function);
@@ -531,7 +532,7 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 		return;
 	if (f->Fetcher == nullptr)
 		return;
-	if (f->is("static") != -1)
+	if (f->is("static"))
 		return;
 	if (f->Parameters.size() > 0 && f->Parameters[0]->Name == "this")
 		return;
@@ -566,9 +567,11 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 {
 	if (!f->is(FUNCTION_NODE))
 		return;
-	if (f->is("static") != -1)
+	if (f->is("static"))
 		return;
-	if (Scope->Name == "GLOBAL_SCOPE")
+	if (Scope->is("static"))
+		return;
+	if (f->Scope->is("static"))
 		return;
 	if (f->Fetcher != nullptr)
 		return;
@@ -806,7 +809,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		n->Inheritted = n->Function_Implementation->Inheritted;
 	}
 	else {
-		if (n->is("ptr") != -1 && n->is("func") != -1) {
+		if (n->is("ptr") && n->is("func")) {
 			n->Size = n->Find(n, n)->Size;
 			n->Inheritted = n->Find(n, n)->Inheritted;
 		}
@@ -1381,7 +1384,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 
 		if (Right->Name == "size") {
 			Node* num = Right->Find("size", Left);
-			if (num == nullptr || (num->is("const") != -1)) {
+			if (num == nullptr || (num->is("const"))) {
 				//this means it is definetly a size get request
 				Right->Name = to_string(Left->Get_Size());
 				Right->Type = NUMBER_NODE;	
@@ -1604,7 +1607,7 @@ void PostProsessor::Determine_Return_Type(int i)
 		}
 		if (Input[i]->Left->Cast_Type != nullptr && Input[i]->Left->Cast_Type->Name != "address")
 			Left_Size = Scope->Find(Input[i]->Left->Cast_Type, Scope)->Get_Size();
-		if (Input[i]->Left->is("ptr") != -1)
+		if (Input[i]->Left->is("ptr"))
 			Left_Size = _SYSTEM_BIT_SIZE_;
 	}
 
@@ -1616,7 +1619,7 @@ void PostProsessor::Determine_Return_Type(int i)
 		}
 		if (Input[i]->Right->Cast_Type != nullptr && Input[i]->Right->Cast_Type->Name != "address")
 			Right_Size = Scope->Find(Input[i]->Right->Cast_Type, Scope)->Get_Size();
-		if (Input[i]->Right->is("ptr") != -1)
+		if (Input[i]->Right->is("ptr"))
 			Right_Size = _SYSTEM_BIT_SIZE_;
 	}
 
@@ -1936,17 +1939,17 @@ void PostProsessor::Analyze_Global_Variable_Changes(int i)
 		//We are in global scope area.
 		if (!Input[i]->Right->Get_Most_Left()->is(NUMBER_NODE) && !Input[i]->Right->Get_Most_Left()->is(STRING_NODE)) {
 			Node* Right = Scope->Find(Input[i]->Right->Get_Most_Left()->Name);
-			if (Right->is("const") == -1)
-				if (og->is("const") != -1) {
-					og->Inheritted.erase(og->Inheritted.begin() + og->is("const"));
+			if (!Right->is("const"))
+				if (og->is("const")) {
+					og->Inheritted.erase(og->Inheritted.begin() + og->Get_Index_of_Inheritted("const"));
 				}
 		}
 	}
 	else {
 		//we are in a fucntion of some sort.
 		//if this is the case the global variable cannot be a constant anymore.
-		if (og->is("const") != -1) {
-			og->Inheritted.erase(og->Inheritted.begin() + og->is("const"));
+		if (og->is("const")) {
+			og->Inheritted.erase(og->Inheritted.begin() + og->Get_Index_of_Inheritted("const"));
 		}
 	}
 }
@@ -1965,7 +1968,7 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 		Current_S_Count++;
 		if (c->String == Input[i]->Name) {
 			*Input[i] = *c;
-			if (Input[i]->is("ptr") == -1)
+			if (!Input[i]->is("ptr"))
 				Input[i]->Inheritted.push_back("ptr");
 			return;
 		}
@@ -1975,7 +1978,7 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 	s->String = Input[i]->Name;
 	s->Name = "S" + to_string(Current_S_Count);
 	s->Inheritted = { Global_Scope->Find(1, Global_Scope, CLASS_NODE, "integer")->Name };
-	if (s->is("ptr") == -1)
+	if (!s->is("ptr"))
 		s->Inheritted.push_back("ptr");
 	s->Scope = Global_Scope;
 
@@ -2001,7 +2004,7 @@ void PostProsessor::Move_Global_Varibles_To_Header(int i)
 {
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
-	if (Scope->Name != "GLOBAL_SCOPE" && Scope->is("static") == -1)
+	if (Scope->Name != "GLOBAL_SCOPE" && !Scope->is("static"))
 		return;
 
 	Node* Globl_Var = Scope->Find(Input[i]->Left->Name);
@@ -2033,18 +2036,18 @@ bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
 
 	}
 
-	if (c->is("type") != -1) {
+	if (c->is("type")) {
 		//this means this funciton call is in template usage or this is a void calling convension.
 		return true;
 	}
 
 	for (auto i : c->Inheritted) {
 		if (Lexer::GetComponents(i)[0].is(Flags::KEYWORD_COMPONENT)) {
-			if (t->is(i) == -1) {
+			if (!t->is(i)) {
 				return false;	//teplate function must contain same keywords.
 			}
 		}
-		else if (t->is(i) == -1) {
+		else if (!t->is(i)) {
 			if (Type_Amount > 0) {
 				Type_Amount--;
 				continue;

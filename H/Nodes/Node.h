@@ -15,6 +15,7 @@ using namespace std;
 class Node;
 
 extern Node* Global_Scope;
+extern bool Filter_Exit_Code;
 
 class Variable_Descriptor {
 public:
@@ -141,7 +142,14 @@ public:
 		return Type == F;
 	}
 	
-	int is(string t) {
+	bool is(string t) {
+		for (int i = 0; i < Inheritted.size(); i++)
+			if (t == Inheritted[i])
+				return true;
+		return false;
+	}
+
+	int Get_Index_of_Inheritted(string t) {
 		for (int i = 0; i < Inheritted.size(); i++)
 			if (t == Inheritted[i])
 				return i;
@@ -566,7 +574,6 @@ public:
 		return false;
 	}
 
-
 	vector<Node*> Get_all(int f, vector<Node*> Trace);
 
 	vector<Node*> Get_all(int f = -1) {
@@ -577,6 +584,23 @@ public:
 		vector<Node*> Result;
 		for (auto i : flags) {
 			vector<Node*> tmp = Get_all(i);
+			Result.insert(Result.end(), tmp.begin(), tmp.end());
+		}
+		return Result;
+	}
+
+	vector<Node*> Get_all(int f, vector<Node*> Trace, bool (*Filter)(Node*));
+
+	vector<Node*> Get_all(int f, bool (*Filter)(Node*)) {
+		Filter_Exit_Code = false;
+		return Get_all(f, vector<Node*>(), Filter);
+	}
+
+	vector<Node*> Get_all(vector<int> flags, bool(*Filter)(Node*)) {
+		vector<Node*> Result;
+		for (auto i : flags) {
+			Filter_Exit_Code = false;
+			vector<Node*> tmp = Get_all(i, Filter);
 			Result.insert(Result.end(), tmp.begin(), tmp.end());
 		}
 		return Result;

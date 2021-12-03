@@ -242,6 +242,7 @@ void x86_64::Init()
 		}, "memory");
 	Token* Label = new Token(LABEL | GLOBAL_VARIABLE, "label");
 	Token* Data = new Token(NUM | STRING | LABEL);
+	Token* Float = new Token(DECIMAL | NUM);
 
 	Utility = {
 		Register,
@@ -897,6 +898,14 @@ void x86_64::Init()
 	IR* DQ = new IR("init", new Token(TOKEN::SET_DATA, ".quad"), {
 		{{Data, {8, 8}}}
 		});
+
+	IR* DDF = new IR("init", new Token(TOKEN::SET_DATA, ".long"), {
+		{{Float, {4, 4}}}
+	});
+	IR* DQF = new IR("init", new Token(TOKEN::SET_DATA, ".quad"), {
+		{{Float, {8, 8}}}
+	});
+
 	IR* SECREL32 = new IR("secrel32", new Token(TOKEN::SET_DATA, ".secrel32"), {
 		{{Data, {4, 8}}}
 	});
@@ -944,6 +953,8 @@ void x86_64::Init()
 		DW,
 		DD,
 		DQ,
+		DDF,
+		DQF,
 		SECREL32,
 		LOCATOIN,
 		CFI_START,

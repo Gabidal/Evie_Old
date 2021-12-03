@@ -65,17 +65,17 @@ void IRGenerator::Parse_Function(Node* Func)
 	if (Func->Is_Template_Object)
 		return;
 	for (auto j : Func->Parameters)
-		if (j->is("type") != -1 || j->Inherits_Template_Type())
+		if (j->is("type") || j->Inherits_Template_Type())
 			return;	//skip template functions.
 
 	Node* Function_Scope = Scope;
 	if (Func->Fetcher != nullptr)
 		Function_Scope = Func->Fetcher;
 
-	if ((Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->Calling_Count == 0) && Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->is("export") == -1)
+	if ((Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->Calling_Count == 0) && !Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->is("export"))
 		return;
 
-	if (Func->is("export") != -1)
+	if (Func->is("export"))
 		Function_Scope->Header.push_back(Func);
 
 	//label
@@ -294,7 +294,7 @@ void IRGenerator::Parse_Calls(int i)
 		ir = new IR(call, { Call_Variable }, Input[i]->Location);
 		
 		//now remove one ptr from the fuz
-		Input[i]->Inheritted.erase(Input[i]->Inheritted.begin() + Input[i]->is("ptr"));
+		Input[i]->Inheritted.erase(Input[i]->Inheritted.begin() + Input[i]->Get_Index_of_Inheritted("ptr"));
 	}
 
 	Output->push_back(ir);
@@ -521,7 +521,7 @@ void IRGenerator::Parse_Cloning(int i)
 		Right = new Token(Input[i]->Right);
 
 	//check for pointters
-	if (Input[i]->Right->is("ptr") != -1) {								// -1 keep one pointter that there is
+	if (Input[i]->Right->is("ptr")) {								// -1 keep one pointter that there is
 		Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right) -1, true, Right->is(TOKEN::MEMORY), Input[i]->Right->Inheritted);
 	}
 
@@ -861,7 +861,7 @@ void IRGenerator::Parse_Arrays(int i)
 		Token* handle = new Token(TOKEN::MEMORY, { Left}, _SYSTEM_BIT_SIZE_, Left->Get_Name());
 
 		//the array is a ptr and it is in a memory then load the actual address the pointter points to
-		if (Input[i]->Left->is("ptr") != -1)
+		if (Input[i]->Left->is("ptr"))
 			if (Left->is(TOKEN::CONTENT)) {
 				Token* UnLoaded_Left = new Token(TOKEN::REGISTER, Left->Get_Name() + "_UnLoaded", Left->Get_Size());
 				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { UnLoaded_Left, new Token(*handle) }, nullptr));
@@ -927,7 +927,7 @@ void IRGenerator::Parse_Arrays(int i)
 			else
 				Right = new Token(Input[i]->Right->Childs[o]);
 
-			if (Input[i]->Right->Childs[o]->is("ptr") != -1)
+			if (Input[i]->Right->Childs[o]->is("ptr"))
 				//								//unload all ptr layers
 				Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right->Childs[o]), true, Right->is(TOKEN::MEMORY));
 			else if (Right->is(TOKEN::CONTENT)) {
@@ -997,7 +997,7 @@ void IRGenerator::Parse_Arrays(int i)
 		Token* handle = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_, Left->Get_Name());
 
 		//the array is a ptr and it is in a memory then load the actual address the pointter points to
-		if (Input[i]->Left->is("ptr") != -1)
+		if (Input[i]->Left->is("ptr"))
 			if (Left->is(TOKEN::CONTENT)) {
 				Token* UnLoaded_Left = new Token(TOKEN::REGISTER, Left->Get_Name() + "_UnLoaded", Left->Get_Size());
 				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { UnLoaded_Left, new Token(*handle) }, nullptr));
@@ -1052,7 +1052,7 @@ void IRGenerator::Parse_Arrays(int i)
 		else
 			Right = new Token(Input[i]->Right);
 
-		if (Input[i]->Right->is("ptr") != -1)
+		if (Input[i]->Right->is("ptr"))
 			//								//unload all ptr layers
 			Right = Operate_Pointter(Right, Get_Amount("ptr", Input[i]->Right), true, Right->is(TOKEN::MEMORY));
 		else if (Right->is(TOKEN::CONTENT)) {
@@ -1385,7 +1385,7 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 void IRGenerator::Parse_Static_Variables(Node* n)
 {
 	if (n->is(CLASS_NODE)) {
-		if (n->is("static") != -1)
+		if (n->is("static"))
 			for (auto i : n->Childs)
 				Parse_Static_Variables(i);
 		else
@@ -1420,7 +1420,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;
 
 
-	if (n->is("static") != -1 || n->Fetcher->is("static") != -1) {
+	if (n->is("static") || n->Fetcher->is("static")) {
 		if (Scope->is(FUNCTION_NODE)) {
 			//this now namespace if the condition above yelds true.
 			bool Load_To_Reg = true;
@@ -1463,7 +1463,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	}
 
 	//if the fetcher is a memory we need to load it first to a register and that register is our handle for the member offset
-	if (Fecher->is(TOKEN::CONTENT) && !n->Fetcher->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE}) && n->Fetcher->is("ptr") != -1) {
+	if (Fecher->is(TOKEN::CONTENT) && !n->Fetcher->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE}) && n->Fetcher->is("ptr")) {
 		//call the pointter handle system to do our job here :D
 		//															 - 1 because the fecher being memory 
 		//															the pointter operator alrerady because of that does one unwrap
@@ -1946,7 +1946,7 @@ void IRGenerator::Parse_Return(int i) {
 		for (auto j : Input[i]->Right->Has(Input[i]->Right, OBJECT_NODE)) {
 			if (j->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && j->Find(j, j->Scope)->Scope == Global_Scope)
 				Can_Modify_Last_Variable_Value = false;
-			if (j->is("ptr") != -1)
+			if (j->is("ptr"))
 				Can_Modify_Last_Variable_Value = false;
 		}
 

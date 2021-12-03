@@ -71,7 +71,7 @@ Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 		if (source[n]->is(CALL_NODE)) {
 			for (auto c : Linear_Ast) {
 				for (auto p : source[n]->Function_Implementation->Parameters) {
-					if (p->is("ptr") != -1)
+					if (p->is("ptr"))
 						if (p->Name == c->Name) {
 							Expiring_Index = n;
 							goto Stop;
@@ -455,7 +455,7 @@ Node* Node::Get_Scope_As(int F, vector<string> inheritted, Node* scope)
 		return Get_Scope_As(F, inheritted, scope->Scope);
 
 	for (auto i : inheritted)
-		if (scope->is(i) == -1)
+		if (!scope->is(i))
 			goto Not_Right_Scope;
 
 	return scope;
@@ -785,7 +785,7 @@ void Node::Get_Inheritted_Class_Members() {
 		reverse(Inheritted_Members.begin(), Inheritted_Members.end());
 
 		for (auto Member : Inheritted_Members)
-			if (Member->is("const") == -1)
+			if (!Member->is("const"))
 				if (Locate(Member->Name, Defined) == false)
 					Defined.insert(Defined.begin(), Member);
 	}
@@ -872,13 +872,13 @@ string Node::Print()
 
 vector<Node*> Trace_Update_Size;
 int Node::Update_Size() {
-	if (is("const") != -1 && Size != 0 || Is_Template_Object)
+	if (is("const") && Size != 0 || Is_Template_Object)
 		return Size;
 
 	for (int j = 0; j < Trace_Update_Size.size(); j++)
 		if (this == Trace_Update_Size[j]) {
 			//Trace_Update_Size.pop_back();
-			if (is("ptr") != -1 || is("func") != -1)
+			if (is("ptr") || is("func"))
 				return _SYSTEM_BIT_SIZE_;
 			return Size;
 		}
@@ -940,7 +940,6 @@ void Node::Update_Member_Variable_Offsets(Node* obj) {
 
 vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 {
-
 	if (this->is(FUNCTION_NODE))
 		if (this->is(f) || f == -1)
 			return { this };
@@ -1013,6 +1012,93 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 				Result.erase(Result.begin() + j--);
 
 	Trace.pop_back();
+
+	return Result;
+}
+
+bool Filter_Exit_Code = false;
+vector<Node*> Node::Get_all(int f, vector<Node*> Trace, bool(*Filter)(Node*))
+{
+	if (Filter(this) || Filter_Exit_Code) {
+		Filter_Exit_Code = true;
+		return { };
+	}
+
+	if (this->is(FUNCTION_NODE))
+		if (this->is(f) || f == -1)
+			return { this };
+		else
+			return {};
+
+
+	for (int j = 0; j < Trace.size(); j++)
+		if (this == Trace[j]) {
+			Trace.pop_back();
+			if (this->is(f))
+				return { new Node(*this) };
+			return {};
+		}
+
+	Trace.push_back(this);
+
+	vector<Node*> Result;
+	if (Left != nullptr) {
+		vector<Node*> left = Left->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), left.begin(), left.end());
+	}
+	if (Right != nullptr) {
+		vector<Node*> right = Right->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), right.begin(), right.end());
+	}
+	if (Succsessor != nullptr) {
+		vector<Node*> Succsessors = Succsessor->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), Succsessors.begin(), Succsessors.end());
+	}
+	if (Predecessor != nullptr) {
+		vector<Node*> Predecessors = Predecessor->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), Predecessors.begin(), Predecessors.end());
+	}
+	if (Fetcher != nullptr) {
+		//vector<Node*> Fetchers = Fetcher->Get_all(f, Trace);
+		//Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+		if (Fetcher->is(f))
+			Result.push_back(Fetcher);
+	}
+	for (Node* i : Header) {
+		vector<Node*> Headers = i->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), Headers.begin(), Headers.end());
+	}
+	for (Node* i : Childs) {
+		vector<Node*> childs = i->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : Parameters) {
+		vector<Node*> childs = i->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : Defined) {
+		vector<Node*> childs = i->Get_all(f, Trace, Filter);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	if (Cast_Type) {
+		//vector<Node*> childs = Cast_Type->Get_all(f, Trace);
+		//Result.insert(Result.end(), childs.begin(), childs.end());
+		if (Cast_Type->is(f))
+			Result.push_back(Cast_Type);
+	}
+
+	if (is(f) || f == -1)
+		Result.push_back(this);
+
+	for (int i = 0; i < Result.size(); i++)
+		for (int j = 0; j < Result.size(); j++)
+			if (Result[i] == Result[j] && i != j)
+				Result.erase(Result.begin() + j--);
+
+	Trace.pop_back();
+	//reset the exit code.
+	if (Trace.size() == 0)
+		Filter_Exit_Code = false;
 
 	return Result;
 }

@@ -38,6 +38,7 @@ void Safe::PostProsessor_Factory()
 }
 
 void Stop() {
+	cout << endl;
 	throw::runtime_error("ERROR!");
 }
 
@@ -145,7 +146,6 @@ void Report(vector<Observation> o)
 
 	for (int i = 0; i < o.size(); i++)
 		o[i].Report(i == o.size() - 1);
-
 }
 
 void Report(long type, Lexer_Expectation_Set expectation, string source, vector<Component> result) {
@@ -220,7 +220,7 @@ void Safe::Check_Return_Validity(Node* n)
 				});
 		}
 	}
-	else if (func->Get_Size() != 0 && func->is("func") == -1){
+	else if (func->Get_Size() != 0 && !func->is("func")){
 		Report(Observation(ERROR, func->Name + " needs to return something", *n->Location, "Non-void function needs returning value."));
 	}
 }
@@ -229,7 +229,7 @@ void Safe::Disable_Non_Ptr_Class_Return(Node* n)
 {
 	if (!n->is(FUNCTION_NODE) && !n->is(IMPORT))
 		return;
-	if (n->is("ptr") != -1)
+	if (n->is("ptr"))
 		return;
 	if (n->Is_Template_Object)
 		return;

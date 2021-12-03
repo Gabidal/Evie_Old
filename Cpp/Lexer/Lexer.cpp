@@ -458,7 +458,13 @@ Component CreateNumberComponent(string text, const Position& position)
         {
             double value = number.value() * pow((long double)10.0, (long double)exponent);
 
-            return Component(to_string(value), Flags::NUMBER_COMPONENT);
+            stringstream Value;
+
+            int Dot_Index = text.find_first_of('.');
+
+            Value << std::fixed << setprecision(text.substr(Dot_Index, text.size() - 1).size()) << value;
+
+            return Component(Value.str(), Flags::NUMBER_COMPONENT);
         }
         Report(Observation(ERROR, "'" + text + "'", position, "Invalid decimal number"));
     }

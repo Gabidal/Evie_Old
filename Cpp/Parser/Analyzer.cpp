@@ -28,7 +28,7 @@ void Analyzer::Detect_Abnormal_Start_Address()
 void Analyzer::List_All_Exported()
 {
 	for (auto *f : Global_Scope->Defined)
-		if (f->is(FUNCTION_NODE) && f->is("export") != -1)
+		if (f->is(FUNCTION_NODE) && f->is("export"))
 			Start_Of_Proccesses.push_back(f);
 }
 
