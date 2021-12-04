@@ -237,70 +237,66 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	if (MANGLER::Is_Base_Type(Type) || (MANGLER::Is_Based_On_Base_Type(Type) && Type->Defined.size() == 0))
 		return;
 	//[type].Destructor(){
-	//	if ([member] != 0->address && --[member].Reference_Count < 1){
+	//	if ([this] != 0->address && --[this].Reference_Count < 1){
 	//		[member].Destructor()
-	//		Deallocate<[member type]>([member])
 	// 	}
+	//  Deallocate<[type]>(this)
 	//}
 
-	string Ifs = "";
-	//if (Type->is("ptr") != -1) {
-		Ifs +=
-			"if (this != 0->address && --Reference_Count < 1){\n";
-	//}
+	string Result = "if (this != 0->address && --this.Reference_Count < 1){\n";
 
+	//now we add the members that need to be revoked theyre destrucotrs
 	for (auto Member : Type->Defined) {
 		if (Member->is(FUNCTION_NODE))
 			continue;
-		if (!Member->is("ptr") || MANGLER::Is_Base_Type(Member) || MANGLER::Is_Based_On_Base_Type(Member))
+		if (!Member->is("ptr"))
 			continue;
 
-		string Member_Types = "";
-		for (auto I : Member->Inheritted) {
-			Member_Types += " " + I;
+		//if the member is a base type pointter
+		//char ptr -> Deallocate<char>(banana)
+		if (MANGLER::Is_Based_On_Base_Type(Member)) {
+			Result += "Deallocate<" + Member->Get_Inheritted(" ", true, false, true) + ">(this." + Member->Name + ")\n";
 		}
 
-		Ifs += 
-			"if (" + Member->Name + " != 0->address && --" + Member->Name + ".Reference_Count < 1){\n" +
-				Member->Name + ".Destructor()\n" +
-				"Deallocate<" + Member_Types + ">(" + Member->Name + ")\n" +
-			"}\n";
+		//if the memebr is not a base type
+		//foo ptr m -> m.Destructor()
+		else {
+			Result += Member->Name + ".Destructor()\n";
+		}
 	}
 
-	Ifs += "Deallocate<" + Type->Name + ">(this)\n}";
-	//}
-	//The function itself needs to be constructed with a this pointter.
-	Node* Func = new Node(FUNCTION_NODE, Type->Location);
-	Func->Name = "Destructor";
-	Func->Inheritted.push_back("func");
-	Func->Scope = Type;
+	//deallocate one self
+	Result += "Deallocate<" + Type->Name + ">(this)\n";
+
+	Result += "}";
+	
+	//Construct the function that is conne host this Result string content
+	Node* Destructor = new Node(FUNCTION_NODE, Type->Location);
+	Destructor->Name = "Destructor";
+	Destructor->Scope = Type;
+	Destructor->Inheritted.push_back("func");
 
 	Node* This = new Node(PARAMETER_NODE, Type->Location);
 	This->Name = "this";
-	This->Inheritted = { Type->Name, "ptr" };
-	This->Scope = Func;
+	This->Scope = Destructor;
+	This->Inheritted = Type->Get_Inheritted();
 
-	Func->Parameters.push_back(This);
-	Func->Defined.push_back(This);
+	Destructor->Defined.push_back(This);
+	Destructor->Parameters.push_back(This);
 
-	Parser p(Func);
-	p.Input = Lexer::GetComponents(Ifs);
+	//now we need to insert these new generated content to this new function
+	vector<Component> Components = Lexer::GetComponents(Result);
+
+	Parser p(Destructor);
+	p.Input = Components;
 	p.Factory();
-	Func->Childs.push_back(p.Input[0].node);
 
-	Func->Childs = Insert_Dot(Func->Childs, Func, This);
+	Destructor->Childs.push_back(p.Input[0].node);
 
-	/*for (int i = 0; i < Func->Parameters.size(); i++)
-		if (Func->Parameters[i] == This)
-			Func->Parameters.erase(Func->Parameters.begin() + i);
+	PostProsessor post(Destructor, Destructor->Childs);
 
-	for (int i = 0; i < Func->Defined.size(); i++)
-		if (Func->Defined[i] == This)
-			Func->Defined.erase(Func->Defined.begin() + i);*/
-
-	Func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE;
-
-	Type->Defined.push_back(Func);
+	//Now that all procedures are finished we give this finished product to the type
+	Type->Defined.push_back(Destructor);
 }
 
 void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)

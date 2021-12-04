@@ -1280,7 +1280,11 @@ void Parser::Callation_Pattern(int i)
 	if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
 		Paranthesis_Offset = 2;
 
-	if (Get_Amount_Of(i + Paranthesis_Offset, Flags::PAREHTHESIS_COMPONENT).size() != 1)
+	vector<int> Paranthesis = Get_Amount_Of(i + Paranthesis_Offset, Flags::PAREHTHESIS_COMPONENT);
+
+	if (Paranthesis.size() == 0)
+		return;
+	if (Paranthesis.size() > 1 && Input[Paranthesis[1]].Value[0] != '[')
 		return;
 	if (Input[(size_t)i + Paranthesis_Offset].Value[0] != '(')
 		return;
@@ -1694,9 +1698,9 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "->" }, NODE_CASTER);
 	for (int i = 0; i < Input.size(); i++)
-		Array_Pattern(i);
-	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "." }, OPERATOR_NODE);
+	for (int i = 0; i < Input.size(); i++)
+		Array_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
 		Variable_Negate_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)

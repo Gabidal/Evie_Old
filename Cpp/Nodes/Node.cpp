@@ -866,6 +866,8 @@ string Node::Print()
 			}
 			Result += Parameters[i]->Get_Inheritted(" ", false, false, false) + Seperator;
 		}
+		if (Parameters.size() == 0)
+			Result += ")";
 	}
 	return Result;
 }
