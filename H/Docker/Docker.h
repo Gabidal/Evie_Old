@@ -41,6 +41,8 @@ namespace DOCKER {
 	extern bool WORKING_DIR_IS_ABSOLUTE;
 	extern vector<string> Default_Header_Data;
 	extern vector<string> Default_ASM_Header_Data;
+	extern char* Buffer;
+	extern long Buffer_Size;
 	//vector<pair<Type, Regex string>>
 	//vector<pair<string, string>> Types;
 	//returns the filename of the header file
@@ -54,7 +56,7 @@ namespace DOCKER {
 	void Add_Translator(Location filter_Location, string id, void (*f)(vector<string>&));
 	void Set_Default_Translator(void (*f)(vector<string>&));
 	//open the file and look for the identifier of the file header
-	void Start_Analyzer(); 
+	void Start_Analyzer(char* Buffer = nullptr, long Buffer_Size = 0);
 	string ReplaceAll(string str, const string& from, const string& to);
 	Section Get_Section_From_String(string& text);
 	template<typename T>
@@ -86,6 +88,7 @@ namespace DOCKER {
 	string Open_File(string File_Name);
 	void Write_File(string File_Name, string Buffer);
 	void Clear_File(string File_Name);
+	int Initialize_Number(string raw);
 }
 
 class Docker
@@ -124,6 +127,44 @@ public:
 		//cleaner
 		DOCKER::FileName.pop_back();
 		DOCKER::Priority_Type.pop_back();
+	}
+	Docker(string FN, char* File_Buffer, long Buffer_Size) {
+		for (auto i : DOCKER::Included_Files)
+			if (i == FN || (DOCKER::Working_Dir.size() > 0 && i == DOCKER::Working_Dir[0].second + FN)) {
+				//cout << "Warnign: " << FN << " already included!" << endl;
+				return;
+			}
+		DOCKER::FileName.push_back(FN);
+
+		vector<pair<string, string>> WD = DOCKER::Working_Dir;
+
+		//DOCKER::FileName.push_back(FN);
+		//DOCKER::Working_Dir = WD;
+		//DOCKER::Priority_Type.push_back(PT);
+		//look up table at:https://en.wikipedia.org/wiki/List_of_file_signatures.
+		DOCKER::Start_Analyzer(File_Buffer);
+
+		//for include loop to stop existing!
+		string Dir = "";
+		string File_Name = DOCKER::Update_Working_Dir(DOCKER::FileName.back(), Dir);
+		File_Name = DOCKER::Working_Dir.back().second + File_Name;
+		bool Already_Included_File_Name = false;
+		//the https needs to rename the https url link to the current ablselute path the repo resides in.
+		//so remove unnecessary filename from coming into include file list.
+		for (auto i : DOCKER::Included_Files)
+			if (i == File_Name) {
+				Already_Included_File_Name = true;
+				break;
+			}
+
+		if (Already_Included_File_Name == false)
+			DOCKER::Included_Files.push_back(File_Name);
+
+		//cleaner
+		DOCKER::FileName.pop_back();
+		DOCKER::Priority_Type.pop_back();
+
+		DOCKER::Working_Dir = WD;
 	}
 	~Docker() {}
 private:

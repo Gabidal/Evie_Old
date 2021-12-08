@@ -18,6 +18,9 @@ vector<bool> DOCKER::Is_Local;
 vector<string>(*DOCKER::Slicer)(string);
 bool DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
 
+char* Buffer = nullptr;
+long Buffer_Size = 0;
+
 extern Usr* sys;
 
 vector<string> DOCKER::Default_ASM_Header_Data = {
@@ -31,8 +34,12 @@ vector<string> DOCKER::Default_Header_Data = {
 	"func Generic = \"[a-zA-Z0-9]+\""
 };
 
-void DOCKER::Start_Analyzer()
+void DOCKER::Start_Analyzer(char* Buffer, long Buffer_Size)
 {
+	//no need to if this.
+	DOCKER::Buffer = Buffer;
+	DOCKER::Buffer_Size = Buffer_Size;
+
 	Is_Local.push_back(false);
 	//https http ftp ftps 
 	if (Default == nullptr) {
@@ -504,6 +511,20 @@ void DOCKER::Clear_File(string File_Name)
 	std::ofstream ofs(File_Name);
 	ofs << "";
 	ofs.close();
+}
+
+int DOCKER::Initialize_Number(string raw)
+{
+	int Actual_Size = 0;
+	for (; Actual_Size < raw.size(); Actual_Size++)
+		if (raw[Actual_Size] == '\n')
+			break;
+
+	char* Result = new char[Actual_Size];
+
+	memcpy(Result, raw.c_str(), Actual_Size);
+
+	return atoi(Result);
 }
 
 vector<string>& DOCKER::Append(vector<string>& d, vector<pair<string, string>> s) {
