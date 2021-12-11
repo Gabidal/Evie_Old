@@ -517,7 +517,7 @@ int DOCKER::Initialize_Number(string raw)
 {
 	int Actual_Size = 0;
 	for (; Actual_Size < raw.size(); Actual_Size++)
-		if (raw[Actual_Size] == '\n')
+		if (raw[Actual_Size] == ' ')
 			break;
 
 	char* Result = new char[Actual_Size];
