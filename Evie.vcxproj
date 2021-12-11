@@ -209,6 +209,7 @@
     <ClCompile Include="Cpp\BackEnd\Selector.cpp" />
     <ClCompile Include="Cpp\BackEnd\x86.cpp" />
     <ClCompile Include="cpp\docker\ASM.cpp" />
+    <ClCompile Include="Cpp\Docker\DLL.cpp" />
     <ClCompile Include="cpp\docker\Docker.cpp" />
     <ClCompile Include="cpp\docker\ELF.cpp" />
     <ClCompile Include="cpp\docker\HTTPS.cpp" />
@@ -282,6 +283,7 @@
     <ClInclude Include="H\BackEnd\Selector.h" />
     <ClInclude Include="H\BackEnd\x86.h" />
     <ClInclude Include="h\docker\ASM.h" />
+    <ClInclude Include="H\Docker\DLL.h" />
     <ClInclude Include="h\docker\Docker.h" />
     <ClInclude Include="h\docker\ELF.h" />
     <ClInclude Include="h\docker\HTTPS.h" />

@@ -74,9 +74,9 @@ namespace OBJ {
 		char Number_Of_Aux_Symbols;
 	};
 
-	vector<Section> Gather_All_Sections(vector<char> Buffer, int Section_Count);
+	vector<Section> Gather_All_Sections(vector<char> buffer, int Section_Count);
 
-	vector<string> Get_Symbol_Table_Content(Header h, vector<char> Buffer);
+	vector<string> Get_Symbol_Table_Content(Header h, vector<char> buffer);
 
 	void OBJ_Analyser(vector<string>& Output);
 }

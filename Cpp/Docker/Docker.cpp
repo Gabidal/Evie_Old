@@ -17,9 +17,8 @@ vector<string> DOCKER::Included_Files;
 vector<bool> DOCKER::Is_Local;
 vector<string>(*DOCKER::Slicer)(string);
 bool DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
-
-char* Buffer = nullptr;
-long Buffer_Size = 0;
+char* DOCKER::Buffer = nullptr;
+long DOCKER::Buffer_Size = 0;
 
 extern Usr* sys;
 
@@ -34,10 +33,10 @@ vector<string> DOCKER::Default_Header_Data = {
 	"func Generic = \"[a-zA-Z0-9]+\""
 };
 
-void DOCKER::Start_Analyzer(char* Buffer, long Buffer_Size)
+void DOCKER::Start_Analyzer(char* buffer, long Buffer_Size)
 {
 	//no need to if this.
-	DOCKER::Buffer = Buffer;
+	DOCKER::Buffer = buffer;
 	DOCKER::Buffer_Size = Buffer_Size;
 
 	Is_Local.push_back(false);

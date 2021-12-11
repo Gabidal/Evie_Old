@@ -120,6 +120,9 @@
     <ClCompile Include="Cpp\Parser\Analyzer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\Docker\DLL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\unix.asm">
@@ -301,6 +304,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\Parser\Analyzer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Docker\DLL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

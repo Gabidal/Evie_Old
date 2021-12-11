@@ -1,30 +1,30 @@
 #include "../../H/Docker/OBJ.h"
 
-vector<OBJ::Section> OBJ::Gather_All_Sections(vector<char> Buffer, int Section_Count)
+vector<OBJ::Section> OBJ::Gather_All_Sections(vector<char> buffer, int Section_Count)
 {
 	vector<Section> Result;
 	for (int i = sizeof(Header); i < Section_Count; i += sizeof(Section)) {
-		Result.push_back(*(Section*)&(Buffer[i]));
+		Result.push_back(*(Section*)&(buffer[i]));
 	}
 	return Result;
 }
 
-vector<string> OBJ::Get_Symbol_Table_Content(Header h, vector<char> Buffer)
+vector<string> OBJ::Get_Symbol_Table_Content(Header h, vector<char> buffer)
 {
 	vector<string> Result;
 
 	vector<Symbol> Symbols;
-	for (int i = atoi(h.Pointter_To_Symbol_Table); i < Buffer.size(); i++) {
-		Symbols.push_back(*(Symbol*)&(Buffer[i]));
+	for (int i = *(int*)h.Pointter_To_Symbol_Table; i < buffer.size(); i++) {
+		Symbols.push_back(*(Symbol*)&(buffer[i]));
 	}
 
 	for (auto& S : Symbols) {
 		if (memcmp(S.Name.Name_Header, "\0\0\0\0", 4)) {
 			string Name = "";
-			for (int i = atoi(S.Name.Name_Offset); i < Buffer.size(); i++) {
-				if (Buffer[i] == '\0')
+			for (int i = *(int*)S.Name.Name_Offset; i < buffer.size(); i++) {
+				if (buffer[i] == '\0')
 					break;
-				Name += Buffer[i];
+				Name += buffer[i];
 			}
 			Result.push_back(Name);
 		}

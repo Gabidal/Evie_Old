@@ -46,7 +46,7 @@ pair<bool, vector<LIB::Packet>> LIB::Read_AR_File(string filename){
 
 pair<bool, vector<LIB::Packet>> LIB::Read_LIB_File(string filename)
 {
-
+	return { false, {} };
 }
 
 void LIB::LIB_Analyzer(vector<string>& Output)
