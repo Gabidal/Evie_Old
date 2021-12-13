@@ -14,6 +14,7 @@
 #include "../H/Docker/Docker.h"
 #include "../H/Docker/HTTPS.h"
 #include "../H/Docker/OBJ.h"
+#include "../H/Docker//DLL.h"
 #include "../H/BackEnd/BackEnd.h"
 #include "../H/BackEnd/IRGenerator.h"
 #include "../H/BackEnd/Selector.h"
@@ -134,6 +135,7 @@ int Build(int argc, const char* argv[])
     DOCKER::Add_Translator(Location::Header, "L\x1", OBJ::OBJ_Analyser);
     DOCKER::Add_Translator(Location::Header, "\x64\x86", OBJ::OBJ_Analyser);
     DOCKER::Add_Translator(Location::Header, "\x32\x86", OBJ::OBJ_Analyser);
+    DOCKER::Add_Translator(Location::Header, "\x4D\x5A", DLL::DLL_Analyser);
 
     DOCKER::Add_Translator(Location::File_Name, "asm", ASM::ASM_Analyzer);
 

@@ -16,7 +16,16 @@ namespace DLL {
 
 	class Export_Directory_Table {
 	public:
-		
+		char Export_Flags[4];
+		char Time_Date_Stamp[4];
+		char Version[4];
+		char Name_RVA[4];
+		char Ordinal_Base[4];
+		char Address_Table_Entries[4];
+		char Number_Of_Name_Pointers[4];
+		char Export_Address_Table_RVA[4];
+		char Name_Pointer_RVA[4];
+		char Ordinal_Table_RVA[4];
 	};
 
 	class Header {
@@ -57,7 +66,7 @@ namespace DLL {
 
 	vector<Table> Gather_All_Tables(vector<char> buffer, Header h);
 
-	vector<string> Gather_All_Export_Names(Header h, vector<char> buffer);
+	vector<string> Gather_All_Export_Names(Header h, vector<char> buffer, Table t);
 
 	void DLL_Analyser(vector<string>& Output);
 }

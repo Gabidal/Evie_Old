@@ -166,6 +166,65 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 	}
 }
 
+Node* Node::Get_Definition_Type()
+{
+	if (!Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, CONTENT_NODE }))
+		return this;
+
+	vector<string> Right_Inherit = Get_Right_Inheritted();
+
+	if (Right_Inherit.size() == 0) {
+		return this;
+		Report(Observation(ERROR, "Parser could not give the inheritted, why tho?"));
+	}
+
+	//go through the inheritted and find the one that has the members init.
+	for (auto i : Right_Inherit) {
+		if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
+			continue;
+
+		Node* scope = Fetcher;
+
+		if (scope == nullptr)
+			scope = Cast_Type;
+
+		if (scope == nullptr)
+			scope = Scope;
+
+		//							  for cumulative types,
+		Node* Inherit = Find(i, scope, {OBJECT_DEFINTION_NODE, CLASS_NODE, TEMPLATE_NODE});
+
+		return Inherit;
+	}
+
+	return nullptr;
+}
+
+vector<string> Node::Get_Right_Inheritted()
+{
+	vector<string> Result = Inheritted;
+
+	if (is(CONTENT_NODE) && Childs.size() == 1) {
+		Result = Childs[0]->Get_Right_Inheritted();
+	}
+
+	if (Fetcher && !Fetcher->is(CLASS_NODE)) {
+		Result = Fetcher->Get_Right_Inheritted();
+	}
+
+	if (Cast_Type) {
+		//give the function the cast type by its self name so that
+		//if the cast has its own cast it gets picket, if not then this cast type is picket
+		//and not the cast type inheritted.
+		vector<string> tmp = Cast_Type->Inheritted;
+		Cast_Type->Inheritted = { Cast_Type->Name };
+		Result = Cast_Type->Get_Right_Inheritted();
+		Cast_Type->Inheritted = tmp;
+	}
+
+	return Result;
+}
+
 int Node::Calculate_Inheritted_Distance(Node* Val, Node* Loader, string type)
 {
 	int Val_Ptr_Count = Val->Get_All(type);
@@ -206,6 +265,8 @@ Node* Node::Find_Scope(Node* n)
 
 		Current_Scope = Current_Scope->Scope;
 	}
+
+	Current_Scope = Current_Scope->Get_Definition_Type();
 
 	return Current_Scope;
 }
@@ -392,6 +453,18 @@ Node* Node::Find_Template(string T)
 	return nullptr;
 }
 
+Node* Node::Find(bool Lock_Parent, Node* Memeber, Node* Parent)
+{
+	if (Parent->Defined.size() == 0) {
+		Parent = Parent->Get_Definition_Type();
+	}
+
+	for (auto* i : Parent->Defined)
+		if (Memeber->Name == i->Name)
+			return i;
+	return nullptr;
+}
+
 bool Node::Compare_Fetchers(Node* other)
 {
 	string This_Fethcers = "";
@@ -440,13 +513,14 @@ vector<Node*> Node::Get_All_Fetchers()
 	return Result;
 }
 
-Node* Node::Get_Scope_As(int F, Node* scope) {
+Node* Node::Get_Scope_As(int F, Node* scope, bool Must_Be_Found) {
 	if (scope->is(F))
 		return scope;
 	if (scope->Scope != nullptr)
-		return Get_Scope_As(F, scope->Scope);
-	Report(Observation(ERROR, "Parent NULL!!", *Location));
-	throw::runtime_error("ERROR!");
+		return Get_Scope_As(F, scope->Scope, Must_Be_Found);
+	if (Must_Be_Found)
+		Report(Observation(ERROR, "Parent NULL!!", *Location));
+	return nullptr;
 }
 
 Node* Node::Get_Scope_As(int F, vector<string> inheritted, Node* scope)
@@ -462,6 +536,15 @@ Node* Node::Get_Scope_As(int F, vector<string> inheritted, Node* scope)
 	
 	Not_Right_Scope:;
 	return Get_Scope_As(F, inheritted, scope->Scope);
+}
+
+Node* Node::Get_Scope_As(vector<int> Flags, Node* Parent, bool Must_Be_Found)
+{
+	for (auto i : Flags) {
+		if (Get_Scope_As(i, Parent, Must_Be_Found))
+			return Get_Scope_As(i, Parent, Must_Be_Found);
+	}
+	return nullptr;
 }
 
 Node* Node::Get_Context_As(int F, Node* Context)
@@ -503,6 +586,16 @@ vector<Node*> Node::Get_Scope_Path()
 
 Node* Node::Find(Node* n, Node* s)
 {
+	if (s->Defined.size() == 0) {
+		Node* S = s->Get_Definition_Type();
+
+		if (S) {
+			s = S;
+			if (n->Name == s->Name)
+				return s;
+		}
+	}
+
 	//some criteria
 	if (n->Name == "\n")
 		return nullptr;
@@ -574,9 +667,15 @@ Node* Node::Find(Node* n, Node* s)
 	return nullptr;
 }
 
-Node* Node::Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_Base_Type) {
+Node* Node::Find(int size, Node* Parent, int flags, string f, bool Needs_To_Be_Base_Type) {
+	if (Parent->Defined.size() == 0) {
+		Node* S = Parent->Get_Definition_Type();
 
-	for (Node* i : parent->Defined)
+		if (S)
+			Parent = S;
+	}
+
+	for (Node* i : Parent->Defined)
 		if (i->is(flags) && (i->Size == size))
 			if (i->Format == f)
 				if (Needs_To_Be_Base_Type) {
@@ -586,7 +685,7 @@ Node* Node::Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_B
 				else
 					return i;
 
-	for (Node* i : parent->Inlined_Items)
+	for (Node* i : Parent->Inlined_Items)
 		if (i->is(flags) && (i->Size == size))
 			if (i->Format == f)
 				if (Needs_To_Be_Base_Type) {
@@ -596,8 +695,8 @@ Node* Node::Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_B
 				else
 					return i;
 
-	if (parent->Scope != nullptr) {
-		return Find(size, parent->Scope, flags, f, Needs_To_Be_Base_Type);
+	if (Parent->Scope != nullptr) {
+		return Find(size, Parent->Scope, flags, f, Needs_To_Be_Base_Type);
 	}
 
 	return nullptr;
@@ -605,6 +704,17 @@ Node* Node::Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_B
 
 Node* Node::Find(Node* n, Node* s, int f)
 {
+	if (s->Defined.size() == 0) {
+		Node* S = s->Get_Definition_Type();
+
+		if (S) {
+			s = S;
+
+			if (n->Name == s->Name && s->is(f))
+				return s;
+		}
+	}
+
 	//some criteria
 	if (n->Name == "\n")
 		return nullptr;
@@ -681,6 +791,17 @@ Node* Node::Find(Node* n, Node* s, int f)
 }
 
 Node* Node::Find(string name, Node* s, int flags) {
+	if (s->Defined.size() == 0) {
+		Node* S = s->Get_Definition_Type();
+
+		if (S) {
+			s = S;
+
+			if (name == s->Name)
+				return s;
+		}
+	}
+	
 	if (name == "\n")
 		return nullptr;
 	if (s == nullptr) {
@@ -730,6 +851,17 @@ Node* Node::Find(string name, Node* s, int flags) {
 }
 
 Node* Node::Find(string name, Node* s, bool Need_Parent_existence) {
+	if (s->Defined.size() == 0) {
+		Node* S = s->Get_Definition_Type();
+
+		if (S) {
+			s = S;
+
+			if (name == s->Name)
+				return s;
+		}
+	}
+	
 	if (name == "\n")
 		return nullptr;
 	if (s == nullptr /*&& Need_Parent_existance*/) {
@@ -888,7 +1020,7 @@ int Node::Update_Size() {
 	Trace_Update_Size.push_back(this);
 
 	Size = 0;
-	if (!is(FUNCTION_NODE))
+	if (!is(FUNCTION_NODE) && !is("ptr"))
 		for (auto Member : Defined) {
 			if (Member->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
 				Member->Update_Size();
@@ -940,6 +1072,132 @@ void Node::Update_Member_Variable_Offsets(Node* obj) {
 	Trace_Update_Member_Variable.pop_back();
 }
 
+vector<Node*> Node::Get_All_Exept(vector<int> flags)
+{
+	vector<int> Flags;
+	for (int i = 0; i < COUNT; i++) {
+		bool Found = false;
+		for (auto j : flags) {
+			if (j == i) {
+				Found = true;
+				break;
+			}
+		}
+		if (!Found)
+			Flags.push_back(i);
+	}
+
+
+	/*vector<Node*> Result;
+	for (auto i : Flags) {
+		vector<Node*> tmp = Get_All_Exept(i, vector<Node*>());
+		Result.insert(Result.end(), tmp.begin(), tmp.end());
+	}*/
+	return Get_All_Exept(Flags, vector<Node*>());
+}
+
+vector<Node*> Node::Get_All_Exept(vector<int> flags, vector<Node*> Trace)
+{
+	if (this->is(FUNCTION_NODE)) {
+		bool Found = false;
+		for (auto i : flags) {
+			if (this->is(i)) {
+				Found = true;
+				break;
+			}
+		}
+
+		if (Found) {
+			return { this };
+		}
+		else
+			return {};
+	}
+
+	for (int j = 0; j < Trace.size(); j++)
+		if (this == Trace[j]) {
+			Trace.pop_back();
+			for (auto i : flags)
+				if (this->is(i))
+					return { new Node(*this) };
+			return {};
+		}
+
+	bool Found = false;
+	for (auto i : flags) {
+		if (this->is(i)) {
+			Found = true;
+			break;
+		}
+	}
+
+	if (!Found)
+		return {};
+
+	Trace.push_back(this);
+
+	vector<Node*> Result;
+	if (Left != nullptr) {
+		vector<Node*> left = Left->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), left.begin(), left.end());
+	}
+	if (Right != nullptr) {
+		vector<Node*> right = Right->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), right.begin(), right.end());
+	}
+	if (Succsessor != nullptr) {
+		vector<Node*> Succsessors = Succsessor->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), Succsessors.begin(), Succsessors.end());
+	}
+	if (Predecessor != nullptr) {
+		vector<Node*> Predecessors = Predecessor->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), Predecessors.begin(), Predecessors.end());
+	}
+	if (Fetcher != nullptr) {
+		//vector<Node*> Fetchers = Fetcher->Get_all(f, Trace);
+		//Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
+		for (auto i : flags)
+			if (Fetcher->is(i))
+				Result.push_back(Fetcher);
+	}
+	for (Node* i : Header) {
+		vector<Node*> Headers = i->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), Headers.begin(), Headers.end());
+	}
+	for (Node* i : Childs) {
+		vector<Node*> childs = i->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : Parameters) {
+		vector<Node*> childs = i->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	for (Node* i : Defined) {
+		vector<Node*> childs = i->Get_All_Exept(flags, Trace);
+		Result.insert(Result.end(), childs.begin(), childs.end());
+	}
+	if (Cast_Type) {
+		//vector<Node*> childs = Cast_Type->Get_all(f, Trace);
+		//Result.insert(Result.end(), childs.begin(), childs.end());
+		for (auto i : flags)
+			if (Cast_Type->is(i))
+				Result.push_back(Cast_Type);
+	}
+
+	for (auto i : flags)
+		if (is(i))
+			Result.push_back(this);
+
+	for (int i = 0; i < Result.size(); i++)
+		for (int j = 0; j < Result.size(); j++)
+			if (Result[i] == Result[j] && i != j)
+				Result.erase(Result.begin() + j--);
+
+	Trace.pop_back();
+
+	return Result;
+}
+
 vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 {
 	if (this->is(FUNCTION_NODE))
@@ -947,7 +1205,6 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 			return { this };
 		else
 			return {};
-
 
 	for (int j = 0; j < Trace.size(); j++)
 		if (this == Trace[j]) {

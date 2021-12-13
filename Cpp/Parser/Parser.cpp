@@ -926,6 +926,7 @@ void Parser::Object_Pattern(int i)
 
 	Input[i].node = Scope->Copy_Node(new Node(*Scope->Find(Input[i].Value, Scope, true)), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
+	Input[i].node->Defined.clear();
 
 	//List<int> a -> .List_int a
 	if (Input[i].node->Templates.size() > 0) {

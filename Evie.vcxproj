@@ -196,6 +196,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>libcurl.lib;Ws2_32.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>

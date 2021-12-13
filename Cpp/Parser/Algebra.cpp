@@ -152,6 +152,7 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 vector<Node*> Trace_Function_Inlined;
 void Algebra::Function_Inliner(Node* c, int i)
 {
+	return;
 	//return;
 	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") || c->Function_Implementation->is("import"))
 		return;

@@ -108,6 +108,7 @@ enum Node_Type {
 	OBJECT_DEFINTION_NODE,
 	LABEL_NODE,
 	NAMESPACE_INLINE_NODE,
+	COUNT,
 };
 
 #endif

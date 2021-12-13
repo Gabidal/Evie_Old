@@ -11,16 +11,28 @@ vector<DLL::Table> DLL::Gather_All_Tables(vector<char> buffer, Header h)
 	return Result;
 }
 
-vector<string> DLL::Gather_All_Export_Names(Header h, vector<char> buffer)
+vector<string> DLL::Gather_All_Export_Names(Header h, vector<char> buffer, Table t)
 {
 	vector<string> Result;
 
-	vector<Symbol> Symbols;
-	for (int i = *(int*)h.Pointter_To_Symbol_Table; i < buffer.size(); i++) {
-		Symbols.push_back(*(Symbol*)&(buffer[i]));
+	Export_Directory_Table EDT = *(Export_Directory_Table*)&(buffer[*(int*)t.Table_Name]);
+
+	//gather all symbol name pointters
+	vector<int> Indicies;
+	for (int i = *(int*)EDT.Name_Pointer_RVA; i < buffer.size(); i += 4) {
+		Indicies.push_back(*(int*)&(buffer[i]));
 	}
 
-	
+	//now go through the indicies and add the names
+	for (auto i : Indicies) {
+		string Name = "";
+		for (int j = i; j < buffer.size(); j++) {
+			if (buffer[j] == '\0')
+				break;
+			Name += buffer[j];
+		}
+		Result.push_back(Name);
+	}
 
 	return Result;
 }
@@ -38,5 +50,5 @@ void DLL::DLL_Analyser(vector<string>& Output)
 	//now gather all the RVA sizes
 	vector<Table> Tables = Gather_All_Tables(buffer, header);
 
-
+	DOCKER::Append(Output, Gather_All_Export_Names(header, buffer, Tables[0]));
 }

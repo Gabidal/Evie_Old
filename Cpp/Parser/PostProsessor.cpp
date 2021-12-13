@@ -175,7 +175,7 @@ void PostProsessor::Type_Definer(Node* type)
 	Node* This = new Node(PARAMETER_NODE, type->Location);
 	This->Inheritted = { type->Name, "ptr"};
 	This->Name = "this";
-	This->Defined = type->Defined;
+	//This->Defined = type->Defined;
 	This->Scope = Function;
 	This->Update_Size();
 
@@ -184,11 +184,11 @@ void PostProsessor::Type_Definer(Node* type)
 
 	Function->Update_Size();
 
-	Node* p = type;
-	if (p->Has({ "cpp", "evie", "vivid" }) != -1)
-		Function->Inheritted.push_back(p->Inheritted[p->Has({ "cpp", "evie", "vivid" })]);
+	if (type->Has({ "cpp", "evie", "vivid" }) != -1)
+		Function->Inheritted.push_back(type->Inheritted[type->Has({ "cpp", "evie", "vivid" })]);
 
-	Function->Childs = Insert_Dot(type->Childs, Function, This);
+	PostProsessor p(type);
+	Function->Childs = p.Insert_Dot(type->Childs, Function, This);
 
 	//call all the inheritted default or overrided constructor calls.
 	vector<Node*> tmp = Dottize_Inheritanse(type, This, Function);
@@ -231,6 +231,7 @@ void PostProsessor::Type_Definer(Node* type)
 
 void PostProsessor::Destructor_Generator(Node* Type)
 {
+	return;
 	if (sys->Info.Reference_Count_Size < 1)
 		return;
 
@@ -301,6 +302,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 
 void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 {
+	return;
 	if (!v->is(OBJECT_DEFINTION_NODE))
 		return;
 	if (MANGLER::Is_Based_On_Base_Type(v))
@@ -355,7 +357,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 		for (auto& Object : Objects) {
 				if (Object->is(NUMBER_NODE) || Object->is(FUNCTION_NODE) || Object->is("const") || MANGLER::Is_Base_Type(Object))
 					continue;
-				if ((Object->is(OBJECT_DEFINTION_NODE) || Object->is(OBJECT_NODE)) && This->Find(Object, This) != nullptr && !Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
+				if ((Object->is(OBJECT_DEFINTION_NODE) || Object->is(OBJECT_NODE)) && This->Find(true, Object, This) && !Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
 					//Node* define = c->Find(linear_n, Function);
 
 					Node* Dot = new Node(OPERATOR_NODE, Function->Location);
@@ -541,14 +543,15 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 	This->Inheritted = { func->Fetcher->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
-	This->Defined = Class->Defined;
+	//This->Defined = Class->Defined;
 	This->Inheritable_templates = Class->Inheritable_templates;
 
 	func->Defined.push_back(This);
 
 	func->Parameters.insert(func->Parameters.begin(), This);
 
-	func->Childs = Insert_Dot(func->Childs, func, This);
+	PostProsessor p(func);
+	func->Childs = p.Insert_Dot(func->Childs, func, This);
 
 	Node* Fetcher = func->Find_Scope(func);
 
@@ -582,15 +585,15 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 	This->Inheritted = { Scope->Name, "ptr" };
 	This->Scope = func;
 	This->Size = _SYSTEM_BIT_SIZE_;
-	This->Defined = Class->Defined;
+	//This->Defined = Class->Defined;
 	This->Inheritable_templates = Class->Inheritable_templates;
-
 
 	func->Defined.push_back(This);
 
 	func->Parameters.insert(func->Parameters.begin(), This);
 
-	func->Childs = Insert_Dot(func->Childs, func, This);
+	PostProsessor p(func);
+	func->Childs = p.Insert_Dot(func->Childs, func, This);
 
 	Node* scope = Scope->Find(Scope->Name, Scope, CLASS_NODE);
 
@@ -1331,7 +1334,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 	//Combine_Member_Fetching(n->Left);
 
 	//this is for the manual writation usage of this.X
-	for (auto* i : n->Get_all()) {
+	for (auto* i : n->Get_All_Exept({FUNCTION_NODE, CLASS_NODE})) {
 		if (i->is(CALL_NODE))
 			continue;
 
@@ -1341,7 +1344,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 			for (auto j : { OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }) {
 				Definition = i->Find(i, i, j);
 
-				//if the current flag isin't it then try another one
+				//if the current flag isn't it then try another one
 				if (Definition)
 					break;
 			}
@@ -1354,7 +1357,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 				continue;
 
 			i->Inheritted = Definition->Inheritted;
-			i->Defined = Definition->Defined;
+			//i->Defined = Definition->Defined;
 		}
 	}
 
@@ -2092,18 +2095,34 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		}
 	}
 	else {
+		Node* scope = n->Left;
+
+		if (Scope->is(CLASS_NODE))
+			scope = Scope;
+
+		if (n->Get_Scope_As(FUNCTION_NODE, n, false))
+			scope = n->Get_Scope_As(FUNCTION_NODE, n, false);	
+
 		if (n->Left->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE}))
 			n->Inheritted = n->Left->Inheritted;
 		else if (!n->Left->is(NUMBER_NODE) && !n->Left->is(CONTENT_NODE))
-			n->Inheritted = n->Left->Scope->Find(n->Left, n->Left->Scope)->Inheritted;
+			n->Inheritted = n->Left->Scope->Find(n->Left, scope)->Inheritted;
 		else if (n->Left->is(NUMBER_NODE))
 			n->Inheritted = n->Left->Get_Inheritted(false, false);
 		else {
+			scope = n->Right;
+
+			if (Scope->is(CLASS_NODE))
+				scope = Scope;
+
+			if (n->Get_Scope_As(FUNCTION_NODE, n, false))
+				scope = n->Get_Scope_As(FUNCTION_NODE, n, false);
+
 			if (n->Right->Has({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE }))
 				n->Inheritted = n->Right->Inheritted;
 			else
 				//both cannot be numbers, because otherwise algebra would have optimized it away.
-				n->Inheritted = n->Right->Scope->Find(n->Right, n->Right->Scope)->Inheritted;
+				n->Inheritted = n->Right->Scope->Find(n->Right, scope)->Inheritted;
 		}
 	}
 }
@@ -2128,8 +2147,9 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 
 	PostProsessor p(n, vector<Node**>{ &n->Right });
 
-	for (auto& v : n->Right->Defined)
-		p.Destructor_Caller(v, Input);
+	if (n->Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE }))
+		for (auto& v : n->Find(n->Right, n)->Defined)
+			p.Destructor_Caller(v, Input);
 		
 	Scope->Append(Output, p.Output);
 

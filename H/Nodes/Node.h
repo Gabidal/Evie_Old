@@ -134,6 +134,10 @@ public:
 	long long Parsed_By = PARSED_BY::NONE;
 	LABEL_TYPE Inline_Return_Label = LABEL_TYPE::NON;
 
+	Node* Get_Definition_Type();
+
+	vector<string> Get_Right_Inheritted();
+
 	bool is(long long F) {
 		return (Parsed_By & F) == F;
 	}
@@ -241,37 +245,49 @@ public:
 		return nullptr;
 	}
 	
-	Node* Find(int size, Node* parent, string f) {
+	Node* Find(int size, Node* Parent, string f) {
+		if (Parent->Defined.size() == 0) {
+			Node* S = Parent->Get_Definition_Type();
 
-		for (Node* i : parent->Defined)
+			if (S)
+				Parent = S;
+		}
+
+		for (Node* i : Parent->Defined)
 			if (i->Size == size)
 				if (i->Format == f)
 					return i;
 
-		for (Node* i : parent->Inlined_Items)
+		for (Node* i : Parent->Inlined_Items)
 			if (i->Size == size)
 				if (i->Format == f)
 					return i;
 
-		if (parent->Scope != nullptr)
-			return Find(size, parent->Scope, f);
+		if (Parent->Scope != nullptr)
+			return Find(size, Parent->Scope, f);
 		return nullptr;
 	}	
 
-	Node* Find(int size, Node* parent, int flags, string f) {
+	Node* Find(int size, Node* Parent, int flags, string f) {
+		if (Parent->Defined.size() == 0) {
+			Node* S = Parent->Get_Definition_Type();
 
-		for (Node* i : parent->Defined)
+			if (S)
+				Parent = S;
+		}
+
+		for (Node* i : Parent->Defined)
 			if (i->is(flags) && (i->Size == size))
 				if (i->Format == f)
 					return i;
 
-		for (Node* i : parent->Inlined_Items)
+		for (Node* i : Parent->Inlined_Items)
 			if (i->is(flags) && (i->Size == size))
 				if (i->Format == f)
 					return i;
 
-		if (parent->Scope != nullptr)
-			return Find(size, parent->Scope, flags, f);
+		if (Parent->Scope != nullptr)
+			return Find(size, Parent->Scope, flags, f);
 		return nullptr;
 	}
 
@@ -300,13 +316,17 @@ public:
 
 	Node* Find_Template(string T);
 
+	Node* Find(bool Lock_Parent, Node* Memeber, Node* Parent);
+
 	bool Compare_Fetchers(Node* other);
 
 	vector<Node*> Get_All_Fetchers();
 
-	Node* Get_Scope_As(int F, Node* Parent);
+	Node* Get_Scope_As(int F, Node* Parent, bool Must_Be_Found = true);
 
 	Node* Get_Scope_As(int F, vector<string> Inhritted, Node* Parent);
+
+	Node* Get_Scope_As(vector<int> Flags, Node* Parent, bool Must_Be_Found = true);
 
 	Node* Get_Context_As(int F, Node* Context);
 
@@ -573,6 +593,10 @@ public:
 					return true;
 		return false;
 	}
+
+	vector<Node*> Get_All_Exept(vector<int> flags);
+
+	vector<Node*> Get_All_Exept(vector<int> flags, vector<Node*> Trace);
 
 	vector<Node*> Get_all(int f, vector<Node*> Trace);
 
