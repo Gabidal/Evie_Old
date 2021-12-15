@@ -573,9 +573,13 @@ public:
 	}
 
 	int Has(vector<string> s) {
-		for (int i = 0; i < s.size(); i++)
-			if (is(s[i]) != -1)
-				return is(s[i]);
+		for (int i = 0; i < Inheritted.size(); i++) {
+			for (auto j : s) {
+				if (Inheritted[i] == j) {
+					return i;
+				}
+			}
+		}
 		return -1;
 	}
 

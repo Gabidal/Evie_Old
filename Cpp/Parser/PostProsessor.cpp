@@ -378,6 +378,17 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 					Object->Parameters = Insert_Dot(Object->Parameters, Object->Scope, This);
 				}
 			}
+
+		//This is mainly for member funtions defined inside a class.
+		//If there are user made 'this' usages then update all theyre inheritten because it's not made elsewhere. 
+		Objects = Child_Copy->Get_all();
+		for (auto& Object : Objects) {
+			if (Object->Name == "this") {
+				Object->Inheritted = This->Inheritted;
+				Object->Size = This->Size;
+			}
+		}
+
 		Result.push_back(Child_Copy);
 	}
 	return Result;
@@ -1332,30 +1343,24 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 	//Cast(n->Left);
 	//Cast(n->Right);
 	//Combine_Member_Fetching(n->Left);
-
+	// 
 	//this is for the manual writation usage of this.X
 	for (auto* i : n->Get_All_Exept({FUNCTION_NODE, CLASS_NODE})) {
 		if (i->is(CALL_NODE))
 			continue;
-
 		if (i->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
 			Node* Definition = nullptr;
-
-			for (auto j : { OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }) {
+			for (auto j : { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE }) {
 				Definition = i->Find(i, i, j);
-
 				//if the current flag isn't it then try another one
 				if (Definition)
 					break;
 			}
-
 			//if all flags dont match, then break process
 			if (Definition == nullptr)
 				continue;	//this can occur if the definition points to the rght side of the dot
-
 			if (Definition->Is_Template_Object)
 				continue;
-
 			i->Inheritted = Definition->Inheritted;
 			//i->Defined = Definition->Defined;
 		}
@@ -2100,8 +2105,8 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 		if (Scope->is(CLASS_NODE))
 			scope = Scope;
 
-		if (n->Get_Scope_As(FUNCTION_NODE, n, false))
-			scope = n->Get_Scope_As(FUNCTION_NODE, n, false);	
+		if (n->Get_Scope_As({ FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE }, n, false))
+			scope = n->Get_Scope_As({ FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE }, n, false);
 
 		if (n->Left->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE}))
 			n->Inheritted = n->Left->Inheritted;
@@ -2115,8 +2120,8 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 			if (Scope->is(CLASS_NODE))
 				scope = Scope;
 
-			if (n->Get_Scope_As(FUNCTION_NODE, n, false))
-				scope = n->Get_Scope_As(FUNCTION_NODE, n, false);
+			if (n->Get_Scope_As({ FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE }, n, false))
+				scope = n->Get_Scope_As({ FUNCTION_NODE, IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE }, n, false);
 
 			if (n->Right->Has({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE, LOGICAL_OPERATOR_NODE, PREFIX_NODE, POSTFIX_NODE }))
 				n->Inheritted = n->Right->Inheritted;

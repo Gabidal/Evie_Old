@@ -919,12 +919,12 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Scope->Find(Input[i].Value, Scope, (bool)true) == nullptr)
+	if (Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }) == nullptr)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
-	Input[i].node = Scope->Copy_Node(new Node(*Scope->Find(Input[i].Value, Scope, true)), Scope);
+	Input[i].node = Scope->Copy_Node(new Node(*Scope->Find(Input[i].Value, Scope, {PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE })), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
 	Input[i].node->Defined.clear();
 
@@ -1060,7 +1060,6 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 		Node* new_member = new Node(OBJECT_DEFINTION_NODE, new Position(Input[(size_t)i + 1].Location));
 		new_member->Name = Input[(size_t)i - 1].Value;
 		new_member->Scope = Operator->Scope;
-
 
 
 		Operator->Left = new_member;

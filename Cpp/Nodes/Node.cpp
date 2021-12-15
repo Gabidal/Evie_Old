@@ -541,9 +541,18 @@ Node* Node::Get_Scope_As(int F, vector<string> inheritted, Node* scope)
 Node* Node::Get_Scope_As(vector<int> Flags, Node* Parent, bool Must_Be_Found)
 {
 	for (auto i : Flags) {
-		if (Get_Scope_As(i, Parent, Must_Be_Found))
-			return Get_Scope_As(i, Parent, Must_Be_Found);
+		if (Parent->is(i))
+			return Parent;
 	}
+
+	if (Parent->Scope) {
+		Node* scope = Get_Scope_As(Flags, Parent->Scope, Must_Be_Found);
+		if (scope)
+			return scope;
+	}
+	else if (Must_Be_Found)
+		Report(Observation(ERROR, "Parent NULL!", *Location));
+
 	return nullptr;
 }
 
