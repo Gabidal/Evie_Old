@@ -11,7 +11,7 @@ void Satellite::Init_Wanted_Dependencies()
 	if (Installation_Type == INSTALL::DEFAULT) {
 		Dependecies = {
 			{OS::UNIX, INTRODUCE::CONSOLE, nullptr, "git"},
-			{OS::UNIX, INTRODUCE::CONSOLE, nullptr, "libcurl4-openssl-dev"},
+			//{OS::UNIX, INTRODUCE::CONSOLE, nullptr, "libcurl4-openssl-dev"},
 			{OS::UNIX, INTRODUCE::CONSOLE, &sys->Info.Assembler_Location, "as"},
 			{OS::UNIX, INTRODUCE::CONSOLE, &sys->Info.Linker_Location, "ld"},
 
