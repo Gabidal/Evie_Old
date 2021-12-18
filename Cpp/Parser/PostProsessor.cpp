@@ -836,9 +836,26 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	//first try to find the scope, by checking fetchers
 	vector<Node*> Scopes;
 
-	if (caller->Fetcher) {
+	//String x
+	//String y
+	//Compare(x, y)
+	//x is not a fetcher in this example but the Compare is still it's member function.
+	Node* Fetcher = caller->Fetcher;
+	if (Fetcher == nullptr && caller->Parameters.size() > 0 && !caller->Parameters[0]->is(NUMBER_NODE)) {
+		for (auto i : caller->Parameters[0]->Inheritted) {
+			if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
+				continue;
+
+			Fetcher = Scope->Find(i, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
+
+			Scopes.push_back(Fetcher);
+		}
+	}
+
+	//this is used to unwrap virtual inheritance, no need to loop, only single inheritance support atm.
+	if (Fetcher) {
 		//loop through the fetchers inherits
-		for (auto i : caller->Fetcher->Inheritted) {
+		for (auto i : Fetcher->Inheritted) {
 			if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
 				continue;
 
@@ -850,6 +867,7 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	else if (caller->Get_Scope_As(CLASS_NODE, caller) != Global_Scope) {
 		Scopes.push_back(caller->Get_Scope_As(CLASS_NODE, caller));
 	}
+
 	//Get_Scope_Path() doesnt give us Global_Scope, so lets add it manually.
 	Scopes.push_back(Global_Scope);
 
@@ -872,7 +890,10 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 			Can_Remove_Templates = true;
 		}
 
-		for (auto Func : Scope->Defined) {
+		vector<Node*> All_Defined = Scope->Defined;
+		Scope->Append(All_Defined, Scope->Inlined_Items);
+
+		for (auto Func : All_Defined) {
 			bool Is_Similiar_To_Existing_Template_Func_That_Has_Been_Constructed = false;
 			if (!Func->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
 				continue;

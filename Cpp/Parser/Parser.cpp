@@ -575,10 +575,19 @@ void Parser::Definition_Pattern(int i)
 	//Almost Namespace combination system 2000 (:
 	// The rest is made in the Type_Pattern dude
 	//if the current made object already exists
-	Node* Namespace = Scope->Find(New_Defined_Object, Scope);
+	Node* Namespace = Scope->Find(New_Defined_Object, Scope, {CLASS_NODE, OBJECT_DEFINTION_NODE}, false);
 	//if the namespace is already a static class type and this one too then combine
-	if (Namespace != nullptr && (Namespace->is(CLASS_NODE) || ((Get_Amount_Of(Words.back() + 1, {Flags::PAREHTHESIS_COMPONENT}, false).size() == 1) && (Input[Words.back() + 1].Value[0] == '{'))) && Namespace->is("static"))
+	//int std._Max_int_(int a, int b)
+	if (Namespace && Namespace->is("static") && Input[Words.back() + 1].Value == ".") {
+		//the operator below will erase the int inheritance of the namespace!!!
+		vector<string> Inheritted = New_Defined_Object->Inheritted;
+
+		New_Defined_Object->Inheritted = Namespace->Inheritted;
+		New_Defined_Object->Fetching_Inheritance = Inheritted;
+	}
+	else if (Namespace && (Namespace->is(CLASS_NODE) || ((Get_Amount_Of(Words.back() + 1, { Flags::PAREHTHESIS_COMPONENT }, false).size() == 1) && (Input[Words.back() + 1].Value[0] == '{'))) && Namespace->is("static")) {
 		New_Defined_Object = Namespace;
+	}
 	//if the object is static and the namespace is not
 	else if (Namespace != nullptr && New_Defined_Object->is("static") && !Namespace->is("static")) {
 		Report({
@@ -1941,7 +1950,13 @@ void Parser::Member_Function_Pattern(int i)
 	Input[i].Value = Input[i].node->Name;
 
 	//port foward the fetcher magnetized inheritance to this function
-	Input[i].node->Inheritted = Input[i].node->Fetcher->Inheritted;
+	if (!Input[i].node->Fetcher->is("static")) {
+		Input[i].node->Inheritted = Input[i].node->Fetcher->Inheritted;
+	}
+	else {
+		Input[i].node->Inheritted = Input[i].node->Fetcher->Fetching_Inheritance;
+	}
+
 	Input[i].node->Un_Initialized_Template_Inheritance = Input[i].node->Fetcher->Un_Initialized_Template_Inheritance;
 	//clear exess stuff
 	Input[i].node->Fetcher->Inheritted.clear();

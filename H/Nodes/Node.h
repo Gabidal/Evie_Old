@@ -133,6 +133,8 @@ public:
 	//bool Generated = false;
 	long long Parsed_By = PARSED_BY::NONE;
 	LABEL_TYPE Inline_Return_Label = LABEL_TYPE::NON;
+	//Namespace as a fetcher on a memeber functino features
+	vector<string> Fetching_Inheritance;
 
 	Node* Get_Definition_Type();
 
