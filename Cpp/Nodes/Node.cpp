@@ -711,9 +711,9 @@ Node* Node::Find(int size, Node* Parent, int flags, string f, bool Needs_To_Be_B
 	return nullptr;
 }
 
-Node* Node::Find(Node* n, Node* s, int f)
+Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition)
 {
-	if (s->Defined.size() == 0) {
+	if (s->Defined.size() == 0 && Get_Inheritted_Definition) {
 		Node* S = s->Get_Definition_Type();
 
 		if (S) {
@@ -779,18 +779,18 @@ Node* Node::Find(Node* n, Node* s, int f)
 	if (s->Fetcher != nullptr) {
 		Node* F = Find_Scope(s);
 		if (F != nullptr)
-			if (Find(n, F, f) != nullptr)
-				return Find(n, F, f);
+			if (Find(n, F, f, Get_Inheritted_Definition) != nullptr)
+				return Find(n, F, f, Get_Inheritted_Definition);
 	}
 
 	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
 	if (s->Scope != nullptr)
-		if (Find(n, s->Scope, f) != nullptr)
-			return Find(n, s->Scope, f);
+		if (Find(n, s->Scope, f, Get_Inheritted_Definition) != nullptr)
+			return Find(n, s->Scope, f, Get_Inheritted_Definition);
 
 	//IDK what this does, please explain!
 	if (s->Cast_Type != nullptr && s->Cast_Type->Name != n->Name)
-			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE)->Defined)
+			for (auto& i : s->Find(s->Cast_Type, s, CLASS_NODE, Get_Inheritted_Definition)->Defined)
 				if (i->is(f))
 					if (i->Templates.size() == n->Templates.size())
 						if (i->Name == n->Name)

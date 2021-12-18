@@ -295,12 +295,12 @@ public:
 
 	Node* Find(Node* n, Node* p);
 
-	Node* Find(Node* n, Node* p, int f);
+	Node* Find(Node* n, Node* p, int f, bool Get_Inheritted_Definition = true);
 
-	Node* Find(Node* n, Node* p, vector<int> f) {
+	Node* Find(Node* n, Node* p, vector<int> f, bool Get_Inheritted_Definition = true) {
 		for (auto flag : f)
-			if (Find(n, p, flag))
-				return Find(n, p, flag);
+			if (Find(n, p, flag, Get_Inheritted_Definition))
+				return Find(n, p, flag, Get_Inheritted_Definition);
 		return nullptr;
 	}
 

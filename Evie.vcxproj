@@ -104,7 +104,7 @@
     <ClangTidyChecks>-*,readability-*,-readability-braces-around-statements</ClangTidyChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\Users\Quanf\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\GabenRTX\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>C:\Users\Quanf\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>

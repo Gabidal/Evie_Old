@@ -1351,7 +1351,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		if (i->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
 			Node* Definition = nullptr;
 			for (auto j : { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE }) {
-				Definition = i->Find(i, i, j);
+				Definition = i->Find(i, i, j, false);
 				//if the current flag isn't it then try another one
 				if (Definition)
 					break;
@@ -1398,11 +1398,11 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 					Right->Size = 4;
 			}
 			else
-				//load the needed information from the parent
+				//find the inheritted definition
 				Right = n->Copy_Node(n->Find(Right, Left), Scope);
 		}
 		else
-			//load the needed information from the parent
+			//find the inheritted definition
 			Right = n->Copy_Node(n->Find(Right, Left), Scope);
 
 		//set the parent as a fechable

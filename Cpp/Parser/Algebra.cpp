@@ -490,11 +490,11 @@ void Algebra::Inline_Variables(int i)
 	for (Node* n : Linear_Ast) {
 		if (!n->Has({OBJECT_NODE, OBJECT_DEFINTION_NODE}))
 			continue;
-		Node* d = Scope->Find(n->Name, Scope, OBJECT_DEFINTION_NODE);
+		Node* d = Scope->Find(n, Scope, OBJECT_DEFINTION_NODE, false);
 		//if this is nullptr is means it is defined outside this scope.
 		if (d != nullptr)
 			if (d->Current_Value != nullptr) {
-				if (Scope->Find(d->Current_Value->Var->Scope, Scope) == nullptr)
+				if (Scope->Find(d->Current_Value->Var->Scope, Scope, false) == nullptr)
 					continue;
 				if (d->Current_Value->Var->is(NUMBER_NODE)) {
 					if (n->Context->Name == "-" || n->Context->Name == "/" || n->Context->Name == "<" || n->Context->Name == ">" || n->Context->Name == "!<" || n->Context->Name == "!>" || n->Context->Name == "<=" || n->Context->Name == ">=") {
@@ -674,7 +674,7 @@ void Algebra::Set_Defining_Value(int i)
 	//give the defining node the current set-val.
 	//this wont work with array offsets, because this doesnt save the current offsetter value to check later on.
 	Variable_Descriptor* description = new Variable_Descriptor(right, i, *Input);
-	Scope->Find(Input->at(i)->Left->Name, Input->at(i)->Left)->Current_Value = description;
+	Scope->Find(Input->at(i)->Left, Input->at(i)->Left, {OBJECT_DEFINTION_NODE, PARAMETER_NODE}, false)->Current_Value = description;
 
 	return;
 }
@@ -743,7 +743,7 @@ void Algebra::Reset_Defining_Value(int i)
 	if (Modified->Has({ OPERATOR_NODE, ARRAY_NODE }))
 		Modified = Modified->Get_Most_Right();
 
-	Scope->Find(Modified, Modified->Scope)->Current_Value = nullptr;
+	Scope->Find(Modified, Modified->Scope, {OBJECT_DEFINTION_NODE, PARAMETER_NODE}, false)->Current_Value = nullptr;
 }
 
 void Algebra::Clean_Unused()
