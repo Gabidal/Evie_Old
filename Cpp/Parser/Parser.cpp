@@ -919,12 +919,12 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }) == nullptr)
+	if (Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false) == nullptr)
 		return;
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
-	Input[i].node = Scope->Copy_Node(new Node(*Scope->Find(Input[i].Value, Scope, {PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE })), Scope);
+	Input[i].node = Scope->Copy_Node(new Node(*Scope->Find(Input[i].Value, Scope, {PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false)), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
 	Input[i].node->Defined.clear();
 

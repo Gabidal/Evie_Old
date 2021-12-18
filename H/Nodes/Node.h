@@ -236,12 +236,12 @@ public:
 	
 	Node* Find(string name, Node* parent, bool Need_Parent_existance = true);
 	
-	Node* Find(string name, Node* parent, int flags);
+	Node* Find(string name, Node* parent, int flags, bool Get_Inheritted_Definition = true);
 
-	Node* Find(string name, Node* parent, vector<int> flags) {
+	Node* Find(string name, Node* parent, vector<int> flags, bool Get_Inheritted_Definition = true) {
 		for (auto flag : flags)
-			if (Find(name, parent, flag))
-				return Find(name, parent, flag);
+			if (Find(name, parent, flag, Get_Inheritted_Definition))
+				return Find(name, parent, flag, Get_Inheritted_Definition);
 		return nullptr;
 	}
 	

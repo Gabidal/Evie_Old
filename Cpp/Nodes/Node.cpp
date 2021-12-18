@@ -799,8 +799,8 @@ Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition)
 	return nullptr;
 }
 
-Node* Node::Find(string name, Node* s, int flags) {
-	if (s->Defined.size() == 0) {
+Node* Node::Find(string name, Node* s, int flags, bool Get_Inheritted_Definition) {
+	if (s->Defined.size() == 0 && Get_Inheritted_Definition) {
 		Node* S = s->Get_Definition_Type();
 
 		if (S) {
@@ -1245,8 +1245,8 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 	if (Fetcher != nullptr) {
 		//vector<Node*> Fetchers = Fetcher->Get_all(f, Trace);
 		//Result.insert(Result.end(), Fetchers.begin(), Fetchers.end());
-		if (Fetcher->is(f))
-			Result.push_back(Fetcher);
+		//if (Fetcher->is(f))
+		//	Result.push_back(Fetcher);
 	}
 	for (Node* i : Header) {
 		vector<Node*> Headers = i->Get_all(f, Trace);
@@ -1267,8 +1267,8 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace)
 	if (Cast_Type) {
 		//vector<Node*> childs = Cast_Type->Get_all(f, Trace);
 		//Result.insert(Result.end(), childs.begin(), childs.end());
-		if (Cast_Type->is(f))
-			Result.push_back(Cast_Type);
+		//if (Cast_Type->is(f))
+		//	Result.push_back(Cast_Type);
 	}
 
 	if (is(f) || f == -1)
