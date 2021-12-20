@@ -38,10 +38,11 @@ namespace PARSED_BY {
 
 	constexpr long long DESTRUCTOR_CALLER				= 1 << 9;
 	constexpr long long REFERENCE_COUNT_INCREASE		= 1 << 10;
-	constexpr long long MEMBER_FUNCTION_DEFINED_INSIDE	= 1 << 11;
-	constexpr long long FUNCTION_PROSESSOR				= 1 << 12;
-	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 13;
-	constexpr long long TYPE_DEFINER					= 1 << 14;
+	constexpr long long MEMBER_FUNCTION_DEFINED_INSIDE  = 1 << 11;
+	constexpr long long MEMBER_FUNCTION_DEFINED_OUTSIDE  = 1 << 12;
+	constexpr long long FUNCTION_PROSESSOR				= 1 << 13;
+	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 14;
+	constexpr long long TYPE_DEFINER					= 1 << 15;
 
 }
 

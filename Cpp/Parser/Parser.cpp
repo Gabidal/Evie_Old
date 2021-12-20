@@ -2021,8 +2021,10 @@ void Parser::Use_Pattern(int i)
 
 	for (auto &j : Inlined) {
 		Node* n = j;
-		if (j->is(FUNCTION_NODE))
-			n = new Node(*n);
+		if (j->is(FUNCTION_NODE)) {
+			continue;
+			//n = new Node(*n);
+		}
 
 		j = j->Copy_Node(n, Closest_Namespace);
 	}

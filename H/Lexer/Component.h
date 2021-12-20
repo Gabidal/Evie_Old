@@ -47,13 +47,12 @@ public:
         char End = 0;
 
         if (Value[0] == '(' || Value[0] == '{' || Value[0] == '[' || Value[0] == '<') {
-            Value = to_string(Value[0]);
-            Result = Value;
+            Result = Value[0];
 
-            if (Value[0] == '(')
+            if (Result[0] == '(')
                 End = ')';
             else
-                End = Value[0] + 2;
+                End = Result[0] + 2;
         }
 
         for (auto i : Components) {
@@ -61,7 +60,7 @@ public:
         }
 
         if (End != 0)
-            Result += to_string(End);
+            Result += End;
 
 
         return Result;

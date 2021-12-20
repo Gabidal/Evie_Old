@@ -539,6 +539,8 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 	//</summary>
 	if (f->Type != FUNCTION_NODE)
 		return;
+	if (f->is(PARSED_BY::MEMBER_FUNCTION_DEFINED_OUTSIDE))
+		return;
 	if (f->Fetcher == nullptr)
 		return;
 	if (f->is("static"))
@@ -569,6 +571,7 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 	func->Fetcher = Fetcher;
 
 	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
+	func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_OUTSIDE;
 
 	return;
 }
@@ -1012,7 +1015,11 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 					p.Input = Lexer::GetComponents(Flatten);
 					p.Factory();
 
-					Parameter->Inheritted.insert(Parameter->Inheritted.begin() + Return_Type.second, Flatten);
+					if (p.Input.size() > 1) {
+						Report(Observation(ERROR, "Tell Gabe to fix this!", "Internal"));
+					}
+
+					Parameter->Inheritted.insert(Parameter->Inheritted.begin() + Return_Type.second, p.Input.back().Value);
 				}
 			}
 		}
@@ -1397,9 +1404,6 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		//Remember: Dot is constructed as any normal operator.
 		//((((a.b).c[..]).d()).e) = 123
 		//We have to go first to the most left sided operator.
-		/*Cast(n->Left);
-		Cast(n->Right);
-		Combine_Member_Fetching(n->Left);*/
 		//set the left side
 		Node* Left = Scope->Find(Get_From_AST(n->Left), Scope);
 		//we must also update the current left side to inherit the members from the inherit list
@@ -1437,7 +1441,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		//put the a.Array as the left side of the array operator
 		if (n->Right->is(ARRAY_NODE)) {
 			//first move to the right nodes
-			//and then make copy_node to re-adjust the memebr variable touchings
+			//and then make copy_node to re-adjust the member variable touchings
 			n->Right->Left = Right->Copy_Node(Right, Right->Scope);
 
 			n = n->Copy_Node(n->Right, n->Scope);
