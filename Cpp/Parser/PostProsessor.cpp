@@ -552,19 +552,19 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 
 	Node* Class = func->Find(func->Fetcher->Name, func, CLASS_NODE);
 
-	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
-	This->Inheritted = { func->Fetcher->Name, "ptr" };
-	This->Scope = func;
-	This->Size = _SYSTEM_BIT_SIZE_;
-	//This->Defined = Class->Defined;
-	This->Inheritable_templates = Class->Inheritable_templates;
+	//Node* This = new Node(PARAMETER_NODE, "this", func->Location);
+	//This->Inheritted = { func->Fetcher->Name, "ptr" };
+	//This->Scope = func;
+	//This->Size = _SYSTEM_BIT_SIZE_;
+	////This->Defined = Class->Defined;
+	//This->Inheritable_templates = Class->Inheritable_templates;
 
-	func->Defined.push_back(This);
+	//func->Defined.push_back(This);
 
-	func->Parameters.insert(func->Parameters.begin(), This);
+	//func->Parameters.insert(func->Parameters.begin(), This);
 
 	PostProsessor p(func);
-	func->Childs = p.Insert_Dot(func->Childs, func, This);
+	func->Childs = p.Insert_Dot(func->Childs, func, func->Parameters[0]);
 
 	Node* Fetcher = func->Find_Scope(func);
 
@@ -595,19 +595,19 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 
 	Node* Class = func->Find(Scope->Name, func, CLASS_NODE);
 
-	Node* This = new Node(PARAMETER_NODE, "this", func->Location);
-	This->Inheritted = { Scope->Name, "ptr" };
-	This->Scope = func;
-	This->Size = _SYSTEM_BIT_SIZE_;
-	//This->Defined = Class->Defined;
-	This->Inheritable_templates = Class->Inheritable_templates;
+	//Node* This = new Node(PARAMETER_NODE, "this", func->Location);
+	//This->Inheritted = { Scope->Name, "ptr" };
+	//This->Scope = func;
+	//This->Size = _SYSTEM_BIT_SIZE_;
+	////This->Defined = Class->Defined;
+	//This->Inheritable_templates = Class->Inheritable_templates;
 
-	func->Defined.push_back(This);
+	//func->Defined.push_back(This);
 
-	func->Parameters.insert(func->Parameters.begin(), This);
+	//func->Parameters.insert(func->Parameters.begin(), This);
 
 	PostProsessor p(func);
-	func->Childs = p.Insert_Dot(func->Childs, func, This);
+	func->Childs = p.Insert_Dot(func->Childs, func, func->Parameters[0]);
 
 	Node* scope = Scope->Find(Scope->Name, Scope, CLASS_NODE);
 

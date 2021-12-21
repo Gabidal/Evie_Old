@@ -984,6 +984,10 @@ void Parser::Object_Pattern(int i)
 	return;
 }
 
+void Parser::This_Pattern(int i)
+{
+}
+
 void Parser::Complex_Cast(int i)
 {
 	//this needs to be called before any paranthesis parser
@@ -1396,7 +1400,7 @@ void Parser::Array_Pattern(int i)
 	return;
 }
 
-void Parser::Function_Pattern(int i)
+void Parser::Function_Pattern(int i, Node* Class)
 {
 	//import int func main() [\n] {..}
 	//<summary>
@@ -1440,6 +1444,11 @@ void Parser::Function_Pattern(int i)
 	func->Name = Input[i].Value;
 	func->Scope = Scope;
 
+	if (Class == nullptr) {
+		Class = func->Get_Scope_As({ CLASS_NODE }, func, false);
+		if (Class->is("static"))
+			Class = nullptr;
+	}
 
 	func->Template_Children = { Input[Parenthesis_Indexes[0]], Input[Parenthesis_Indexes[1]] };
 
@@ -1459,6 +1468,18 @@ void Parser::Function_Pattern(int i)
 			func->Templates.push_back(Template);
 		}
 		func->Is_Template_Object = true;
+	}
+
+	if (Class) {
+		//Add the this pointter to the function parameters
+		Node* This = new Node(PARAMETER_NODE, "this", func->Location);
+		This->Inheritted = { Class->Name, "ptr" };
+		This->Scope = func;
+		This->Size = _SYSTEM_BIT_SIZE_;
+		//This->Defined = Class->Defined;
+		This->Inheritable_templates = Class->Inheritable_templates;
+
+		func->Defined.push_back(This);
 	}
 
 	//if the functoin is a template typed, then we must be carefull with the parameters that use the template too
@@ -1971,7 +1992,7 @@ void Parser::Member_Function_Pattern(int i)
 			*Fetcher = *Class;
 	}*/
 
-	Function_Pattern(i);
+	Function_Pattern(i, Class);
 
 	Class->Defined.push_back(Input[i].node);
 

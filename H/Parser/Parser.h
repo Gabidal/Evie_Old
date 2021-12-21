@@ -49,6 +49,7 @@ public:
 	void Constructor_Pattern(int i);							//foo ptr foo(foo ptr){..}
 	void Prototype_Pattern(int i);								//int main()\n
 	void Object_Pattern(int i);									//a
+	void This_Pattern(int i);									//this is for member function uninitialized this parameter
 	void Complex_Cast(int i);
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int& i, vector<string> Operator, int Flag, bool Change_Index = false);			//a = b + c * d, a.b.c.d()
@@ -59,7 +60,7 @@ public:
 	void Variable_Negate_Pattern(int i);						//-a, -b()
 	void Callation_Pattern(int i);								//b(a, b, c, d)
 	void Array_Pattern(int i);									//a[1]/b[a]
-	void Function_Pattern(int i);								//func int ptr f(int x) {..}
+	void Function_Pattern(int i, Node* Class = nullptr);								//func int ptr f(int x) {..}
 	void Type_Pattern(int i);									//type [inheritted] foo{member 1,}
 	void Member_Pattern(int i);									//Dot operator is in Operator_Pattern()
 	void If_Pattern(int i);										//patternises the condition nodes
