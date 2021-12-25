@@ -1,6 +1,7 @@
 #include "../../H/Nodes/Node.h"
 #include "../../H/Nodes/Token.h"
 #include "../../H/Parser/Algebra.h"
+#include "../../H/Parser/Parser.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Safe.h"
 #include "../../H/UI/Usr.h"
@@ -1013,6 +1014,50 @@ string Node::Print()
 	return Result;
 }
 
+string Node::Get_Uninitialized_Templates()
+{
+	string Result = "";
+	if (Templates.size() > 0)
+		Result += Name + "<";
+	for (int i = 0; i < (int)Templates.size() - 1; i++) {
+		Result += Templates[i]->Get_Uninitialized_Templates() + ", ";
+	}
+	if (Templates.size() > 0)
+		Result += Templates.back()->Get_Uninitialized_Templates() + ">";
+	else
+		Result += Name;
+	return Result;
+}
+
+Component Node::Generate_Uninitialized_Template_Component(vector<Component> c)
+{
+	for (int i = 0; i < c.size(); i++) {
+		if (c[i].is(Flags::TEMPLATE_COMPONENT) && i-1 >= 0 && c[i-1].is(Flags::TEXT_COMPONENT)) {
+			//List<T, B>
+			vector<Component> tmp = { c[i] };
+			c[i - 1].Components = { Generate_Uninitialized_Template_Component(tmp) };
+		}
+		else if (c[i].is(Flags::TEMPLATE_COMPONENT)) {
+			//<List<T>, B>
+			for (int j = 0; j < c[i].Components.size(); j++) {
+				vector<Component> tmp = { c[i].Components[j] };
+				c[i].Components[j] = Generate_Uninitialized_Template_Component(tmp);
+			}
+		}
+	}
+	return c[0];
+}
+
+vector<Node*> Node::Get_Template_Size()
+{
+	if (Templates.size() > 0)
+		return Templates;
+	if (Fetcher)
+		if (Fetcher->Inheritable_templates.size() > 0)
+			return Fetcher->Inheritable_templates;
+	return vector<Node*>();
+}
+
 vector<Node*> Trace_Update_Size;
 int Node::Update_Size() {
 	if (is("const") && Size != 0 || Is_Template_Object)
@@ -1292,8 +1337,8 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace, bool(*Filter)(Node*))
 		return { };
 	}
 
-	if (this->is(FUNCTION_NODE))
-		if (this->is(f) || f == -1)
+	if (is({FUNCTION_NODE}))
+		if (is(f) || f == -1)
 			return { this };
 		else
 			return {};
@@ -1467,4 +1512,17 @@ Node* Node::Copy_Node(Node* What_Node, Node* p)
 	Trace.pop_back();
 	//now we have copyed every ptr into a new base to point.
 	return Result;
+}
+
+COMMENT::COMMENT(string raw) {
+	if (raw.size() > 0) {
+		regex expression("Depricated:.+");
+		smatch matches;
+		string Buffer = raw;
+		if (regex_search(Buffer, matches, expression)) {
+			for (auto i : matches) {
+				Deprication_Information += i.str() + "\n";
+			}
+		}
+	}
 }

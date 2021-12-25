@@ -109,6 +109,8 @@ enum Node_Type {
 	LABEL_NODE,
 	NAMESPACE_INLINE_NODE,
 	COUNT,
+
+	COEFFICIENT_NODE,
 };
 
 #endif

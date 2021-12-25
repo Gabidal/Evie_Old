@@ -167,13 +167,45 @@ void PostProsessor::Type_Definer(Node* type)
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
+
+	//Make the returning type to follow the template returning protocols.
+	Component* Uninitialized_Templates;
+	if (type->Is_Template_Object) {
+		string Result = type->Get_Uninitialized_Templates();
+
+		vector<Component> tmp = Lexer::GetComponents(Result);
+
+		Node* tmp_Class = new Node(CLASS_NODE, new Position());
+		tmp_Class->Templates = type->Templates;
+
+		Parser p(tmp_Class);
+		p.Input = tmp;
+		p.Factory();
+
+		Uninitialized_Templates = new Component(type->Generate_Uninitialized_Template_Component(p.Input));
+
+	}
+
 	Node* Function = new Node(FUNCTION_NODE, type->Location);
 	Function->Name = type->Name;
-	Function->Inheritted = { type->Name, "ptr" };
+	if (type->Is_Template_Object) {
+		Function->Inheritted = { "ptr" };
+		Function->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
+	}
+	else {
+		Function->Inheritted = { type->Name, "ptr" };
+	}
+
 	Function->Scope = Scope->Get_Scope_As(CLASS_NODE, {"static"}, Scope);
 
-	Node* This = new Node(PARAMETER_NODE, type->Location);
-	This->Inheritted = { type->Name, "ptr"};
+	Node* This = new Node(PARAMETER_NODE, type->Location);	
+	if (type->Is_Template_Object) {
+		This->Inheritted = { "ptr" };
+		This->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
+	}
+	else {
+		This->Inheritted = { type->Name, "ptr" };
+	}
 	This->Name = "this";
 	//This->Defined = type->Defined;
 	This->Scope = Function;
@@ -211,6 +243,7 @@ void PostProsessor::Type_Definer(Node* type)
 	Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Defined.push_back(Function);
 	Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Childs.push_back(Function);
 
+	type->Defined.push_back(Function);
 
 	for (auto& j : type->Defined)
 		if (j->is(FUNCTION_NODE) /* && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] == Scope->Defined[i]->Name) */ ) {
@@ -671,12 +704,6 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 
 	f->Childs = p.Input;
 
-	//clear from nested scopes current value.
-	for (auto &i : f->Childs)
-		for (auto &j : i->Get_all({IF_NODE, ELSE_IF_NODE, ELSE_NODE, WHILE_NODE}))
-			for (auto& k : j->Defined)
-				k->Current_Value = nullptr;
-
 	//NOTE: This might not be able to detect nested scope members that might return
 	//this implies that the nested scope needs to also deduce the destructors of the main scope defined
 	for (auto& v : f->Defined)
@@ -954,19 +981,19 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 		if (Candidate.first->Is_Template_Object) {
 			Func = Candidate.first->Copy_Node(new Node(*Candidate.first), Candidate.second);
 
-			for (int T = 0; T < Caller->Templates.size(); T++) {
+			for (int T = 0; T < Caller->Get_Template_Size().size(); T++) {
 
 				//T ptr banana<T>() -> int ptr banana<int>()
 				for (auto& Return_Type : Func->Inheritted) {
 					if (Return_Type == Func->Templates[T]->Name)
-						Return_Type = Caller->Templates[T]->Name;
+						Return_Type = Caller->Get_Template_Size()[T]->Name;
 				}
 
 				//List<T> banana<T>() -> List<int> banana<int>()
 				for (auto& Return_Type : Func->Un_Initialized_Template_Inheritance) {
 					for (auto& Template : Return_Type.first.Components[0].Get_all()) {
 						if (Template->Value == Func->Templates[T]->Name)
-							Template->Value = Caller->Templates[T]->Name;
+							Template->Value = Caller->Get_Template_Size()[T]->Name;
 					}
 				}
 
@@ -974,7 +1001,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 				for (auto& Parameter : Func->Parameters) {
 					for (auto& Inherit : Parameter->Inheritted) {
 						if (Inherit == Func->Templates[T]->Name)
-							Inherit = Caller->Templates[T]->Name;
+							Inherit = Caller->Get_Template_Size()[T]->Name;
 					}
 				}
 
@@ -983,7 +1010,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 					for (auto& Template : Parameter->Un_Initialized_Template_Inheritance) {
 						for (auto& Nested_Template : Template.first.Get_all()) {
 							if (Nested_Template->Value == Func->Templates[T]->Name)
-								Nested_Template->Value = Caller->Templates[T]->Name;
+								Nested_Template->Value = Caller->Get_Template_Size()[T]->Name;
 						}
 					}
 				}
@@ -1001,8 +1028,6 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 
 				Func->Inheritted.insert(Func->Inheritted.begin() + Return_Type.second, Flatten);
 			}
-
-			
 
 			//Now flatten the Un_Initialized_Templates from Parameters
 			for (auto Parameter : Func->Parameters) {

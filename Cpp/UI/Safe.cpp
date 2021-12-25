@@ -279,24 +279,17 @@ void Safe::Warn_Usage_Of_Depricated(Node* n)
 	if (n->Has({ FUNCTION_NODE, IMPORT, EXPORT, PROTOTYPE, CLASS_NODE }))
 		return;
 
-	string Comment;
+	COMMENT* Comment = nullptr;
 
 	if (n->is(CALL_NODE) && !n->Function_Ptr)
-		Comment = n->Function_Implementation->Comment;
+		Comment = &n->Function_Implementation->Comment;
 	else if (n->Has({OBJECT_NODE, OBJECT_DEFINTION_NODE}))
-		Comment = n->Find(n, n)->Comment;
+		Comment = &n->Find(n, n)->Comment;
 
-	if (Comment == "")
+	if (!Comment || Comment->Deprication_Information == "")
 		return;
 
-	regex expression("Depricated:.+");
-	smatch matches;
-	string Buffer = Comment;
-	if (regex_search(Buffer, matches, expression)) {
-		for (auto i : matches) {
-			Report(Observation(WARNING, i.str(), *n->Location, i.str()));
-		}
-	}
+	Report(Observation(WARNING, Comment->Deprication_Information, *n->Location, ""));
 }
 
 void Safe::Prefer_Class_Cast_Rather_Object_Cast(Node* n)

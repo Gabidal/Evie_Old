@@ -44,7 +44,17 @@ namespace PARSED_BY {
 	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 14;
 	constexpr long long TYPE_DEFINER					= 1 << 15;
 
-}
+	
+
+};
+
+class COMMENT {
+public:
+	string Deprication_Information = "";
+
+	COMMENT() { };
+	COMMENT(string raw);
+};
 
 enum class LABEL_TYPE {
 	NON,
@@ -63,7 +73,7 @@ public:
 	//Normal features
 	Position* Location = nullptr;
 	string Name = "";
-	string Comment = "";
+	COMMENT Comment;
 	//for string or char lists
 	string String = "";
 	int Type = 0;
@@ -108,11 +118,8 @@ public:
 	Node* Succsessor = nullptr;
 	Node* Predecessor = nullptr;
 	//algebra optimizer features
-	int Order = 1;
 	int Coefficient = 1;
-	Variable_Descriptor* Current_Value = nullptr;
-	bool Inlined = false;
-	bool Cant_Inline = false;
+	Node* Order = nullptr;
 	//fetching features
 	Node* Fetcher = nullptr;
 	//calling features
@@ -733,6 +740,12 @@ public:
 	void Clean();
 
 	string Print();
+
+	string Get_Uninitialized_Templates();
+
+	Component Generate_Uninitialized_Template_Component(vector<Component> c);
+
+	vector<Node*> Get_Template_Size();
 };
 
 #endif

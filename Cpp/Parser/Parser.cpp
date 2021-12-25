@@ -510,9 +510,9 @@ void Parser::Definition_Pattern(int i)
 	Node* New_Defined_Object = new Node(OBJECT_DEFINTION_NODE, new Position(Input[Words[0]].Location));
 
 	if (i - 1 >= 0 && Input[i - 1].is(Flags::COMMENT_COMPONENT)) {
-		New_Defined_Object->Comment = Input[i - 1].Value;
+		New_Defined_Object->Comment.Deprication_Information = Input[i - 1].Value;
 
-		replace(New_Defined_Object->Comment.begin(), New_Defined_Object->Comment.end(), '#', ' ');
+		replace(New_Defined_Object->Comment.Deprication_Information.begin(), New_Defined_Object->Comment.Deprication_Information.end(), '#', ' ');
 	}
 
 	New_Defined_Object->Name = Input[Words.back()].Value;
@@ -1471,9 +1471,32 @@ void Parser::Function_Pattern(int i, Node* Class)
 	}
 
 	if (Class) {
+		//Make the returning type to follow the template returning protocols.
+		Component* Uninitialized_Templates;
+		if (Class->Is_Template_Object) {
+			string Result = Class->Get_Uninitialized_Templates();
+			vector<Component> tmp = Lexer::GetComponents(Result);
+
+			Node* tmp_Class = new Node(CLASS_NODE, new Position());
+			tmp_Class->Templates = Class->Templates;
+
+			Parser p(tmp_Class);
+			p.Input = tmp;
+			p.Factory();
+
+			Uninitialized_Templates = new Component(Class->Generate_Uninitialized_Template_Component(p.Input));
+
+		}
+
 		//Add the this pointter to the function parameters
 		Node* This = new Node(PARAMETER_NODE, "this", func->Location);
-		This->Inheritted = { Class->Name, "ptr" };
+		if (Class->Is_Template_Object) {
+			This->Inheritted = { "ptr" };
+			This->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
+		}
+		else {
+			This->Inheritted = { Class->Name, "ptr" };
+		}
 		This->Scope = func;
 		This->Size = _SYSTEM_BIT_SIZE_;
 		//This->Defined = Class->Defined;
