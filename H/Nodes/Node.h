@@ -305,12 +305,12 @@ public:
 
 	Node* Find(Node* n, Node* p);
 
-	Node* Find(Node* n, Node* p, int f, bool Get_Inheritted_Definition = true);
+	Node* Find(Node* n, Node* p, int f, bool Get_Inheritted_Definition = true, bool Ignore_Parental_Defined = false);
 
-	Node* Find(Node* n, Node* p, vector<int> f, bool Get_Inheritted_Definition = true) {
+	Node* Find(Node* n, Node* p, vector<int> f, bool Get_Inheritted_Definition = true, bool Ignore_Parental_Defined = false) {
 		for (auto flag : f)
-			if (Find(n, p, flag, Get_Inheritted_Definition))
-				return Find(n, p, flag, Get_Inheritted_Definition);
+			if (Find(n, p, flag, Get_Inheritted_Definition, Ignore_Parental_Defined))
+				return Find(n, p, flag, Get_Inheritted_Definition, Ignore_Parental_Defined);
 		return nullptr;
 	}
 
@@ -727,10 +727,10 @@ public:
 	void Transform_Dot_To_Fechering(Node* To);
 
 	string Construct_Template_Type_Name() {
-		if (Templates.size() == 0)
+		if (Get_Template().size() == 0)
 			return Name;
 		string Result = "____" + Name + "_";
-		for (auto i : Templates)
+		for (auto i : Get_Template())
 			Result += i->Construct_Template_Type_Name() + "_";
 		return Result;
 	}
@@ -745,7 +745,7 @@ public:
 
 	Component Generate_Uninitialized_Template_Component(vector<Component> c);
 
-	vector<Node*> Get_Template_Size();
+	vector<Node*>& Get_Template();
 };
 
 #endif

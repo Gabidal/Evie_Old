@@ -712,7 +712,7 @@ Node* Node::Find(int size, Node* Parent, int flags, string f, bool Needs_To_Be_B
 	return nullptr;
 }
 
-Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition)
+Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition, bool Ignore_Parental_Defined)
 {
 	if (s->Defined.size() == 0 && Get_Inheritted_Definition) {
 		Node* S = s->Get_Definition_Type();
@@ -785,7 +785,7 @@ Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition)
 	}
 
 	//If the current scope doesn't have the wanted object, then try at one spet higher scope.
-	if (s->Scope != nullptr)
+	if (s->Scope != nullptr && !Ignore_Parental_Defined)
 		if (Find(n, s->Scope, f, Get_Inheritted_Definition) != nullptr)
 			return Find(n, s->Scope, f, Get_Inheritted_Definition);
 
@@ -1048,14 +1048,14 @@ Component Node::Generate_Uninitialized_Template_Component(vector<Component> c)
 	return c[0];
 }
 
-vector<Node*> Node::Get_Template_Size()
+vector<Node*>& Node::Get_Template()
 {
 	if (Templates.size() > 0)
 		return Templates;
 	if (Fetcher)
 		if (Fetcher->Inheritable_templates.size() > 0)
 			return Fetcher->Inheritable_templates;
-	return vector<Node*>();
+	return *(new vector<Node*>());
 }
 
 vector<Node*> Trace_Update_Size;

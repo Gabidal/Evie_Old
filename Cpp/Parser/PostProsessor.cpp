@@ -240,8 +240,8 @@ void PostProsessor::Type_Definer(Node* type)
 
 	Scope->Append(Function->Childs, P.Output);
 
-	Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Defined.push_back(Function);
-	Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Childs.push_back(Function);
+	//Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Defined.push_back(Function);
+	//Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Childs.push_back(Function);
 
 	type->Defined.push_back(Function);
 
@@ -696,13 +696,13 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 
 	f->Update_Size();
 
-	Open_Safe({ f });
-
 	Process_Function_Pointters(f);
 
 	p.Factory();
 
 	f->Childs = p.Input;
+
+	Open_Safe({ f });
 
 	//NOTE: This might not be able to detect nested scope members that might return
 	//this implies that the nested scope needs to also deduce the destructors of the main scope defined
@@ -878,7 +878,16 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 
 			Fetcher = Scope->Find(i, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
 
-			Scopes.push_back(Fetcher);
+			//check if the first parameter is actually the fewtcher or just a ordinary parameter.
+			//if so then nullify the fetcher node.
+			if (MANGLER::Is_Based_On_Base_Type(Fetcher)) {
+				Node* tmp = Fetcher->Find(caller, Fetcher, { FUNCTION_NODE }, true, true);
+				if (!tmp)
+					Fetcher = nullptr;
+			}
+
+			if (Fetcher)
+				Scopes.push_back(Fetcher);
 		}
 	}
 
@@ -899,11 +908,12 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	}
 
 	//Get_Scope_Path() doesnt give us Global_Scope, so lets add it manually.
-	Scopes.push_back(Global_Scope);
+	if (!Fetcher)
+		Scopes.push_back(Global_Scope);
 
 	string New_Name = "";
 	bool Inherit_Templates = false;
-	if (caller->Templates.size() > 0) {
+	if (caller->Get_Template().size() > 0) {
 		New_Name = caller->Construct_Template_Type_Name();
 	}
 	else {
@@ -981,19 +991,19 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 		if (Candidate.first->Is_Template_Object) {
 			Func = Candidate.first->Copy_Node(new Node(*Candidate.first), Candidate.second);
 
-			for (int T = 0; T < Caller->Get_Template_Size().size(); T++) {
+			for (int T = 0; T < Caller->Get_Template().size(); T++) {
 
 				//T ptr banana<T>() -> int ptr banana<int>()
 				for (auto& Return_Type : Func->Inheritted) {
 					if (Return_Type == Func->Templates[T]->Name)
-						Return_Type = Caller->Get_Template_Size()[T]->Name;
+						Return_Type = Caller->Get_Template()[T]->Name;
 				}
 
 				//List<T> banana<T>() -> List<int> banana<int>()
 				for (auto& Return_Type : Func->Un_Initialized_Template_Inheritance) {
 					for (auto& Template : Return_Type.first.Components[0].Get_all()) {
 						if (Template->Value == Func->Templates[T]->Name)
-							Template->Value = Caller->Get_Template_Size()[T]->Name;
+							Template->Value = Caller->Get_Template()[T]->Name;
 					}
 				}
 
@@ -1001,7 +1011,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 				for (auto& Parameter : Func->Parameters) {
 					for (auto& Inherit : Parameter->Inheritted) {
 						if (Inherit == Func->Templates[T]->Name)
-							Inherit = Caller->Get_Template_Size()[T]->Name;
+							Inherit = Caller->Get_Template()[T]->Name;
 					}
 				}
 
@@ -1010,7 +1020,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 					for (auto& Template : Parameter->Un_Initialized_Template_Inheritance) {
 						for (auto& Nested_Template : Template.first.Get_all()) {
 							if (Nested_Template->Value == Func->Templates[T]->Name)
-								Nested_Template->Value = Caller->Get_Template_Size()[T]->Name;
+								Nested_Template->Value = Caller->Get_Template()[T]->Name;
 						}
 					}
 				}
@@ -1209,11 +1219,11 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 
 		//reset the name to normal
 		Best_Candidate_Copy->Name = Best_Candidate->Name;
-		Best_Candidate_Copy->Templates = Caller->Templates;
+		Best_Candidate_Copy->Templates = Caller->Get_Template();
 
 		//here we generate the template function from the template types
 		Parser P(Scope);
-		P.Input = P.Template_Function_Constructor(Best_Candidate_Copy, Best_Candidate->Templates, Caller->Templates);
+		P.Input = P.Template_Function_Constructor(Best_Candidate_Copy, Best_Candidate->Templates, Caller->Get_Template());
 		P.Factory();
 
 		for (int i = Scope->Defined.size() - 1; i >= 0; i--) {

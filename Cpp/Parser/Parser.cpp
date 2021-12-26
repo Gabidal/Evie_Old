@@ -937,7 +937,7 @@ void Parser::Object_Pattern(int i)
 	Input[i].node->Location = new Position(Input[i].Location);
 	Input[i].node->Defined.clear();
 
-	//List<int> a -> .List_int a
+	//List<int> a -> __List_int a
 	if (Input[i].node->Templates.size() > 0) {
 		//this means that the next element is a template
 		if (i+1 >= Input.size() || !Input[i + 1].is(Flags::TEMPLATE_COMPONENT))
@@ -2019,16 +2019,18 @@ void Parser::Member_Function_Pattern(int i)
 
 	Class->Defined.push_back(Input[i].node);
 
-	Node* Fethcer = Input[i].node->Fetcher;
-	Input[i].node->Fetcher = nullptr;
+	//Node* Fethcer = Input[i].node->Fetcher;
+	//Input[i].node->Fetcher = nullptr;
 
-	if (Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE) == nullptr) {
-		Class->Scope->Defined.push_back(Input[i].node);
-		Input[i].node->Fetcher = Fethcer;
-	}
-	//Input[i].node->Fetcher = Fethcer;
-	else if (Input[i].node->Fetcher = Fethcer; !Input[i].node->Compare_Fetchers(Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE)))
-		Class->Scope->Defined.push_back(Input[i].node);
+	//if (Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE) == nullptr) {
+	//	Class->Scope->Defined.push_back(Input[i].node);
+	//	Input[i].node->Fetcher = Fethcer;
+	//}
+	////Input[i].node->Fetcher = Fethcer;
+	//else if (Input[i].node->Fetcher = Fethcer; !Input[i].node->Compare_Fetchers(Class->Scope->Find(Input[i].node, Class->Scope, FUNCTION_NODE)))
+	//	Class->Scope->Defined.push_back(Input[i].node);
+
+	Input.erase(Input.begin() + i);
 
 }
 
@@ -2070,7 +2072,7 @@ void Parser::Use_Pattern(int i)
 			//n = new Node(*n);
 		}
 
-		j = j->Copy_Node(n, Closest_Namespace);
+		//j = j->Copy_Node(n, Closest_Namespace);
 	}
 
 	for (auto &j : Inlined) {
