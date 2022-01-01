@@ -39,10 +39,11 @@ namespace PARSED_BY {
 	constexpr long long DESTRUCTOR_CALLER				= 1 << 9;
 	constexpr long long REFERENCE_COUNT_INCREASE		= 1 << 10;
 	constexpr long long MEMBER_FUNCTION_DEFINED_INSIDE  = 1 << 11;
-	constexpr long long MEMBER_FUNCTION_DEFINED_OUTSIDE  = 1 << 12;
+	constexpr long long MEMBER_FUNCTION_DEFINED_OUTSIDE = 1 << 12;
 	constexpr long long FUNCTION_PROSESSOR				= 1 << 13;
 	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 14;
 	constexpr long long TYPE_DEFINER					= 1 << 15;
+	constexpr long long COMBINE_MEMBER_FETCHER			= 1 << 16;
 
 	
 
@@ -342,7 +343,7 @@ public:
 
 	Node* Get_Context_As(string n, Node* Context);
 
-	vector<Node*> Get_Scope_Path();
+	vector<Node*> Get_Scope_Path(bool Include_Global_Scope = false);
 
 	Node* Get_Right_Parent() {
 		if (Fetcher != nullptr) {
@@ -746,6 +747,10 @@ public:
 	Component Generate_Uninitialized_Template_Component(vector<Component> c);
 
 	vector<Node*>& Get_Template();
+
+	void Update_Members_To_New_Parent();
+
+	void Modify_AST(Node*& n, bool(*Filter)(Node* n), void(*Modifier)(Node*& n));
 };
 
 #endif

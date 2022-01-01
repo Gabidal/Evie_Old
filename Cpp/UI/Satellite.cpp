@@ -16,7 +16,7 @@ void Satellite::Init_Wanted_Dependencies()
 			{OS::UNIX, INTRODUCE::CONSOLE, &sys->Info.Linker_Location, "ld"},
 
 			{OS::WIN, INTRODUCE::CONSOLE, nullptr, "git"},
-			{OS::WIN, INTRODUCE::LOCAL,   nullptr, "libcurl.lib"},
+			//{OS::WIN, INTRODUCE::LOCAL,   nullptr, "libcurl.lib"},
 		};
 
 		if (sys->Info.Architecture == ARCHITECTURE::X86) {

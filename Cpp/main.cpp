@@ -29,7 +29,7 @@
 #include <fstream>
 #include <vector>
 #include <ctime>
-using namespace std; 
+using namespace std;
 
 Usr* sys;
 Node* Global_Scope;
@@ -85,6 +85,7 @@ int Build(int argc, const char* argv[])
         "cpp", "evie", "vivid", "plain", "static"
     };
     sys = new Usr(argv, argc);
+
     if (VT_API != "")
         sys->Info.VT_API = VT_API;
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());

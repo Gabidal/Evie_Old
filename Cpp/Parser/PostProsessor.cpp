@@ -4,6 +4,7 @@
 #include "../../H/Lexer/Lexer.h"
 #include "../../H/UI/Safe.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/Docker/Docker.h"
 
 extern Node* Global_Scope;
 extern bool Optimized;
@@ -49,6 +50,7 @@ void PostProsessor::Factory() {
 		Open_Loop_For_Prosessing(i);
 		//Combine_Conditions(i);
 		Combine_Member_Fetching(Input[i]);
+		Go_Through_Un_Combined_Fetching(Input[i]);
 		Determine_Return_Type(i);
 		Determine_Array_Type(i);
 		Open_Call_Parameters_For_Prosessing(i);
@@ -388,29 +390,76 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 		vector<Node*> Objects = Child_Copy->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE }, [](Node* n) { if (n->Name == "this") return true; return false; });
 		//insert this. infront of every member
 		for (auto& Object : Objects) {
-				if (Object->is(NUMBER_NODE) || Object->is(FUNCTION_NODE) || Object->is("const") || MANGLER::Is_Base_Type(Object))
-					continue;
-				if ((Object->is(OBJECT_DEFINTION_NODE) || Object->is(OBJECT_NODE)) && This->Find(true, Object, This) && !Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
-					//Node* define = c->Find(linear_n, Function);
+			//Banana().Apple()
+			//even tho Apple is called by Banana, Banana may be need of this pointter
+			Node*& Dot_Needing_Object = Get_Possible_Fetcher(Object);
 
-					Node* Dot = new Node(OPERATOR_NODE, Function->Location);
-					Dot->Name = ".";
-					Dot->Scope = Object->Scope;
+			if (Dot_Needing_Object->is(NUMBER_NODE) || Dot_Needing_Object->is(FUNCTION_NODE) || Dot_Needing_Object->is("const") || MANGLER::Is_Base_Type(Dot_Needing_Object))
+				continue;
+			if ((Dot_Needing_Object->is(OBJECT_DEFINTION_NODE) || Dot_Needing_Object->is(OBJECT_NODE)) && This->Find(true, Dot_Needing_Object, This) && !Dot_Needing_Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
+				//Node* define = c->Find(linear_n, Function);
 
-					Dot->Left = This->Copy_Node(This, This->Scope);
+				Node* Dot = new Node(OPERATOR_NODE, Function->Location);
+				Dot->Name = ".";
+				Dot->Scope = Dot_Needing_Object->Scope;
 
-					Dot->Right = new Node(*Object);
-					Dot->Right->Parsed_By |= PARSED_BY::THIS_AND_DOT_INSERTER;
+				Dot->Left = This->Copy_Node(This, This->Scope);
 
-					Dot->Context = Object->Context;
+				Dot->Right = new Node(*Dot_Needing_Object);
+				Dot->Right->Parsed_By |= PARSED_BY::THIS_AND_DOT_INSERTER;
 
-					*Object = *Dot;
-				}
-				else if (Object->is(CALL_NODE)) {
-					//because this insert_dot is called upon a non hight AST member it needs to use the dynamic scope above.
-					Object->Parameters = Insert_Dot(Object->Parameters, Object->Scope, This);
-				}
+				Dot->Context = Dot_Needing_Object->Context;
+
+				*Dot_Needing_Object = *Dot;
+				Dot_Needing_Object->Update_Members_To_New_Parent();
 			}
+			else if (Dot_Needing_Object->is(CALL_NODE)) {
+				//because this insert_dot is called upon a non hight AST member it needs to use the dynamic scope above.
+				if (Dot_Needing_Object->Parameters.size() > 0) {
+					//check if the current first parameter is the this pointer, if not. then insert one.
+					bool Found = false;
+					for (auto P : Dot_Needing_Object->Parameters[0]->Get_all({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE })) {
+						if (P->Name == "this") {
+							Found = true;
+							goto STOP;
+						}
+						else {
+							//check if this current object has this call node as a member.
+							Node* tmp = Dot_Needing_Object->Find(Dot_Needing_Object, P, FUNCTION_NODE, true, true);
+							//check if this pointer isnt pointing to somewhere else: banana(this.size())
+							if (P->Context == Dot_Needing_Object && tmp) {
+								Found = true;
+								goto STOP;
+							}
+						}
+					}
+				STOP:
+					if (!Found && !Dot_Needing_Object->Fetcher) {
+						//because of the callation complexity we need to emulate as if the this pointter has been already assigned to this callation node.
+						//after emulation we need to make sure that noe emulation exess data is leaked.
+
+						Dot_Needing_Object->Parameters.insert(Dot_Needing_Object->Parameters.begin(), This);
+						Find_Call_Owner(Dot_Needing_Object, false);
+
+						if (!Dot_Needing_Object->Function_Implementation) {
+							Dot_Needing_Object->Parameters.erase(Dot_Needing_Object->Parameters.begin());
+						}
+					}
+				}
+				else if (!Dot_Needing_Object->Fetcher) {
+					//because of the callation complexity we need to emulate as if the this pointter has been already assigned to this callation node.
+					//after emulation we need to make sure that noe emulation exess data is leaked.
+
+					Dot_Needing_Object->Parameters.insert(Dot_Needing_Object->Parameters.begin(), This);
+					Find_Call_Owner(Dot_Needing_Object, false);
+
+					if (!Dot_Needing_Object->Function_Implementation) {
+						Dot_Needing_Object->Parameters.erase(Dot_Needing_Object->Parameters.begin());
+					}
+				}
+				Dot_Needing_Object->Parameters = Insert_Dot(Dot_Needing_Object->Parameters, Dot_Needing_Object->Scope, This);
+			}
+		}
 
 		//This is mainly for member funtions defined inside a class.
 		//If there are user made 'this' usages then update all theyre inheritten because it's not made elsewhere. 
@@ -445,6 +494,32 @@ vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* 
 		Result.push_back(Call);
 	}
 	return Result;
+}
+
+Node*& PostProsessor::Get_Possible_Fetcher(Node*& n)
+{
+	//This function returns the n if no fethcers found.
+	Node*& Result = n;
+	while (Result->Fetcher) {
+		Result = Result->Fetcher;
+	}
+	return Result;
+}
+
+void Lambda(Node*& n) {
+	if (n->Fetcher) {
+		n->Modify_AST(n->Fetcher, [](Node* n) { return true; }, Lambda);
+	}
+
+	if (n->Fetcher && n->Fetcher->Name == ".") {
+		PostProsessor p(n->Fetcher);
+		p.Combine_Member_Fetching(n->Fetcher);
+	}
+}
+
+void PostProsessor::Go_Through_Un_Combined_Fetching(Node* n)
+{
+	n->Modify_AST(n, [](Node* n) { return true; }, Lambda);
 }
 
 void PostProsessor::Cast(Node* n)
@@ -578,8 +653,6 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 		return;
 	if (f->is("static"))
 		return;
-	if (f->Parameters.size() > 0 && f->Parameters[0]->Name == "this")
-		return;
 
 	Node* func = f;
 
@@ -595,6 +668,12 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 	//func->Defined.push_back(This);
 
 	//func->Parameters.insert(func->Parameters.begin(), This);
+
+	//Combine all the member fetchings that are not This based.
+	func->Modify_AST(func, [](Node* n) { if (n->Name == ".") return true; return false; }, [](Node*& n) {
+		PostProsessor p(n);
+		p.Combine_Member_Fetching(n);
+	});
 
 	PostProsessor p(func);
 	func->Childs = p.Insert_Dot(func->Childs, func, func->Parameters[0]);
@@ -802,7 +881,7 @@ void PostProsessor::Reduntant_Paranthesis_Cleaner(int i)
 	}
 }
 
-void PostProsessor::Find_Call_Owner(Node* n)
+void PostProsessor::Find_Call_Owner(Node* n, bool Stop)
 {
 	if (!n->is(CALL_NODE))
 		return;
@@ -819,8 +898,9 @@ void PostProsessor::Find_Call_Owner(Node* n)
 
 	vector<pair<Node*, Node*>> Candidates;
 	bool It_Is_A_Function_Pointter = false;
+	bool Use_All_Scopes = false;
 	while (n->Function_Implementation == nullptr) {
-		Candidates = Find_Suitable_Function_Candidates(n, It_Is_A_Function_Pointter);
+		Candidates = Find_Suitable_Function_Candidates(n, It_Is_A_Function_Pointter, Use_All_Scopes);
 		int Note = Choose_Most_Suited_Function_Candidate(Order_By_Accuracy(Candidates, n), n, It_Is_A_Function_Pointter);
 
 		// returns 0 if found caller's function implemitation.
@@ -831,9 +911,14 @@ void PostProsessor::Find_Call_Owner(Node* n)
 		else if (Note == 1) {
 			continue;
 		}
+		else if (Stop == false) {
+			return;
+		}
 		// returns -1 if nothing found
 		else if (Note == -1) {
-			if (It_Is_A_Function_Pointter == false)
+			if (Use_All_Scopes == false)
+				Use_All_Scopes = true;
+			else if (It_Is_A_Function_Pointter == false)
 				It_Is_A_Function_Pointter = true;
 			else
 				Report(Observation(ERROR, "Cannot find function to call!", *n->Location));
@@ -859,7 +944,7 @@ void PostProsessor::Find_Call_Owner(Node* n)
 	}
 }
 
-vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison)
+vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison, bool Use_All_Scopes)
 {
 	vector<pair<Node*, Node*>> Result;
 
@@ -880,7 +965,7 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 
 			//check if the first parameter is actually the fewtcher or just a ordinary parameter.
 			//if so then nullify the fetcher node.
-			if (MANGLER::Is_Based_On_Base_Type(Fetcher)) {
+			if (MANGLER::Is_Base_Type(Fetcher)) {
 				Node* tmp = Fetcher->Find(caller, Fetcher, { FUNCTION_NODE }, true, true);
 				if (!tmp)
 					Fetcher = nullptr;
@@ -891,8 +976,13 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 		}
 	}
 
-	//this is used to unwrap virtual inheritance, no need to loop, only single inheritance support atm.
-	if (Fetcher) {
+	if (Use_All_Scopes) {
+		//This is used if a function is in globalscope but current scope is in different namespace.
+		DOCKER::Append(Scopes, Scope->Get_Scope_Path(Use_All_Scopes));
+	}
+	else if (Fetcher) {
+		//this is used to unwrap virtual inheritance, no need to loop, only single inheritance support atm.
+	
 		//loop through the fetchers inherits
 		for (auto i : Fetcher->Inheritted) {
 			if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
@@ -903,13 +993,12 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 			Scopes.push_back(Inheritted);
 		}
 	}
-	else if (caller->Get_Scope_As(CLASS_NODE, caller) != Global_Scope) {
-		Scopes.push_back(caller->Get_Scope_As(CLASS_NODE, caller));
+	else if (caller->Get_Scope_As(CLASS_NODE, { "static" }, Scope) != Global_Scope) {
+		Scopes.push_back(caller->Get_Scope_As(CLASS_NODE, {"static"}, Scope));
 	}
-
-	//Get_Scope_Path() doesnt give us Global_Scope, so lets add it manually.
-	if (!Fetcher)
+	else {
 		Scopes.push_back(Global_Scope);
+	}
 
 	string New_Name = "";
 	bool Inherit_Templates = false;
@@ -1402,32 +1491,31 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 	else {
 		p = PostProsessor(Scope, vector<Node*>{n->Right});
 	}
-
 	//Cast(n->Left);
 	//Cast(n->Right);
 	//Combine_Member_Fetching(n->Left);
 	// 
 	//this is for the manual writation usage of this.X
-	for (auto* i : n->Get_All_Exept({FUNCTION_NODE, CLASS_NODE})) {
-		if (i->is(CALL_NODE))
-			continue;
-		if (i->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
-			Node* Definition = nullptr;
-			for (auto j : { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE }) {
-				Definition = i->Find(i, i, j, false);
-				//if the current flag isn't it then try another one
-				if (Definition)
-					break;
-			}
-			//if all flags dont match, then break process
-			if (Definition == nullptr)
-				continue;	//this can occur if the definition points to the rght side of the dot
-			if (Definition->Is_Template_Object)
-				continue;
-			i->Inheritted = Definition->Inheritted;
-			//i->Defined = Definition->Defined;
-		}
-	}
+	//for (auto* i : n->Get_All_Exept({FUNCTION_NODE, CLASS_NODE})) {
+	//	if (i->is(CALL_NODE))
+	//		continue;
+	//	if (i->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
+	//		Node* Definition = nullptr;
+	//		for (auto j : { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE }) {
+	//			Definition = i->Find(i, i, j, false);
+	//			//if the current flag isn't it then try another one
+	//			if (Definition)
+	//				break;
+	//		}
+	//		//if all flags dont match, then break process
+	//		if (Definition == nullptr)
+	//			continue;	//this can occur if the definition points to the rght side of the dot
+	//		if (Definition->Is_Template_Object)
+	//			continue;
+	//		i->Inheritted = Definition->Inheritted;
+	//		//i->Defined = Definition->Defined;
+	//	}
+	//}
 
 	if (n->Right->is(CALL_NODE)) {
 		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
@@ -1440,7 +1528,12 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		//((((a.b).c[..]).d()).e) = 123
 		//We have to go first to the most left sided operator.
 		//set the left side
-		Node* Left = Scope->Find(Get_From_AST(n->Left), Scope);
+		Node* Left;
+		//This if is for if the left side was also a fetcheredded component, thus it has valuable data.
+		if (n->Left->Fetcher && n->Left->is(PARSED_BY::COMBINE_MEMBER_FETCHER))
+			Left = n->Left;
+		else
+			Left = Scope->Find(Get_From_AST(n->Left), Scope);
 		//we must also update the current left side to inherit the members from the inherit list
 
 		//get the left side of the dot operator, this is getted from most left because it can be also an AST.
@@ -1459,11 +1552,11 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 			}
 			else
 				//find the inheritted definition
-				Right = n->Copy_Node(n->Find(Right, Left), Scope);
+				Right = n->Copy_Node(n->Find(Right, Left, {OBJECT_DEFINTION_NODE, PARAMETER_NODE}), Scope);
 		}
 		else
 			//find the inheritted definition
-			Right = n->Copy_Node(n->Find(Right, Left), Scope);
+			Right = n->Copy_Node(n->Find(Right, Left, { OBJECT_DEFINTION_NODE, PARAMETER_NODE }), Scope);
 
 		//set the parent as a fechable
 		Right->Fetcher = Left;
@@ -1484,6 +1577,9 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		else
 			n = Right->Copy_Node(Right, Right->Scope);
 	}
+
+	n->Parsed_By |= PARSED_BY::COMBINE_MEMBER_FETCHER;
+
 }
 
 Node* PostProsessor::Get_From_AST(Node* n)

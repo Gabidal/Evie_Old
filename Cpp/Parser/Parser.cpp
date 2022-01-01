@@ -1749,9 +1749,9 @@ void Parser::Operator_Order()
 	if (Input.size() < 2)
 		return;
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "->" }, NODE_CASTER);
-	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "." }, OPERATOR_NODE);
+	for (int i = 0; i < Input.size(); i++)
+		Math_Pattern(i, { "->" }, NODE_CASTER);
 	for (int i = 0; i < Input.size(); i++)
 		Array_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)

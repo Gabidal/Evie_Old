@@ -579,14 +579,19 @@ Node* Node::Get_Context_As(string n, Node* Context)
 /// Gets a list of all the upper parents that this is defined in, up to global scope :D
 /// </summary>
 /// <returns></returns>
-vector<Node*> Node::Get_Scope_Path()
+vector<Node*> Node::Get_Scope_Path(bool Include_Global_Scope)
 {
 	vector<Node*> Result;
 	Node* Current_Scope = Scope;
 	while (Current_Scope->Name != "GLOBAL_SCOPE") {
 
 		Result.push_back(Current_Scope);
+
 		Current_Scope = Current_Scope->Scope;
+
+		if (Include_Global_Scope)
+			if (Current_Scope->Name == "GLOBAL_SCOPE")
+				Result.push_back(Current_Scope);
 
 		if (Current_Scope == nullptr)
 			Report(Observation(ERROR, "Parental Scope was not found.", *this->Location));
@@ -770,14 +775,14 @@ Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition, bool I
 				}
 	}
 
-	if (n->Fetcher != nullptr)
+	if (n->Fetcher != nullptr && !Ignore_Parental_Defined)
 		for (auto& i : Find_Scope(n)->Defined)
 			if (i->is(f))
 				if (i->Templates.size() == n->Templates.size())
 					if (i->Name == n->Name)
 						return i;
 
-	if (s->Fetcher != nullptr) {
+	if (s->Fetcher != nullptr && !Ignore_Parental_Defined) {
 		Node* F = Find_Scope(s);
 		if (F != nullptr)
 			if (Find(n, F, f, Get_Inheritted_Definition) != nullptr)
@@ -1046,6 +1051,25 @@ Component Node::Generate_Uninitialized_Template_Component(vector<Component> c)
 		}
 	}
 	return c[0];
+}
+
+void Node::Update_Members_To_New_Parent()
+{
+	for (auto& D : Defined) {
+		D->Scope = this;
+	}
+	if (Left)
+		Left->Context = this;
+	if (Right)
+		Right->Context = this;
+	
+	for (auto& P : Parameters) {
+		if (this->is(CALL_NODE)) {
+			P->Context = this;
+		}
+		else
+			P->Scope = this;
+	}
 }
 
 vector<Node*>& Node::Get_Template()
@@ -1525,4 +1549,26 @@ COMMENT::COMMENT(string raw) {
 			}
 		}
 	}
+}
+
+void Node::Modify_AST(Node*& n, bool(*Filter)(Node* n), void(*Modifier)(Node*& n))
+{
+	if (Filter(n)) {
+		Modifier(n);
+	}
+
+	for (auto& i : n->Childs) {
+		i->Modify_AST(i, Filter, Modifier);
+	}
+
+	for (auto& i : n->Parameters) {
+		i->Modify_AST(i, Filter, Modifier);
+	}
+
+	if (n->Left)
+		n->Modify_AST(n->Left, Filter, Modifier);
+	if (n->Right)
+		n->Modify_AST(n->Right, Filter, Modifier);
+	if (n->Cast_Type)
+		n->Modify_AST(n->Cast_Type, Filter, Modifier);
 }

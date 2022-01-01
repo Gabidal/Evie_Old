@@ -29,6 +29,7 @@ size_t WriteMemoryCallback(void* contents, size_t size, size_t nmemb, void* user
 
 void HTTPS::HTTPS_Analyser(vector<string>& output)
 {
+
 	//we need to set all those remotely included libs into a subfolder
 	//idk maybe Remote/??
 	string Path;
@@ -111,6 +112,8 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 		Report(Observation(INFO, "Given URL is not git based, going into fallback mode.", Position()));
 		//this URL is not a git based file repo.
 		//use curl
+
+
 		CURL* curl_handle;
 		CURLcode res;
 
@@ -195,6 +198,8 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 			free(chunk.memory);
 			Repo_Folder_Dest_Path = Remote_Dir_Location + Name.c_str();
 		}
+
+
 	}
 	else {
 	Git_Merge_Error_Fixed:;
