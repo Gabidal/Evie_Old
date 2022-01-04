@@ -396,10 +396,13 @@ public:
 		return this;
 	}
 
-	bool Locate(string name, vector<Node*> list) {
+	bool Locate(Node* n, vector<Node*> list) {
 		for (Node* i : list)
-			if (i->Name == name)
-				return true;
+			if (i->Name == n->Name)
+				//variables can be same named as functions.
+				//function overloads is a thing to keep in mind.
+				if (i->is(n->Type) && !(n->is(FUNCTION_NODE) && n == i))
+					return true;
 		return false;
 	}
 	
@@ -411,7 +414,7 @@ public:
 			Node* inheritted = Find(s, Scope);
 			for (auto i : inheritted->Defined) {
 				//now insert the inheritted classes members
-				if (Locate(i->Name, Defined) != true)
+				if (Locate(i, Defined) != true)
 					//if this is already defined no luck trying to re defining the same variable twice :D
 					Defined.push_back(i);
 			}

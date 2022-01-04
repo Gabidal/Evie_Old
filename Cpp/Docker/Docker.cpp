@@ -24,6 +24,7 @@ extern Usr* sys;
 
 vector<string> DOCKER::Default_ASM_Header_Data = {
 	"func local = \"global\\ +([A-Za-z0-9_@]+)\"",
+	"func local = \".global\\ +([A-Za-z0-9_@]+)\"",
 	"func local = \"export\\ +([A-Za-z0-9_@]+)\"",
 	//func local = "global\ +([A-Za-z0-9_@]+)"
 };

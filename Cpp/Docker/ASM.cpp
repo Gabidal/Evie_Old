@@ -28,6 +28,9 @@ void ASM::ASM_Analyzer(vector<string>& Output)
 	auto Types = DOCKER::Separate_Identification_Patterns(Header_Data);
 	vector<pair<string, string>> Raw_Data = DOCKER::Get_Names_Of(Tmp, Types);
 	for (auto& i : Raw_Data) {
+		if (i.second.find(".global ") != -1)
+			i.second.erase(i.second.find(".global "), 8);
+
 		if (i.second.find("global ") != -1)
 			i.second.erase(i.second.find("global "), 7);
 	}

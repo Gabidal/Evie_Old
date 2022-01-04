@@ -203,7 +203,7 @@ Node* Node::Get_Definition_Type()
 
 vector<string> Node::Get_Right_Inheritted()
 {
-	vector<string> Result = Inheritted;
+	vector<string> Result;
 
 	if (is(CONTENT_NODE) && Childs.size() == 1) {
 		Result = Childs[0]->Get_Right_Inheritted();
@@ -213,6 +213,11 @@ vector<string> Node::Get_Right_Inheritted()
 		Result = Fetcher->Get_Right_Inheritted();
 	}
 
+	//this node is more closer to the right node that the fetcher.
+	if (Inheritted.size() > 0)
+		Result = Inheritted;
+
+	//cast type is more closer to the right node than the og.
 	if (Cast_Type) {
 		//give the function the cast type by its self name so that
 		//if the cast has its own cast it gets picket, if not then this cast type is picket
@@ -933,7 +938,7 @@ void Node::Get_Inheritted_Class_Members() {
 
 		for (auto Member : Inheritted_Members)
 			if (!Member->is("const"))
-				if (Locate(Member->Name, Defined) == false)
+				if (Locate(Member, Defined) == false)
 					Defined.insert(Defined.begin(), Member);
 	}
 }

@@ -658,16 +658,9 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 
 	Node* Class = func->Find(func->Fetcher->Name, func, CLASS_NODE);
 
-	//Node* This = new Node(PARAMETER_NODE, "this", func->Location);
-	//This->Inheritted = { func->Fetcher->Name, "ptr" };
-	//This->Scope = func;
-	//This->Size = _SYSTEM_BIT_SIZE_;
-	////This->Defined = Class->Defined;
-	//This->Inheritable_templates = Class->Inheritable_templates;
-
-	//func->Defined.push_back(This);
-
-	//func->Parameters.insert(func->Parameters.begin(), This);
+	//namespace functions still have the namespace as the fetcher.
+	if (Class->is("static"))
+		return;
 
 	//Combine all the member fetchings that are not This based.
 	func->Modify_AST(func, [](Node* n) { if (n->Name == ".") return true; return false; }, [](Node*& n) {
@@ -1634,7 +1627,7 @@ void PostProsessor::Define_Sizes(Node* p)
 {
 	//here we set the defined size of the variable
 	for (Node* d : p->Defined) {
-		d->Get_Inheritted_Class_Members();
+		//d->Get_Inheritted_Class_Members();
 		d->Update_Size();
 		d->Update_Format();
 	}
