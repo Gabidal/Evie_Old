@@ -256,12 +256,13 @@ Node* Node::Find_Scope(Node* n)
 
 	while (true) {
 		for (auto& i : Current_Scope->Defined) {
+			if (Fetchers.size() == 0)
+				break;
+
 			if (Fetchers.back()->Name == i->Name) {
 				Current_Scope = i;
 				Fetchers.pop_back();
 			}
-			if (Fetchers.size() == 0)
-				break;
 		}
 
 		if (Fetchers.size() == 0)
@@ -269,7 +270,8 @@ Node* Node::Find_Scope(Node* n)
 		if (Current_Scope->Scope == nullptr)
 			return nullptr;
 
-		Current_Scope = Current_Scope->Scope;
+		Current_Scope = Fetchers.back();
+		Fetchers.pop_back();
 	}
 
 	Current_Scope = Current_Scope->Get_Definition_Type();

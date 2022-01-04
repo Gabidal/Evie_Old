@@ -223,6 +223,14 @@ string MANGLER::Un_Mangle(string raw) {
 				else if (Find(Current_Complex_Name, &Current_IDS)->first == MANGLER::RETURN) {
 					//_rPh -> ptr char xxxx(xxxx)
 					Return_Type_Section = true;
+					//check if there is anything left before this return type decl.
+					if (Current_Variable != "") {
+						Parenthesis.push_back(Current_Variable);
+						Current_Variable = "";
+						Current = "";
+
+					}
+
 				}
 			}
 			//TODO: add that if the current complex name is bigger than 2(.., current num) then dont do this.
