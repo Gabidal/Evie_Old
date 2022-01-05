@@ -9,6 +9,7 @@
 #include "../../H/BackEnd/IRGenerator.h"
 #include "../../H/BackEnd/IRPostProsessor.h"
 #include "../../H/BackEnd/BackEnd.h"
+#include "../../H/Parser/Analyzer.h"
 
 #include <math.h>
 #define ERROR (MSG_Type)1
@@ -536,6 +537,8 @@ void Service::Parse_Code(Proxy* proxy)
 		PostProsessor postprosessor(Singlefile_AST, parser.Input);
 		if (proxy->Type == Document_Request_Type::ASM) {
 			Singlefile_AST->Append(Singlefile_AST->Childs, postprosessor.Input);
+
+			Analyzer analyzer = Analyzer();
 
 			vector<IR*> IRs;
 			IRGenerator g(Singlefile_AST, Singlefile_AST->Childs, &IRs);

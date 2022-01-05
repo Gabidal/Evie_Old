@@ -14,14 +14,18 @@ unsigned long long Label_Differential_ID = 0;
 
 void IRGenerator::Factory()
 {
+
+	vector<Node*> All_Defined = Scope->Defined;
+	Scope->Append(All_Defined, Scope->Inlined_Items);
+
 	if (Scope->Name == "GLOBAL_SCOPE") 
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
 	/*for (int i = 0; i < Input.size(); i++)
 		Switch_To_Correct_Places(Input[i]);*/
 	if (Scope->is(CLASS_NODE)) {
-		for (auto i : Scope->Defined)
+		for (auto i : All_Defined)
 			Parse_Function(i);
-		for (auto i : Scope->Defined)
+		for (auto i : All_Defined)
 			Parse_Member_Functions(i);
 	}
 
@@ -49,7 +53,7 @@ void IRGenerator::Factory()
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
 		for (auto i : Scope->Header)
 			Parse_Global_Variables(i);
-		for (auto i : Scope->Defined)
+		for (auto i : All_Defined)
 			Parse_Static_Variables(i);
 	}
 }
@@ -1348,17 +1352,18 @@ void IRGenerator::Update_Operator(Node* n)
 	n->Inheritted = n->Left->Inheritted;
 }
 
-void IRGenerator::Generate_Global_Variable(string Variable_Name, Node* Value)
+void IRGenerator::Generate_Global_Variable(string Variable_Name, Node* value)
 {
 	Output->push_back(Make_Label(Variable_Name));
 
-	Token* value = new Token(Value);
+	Token* Value = new Token(TOKEN::LABEL, value->Get_Definition_Type()->Size);
+	Value->Set_Name(Construct_Complex_Init_Values(value));
 
 	string Init_Type = "init";
-	if (value->is(TOKEN::STRING))
+	if (Value->is(TOKEN::STRING))
 		Init_Type = "ascii";
-	Output->push_back(new IR(new Token(TOKEN::SET_DATA, Init_Type), { value }, nullptr));
-	if (value->is(TOKEN::STRING))
+	Output->push_back(new IR(new Token(TOKEN::SET_DATA, Init_Type), { Value }, nullptr));
+	if (Value->is(TOKEN::STRING))
 		Output->push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1) }, nullptr));
 }
 
@@ -1386,6 +1391,7 @@ void IRGenerator::Parse_Static_Variables(Node* n)
 {
 	if (n->is(CLASS_NODE)) {
 		if (n->is("static"))
+			//this is for the running code of a namespace for global variable initializations
 			for (auto i : n->Childs)
 				Parse_Static_Variables(i);
 		else
@@ -1396,12 +1402,49 @@ void IRGenerator::Parse_Static_Variables(Node* n)
 
 	if (n->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
 		//{[Namespace name] + [Static variable name]} d[size] [Value]
+
+		PostProsessor p(Scope);
+		p.Update_Operator_Inheritance(n);
+
+		//global variables that have been given an initial value.
+		//static double Pi = 162351276534
 		Generate_Global_Variable(n->Scope->Name + "_" + n->Left->Name, n->Right);
 	}
-	else if (n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE })) {
+	//inlined variables have their definition seen here, so make sure that this is the OG scope that
+	//the global variable was defined in.
+	else if (n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && n->Scope->Name == Scope->Name) {
 		//{[Namespace name] + [Static variable name]} d[size] 0
+
+		//un given value global variables
 		Generate_Global_Variable(n->Scope->Name + "_" + n->Name, n->Size);
 	}
+}
+
+string IRGenerator::Construct_Complex_Init_Values(Node* n)
+{
+	string Result = "";
+	//This function computes foo - bar instances where foo and bar are both global variables.
+	//there can also be numbers here and there.
+	//There can also be address castings and normal castings, here and there.
+	bool Get_Address = n->Cast_Type && n->Cast_Type->Name == "address";
+
+	if (n->is(OPERATOR_NODE)) {
+		if (n->Name == "*" || n->Name == "/" || n->Name == "%") {
+			Report(Observation(ERROR, "Un-supported operator at global variable initialization."));
+		}
+		Result = Construct_Complex_Init_Values(n->Left);
+		Result += " " + n->Name + " ";
+		Result += Construct_Complex_Init_Values(n->Right);
+	}
+	else {
+		if (!Get_Address && !n->is(NUMBER_NODE))
+			Result = " [";
+		Result += Token(n).Get_Name();
+		if (!Get_Address && !n->is(NUMBER_NODE))
+			Result += "] ";
+	}
+
+	return Result;
 }
 
 void IRGenerator::Parse_Member_Fetch(Node* n)

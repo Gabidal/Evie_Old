@@ -21,7 +21,8 @@ void Analyzer::Detect_Abnormal_Start_Address()
 	if (sys->Info.Format == "exe") {
 		Node* Main = Global_Scope->Find("main", Global_Scope, FUNCTION_NODE);
 
-		Start_Of_Proccesses.push_back(Main);
+		if (Main)
+			Start_Of_Proccesses.push_back(Main);
 	}
 }
 

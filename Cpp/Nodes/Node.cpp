@@ -169,7 +169,8 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 
 Node* Node::Get_Definition_Type()
 {
-	if (!Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, CONTENT_NODE }))
+	//the operator flag is added for global variable operators.
+	if (!Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, CONTENT_NODE, OPERATOR_NODE }))
 		return this;
 
 	vector<string> Right_Inherit = Get_Right_Inheritted();

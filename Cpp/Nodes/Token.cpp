@@ -86,8 +86,8 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	if (n->Find(n, n->Scope)->Has({ FUNCTION_NODE, IMPORT, EXPORT }))
 		Name = MANGLER::Mangle(n->Function_Implementation, "");
 
-	if (n->is("static") || (n->Fetcher != nullptr && n->Fetcher->is("static")))
-		Name = n->Fetcher->Name + "_" + Name;
+	if ((n->Find(n, n)->is("static")))
+		Name = n->Scope->Name + "_" + Name;
 
 	Parent = n->Scope;
 

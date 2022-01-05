@@ -53,6 +53,7 @@ public:
 	void Generate_Global_Variable(string Variable_Name, int Size);
 	void Parse_Global_Variables(Node* n);
 	void Parse_Static_Variables(Node* n);
+	string Construct_Complex_Init_Values(Node* n);
 
 	void Parse_Member_Fetch(Node* n);
 
