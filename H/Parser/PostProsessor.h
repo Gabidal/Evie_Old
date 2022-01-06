@@ -53,7 +53,7 @@ public:
 	void Destructor_Caller(Node* v, vector<Node*>& childs);
 	void Member_Function_Defined_Outside(Node* f);	//puts the func into parenting type class
 	void Member_Function_Defined_Inside(Node* f);		//
-	void Update_Template_Member_Members(Node* f);
+	void Update_Template_Member_Members(Node* f, Node* Class);
 
 
 	//void Combine_Conditions(int i);				//combines the if and else

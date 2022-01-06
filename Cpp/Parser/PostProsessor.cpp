@@ -137,14 +137,8 @@ void PostProsessor::Type_Definer(Node* type)
 		Type->Defined.insert(Type->Defined.begin(), Reference_Count);
 	}
 
-	//constructed template classes are defined later on in the scope, so theyre memebrs are not defined properly
-	for (auto& i : type->Defined) {
-		Update_Template_Member_Members(i);
-	}
-
-	Destructor_Generator(type);
-
 	//DISABLE default constructor if user has already defined one.
+	bool Constructor_Already_Defined = false;
 	vector<Node*> All_Defined = Scope->Defined;
 	Scope->Append(All_Defined, Scope->Inlined_Items);
 	for (auto j : All_Defined) {
@@ -164,13 +158,13 @@ void PostProsessor::Type_Definer(Node* type)
 			continue;
 		if (!j->Parameters[0]->is("ptr"))
 			continue;	//constructor must take itself as a ptr.
-		return;	//the user has already defined the default constructor for us.
+		Constructor_Already_Defined = true;	//the user has already defined the default constructor for us.
 	}
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
 
-	//Make the returning type to follow the template returning protocols.
+		//Make the returning type to follow the template returning protocols.
 	Component* Uninitialized_Templates;
 	if (type->Is_Template_Object) {
 		string Result = type->Get_Uninitialized_Templates();
@@ -198,9 +192,9 @@ void PostProsessor::Type_Definer(Node* type)
 		Function->Inheritted = { type->Name, "ptr" };
 	}
 
-	Function->Scope = Scope->Get_Scope_As(CLASS_NODE, {"static"}, Scope);
+	Function->Scope = Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope);
 
-	Node* This = new Node(PARAMETER_NODE, type->Location);	
+	Node* This = new Node(PARAMETER_NODE, type->Location);
 	if (type->Is_Template_Object) {
 		This->Inheritted = { "ptr" };
 		This->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
@@ -221,6 +215,20 @@ void PostProsessor::Type_Definer(Node* type)
 	if (type->Has({ "cpp", "evie", "vivid" }) != -1)
 		Function->Inheritted.push_back(type->Inheritted[type->Has({ "cpp", "evie", "vivid" })]);
 
+	if (!Constructor_Already_Defined) {
+		type->Defined.push_back(Function);
+	}
+
+	//constructed template classes are defined later on in the scope, so theyre memebrs are not defined properly
+	for (auto& i : type->Defined) {
+		Update_Template_Member_Members(i, type);
+	}
+
+	Destructor_Generator(type);
+
+	if (Constructor_Already_Defined)
+		return;
+	
 	PostProsessor p(type);
 	Function->Childs = p.Insert_Dot(type->Childs, Function, This);
 
@@ -245,7 +253,6 @@ void PostProsessor::Type_Definer(Node* type)
 	//Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Defined.push_back(Function);
 	//Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Childs.push_back(Function);
 
-	type->Defined.push_back(Function);
 
 	for (auto& j : type->Defined)
 		if (j->is(FUNCTION_NODE) /* && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] == Scope->Defined[i]->Name) */ ) {
@@ -722,7 +729,7 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 	return;
 }
 
-void PostProsessor::Update_Template_Member_Members(Node* n)
+void PostProsessor::Update_Template_Member_Members(Node* n, Node* Class)
 {
 	//this n represents a member in a class that inherits a template type
 	PostProsessor p(Scope);
@@ -733,6 +740,11 @@ void PostProsessor::Update_Template_Member_Members(Node* n)
 			continue;
 
 		Node* Inheritted_Type = n->Find(inheritted, n, CLASS_NODE);
+
+		//if this is the class constructor it inherits the class type.
+		//this is to prevent looping infinitelly.
+		if (Class->Name == Inheritted_Type->Name)
+			continue;
 
 		p.Type_Definer(Inheritted_Type);
 	}

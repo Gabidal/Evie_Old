@@ -591,18 +591,24 @@ vector<Node*> Node::Get_Scope_Path(bool Include_Global_Scope)
 {
 	vector<Node*> Result;
 	Node* Current_Scope = Scope;
-	while (Current_Scope->Name != "GLOBAL_SCOPE") {
+	while (true) {
 
-		Result.push_back(Current_Scope);
-
-		Current_Scope = Current_Scope->Scope;
-
-		if (Include_Global_Scope)
-			if (Current_Scope->Name == "GLOBAL_SCOPE")
+		if (Current_Scope->Name == "GLOBAL_SCOPE") {
+			if (Include_Global_Scope) {
 				Result.push_back(Current_Scope);
+				break;
+			}
+			else
+				break;
+		}
+		else {
+			Result.push_back(Current_Scope);
 
-		if (Current_Scope == nullptr)
-			Report(Observation(ERROR, "Parental Scope was not found.", *this->Location));
+			Current_Scope = Current_Scope->Scope;
+
+			if (Current_Scope == nullptr)
+				Report(Observation(ERROR, "Parental Scope was not found.", *this->Location));
+		}
 	}
 	return Result;
 }
