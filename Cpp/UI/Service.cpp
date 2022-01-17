@@ -145,6 +145,7 @@ UDP_Server::~UDP_Server() {
 #include "../../H/BackEnd/IRGenerator.h"
 #include "../../H/BackEnd/IRPostProsessor.h"
 #include "../../H/BackEnd/BackEnd.h"
+#include "../../H/Parser/Analyzer.h"
 
 #include <math.h>
 Proxy* UDP_Server::Receive() {
