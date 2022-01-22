@@ -1586,3 +1586,14 @@ void Node::Modify_AST(Node*& n, bool(*Filter)(Node* n), void(*Modifier)(Node*& n
 	if (n->Cast_Type)
 		n->Modify_AST(n->Cast_Type, Filter, Modifier);
 }
+
+vector<Node*> Node::Get_Context_Path(){
+	vector<Node*> Result;
+	Node* n = this;
+	while (n) {
+		Result.push_back(n);
+		n = n->Context;
+	}
+	reverse(Result.begin(), Result.end());
+	return Result;
+}

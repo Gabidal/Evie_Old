@@ -24,20 +24,34 @@ private:
 	bool Is_Untrustworthy(Node* v);
 
 	//Number factorisation
-	void Exponent_Factorisation(Node* n);
-	void Multiplication_Factorisation(Node* n);
-
-	//Compress multiplication into coefficient whole.
-	void Compress_Multiplication(Node*& Operator);
+	void Exponent_Factorisation(Node*& n);
 
 	//Compress Potens operators into order factors.
 	void Compress_Potens(Node*& Operator);
 
-	//Number factorization tools
-	void Add_Same_Base_Orders(Node*& x, Node*& y, bool& Has_Been_Optimized);
+	//This function takes two nodes and multiplies them together.
+	void Multiply_Nodes(Node*& x, Node*& y);
 
 	//Decompress the operators into AST
 	string De_Compress_Operators(Node* Coefficient);
+
+	//This function is used to combine two ajacents numbers.
+	void Combine_Numbers(Node*& n);
+
+	//This function combines numbers that are not adjacent to each other.
+	//Nonetheless this function still needs to go by the mathematical rules.
+	void Combine_Non_Adjacent_Numbers(Node*& n);
+
+	//This function takes two Number nodes, and goes through the context AST tree, to see were they have the same context node.
+	//after knowing this result, it will return the both paths to the context node.
+	void Get_Context_Paths(Node* n1, Node* n2, vector<Node*>& path1, vector<Node*>& path2);
+
+	//This function will go through the AST tree, and find the first node that has the same context node.
+	vector<Node*>* Get_Path(Node* n, Node* Context);
+
+	void Replace_Node(Node* Current, Node* New);
+
+	bool Has_Same_Base(Node* x, Node* y);
 };
 
 #endif

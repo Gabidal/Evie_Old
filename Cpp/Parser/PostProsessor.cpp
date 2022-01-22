@@ -7,7 +7,6 @@
 #include "../../H/Docker/Docker.h"
 
 extern Node* Global_Scope;
-extern bool Optimized;
 extern Usr* sys;
 
 void PostProsessor::Factory() {
@@ -793,12 +792,12 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	for (auto& v : f->Defined)
 		p.Destructor_Caller(v, f->Childs);
 
-	while (true) {
+	/*while (true) {
 		Algebra a(f, &f->Childs);
 		if (!Optimized)
 			break;
 		Optimized = false;
-	}
+	}*/
 
 	if (!sys->Info.Is_Service || sys->Service_Info == Document_Request_Type::ASM)
 		for (auto& v : f->Defined) {
@@ -841,7 +840,7 @@ void PostProsessor::Open_Condition_For_Prosessing(int i)
 
 	Input[i]->Childs = p.Input;
 
-	Algebra_Laucher(Input[i], Input[i]->Childs);
+	//Algebra_Laucher(Input[i], Input[i]->Childs);
 
 	for (auto& v : Input[i]->Defined)
 		p.Destructor_Caller(v, Input[i]->Childs);
@@ -1416,7 +1415,7 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 
 	Input[i]->Parameters = p.Input;
 
-	Algebra_Laucher(Input[i], Input[i]->Parameters);
+	//Algebra_Laucher(Input[i], Input[i]->Parameters);
 
 	//see what outside defined has been injected to this call.
 	for (int j = 0; j < Input[i]->Defined.size(); j++) {
@@ -1471,12 +1470,12 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 
 void PostProsessor::Algebra_Laucher(Node* Scope, vector<Node*> &List)
 {
-	while (true) {
+	/*while (true) {
 		Algebra a(Scope, &List);
 		if (!Optimized)
 			break;
 		Optimized = false;
-	}
+	}*/
 }
 
 void PostProsessor::Combine_Member_Fetching(Node*& n)

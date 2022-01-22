@@ -1092,8 +1092,11 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 	}
 
 	//this is for algebra only!!
-	if (Input[i].Value == "-")
-		Operator->Right->Coefficient *= -1;
+	if (Input[i].Value == "-"){
+		Node* Coefficient = new Node(NUMBER_NODE, new Position(Input[i].Location));
+		Coefficient->Name = "-1";
+		Operator->Right->Coefficient = Coefficient;
+	}
 
 	if (Operator->Name == "=")
 		if (Scope->Name == "GLOBAL_SCOPE")
@@ -1271,8 +1274,15 @@ void Parser::Variable_Negate_Pattern(int i)
 	if (((size_t)i + 1) > Input.size())
 		return;
 
+	Node* Coefficient = new Node(NUMBER_NODE, new Position(Input[i].Location));
+	Coefficient->Name = "-1";
 
-	Input[(size_t)i+1].node->Coefficient *= -1;
+	Node* Coefficient_Operator = new Node(OPERATOR_NODE, new Position(Input[i].Location));
+	Coefficient_Operator->Name = "*";
+	Coefficient_Operator->Left = Input[(size_t)i + 1].node->Coefficient;
+	Coefficient_Operator->Right = Coefficient;
+
+	Input[(size_t)i+1].node->Coefficient = Coefficient_Operator;
 
 	//remove the negettor operator
 	Input.erase(Input.begin() + i);
@@ -1778,7 +1788,7 @@ void Parser::Operator_Order()
 	//for (int i = 0; i < Input.size(); i++)
 	//	Math_Pattern(i, { "?" }, BIT_OPERATOR_NODE);	
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "¤" }, BIT_OPERATOR_NODE);
+		Math_Pattern(i, { "ï¿½" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "|", "!|" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)

@@ -1,4 +1,7 @@
 #include "../../H/Parser/Analyzer.h"
+#include "../../H/Parser/Algebra.h"
+
+extern bool Optimized;
 
 Analyzer::Analyzer()
 {
@@ -33,7 +36,6 @@ void Analyzer::List_All_Exported()
 			Start_Of_Proccesses.push_back(f);
 }
 
-
 vector<Node*> Callin_Trace;
 void Analyzer::Calling_Count_Incrementer(Node* f)
 {
@@ -57,4 +59,14 @@ void Analyzer::Calling_Count_Incrementer(Node* f)
 	}
 
 	Callin_Trace.pop_back();
+}
+
+void Analyzer::Call_Algebra(Node* n)
+{
+	while (true) {
+		Algebra a(n->Scope, &n->Childs);
+		if (!Optimized)
+			break;
+		Optimized = false;
+	}
 }

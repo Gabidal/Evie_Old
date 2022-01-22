@@ -88,10 +88,10 @@ enum Node_Type {
 	PTR_NODE,
 	NUMBER_NODE,
 
-	OPERATOR_NODE,				//classical operators like +-/*
+	OPERATOR_NODE,				//classical operators like +-/*^
 	ASSIGN_OPERATOR_NODE,
 	CONDITION_OPERATOR_NODE,	//==, !=, <, >
-	BIT_OPERATOR_NODE,			// &, |, ¤, <<, >>
+	BIT_OPERATOR_NODE,			// &, |, Â¤, <<, >>
 	LOGICAL_OPERATOR_NODE,
 	ARRAY_NODE,					//a[1]
 	NODE_CASTER,				//fruit x->banana.a

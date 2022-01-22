@@ -62,8 +62,6 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 vector<Node*> Trace_Function_Inlined;
 void Algebra::Function_Inliner(Node* c, int i)
 {
-	return;
-	//return;
 	if (!c->is(CALL_NODE) || c->Function_Ptr || c->is("import") || c->Function_Implementation->is("import"))
 		return;
 
@@ -145,7 +143,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 		Return_Value->Get_Inheritted_Class_Members();
 	}
 
-	//go thróugh all the children and update the names
+	//go thrï¿½ugh all the children and update the names
 	//the defined also have the parameters so only here we need to go through all th childrens.
 	for (auto i : c->Function_Implementation->Defined) {
 		Node* tmp = c->Copy_Node(i, c->Scope);
@@ -289,92 +287,27 @@ bool Algebra::Is_Untrustworthy(Node* v)
 	return false;
 }
 
-void Algebra::Exponent_Factorisation(Node* n)
+void Algebra::Exponent_Factorisation(Node*& n)
 {
-	if (!n->is(COEFFICIENT_NODE))
-		return;
-
-	//Target number T 
-	//Fraction F
-	//Result X
-	//F^X = T
-	//First we need to know the context of this current number
-	//So find next to number or variable toi comparte the operation to.
-
-	//Now that the AST is already mushed to a clusterfuck we can analyze it to optimize it.
-	//Try to put all the coefficient into same base.
-
-	vector<Node*> Coefficients = n->Childs;
-
-	bool Has_Been_Optimized = true;
-	while (Has_Been_Optimized) {
-		Has_Been_Optimized = false;
-
-		for (auto& x : Coefficients) {
-			for (auto& y : Coefficients) {
-				if ((x == y) || (!x || !y))
-					continue;
-
-				Add_Same_Base_Orders(x, y, Has_Been_Optimized);
-			}
-		}
-	}
-}
-
-void Algebra::Multiplication_Factorisation(Node* n)
-{
-
-}
-
-//NOTE: This function shall only run if all the potenses are already compressed!!!
-void Algebra::Compress_Multiplication(Node*& Operator)
-{
-	//This function compresses AST multiplications into a linear list of coefficients.
-	//x * y * a * b * c -> xyabc
-	if (Operator->Name != "*")
-		return;
-
-	vector<Node*> Components = Operator->Get_all({ OBJECT_NODE, PARAMETER_NODE, NUMBER_NODE }, [](Node* Op) { if (Op->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE}) && Op->Name != "*") return true; });
 	
-	Node* Coefficient = new Node(COEFFICIENT_NODE, new Position());
-	Coefficient->Childs = Components;
-	Coefficient->Name = "__COEFFICIENT__";
-
-	Operator = Coefficient;
 }
 
+//This function sets order of the left, the left side od the order can be null,
+//but the potens handle can handle it.
 void Algebra::Compress_Potens(Node*& Operator)
 {
 	if (Operator->Name != "^")
 		return;
 
-	Operator->Left->Order = Operator->Right;
-	*Operator = *Operator->Left;
-}
+	Node* Order_Operator = new Node(OPERATOR_NODE, new Position());
+	Order_Operator->Name = "^";
+	Order_Operator->Left = Operator->Left->Order;
+	Order_Operator->Left->Context = Order_Operator;
 
-void Algebra::Add_Same_Base_Orders(Node*& x, Node*& y, bool& Has_Been_Optimized)
-{
-	if (!x->is(NUMBER_NODE) && !y->is(NUMBER_NODE)) {
-		if (x->Name == y->Name) {
-			//x^1 * x^3 -> x^(1+3)
+	Order_Operator->Right = Operator->Right;
+	Order_Operator->Right->Context = Order_Operator;
 
-			//First create a operator +
-			Node* Plus = new Node(OPERATOR_NODE, new Position());
-			Plus->Name = "+";
-			Plus->Scope = x;
-			Plus->Left = x->Order;
-			Plus->Right = y->Order;
-
-			//Then create a new container that will contain both of the exponents.
-			//This is to maintain the Original operation order.
-			Node* Container = new Node(CONTENT_NODE, new Position());
-			Container->Childs = { Plus };
-
-			x->Order = Container;
-			//Release the y component
-			y = nullptr;
-		}
-	}
+	Operator = Operator->Left;
 }
 
 string Algebra::De_Compress_Operators(Node* Coefficient)
@@ -412,4 +345,217 @@ string Algebra::De_Compress_Operators(Node* Coefficient)
 	}
 
 
+}
+
+void Algebra::Combine_Numbers(Node*& n){
+	//First check if this Node n is  a operator, if som then call this same function for its left and right memebrs.
+	if (n->Has({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE })) {
+		Combine_Numbers(n->Left);
+		Combine_Numbers(n->Right);
+	}
+	//Double check iof the Node n is a number so that we can start our number combination.
+	if (n->is(NUMBER_NODE)){
+		//now we can differiante decimals and integers.
+		if (n->Format == "decimal"){
+			double Left = stod(n->Left->Name);
+			double Right = stod(n->Right->Name);
+
+			double Result_Value = Left + Right;
+
+			Node* Result = new Node(NUMBER_NODE, new Position());
+			Result->Name = to_string(Result_Value);
+			Result->Format = "decimal";
+			Result->Scope = n->Scope;
+			Result->Context = n->Context;
+
+			n = Result;
+		}
+		else{
+			int Left = stoi(n->Left->Name);
+			int Right = stoi(n->Right->Name);
+
+			int Result_Value = Left + Right;
+
+			Node* Result = new Node(NUMBER_NODE, new Position());
+			Result->Name = to_string(Result_Value);
+			Result->Format = "integer";
+			Result->Scope = n->Scope;
+			Result->Context = n->Context;
+
+			n = Result;
+		}
+	}
+}
+
+void Algebra::Combine_Non_Adjacent_Numbers(Node*& n){
+	//First we need to combine the given ast Node n, to a linear Node list
+	vector<Node*> Nodes = n->Get_all();
+
+	//Few thing to point out here.
+	//First of all, If there are two or more numbers they all must have a same context node somewhere in the AST.
+	//Second a context is always a operator.
+	for (int X = 0; X < Nodes.size(); X++){
+		for (int Y = 0; Y < Nodes.size(); Y++){
+			if (X != Y){
+				//First we need to check if the two nodes are numbers.
+				if (Nodes[X]->is(NUMBER_NODE) && !Nodes[X]->Bad_Number && Nodes[Y]->is(NUMBER_NODE) && !Nodes[Y]->Bad_Number){
+					//Now we need to check if there is a connecting Context between the two nodes.
+					//We also need to check if there is a +, - in the paths between the two nodes.
+					Node* x = Nodes[X];
+					Node* y = Nodes[Y];
+					
+					//First gather the both paths os the two nodes.
+					vector<Node*> Path_X;
+					vector<Node*> Path_Y;
+
+					Get_Context_Paths(x, y, Path_X, Path_Y);
+
+					//Now we need to check if there are any +, - operators in the paths.
+					for (auto i : Path_X){
+						if (i->Name == "+" || i->Name == "-"){
+							x->Bad_Number = true;
+						}
+					}
+					for (auto i : Path_Y){
+						if (i->Name == "+" || i->Name == "-"){
+							y->Bad_Number = true;
+						}
+					}
+
+					//If either one of the nodes is bad, then we can't combine them.
+					if (x->Bad_Number || y->Bad_Number){
+						continue;
+					}
+
+					//This node represents the context in witch the two nodes contexts collide.
+					Node* Context = Path_X.back(); // <-- both paths end with the same context node that connects two of em.
+
+					//If the context is a * we multiply the two numbers.
+					//If the context is a / we divide the two numbers.
+					//If the context is a ^ we raise the first number to the power of the second number.
+					
+				}
+			}
+		}
+	}
+}
+
+//This function takes two Number nodes, and goes through the context AST tree, to see were they have the same context node.
+//after knowing this result, it will return the both paths to the context node.
+void Algebra::Get_Context_Paths(Node* X, Node* Y, vector<Node*>& X_Path, vector<Node*>& Y_Path){
+	for (auto X_Index : X->Get_Context_Path()){
+		for (auto Y_Index : Y->Get_Context_Path()){
+			if (X_Index == Y_Index){
+				//We found the same context node.
+				//Now we need to find the path to the context node.
+				//We will use the Get_Path function to find the path.
+				X_Path = *Get_Path(X, X_Index);
+				Y_Path = *Get_Path(Y, Y_Index);
+
+				return;
+			}
+		}
+	}
+}
+
+vector<Node*>* Algebra::Get_Path(Node* n, Node* Goal){
+	//This function will return the path to the given Context node.
+	//This function will return a vector of Nodes that are the path to the Context node.
+	//This function will return nullptr if the Context node is not found.
+	vector<Node*>* Path = new vector<Node*>();
+
+	//First we need to find the path to the Context node.
+	//We will use the Get_Path function to find the path.
+	Node* Current = n;
+	while (Current != Goal) {
+		Path->push_back(Current);
+		Current = Current->Context;
+	}
+	Path->push_back(Current);
+
+	return Path;
+}
+
+void Algebra::Multiply_Nodes(Node*& x, Node*& y){
+	if (!Has_Same_Base(x, y))
+		return;
+
+	Node** Left = &x;
+	Node** Right = &y;
+
+	if (x->is(NUMBER_NODE) && !y->is(NUMBER_NODE)){
+		Left = &y;
+		Right = &x;
+	}
+
+	if ((*Left)->is(NUMBER_NODE) && (*Right)->is(NUMBER_NODE)){
+		if ((*Left)->Format == "decimal" || (*Right)->Format == "decimal"){
+			(*Left)->Name = to_string(stod((*Left)->Name) * stod((*Right)->Name));
+			(*Left)->Format = "decimal";
+		}
+		else{
+			(*Left)->Name = to_string(stoi((*Left)->Name) * stoi((*Right)->Name));
+			(*Left)->Format = "integer";
+		}
+	}
+	else{
+		//if the Left side already has a coefficient we need it to compound with the Right side.
+		//if the Left has a coefficient of null, then the CoEfficient Combinator will handdle it.
+		Node* Coefficient_Operator = new Node(OPERATOR_NODE, new Position());
+		Coefficient_Operator->Name = "*";
+
+		Coefficient_Operator->Left = (*Left)->Coefficient;
+		Coefficient_Operator->Context = Coefficient_Operator;
+
+		Coefficient_Operator->Right = (*Right);
+		Coefficient_Operator->Right = Coefficient_Operator;
+	}
+
+	//Also combine the order of the both sides.
+	Node* Order_Combiner = new Node(OPERATOR_NODE, new Position());
+	Order_Combiner->Name = "+";
+	Order_Combiner->Left = (*Left)->Order;
+	Order_Combiner->Left->Context = Order_Combiner;
+
+	Order_Combiner->Right = (*Right)->Order;
+	Order_Combiner->Right->Context = Order_Combiner;
+	
+	(*Left)->Order = Order_Combiner;
+
+	//Now we need to cover for the bro, the Right side.
+	//We do it by making the pair of the Right side can control the Context on itself.
+	//the right side operator would look like: (Right * Right_Pair) -> (Right_Pair)
+	
+	//First we need to find the Right_Side_Pair.
+	Node* Right_Side_Pair = (*Right)->Get_Pair();
+
+	Replace_Node(*Right, Right_Side_Pair);
+}
+
+//Function replaces the context node of it's own (Current) with itself.
+void Algebra::Replace_Node(Node* Current, Node* New){
+	//Context can only be a operator node.
+	if (Current->is(OPERATOR_NODE)){
+		if (Current->Context->Has({OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE})){
+			if (Current == Current->Context->Left){
+				Current->Context->Left = New;
+			}
+			else{
+				Current->Context->Right = New;
+			}
+		}
+	}
+}
+
+//a^x * a^y = a^(x+y)
+//b^x * a^x = (ba)^x
+bool Algebra::Has_Same_Base(Node* x, Node* y){
+	if (x->Name == y->Name) {
+		return true;
+	}
+	else if (x->Order->Name == y->Order->Name) {
+		return true;
+	}
+	else
+		return false;
 }

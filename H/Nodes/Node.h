@@ -119,8 +119,9 @@ public:
 	Node* Succsessor = nullptr;
 	Node* Predecessor = nullptr;
 	//algebra optimizer features
-	int Coefficient = 1;
+	Node* Coefficient = nullptr;
 	Node* Order = nullptr;
+	bool Bad_Number = false;
 	//fetching features
 	Node* Fetcher = nullptr;
 	//calling features
@@ -667,14 +668,14 @@ public:
 	//	return Result;
 	//}
 
-	bool Is_Decimal() {
-		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+	// bool Is_Decimal() {
+	// 	if (find(Name.begin(), Name.end(), '.') != Name.end()) {
+	// 		return true;
+	// 	}
+	// 	else {
+	// 		return false;
+	// 	}
+	// }
 
 	int Get_Size() {
 		return Size;
@@ -754,6 +755,9 @@ public:
 	void Update_Members_To_New_Parent();
 
 	void Modify_AST(Node*& n, bool(*Filter)(Node* n), void(*Modifier)(Node*& n));
+
+	//this function return list of all contexes that a node has until it reaches the null
+	vector<Node*> Get_Context_Path();
 };
 
 #endif

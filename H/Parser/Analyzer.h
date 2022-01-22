@@ -25,6 +25,8 @@ public:
 	void List_All_Exported();
 
 	void Calling_Count_Incrementer(Node* f);
+
+	void Call_Algebra(Node* n);
 };
 
 #endif
