@@ -296,18 +296,117 @@ void Algebra::Exponent_Factorisation(Node*& n)
 //but the potens handle can handle it.
 void Algebra::Compress_Potens(Node*& Operator)
 {
-	if (Operator->Name != "^")
+	//Rule 1:
+	//a^x * a^y = a^(x + y)
+	//Rule 2:
+	//a^x * b^x = (a * b)^x
+	//Rule 3:
+	//a^(c * x) * b^x = (a^c * b)^(x)
+	//Rule 4:
+	//(c * a)^x * a^b = c^x * a^x * a^b = c^x * a^(x + b)
+	if (Operator->Name != "*")
 		return;
 
-	Node* Order_Operator = new Node(OPERATOR_NODE, new Position());
-	Order_Operator->Name = "^";
-	Order_Operator->Left = Operator->Left->Order;
-	Order_Operator->Left->Context = Order_Operator;
+	Node* Left_Base = Operator->Left->Left;
+	Node* Right_Base = Operator->Right->Left;
 
-	Order_Operator->Right = Operator->Right;
-	Order_Operator->Right->Context = Order_Operator;
+	Node* Left_Exponent = Operator->Left->Right;
+	Node* Right_Exponent = Operator->Right->Right;
 
-	Operator = Operator->Left;
+	//Rule 1:
+	if (Operator->Left->Left->Get_Name() == Operator->Right->Left->Get_Name()){
+		//This does same thing as the Rule 1.
+		//The bases are same, so we can combine them by using Rule 1.
+		//This wrapper is going to hold the left and right exponent.
+		Node* Wrapper = new Node(CONTENT_NODE, Operator->Location);
+		Wrapper->Name = "(";
+		Wrapper->Scope = Operator->Scope;
+		Wrapper->Context = Operator->Context;
+		Wrapper->Inheritted = Operator->Inheritted;
+
+		//This operator sums the both exponents.
+		Node* Sum_Operator = new Node(OPERATOR_NODE, Operator->Location);
+		Sum_Operator->Name = "+";
+		Sum_Operator->Left = Left_Exponent;
+		Sum_Operator->Right = Right_Exponent;
+		Sum_Operator->Scope = Wrapper->Scope;
+		Sum_Operator->Context = Wrapper;
+		Sum_Operator->Inheritted = Wrapper->Inheritted;
+
+		Wrapper->Childs.push_back(Sum_Operator);
+
+		Node* Exponent = new Node(OPERATOR_NODE, Operator->Location);
+		Exponent->Name = "^";
+		Exponent->Left = nullptr;
+		Exponent->Right = Wrapper;
+		Exponent->Scope = Operator->Scope;
+		Exponent->Context = Operator->Context;
+		Exponent->Inheritted = Operator->Inheritted;
+
+		Left_Base->Order = Exponent;
+
+		Operator = Left_Base;
+	}
+	//Rule 2:
+	else if (Operator->Left->Right->Get_Name() == Operator->Right->Right->Get_Name()){
+		//This does same thing as the Rule 2.
+		//This wrapper is going to hold the left and right base.
+		Node* Wrapper = new Node(CONTENT_NODE, Operator->Location);
+		Wrapper->Name = "(";
+		Wrapper->Scope = Operator->Scope;
+		Wrapper->Context = Operator->Context;
+		Wrapper->Inheritted = Operator->Inheritted;
+
+		//This operator multiplies the both bases.
+		Node* Multiply_Operator = new Node(OPERATOR_NODE, Operator->Location);
+		Multiply_Operator->Name = "*";
+		Multiply_Operator->Left = Left_Base;
+		Multiply_Operator->Right = Right_Base;
+		Multiply_Operator->Scope = Wrapper->Scope;
+		Multiply_Operator->Context = Wrapper;
+		Multiply_Operator->Inheritted = Wrapper->Inheritted;
+
+		Wrapper->Childs.push_back(Multiply_Operator);
+
+		Node* Exponent = new Node(OPERATOR_NODE, Operator->Location);
+		Exponent->Name = "^";
+		Exponent->Left = nullptr;
+		Exponent->Right = Wrapper;
+		Exponent->Scope = Operator->Scope;
+		Exponent->Context = Operator->Context;
+		Exponent->Inheritted = Operator->Inheritted;
+		
+		Wrapper->Order = Exponent;
+
+		Operator = Wrapper;
+	}
+	//Rule 3:
+	bool Rule_3 = false;
+	vector<Node*> Exponent_Variables;
+	Node* Exponent_Variable = nullptr;
+
+	if (Left_Exponent->is(CONTENT_NODE) && Left_Exponent->Childs.back()->Name == "*"){
+		Exponent_Variables = Left_Exponent->Childs.back()->Get_all({OBJECT_NODE, PARAMETER_NODE});
+		Exponent_Variable = Right_Exponent;
+	}
+	else if (Right_Exponent->is(CONTENT_NODE) && Right_Exponent->Childs.back()->Name == "*"){
+		Exponent_Variables = Right_Exponent->Childs.back()->Get_all({OBJECT_NODE, PARAMETER_NODE});
+		Exponent_Variable = Left_Exponent;
+	}
+
+	//Check if the exponents contain even 1 same variable.
+	for (auto V : Exponent_Variables){
+		if (V->Get_Name() == Exponent_Variable->Get_Name()){
+			Rule_3 = true;
+
+			if (Right_Exponent->is(CONTENT_NODE) && Left_Exponent->is(CONTENT_NODE)){
+				//both exponents cant have complex exponents.
+				Rule_3 = false;
+			}
+
+			break;
+		}
+	}
 }
 
 string Algebra::De_Compress_Operators(Node* Coefficient)
@@ -477,9 +576,6 @@ vector<Node*>* Algebra::Get_Path(Node* n, Node* Goal){
 }
 
 void Algebra::Multiply_Nodes(Node*& x, Node*& y){
-	if (!Has_Same_Base(x, y))
-		return;
-
 	Node** Left = &x;
 	Node** Right = &y;
 
@@ -545,17 +641,4 @@ void Algebra::Replace_Node(Node* Current, Node* New){
 			}
 		}
 	}
-}
-
-//a^x * a^y = a^(x+y)
-//b^x * a^x = (ba)^x
-bool Algebra::Has_Same_Base(Node* x, Node* y){
-	if (x->Name == y->Name) {
-		return true;
-	}
-	else if (x->Order->Name == y->Order->Name) {
-		return true;
-	}
-	else
-		return false;
 }

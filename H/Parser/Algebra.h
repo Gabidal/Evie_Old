@@ -51,7 +51,7 @@ private:
 
 	void Replace_Node(Node* Current, Node* New);
 
-	bool Has_Same_Base(Node* x, Node* y);
+
 };
 
 #endif

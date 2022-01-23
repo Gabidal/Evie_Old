@@ -758,6 +758,8 @@ public:
 
 	//this function return list of all contexes that a node has until it reaches the null
 	vector<Node*> Get_Context_Path();
+
+	string Get_Name();
 };
 
 #endif

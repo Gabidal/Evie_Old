@@ -1597,3 +1597,26 @@ vector<Node*> Node::Get_Context_Path(){
 	reverse(Result.begin(), Result.end());
 	return Result;
 }
+
+string Node::Get_Name(){
+	string Result = "";
+
+	if (Name[0] == '('){
+		Result += "(";
+
+		Result += Childs[0]->Get_Name();
+
+		Result += ")";
+	}
+	if (Name == "+" || Name == "-"){
+		Result += "(" + Left->Get_Name() + Right->Get_Name() + ")";
+	}
+	if (Coefficient){
+		Result += Coefficient->Get_Name() + Name;
+	}
+	if (Order){
+		Result = "(" + Result + ")^" + Order->Get_Name();
+	}
+
+	return Result;
+}
