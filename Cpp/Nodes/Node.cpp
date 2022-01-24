@@ -5,6 +5,7 @@
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Safe.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/Docker//Docker.h"
 
 #include <vector>
 #include <string>
@@ -1619,4 +1620,19 @@ string Node::Get_Name(){
 	}
 
 	return Result;
+}
+
+vector<Node*> Node::Get_Adjacent_Coefficients()
+{
+	vector<Node*> Result;
+	if (!this)
+		return Result;
+	if (Coefficient) {
+		DOCKER::Append(Result, Coefficient->Left->Get_Adjacent_Coefficients());
+		DOCKER::Append(Result, Coefficient->Right->Get_Adjacent_Coefficients());
+	}
+	if (Name == "*") {
+		DOCKER::Append(Result, Left->Get_Adjacent_Coefficients());
+		DOCKER::Append(Result, Right->Get_Adjacent_Coefficients());
+	}
 }

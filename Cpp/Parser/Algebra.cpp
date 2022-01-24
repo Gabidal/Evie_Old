@@ -301,9 +301,11 @@ void Algebra::Compress_Potens(Node*& Operator)
 	//Rule 2:
 	//a^x * b^x = (a * b)^x
 	//Rule 3:
-	//a^(c * x) * b^x = (a^c * b)^(x)
+	//a^(c * x) * b^(d * x) = (a^c * b^d)^x 
 	//Rule 4:
 	//(c * a)^x * a^b = c^x * a^x * a^b = c^x * a^(x + b)
+	//Rule 5:
+	//(a^c)^x = a^(x * c)
 	if (Operator->Name != "*")
 		return;
 
@@ -314,7 +316,7 @@ void Algebra::Compress_Potens(Node*& Operator)
 	Node* Right_Exponent = Operator->Right->Right;
 
 	//Rule 1:
-	if (Operator->Left->Left->Get_Name() == Operator->Right->Left->Get_Name()){
+	if (Left_Base->Get_Name() == Right_Base->Get_Name()){
 		//This does same thing as the Rule 1.
 		//The bases are same, so we can combine them by using Rule 1.
 		//This wrapper is going to hold the left and right exponent.
@@ -348,7 +350,7 @@ void Algebra::Compress_Potens(Node*& Operator)
 		Operator = Left_Base;
 	}
 	//Rule 2:
-	else if (Operator->Left->Right->Get_Name() == Operator->Right->Right->Get_Name()){
+	else if (Left_Exponent->Get_Name() == Right_Exponent->Get_Name()){
 		//This does same thing as the Rule 2.
 		//This wrapper is going to hold the left and right base.
 		Node* Wrapper = new Node(CONTENT_NODE, Operator->Location);
@@ -381,31 +383,8 @@ void Algebra::Compress_Potens(Node*& Operator)
 		Operator = Wrapper;
 	}
 	//Rule 3:
-	bool Rule_3 = false;
-	vector<Node*> Exponent_Variables;
-	Node* Exponent_Variable = nullptr;
+	else if ((Left_Exponent->is(CONTENT_NODE) && Left_Exponent->Childs[0]->Name == "*") || (Right_Exponent->is(CONTENT_NODE) && Right_Exponent->Childs[0]->Name == "*")) {
 
-	if (Left_Exponent->is(CONTENT_NODE) && Left_Exponent->Childs.back()->Name == "*"){
-		Exponent_Variables = Left_Exponent->Childs.back()->Get_all({OBJECT_NODE, PARAMETER_NODE});
-		Exponent_Variable = Right_Exponent;
-	}
-	else if (Right_Exponent->is(CONTENT_NODE) && Right_Exponent->Childs.back()->Name == "*"){
-		Exponent_Variables = Right_Exponent->Childs.back()->Get_all({OBJECT_NODE, PARAMETER_NODE});
-		Exponent_Variable = Left_Exponent;
-	}
-
-	//Check if the exponents contain even 1 same variable.
-	for (auto V : Exponent_Variables){
-		if (V->Get_Name() == Exponent_Variable->Get_Name()){
-			Rule_3 = true;
-
-			if (Right_Exponent->is(CONTENT_NODE) && Left_Exponent->is(CONTENT_NODE)){
-				//both exponents cant have complex exponents.
-				Rule_3 = false;
-			}
-
-			break;
-		}
 	}
 }
 

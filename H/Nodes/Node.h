@@ -760,6 +760,8 @@ public:
 	vector<Node*> Get_Context_Path();
 
 	string Get_Name();
+
+	vector<Node*> Get_Adjacent_Coefficients();
 };
 
 #endif
