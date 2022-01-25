@@ -27,7 +27,7 @@ private:
 	void Exponent_Factorisation(Node*& n);
 
 	//Compress Potens operators into order factors.
-	void Compress_Potens(Node*& Operator);
+	void Potens_And_Multiplication(Node*& Operator);
 
 	//This function takes two nodes and multiplies them together.
 	void Multiply_Nodes(Node*& x, Node*& y);
@@ -51,7 +51,7 @@ private:
 
 	void Replace_Node(Node* Current, Node* New);
 
-
+	void Remove_As_Much(Node** n, string Name, int& count);
 };
 
 #endif

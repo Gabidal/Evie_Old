@@ -69,7 +69,7 @@ public:
 	Node(int flag, Position* p, string f) : Type(flag), Location(p), Format(f) {}
 	Node(string n, Position* p) : Name(n), Location(p) {}
 	Node(int flag, string n, Position* p) : Type(flag), Name(n), Location(p) {}
-	Node(Node* n, int f) { *this = *Copy_Node(n, n->Scope); Type = f; }
+	//Node(Node* n, int f) { Copy_Node(&this, n, n->Scope); Type = f; }
 	//Node(){}
 	//Normal features
 	Position* Location = nullptr;
@@ -544,7 +544,7 @@ public:
 
 	void Update_Inheritance();
 
-	Node* Copy_Node(Node* What_Node, Node* p);
+	void Copy_Node(Node*& Result, Node* What_Node, Node* p);
 
 	vector<Node*> Has(Node* n, int f)
 	{

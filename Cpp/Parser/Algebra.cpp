@@ -35,11 +35,13 @@ void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
 			Assign->Name = "=";
 			Assign->Scope = n->Scope;
 
-			Node* Left = Return_Value->Copy_Node(Return_Value, n->Scope);
+			Node* Left;
+			Return_Value->Copy_Node(Left, Return_Value, n->Scope);
 			Left->Type = OBJECT_NODE;
 			Left->Context = Assign;
 
-			Node* Right = n->Copy_Node(n->Right, n->Scope);
+			Node* Right;
+			n->Copy_Node(Right, n->Right, n->Scope);
 			Right->Context = Assign;
 
 			Assign->Left = Left;
@@ -95,7 +97,9 @@ void Algebra::Function_Inliner(Node* c, int i)
 	}
 
 	for (auto j : c->Function_Implementation->Childs) {
-		Childs.push_back(c->Copy_Node(j, c->Scope));
+		Node* tmp;
+		c->Copy_Node(tmp, j, c->Scope);
+		Childs.push_back(tmp);
 	}
 
 	for (auto j : Childs) {
@@ -107,7 +111,8 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 	//give the parameters a new name;
 	for (auto j : c->Function_Implementation->Parameters) {
-		Node* tmp = c->Copy_Node(j, c->Scope);
+		Node* tmp;
+		c->Copy_Node(tmp, j, c->Scope);
 		tmp->Type = OBJECT_DEFINTION_NODE;
 		tmp->Name += "_" + to_string(Inlined_Function_Count);
 		Parameters.push_back(tmp);
@@ -146,7 +151,8 @@ void Algebra::Function_Inliner(Node* c, int i)
 	//go thr�ugh all the children and update the names
 	//the defined also have the parameters so only here we need to go through all th childrens.
 	for (auto i : c->Function_Implementation->Defined) {
-		Node* tmp = c->Copy_Node(i, c->Scope);
+		Node* tmp;
+		c->Copy_Node(tmp, i, c->Scope);
 		tmp->Type = OBJECT_DEFINTION_NODE;
 		tmp->Name += "_" + to_string(Inlined_Function_Count);
 		Defined.push_back(tmp);
@@ -194,9 +200,11 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 	//first anchor the parameters to setted with the value corresponding at the callers parameters.
 	for (int i = 0; i < Parameters.size(); i++) {
-		Node* Left_Side = Parameters[i]->Copy_Node(Parameters[i], Parameters[i]->Scope);
+		Node* Left_Side;
+		Parameters[i]->Copy_Node(Left_Side, Parameters[i], Parameters[i]->Scope);
 		
-		Node* Right_Side = c->Copy_Node(c->Parameters[i], c->Scope);
+		Node* Right_Side;
+		c->Copy_Node(Right_Side, c->Parameters[i], c->Scope);
 
 		Node* Operator = new Node(ASSIGN_OPERATOR_NODE, c->Parameters[i]->Location);
 		Operator->Name = "=";
@@ -294,7 +302,7 @@ void Algebra::Exponent_Factorisation(Node*& n)
 
 //This function sets order of the left, the left side od the order can be null,
 //but the potens handle can handle it.
-void Algebra::Compress_Potens(Node*& Operator)
+void Algebra::Potens_And_Multiplication(Node*& Operator)
 {
 	//Rule 1:
 	//a^x * a^y = a^(x + y)
@@ -383,9 +391,58 @@ void Algebra::Compress_Potens(Node*& Operator)
 		Operator = Wrapper;
 	}
 	//Rule 3:
-	else if ((Left_Exponent->is(CONTENT_NODE) && Left_Exponent->Childs[0]->Name == "*") || (Right_Exponent->is(CONTENT_NODE) && Right_Exponent->Childs[0]->Name == "*")) {
+	//a^(c * x) * b^(d * x) = (a^c * b^d)^x 
+	vector<Node*> Left_Exponents;
+	vector<Node*> Right_Exponents;
 
+	//We will collect both side exponent term count, and then use the lower one
+	map<string, int> Left_Induvidual_Exponent_Count;
+	map<string, int> Right_Induvidual_Exponent_Count;
+
+	map<string, int> Min_Induvidual_Exponent_Count;
+	
+	if (Left_Exponent->is(CONTENT_NODE))
+		Left_Exponents = Left_Exponent->Childs[0]->Get_Adjacent_Coefficients();
+	else
+		Left_Exponents = { Left_Exponent };
+
+	if (Right_Exponent->is(CONTENT_NODE))
+		Right_Exponents = Right_Exponent->Childs[0]->Get_Adjacent_Coefficients();
+	else
+		Right_Exponents = { Right_Exponent };
+
+	//now we need to calculate how many of each variable is in a single exponent
+	//a^(c * x * x) * b^(d * x) = (a^(c * x) * b^d)^x 
+
+	//count all term counts
+	for (auto i : Left_Exponents)
+		Left_Induvidual_Exponent_Count[i->Name]++;
+
+	for (auto i : Right_Exponents)
+		Right_Induvidual_Exponent_Count[i->Name]++;
+
+	//now compare and select the min term count
+	for (auto i : Left_Induvidual_Exponent_Count) {
+		if (min(i.second, Right_Induvidual_Exponent_Count[i.first]) != 0) {
+			Min_Induvidual_Exponent_Count[i.first] = i.second;
+		}
 	}
+	for (auto i : Right_Induvidual_Exponent_Count) {
+		if (min(i.second, Left_Induvidual_Exponent_Count[i.first]) != 0) {
+			Min_Induvidual_Exponent_Count[i.first] = i.second;
+		}
+	}
+
+	//now we remove the exess terms.
+	for (int i = 0; i < Left_Exponents.size(); i++) {
+		
+	}
+
+	//now we know how mutch the new potens is going to have term multiplication init
+	Node* Left_Wrapper = new Node(CONTENT_NODE, new Position());
+	Left_Wrapper->Childs = 
+	Left_Wrapper->Name = "(";
+
 }
 
 string Algebra::De_Compress_Operators(Node* Coefficient)
@@ -610,14 +667,15 @@ void Algebra::Multiply_Nodes(Node*& x, Node*& y){
 //Function replaces the context node of it's own (Current) with itself.
 void Algebra::Replace_Node(Node* Current, Node* New){
 	//Context can only be a operator node.
-	if (Current->is(OPERATOR_NODE)){
-		if (Current->Context->Has({OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE})){
-			if (Current == Current->Context->Left){
-				Current->Context->Left = New;
-			}
-			else{
-				Current->Context->Right = New;
-			}
-		}
-	}
+	if (Current->Context) {
+		Node* Context = Current->Context;
+
+		New->Copy_Node(Current, New, New->Scope);
+	}	
+}
+
+//This function removes the nodes by their Name, until the Count reaches 0
+void Algebra::Remove_As_Much(Node** n, string Name, int& count)
+{
+
 }

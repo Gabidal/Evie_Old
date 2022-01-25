@@ -649,7 +649,8 @@ Node* Node::Find(Node* n, Node* s)
 		if (i->Templates.size() == n->Templates.size())
 			if (i->Name == n->Name) {
 				if (n->Cast_Type != nullptr) {
-					Node* tmp = i->Copy_Node(i, i->Scope);
+					Node* tmp;
+					i->Copy_Node(tmp, i, i->Scope);
 					tmp->Cast_Type = n->Cast_Type;
 					return tmp;
 				}
@@ -660,7 +661,8 @@ Node* Node::Find(Node* n, Node* s)
 		if (i->Templates.size() == n->Templates.size())
 			if (i->Name == n->Name) {
 				if (n->Cast_Type != nullptr) {
-					Node* tmp = i->Copy_Node(i, i->Scope);
+					Node* tmp;
+					i->Copy_Node(tmp, i, i->Scope);
 					tmp->Cast_Type = n->Cast_Type;
 					return tmp;
 				}
@@ -770,7 +772,8 @@ Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition, bool I
 			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name) {
 					if (n->Cast_Type != nullptr) {
-						Node* tmp = i->Copy_Node(i, i->Scope);
+						Node* tmp;
+						i->Copy_Node(tmp, i, i->Scope);
 						tmp->Cast_Type = n->Cast_Type;
 						return tmp;
 					}
@@ -782,7 +785,8 @@ Node* Node::Find(Node* n, Node* s, int f, bool Get_Inheritted_Definition, bool I
 			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name) {
 					if (n->Cast_Type != nullptr) {
-						Node* tmp = i->Copy_Node(i, i->Scope);
+						Node* tmp;
+						i->Copy_Node(tmp, i, i->Scope);
 						tmp->Cast_Type = n->Cast_Type;
 						return tmp;
 					}
@@ -1457,79 +1461,82 @@ vector<Node*> Node::Get_all(int f, vector<Node*> Trace, bool(*Filter)(Node*))
 
 //			old  , new
 vector<pair<Node*, Node*>> Trace;
-Node* Node::Copy_Node(Node* What_Node, Node* p)
+void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 {
-	if (What_Node == nullptr)
-		return nullptr;
+	if (What_Node == nullptr) {
+		Report(Observation(ERROR, "Code needs a fix"));
+	}
 
 	//disable recursive funciton copying
 	if (Trace.size() > 0)
-		if (What_Node->is(FUNCTION_NODE))
-			return What_Node;
+		if (What_Node->is(FUNCTION_NODE)) {
+			Result = What_Node;
+		}
+
 
 	for (int j = 0; j < Trace.size(); j++) {
 		if (What_Node == Trace[j].first) {
-			return Trace[j].second;
+			Result = Trace[j].second;
 		}
 	}
 
 	//this will only copy the ptrs in list but we want to also copy what those ptr point to.
-	Node* Result = new Node(*What_Node);
+	Result = new Node(*What_Node);
 	Result->Scope = p;
 
 	Trace.push_back({ What_Node, Result });
 
 	//lets start from defined
 	for (int i = 0; i < Result->Defined.size(); i++)
-		Result->Defined[i] = Copy_Node(Result->Defined[i], Result);
+		Copy_Node(Result->Defined[i], Result->Defined[i], Result);
 
 	for (int i = 0; i < Result->Templates.size(); i++)
-		Result->Templates[i] = Copy_Node(Result->Templates[i], Result);
+		Copy_Node(Result->Templates[i], Result->Templates[i], Result);
 
 	for (int i = 0; i < Result->Childs.size(); i++)
 		if (Result->is(CONTENT_NODE))
-			Result->Childs[i] = Copy_Node(Result->Childs[i], p);
+			Copy_Node(Result->Childs[i], Result->Childs[i], p);
 		else
-			Result->Childs[i] = Copy_Node(Result->Childs[i], Result);
+			Copy_Node(Result->Childs[i], Result->Childs[i], Result);
 
 	for (int i = 0; i < Result->Member_Functions.size(); i++)
-		Result->Member_Functions[i] = Copy_Node(Result->Member_Functions[i], Result);
+		Copy_Node(Result->Member_Functions[i], Result->Member_Functions[i], Result);
 
 	for (int i = 0; i < Result->Operator_Overloads.size(); i++)
-		Result->Operator_Overloads[i] = Copy_Node(Result->Operator_Overloads[i], Result);
+		Copy_Node(Result->Operator_Overloads[i], Result->Operator_Overloads[i], Result);
 
 	for (int i = 0; i < Result->Parameters.size(); i++) {
 		Node* scope = Result;
 		if (Result->is(CALL_NODE))
 			scope = Result->Scope;
 
-		Result->Parameters[i] = Copy_Node(Result->Parameters[i], scope);
+		Copy_Node(Result->Parameters[i], Result->Parameters[i], scope);
 
 		if (Result->is(CALL_NODE))
 			Result->Parameters[i]->Context = Result;
 	}
 
 	for (int i = 0; i < Result->Header.size(); i++)
-		Result->Header[i] = Copy_Node(Result->Header[i], p);
+		Copy_Node(Result->Header[i], Result->Header[i], p);
 
 
 	for (int i = 0; i < Result->Numerical_Return_Types.size(); i++)
-		Result->Numerical_Return_Types[i] = Copy_Node(Result->Numerical_Return_Types[i], p);
+		Copy_Node(Result->Numerical_Return_Types[i], Result->Numerical_Return_Types[i], p);
 
 	if (Result->Left) {
-		Result->Left = Copy_Node(Result->Left, p);
+		Copy_Node(Result->Left, Result->Left, p);
 		Result->Left->Context = Result;
 	}
 	if (Result->Right) {
-		Result->Right = Copy_Node(Result->Right, p);
+		Copy_Node(Result->Right, Result->Right, p);
 		Result->Right->Context = Result;
 	}
 
-	Result->Succsessor = Copy_Node(Result->Succsessor, p);
-	Result->Predecessor = Copy_Node(Result->Predecessor, p);
+	Copy_Node(Result->Succsessor, Result->Succsessor, p);
+	Copy_Node(Result->Predecessor, Result->Predecessor, p);
 
 	if (Result->Fetcher)
-		Result->Fetcher = Copy_Node(Result->Fetcher, p);
+		Copy_Node(Result->Fetcher, Result->Fetcher, p);
 
 
 	if (Result->Succsessor) {
@@ -1543,14 +1550,14 @@ Node* Node::Copy_Node(Node* What_Node, Node* p)
 		Result->Location = new Position(*Result->Location);
 
 	if (Result->Cast_Type)
-		Result->Cast_Type = Copy_Node(Result->Cast_Type, p);
+		Copy_Node(Result->Cast_Type, Result->Cast_Type, p);
 
 	//The copying prosess must go downwards not upwards, otherwise it will loop forever!
 	//Result->Holder = Copy_Node(Result->Holder, p);
 
 	Trace.pop_back();
 	//now we have copyed every ptr into a new base to point.
-	return Result;
+	//return Result;
 }
 
 COMMENT::COMMENT(string raw) {
@@ -1628,8 +1635,12 @@ vector<Node*> Node::Get_Adjacent_Coefficients()
 	if (!this)
 		return Result;
 	if (Coefficient) {
-		DOCKER::Append(Result, Coefficient->Left->Get_Adjacent_Coefficients());
-		DOCKER::Append(Result, Coefficient->Right->Get_Adjacent_Coefficients());
+		//tmp is to prevent the this pointer returning duplicating coefficients
+		Node* tmp = Coefficient;
+		Coefficient = nullptr;
+		Result.push_back(this);
+		DOCKER::Append(Result, tmp->Left->Get_Adjacent_Coefficients());
+		DOCKER::Append(Result, tmp->Right->Get_Adjacent_Coefficients());
 	}
 	if (Name == "*") {
 		DOCKER::Append(Result, Left->Get_Adjacent_Coefficients());
