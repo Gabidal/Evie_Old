@@ -1609,7 +1609,7 @@ vector<Node*> Node::Get_Context_Path(){
 string Node::Get_Name(){
 	string Result = "";
 
-	if (Name[0] == '('){
+	if (is(CONTENT_NODE)) {
 		Result += "(";
 
 		Result += Childs[0]->Get_Name();

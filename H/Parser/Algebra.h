@@ -26,8 +26,13 @@ private:
 	//Number factorisation
 	void Exponent_Factorisation(Node*& n);
 
-	//Compress Potens operators into order factors.
+	//Multiplication and potense handle functions
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 	void Potens_And_Multiplication(Node*& Operator);
+	void Replace_Node(Node* Current, Node* New);
+	void Remove_As_Much(Node** n, string Name, int& count);
+	Node* Create_Multiplication_AST(vector<Node*> list);
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 	//This function takes two nodes and multiplies them together.
 	void Multiply_Nodes(Node*& x, Node*& y);
@@ -49,9 +54,6 @@ private:
 	//This function will go through the AST tree, and find the first node that has the same context node.
 	vector<Node*>* Get_Path(Node* n, Node* Context);
 
-	void Replace_Node(Node* Current, Node* New);
-
-	void Remove_As_Much(Node** n, string Name, int& count);
 };
 
 #endif

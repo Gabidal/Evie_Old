@@ -434,14 +434,61 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 	}
 
 	//now we remove the exess terms.
-	for (int i = 0; i < Left_Exponents.size(); i++) {
-		
+	for (auto i : Left_Exponents) {
+		Remove_As_Much(&Left_Exponent, i->Name, Min_Induvidual_Exponent_Count[i->Name]);
+		if (!i) {
+			Report(Observation(ERROR, "Code not work"));
+		}
+	}
+	for (auto i : Right_Exponents) {
+		Remove_As_Much(&Right_Exponent, i->Name, Min_Induvidual_Exponent_Count[i->Name]);
+		if (!i) {
+			Report(Observation(ERROR, "Code not work"));
+		}
 	}
 
+	Node* New_Multiplication_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
+	New_Multiplication_Operator->Name = "*";
+
 	//now we know how mutch the new potens is going to have term multiplication init
-	Node* Left_Wrapper = new Node(CONTENT_NODE, new Position());
-	Left_Wrapper->Childs = 
-	Left_Wrapper->Name = "(";
+	//a^(c * x * x) * b^(d * x) = (a^(c * x) * b^d)^x 
+	Node* New_Left_Exponent = new Node(CONTENT_NODE, new Position(*Operator->Location));
+	New_Left_Exponent->Childs.push_back(Left_Exponent);
+	New_Left_Exponent->Name = New_Left_Exponent->Get_Name();
+	New_Left_Exponent->Scope = Left_Exponent->Scope;
+
+	Node* Left_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
+	Left_Exponent_Operator->Name = "^";
+	Left_Exponent_Operator->Context = New_Multiplication_Operator;
+	Left_Exponent_Operator->Left = Left_Base;
+	Left_Exponent_Operator->Right = New_Left_Exponent;
+
+
+	Node* New_Right_Exponent = new Node(CONTENT_NODE, new Position(*Operator->Location));
+	New_Right_Exponent->Childs.push_back(Right_Exponent);
+	New_Right_Exponent->Name = New_Right_Exponent->Get_Name();
+	New_Left_Exponent->Scope = Left_Exponent->Scope;
+
+	Node* Right_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
+	Right_Exponent_Operator->Name = "^";
+	Right_Exponent_Operator->Context = New_Multiplication_Operator;
+	Right_Exponent_Operator->Left = Right_Base;
+	Right_Exponent_Operator->Right = New_Right_Exponent;
+
+	//Add the both new exponets into a multiplication operator.
+	New_Multiplication_Operator->Left = New_Left_Exponent;
+	New_Multiplication_Operator->Right = New_Right_Exponent;
+
+	//add the wrapper wich will be potensed with the combined potenses.
+	Node* Wrapper = new Node(CONTENT_NODE, new Position(*Operator->Location));
+	Wrapper->Childs.push_back(New_Multiplication_Operator);
+	Wrapper->Name = Wrapper->Get_Name();
+	Wrapper->Context = Operator->Context;
+
+	New_Multiplication_Operator->Context = Wrapper;
+
+	//now that the new wrapper base has made, we can start making the wrapper exponent
+
 
 }
 
@@ -675,7 +722,46 @@ void Algebra::Replace_Node(Node* Current, Node* New){
 }
 
 //This function removes the nodes by their Name, until the Count reaches 0
+//This function WILL NOT touch into Order territory.
 void Algebra::Remove_As_Much(Node** n, string Name, int& count)
+{
+	if ((*n)->Name == Name && count > 0) {
+		//we make the n into a nullptr so that the upper context can notice it and something about it.
+		(*n) = nullptr;
+		count--;
+		return;
+	}
+
+	for (auto& i : (*n)->Childs) {
+		Remove_As_Much(&i, Name, count);
+		if (i == nullptr) {
+			(*n) = nullptr;
+		}
+	}
+
+	if ((*n)->Left && (*n)->Right) {
+		Remove_As_Much(&(*n)->Left, Name, count);
+		Remove_As_Much(&(*n)->Right, Name, count);
+
+		if (!(*n)->Left && (*n)->Right) {
+			(*n) = (*n)->Right;
+		}
+		else if (!(*n)->Right && (*n)->Left) {
+			(*n) = (*n)->Left;
+		}
+		else if (!(*n)->Right && !(*n)->Left) {
+			(*n) = nullptr;
+		}
+	}
+	if ((*n)->Coefficient) {
+		Remove_As_Much(&(*n)->Coefficient, Name, count);
+		if (!(*n)->Coefficient) {
+			(*n)->Coefficient = nullptr;
+		}
+	}
+}
+
+Node* Algebra::Create_Multiplication_AST(vector<Node*> list)
 {
 
 }
