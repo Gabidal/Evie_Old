@@ -31,7 +31,6 @@ private:
 	void Potens_And_Multiplication(Node*& Operator);
 	void Replace_Node(Node* Current, Node* New);
 	void Remove_As_Much(Node** n, string Name, int& count);
-	Node* Create_Multiplication_AST(vector<Node*> list);
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 	//This function takes two nodes and multiplies them together.

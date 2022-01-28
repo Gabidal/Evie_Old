@@ -2,6 +2,7 @@
 #include "../../H/UI/Safe.h"
 #include "../../H/UI/Usr.h"
 #include "../../H/Parser/PostProsessor.h"
+#include "../../H/Parser/Parser.h"
 
 #include <cmath>
 
@@ -312,8 +313,6 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 	//a^(c * x) * b^(d * x) = (a^c * b^d)^x 
 	//Rule 4:
 	//(c * a)^x * a^b = c^x * a^x * a^b = c^x * a^(x + b)
-	//Rule 5:
-	//(a^c)^x = a^(x * c)
 	if (Operator->Name != "*")
 		return;
 
@@ -392,104 +391,123 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 	}
 	//Rule 3:
 	//a^(c * x) * b^(d * x) = (a^c * b^d)^x 
-	vector<Node*> Left_Exponents;
-	vector<Node*> Right_Exponents;
+	if ((Left_Exponent->is(CONTENT_NODE) && Left_Exponent->Childs[0]->Name == "*") || (Right_Exponent->is(CONTENT_NODE) && Right_Exponent->Childs[0]->Name == "*")) {
+		vector<Node*> Left_Exponents;
+		vector<Node*> Right_Exponents;
 
-	//We will collect both side exponent term count, and then use the lower one
-	map<string, int> Left_Induvidual_Exponent_Count;
-	map<string, int> Right_Induvidual_Exponent_Count;
+		//We will collect both side exponent term count, and then use the lower one
+		map<string, int> Left_Induvidual_Exponent_Count;
+		map<string, int> Right_Induvidual_Exponent_Count;
 
-	map<string, int> Min_Induvidual_Exponent_Count;
-	
-	if (Left_Exponent->is(CONTENT_NODE))
-		Left_Exponents = Left_Exponent->Childs[0]->Get_Adjacent_Coefficients();
-	else
-		Left_Exponents = { Left_Exponent };
+		map<string, int> Min_Induvidual_Exponent_Count;
 
-	if (Right_Exponent->is(CONTENT_NODE))
-		Right_Exponents = Right_Exponent->Childs[0]->Get_Adjacent_Coefficients();
-	else
-		Right_Exponents = { Right_Exponent };
+		if (Left_Exponent->is(CONTENT_NODE))
+			Left_Exponents = Left_Exponent->Childs[0]->Get_Adjacent_Coefficients();
+		else
+			Left_Exponents = { Left_Exponent };
 
-	//now we need to calculate how many of each variable is in a single exponent
-	//a^(c * x * x) * b^(d * x) = (a^(c * x) * b^d)^x 
+		if (Right_Exponent->is(CONTENT_NODE))
+			Right_Exponents = Right_Exponent->Childs[0]->Get_Adjacent_Coefficients();
+		else
+			Right_Exponents = { Right_Exponent };
 
-	//count all term counts
-	for (auto i : Left_Exponents)
-		Left_Induvidual_Exponent_Count[i->Name]++;
+		//now we need to calculate how many of each variable is in a single exponent
+		//a^(c * x * x) * b^(d * x) = (a^(c * x) * b^d)^x 
 
-	for (auto i : Right_Exponents)
-		Right_Induvidual_Exponent_Count[i->Name]++;
+		//count all term counts
+		for (auto i : Left_Exponents)
+			Left_Induvidual_Exponent_Count[i->Name]++;
 
-	//now compare and select the min term count
-	for (auto i : Left_Induvidual_Exponent_Count) {
-		if (min(i.second, Right_Induvidual_Exponent_Count[i.first]) != 0) {
-			Min_Induvidual_Exponent_Count[i.first] = i.second;
+		for (auto i : Right_Exponents)
+			Right_Induvidual_Exponent_Count[i->Name]++;
+
+		//now compare and select the min term count
+		for (auto i : Left_Induvidual_Exponent_Count) {
+			if (min(i.second, Right_Induvidual_Exponent_Count[i.first]) != 0) {
+				Min_Induvidual_Exponent_Count[i.first] = i.second;
+			}
 		}
-	}
-	for (auto i : Right_Induvidual_Exponent_Count) {
-		if (min(i.second, Left_Induvidual_Exponent_Count[i.first]) != 0) {
-			Min_Induvidual_Exponent_Count[i.first] = i.second;
+		for (auto i : Right_Induvidual_Exponent_Count) {
+			if (min(i.second, Left_Induvidual_Exponent_Count[i.first]) != 0) {
+				Min_Induvidual_Exponent_Count[i.first] = i.second;
+			}
 		}
-	}
 
-	//now we remove the exess terms.
-	for (auto i : Left_Exponents) {
-		Remove_As_Much(&Left_Exponent, i->Name, Min_Induvidual_Exponent_Count[i->Name]);
-		if (!i) {
-			Report(Observation(ERROR, "Code not work"));
+		//now we remove the exess terms.
+		for (auto i : Left_Exponents) {
+			Remove_As_Much(&Left_Exponent, i->Name, Min_Induvidual_Exponent_Count[i->Name]);
+			if (!i) {
+				Report(Observation(ERROR, "Code not work"));
+			}
 		}
-	}
-	for (auto i : Right_Exponents) {
-		Remove_As_Much(&Right_Exponent, i->Name, Min_Induvidual_Exponent_Count[i->Name]);
-		if (!i) {
-			Report(Observation(ERROR, "Code not work"));
+		for (auto i : Right_Exponents) {
+			Remove_As_Much(&Right_Exponent, i->Name, Min_Induvidual_Exponent_Count[i->Name]);
+			if (!i) {
+				Report(Observation(ERROR, "Code not work"));
+			}
 		}
+
+		Node* New_Multiplication_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
+		New_Multiplication_Operator->Name = "*";
+
+		//now we know how mutch the new potens is going to have term multiplication init
+		//a^(c * x * x) * b^(d * x) = (a^(c * x) * b^d)^x 
+		Node* New_Left_Exponent = new Node(CONTENT_NODE, new Position(*Operator->Location));
+		New_Left_Exponent->Childs.push_back(Left_Exponent);
+		New_Left_Exponent->Name = New_Left_Exponent->Get_Name();
+		New_Left_Exponent->Scope = Left_Exponent->Scope;
+
+		Node* Left_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
+		Left_Exponent_Operator->Name = "^";
+		Left_Exponent_Operator->Context = New_Multiplication_Operator;
+		Left_Exponent_Operator->Left = Left_Base;
+		Left_Exponent_Operator->Right = New_Left_Exponent;
+
+
+		Node* New_Right_Exponent = new Node(CONTENT_NODE, new Position(*Operator->Location));
+		New_Right_Exponent->Childs.push_back(Right_Exponent);
+		New_Right_Exponent->Name = New_Right_Exponent->Get_Name();
+		New_Left_Exponent->Scope = Left_Exponent->Scope;
+
+		Node* Right_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
+		Right_Exponent_Operator->Name = "^";
+		Right_Exponent_Operator->Context = New_Multiplication_Operator;
+		Right_Exponent_Operator->Left = Right_Base;
+		Right_Exponent_Operator->Right = New_Right_Exponent;
+
+		//Add the both new exponets into a multiplication operator.
+		New_Multiplication_Operator->Left = New_Left_Exponent;
+		New_Multiplication_Operator->Right = New_Right_Exponent;
+
+		//add the wrapper wich will be potensed with the combined potenses.
+		Node* Wrapper = new Node(CONTENT_NODE, new Position(*Operator->Location));
+		Wrapper->Childs.push_back(New_Multiplication_Operator);
+		Wrapper->Name = Wrapper->Get_Name();
+		Wrapper->Context = Operator->Context;
+
+		New_Multiplication_Operator->Context = Wrapper;
+
+		//now that the new wrapper base has made, we can start making the wrapper exponent
+		string Potens_Wrapper = "(";
+
+		for (auto& i : Min_Induvidual_Exponent_Count) {
+			Potens_Wrapper += " " + i.first + " * ";
+			i.second--;
+		}
+
+		//remove exess *
+		Potens_Wrapper = Potens_Wrapper.substr(Potens_Wrapper.size() - 2);
+		Potens_Wrapper += ")";
+
+		Parser p(Scope);
+		p.Input = Lexer::GetComponents(Potens_Wrapper);
+		p.Factory();
+
+		Node* Final_Potens_Wrapper = p.Input[0].node;
+		Final_Potens_Wrapper->Context = Wrapper;
+
+		Wrapper->Order = Final_Potens_Wrapper;
 	}
-
-	Node* New_Multiplication_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
-	New_Multiplication_Operator->Name = "*";
-
-	//now we know how mutch the new potens is going to have term multiplication init
-	//a^(c * x * x) * b^(d * x) = (a^(c * x) * b^d)^x 
-	Node* New_Left_Exponent = new Node(CONTENT_NODE, new Position(*Operator->Location));
-	New_Left_Exponent->Childs.push_back(Left_Exponent);
-	New_Left_Exponent->Name = New_Left_Exponent->Get_Name();
-	New_Left_Exponent->Scope = Left_Exponent->Scope;
-
-	Node* Left_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
-	Left_Exponent_Operator->Name = "^";
-	Left_Exponent_Operator->Context = New_Multiplication_Operator;
-	Left_Exponent_Operator->Left = Left_Base;
-	Left_Exponent_Operator->Right = New_Left_Exponent;
-
-
-	Node* New_Right_Exponent = new Node(CONTENT_NODE, new Position(*Operator->Location));
-	New_Right_Exponent->Childs.push_back(Right_Exponent);
-	New_Right_Exponent->Name = New_Right_Exponent->Get_Name();
-	New_Left_Exponent->Scope = Left_Exponent->Scope;
-
-	Node* Right_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
-	Right_Exponent_Operator->Name = "^";
-	Right_Exponent_Operator->Context = New_Multiplication_Operator;
-	Right_Exponent_Operator->Left = Right_Base;
-	Right_Exponent_Operator->Right = New_Right_Exponent;
-
-	//Add the both new exponets into a multiplication operator.
-	New_Multiplication_Operator->Left = New_Left_Exponent;
-	New_Multiplication_Operator->Right = New_Right_Exponent;
-
-	//add the wrapper wich will be potensed with the combined potenses.
-	Node* Wrapper = new Node(CONTENT_NODE, new Position(*Operator->Location));
-	Wrapper->Childs.push_back(New_Multiplication_Operator);
-	Wrapper->Name = Wrapper->Get_Name();
-	Wrapper->Context = Operator->Context;
-
-	New_Multiplication_Operator->Context = Wrapper;
-
-	//now that the new wrapper base has made, we can start making the wrapper exponent
-
-
 }
 
 string Algebra::De_Compress_Operators(Node* Coefficient)
@@ -759,9 +777,4 @@ void Algebra::Remove_As_Much(Node** n, string Name, int& count)
 			(*n)->Coefficient = nullptr;
 		}
 	}
-}
-
-Node* Algebra::Create_Multiplication_AST(vector<Node*> list)
-{
-
 }

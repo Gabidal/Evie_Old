@@ -545,6 +545,7 @@ public:
 	void Update_Inheritance();
 
 	void Copy_Node(Node*& Result, Node* What_Node, Node* p);
+	Node* Internal_Copy_Node(Node* What_Node, Node* p);
 
 	vector<Node*> Has(Node* n, int f)
 	{

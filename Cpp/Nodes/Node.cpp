@@ -1480,11 +1480,16 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 		}
 	}
 
+	//First make a totally different copy, that we will be referencing to.
+	//This is to prevent self destruction
+	Node* Mirror = Internal_Copy_Node(What_Node, p);
+
 	//this will only copy the ptrs in list but we want to also copy what those ptr point to.
-	Result = new Node(*What_Node);
+	Result = new Node(*Mirror);
 	Result->Scope = p;
 
 	Trace.push_back({ What_Node, Result });
+	Trace.push_back({ Mirror, Result });
 
 	//lets start from defined
 	for (int i = 0; i < Result->Defined.size(); i++)
@@ -1532,8 +1537,10 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 		Result->Right->Context = Result;
 	}
 
-	Copy_Node(Result->Succsessor, Result->Succsessor, p);
-	Copy_Node(Result->Predecessor, Result->Predecessor, p);
+	if (Result->Succsessor)
+		Copy_Node(Result->Succsessor, Result->Succsessor, p);
+	if (Result->Predecessor)
+		Copy_Node(Result->Predecessor, Result->Predecessor, p);
 
 	if (Result->Fetcher)
 		Copy_Node(Result->Fetcher, Result->Fetcher, p);
@@ -1558,6 +1565,105 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 	Trace.pop_back();
 	//now we have copyed every ptr into a new base to point.
 	//return Result;
+}
+
+
+vector<pair<Node*, Node*>> Internal_Trace;
+Node* Node::Internal_Copy_Node(Node* What_Node, Node* p)
+{
+
+	if (What_Node == nullptr)
+		return nullptr;
+
+	//disable recursive funciton copying
+	if (Trace.size() > 0)
+		if (What_Node->is(FUNCTION_NODE))
+			return What_Node;
+
+	for (int j = 0; j < Trace.size(); j++) {
+		if (What_Node == Trace[j].first) {
+			return Trace[j].second;
+		}
+	}
+
+	//this will only copy the ptrs in list but we want to also copy what those ptr point to.
+	Node* Result = new Node(*What_Node);
+	Result->Scope = p;
+
+	Trace.push_back({ What_Node, Result });
+
+	//lets start from defined
+	for (int i = 0; i < Result->Defined.size(); i++)
+		Result->Defined[i] = Internal_Copy_Node(Result->Defined[i], Result);
+
+	for (int i = 0; i < Result->Templates.size(); i++)
+		Result->Templates[i] = Internal_Copy_Node(Result->Templates[i], Result);
+
+	for (int i = 0; i < Result->Childs.size(); i++)
+		if (Result->is(CONTENT_NODE))
+			Result->Childs[i] = Internal_Copy_Node(Result->Childs[i], p);
+		else
+			Result->Childs[i] = Internal_Copy_Node(Result->Childs[i], Result);
+
+	for (int i = 0; i < Result->Member_Functions.size(); i++)
+		Result->Member_Functions[i] = Internal_Copy_Node(Result->Member_Functions[i], Result);
+
+	for (int i = 0; i < Result->Operator_Overloads.size(); i++)
+		Result->Operator_Overloads[i] = Internal_Copy_Node(Result->Operator_Overloads[i], Result);
+
+	for (int i = 0; i < Result->Parameters.size(); i++) {
+		Node* scope = Result;
+		if (Result->is(CALL_NODE))
+			scope = Result->Scope;
+
+		Result->Parameters[i] = Internal_Copy_Node(Result->Parameters[i], scope);
+
+		if (Result->is(CALL_NODE))
+			Result->Parameters[i]->Context = Result;
+	}
+
+	for (int i = 0; i < Result->Header.size(); i++)
+		Result->Header[i] = Internal_Copy_Node(Result->Header[i], p);
+
+
+	for (int i = 0; i < Result->Numerical_Return_Types.size(); i++)
+		Result->Numerical_Return_Types[i] = Internal_Copy_Node(Result->Numerical_Return_Types[i], p);
+
+	if (Result->Left) {
+		Result->Left = Internal_Copy_Node(Result->Left, p);
+		Result->Left->Context = Result;
+	}
+	if (Result->Right) {
+		Result->Right = Internal_Copy_Node(Result->Right, p);
+		Result->Right->Context = Result;
+	}
+
+	Result->Succsessor = Internal_Copy_Node(Result->Succsessor, p);
+	Result->Predecessor = Internal_Copy_Node(Result->Predecessor, p);
+
+	if (Result->Fetcher)
+		Result->Fetcher = Internal_Copy_Node(Result->Fetcher, p);
+
+
+	if (Result->Succsessor) {
+		Result->Succsessor->Predecessor = Result;
+	}
+	if (Result->Predecessor) {
+		Result->Predecessor->Succsessor = Result;
+	}
+
+	if (Result->Location)
+		Result->Location = new Position(*Result->Location);
+
+	if (Result->Cast_Type)
+		Result->Cast_Type = Internal_Copy_Node(Result->Cast_Type, p);
+
+	//The copying prosess must go downwards not upwards, otherwise it will loop forever!
+	//Result->Holder = Copy_Node(Result->Holder, p);
+
+	Trace.pop_back();
+	//now we have copyed every ptr into a new base to point.
+	return Result;
 }
 
 COMMENT::COMMENT(string raw) {

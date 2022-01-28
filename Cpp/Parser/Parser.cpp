@@ -257,13 +257,14 @@ void Parser::Template_Type_Constructor(int i)
 	//Search the original template class
 	Node* Og_Type = Input[i].node->Find(Input[i].node, Scope, CLASS_NODE);
 	//copy this template class to be non template
-	Node* Type = Scope->Copy_Node(Og_Type, Og_Type->Scope);
+	Node* Type;
+	Scope->Copy_Node(Type, Og_Type, Og_Type->Scope);
 	Type->Parsed_By = 0;	//reset the parsed flags
 
 	//copy all functions becuase the copy_node by default skips function copying
 	for (auto &j : Type->Defined) {
 		if (j->is(FUNCTION_NODE))
-			j = Scope->Copy_Node(new Node(*j), Type);
+			Scope->Copy_Node(j, new Node(*j), Type);
 	}
 
 	//give the templates back to this new template class for template type refilling
@@ -396,7 +397,8 @@ vector<Component> Parser::Template_Function_Constructor(Node* Func, vector<Node*
 		//for (auto* Fetcher : Func->Get_All_Fetchers()) {
 		Node* Fetcher = Func->Fetcher;
 
-		Node* New_Fetcher = Fetcher->Copy_Node(Fetcher, Fetcher->Scope);
+		Node* New_Fetcher;
+		Fetcher->Copy_Node(New_Fetcher, Fetcher, Fetcher->Scope);
 
 		for (int T = 0; T < T_Args.size(); T++) {
 			string T_Arg = T_Args[T]->Name;
@@ -933,7 +935,7 @@ void Parser::Object_Pattern(int i)
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
-	Input[i].node = Scope->Copy_Node(new Node(*Scope->Find(Input[i].Value, Scope, {PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false)), Scope);
+	Scope->Copy_Node(Input[i].node, new Node(*Scope->Find(Input[i].Value, Scope, {PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false)), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
 	Input[i].node->Defined.clear();
 
@@ -1029,7 +1031,9 @@ void Parser::Parenthesis_Pattern(int i)
 		if (j.node != nullptr) {
 			//j.node->Context = Paranthesis;
 			//j.node->Parent = Paranthesis;
-			Paranthesis->Childs.push_back(j.node->Copy_Node(j.node, Scope));
+			Node* New_j;
+			j.node->Copy_Node(New_j, j.node, Scope);
+			Paranthesis->Childs.push_back(New_j);
 		}
 
 	Paranthesis->Paranthesis_Type = Input[i].Value[0];
@@ -2122,7 +2126,7 @@ Component* Parser::Construct_Virtual_Class_For_Complex_Cast(Component Parenthesi
 	Component *Cast = new Component(Virtual_Class_Name, Flags::TEXT_COMPONENT);
 
 	if (Scope->Find(Virtual_Class_Name)) {
-		Cast->node = Scope->Copy_Node(Scope->Find(Virtual_Class_Name), Scope->Find(Virtual_Class_Name)->Scope);
+		Scope->Copy_Node(Cast->node, Scope->Find(Virtual_Class_Name), Scope->Find(Virtual_Class_Name)->Scope);
 		return Cast;
 	}
 
@@ -2131,7 +2135,9 @@ Component* Parser::Construct_Virtual_Class_For_Complex_Cast(Component Parenthesi
 
 	Virtual_Class->Update_Size();
 
-	Virtual_Class->Scope->Defined.push_back(Scope->Copy_Node(Virtual_Class, Virtual_Class->Scope));
+	Node* New_Virtual_Class;
+	Scope->Copy_Node(New_Virtual_Class, Virtual_Class, Virtual_Class->Scope);
+	Virtual_Class->Scope->Defined.push_back(New_Virtual_Class);
 
 	Cast->node = Virtual_Class;
 

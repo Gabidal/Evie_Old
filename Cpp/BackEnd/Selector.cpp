@@ -728,7 +728,7 @@ void Selector::Init_Stack(Node* Func)
 		if (!i->Requires_Address /* && !sys->Info.Debug --> no need the memory needing variables are already need_address = true*/ )
 			continue;
 		long long Memory_Type = 0;
-		if (i->Is_Decimal())
+		if (i->Format == "decimal")
 			Memory_Type = TOKEN::DECIMAL;
 
 		Stack.push_back({ nullptr, new Token(TOKEN::MEMORY | Memory_Type | TOKEN::LOCAL_VARIABLE_SCOPE, { new Token(TOKEN::CONTENT, i->Name, i->Size, i->Scope)}, i->Size, i->Name, i->Scope)});

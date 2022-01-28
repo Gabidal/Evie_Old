@@ -391,7 +391,8 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 			continue;
 
 		//Because the child in question is the highest in the ast towards the function as a child.
-		Node* Child_Copy = Child->Copy_Node(Child, Function);
+		Node* Child_Copy;
+		Child->Copy_Node(Child_Copy, Child, Function);
 
 		vector<Node*> Objects = Child_Copy->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE }, [](Node* n) { if (n->Name == "this") return true; return false; });
 		//insert this. infront of every member
@@ -409,7 +410,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 				Dot->Name = ".";
 				Dot->Scope = Dot_Needing_Object->Scope;
 
-				Dot->Left = This->Copy_Node(This, This->Scope);
+				This->Copy_Node(Dot->Left, This, This->Scope);
 
 				Dot->Right = new Node(*Dot_Needing_Object);
 				Dot->Right->Parsed_By |= PARSED_BY::THIS_AND_DOT_INSERTER;
@@ -490,7 +491,9 @@ vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* 
 			continue;
 
 		Node* Call = new Node(CALL_NODE, Class->Location);
-		Call->Parameters.push_back(This->Copy_Node(This, Funciton));
+		Node* New_This;
+		This->Copy_Node(New_This, This, Funciton);
+		Call->Parameters.push_back(New_This);
 
 		Call->Parameters.back()->Context = Call;
 
@@ -1082,7 +1085,7 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 		//banana<int>(...)
 		//make the template ready for comparison.
 		if (Candidate.first->Is_Template_Object) {
-			Func = Candidate.first->Copy_Node(new Node(*Candidate.first), Candidate.second);
+			Candidate.first->Copy_Node(Func, new Node(*Candidate.first), Candidate.second);
 
 			for (int T = 0; T < Caller->Get_Template().size(); T++) {
 
@@ -1525,7 +1528,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
 		n->Right->Context = n->Context;
 		n->Right->Fetcher = n->Left;
-		n = n->Copy_Node(n->Right, n->Scope);
+		n->Copy_Node(n, n->Right, n->Scope);
 	}
 	else {
 		//Remember: Dot is constructed as any normal operator.
@@ -1556,11 +1559,11 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 			}
 			else
 				//find the inheritted definition
-				Right = n->Copy_Node(n->Find(Right, Left, {OBJECT_DEFINTION_NODE, PARAMETER_NODE}), Scope);
+				n->Copy_Node(Right, n->Find(Right, Left, {OBJECT_DEFINTION_NODE, PARAMETER_NODE}), Scope);
 		}
 		else
 			//find the inheritted definition
-			Right = n->Copy_Node(n->Find(Right, Left, { OBJECT_DEFINTION_NODE, PARAMETER_NODE }), Scope);
+			n->Copy_Node(Right, n->Find(Right, Left, { OBJECT_DEFINTION_NODE, PARAMETER_NODE }), Scope);
 
 		//set the parent as a fechable
 		Right->Fetcher = Left;
@@ -1574,12 +1577,12 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		if (n->Right->is(ARRAY_NODE)) {
 			//first move to the right nodes
 			//and then make copy_node to re-adjust the member variable touchings
-			n->Right->Left = Right->Copy_Node(Right, Right->Scope);
+			Right->Copy_Node(n->Right->Left, Right, Right->Scope);
 
-			n = n->Copy_Node(n->Right, n->Scope);
+			n->Copy_Node(n, n->Right, n->Scope);
 		}
 		else
-			n = Right->Copy_Node(Right, Right->Scope);
+			Right->Copy_Node(n, Right, Right->Scope);
 	}
 
 	n->Parsed_By |= PARSED_BY::COMBINE_MEMBER_FETCHER;

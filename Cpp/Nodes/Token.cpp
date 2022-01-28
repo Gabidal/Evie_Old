@@ -25,8 +25,9 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 			Flags |= TOKEN::DECIMAL;
 			Has_Floating_Point_Value = true;
 		}
-		if (n->Coefficient == -1)
-			n->Name = "-" + n->Name;
+		//This not needed anymore, because Algebra does this nowdays.
+		/*if (n->Coefficient == -1)
+			n->Name = "-" + n->Name;*/
 	}
 	else if (n->is(PARAMETER_NODE)) {
 		//first get the index this paremet is
