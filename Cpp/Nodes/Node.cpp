@@ -26,7 +26,7 @@ void Node::Update_Defined_Stack_Offsets()
 			//every local variable is defined default as a value in a register.
 			if (i->Requires_Address) {
 				i->Memory_Offset = Local_Offset/* + Size_of_Call_Space*/;
-				Local_Offset += i->Get_Size();
+				Local_Offset += i->Size;
 			}
 		}
 		if (i->is(PARAMETER_NODE)) {
@@ -34,14 +34,14 @@ void Node::Update_Defined_Stack_Offsets()
 				//This happends when the parameter would be in a register but its in debug, so it uses stack
 				//we need to tell the system that it CAN use the Local_Offset as storing the parameter
 				i->Memory_Offset = Local_Offset/* + Size_of_Call_Space*/;
-				Local_Offset += i->Get_Size();
+				Local_Offset += i->Size;
 			}
 			else if (!Token(i).is(TOKEN::REGISTER)) {
 				//the parameters locate below the local variable space and the returning address 
 				//also, do remeber that, the pushes that the code needs for the nonvolatiles
 				//those come before the parameter space.
 				i->Memory_Offset = Parameter_Offset/* + Size_of_Call_Space*/;
-				Parameter_Offset += i->Get_Size();
+				Parameter_Offset += i->Size;
 			}
 		}
 	}
@@ -1072,6 +1072,18 @@ Component Node::Generate_Uninitialized_Template_Component(vector<Component> c)
 	return c[0];
 }
 
+Node*& Node::Get(int i)
+{
+	for (auto v : Values) {
+		if (v.first == i)
+			return v.second;
+	}
+	Node* Empty = new Node(NUMBER_NODE, new Position());
+	Empty->Name = "0";
+	Empty->Inheritted = Find(_SYSTEM_BIT_SIZE_, this, CLASS_NODE, "integer", true)->Inheritted;
+	return Empty;
+}
+
 void Node::Update_Members_To_New_Parent()
 {
 	for (auto& D : Defined) {
@@ -1158,7 +1170,7 @@ void Node::Update_Member_Variable_Offsets(Node* obj) {
 
 		if (!obj->is(FUNCTION_NODE)) {
 			i->Memory_Offset = Current_Offset;
-			Current_Offset += i->Get_Size();
+			Current_Offset += i->Size;
 		}
 
 		if (i->Defined.size() > 0) {

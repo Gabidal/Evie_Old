@@ -20,6 +20,8 @@ enum MSG_Type {
 	SUCCESS,
 };
 
+inline string SYNTAX_ERROR = "Syntax error";
+
 #define ERROR (MSG_Type)1
 
 class Observation {

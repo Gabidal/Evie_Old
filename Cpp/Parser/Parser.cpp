@@ -1792,7 +1792,7 @@ void Parser::Operator_Order()
 	//for (int i = 0; i < Input.size(); i++)
 	//	Math_Pattern(i, { "?" }, BIT_OPERATOR_NODE);	
 	for (int i = 0; i < Input.size(); i++)
-		Math_Pattern(i, { "�" }, BIT_OPERATOR_NODE);
+		Math_Pattern(i, { "¤" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
 		Math_Pattern(i, { "|", "!|" }, BIT_OPERATOR_NODE);
 	for (int i = 0; i < Input.size(); i++)
@@ -1899,6 +1899,44 @@ void Parser::Label_Definition(int i)
 	Input[i].node = label;
 
 	Scope->Defined.push_back(label);
+}
+
+void Parser::Break_Pattern(int i)
+{
+	if (Input[i].Value != "break")
+		return;
+
+	Node* While = Scope->Get_Scope_As({ WHILE_NODE }, Scope, false);
+
+	if (!While) {
+		Report(Observation(ERROR, "Use of 'break' outside of 'while'.", Input[i].Location, SYNTAX_ERROR));
+	}
+
+	Node* Break = new Node(FLOW_NODE, &Input[i].Location);
+	//This will point straight to the while loop for conveniences.
+	Break->Scope = While;
+	Break->Name = "break";
+
+	Input[i].node = Break;
+}
+
+void Parser::Continue_Pattern(int i)
+{
+	if (Input[i].Value != "continue")
+		return;
+
+	Node* While = Scope->Get_Scope_As({ WHILE_NODE }, Scope, false);
+
+	if (!While) {
+		Report(Observation(ERROR, "Use of 'continue' outside of 'while'.", Input[i].Location, SYNTAX_ERROR));
+	}
+
+	Node* Continue = new Node(FLOW_NODE, &Input[i].Location);
+	//This will point straight to the while loop for conveniences.
+	Continue->Scope = While;
+	Continue->Name = "continue";
+
+	Input[i].node = Continue;
 }
 
 void Parser::Size_Pattern(int i)
@@ -2179,6 +2217,8 @@ void Parser::Factory() {
 		Else_Pattern(i);
 		Callation_Pattern(i);
 		Jump_Pattern(i);
+		Break_Pattern(i);
+		Continue_Pattern(i);
 	}
 	for (int i = 0; i < Input.size(); i++) {
 		//prepreattor for math operator AST combinator.

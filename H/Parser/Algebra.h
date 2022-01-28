@@ -44,7 +44,7 @@ private:
 
 	//This function combines numbers that are not adjacent to each other.
 	//Nonetheless this function still needs to go by the mathematical rules.
-	void Combine_Non_Adjacent_Numbers(Node*& n);
+	void Combine_Non_Adjacent_Variables(Node*& n);
 
 	//This function takes two Number nodes, and goes through the context AST tree, to see were they have the same context node.
 	//after knowing this result, it will return the both paths to the context node.
@@ -53,6 +53,12 @@ private:
 	//This function will go through the AST tree, and find the first node that has the same context node.
 	vector<Node*>* Get_Path(Node* n, Node* Context);
 
+	//Inlining functions
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+	void Update_Inline_Content(Node* n);
+	void Inline_Variable(Node*& n);
+	Node** Get_Value(Node* n);
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 };
 
 #endif

@@ -69,6 +69,8 @@ public:
 	void Jump_Pattern(int i);									//jump test
 	void Label_Pattern(int i);
 	void Label_Definition(int i);
+	void Break_Pattern(int i);
+	void Continue_Pattern(int i);
 	void Size_Pattern(int i);									//if (contidion){..}
 	void Format_Pattern(int i);									//format = decimal
 	void Member_Function_Pattern(int i);						//return_type class_name.funcname(){}

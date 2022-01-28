@@ -301,10 +301,12 @@ void Algebra::Exponent_Factorisation(Node*& n)
 	
 }
 
-//This function sets order of the left, the left side od the order can be null,
-//but the potens handle can handle it.
+
 void Algebra::Potens_And_Multiplication(Node*& Operator)
 {
+	//This function sets order of the left, the left side od the order can be null,
+	//but the potens handle can handle it.
+
 	//Rule 1:
 	//a^x * a^y = a^(x + y)
 	//Rule 2:
@@ -390,8 +392,8 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 		Operator = Wrapper;
 	}
 	//Rule 3:
-	//a^(c * x) * b^(d * x) = (a^c * b^d)^x 
 	if ((Left_Exponent->is(CONTENT_NODE) && Left_Exponent->Childs[0]->Name == "*") || (Right_Exponent->is(CONTENT_NODE) && Right_Exponent->Childs[0]->Name == "*")) {
+		//a^(c * x) * b^(d * x) = (a^c * b^d)^x 
 		vector<Node*> Left_Exponents;
 		vector<Node*> Right_Exponents;
 
@@ -587,7 +589,7 @@ void Algebra::Combine_Numbers(Node*& n){
 	}
 }
 
-void Algebra::Combine_Non_Adjacent_Numbers(Node*& n){
+void Algebra::Combine_Non_Adjacent_Variables(Node*& n){
 	//First we need to combine the given ast Node n, to a linear Node list
 	vector<Node*> Nodes = n->Get_all();
 
@@ -598,7 +600,7 @@ void Algebra::Combine_Non_Adjacent_Numbers(Node*& n){
 		for (int Y = 0; Y < Nodes.size(); Y++){
 			if (X != Y){
 				//First we need to check if the two nodes are numbers.
-				if (Nodes[X]->is(NUMBER_NODE) && !Nodes[X]->Bad_Number && Nodes[Y]->is(NUMBER_NODE) && !Nodes[Y]->Bad_Number){
+				if (Nodes[X]->Has({NUMBER_NODE, OBJECT_NODE, PARAMETER_NODE}) && !Nodes[X]->Bad_Variable && Nodes[Y]->Has({ NUMBER_NODE, OBJECT_NODE, PARAMETER_NODE }) && !Nodes[Y]->Bad_Variable) {
 					//Now we need to check if there is a connecting Context between the two nodes.
 					//We also need to check if there is a +, - in the paths between the two nodes.
 					Node* x = Nodes[X];
@@ -613,17 +615,17 @@ void Algebra::Combine_Non_Adjacent_Numbers(Node*& n){
 					//Now we need to check if there are any +, - operators in the paths.
 					for (auto i : Path_X){
 						if (i->Name == "+" || i->Name == "-"){
-							x->Bad_Number = true;
+							x->Bad_Variable = true;
 						}
 					}
 					for (auto i : Path_Y){
 						if (i->Name == "+" || i->Name == "-"){
-							y->Bad_Number = true;
+							y->Bad_Variable = true;
 						}
 					}
 
 					//If either one of the nodes is bad, then we can't combine them.
-					if (x->Bad_Number || y->Bad_Number){
+					if (x->Bad_Variable || y->Bad_Variable){
 						continue;
 					}
 
@@ -634,6 +636,10 @@ void Algebra::Combine_Non_Adjacent_Numbers(Node*& n){
 					//If the context is a / we divide the two numbers.
 					//If the context is a ^ we raise the first number to the power of the second number.
 					
+					//First we try to compress the formulas as much as we can, before calculating constants
+					Potens_And_Multiplication(Context);
+
+					//after this we will proceed to inline
 				}
 			}
 		}
@@ -776,5 +782,70 @@ void Algebra::Remove_As_Much(Node** n, string Name, int& count)
 		if (!(*n)->Coefficient) {
 			(*n)->Coefficient = nullptr;
 		}
+	}
+}
+
+void Algebra::Update_Inline_Content(Node* n)
+{
+	if (!n->is(ASSIGN_OPERATOR_NODE))
+		return;
+
+	Node** Left;
+
+	if (n->Left->is(ARRAY_NODE))
+		Left = &n->Left->Left;
+	else
+		Left = &n->Left;
+
+	Node** Left_Index = Get_Value(n->Left->Right);
+	if (Left_Index) {
+
+	}
+	else {
+		//no constant using array indicies.
+		//BUT we could still use the information that the unknown variable doesnt change.
+	}
+}
+
+void Algebra::Inline_Variable(Node*& n)
+{
+
+}
+
+/// <summary>
+/// This function goes recursively through the Values, gets the value from the list
+/// </summary>
+/// <param name="n"></param>
+/// <returns></returns>
+Node** Algebra::Get_Value(Node* n)
+{
+	if (n->is(ARRAY_NODE)) {
+		if (n->Right->Format == "decimal") {
+			Report(Observation(ERROR, "Use of decimal as index", *n->Location, SYNTAX_ERROR));
+		}
+
+		int Index;
+
+		if (!n->Right->is(NUMBER_NODE)) {
+			Node** Right = Get_Value(n->Right);
+			if (Right) {
+				Index = stoi((*Right)->Name);
+			}
+			else
+				return nullptr;
+		}
+		else {
+			Index = stoi(n->Right->Name);
+		}
+
+		//next check if left is a defined entity
+		Node* Definition = n->Find(n->Left, n);
+		if (Definition->Has({ PARAMETER_NODE, OBJECT_DEFINTION_NODE })) {
+			return &Definition->Get(Index);
+		}
+		return nullptr;
+	}
+	else if (n->is(NUMBER_NODE)) {
+		return &n;
 	}
 }

@@ -121,7 +121,8 @@ public:
 	//algebra optimizer features
 	Node* Coefficient = nullptr;
 	Node* Order = nullptr;
-	bool Bad_Number = false;
+	bool Bad_Variable = false;
+	vector<pair<int, Node*>> Values;
 	//fetching features
 	Node* Fetcher = nullptr;
 	//calling features
@@ -661,27 +662,6 @@ public:
 		return Result;
 	}
 
-	//static vector<Node*> Get_all(int f, vector<Node*> l) {
-	//	vector<Node*> Result;
-	//	for (Node* n : l)
-	//		if (n->is(f))
-	//			Result.push_back(n);
-	//	return Result;
-	//}
-
-	// bool Is_Decimal() {
-	// 	if (find(Name.begin(), Name.end(), '.') != Name.end()) {
-	// 		return true;
-	// 	}
-	// 	else {
-	// 		return false;
-	// 	}
-	// }
-
-	int Get_Size() {
-		return Size;
-	}
-
 	template<typename T>
 	vector<T>& Append(vector<T>& d, vector<T> s) {
 		for (int i = 0; i < s.size(); i++)
@@ -763,6 +743,8 @@ public:
 	string Get_Name();
 
 	vector<Node*> Get_Adjacent_Coefficients();
+
+	Node*& Get(int i);
 };
 
 #endif
