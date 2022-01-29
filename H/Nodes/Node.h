@@ -122,7 +122,7 @@ public:
 	Node* Coefficient = nullptr;
 	Node* Order = nullptr;
 	bool Bad_Variable = false;
-	vector<pair<int, Node*>> Values;
+	vector<pair<int, Node**>> Values;
 	//fetching features
 	Node* Fetcher = nullptr;
 	//calling features
@@ -744,7 +744,7 @@ public:
 
 	vector<Node*> Get_Adjacent_Coefficients();
 
-	Node*& Get(int i);
+	Node** Get_Intepreted_Value(int i);
 };
 
 #endif

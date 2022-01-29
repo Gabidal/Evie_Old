@@ -790,35 +790,121 @@ void Algebra::Update_Inline_Content(Node* n)
 	if (!n->is(ASSIGN_OPERATOR_NODE))
 		return;
 
-	Node** Left;
+	Node* Left;
 
 	if (n->Left->is(ARRAY_NODE))
-		Left = &n->Left->Left;
+		Left = n->Find(n->Left->Left, n);
 	else
-		Left = &n->Left;
+		Left = n->Find(n->Left, n);
 
-	Node** Left_Index = Get_Value(n->Left->Right);
-	if (Left_Index) {
+	Node** Value_Handle;
 
+	if (n->Left->is(ARRAY_NODE)) {
+		Node** Left_Index = Interpreter_Value(n->Left->Right);
+		if (Left_Index) {
+			//This means that the array index is intepretable at compile time.
+			Value_Handle = n->Find(Left, n)->Get_Intepreted_Value(stoi((*Left_Index)->Name));
+		}
+		else {
+			//no constant using array indicies.
+			//BUT we could still use the information that the unknown variable doesnt change.
+			//Switch to (pelisukka^mahapöydäl) mode here:
+		}
+	}
+	else if (n->Left->is(CALL_NODE)) {
+		//This function call needs to be inlined, for this to work.
 	}
 	else {
-		//no constant using array indicies.
-		//BUT we could still use the information that the unknown variable doesnt change.
+		Value_Handle = Left->Get_Intepreted_Value(0);
 	}
+
+	//encapsulate the left operator side, for mathematicla safty measures.
+	Node* Left_Wrapper;
+	if ((*Value_Handle)->is(CONTENT_NODE))
+		Left_Wrapper = *Value_Handle;
+	else {
+		Left_Wrapper = new Node(CONTENT_NODE, new Position(*(*Value_Handle)->Location));
+		Left_Wrapper->Name == "(";
+		Left_Wrapper->Scope = n->Scope;
+		Left_Wrapper->Childs.push_back(*Value_Handle);
+	}
+
+	//encapsulate the right operator side, for mathematicla safty measures.
+	Node* Right_Wrapper;
+	if (n->Right->is(CONTENT_NODE)) {
+		Right_Wrapper = n->Right;
+	}
+	else {
+		Right_Wrapper = new Node(CONTENT_NODE, new Position(*(*Value_Handle)->Location));
+		Right_Wrapper->Name == "(";
+		Right_Wrapper->Scope = n->Scope;
+		Right_Wrapper->Childs.push_back(n->Right);
+	}
+
+	if (n->Name == "=") {
+		*Value_Handle = n->Right;
+	}
+	else if (n->Name == "+=") {
+		Node* Operator = new Node(OPERATOR_NODE, n->Location);
+		Operator->Name = "+";
+		Operator->Scope = n->Scope;
+		Operator->Context = n->Context;
+
+		Operator->Left = Left_Wrapper;
+		Operator->Right = Right_Wrapper;
+
+		*Value_Handle = Operator;
+	}
+	else if (n->Name == "-=") {
+		Node* Operator = new Node(OPERATOR_NODE, n->Location);
+		Operator->Name = "-";
+		Operator->Scope = n->Scope;
+		Operator->Context = n->Context;
+
+		Operator->Left = Left_Wrapper;
+		Operator->Right = Right_Wrapper;
+
+		*Value_Handle = Operator;
+	}
+
+
 }
 
 void Algebra::Inline_Variable(Node*& n)
 {
-
+	
 }
 
-/// <summary>
-/// This function goes recursively through the Values, gets the value from the list
-/// </summary>
-/// <param name="n"></param>
-/// <returns></returns>
-Node** Algebra::Get_Value(Node* n)
+bool Algebra::Has_Inlining_Value(Node* n)
 {
+	if (n->is(ARRAY_NODE)) {
+		Node** Index = Interpreter_Value(n->Right);
+		if (Index) {
+			for (auto i : n->Find(n->Left, n)->Values) {
+				if (i.first == stoi(Index[0]->Name)) {
+					return true;
+				}
+			}
+		}
+	}
+	else if (n->Find(n, n)->Has({OBJECT_DEFINTION_NODE, PARAMETER_NODE})) {
+		if (n->Find(n, n)->Values.empty())
+			return true;
+	}
+	return false;
+}
+
+void Algebra::Run_Variable_Inliner(Node* n)
+{
+	n->Modify_AST(n, Has_Inlining_Value, Inline_Variable);
+}
+
+// This function goes recursively through the Values, gets the value from the list
+Node** Algebra::Interpreter_Value(Node* n)
+{
+	if (n->is(NUMBER_NODE)) {
+		return &n;
+	}
 	if (n->is(ARRAY_NODE)) {
 		if (n->Right->Format == "decimal") {
 			Report(Observation(ERROR, "Use of decimal as index", *n->Location, SYNTAX_ERROR));
@@ -827,7 +913,7 @@ Node** Algebra::Get_Value(Node* n)
 		int Index;
 
 		if (!n->Right->is(NUMBER_NODE)) {
-			Node** Right = Get_Value(n->Right);
+			Node** Right = Interpreter_Value(n->Right);
 			if (Right) {
 				Index = stoi((*Right)->Name);
 			}
@@ -841,11 +927,9 @@ Node** Algebra::Get_Value(Node* n)
 		//next check if left is a defined entity
 		Node* Definition = n->Find(n->Left, n);
 		if (Definition->Has({ PARAMETER_NODE, OBJECT_DEFINTION_NODE })) {
-			return &Definition->Get(Index);
+			return Definition->Get_Intepreted_Value(Index);
 		}
 		return nullptr;
 	}
-	else if (n->is(NUMBER_NODE)) {
-		return &n;
-	}
+	return nullptr;
 }

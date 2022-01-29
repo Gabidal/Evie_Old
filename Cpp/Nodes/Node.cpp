@@ -1072,16 +1072,23 @@ Component Node::Generate_Uninitialized_Template_Component(vector<Component> c)
 	return c[0];
 }
 
-Node*& Node::Get(int i)
+Node** Node::Get_Intepreted_Value(int i)
 {
-	for (auto v : Values) {
+	for (auto &v : Values) {
 		if (v.first == i)
 			return v.second;
 	}
 	Node* Empty = new Node(NUMBER_NODE, new Position());
 	Empty->Name = "0";
-	Empty->Inheritted = Find(_SYSTEM_BIT_SIZE_, this, CLASS_NODE, "integer", true)->Inheritted;
-	return Empty;
+	Empty->Inheritted = Find(min(_SYSTEM_BIT_SIZE_, 4), this, CLASS_NODE, "integer", true)->Inheritted;
+	Empty->Scope = this;
+
+	Node** Handle = new Node*;
+	Handle[0] = Empty;
+
+	Values.push_back({ i, Handle });
+
+	return Handle;
 }
 
 void Node::Update_Members_To_New_Parent()
