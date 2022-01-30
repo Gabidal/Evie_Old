@@ -795,23 +795,16 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	for (auto& v : f->Defined)
 		p.Destructor_Caller(v, f->Childs);
 
-	/*while (true) {
-		Algebra a(f, &f->Childs);
-		if (!Optimized)
-			break;
-		Optimized = false;
-	}*/
-
-	if (!sys->Info.Is_Service || sys->Service_Info == Document_Request_Type::ASM)
+	/*if (!sys->Info.Is_Service || sys->Service_Info == Document_Request_Type::ASM)
 		for (auto& v : f->Defined) {
 			for (auto j : f->Childs) {
 				Analyze_Variable_Address_Pointing(v, j);
 				if (v->Requires_Address)
 					break;
 			}
-		}
+		}*/
 
-	Define_Sizes(f);
+	//Define_Sizes(f);
 
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);
@@ -1471,16 +1464,6 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 		}
 }
 
-void PostProsessor::Algebra_Laucher(Node* Scope, vector<Node*> &List)
-{
-	/*while (true) {
-		Algebra a(Scope, &List);
-		if (!Optimized)
-			break;
-		Optimized = false;
-	}*/
-}
-
 void PostProsessor::Combine_Member_Fetching(Node*& n)
 {
 	if (n->Name != ".")
@@ -1550,7 +1533,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 			Node* num = Right->Find("size", Left);
 			if (num == nullptr || (num->is("const"))) {
 				//this means it is definetly a size get request
-				Right->Name = to_string(Left->Get_Size());
+				Right->Name = to_string(Left->Size);
 				Right->Type = NUMBER_NODE;	
 				if (atoll(Right->Name.c_str()) > INT32_MAX)
 					Right->Size = 8;
@@ -1702,14 +1685,14 @@ void PostProsessor::Determine_Return_Type(int i)
 		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right, &Input[i]->Left });
 	}
 
-	vector<Node*> Tmp;
+	/*vector<Node*> Tmp;
 
 	if (!Input[i]->is(PREFIX_NODE))
 		Tmp.push_back(Input[i]->Left);
 	if (!Input[i]->is(POSTFIX_NODE))
 		Tmp.push_back(Input[i]->Right);
 
-	Algebra_Laucher(Input[i], Tmp);
+	Algebra_Laucher(Input[i], Tmp);*/
 
 	if (!Input[i]->Has({ PREFIX_NODE, POSTFIX_NODE })) {
 		//try to find a suitable operator overload if there is one
@@ -1770,10 +1753,10 @@ void PostProsessor::Determine_Return_Type(int i)
 		for (auto j : Input[i]->Left->Get_Inheritted(false, false)) {
 			if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
-			Left_Size += Scope->Find(j, Scope)->Get_Size();
+			Left_Size += Scope->Find(j, Scope)->Size;
 		}
 		if (Input[i]->Left->Cast_Type != nullptr && Input[i]->Left->Cast_Type->Name != "address")
-			Left_Size = Scope->Find(Input[i]->Left->Cast_Type, Scope)->Get_Size();
+			Left_Size = Scope->Find(Input[i]->Left->Cast_Type, Scope)->Size;
 		if (Input[i]->Left->is("ptr"))
 			Left_Size = _SYSTEM_BIT_SIZE_;
 	}
@@ -1782,10 +1765,10 @@ void PostProsessor::Determine_Return_Type(int i)
 		for (auto j : Input[i]->Right->Get_Inheritted(false, false)) {
 			if (Lexer::GetComponents(j)[0].is(Flags::KEYWORD_COMPONENT))
 				continue;
-			Right_Size += Scope->Find(j, Scope)->Get_Size();
+			Right_Size += Scope->Find(j, Scope)->Size;
 		}
 		if (Input[i]->Right->Cast_Type != nullptr && Input[i]->Right->Cast_Type->Name != "address")
-			Right_Size = Scope->Find(Input[i]->Right->Cast_Type, Scope)->Get_Size();
+			Right_Size = Scope->Find(Input[i]->Right->Cast_Type, Scope)->Size;
 		if (Input[i]->Right->is("ptr"))
 			Right_Size = _SYSTEM_BIT_SIZE_;
 	}
@@ -2001,79 +1984,6 @@ void PostProsessor::Update_Used_Object_Info(Node* n)
 void PostProsessor::Operator_Overload(int i)
 {
 	//todo: make the override syntax
-}
-
-void PostProsessor::Analyze_Variable_Address_Pointing(Node* v, Node* n)
-{
-	if (!v->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE }))
-		return;
-
-	//if a variable is pointed to via a pointter or a function parameter address loader, use stack.
-	//Other than that use registers.
-	if (n->Has({ASSIGN_OPERATOR_NODE, OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE})) {
-		Analyze_Variable_Address_Pointing(v, n->Left);
-		if (v->Requires_Address)
-			return;
-		Analyze_Variable_Address_Pointing(v, n->Right);
-		if (v->Requires_Address)
-			return;
-
-		int Right_ptr = Get_Amount("ptr", n->Right);
-		int Left_ptr = Get_Amount("ptr", n->Left);
-		//TODO!! need better contex idea for what is the result be as ptr amount?!!
-		if (Right_ptr > Left_ptr && n->Left->Name == v->Name) {
-			v->Requires_Address = true;
-		}
-		if (Left_ptr > Right_ptr && n->Right->Name == v->Name) {
-			v->Requires_Address = true;
-		}
-	}
-	else if (n->is(CONTENT_NODE))
-		for (auto i : n->Childs) {
-			Analyze_Variable_Address_Pointing(v, i);
-			if (v->Requires_Address)
-				return;
-		}
-	else if (n->is(CALL_NODE)) {
-		vector<int> v_index;
-		for (int i = 0; i < n->Parameters.size(); i++)
-			for (auto j : n->Parameters[i]->Get_all({ OBJECT_NODE, PARAMETER_NODE, OBJECT_DEFINTION_NODE }))
-				if (j->Name == v->Name)
-					v_index.push_back(i);
-		for (auto i : v_index) {
-			int Template_ptr = Get_Amount("ptr", n->Function_Implementation->Parameters[i]);
-			int V_ptr = Get_Amount("ptr", v);
-			if (Template_ptr > V_ptr)
-				v->Requires_Address = true;
-		}
-	}
-	else if (n->Name == "return" && n->Right != nullptr) {
-		Analyze_Variable_Address_Pointing(v, n->Right);
-		if (v->Requires_Address)
-			return;
-
-		//check if the return returs this v node
-		for (auto i : n->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
-			if (i->Name == v->Name)
-				if (i->Context == n) {
-					Node* func = n->Get_Scope_As(FUNCTION_NODE, n);
-					int Func_ptr = Get_Amount("ptr", func);
-					int V_ptr = Get_Amount("ptr", i);
-					if (Func_ptr > V_ptr)
-						v->Requires_Address = true;
-				}
-		}
-
-	}
-	
-	
-	if (v->is(PARAMETER_NODE) && sys->Info.Debug)
-		v->Requires_Address = true;
-
-	/*if (v->Requires_Address) {
-		v->Memory_Offset = v->Scope->Local_Allocation_Space;
-		v->Scope->Local_Allocation_Space += v->Get_Size();
-	}*/
 }
 
 int PostProsessor::Get_Amount(string t, Node* n)

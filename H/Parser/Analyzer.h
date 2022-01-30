@@ -27,6 +27,9 @@ public:
 	void Calling_Count_Incrementer(Node* f);
 
 	void Call_Algebra(Node* n);
+	void Analyze_Variable_Address_Pointing(Node* v, Node* n);
+	int Get_Amount(string t, Node* n);
+	void Define_Sizes(Node* p);
 };
 
 #endif

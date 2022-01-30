@@ -93,7 +93,6 @@ public:
 		
 	void Operator_Overload(int i);					//makes new instance of using different operators
 
-	void Analyze_Variable_Address_Pointing(Node* v, Node* n);
 	int Get_Amount(string t, Node* n);
 
 	void Analyze_Global_Variable_Changes(int i);

@@ -13,13 +13,20 @@ vector<string> Defined_Labels;
 
 extern Usr* sys;
 
-void Algebra::Factory() {
+void Algebra::Factory(Node*& n) {
+	Combine_Numbers(n);
+	Combine_Non_Adjacent_Variables(n);
+}
+
+void Algebra::Start_Factory()
+{
 	if (sys->Info.Is_Service && sys->Service_Info != Document_Request_Type::ASM)
 		return;
 
-	for (int i = 0; i < Input->size(); i++) {
+	for (int i = 0; i < Input->size(); i++)
 		Function_Inliner(Input->at(i), i);
-	}
+
+	Scope->Modify_AST(Scope, [](Node* n) { return true; }, Factory);
 }
 
 void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
@@ -301,7 +308,6 @@ void Algebra::Exponent_Factorisation(Node*& n)
 	
 }
 
-
 void Algebra::Potens_And_Multiplication(Node*& Operator)
 {
 	//This function sets order of the left, the left side od the order can be null,
@@ -451,6 +457,8 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 
 		Node* New_Multiplication_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
 		New_Multiplication_Operator->Name = "*";
+		New_Multiplication_Operator->Scope = Operator->Scope;
+		New_Multiplication_Operator->Context = Operator->Context;
 
 		//now we know how mutch the new potens is going to have term multiplication init
 		//a^(c * x * x) * b^(d * x) = (a^(c * x) * b^d)^x 
@@ -458,10 +466,12 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 		New_Left_Exponent->Childs.push_back(Left_Exponent);
 		New_Left_Exponent->Name = New_Left_Exponent->Get_Name();
 		New_Left_Exponent->Scope = Left_Exponent->Scope;
+		New_Left_Exponent->Context = Left_Exponent->Context;
 
 		Node* Left_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
 		Left_Exponent_Operator->Name = "^";
 		Left_Exponent_Operator->Context = New_Multiplication_Operator;
+		Left_Exponent_Operator->Scope = New_Multiplication_Operator->Scope;
 		Left_Exponent_Operator->Left = Left_Base;
 		Left_Exponent_Operator->Right = New_Left_Exponent;
 
@@ -469,11 +479,13 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 		Node* New_Right_Exponent = new Node(CONTENT_NODE, new Position(*Operator->Location));
 		New_Right_Exponent->Childs.push_back(Right_Exponent);
 		New_Right_Exponent->Name = New_Right_Exponent->Get_Name();
-		New_Left_Exponent->Scope = Left_Exponent->Scope;
+		New_Right_Exponent->Scope = Right_Exponent->Scope;
+		New_Right_Exponent->Context = Right_Exponent->Context;
 
 		Node* Right_Exponent_Operator = new Node(OPERATOR_NODE, new Position(*Operator->Location));
 		Right_Exponent_Operator->Name = "^";
 		Right_Exponent_Operator->Context = New_Multiplication_Operator;
+		Right_Exponent_Operator->Scope = New_Multiplication_Operator->Scope;
 		Right_Exponent_Operator->Left = Right_Base;
 		Right_Exponent_Operator->Right = New_Right_Exponent;
 
@@ -486,6 +498,7 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 		Wrapper->Childs.push_back(New_Multiplication_Operator);
 		Wrapper->Name = Wrapper->Get_Name();
 		Wrapper->Context = Operator->Context;
+		Wrapper->Scope = Operator->Scope;
 
 		New_Multiplication_Operator->Context = Wrapper;
 
@@ -501,7 +514,7 @@ void Algebra::Potens_And_Multiplication(Node*& Operator)
 		Potens_Wrapper = Potens_Wrapper.substr(Potens_Wrapper.size() - 2);
 		Potens_Wrapper += ")";
 
-		Parser p(Scope);
+		Parser p(Operator->Scope);
 		p.Input = Lexer::GetComponents(Potens_Wrapper);
 		p.Factory();
 
@@ -556,13 +569,25 @@ void Algebra::Combine_Numbers(Node*& n){
 		Combine_Numbers(n->Right);
 	}
 	//Double check iof the Node n is a number so that we can start our number combination.
-	if (n->is(NUMBER_NODE)){
+	if (n->Left->is(NUMBER_NODE) && n->Right->is(NUMBER_NODE)){
 		//now we can differiante decimals and integers.
 		if (n->Format == "decimal"){
 			double Left = stod(n->Left->Name);
 			double Right = stod(n->Right->Name);
 
-			double Result_Value = Left + Right;
+			double Result_Value;
+			if (n->Name == "+")
+				Result_Value = Left + Right;
+			else if (n->Name == "-")
+				Result_Value = Left - Right;
+			else if (n->Name == "*")
+				Result_Value = Left * Right;
+			else if (n->Name == "/")
+				Result_Value = Left / Right;
+			else if (n->Name == "^")
+				Result_Value = pow(Left, Right);
+			else if (n->Name == "%")
+				Result_Value = Left - (int)(Left / Right) * Right;
 
 			Node* Result = new Node(NUMBER_NODE, new Position());
 			Result->Name = to_string(Result_Value);
@@ -576,7 +601,19 @@ void Algebra::Combine_Numbers(Node*& n){
 			int Left = stoi(n->Left->Name);
 			int Right = stoi(n->Right->Name);
 
-			int Result_Value = Left + Right;
+			int Result_Value;
+			if (n->Name == "+")
+				Result_Value = Left + Right;
+			else if (n->Name == "-")
+				Result_Value = Left - Right;
+			else if (n->Name == "*")
+				Result_Value = Left * Right;
+			else if (n->Name == "/")
+				Result_Value = Left / Right;
+			else if (n->Name == "^")
+				Result_Value = pow(Left, Right);
+			else if (n->Name == "%")
+				Result_Value = Left % Right;
 
 			Node* Result = new Node(NUMBER_NODE, new Position());
 			Result->Name = to_string(Result_Value);
@@ -640,6 +677,7 @@ void Algebra::Combine_Non_Adjacent_Variables(Node*& n){
 					Potens_And_Multiplication(Context);
 
 					//after this we will proceed to inline
+					Run_Variable_Inliner(Context);
 				}
 			}
 		}
@@ -872,7 +910,17 @@ void Algebra::Update_Inline_Content(Node* n)
 
 void Algebra::Inline_Variable(Node*& n)
 {
-	
+	if (n->is(ARRAY_NODE)) {
+		Node** Index_Handle = Interpreter_Value(n->Right);
+		//No need to check, the functon Has_Inlining_Value has already said that this is a thing that exists.
+		Node** Inline_Value_Handle = n->Left->Get_Intepreted_Value(stoi((*Index_Handle)->Name));
+		//now that we have the inlining value at hand, we can replace the variable with the value.
+		n = Inline_Value_Handle[0];
+	}
+	else {
+		//we already know that this variable is defined, because Has_Inlining_Value has said so.
+		n = *n->Get_Intepreted_Value(0);
+	}
 }
 
 bool Algebra::Has_Inlining_Value(Node* n)
