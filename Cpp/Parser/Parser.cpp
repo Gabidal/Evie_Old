@@ -110,11 +110,11 @@ void Parser::Template_Pattern(int& i)
 
 	Input.erase(Input.begin() + i + 1, Input.begin() + j + 1);
 
-	/*Parser p(Scope);
+	Parser p(Scope);
 	p.Input = { Input[i].Components };
 	p.Factory();
 
-	Input[i].Components = p.Input;*/
+	Input[i].Components = p.Input;
 
 	//for difinition pattern.
 	i--;
@@ -930,10 +930,8 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (!Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false)) {
-		//Report(Observation(ERROR, "Use of un-defined '" + Input[i].Value + "'.", Input[i].Location));
+	if (!Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false))
 		return;
-	}
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
