@@ -123,6 +123,9 @@
     <ClCompile Include="Cpp\Docker\DLL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\Parser\Memory_Manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\unix.asm">
@@ -307,6 +310,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\Docker\DLL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Parser\Memory_Manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "../Nodes/Node.h"
+#include "../UI/Safe.h"
 
 class Memory_Manager {
 public:

@@ -34,7 +34,25 @@ void Memory_Manager::Manage_Class_Padding()
 	if (Scope->is("plain"))
 		return;
 
-	
+	//Try to compress memory usage, is the user agrees to it.
+	Manage_Class_Re_Order();
+
+	const int BITS = 8;
+	int Remainder = Scope->Size % BITS;
+
+	Report(Observation(INFO, "Un-used bits '" + to_string(Remainder) + "' in class '" + Scope->Name + "'.", *Scope->Location));
+
+	//If the base class has already a padder, then modify it.
+	Node* Padder = Scope->Find("__CLASS_MEMORY_PADDER__", Socpe)
+	if ()
+	Node* Padding = new Node(OBJECT_DEFINTION_NODE, Scope->Location);
+	Padding->Name = "__CLASS_MEMORY_PADDER__";
+	//NOTE: const as inheritance may not negate re-sizing!
+	Padding->Inheritted.push_back("const");
+	Padding->Size = Remainder;
+	Padding->Scope = Scope;
+
+	Scope->Defined.push_back(Padding);
 
 	Scope->Parsed_By |= PARSED_BY::CLASS_MEMORY_PADDER;
 }
