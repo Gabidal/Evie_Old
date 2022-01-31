@@ -1504,12 +1504,14 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 	if (Trace.size() > 0)
 		if (What_Node->is(FUNCTION_NODE)) {
 			Result = What_Node;
+			return;
 		}
 
 
 	for (int j = 0; j < Trace.size(); j++) {
 		if (What_Node == Trace[j].first) {
 			Result = Trace[j].second;
+			return;
 		}
 	}
 

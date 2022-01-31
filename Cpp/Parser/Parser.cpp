@@ -110,11 +110,11 @@ void Parser::Template_Pattern(int& i)
 
 	Input.erase(Input.begin() + i + 1, Input.begin() + j + 1);
 
-	Parser p(Scope);
+	/*Parser p(Scope);
 	p.Input = { Input[i].Components };
 	p.Factory();
 
-	Input[i].Components = p.Input;
+	Input[i].Components = p.Input;*/
 
 	//for difinition pattern.
 	i--;
@@ -930,8 +930,10 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false) == nullptr)
+	if (!Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false)) {
+		//Report(Observation(ERROR, "Use of un-defined '" + Input[i].Value + "'.", Input[i].Location));
 		return;
+	}
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
@@ -1206,8 +1208,6 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	PreFix->Scope = Scope;
 	//name
 	PreFix->Name = Input[i].Value;
-	//for more complex casting
-	PreFix->Left = Input[i].node;
 	PreFix->Right = Input[(size_t)i + 1].node;
 
 	PreFix->Right->Context = PreFix;
@@ -1257,8 +1257,6 @@ void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)
 	post->Left = Input[(size_t)i - 1].node;
 	post->Left->Context = post;
 	post->Left->Scope = post->Scope;
-	//for casting
-	post->Right = Input[i].node;
 
 	Input[i].node = post;
 
@@ -1608,16 +1606,19 @@ void Parser::Type_Pattern(int i)
 		Type->Is_Template_Object = true;
 	}
 
-	Parser p(Type);
-	p.Input.push_back(Input[Parenthesis_Indexes[0]]);
-	p.Factory();
+	if (!Type->Is_Template_Object) {
+		Parser p(Type);
+		p.Input.push_back(Input[Parenthesis_Indexes[0]]);
+		p.Factory();
 
-	for (auto j : Type->Defined) {
-		Safe s;
-		s.Check_For_Undefined_Inheritance(j);
+		for (auto j : Type->Defined) {
+			Safe s;
+			s.Check_For_Undefined_Inheritance(j);
+		}
+
+		Type->Append(Type->Childs, p.Input[0].node->Childs);
+		p.Input.clear();
 	}
-
-	Type->Append(Type->Childs, p.Input[0].node->Childs);
 
 	//This means that the class is a namespace
 	//Namespace Combination system 5000
@@ -1632,9 +1633,6 @@ void Parser::Type_Pattern(int i)
 			j->Inheritted.insert(j->Inheritted.begin(), "static");
 		}
 	}
-
-
-	p.Input.clear();
 
 	//infiltrate the class type and inject this behemoth
 	/*if (MANGLER::Is_Base_Type(Type) == false && sys->Info.Reference_Count_Size > 0) {
