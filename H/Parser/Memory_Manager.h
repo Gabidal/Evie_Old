@@ -10,9 +10,12 @@ class Memory_Manager {
 public:
 	Node* Scope;
 
-	void Factory();
-
+	Memory_Manager(Node* S) {
+		Scope = S;
+		Factory();
+	}
 private:
+	void Factory();
 	void Manage_Function();
 
 	//Class modifiers

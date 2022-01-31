@@ -24,8 +24,11 @@ public:
 	void Detect_Abnormal_Start_Address();
 	void List_All_Exported();
 
-	void Calling_Count_Incrementer(Node* f);
+	//class tools
+	void Analyze_Class(Node* c);
 
+	//Function tools
+	void Calling_Count_Incrementer(Node* f);
 	void Call_Algebra(Node* n);
 	void Analyze_Variable_Address_Pointing(Node* v, Node* n);
 	int Get_Amount(string t, Node* n);

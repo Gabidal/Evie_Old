@@ -207,9 +207,9 @@ void Safe::Check_Return_Validity(Node* n)
 			return;
 		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
-		else if (n->Right->Cast_Type != nullptr && n->Find(n->Right->Cast_Type, n)->Get_Size() == func->Get_Size() && n->Find(n->Right->Cast_Type, n)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
+		else if (n->Right->Cast_Type != nullptr && n->Find(n->Right->Cast_Type, n)->Size == func->Size && n->Find(n->Right->Cast_Type, n)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
 			return;
-		else if (func->Get_Size() == 0) {
+		else if (func->Size == 0) {
 			Report(Observation(ERROR, "Can't return '" + n->Right->Get_Inheritted(" ", false, false, true) + "' in function '" + func->Name + "'.", *n->Location, "Value return in non-returning funciton."));
 		}
 		else {
@@ -220,7 +220,7 @@ void Safe::Check_Return_Validity(Node* n)
 				});
 		}
 	}
-	else if (func->Get_Size() != 0 && !func->is("func")){
+	else if (func->Size != 0 && !func->is("func")){
 		Report(Observation(ERROR, func->Name + " needs to return something", *n->Location, "Non-void function needs returning value."));
 	}
 }

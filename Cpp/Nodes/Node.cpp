@@ -1120,6 +1120,20 @@ vector<Node*>& Node::Get_Template()
 	return *(new vector<Node*>());
 }
 
+vector<Node*> Node::Get_Inheritted_Node_List()
+{
+	vector<Node*> Result;
+
+	for (auto I : Inheritted) {
+		if (Lexer::GetComponent(I).is(Flags::KEYWORD_COMPONENT))
+			continue;
+
+		Result.push_back(Find(I, this, CLASS_NODE));
+	}
+
+	return Result;
+}
+
 vector<Node*> Trace_Update_Size;
 int Node::Update_Size() {
 	if (is("const") && Size != 0 || Is_Template_Object)

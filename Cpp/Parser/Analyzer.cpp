@@ -1,5 +1,6 @@
 #include "../../H/Parser/Analyzer.h"
 #include "../../H/Parser/Algebra.h"
+#include "../../H/Parser/Memory_Manager.h"
 
 extern bool Optimized;
 
@@ -36,6 +37,11 @@ void Analyzer::List_All_Exported()
 			Start_Of_Proccesses.push_back(f);
 }
 
+void Analyzer::Analyze_Class(Node* c)
+{
+
+}
+
 vector<Node*> Callin_Trace;
 void Analyzer::Calling_Count_Incrementer(Node* f)
 {
@@ -52,16 +58,37 @@ void Analyzer::Calling_Count_Incrementer(Node* f)
 	//be it by the start list, or calld for.
 	f->Calling_Count++;
 
-	Optimized = true;
-	while (Optimized) {
-		Optimized = false;
-		Algebra a(f, &f->Childs);
+	f->Modify_AST(f, [](Node* a) { return true; }, [](Node*& n) {
+		Optimized = true;
+		while (Optimized) {
+			Optimized = false;
+			Algebra a(n, &n->Childs);
+		}
+	});
+
+	//Define_Sizes(f);
+
+	if (!sys->Info.Is_Service || sys->Service_Info == Document_Request_Type::ASM)
+		for (auto& v : f->Defined)
+			for (auto j : f->Childs) {
+				Analyze_Variable_Address_Pointing(v, j);
+				if (v->Requires_Address)
+					break;
+			}
+
+	//do function memorry handling stuff
+	Memory_Manager m(f);
+
+	//
+	for (auto* i : f->Defined) {
+		for (auto* j : i->Get_Inheritted_Node_List()) {
+			m = Memory_Manager(j);
+		}
 	}
 
 	Define_Sizes(f);
 
-
-
+	//repeat this for its calling as so on...
 	for (auto* c : f->Childs) {
 		for (auto* i : c->Get_all({CALL_NODE})) {
 			Calling_Count_Incrementer(i->Function_Implementation);

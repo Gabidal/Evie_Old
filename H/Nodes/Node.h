@@ -48,6 +48,8 @@ namespace PARSED_BY {
 	constexpr long long CLASS_MEMORY_PADDER				= 1 << 17;
 	constexpr long long CLASS_RE_ORDERER				= 1 << 18;
 
+	constexpr long long CLASS_ANALYSER					= 1 << 19;
+
 };
 
 class COMMENT {
@@ -105,6 +107,7 @@ public:
 	int Local_Allocation_Space = 0;
 	//function features
 	vector<Node*> Parameters;
+	string Mangled_Name = "";
 	//Import features
 	vector<Node*> Numerical_Return_Types;
 	//operator features
@@ -249,35 +252,38 @@ public:
 	
 	Node* Find(string name, Node* parent, bool Need_Parent_existance = true);
 	
-	Node* Find(string name, Node* parent, int flags, bool Get_Inheritted_Definition = true);
+	/*
+	if true, tries to find the node from the inheritted.
+	*/
+	Node* Find(string name, Node* Scope, int flags, bool Get_Inheritted_Definition = true);
 
-	Node* Find(string name, Node* parent, vector<int> flags, bool Get_Inheritted_Definition = true) {
+	Node* Find(string name, Node* Scope, vector<int> flags, bool Get_Inheritted_Definition = true) {
 		for (auto flag : flags)
-			if (Find(name, parent, flag, Get_Inheritted_Definition))
-				return Find(name, parent, flag, Get_Inheritted_Definition);
+			if (Find(name, Scope, flag, Get_Inheritted_Definition))
+				return Find(name, Scope, flag, Get_Inheritted_Definition);
 		return nullptr;
 	}
 	
-	Node* Find(int size, Node* Parent, string f) {
-		if (Parent->Defined.size() == 0) {
-			Node* S = Parent->Get_Definition_Type();
+	Node* Find(int size, Node* Scope, string f) {
+		if (Scope->Defined.size() == 0) {
+			Node* S = Scope->Get_Definition_Type();
 
 			if (S)
-				Parent = S;
+				Scope = S;
 		}
 
-		for (Node* i : Parent->Defined)
+		for (Node* i : Scope->Defined)
 			if (i->Size == size)
 				if (i->Format == f)
 					return i;
 
-		for (Node* i : Parent->Inlined_Items)
+		for (Node* i : Scope->Inlined_Items)
 			if (i->Size == size)
 				if (i->Format == f)
 					return i;
 
-		if (Parent->Scope != nullptr)
-			return Find(size, Parent->Scope, f);
+		if (Scope->Scope != nullptr)
+			return Find(size, Scope->Scope, f);
 		return nullptr;
 	}	
 
@@ -422,6 +428,8 @@ public:
 			}
 	}
 	
+	vector<Node*> Get_Inheritted_Node_List();
+
 	//this reqiers that the other local variables inside this object are already having theyre own size!
 	int Update_Size();
 
@@ -589,7 +597,7 @@ public:
 		return Has(this, f);
 	}
 
-	int Has(vector<string> s) {
+	int Has_Inheritted(vector<string> s) {
 		for (int i = 0; i < Inheritted.size(); i++) {
 			for (auto j : s) {
 				if (Inheritted[i] == j) {
@@ -598,6 +606,17 @@ public:
 			}
 		}
 		return -1;
+	}
+
+	int Has(vector<string> s) {
+		for (int i = 0; i < Inheritted.size(); i++) {
+			for (auto j : s) {
+				if (Inheritted[i] == j) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	bool Has(vector<int> s) {

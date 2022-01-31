@@ -545,7 +545,7 @@ void IRGenerator::Parse_Cloning(int i)
 	//			size, count
 	vector<pair<int, int>> Registers;
 
-	int Object_Size = Input[i]->Left->Get_Size();
+	int Object_Size = Input[i]->Left->Size;
 	int Register_Size = _SYSTEM_BIT_SIZE_;
 	int Count = 0;
 	while (Object_Size > 0) {
@@ -630,7 +630,7 @@ void IRGenerator::Parse_Operators(int i)
 			//dont load the value into a register
 			Left = new Token(Input[i]->Left);
 			if (Left->is(TOKEN::CONTENT))
-				Left = new Token(TOKEN::MEMORY | F, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Get_Size(), Left->Get_Name());
+				Left = new Token(TOKEN::MEMORY | F, { Left }, Input[i]->Find(Input[i]->Left, Input[i]->Left->Scope)->Size, Left->Get_Name());
 		}
 		else if (Is_In_Left_Side_Of_Operator || (!Input[i]->Left->is(PARAMETER_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) || Input[i]->Left->is(NUMBER_NODE))) {
 			Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Scope));
@@ -746,7 +746,7 @@ void IRGenerator::Parse_Pointers(int i)
 	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE, PREFIX_NODE, POSTFIX_NODE }))
 		Input[i]->Left->Size = Scope->Find(Input[i]->Left, Scope)->Size;
 
-	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Get_Size() > _SYSTEM_BIT_SIZE_) {
+	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
 		//this has been already made in cloning objects
 		return;
 	}
@@ -807,14 +807,14 @@ void IRGenerator::Parse_Pointers(int i)
 
 		if (Right->is(TOKEN::CONTENT)) {
 			//handle the other side into a usable register
-			Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Get_Size());
+			Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Size);
 		}
 	}
 	else if (Left_Level < Right_Level) {
 		Right = Operate_Pointter(Right, Level_Difference, false, Right->is(TOKEN::MEMORY), Input[i]->Right->Inheritted);
 		if (Left->is(TOKEN::CONTENT)) {
 				//handle the other side into a usable register
-				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Get_Size());
+				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Size);
 			}
 	}
 
@@ -895,7 +895,7 @@ void IRGenerator::Parse_Arrays(int i)
 					break;
 				}
 				else
-					Scale += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+					Scale += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 			}
 
 			int Next_Register_Size = 0;
@@ -908,7 +908,7 @@ void IRGenerator::Parse_Arrays(int i)
 						break;
 					}
 					else
-						Next_Register_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+						Next_Register_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 				}
 
 			int Next_Scaler_Size = 0;
@@ -918,7 +918,7 @@ void IRGenerator::Parse_Arrays(int i)
 					break;
 				}
 				else
-					Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+					Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 			}
 
 			reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Next_Register_Size);
@@ -976,7 +976,7 @@ void IRGenerator::Parse_Arrays(int i)
 				break;
 			}
 			else
-				Reg_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+				Reg_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 		}
 		//get the remained inhertited types and set them for next to use
 		vector<string> New_Inheritted;
@@ -1020,7 +1020,7 @@ void IRGenerator::Parse_Arrays(int i)
 				break;
 			}
 			else
-				Scale += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+				Scale += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 		}
 
 		int Next_Register_Size = 0;
@@ -1033,7 +1033,7 @@ void IRGenerator::Parse_Arrays(int i)
 					break;
 				}
 				else
-					Next_Register_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+					Next_Register_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 			}
 
 		int Next_Scaler_Size = 0;
@@ -1043,7 +1043,7 @@ void IRGenerator::Parse_Arrays(int i)
 				break;
 			}
 			else
-				Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+				Next_Scaler_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 		}
 
 		reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Next_Register_Size);
@@ -1099,7 +1099,7 @@ void IRGenerator::Parse_Arrays(int i)
 				break;
 			}
 			else
-				Reg_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Get_Size();
+				Reg_Size += Global_Scope->Find(Type_Trace[tmp], Global_Scope)->Size;
 		}
 		//get the remained inhertited types and set them for next to use
 		vector<string> New_Inheritted;
@@ -1137,7 +1137,7 @@ void IRGenerator::Parse_PreFixes(int i)
 		Right = new Token(Input[i]->Right);
 
 	if (Right->is(TOKEN::CONTENT))
-		Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Get_Size());
+		Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Size);
 
 	string Change_Type = "+";
 	if (Input[i]->Name == "--")
@@ -1171,7 +1171,7 @@ void IRGenerator::Parse_PostFixes(int i)
 		Left = new Token(Input[i]->Left);
 
 	if (Left->is(TOKEN::CONTENT))
-		Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Get_Size());
+		Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Size);
 
 	//i++
 	//make a copy
@@ -1534,7 +1534,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	}
 	
 	//if not then load this into register
-	Token* r = new Token(Type | TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), n->Get_Size());
+	Token* r = new Token(Type | TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), n->Size);
 
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }, n->Location));
 
@@ -1648,7 +1648,7 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	if (n->Find(cast_Type, n, CLASS_NODE)->Format == "decimal")
 		Type = TOKEN::DECIMAL;
 
-	Token* r = new Token(Type | TOKEN::REGISTER, "REG_" + n->Name + to_string(Reg_Random_ID_Addon++), n->Find(cast_Type, n, CLASS_NODE)->Get_Size());
+	Token* r = new Token(Type | TOKEN::REGISTER, "REG_" + n->Name + to_string(Reg_Random_ID_Addon++), n->Find(cast_Type, n, CLASS_NODE)->Size);
 	
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "convert"), {
 		r, Old_Format

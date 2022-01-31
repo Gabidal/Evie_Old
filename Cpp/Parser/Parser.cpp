@@ -1617,6 +1617,8 @@ void Parser::Type_Pattern(int i)
 		s.Check_For_Undefined_Inheritance(j);
 	}
 
+	Type->Append(Type->Childs, p.Input[0].node->Childs);
+
 	//This means that the class is a namespace
 	//Namespace Combination system 5000
 	if (Type->is("static")) {
@@ -1631,7 +1633,6 @@ void Parser::Type_Pattern(int i)
 		}
 	}
 
-	Type->Append(Type->Childs, p.Input[0].node->Childs);
 
 	p.Input.clear();
 
@@ -2057,6 +2058,7 @@ void Parser::Member_Function_Pattern(int i)
 	//clear exess stuff
 	Input[i].node->Fetcher->Inheritted.clear();
 	Input[i].node->Fetcher->Un_Initialized_Template_Inheritance.clear();
+	Input[i].node->Is_Template_Object = Class->Is_Template_Object;
 
 	//replace all the class named fetchers by the Class node for future referencing.
 	//this code break c++ XD

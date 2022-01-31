@@ -211,8 +211,8 @@ void PostProsessor::Type_Definer(Node* type)
 
 	Function->Update_Size();
 
-	if (type->Has({ "cpp", "evie", "vivid" }) != -1)
-		Function->Inheritted.push_back(type->Inheritted[type->Has({ "cpp", "evie", "vivid" })]);
+	if (type->Has_Inheritted({ "cpp", "evie", "vivid" }) != -1)
+		Function->Inheritted.push_back(type->Inheritted[type->Has_Inheritted({ "cpp", "evie", "vivid" })]);
 
 	if (!Constructor_Already_Defined) {
 		type->Defined.push_back(Function);
@@ -1942,13 +1942,13 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	//while (a + 1 < a * 2){..}
 	//while (int i = 0, a + i < a * i*2, i++){..}
 	//we dont necessarily need to seperate the condition operator.
-	Algebra Alg(Input[i], &Input[i]->Parameters);
+	//Algebra Alg(Input[i], &Input[i]->Parameters);
 
 	//now just prosess the child tokens of while node as well.
 	PostProsessor post(Input[i]);
 	post.Input = Input[i]->Childs;
 
-	Algebra_Laucher(Input[i], Input[i]->Childs);
+	//Algebra_Laucher(Input[i], Input[i]->Childs);
 
 	//NOTE: this defined sizes might be reduntant!
 	post.Define_Sizes(Input[i]);

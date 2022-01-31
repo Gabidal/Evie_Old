@@ -39,20 +39,25 @@ void Memory_Manager::Manage_Class_Padding()
 
 	const int BITS = 8;
 	int Remainder = Scope->Size % BITS;
-
-	Report(Observation(INFO, "Un-used bits '" + to_string(Remainder) + "' in class '" + Scope->Name + "'.", *Scope->Location));
+	
+	Report(Observation(INFO, "Added " + to_string(Remainder) + " bytes to the end of '" + Scope->Name + "'.", *Scope->Location));
 
 	//If the base class has already a padder, then modify it.
-	Node* Padder = Scope->Find("__CLASS_MEMORY_PADDER__", Socpe)
-	if ()
-	Node* Padding = new Node(OBJECT_DEFINTION_NODE, Scope->Location);
-	Padding->Name = "__CLASS_MEMORY_PADDER__";
-	//NOTE: const as inheritance may not negate re-sizing!
-	Padding->Inheritted.push_back("const");
-	Padding->Size = Remainder;
-	Padding->Scope = Scope;
+	Node* Padder = Scope->Find("__CLASS_MEMORY_PADDER__", Scope, OBJECT_DEFINTION_NODE, false);
+	if (Padder) {
+		Padder->Name = to_string(stoi(Padder->Name) + Remainder);
+	}
+	else {
+		Padder = new Node(OBJECT_DEFINTION_NODE, Scope->Location);
+		Padder->Name = "__CLASS_MEMORY_PADDER__";
+		//NOTE: const as inheritance may not negate re-sizing!
+		Padder->Inheritted.push_back("const");
+		Padder->Size = Remainder;
+		Padder->Scope = Scope;
 
-	Scope->Defined.push_back(Padding);
+		Scope->Defined.push_back(Padder);
+	}
+	
 
 	Scope->Parsed_By |= PARSED_BY::CLASS_MEMORY_PADDER;
 }
@@ -68,7 +73,7 @@ void Memory_Manager::Manage_Class_Re_Order()
 		return;
 
 	//This system is only for Evie own structures.
-	if (!Scope->is("evie"))
+	if (!Scope->Has({ (string)"evie", "vivid" }))
 		return;
 
 	Re_Order_Vector(Scope->Defined);
