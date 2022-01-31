@@ -45,7 +45,8 @@ namespace PARSED_BY {
 	constexpr long long TYPE_DEFINER					= 1 << 15;
 	constexpr long long COMBINE_MEMBER_FETCHER			= 1 << 16;
 
-	
+	constexpr long long CLASS_MEMORY_PADDER				= 1 << 17;
+	constexpr long long CLASS_RE_ORDERER				= 1 << 18;
 
 };
 
@@ -104,7 +105,6 @@ public:
 	int Local_Allocation_Space = 0;
 	//function features
 	vector<Node*> Parameters;
-	string Mangled_Name = "";
 	//Import features
 	vector<Node*> Numerical_Return_Types;
 	//operator features

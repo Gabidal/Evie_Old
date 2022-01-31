@@ -81,7 +81,9 @@ int Build(int argc, const char* argv[])
     Lexer::SingleLineCommentIdentifier = '#';
     Lexer::StringIdentifier = '\"';
     Lexer::Keywords = {
-        "type", "func", "export", "import", "use", "if", "while", "else", "ptr", "ref", "jump", /*"size", size and deciaml and integer and format is no more a keyword because it can be also a variable name, only special in a class scoope*/ "return", "state", "const",
+        "type", "func", "export", "import", "use", "if", "while", "else", "ptr", "ref", "jump",
+        /*"size", size and deciaml and integer and format is no more a keyword because it can be also a variable name, only special in a class scoope*/ 
+        "return", "state", "const",
         "cpp", "evie", "vivid", "plain", "static", "break", "continue"
     };
     sys = new Usr(argv, argc);
