@@ -1310,20 +1310,34 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 		Best_Candidate_Copy->Name = Best_Candidate->Name;
 		Best_Candidate_Copy->Templates = Caller->Get_Template();
 
+		//We need to construct our own Scope, because the fetcher could be from a namespace
+		Node* Real_Scope = Scope;
+
+		//If the best candinate has a fetcher & it's a namespace then use it.
+		if (Best_Candidate_Copy->Fetcher && Best_Candidate_Copy->Fetcher->is("static"))
+			Real_Scope = Scope->Find(Best_Candidate_Copy->Fetcher, Scope);
+
 		//here we generate the template function from the template types
-		Parser P(Scope);
+		Parser P(Real_Scope);
 		P.Input = P.Template_Function_Constructor(Best_Candidate_Copy, Best_Candidate->Templates, Caller->Get_Template());
 		P.Factory();
 
-		for (int i = Scope->Defined.size() - 1; i >= 0; i--) {
-			if (Scope->Defined[i]->is(FUNCTION_NODE) && Scope->Defined[i]->Name == New_Name){
-				Caller->Function_Implementation = Scope->Defined[i];
+		//now that the function has been generated we want to find it where it has been generated.
+		//If the generated function generated a Virtual function that would be at the end.
+		//So we start from the end and try to find the generated function.
+		for (int i = Real_Scope->Defined.size() - 1; i >= 0; i--) {
+			if (Real_Scope->Defined[i]->Name == Best_Candidate_Copy->Construct_Template_Type_Name()) {
+				Caller->Function_Implementation = Real_Scope->Defined[i];
 				break;
 			}
 		}
 
 		Caller->Name = New_Name;
 		Caller->Templates.clear();
+
+		if (Caller->Function_Implementation == nullptr) {
+			Report(Observation(ERROR, "Given template arguments to a non-template call!", *Caller->Location));
+		}
 
 		if (!Caller->Function_Implementation->is(PARSED_BY::POSTPROSESSOR)) {
 			if (Caller->Function_Implementation->Fetcher != nullptr || Caller->Function_Implementation->Get_Scope_As(CLASS_NODE, Caller->Function_Implementation) != Global_Scope) {
@@ -1508,7 +1522,9 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 	//}
 
 	if (n->Right->is(CALL_NODE)) {
-		n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
+		//We dont want to add a namespace into a parameter as 'this'
+		if (!n->Left->is("static"))
+			n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
 		n->Right->Context = n->Context;
 		n->Right->Fetcher = n->Left;
 		n->Copy_Node(n, n->Right, n->Scope);

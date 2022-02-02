@@ -57,8 +57,8 @@ private:
 
 	//Inlining functions
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-	static void Update_Inline_Content(Node* n);
 	static void Run_Variable_Inliner(Node* n);
+	static void Update_Inline_Content(Node* n);
 	static bool Has_Inlining_Value(Node* n);
 	static void Inline_Variable(Node*& n);
 	static Node** Interpreter_Value(Node* n);

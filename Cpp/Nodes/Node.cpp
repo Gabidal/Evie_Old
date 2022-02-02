@@ -1515,16 +1515,30 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 		}
 	}
 
-	//First make a totally different copy, that we will be referencing to.
-	//This is to prevent self destruction
-	Node* Mirror = Internal_Copy_Node(What_Node, p);
+	if (What_Node == Result) {
+		Result = Internal_Copy_Node(What_Node, p);
+
+		if (Result->is(CALL_NODE))
+			for (auto& P : Result->Parameters)
+				P->Context = Result;
+
+		if (Result->Left)
+			Result->Left->Context = Result;
+
+		if (Result->Right)
+			Result->Right->Context = Result;
+
+		if (Result->is(CONTENT_NODE))
+			Result->Childs[0]->Context = Result;
+
+		return;
+	}
 
 	//this will only copy the ptrs in list but we want to also copy what those ptr point to.
-	Result = new Node(*Mirror);
+	Result = new Node(*What_Node);
 	Result->Scope = p;
 
 	Trace.push_back({ What_Node, Result });
-	Trace.push_back({ Mirror, Result });
 
 	//lets start from defined
 	for (int i = 0; i < Result->Defined.size(); i++)
@@ -1611,13 +1625,13 @@ Node* Node::Internal_Copy_Node(Node* What_Node, Node* p)
 		return nullptr;
 
 	//disable recursive funciton copying
-	if (Trace.size() > 0)
+	if (Internal_Trace.size() > 0)
 		if (What_Node->is(FUNCTION_NODE))
 			return What_Node;
 
-	for (int j = 0; j < Trace.size(); j++) {
-		if (What_Node == Trace[j].first) {
-			return Trace[j].second;
+	for (int j = 0; j < Internal_Trace.size(); j++) {
+		if (What_Node == Internal_Trace[j].first) {
+			return Internal_Trace[j].second;
 		}
 	}
 
@@ -1625,7 +1639,7 @@ Node* Node::Internal_Copy_Node(Node* What_Node, Node* p)
 	Node* Result = new Node(*What_Node);
 	Result->Scope = p;
 
-	Trace.push_back({ What_Node, Result });
+	Internal_Trace.push_back({ What_Node, Result });
 
 	//lets start from defined
 	for (int i = 0; i < Result->Defined.size(); i++)
@@ -1696,7 +1710,7 @@ Node* Node::Internal_Copy_Node(Node* What_Node, Node* p)
 	//The copying prosess must go downwards not upwards, otherwise it will loop forever!
 	//Result->Holder = Copy_Node(Result->Holder, p);
 
-	Trace.pop_back();
+	Internal_Trace.pop_back();
 	//now we have copyed every ptr into a new base to point.
 	return Result;
 }

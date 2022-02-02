@@ -847,6 +847,7 @@ void Algebra::Update_Inline_Content(Node* n)
 			//no constant using array indicies.
 			//BUT we could still use the information that the unknown variable doesnt change.
 			//Switch to (pelisukka^mahapöydäl) mode here:
+
 		}
 	}
 	else if (n->Left->is(CALL_NODE)) {

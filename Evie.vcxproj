@@ -98,7 +98,7 @@
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
-    <LibraryPath>C:\Users\Quanf\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\GabenRTX\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)</OutDir>
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
