@@ -18,7 +18,31 @@
     <ClCompile Include="cpp\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\backend\ARM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\backend\BackEnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\backend\DebugGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\backend\IRGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\backend\IRPostProsessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\backend\Selector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\backend\x86.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\docker\ASM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\docker\DLL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cpp\docker\Docker.cpp">
@@ -36,13 +60,40 @@
     <ClCompile Include="cpp\docker\Mangler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\docker\OBJ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\docker\TXT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\lexer\Component.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cpp\lexer\Lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\lexer\Position.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\nodes\Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\nodes\Token.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\parser\Algebra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\parser\Analyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\parser\Memory_Manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\parser\Parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\parser\PostProsessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cpp\preprosessor\PreProsessor.cpp">
@@ -54,142 +105,128 @@
     <ClCompile Include="cpp\ui\Safe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cpp\ui\Satellite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpp\ui\Service.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cpp\ui\Usr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cpp\Docker\OBJ.cpp">
+    <ClCompile Include="tests\Unit_Tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cpp\BackEnd\BackEnd.cpp">
+    <ClCompile Include="tests\cpp\Base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cpp\BackEnd\IRGenerator.cpp">
+    <ClCompile Include="tests\cpp\Test_Back_End.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cpp\BackEnd\x86.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\BackEnd\IRPostProsessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\BackEnd\Selector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Nodes\Token.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Parser\Algebra.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Parser\PostProsessor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Nodes\Node.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Lexer\Position.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Lexer\Component.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Cpp\Test_Lexer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Unit_Tests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Cpp\Test_Back_End.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tests\Cpp\Base.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\BackEnd\ARM.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\BackEnd\DebugGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\UI\Satellite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\UI\Service.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Parser\Analyzer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Docker\DLL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cpp\Parser\Memory_Manager.cpp">
+    <ClCompile Include="tests\cpp\Test_Lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="io\unix.asm">
+    <None Include="io\test.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="io\win32.asm">
+    <None Include="io\remote\console.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="IO\test.e.asm">
+    <None Include="tests\io\Array.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="IO\test.e" />
-    <None Include="Tests\IO\Math.e" />
-    <None Include="Tests\IO\Math.e.asm">
+    <None Include="tests\io\Cast.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Conditions.e" />
-    <None Include="Tests\IO\Conditions.e.asm">
+    <None Include="tests\io\Conditions.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Array.e" />
-    <None Include="Tests\IO\Array.e.asm">
+    <None Include="tests\io\destructor.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Type.e" />
-    <None Include="Tests\IO\Type.e.asm">
+    <None Include="tests\io\Func.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Ptr.e" />
-    <None Include="Tests\IO\Cast.e" />
-    <None Include="Tests\IO\Func.e" />
-    <None Include="Tests\IO\Func.e.asm">
+    <None Include="tests\io\Global.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Cast.e.asm">
+    <None Include="tests\io\Math.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Global.e" />
-    <None Include="Tests\IO\NameSpace.e" />
-    <None Include="Tests\IO\NameSpace.e.asm">
+    <None Include="tests\io\NameSpace.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="STD\List.e" />
-    <None Include="STD\STD.e" />
-    <None Include="STD\Types.e" />
-    <None Include="Tests\IO\Template.e" />
-    <None Include="Tests\IO\Template.e.asm">
+    <None Include="tests\io\Ptr.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="STD\Memory.e" />
-    <None Include="Tests\IO\destructor.e.asm">
+    <None Include="tests\io\Template.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="Tests\IO\Destructor.e" />
-    <None Include="STD\String.e" />
-    <None Include="STD\Console.e" />
-    <None Include="STD\Win\File.e" />
-    <None Include="STD\sys.e" />
+    <None Include="tests\io\Type.e.asm">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dependencies\curl\curl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\curlver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\easy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\mprintf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\multi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\stdcheaders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\typecheck-gcc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\curl\urlapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="h\Flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="h\backend\ARM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\backend\BackEnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\backend\DebugGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\backend\IRGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\backend\IRPostProsessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\backend\Selector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\backend\x86.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="h\docker\ASM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\docker\DLL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="h\docker\Docker.h">
@@ -207,6 +244,9 @@
     <ClInclude Include="h\docker\Mangler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="h\docker\OBJ.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="h\docker\Section.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -222,13 +262,34 @@
     <ClInclude Include="h\lexer\Position.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="h\nodes\IR.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="h\nodes\Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\nodes\Token.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\parser\Algebra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\parser\Analyzer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\parser\Memory_Manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="h\parser\Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="h\parser\PostProsessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="h\preprosessor\PreProsessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\ui\Document_Request_Type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="h\ui\Producer.h">
@@ -237,82 +298,28 @@
     <ClInclude Include="h\ui\Safe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="h\ui\Usr.h">
+    <ClInclude Include="h\ui\Satellite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IO\_asm.h">
+    <ClInclude Include="h\ui\Service.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h\ui\Usr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="io\general.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\Docker\OBJ.h">
+    <ClInclude Include="io\_asm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\Nodes\IR.h">
+    <ClInclude Include="tests\h\Base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\Nodes\Token.h">
+    <ClInclude Include="tests\h\Test_Back_End.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="H\BackEnd\BackEnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\BackEnd\IRGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\BackEnd\x86.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\BackEnd\IRPostProsessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\BackEnd\Selector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\Parser\Algebra.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\Parser\PostProsessor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\H\Test_Lexer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\H\Test_Back_End.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\H\Base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\BackEnd\ARM.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\BackEnd\DebugGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\UI\Satellite.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tests\IO\Operator_Overload.e">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\UI\Service.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependencies\Json\json.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\UI\Document_Request_Type.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\Parser\Analyzer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\Docker\DLL.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="H\Parser\Memory_Manager.h">
+    <ClInclude Include="tests\h\Test_Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

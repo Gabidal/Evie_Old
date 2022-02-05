@@ -1,3 +1,0 @@
-theme: jekyll-theme-midnight
-- name: IntelliCode Team Completions
-  uses: microsoft/vs-intellicode@v1.0
