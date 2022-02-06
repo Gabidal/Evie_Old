@@ -662,12 +662,17 @@ void Parser::Constructor_Pattern(int i)
 
 void Parser::Prototype_Pattern(int i)
 {
-	if (!(Scope->is(CLASS_NODE) && ((Scope->is("static")) || Scope->Name == "GLOBAL_SCOPE")))
+	if (!Scope->is("static"))
 		return;
+	//int abc = banana()
+	//if ()
 	//func banana(int, short)\n
 	vector<int> Words = Get_Amount_Of(i, { Flags::TEXT_COMPONENT, Flags::KEYWORD_COMPONENT, Flags::TEMPLATE_COMPONENT });
 	//Words list must be a at leat two size for the type and for the name to be inside it
-	if (Words.size() < 2)
+	if (Words.size() == 0)
+		return;
+	//Banana<abc>() <- NO | int Banana<abc>() <- YES
+	if (Words.size() - Input[Words.back()].is(Flags::TEMPLATE_COMPONENT) < 2)
 		return;
 
 	vector<int> Paranthesis = Get_Amount_Of(Words.back() + 1, Flags::PAREHTHESIS_COMPONENT);
