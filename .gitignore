@@ -21,3 +21,6 @@ Evie
 
 Tests/IO/Remote
 enc_temp_folder
+
+.tmp.drivedownload
+.tmp.driveupload
