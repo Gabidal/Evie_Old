@@ -397,9 +397,21 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 		vector<Node*> Objects = Child_Copy->Get_all({ OBJECT_DEFINTION_NODE, OBJECT_NODE, CALL_NODE }, [](Node* n) { if (n->Name == "this") return true; return false; });
 		//insert this. infront of every member
 		for (auto& Object : Objects) {
+			//But why would there be a AST with a '.' node at this stage?
+			//Well, it's because this may occur on the Class initialization
+			//Altough functions have this covered, class body are not.
+			//this.Next = previus.Next
+			//{Next, Next}
+			//the latter one is not 'this' owned
+			Node** Handle = &Object;
+			if (Object->Context && Object->Context->Name == ".") {
+				Handle = &Object->Context;
+				Combine_Member_Fetching(*Handle);
+			}
+
 			//Banana().Apple()
 			//even tho Apple is called by Banana, Banana may be need of this pointter
-			Node*& Dot_Needing_Object = Get_Possible_Fetcher(Object);
+			Node*& Dot_Needing_Object = Get_Possible_Fetcher(*Handle);
 
 			if (Dot_Needing_Object->is(NUMBER_NODE) || Dot_Needing_Object->is(FUNCTION_NODE) || Dot_Needing_Object->is("const") || MANGLER::Is_Base_Type(Dot_Needing_Object))
 				continue;
@@ -957,11 +969,8 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	//x is not a fetcher in this example but the Compare is still it's member function.
 	Node* Fetcher = caller->Fetcher;
 	if (Fetcher == nullptr && caller->Parameters.size() > 0 && !caller->Parameters[0]->is(NUMBER_NODE)) {
-		for (auto i : caller->Parameters[0]->Inheritted) {
-			if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
-				continue;
-
-			Fetcher = Scope->Find(i, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
+		if (caller->Parameters[0]->Cast_Type && caller->Parameters[0]->Cast_Type->Name != "address") {
+			Fetcher = Scope->Find(caller->Parameters[0]->Cast_Type, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
 
 			//check if the first parameter is actually the fewtcher or just a ordinary parameter.
 			//if so then nullify the fetcher node.
@@ -974,6 +983,24 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 			if (Fetcher)
 				Scopes.push_back(Fetcher);
 		}
+		if (!Fetcher)
+			for (auto i : caller->Parameters[0]->Inheritted) {
+				if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
+					continue;
+
+				Fetcher = Scope->Find(i, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
+
+				//check if the first parameter is actually the fewtcher or just a ordinary parameter.
+				//if so then nullify the fetcher node.
+				if (MANGLER::Is_Base_Type(Fetcher)) {
+					Node* tmp = Fetcher->Find(caller, Fetcher, { FUNCTION_NODE }, true, true);
+					if (!tmp)
+						Fetcher = nullptr;
+				}
+
+				if (Fetcher)
+					Scopes.push_back(Fetcher);
+			}
 	}
 
 	if (Use_All_Scopes) {
@@ -1167,9 +1194,12 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 							//fruit --> banana
 							for (int Caller_i = 0; Caller_i < Caller->Parameters[i]->Get_Inheritted(true, false).size(); Caller_i++)
 								if (!Lexer::GetComponent(Caller->Parameters[i]->Get_Inheritted(true, false)[Caller_i]).is(Flags::KEYWORD_COMPONENT))
-									if (!Find_Castable_Inheritance(Func->Parameters[i]->Get_Inheritted(true, false), Caller->Parameters[i]->Get_Inheritted(true, false)[Caller_i]))
+									if (!Find_Castable_Inheritance(Func->Parameters[i]->Get_Inheritted(true, false), Caller->Parameters[i]->Get_Inheritted(true, false)[Caller_i])) {
 										All_Parameters_Match = false;
+										goto Break_Parameter_Check;
+									}
 		}
+		Break_Parameter_Check:
 
 		if (All_Parameters_Match)
 			Accuracity++;
@@ -1579,6 +1609,9 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		//now remove the current dot operator and replace it with the new fetched member
 		Right->Context = n->Context;
 		Right->Scope = n->Scope;
+
+		if (n->Cast_Type)
+			Right->Cast_Type = n->Cast_Type;
 
 		//a.Array[1]
 		//put the a.Array as the left side of the array operator
