@@ -1383,6 +1383,9 @@ int PostProsessor::Get_Casting_Distance(Node* a, Node* b, bool Layer)
 
 	if (!MANGLER::Is_Base_Type(Current))
 		for (auto I : Current->Get_Inheritted(true, false, true)) {
+			//This is to prevent infinite loop if the current is a same type pointter.
+			if (I == Current->Name)
+				continue;
 			//try to chack if this inheritted is connected to the goal type.
 			int Distance = Get_Casting_Distance(Current->Find(I), Goal, true);
 			if (Distance > 0)
@@ -1393,6 +1396,9 @@ int PostProsessor::Get_Casting_Distance(Node* a, Node* b, bool Layer)
 		//fruit -> banana
 		if (!MANGLER::Is_Base_Type(Goal))
 			for (auto I : Goal->Get_Inheritted(true, false, true)) {
+				//This is to prevent infinite loop if the goal is a same type pointter.
+				if (I == Goal->Name)
+					continue;
 				//try to chack if this inheritted is connected to the goal type.
 				int Distance = Get_Casting_Distance(Goal->Find(I), Current, true);
 				if (Distance > 0)
