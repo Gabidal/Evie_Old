@@ -1061,6 +1061,9 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 			Result.push_back({ Func, Scope });
 		}
 	}
+	if (Can_Remove_Templates && caller->Templates.size() > 0) {
+		caller->Templates.clear();
+	}
 	return Result;
 }
 
@@ -1371,7 +1374,7 @@ int PostProsessor::Get_Casting_Distance(Node* a, Node* b, bool Layer)
 	There are atm two different types of basetype complexes
 
 	The Legacy:
-	ptr char{}
+	ptr char{} <- undone!
 
 	The Tneplate system:
 	ptr char __VIRTUAL_CLASS_CHAR_PTR__{}
