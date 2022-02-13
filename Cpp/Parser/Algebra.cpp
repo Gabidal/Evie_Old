@@ -568,6 +568,8 @@ void Algebra::Combine_Numbers(Node*& n){
 		Combine_Numbers(n->Left);
 		Combine_Numbers(n->Right);
 	}
+	else
+		return;
 	//Double check iof the Node n is a number so that we can start our number combination.
 	if (n->Left->is(NUMBER_NODE) && n->Right->is(NUMBER_NODE)){
 		//now we can differiante decimals and integers.

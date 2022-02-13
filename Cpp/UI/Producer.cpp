@@ -16,7 +16,7 @@ void Producer::Assembly_Other_Source_Files()
 {
     stringstream output;
     output << " ";
-    for (int i = 0; i < Source_Files.size()-1; i++)
+    for (int i = 0; i < (int)Source_Files.size()-1; i++)
         output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + Source_Files[i] + ".obj " << Source_Files[i] << " " << Seperator << " ";
     if (Source_Files.size() > 0)
         output << Get_Assembler() << Get_Debug() << Get_Type() << " -o " + Source_Files[Source_Files.size()-1] + ".obj " << Source_Files[Source_Files.size() - 1] << " ";
