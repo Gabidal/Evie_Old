@@ -330,6 +330,9 @@ void Safe::Reference_Count_Type_Un_Availability()
 		}
 	}
 
+	if (sys->Info.Reference_Count_Size == 0)
+		return;
+
 	Node* Reference_Count_Type = Global_Scope->Find(sys->Info.Reference_Count_Size, Global_Scope, CLASS_NODE, "integer", true);
 
 	if (Reference_Count_Type == nullptr) {

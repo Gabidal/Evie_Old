@@ -240,7 +240,6 @@
   <ItemGroup>
     <None Include="io\remote\console.asm" />
     <None Include="io\test.e.asm" />
-    <None Include="main.e" />
     <None Include="tests\io\Array.e.asm" />
     <None Include="tests\io\Cast.e.asm" />
     <None Include="tests\io\Conditions.e.asm" />

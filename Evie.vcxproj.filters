@@ -167,7 +167,6 @@
     <None Include="tests\io\Type.e.asm">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="main.e" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\curl\curl.h">
