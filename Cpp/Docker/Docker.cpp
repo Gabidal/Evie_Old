@@ -251,21 +251,25 @@ string DOCKER::Get_File_Extension(string raw) {
 
 string DOCKER::Update_Working_Dir(string File_Name)
 {
-	int i = (int)File_Name.find_last_of('/');
+	//Main.e
+	//int i = (int)File_Name.find_last_of('/');
 	string Prevous_Dir = "";
 
-	if (Working_Dir.size() > 0)
+	if (!Working_Dir.empty())
 		Prevous_Dir = Working_Dir.back().second;
 
 	if (WORKING_DIR_IS_ABSOLUTE)
 		Prevous_Dir = "";
 
-	if (i != -1)
-	{
-		Working_Dir.push_back({Prevous_Dir + File_Name , Prevous_Dir + File_Name.substr(0, (size_t)i + 1) });
-		return File_Name.substr((size_t)i + 1);
-	}
-	return File_Name;
+	string New_Dir = "";
+	string remainder = Update_Working_Dir(File_Name, New_Dir);
+
+	/*if (i != -1)
+	{*/
+		Working_Dir.push_back({Prevous_Dir + File_Name , Prevous_Dir + New_Dir });
+		//return File_Name.substr((size_t)i + 1);
+	//}
+	return remainder;
 }
 
 string DOCKER::Update_Working_Dir(string File_Name, string& dir)

@@ -22,6 +22,7 @@ void Usr::Create_Argument_Stats()
 		Find_Lib(i);
 		Find_VT_API(i);
 		Find_Service(i);
+		Find_Reference_Count(i);
 	}
 }
 
@@ -163,7 +164,7 @@ void output::Fill_Empty_Arguments()
 		Bits_Mode = to_string(sizeof(void*));
 
 	//initialize the default reference count
-	if (Reference_Count_Size == 0)
+	if (Reference_Count_Size == -1)
 		Reference_Count_Size = atoi(Bits_Mode.c_str());
 
 	//we can always use the source files name to output files name and add the .asm at the end

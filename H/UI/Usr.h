@@ -25,7 +25,7 @@ public:
 	string Disable = "";
 	bool Debug = false;
 	string VT_API = "";
-	int Reference_Count_Size = 0;
+	int Reference_Count_Size = -1;
 	bool Is_Service = false;
 
 	string Evie_Location = "";

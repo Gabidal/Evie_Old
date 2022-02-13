@@ -97,7 +97,7 @@ public:
 	Docker(string FN, string PT = "") {
 		
 		for (auto i : DOCKER::Included_Files)
-				if (i == FN || (DOCKER::Working_Dir.size() > 0 && i == DOCKER::Working_Dir[0].second + FN)) {
+				if (i == FN || (!DOCKER::Working_Dir.empty() && i == DOCKER::Working_Dir[0].second + FN)) {
 					//cout << "Warnign: " << FN << " already included!" << endl;
 					return;
 				}
