@@ -14,7 +14,6 @@ unsigned long long Label_Differential_ID = 0;
 
 void IRGenerator::Factory()
 {
-
 	vector<Node*> All_Defined = Scope->Defined;
 	Scope->Append(All_Defined, Scope->Inlined_Items);
 

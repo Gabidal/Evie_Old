@@ -51,8 +51,8 @@ int Build(int argc, const char* argv[])
         cout << "Argument types are: \n";
         cout << "  -in ----------------- [relative path/source file]\n";
         cout << "  -out ---------------- [relative path/output file name]\n";
-        cout << "  -os ----------------- [target operating system (win32/unix)]\n";
-        cout << "  -host --------------- [the host operating system (win32/unix)]\n";
+        cout << "  -os ----------------- [target operating system (win/unix)]\n";
+        cout << "  -host --------------- [the host operating system (win/unix)]\n";
         cout << "  -arch --------------- [output assembly type (x86/arm)]\n";
         cout << "  -lib ---------------- [relative path/lib name]\n";
         cout << "  -repo-dir ----------- [relative/absolute path for saving git repos]\n";

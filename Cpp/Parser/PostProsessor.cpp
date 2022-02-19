@@ -12,25 +12,27 @@ extern Usr* sys;
 void PostProsessor::Factory() {
 	Transform_Component_Into_Node(); 
 
-	vector<Node*> All_Defined = Scope->Defined;
-	Scope->Append(All_Defined, Scope->Inlined_Items);
+	if (!Ignore_Scope_Defined) {
+		vector<Node*> All_Defined = Scope->Defined;
+		Scope->Append(All_Defined, Scope->Inlined_Items);
 
-	for (int i = 0; i < All_Defined.size(); i++) {
-		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
-		Type_Size_Definer(All_Defined[i]);
-	}
-	for (int i = 0; i < All_Defined.size(); i++) {
-		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
-		Handle_Imports(All_Defined[i]);
-	}
-	for (int i = 0; i < All_Defined.size(); i++) {
-		Type_Definer(All_Defined[i]);
-	}
-	for (auto& i : All_Defined) {
-		//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
-		Member_Function_Defined_Outside(i);
-		Member_Function_Defined_Inside(i);
-		Open_Function_For_Prosessing(i);
+		for (int i = 0; i < All_Defined.size(); i++) {
+			//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
+			Type_Size_Definer(All_Defined[i]);
+		}
+		for (int i = 0; i < All_Defined.size(); i++) {
+			//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
+			Handle_Imports(All_Defined[i]);
+		}
+		for (int i = 0; i < All_Defined.size(); i++) {
+			Type_Definer(All_Defined[i]);
+		}
+		for (auto& i : All_Defined) {
+			//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
+			Member_Function_Defined_Outside(i);
+			Member_Function_Defined_Inside(i);
+			Open_Function_For_Prosessing(i);
+		}
 	}
 
 	if (sys->Info.Is_Service && sys->Service_Info != Document_Request_Type::ASM)
@@ -140,6 +142,7 @@ void PostProsessor::Type_Definer(Node* type)
 	bool Constructor_Already_Defined = false;
 	vector<Node*> All_Defined = Scope->Defined;
 	Scope->Append(All_Defined, Scope->Inlined_Items);
+	Scope->Append(All_Defined, type->Defined);
 	for (auto j : All_Defined) {
 		if (!j->is(FUNCTION_NODE))
 			continue;
@@ -163,7 +166,7 @@ void PostProsessor::Type_Definer(Node* type)
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
 
-		//Make the returning type to follow the template returning protocols.
+	//Make the returning type to follow the template returning protocols.
 	Component* Uninitialized_Templates;
 	if (type->Is_Template_Object) {
 		string Result = type->Get_Uninitialized_Templates();
@@ -178,7 +181,6 @@ void PostProsessor::Type_Definer(Node* type)
 		p.Factory();
 
 		Uninitialized_Templates = new Component(type->Generate_Uninitialized_Template_Component(p.Input));
-
 	}
 
 	Node* Function = new Node(FUNCTION_NODE, type->Location);
@@ -1526,13 +1528,13 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 	//This in turn will disable complex structures.
 
 	//all of the casts and left side member computing is done in this one line.
-	PostProsessor p(Scope, vector<Node**>{&n->Left});
+	PostProsessor p(Scope, vector<Node**>{&n->Left}, true);
 
 	if (n->Right->is(CALL_NODE)) {
 		Cast(n->Right);
 	}
 	else {
-		p = PostProsessor(Scope, vector<Node*>{n->Right});
+		p = PostProsessor(Scope, vector<Node**>{&n->Right}, true);
 	}
 	//Cast(n->Left);
 	//Cast(n->Right);
@@ -1603,8 +1605,9 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 			//find the inheritted definition
 			n->Copy_Node(Right, n->Find(Right, Left, { OBJECT_DEFINTION_NODE, PARAMETER_NODE }), Scope);
 
-		//set the parent as a fechable
-		Right->Fetcher = Left;
+		if (!Right->is(NUMBER_NODE))
+			//set the parent as a fechable
+			Right->Fetcher = Left;
 
 		//now remove the current dot operator and replace it with the new fetched member
 		Right->Context = n->Context;

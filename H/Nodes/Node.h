@@ -150,9 +150,9 @@ public:
 	//Namespace as a fetcher on a memeber functino features
 	vector<string> Fetching_Inheritance;
 
-	Node* Get_Definition_Type();
+	Node* Get_Definition_Type(bool Ignore_Cast = false);
 
-	vector<string> Get_Right_Inheritted();
+	vector<string> Get_Right_Inheritted(bool Ignore_Cast = false);
 
 	bool is(long long F) {
 		return (Parsed_By & F) == F;
@@ -210,7 +210,7 @@ public:
 		return false;
 	}
 	
-	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false, bool skip_keywords = false);
+	string Get_Inheritted(string seperator, bool Skip_Prefixes = false, bool Get_Name = false, bool skip_keywords = false, bool Ignore_cast = false);
 	
 	vector<string> Get_Inheritted(bool Skip_Prefixes = false, bool Get_Name = false, bool Skip_Keywords = false);
 

@@ -86,6 +86,13 @@ Variable_Descriptor::Variable_Descriptor(Node* v, int i, vector<Node*> source) {
 Stop:;
 }
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="Skip_Prefixes">: Skip ptr/ref</param>
+/// <param name="Get_Name">: include name</param>
+/// <param name="Skip_Keywords"></param>
+/// <returns></returns>
 vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip_Keywords) {
 	vector<string> Result;
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
@@ -125,11 +132,11 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip
 	}
 }
 
-string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name, bool Skip_Keywords) {
+string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name, bool Skip_Keywords, bool Ignore_cast) {
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
 		return Seperator + Name;
 	}
-	else if (is(NUMBER_NODE) && Cast_Type == nullptr) {
+	else if (is(NUMBER_NODE) && Cast_Type == nullptr && !Ignore_cast) {
 		//1.29348
 		if (find(Name.begin(), Name.end(), '.') != Name.end()) {
 			if ((Name.end() - find(Name.begin(), Name.end(), '.')) <= 7)
@@ -144,8 +151,8 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 			return Find(4, Global_Scope, "integer")->Get_Inheritted(Seperator, Skip_Prefixes, true);
 		}
 	}
-	else if (is(NUMBER_NODE) && Cast_Type != nullptr) {
-		if (Cast_Type != nullptr)
+	else if (is(NUMBER_NODE) && Cast_Type != nullptr && !Ignore_cast) {
+		if (Cast_Type != nullptr && !Ignore_cast)
 			return Seperator + Cast_Type->Name;
 	}
 	else {
@@ -158,7 +165,7 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 			Result += Seperator + Inheritted[i];
 		}
 		//when using the address cast the inheritant of the casted is not changes so use that.
-		if (Cast_Type != nullptr && Cast_Type->Name != "address") {
+		if (Cast_Type != nullptr && !Ignore_cast && Cast_Type->Name != "address") {
 			if (MANGLER::Is_Base_Type(Cast_Type))
 				Result = Seperator + Cast_Type->Name;
 			else
@@ -168,13 +175,13 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 	}
 }
 
-Node* Node::Get_Definition_Type()
+Node* Node::Get_Definition_Type(bool Ignore_Cast)
 {
 	//the operator flag is added for global variable operators.
 	if (!Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, CONTENT_NODE, OPERATOR_NODE }))
 		return this;
 
-	vector<string> Right_Inherit = Get_Right_Inheritted();
+	vector<string> Right_Inherit = Get_Right_Inheritted(Ignore_Cast);
 
 	if (Right_Inherit.size() == 0) {
 		return this;
@@ -203,7 +210,7 @@ Node* Node::Get_Definition_Type()
 	return nullptr;
 }
 
-vector<string> Node::Get_Right_Inheritted()
+vector<string> Node::Get_Right_Inheritted(bool Ignore_Cast)
 {
 	vector<string> Result;
 
@@ -219,16 +226,17 @@ vector<string> Node::Get_Right_Inheritted()
 	if (Inheritted.size() > 0)
 		Result = Inheritted;
 
+	if (!Ignore_Cast)
 	//cast type is more closer to the right node than the og.
-	if (Cast_Type) {
-		//give the function the cast type by its self name so that
-		//if the cast has its own cast it gets picket, if not then this cast type is picket
-		//and not the cast type inheritted.
-		vector<string> tmp = Cast_Type->Inheritted;
-		Cast_Type->Inheritted = { Cast_Type->Name };
-		Result = Cast_Type->Get_Right_Inheritted();
-		Cast_Type->Inheritted = tmp;
-	}
+		if (Cast_Type) {
+			//give the function the cast type by its self name so that
+			//if the cast has its own cast it gets picket, if not then this cast type is picket
+			//and not the cast type inheritted.
+			vector<string> tmp = Cast_Type->Inheritted;
+			Cast_Type->Inheritted = { Cast_Type->Name };
+			Result = Cast_Type->Get_Right_Inheritted();
+			Cast_Type->Inheritted = tmp;
+		}
 
 	return Result;
 }
@@ -617,12 +625,28 @@ vector<Node*> Node::Get_Scope_Path(bool Include_Global_Scope)
 Node* Node::Find(Node* n, Node* s)
 {
 	if (s->Defined.size() == 0) {
-		Node* S = s->Get_Definition_Type();
+		//we need to ignore the casts that the scope might have, becasue something after must not 
+		//affect something before
+		Node* S = s->Get_Definition_Type(true);
 
 		if (S) {
 			s = S;
 			if (n->Name == s->Name)
 				return s;
+
+			//if the parent is a content node that is also casted to Page ptr, this will have
+			//transformed into _VIRTUAL_CLASS_PAGE_PTR_ type, which has the same base types but not same name.
+			if (s->Get_Inheritted("_", false, false, true, true) == n->Get_Inheritted("_", false, false, true))
+				for (auto i : s->Get_Inheritted(true, false, true)) {
+					S = Find(i, s, { CLASS_NODE });
+					if (S) {
+						//If S is same named as n, then n is maybe trying to access .size attribute
+						if (n->Name == S->Name)
+							return S;
+						s = S;
+						break;
+					}
+				}
 		}
 	}
 

@@ -14,6 +14,8 @@ using namespace std;
 
 class PostProsessor
 {
+private:
+	bool Ignore_Scope_Defined;
 public:
 	vector<Component> Components;
 	vector<Node*> Input;
@@ -22,7 +24,8 @@ public:
 
 	PostProsessor(Node* p) : Scope(p){}
 	PostProsessor(Node* p, vector<Node*> in) : Scope(p), Input(in) { Factory(); }
-	PostProsessor(Node* p, vector<Node**> in) {
+	PostProsessor(Node* p, vector<Node**> in, bool ignore_Scope_Defined = false) {
+		Ignore_Scope_Defined = ignore_Scope_Defined;
 		Scope = p;
 		for (auto **i : in) {
 			Input.push_back(*i);
