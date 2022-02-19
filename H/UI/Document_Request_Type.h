@@ -1,0 +1,16 @@
+#ifndef _DOCUMENT_REQUEST_TYPE_H_
+#define _DOCUMENT_REQUEST_TYPE_H_
+enum class Document_Request_Type
+{
+	NONE,
+	COMPLETIONS,
+	SIGNATURES,
+	DIAGNOSE,
+	OPEN,
+	DEFINITION,
+	INFORMATION,
+	FIND_REFERENCES,
+	ASM
+};
+
+#endif
