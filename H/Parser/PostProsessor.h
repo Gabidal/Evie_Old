@@ -15,7 +15,7 @@ using namespace std;
 class PostProsessor
 {
 private:
-	bool Ignore_Scope_Defined;
+	bool Ignore_Scope_Defined = false;
 public:
 	vector<Component> Components;
 	vector<Node*> Input;

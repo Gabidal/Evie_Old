@@ -229,9 +229,16 @@ void PostProsessor::Type_Definer(Node* type)
 
 	if (Constructor_Already_Defined)
 		return;
-	
-	PostProsessor p(type);
-	Function->Childs = p.Insert_Dot(type->Childs, Function, This);
+
+
+	PostProsessor p(type); 
+	Function->Childs = type->Childs;
+	//First make sure all the class intializations are member fetching combined.
+	for (auto& i : Function->Childs) {
+		p.Combine_Member_Fetching(i);
+	}
+
+	Function->Childs = p.Insert_Dot(Function->Childs, Function, This);
 
 	//call all the inheritted default or overrided constructor calls.
 	vector<Node*> tmp = Dottize_Inheritanse(type, This, Function);
@@ -406,10 +413,10 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 			//{Next, Next}
 			//the latter one is not 'this' owned
 			Node** Handle = &Object;
-			if (Object->Context && Object->Context->Name == ".") {
+			/*if (Object->Context && Object->Context->Name == ".") {
 				Handle = &Object->Context;
 				Combine_Member_Fetching(*Handle);
-			}
+			}*/
 
 			//Banana().Apple()
 			//even tho Apple is called by Banana, Banana may be need of this pointter
@@ -440,7 +447,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 					//check if the current first parameter is the this pointer, if not. then insert one.
 					bool Found = false;
 					for (auto P : Dot_Needing_Object->Parameters[0]->Get_all({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE })) {
-						if (P->Name == "this") {
+						if (P->Name == "this" && P->Context == Dot_Needing_Object) {
 							Found = true;
 							goto STOP;
 						}
@@ -522,11 +529,11 @@ vector<Node*> PostProsessor::Dottize_Inheritanse(Node* Class, Node* This, Node* 
 Node*& PostProsessor::Get_Possible_Fetcher(Node*& n)
 {
 	//This function returns the n if no fethcers found.
-	Node*& Result = n;
-	while (Result->Fetcher) {
-		Result = Result->Fetcher;
+	Node** Result = &n;
+	while ((*Result)->Fetcher) {
+		Result = &(*Result)->Fetcher;
 	}
-	return Result;
+	return *Result;
 }
 
 void Lambda(Node*& n) {

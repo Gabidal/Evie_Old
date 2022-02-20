@@ -317,9 +317,33 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 	}
 }
 
+void Safe::Start_Check_Usage_Of_Un_Declared_Variable()
+{
+	for (auto* Func : Global_Scope->Defined) {
+		Func->Modify_AST(
+			Func, [](Node* n) {return true; },
+			Check_Usage_Of_Un_Declared_Variable
+		);
+	}
+}
+
+void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
+{
+	if (n->is(OBJECT_NODE)) {
+		if (n->Find(n, n) == nullptr) {
+			//If we get here there are 2 possible ways this can end.
+			//First we are correct and this variable doesnt exists, where we can throw an error.
+			//OR this varibla needs the THIS fetcher for it to be found.
+
+		}
+	}
+}
+
 void Safe::Parser_Factory()
 {
 	Reference_Count_Type_Un_Availability();
+
+	Start_Check_Usage_Of_Un_Declared_Variable();
 }
 
 void Safe::Reference_Count_Type_Un_Availability()

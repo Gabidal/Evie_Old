@@ -106,6 +106,9 @@ private:
 	void Prefer_Class_Cast_Rather_Object_Cast(Node* n);
 	void Warn_Usage_Before_Definition(Node* n);
 
+	void Start_Check_Usage_Of_Un_Declared_Variable();
+	static void Check_Usage_Of_Un_Declared_Variable(Node*& n);
+
 	void Reference_Count_Type_Un_Availability();
 	vector<Node*> Input;
 };

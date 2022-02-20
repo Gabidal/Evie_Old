@@ -179,7 +179,7 @@ public:
 	bool is(vector<string> s) {
 		bool Is = true;
 		for (auto i : s)
-			if (is(i) == -1) {
+			if (is(i)) {
 				Is = false;
 				break;
 			}

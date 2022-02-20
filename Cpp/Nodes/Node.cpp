@@ -1524,6 +1524,8 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 		Report(Observation(ERROR, "Code needs a fix"));
 	}
 
+	bool Fetcher_Has_Already_Been_Updated = false;
+
 	//disable recursive funciton copying
 	if (Trace.size() > 0)
 		if (What_Node->is(FUNCTION_NODE)) {
@@ -1588,7 +1590,15 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 		if (Result->is(CALL_NODE))
 			scope = Result->Scope;
 
+		//If the fetcher is same as the first parameter update it aswell
+		Node* tmp = Result->Parameters[i];
+
 		Copy_Node(Result->Parameters[i], Result->Parameters[i], scope);
+
+		if (Result->Fetcher == tmp) {
+			Result->Fetcher = Result->Parameters[i];
+			Fetcher_Has_Already_Been_Updated = true;
+		}
 
 		if (Result->is(CALL_NODE))
 			Result->Parameters[i]->Context = Result;
@@ -1615,7 +1625,7 @@ void Node::Copy_Node(Node*& Result, Node* What_Node, Node* p)
 	if (Result->Predecessor)
 		Copy_Node(Result->Predecessor, Result->Predecessor, p);
 
-	if (Result->Fetcher)
+	if (Result->Fetcher && !Fetcher_Has_Already_Been_Updated)
 		Copy_Node(Result->Fetcher, Result->Fetcher, p);
 
 
