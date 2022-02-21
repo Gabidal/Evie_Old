@@ -21,6 +21,7 @@ enum MSG_Type {
 };
 
 inline string SYNTAX_ERROR = "Syntax error";
+inline string DEFINITION_ERROR = "Definition error";
 
 #define ERROR (MSG_Type)1
 

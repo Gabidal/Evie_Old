@@ -319,9 +319,11 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 
 void Safe::Start_Check_Usage_Of_Un_Declared_Variable()
 {
-	for (auto* Func : Global_Scope->Defined) {
-		Func->Modify_AST(
-			Func, [](Node* n) {return true; },
+	vector<Node*> All_Defined = Global_Scope->Defined;
+	Global_Scope->Append(All_Defined, Global_Scope->Inlined_Items);
+	for (int i = 0; i < All_Defined.size(); i++) {
+		All_Defined[i]->Modify_AST(
+			All_Defined[i], [](Node* n) {return true; },
 			Check_Usage_Of_Un_Declared_Variable
 		);
 	}
@@ -329,12 +331,34 @@ void Safe::Start_Check_Usage_Of_Un_Declared_Variable()
 
 void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 {
-	if (n->is(OBJECT_NODE)) {
-		if (n->Find(n, n) == nullptr) {
+	if (n->Has({OBJECT_DEFINTION_NODE, OBJECT_NODE})) {
+		if (n->Find(n, n->Scope) == nullptr) {
 			//If we get here there are 2 possible ways this can end.
 			//First we are correct and this variable doesnt exists, where we can throw an error.
 			//OR this varibla needs the THIS fetcher for it to be found.
 
+			//The scope cant be a class, simply because the varibale should be found immediatetly
+			//because the class should have definition of the variable.
+			Node* Func = n->Get_Scope_As(FUNCTION_NODE, n, false);
+
+			if (!Func->Parameters.empty()) {
+				//Now we need to check if this function has THIS pointter
+				Node* This = Func->Parameters[0];
+
+				if (This->Find(true, n, This) == nullptr) {
+					//Report(Observation(ERROR, "Use of un-defined '" + n->Name + "'", DEFINITION_ERROR));
+				}
+			}
+			else {
+				//There is no 'this' pointter
+				if (n->Context && 
+					n->Context->Name == "." &&
+					n->Context->Left == n) {
+					//This is the upmost left fetcher, so if this is not found
+					//Then it also is not defined
+					Report(Observation(ERROR, "Use of un-defined '" + n->Name + "'", DEFINITION_ERROR));
+				}
+			}
 		}
 	}
 }
