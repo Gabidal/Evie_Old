@@ -354,7 +354,8 @@ void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 
 void Safe::Flush_Errors()
 {
-	Report(Observation(ERROR, "", DEFINITION_ERROR, YES));
+	if (Notices.size() > 0)
+		Report(Observation(ERROR, "", DEFINITION_ERROR, YES));
 }
 
 void Safe::Parser_Factory()
