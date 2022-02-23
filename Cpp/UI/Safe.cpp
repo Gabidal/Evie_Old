@@ -44,29 +44,6 @@ void Stop() {
 
 void Observation::Report(bool Last)
 {
-	/*string Head;
-	if (Type == ERROR)
-		Head = Red + "Error" + Reset + ": ";
-	else if (Type == WARNING)
-		Head = Yellow + "Warning" + Reset + ": ";
-	else if (Type == SOLUTION)
-		Head = Green + "Solution" + Reset + ": {\n  ";
-	else if (Type == INFO)
-		Head = Green + "Notice" + Reset + ": ";
-
-	if (Pos.GetLine() != -1)
-		if (Pos.GetFilePath() != nullptr)
-			cout << Pos.GetFilePath() << ":" << Pos.GetFriendlyLine() << ":" << Pos.GetFriendlyCharacter() << ": " << Head << Msg << endl;
-		else
-			cout << Head << Msg << endl;
-	else
-		cout << Head << Msg << endl;
-
-	if (Type == SOLUTION)
-		cout << "}" << endl;
-	if ((Type == FAIL || Type == ERROR) && !Dont_Stop)
-			throw::runtime_error("ERROR");*/
-
 	//try to find same category of cause
 	bool Found_Own_Category = false;
 	for (auto& i : Notices) {
@@ -79,7 +56,7 @@ void Observation::Report(bool Last)
 	if (Found_Own_Category == false) {
 		Notices.push_back({ this->Cause, {*this} });
 	}
-	if (Type == ERROR || Type == FAIL || (sys->Service_Info == Document_Request_Type::ASM && Last)) {
+	if ((Type == ERROR || Type == FAIL || (sys->Service_Info == Document_Request_Type::ASM && Last)) && Stop_On_Error) {
 		//flush here:
 		for (auto N : Notices) {
 			string Result = "";
@@ -107,14 +84,29 @@ void Observation::Report(bool Last)
 			if (!Single_Line_Report)
 				Result += " {";
 
+			vector<string> Error_History;
 			//List all the reporters and their locations.
 			for (auto O : N.second) {
 				if (O.Msg == N.first)
 					continue;
+				if (O.Msg == "")
+					continue;
 
-				Result += "\n  " + string(O.Pos.GetFilePath()) + ":" + to_string(O.Pos.GetFriendlyLine()) + ":" + to_string(O.Pos.GetFriendlyCharacter()) + ": ";
+				string Current_Error = "\n  " + string(O.Pos.GetFilePath()) + ":" + to_string(O.Pos.GetFriendlyLine()) + ":" + to_string(O.Pos.GetFriendlyCharacter()) + ": ";
 
-				Result += O.Msg;
+				Current_Error += O.Msg;
+
+				bool Publish_Error = true;
+
+				for (auto S : Error_History) {
+					if (S == Current_Error)
+						Publish_Error = false;
+				}
+
+				if (Publish_Error) {
+					Result += Current_Error;
+					Error_History.push_back(Current_Error);
+				}
 			}
 
 			if (!Single_Line_Report)
@@ -126,7 +118,7 @@ void Observation::Report(bool Last)
 		Notices.clear();
 	}
 
-	if (!Dont_Stop) {
+	if (Stop_On_Error) {
 		Stop();
 	}
 }
@@ -331,36 +323,38 @@ void Safe::Start_Check_Usage_Of_Un_Declared_Variable()
 
 void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 {
-	if (n->Has({OBJECT_DEFINTION_NODE, OBJECT_NODE})) {
-		if (n->Find(n, n->Scope) == nullptr) {
-			//If we get here there are 2 possible ways this can end.
-			//First we are correct and this variable doesnt exists, where we can throw an error.
-			//OR this varibla needs the THIS fetcher for it to be found.
+	if (!n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }))
+		return;
+	if (n->Find(n, n->Scope))
+		return;
+	if (n->Name == "address")
+		return;
 
-			//The scope cant be a class, simply because the varibale should be found immediatetly
-			//because the class should have definition of the variable.
-			Node* Func = n->Get_Scope_As(FUNCTION_NODE, n, false);
+	//If we get here there are 2 possible ways this can end.
+	//First we are correct and this variable doesnt exists, where we can throw an error.
+	//OR this varible needs the THIS fetcher for it to be found.
 
-			if (!Func->Parameters.empty()) {
-				//Now we need to check if this function has THIS pointter
-				Node* This = Func->Parameters[0];
+	//check if the context is dot
+	if (n->Context && n->Context->Name == ".") {
+		Node* Most_left_Fetcher = n->Context->Get_Most_Left();
 
-				if (This->Find(true, n, This) == nullptr) {
-					//Report(Observation(ERROR, "Use of un-defined '" + n->Name + "'", DEFINITION_ERROR));
-				}
-			}
-			else {
-				//There is no 'this' pointter
-				if (n->Context && 
-					n->Context->Name == "." &&
-					n->Context->Left == n) {
-					//This is the upmost left fetcher, so if this is not found
-					//Then it also is not defined
-					Report(Observation(ERROR, "Use of un-defined '" + n->Name + "'", DEFINITION_ERROR));
-				}
-			}
-		}
+		if (n->Find(Most_left_Fetcher, n->Scope))
+			return;
+
+		Report(Observation(ERROR, "'" + n->Name + "'", *n->Location, DEFINITION_ERROR, NO));
 	}
+
+	//The scope cant be a class, simply because the varibale should be found immediatetly
+	//because the class should have definition of the variable.
+	Node* Func = n->Get_Scope_As(FUNCTION_NODE, n, false);
+
+
+
+}
+
+void Safe::Flush_Errors()
+{
+	Report(Observation(ERROR, "", DEFINITION_ERROR, YES));
 }
 
 void Safe::Parser_Factory()
@@ -368,6 +362,8 @@ void Safe::Parser_Factory()
 	Reference_Count_Type_Un_Availability();
 
 	Start_Check_Usage_Of_Un_Declared_Variable();
+
+	Flush_Errors();
 }
 
 void Safe::Reference_Count_Type_Un_Availability()

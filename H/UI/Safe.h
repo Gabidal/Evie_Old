@@ -21,45 +21,52 @@ enum MSG_Type {
 };
 
 inline string SYNTAX_ERROR = "Syntax error";
-inline string DEFINITION_ERROR = "Definition error";
+inline string DEFINITION_ERROR = "Undefined";
 
 #define ERROR (MSG_Type)1
+#define NO 0
+#define YES 1
+#define IDK -1
 
 class Observation {
 public:
-	Observation(MSG_Type t, string msg, Position p, string cause = "", bool dont_stop = true) {
+	Observation(MSG_Type t, string msg, Position p, string cause = "", int stop_On_Error = IDK) {
 		//External message request.
 		Type = t;
 		Msg = msg;
 		Pos = p;
 		Cause = cause;
-		Dont_Stop = dont_stop;
+		Stop_On_Error = true;
 
 		if (cause == "")
 			Cause = Msg;
 
-		if (Type == ERROR || Type == FAIL)
-			Dont_Stop = false;
+		if ((Type == ERROR || Type == FAIL) && (stop_On_Error == YES || stop_On_Error == IDK))
+			Stop_On_Error = true;
+		else if (stop_On_Error == NO)
+			Stop_On_Error = false;
 	}
 
-	Observation(MSG_Type t, string msg, string cause = "", bool dont_stop = true) {
+	Observation(MSG_Type t, string msg, string cause = "", int stop_On_Error = IDK) {
 		//External message request.
 		Type = t;
 		Msg = msg;
 		Pos = Position(-1, -1);
 		Cause = cause;
-		Dont_Stop = dont_stop;
+		Stop_On_Error = true;
 
 		if (cause == "")
 			Cause = Msg;
 
-		if (Type == ERROR || Type == FAIL)
-			Dont_Stop = false;
+		if ((Type == ERROR || Type == FAIL) && (stop_On_Error == YES || stop_On_Error == IDK))
+			Stop_On_Error = true;
+		else if (stop_On_Error == NO)
+			Stop_On_Error = false;
 	}
 
-	Observation(Observation& O, bool Dont_Stop) {
+	Observation(Observation& O, bool Stop_On_Error) {
 		*this = O;
-		this->Dont_Stop = Dont_Stop;
+		this->Stop_On_Error = Stop_On_Error;
 	}
 
 	void Report(bool last = true);
@@ -68,7 +75,7 @@ private:
 	Position Pos;
 	string Msg = "";
 	string Cause = "";
-	bool Dont_Stop = true;
+	bool Stop_On_Error = true;
 };
 
 class Lexer_Expectation_Set;
@@ -109,6 +116,7 @@ private:
 
 	void Start_Check_Usage_Of_Un_Declared_Variable();
 	static void Check_Usage_Of_Un_Declared_Variable(Node*& n);
+	void Flush_Errors();
 
 	void Reference_Count_Type_Un_Availability();
 	vector<Node*> Input;
