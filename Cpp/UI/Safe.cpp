@@ -325,14 +325,27 @@ void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 {
 	if (!n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }))
 		return;
+	//This can occur when the Modify_AST goes through the class members just because
+	//The size of that class was requested.
+	//Banana.size
+	if (n->Scope->is(CLASS_NODE))
+		return;
 	if (n->Find(n, n->Scope))
 		return;
 	if (n->Name == "address")
 		return;
 
+	Node* Function = n->Get_Scope_As({ FUNCTION_NODE, IMPORT, EXPORT }, n->Scope);
+	if (Function) {
+		for (auto i : Function->Parameters) {
+			if (i->Name == n->Name)
+		}
+	}
+
 	//If we get here there are 2 possible ways this can end.
 	//First we are correct and this variable doesnt exists, where we can throw an error.
 	//OR this varible needs the THIS fetcher for it to be found.
+	bool Throw_Error = false;
 
 	//check if the context is dot
 	if (n->Context && n->Context->Name == ".") {
@@ -341,15 +354,28 @@ void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 		if (n->Find(Most_left_Fetcher, n->Scope))
 			return;
 
-		Report(Observation(ERROR, "'" + n->Name + "'", *n->Location, DEFINITION_ERROR, NO));
+		Throw_Error = true;
+	}
+	else {
+		//The scope cant be a class, simply because the varibale should be found immediatetly
+		//because the class should have definition of the variable.
+		Node* Func = n->Get_Scope_As(FUNCTION_NODE, n, false);
+
+		//if the function is not a member function that has a 'this' pointter, then throw an error.
+		if (Func->Parameters.size() > 0 && Func->Parameters[0]->Name == "this") {
+			//Try to find the non-found varibale from the 'this' pointer
+			if (n->Find(n, Func->Parameters[0]))
+				return;
+
+			Throw_Error = true;
+		}
+		else {
+			Throw_Error = true;
+		}
 	}
 
-	//The scope cant be a class, simply because the varibale should be found immediatetly
-	//because the class should have definition of the variable.
-	Node* Func = n->Get_Scope_As(FUNCTION_NODE, n, false);
-
-
-
+	if (Throw_Error)
+		Report(Observation(ERROR, "'" + n->Name + "'", *n->Location, DEFINITION_ERROR, NO));
 }
 
 void Safe::Flush_Errors()

@@ -3,6 +3,7 @@ GAS.vcxproj.filters
 GAS.vcxproj.user
 Release
 Debug
+Evie.pdb
 x64/Test
 CMakeFiles
 CMakeCache.txt
