@@ -338,7 +338,9 @@ void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 	Node* Function = n->Get_Scope_As({ FUNCTION_NODE, IMPORT, EXPORT }, n->Scope);
 	if (Function) {
 		for (auto i : Function->Parameters) {
-			if (i->Name == n->Name)
+			if (i->Name == n->Name) {
+				return;
+			}
 		}
 	}
 

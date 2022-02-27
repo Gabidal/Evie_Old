@@ -1189,9 +1189,10 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	//Adds the Operator_Prefix into the next object
 	//</summary>
 	if (i + 1 > Input.size() - 1)
-		return;
-	if (Input[i + 1].is(Flags::END_COMPONENT))
-		return;
+		return; 
+	if (i + 2 <= Input.size() - 1)
+		if (!Input[i + 2].is(Flags::END_COMPONENT))
+			return;
 	if (Input[i].node != nullptr)
 		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
@@ -1773,7 +1774,7 @@ void Parser::Operator_Order()
 	for (int i = 0; i < Input.size(); i++)
 		Variable_Negate_Pattern(i);
 	for (int i = 0; i < Input.size(); i++)
-		Operator_PreFix_Pattern(i, { "++", "--" });
+		Operator_PreFix_Pattern(i, { "++", "--", "-"});
 	for (int i = 0; i < Input.size(); i++)
 		Operator_PostFix_Pattern(i, { "++", "--" });
 	//the combination and multilayering of operations.
