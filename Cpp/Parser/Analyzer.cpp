@@ -58,13 +58,13 @@ void Analyzer::Calling_Count_Incrementer(Node* f)
 	//be it by the start list, or calld for.
 	f->Calling_Count++;
 
-	f->Modify_AST(f, [](Node* a) { return true; }, [](Node*& n) {
+	/*f->Modify_AST(f, [](Node* a) { return true; }, [](Node*& n) {
 		Optimized = true;
 		while (Optimized) {
 			Optimized = false;
 			Algebra a(n, &n->Childs);
 		}
-	});
+	});*/
 
 	//Define_Sizes(f);
 

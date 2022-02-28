@@ -36,7 +36,7 @@ public:
 		Msg = msg;
 		Pos = p;
 		Cause = cause;
-		Stop_On_Error = true;
+		Stop_On_Error = false;
 
 		if (cause == "")
 			Cause = Msg;

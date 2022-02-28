@@ -119,7 +119,7 @@ void PostProsessor::Type_Definer(Node* type)
 		Reference_Count->Name = "Reference_Count";
 		Reference_Count->Scope = Type;
 
-		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type->Get_Scope_As(CLASS_NODE, {"static"}, Type), CLASS_NODE, "integer", true);
+		Node* Size_Representer = Type->Find(sys->Info.Reference_Count_Size, Type->Get_Scope_As(CLASS_NODE, { "static" }, Type), CLASS_NODE, "integer", true);
 
 		if (Size_Representer == nullptr) {
 			Report(Observation(WARNING, "Cannot find suitable size type for the reference countter", *Type->Location));
@@ -165,59 +165,63 @@ void PostProsessor::Type_Definer(Node* type)
 
 	//make a default constructor.
 	//insert the constructor into global scopes funciton list.
-
-	//Make the returning type to follow the template returning protocols.
-	Component* Uninitialized_Templates;
-	if (type->Is_Template_Object) {
-		string Result = type->Get_Uninitialized_Templates();
-
-		vector<Component> tmp = Lexer::GetComponents(Result);
-
-		Node* tmp_Class = new Node(CLASS_NODE, new Position());
-		tmp_Class->Templates = type->Templates;
-
-		Parser p(tmp_Class);
-		p.Input = tmp;
-		p.Factory();
-
-		Uninitialized_Templates = new Component(type->Generate_Uninitialized_Template_Component(p.Input));
-	}
-
-	Node* Function = new Node(FUNCTION_NODE, type->Location);
-	Function->Name = type->Name;
-	if (type->Is_Template_Object) {
-		Function->Inheritted = { "ptr" };
-		Function->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
-	}
-	else {
-		Function->Inheritted = { type->Name, "ptr" };
-	}
-
-	Function->Scope = Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope);
-
-	Node* This = new Node(PARAMETER_NODE, type->Location);
-	if (type->Is_Template_Object) {
-		This->Inheritted = { "ptr" };
-		This->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
-	}
-	else {
-		This->Inheritted = { type->Name, "ptr" };
-	}
-	This->Name = "this";
-	//This->Defined = type->Defined;
-	This->Scope = Function;
-	This->Update_Size();
-
-	Function->Parameters.push_back(This);
-	Function->Defined.push_back(This);
-
-	Function->Update_Size();
-
-	if (type->Has_Inheritted({ "cpp", "evie", "vivid" }) != -1)
-		Function->Inheritted.push_back(type->Inheritted[type->Has_Inheritted({ "cpp", "evie", "vivid" })]);
-
+	Node* Function;
+	Node* This;
 	if (!Constructor_Already_Defined) {
-		type->Defined.push_back(Function);
+		//Make the returning type to follow the template returning protocols.
+		Component* Uninitialized_Templates;
+		if (type->Is_Template_Object) {
+			string Result = type->Get_Uninitialized_Templates();
+
+			vector<Component> tmp = Lexer::GetComponents(Result);
+
+			Node* tmp_Class = new Node(CLASS_NODE, new Position());
+			tmp_Class->Templates = type->Templates;
+
+			Parser p(tmp_Class);
+			p.Input = tmp;
+			p.Factory();
+
+			Uninitialized_Templates = new Component(type->Generate_Uninitialized_Template_Component(p.Input));
+		}
+
+
+		Function = new Node(FUNCTION_NODE, type->Location);
+		Function->Name = type->Name;
+		if (type->Is_Template_Object) {
+			Function->Inheritted = { "ptr" };
+			Function->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
+		}
+		else {
+			Function->Inheritted = { type->Name, "ptr" };
+		}
+
+		Function->Scope = Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope);
+
+		This = new Node(PARAMETER_NODE, type->Location);
+		if (type->Is_Template_Object) {
+			This->Inheritted = { "ptr" };
+			This->Un_Initialized_Template_Inheritance = { { *Uninitialized_Templates, 0 } };
+		}
+		else {
+			This->Inheritted = { type->Name, "ptr" };
+		}
+		This->Name = "this";
+		//This->Defined = type->Defined;
+		This->Scope = Function;
+		This->Update_Size();
+
+		Function->Parameters.push_back(This);
+		Function->Defined.push_back(This);
+
+		Function->Update_Size();
+
+		if (type->Has_Inheritted({ "cpp", "evie", "vivid" }) != -1)
+			Function->Inheritted.push_back(type->Inheritted[type->Has_Inheritted({ "cpp", "evie", "vivid" })]);
+
+		if (!Constructor_Already_Defined) {
+			type->Defined.push_back(Function);
+		}
 	}
 
 	//constructed template classes are defined later on in the scope, so theyre memebrs are not defined properly
@@ -227,40 +231,34 @@ void PostProsessor::Type_Definer(Node* type)
 
 	Destructor_Generator(type);
 
-	if (Constructor_Already_Defined)
-		return;
+	if (!Constructor_Already_Defined) {
+		PostProsessor p(type);
+		Function->Childs = type->Childs;
+		//First make sure all the class intializations are member fetching combined.
+		for (auto& i : Function->Childs) {
+			p.Combine_Member_Fetching(i);
+		}
 
+		Function->Childs = p.Insert_Dot(Function->Childs, Function, This);
 
-	PostProsessor p(type); 
-	Function->Childs = type->Childs;
-	//First make sure all the class intializations are member fetching combined.
-	for (auto& i : Function->Childs) {
-		p.Combine_Member_Fetching(i);
+		//call all the inheritted default or overrided constructor calls.
+		vector<Node*> tmp = Dottize_Inheritanse(type, This, Function);
+
+		Function->Childs.insert(Function->Childs.begin(), tmp.begin(), tmp.end());
+
+		//make the return of this pointter
+		Node* ret = new Node(FLOW_NODE, type->Location);
+		ret->Name = "return";
+		ret->Right = new Node(*This);
+		ret->Scope = Function;
+		Function->Childs.push_back(ret);
+
+		PostProsessor P(Function, Function->Childs);
+
+		Function->Childs = P.Input;
+
+		Scope->Append(Function->Childs, P.Output);
 	}
-
-	Function->Childs = p.Insert_Dot(Function->Childs, Function, This);
-
-	//call all the inheritted default or overrided constructor calls.
-	vector<Node*> tmp = Dottize_Inheritanse(type, This, Function);
-
-	Function->Childs.insert(Function->Childs.begin(), tmp.begin(), tmp.end());
-
-	//make the return of this pointter
-	Node* ret = new Node(FLOW_NODE, type->Location);
-	ret->Name = "return";
-	ret->Right = new Node(*This);
-	ret->Scope = Function;
-	Function->Childs.push_back(ret);
-
-	PostProsessor P(Function, Function->Childs);
-
-	Function->Childs = P.Input;
-
-	Scope->Append(Function->Childs, P.Output);
-
-	//Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Defined.push_back(Function);
-	//Scope->Get_Scope_As(CLASS_NODE, { "static" }, Scope)->Childs.push_back(Function);
-
 
 	for (auto& j : type->Defined)
 		if (j->is(FUNCTION_NODE) /* && (j->Parameters.size() == 0 || j->Parameters[0]->Inheritted[0] == Scope->Defined[i]->Name) */ ) {

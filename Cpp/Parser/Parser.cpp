@@ -2,7 +2,6 @@
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Usr.h"
-#include <algorithm>
 //this is for unamed parameters.
 int arg_count = 0;
 extern Usr* sys;
