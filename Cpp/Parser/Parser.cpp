@@ -2,6 +2,7 @@
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Usr.h"
+#include <algorithm>
 //this is for unamed parameters.
 int arg_count = 0;
 extern Usr* sys;
@@ -1200,6 +1201,12 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 	//return if the left side of the operator is a computable oject.
 	if (Input[(size_t)i - 1].Has({ Flags::TEXT_COMPONENT, Flags::NUMBER_COMPONENT, Flags::PAREHTHESIS_COMPONENT }))		//a -b
 		return;
+
+	//to prevent this bullshit
+	//text.Size() -1
+	if (Input[(size_t)i - 1].Value == ".") {
+		return;
+	}
 
 	bool op_Pass = false;
 	for (string s : Prefixes)
