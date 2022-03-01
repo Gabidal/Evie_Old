@@ -1,4 +1,7 @@
 #include "../../H/Parser/Memory_Manager.h"
+#include "../../H/BackEnd/Selector.h"
+
+extern Selector* selector;
 
 
 void Memory_Manager::Factory()
@@ -31,15 +34,18 @@ void Memory_Manager::Manage_Class_Padding()
 		return;
 	
 	//This memory padding is not applied to plain data structures
-	if (Scope->is("plain"))
+	if (!Scope->is("plain")) {
+		//Try to compress memory usage, if the user agrees to it.
+		Manage_Class_Re_Order();
+	}
+
+	const int BITS = selector->Get_Largest_Register_Size(); //<- this can be the maximun register size
+	int Remainder = Scope->Size % BITS;
+
+	Scope->Parsed_By |= PARSED_BY::CLASS_MEMORY_PADDER;
+	if (Remainder == 0)
 		return;
 
-	//Try to compress memory usage, is the user agrees to it.
-	Manage_Class_Re_Order();
-
-	const int BITS = 8;
-	int Remainder = Scope->Size % BITS;
-	
 	Report(Observation(INFO, "Added " + to_string(Remainder) + " bytes to the end of '" + Scope->Name + "'.", *Scope->Location));
 
 	//If the base class has already a padder, then modify it.
@@ -57,9 +63,6 @@ void Memory_Manager::Manage_Class_Padding()
 
 		Scope->Defined.push_back(Padder);
 	}
-	
-
-	Scope->Parsed_By |= PARSED_BY::CLASS_MEMORY_PADDER;
 }
 
 /// <summary>

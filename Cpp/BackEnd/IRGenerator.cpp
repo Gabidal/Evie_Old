@@ -1206,6 +1206,9 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE) || Input[i]->Right->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE}))
 		return;
+
+	if (Input[i]->is("plain"))
+		return;
 	
 	if (MANGLER::Is_Based_On_Base_Type(Input[i]))
 		return;
@@ -1226,11 +1229,9 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	PostProsessor P(Scope);
 
 	Node* tmp = new Node(OBJECT_DEFINTION_NODE, Input[i]->Location);
-	tmp->Name = Input[i]->Right->Name + "_TMP_" + to_string((long long)tmp);
-	tmp->Inheritted = Input[i]->Inheritted;
-	tmp->Scope = Scope;
-
-	tmp->Get_Inheritted_Class_Members();
+	tmp->Copy_Node(tmp, Input[i]->Right, Input[i]->Right->Scope);
+	tmp->Name += "_TMP_" + to_string((long long)tmp);
+	tmp->Fetcher = nullptr;
 
 	Scope->Defined.push_back(tmp);
 
@@ -1465,17 +1466,63 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	if (n->is("static") || n->Fetcher->is("static")) {
 		if (Scope->is(FUNCTION_NODE)) {
 			//this now namespace if the condition above yelds true.
-			bool Load_To_Reg = true;
+			//bool Load_To_Reg = true;
+			//if (n->Context->Name == "=" && n->Context->Left == n)
+			//	Load_To_Reg = false;	//the label data is going to be rewritten by set operator.
+			//if (!n->Fetcher->is(CLASS_NODE))
+			//	n->Fetcher = n->Find(n->Fetcher->Inheritted[0]);
+			//Token* Result = new Token(TOKEN::MEMORY, { new Token(n) }, n->Size, n->Name);
+			//if (Load_To_Reg) {
+			//	Token* Reg = new Token(TOKEN::REGISTER, n->Fetcher->Name + "_" + n->Name + "_REGISTER", n->Size);
+			//	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="),
+			//		{
+			//			Reg, Result
+			//		}, nullptr));
+			//	Result = Reg;
+			//}
 
-			if (n->Context->Name == "=" && n->Context->Left == n)
-				Load_To_Reg = false;	//the label data is going to be rewritten by set operator.
+			//We also need to know if the member fetcher here, is needed as a value or a address to store a value to.
+			bool Need_Value_As_Reg = true;
+			//The only place where we would need to get the addres of this variable is, when
+			//we either put a value to it. or we get a reference from it.
+			if (n->Context) {
+				if (n->Context->is(ASSIGN_OPERATOR_NODE)) {
+					//check if the member is the right or left side
+					if (n->Context->Left == n) {
+						//a.n = ...
+						Need_Value_As_Reg = false;
+					}
+					else {
+						//other = n
+						//check if the left side want an address of this memebr fetched.
+						int Left_Side_Ptr_Count = n->Context->Left->Get_All("ptr");
+						int Right_Side_Ptr_Count = n->Get_All("ptr");
+						//Check if the left side has more ptr that the right side
+						if (Left_Side_Ptr_Count > Right_Side_Ptr_Count) {
+							Need_Value_As_Reg = false;
+						}
+					}
+				}
+				//if the context is anyother operator than assign, then we will use the default of loading into a reg value.
+			}
+			else {
+				Report(Observation(ERROR, "Un-Handled code status", ""));
+			}
 
-			if (!n->Fetcher->is(CLASS_NODE))
-				n->Fetcher = n->Find(n->Fetcher->Inheritted[0]);
-
+			//If the variable is straight up a static variable 
 			Token* Result = new Token(TOKEN::MEMORY, { new Token(n) }, n->Size, n->Name);
+			if (n->Fetcher && n->Fetcher->is("static")) {
+				//OR the fetcher is a namespace
+				if (n->Fetcher->is(CLASS_NODE)) {
+					//This may need to have somekind of un-wrapping, to handle the value from a global variable.
+				}
+				//OR the fetcher is a global variable inside a namespace
+				else if (n->Fetcher->Has({OBJECT_DEFINTION_NODE, OBJECT_NODE})) {
+					
+				}
+			}
 
-			if (Load_To_Reg) {
+			if (Need_Value_As_Reg) {
 				Token* Reg = new Token(TOKEN::REGISTER, n->Fetcher->Name + "_" + n->Name + "_REGISTER", n->Size);
 				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="),
 					{

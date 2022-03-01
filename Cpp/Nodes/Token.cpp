@@ -9,7 +9,7 @@ extern Usr* sys;
 
 Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 	if (n->is(OBJECT_NODE) || n->is(OBJECT_DEFINTION_NODE)) {
-		if (n->Find(n, n->Scope)->Scope->is("static") || n->is("static") || (n->Fetcher != nullptr && n->Fetcher->is("static")) || n->Find(n, n->Scope)->Has({FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT}))
+		if (n->Find(n, n->Scope)->Scope->is("static") || n->is("static") || (n->Fetcher && n->Fetcher->is("static")) || n->Find(n, n->Scope)->Has({FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT}))
 			Flags = TOKEN::GLOBAL_VARIABLE | TOKEN::CONTENT;
 		else if (n->Find(n, n->Scope)->Requires_Address)
 			Flags = TOKEN::CONTENT;
@@ -41,7 +41,7 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 		//find the curresponding register
 		for (int i = 0; i < n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters.size(); i++) {
 			if (n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name == n->Name) {
-				if (n->Find(n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name)->Format == "decimal") {
+				if (n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Format == "decimal") {
 					if (Current_Float_Register_Count < Max_Floating_Registers && !Requires_Address) {
 						Flags = TOKEN::REGISTER | TOKEN::DECIMAL | TOKEN::PARAMETER;
 						Parameter_Index = i;
@@ -60,7 +60,7 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 					break;
 				}
 			}
-			if (n->Find(n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Name)->Format == "decimal")
+			if (n->Get_Scope_As(FUNCTION_NODE, n->Scope)->Parameters[i]->Format == "decimal")
 				Current_Float_Register_Count++;
 			else
 				Current_Integer_Register_Count++;

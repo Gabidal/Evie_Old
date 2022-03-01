@@ -87,9 +87,6 @@ void PostProsessor::Transform_Component_Into_Node()
 
 void PostProsessor::Type_Definer(Node* type)
 {
-	//<summary>
-	//stack type info
-	//</summary>
 	if (type->Type != CLASS_NODE)
 		return;
 	if (type->Templates.size() > 0)	//template types are constructed elsewhere.
@@ -1471,8 +1468,6 @@ void PostProsessor::Open_Call_Parameters_For_Prosessing(int i)
 
 	Input[i]->Parameters = p.Input;
 
-	//Algebra_Laucher(Input[i], Input[i]->Parameters);
-
 	//see what outside defined has been injected to this call.
 	for (int j = 0; j < Input[i]->Defined.size(); j++) {
 		bool Is_Own_Defined = false;
@@ -2008,13 +2003,10 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	//while (a + 1 < a * 2){..}
 	//while (int i = 0, a + i < a * i*2, i++){..}
 	//we dont necessarily need to seperate the condition operator.
-	//Algebra Alg(Input[i], &Input[i]->Parameters);
 
 	//now just prosess the child tokens of while node as well.
 	PostProsessor post(Input[i]);
 	post.Input = Input[i]->Childs;
-
-	//Algebra_Laucher(Input[i], Input[i]->Childs);
 
 	//NOTE: this defined sizes might be reduntant!
 	post.Define_Sizes(Input[i]);
@@ -2025,6 +2017,11 @@ void PostProsessor::Open_Loop_For_Prosessing(int i)
 	post.Factory();
 
 	Input[i]->Childs = post.Input;
+
+	post.Input = Input[i]->Parameters;
+	post.Factory();
+
+	Input[i]->Parameters = post.Input;
 
 	for (auto& v : Input[i]->Defined)
 		post.Destructor_Caller(v, Input[i]->Childs);

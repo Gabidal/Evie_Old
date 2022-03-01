@@ -166,7 +166,7 @@ bool IsPartOf(Type previous_type, Type current_type, char previous, char current
     switch (previous_type)
     {
 
-    case Type::TEXT: return current_type == Type::NUMBER;
+    case Type::TEXT: return current_type == Type::NUMBER || current_type == Type::HEXADECIMAL;
 
     case Type::HEXADECIMAL: return current_type == Type::NUMBER || 
             (previous == '0' && current == 'x') ||
