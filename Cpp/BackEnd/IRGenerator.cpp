@@ -1462,109 +1462,57 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	if (n->is(PARSED_BY::IRGENERATOR))
 		return;
 
+	//Namespace fetcher
+	Token* Fetcher;
+	if (n->Fetcher->is("static") && n->Fetcher->is(CLASS_NODE)) {
+		Token * Result = new Token(TOKEN::MEMORY, { new Token(n) }, n->Size, n->Name);
 
-	if (n->is("static") || n->Fetcher->is("static")) {
-		if (Scope->is(FUNCTION_NODE)) {
-			//this now namespace if the condition above yelds true.
-			//bool Load_To_Reg = true;
-			//if (n->Context->Name == "=" && n->Context->Left == n)
-			//	Load_To_Reg = false;	//the label data is going to be rewritten by set operator.
-			//if (!n->Fetcher->is(CLASS_NODE))
-			//	n->Fetcher = n->Find(n->Fetcher->Inheritted[0]);
-			//Token* Result = new Token(TOKEN::MEMORY, { new Token(n) }, n->Size, n->Name);
-			//if (Load_To_Reg) {
-			//	Token* Reg = new Token(TOKEN::REGISTER, n->Fetcher->Name + "_" + n->Name + "_REGISTER", n->Size);
-			//	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="),
-			//		{
-			//			Reg, Result
-			//		}, nullptr));
-			//	Result = Reg;
-			//}
-
-			//We also need to know if the member fetcher here, is needed as a value or a address to store a value to.
-			bool Need_Value_As_Reg = true;
-			//The only place where we would need to get the addres of this variable is, when
-			//we either put a value to it. or we get a reference from it.
-			if (n->Context) {
-				if (n->Context->is(ASSIGN_OPERATOR_NODE)) {
-					//check if the member is the right or left side
-					if (n->Context->Left == n) {
-						//a.n = ...
-						Need_Value_As_Reg = false;
-					}
-					else {
-						//other = n
-						//check if the left side want an address of this memebr fetched.
-						int Left_Side_Ptr_Count = n->Context->Left->Get_All("ptr");
-						int Right_Side_Ptr_Count = n->Get_All("ptr");
-						//Check if the left side has more ptr that the right side
-						if (Left_Side_Ptr_Count > Right_Side_Ptr_Count) {
-							Need_Value_As_Reg = false;
-						}
-					}
-				}
-				//if the context is anyother operator than assign, then we will use the default of loading into a reg value.
-			}
-			else {
-				Report(Observation(ERROR, "Un-Handled code status", ""));
-			}
-
-			//If the variable is straight up a static variable 
-			Token* Result = new Token(TOKEN::MEMORY, { new Token(n) }, n->Size, n->Name);
-			if (n->Fetcher && n->Fetcher->is("static")) {
-				//OR the fetcher is a namespace
-				if (n->Fetcher->is(CLASS_NODE)) {
-					//This may need to have somekind of un-wrapping, to handle the value from a global variable.
-				}
-				//OR the fetcher is a global variable inside a namespace
-				else if (n->Fetcher->Has({OBJECT_DEFINTION_NODE, OBJECT_NODE})) {
-					
-				}
-			}
-
-			if (Need_Value_As_Reg) {
-				Token* Reg = new Token(TOKEN::REGISTER, n->Fetcher->Name + "_" + n->Name + "_REGISTER", n->Size);
-				Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="),
-					{
-						Reg, Result
-					}, nullptr));
-				Result = Reg;
-			}
-
-			n->Parsed_By |= PARSED_BY::IRGENERATOR;
-			Handle = Result;
-			return;
+		if (!Is_In_Left_Side_Of_Operator) {
+			Token* Reg = new Token(TOKEN::REGISTER, n->Fetcher->Name + "_" + n->Name + "_REGISTER", n->Size);
+			Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="),
+				{
+					Reg, Result
+				}, nullptr));
+			Result = Reg;
 		}
+
 		n->Parsed_By |= PARSED_BY::IRGENERATOR;
-		Handle = new Token(n);
+		Handle = Result;
 		return;
 	}
+	//The check for the fetcher of fetcher is for:
+	//If the fetcher has it's own fetching then just call this same function recursively
+	else if (n->Fetcher->is("static") && !n->Fetcher->Fetcher) {
+		//The fetcher is a global variable
+		Fetcher = new Token(TOKEN::MEMORY, { new Token(n->Fetcher) }, n->Fetcher->Size, n->Fetcher->Name);
+	}
+	else {
+		IRGenerator g(n->Scope, { n->Fetcher }, Output, true);
+		if (g.Handle != nullptr)
+			Fetcher = g.Handle;
+		else
+			Fetcher = new Token(n->Fetcher);
 
-	Token* Fecher;
-	IRGenerator g(n->Scope, { n->Fetcher }, Output, true);
-	if (g.Handle != nullptr)
-		Fecher = g.Handle;
-	else
-		Fecher = new Token(n->Fetcher);
-
-	if (Fecher->is(TOKEN::MEMORY)) {
-		Fecher = Fecher->Childs.back();
+		if (Fetcher->is(TOKEN::MEMORY)) {
+			Fetcher = Fetcher->Childs.back();
+		}
 	}
 
+
 	//if the fetcher is a memory we need to load it first to a register and that register is our handle for the member offset
-	if (Fecher->is(TOKEN::CONTENT) && !n->Fetcher->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE}) && n->Fetcher->is("ptr")) {
+	if (Fetcher->is(TOKEN::CONTENT) && !n->Fetcher->Has({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, ARRAY_NODE }) && n->Fetcher->is("ptr")) {
 		//call the pointter handle system to do our job here :D
 		//															 - 1 because the fecher being memory 
 		//															the pointter operator alrerady because of that does one unwrap
-		Fecher = Operate_Pointter(Fecher, n->Fetcher->Get_All("ptr"), false, false, n->Fetcher->Inheritted);
+		Fetcher = Operate_Pointter(Fetcher, n->Fetcher->Get_All("ptr"), false, false, n->Fetcher->Inheritted);
 
 	}
-	
+
 	//make the member offset
 	Token* Member_Offset = new Token(TOKEN::NUM, to_string(n->Find(n->Fetcher, n->Fetcher->Scope)->Find(n->Name)->Memory_Offset));
 
 	Token* Member_Offsetter = new Token(TOKEN::OFFSETTER, "+");
-	Member_Offsetter->Left = Fecher;
+	Member_Offsetter->Left = Fetcher;
 	Member_Offsetter->Right = Member_Offset;
 
 	long long Type = 0;
@@ -1578,7 +1526,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		n->Parsed_By |= PARSED_BY::IRGENERATOR;
 		return;
 	}
-	
+
 	//if not then load this into register
 	Token* r = new Token(Type | TOKEN::REGISTER, Member_Offsetter->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), n->Size);
 
@@ -1587,25 +1535,6 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	Handle = new Token(*r);
 	n->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
-
-/*void IRGenerator::Switch_To_Correct_Places(Node* o)
-{
-	if (!o->is(OPERATOR_NODE) && !o->is(ASSIGN_OPERATOR_NODE) && !o->is(CONDITION_OPERATOR_NODE) && !o->is(BIT_OPERATOR_NODE))
-		return;
-
-	if (o->Left->is(OPERATOR_NODE) || o->Left->is(ASSIGN_OPERATOR_NODE) || o->Left->is(CONDITION_OPERATOR_NODE) || o->Left->is(BIT_OPERATOR_NODE))
-		Switch_To_Correct_Places(o->Left);
-	if (o->Right->is(OPERATOR_NODE) || o->Right->is(ASSIGN_OPERATOR_NODE) || o->Right->is(CONDITION_OPERATOR_NODE) || o->Right->is(BIT_OPERATOR_NODE))
-		Switch_To_Correct_Places(o->Right);
-
-	if (o->Left->is(NUMBER_NODE) && !o->Right->is(NUMBER_NODE)) {
-		//switch the left side with right side, what could possibly go wrong?
-		//yeah pretty much everythong bro.
-		Node* tmp = o->Left;
-		o->Left = o->Right;
-		o->Right = tmp;
-	}
-}*/
 
 void IRGenerator::Parse_Static_Casting(Node* n)
 {

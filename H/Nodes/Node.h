@@ -44,11 +44,12 @@ namespace PARSED_BY {
 	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 14;
 	constexpr long long TYPE_DEFINER					= 1 << 15;
 	constexpr long long COMBINE_MEMBER_FETCHER			= 1 << 16;
+	constexpr long long GET_INHERITTED_MEMBERS			= 1 << 17;
 
-	constexpr long long CLASS_MEMORY_PADDER				= 1 << 17;
-	constexpr long long CLASS_RE_ORDERER				= 1 << 18;
+	constexpr long long CLASS_MEMORY_PADDER				= 1 << 18;
+	constexpr long long CLASS_RE_ORDERER				= 1 << 19;
 
-	constexpr long long CLASS_ANALYSER					= 1 << 19;
+	constexpr long long CLASS_ANALYSER					= 1 << 20;
 
 };
 

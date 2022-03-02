@@ -975,7 +975,16 @@ void Node::Get_Inheritted_Class_Members() {
 	for (auto Inherit : Inheritted) {
 		if (Lexer::GetComponent(Inherit).is(::Flags::KEYWORD_COMPONENT))
 			continue;
-		vector<Node*> Inheritted_Members = Find(Inherit, Scope)->Defined;
+		Node* Based = Find(Inherit, Scope);
+
+		//Check if the Based class is also based checked
+		if (!Based->is(PARSED_BY::GET_INHERITTED_MEMBERS)) {
+			//update the base type
+			Based->Get_Inheritted_Class_Members();
+			Based->Parsed_By |= PARSED_BY::GET_INHERITTED_MEMBERS;
+		}
+
+		vector<Node*> Inheritted_Members = Based->Defined;
 
 		reverse(Inheritted_Members.begin(), Inheritted_Members.end());
 
