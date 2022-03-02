@@ -88,7 +88,7 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 		Name = MANGLER::Mangle(n->Function_Implementation, "");
 
 	if ((n->Find(n, n)->is("static")))
-		Name = n->Scope->Name + "_" + Name;
+		Name = n->Find(n, n)->Scope->Name + "_" + Name;
 
 	Parent = n->Scope;
 

@@ -726,6 +726,11 @@ public:
 			//return the representive Node from the Function implemetation's paramters
 			return Context->Function_Implementation->Parameters[Parameter_Index];
 		}
+		else if (Context->Name == "return") {
+			Node* Func = this->Get_Scope_As(FUNCTION_NODE, Context->Scope);
+
+			return Func;
+		}
 		throw::runtime_error("ERROR!");
 	}
 

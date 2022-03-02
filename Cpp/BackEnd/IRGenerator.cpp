@@ -806,7 +806,7 @@ void IRGenerator::Parse_Pointers(int i)
 
 		if (Right->is(TOKEN::CONTENT)) {
 			//handle the other side into a usable register
-			Right = new Token(TOKEN::MEMORY, { Right }, Input[i]->Find(Right->Get_Name(), Right->Get_Parent())->Size);
+			Right = new Token(TOKEN::MEMORY, { Right }, Right->Get_Size());
 		}
 	}
 	else if (Left_Level < Right_Level) {

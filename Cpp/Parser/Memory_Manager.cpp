@@ -1,5 +1,6 @@
 #include "../../H/Parser/Memory_Manager.h"
 #include "../../H/BackEnd/Selector.h"
+#include "../../H/Docker/Mangler.h"
 
 extern Selector* selector;
 
@@ -31,6 +32,9 @@ void Memory_Manager::Manage_Class_Padding()
 	if (!Scope->is(CLASS_NODE))
 		return;
 	if (Scope->is(PARSED_BY::CLASS_MEMORY_PADDER))
+		return;
+
+	if (MANGLER::Is_Base_Type(Scope))
 		return;
 	
 	//This memory padding is not applied to plain data structures
