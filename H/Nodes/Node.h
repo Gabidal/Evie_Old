@@ -274,14 +274,18 @@ public:
 		}
 
 		for (Node* i : Scope->Defined)
-			if (i->Size == size)
+			if (i->Size == size) {
+				i->Update_Format();
 				if (i->Format == f)
 					return i;
+			}
 
 		for (Node* i : Scope->Inlined_Items)
-			if (i->Size == size)
+			if (i->Size == size) {
+				i->Update_Format();
 				if (i->Format == f)
 					return i;
+			}
 
 		if (Scope->Scope != nullptr)
 			return Find(size, Scope->Scope, f);
@@ -297,14 +301,18 @@ public:
 		}
 
 		for (Node* i : Parent->Defined)
-			if (i->is(flags) && (i->Size == size))
+			if (i->is(flags) && (i->Size == size)) {
+				i->Update_Format();
 				if (i->Format == f)
 					return i;
+			}
 
 		for (Node* i : Parent->Inlined_Items)
-			if (i->is(flags) && (i->Size == size))
+			if (i->is(flags) && (i->Size == size)){
+				i->Update_Format();
 				if (i->Format == f)
 					return i;
+			}
 
 		if (Parent->Scope != nullptr)
 			return Find(size, Parent->Scope, flags, f);
@@ -770,6 +778,8 @@ public:
 	vector<Node*> Get_Adjacent_Coefficients();
 
 	Node** Get_Intepreted_Value(int i);
+
+	vector<string> Get_Recursive_Inheritance(vector<string> Tray);
 };
 
 #endif

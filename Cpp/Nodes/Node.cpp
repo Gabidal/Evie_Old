@@ -178,7 +178,8 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 Node* Node::Get_Definition_Type(bool Ignore_Cast)
 {
 	//the operator flag is added for global variable operators.
-	if (!Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, CONTENT_NODE, OPERATOR_NODE }))
+	//The CALL_NODE represents the fetcher of amember that that call node returns as a type.
+	if (!Has({ OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, CONTENT_NODE, OPERATOR_NODE, CALL_NODE }))
 		return this;
 
 	vector<string> Right_Inherit = Get_Right_Inheritted(Ignore_Cast);
@@ -737,7 +738,8 @@ Node* Node::Find(int size, Node* Parent, int flags, string f, bool Needs_To_Be_B
 	}
 
 	for (Node* i : Parent->Defined)
-		if (i->is(flags) && (i->Size == size))
+		if (i->is(flags) && (i->Size == size)) {
+			i->Update_Format();
 			if (i->Format == f)
 				if (Needs_To_Be_Base_Type) {
 					if (MANGLER::Is_Base_Type(i))
@@ -745,9 +747,11 @@ Node* Node::Find(int size, Node* Parent, int flags, string f, bool Needs_To_Be_B
 				}
 				else
 					return i;
+		}
 
 	for (Node* i : Parent->Inlined_Items)
-		if (i->is(flags) && (i->Size == size))
+		if (i->is(flags) && (i->Size == size)) {
+			i->Update_Format();
 			if (i->Format == f)
 				if (Needs_To_Be_Base_Type) {
 					if (MANGLER::Is_Base_Type(i))
@@ -755,6 +759,7 @@ Node* Node::Find(int size, Node* Parent, int flags, string f, bool Needs_To_Be_B
 				}
 				else
 					return i;
+		}
 
 	if (Parent->Scope != nullptr) {
 		return Find(size, Parent->Scope, flags, f, Needs_To_Be_Base_Type);
@@ -878,10 +883,11 @@ Node* Node::Find(string name, Node* s, int flags, bool Get_Inheritted_Definition
 			if (i->Name == name)
 				return i;
 
-	for (Node* i : s->Defined)
+	for (Node* i : s->Defined) {
 		if (i->is(flags))
 			if (i->Name == name)
 				return i;
+	}
 
 	for (Node* i : s->Inlined_Items)
 		if (i->is(flags))
@@ -1127,6 +1133,29 @@ Node** Node::Get_Intepreted_Value(int i)
 	Values.push_back({ i, Handle });
 
 	return Handle;
+}
+
+vector<string> Node::Get_Recursive_Inheritance(vector<string> Tray)
+{
+	vector<string> Result;
+	for (auto i : Inheritted) {
+		bool Already_Recorded = false;
+		for (auto t : Tray) {
+			if (i == t) {
+				Already_Recorded = true;
+			}
+		}
+		if (!Already_Recorded) {
+			if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
+				continue;
+
+			Result.push_back(i);
+
+			Append(Result, Find(i)->Get_Recursive_Inheritance(Result));
+		}
+	}
+
+	return Result;
 }
 
 void Node::Update_Members_To_New_Parent()

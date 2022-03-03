@@ -309,16 +309,22 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 	}
 }
 
-void Safe::Start_Check_Usage_Of_Un_Declared_Variable()
+void Safe::Go_Through_AST()
 {
 	vector<Node*> All_Defined = Global_Scope->Defined;
 	Global_Scope->Append(All_Defined, Global_Scope->Inlined_Items);
 	for (int i = 0; i < All_Defined.size(); i++) {
 		All_Defined[i]->Modify_AST(
 			All_Defined[i], [](Node* n) {return true; },
-			Check_Usage_Of_Un_Declared_Variable
+			AST_Factory
 		);
 	}
+}
+
+void Safe::AST_Factory(Node*& n)
+{
+	Check_Usage_Of_Un_Declared_Variable(n);
+	Report_Missing_Cast(n);
 }
 
 void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
@@ -390,9 +396,88 @@ void Safe::Parser_Factory()
 {
 	Reference_Count_Type_Un_Availability();
 
-	Start_Check_Usage_Of_Un_Declared_Variable();
+	Go_Through_AST();
 
 	Flush_Errors();
+}
+
+void Safe::Report_Missing_Cast(Node*& n)
+{
+	if (n->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, LOGICAL_OPERATOR_NODE })) {
+		//Page ptr a = c (<- char ptr)
+		//to:
+		//Page ptr a = c->(Page ptr)
+		vector<string> Left_Inheritance = n->Left->Inheritted;
+		if (n->Left->is(NUMBER_NODE))
+			n->Append(Left_Inheritance, n->Left->Get_Inheritted(true, false, true));
+
+		vector<string> Right_Inheritance = n->Right->Inheritted;
+		if (n->Right->is(NUMBER_NODE))
+			n->Append(Right_Inheritance, n->Right->Get_Inheritted(true, false, true));
+
+		//try to remove same class types and inheritted base types
+		for (int i = 0; i < Left_Inheritance.size(); i++) {
+			if (Lexer::GetComponent(Left_Inheritance[i]).is(Flags::KEYWORD_COMPONENT))
+				continue;
+
+			for (int j = 0; j < Right_Inheritance.size(); j++) {
+				if (Lexer::GetComponent(Right_Inheritance[j]).is(Flags::KEYWORD_COMPONENT))
+					continue;
+
+				if (Left_Inheritance[i] == Right_Inheritance[j]) {
+					Left_Inheritance.erase(Left_Inheritance.begin() + i);
+					Right_Inheritance.erase(Right_Inheritance.begin() + j);
+					j--;
+					i--;
+				}
+				else {
+					//check if the other inherits the other
+					Node* I = n->Find(Left_Inheritance[i]);
+					vector<string> All_I_Inheritance = I->Get_Recursive_Inheritance({});
+
+					Node* J = n->Find(Right_Inheritance[j]);
+					vector<string> All_J_Inheritance = J->Get_Recursive_Inheritance({});
+
+					for (int x = 0; x < All_I_Inheritance.size(); x++) {
+						for (int y = 0; y < All_J_Inheritance.size(); y++) {
+							if (All_I_Inheritance[x] == All_J_Inheritance[j]) {
+								Left_Inheritance.erase(Left_Inheritance.begin() + i);
+								Right_Inheritance.erase(Right_Inheritance.begin() + j);
+								j--;
+								i--;
+								goto Next;
+							}
+						}
+					}
+				Next:;
+				}
+			}
+		}
+
+		if (Left_Inheritance != Right_Inheritance) {
+			string Left = "'";
+			for (int i = 0; i < (int)n->Left->Inheritted.size() - 1; i++) {
+				Left += n->Left->Inheritted[i] + ", ";
+			}
+			if (n->Left->Inheritted.size() > 0) {
+				Left += n->Left->Inheritted.back();
+			}
+			Left += "'";
+
+			string Right = "'";
+			for (int i = 0; i < (int)n->Right->Inheritted.size() - 1; i++) {
+				Right += n->Right->Inheritted[i] + ", ";
+			}
+			if (n->Right->Inheritted.size() > 0) {
+				Right += n->Right->Inheritted.back();
+			}
+			Right += "'";
+
+			Report(Observation(ERROR,
+				"Cannot convert: " + Left + " into: " + Right
+				, *n->Location, MISSING_CAST, NO));
+		}
+	}
 }
 
 void Safe::Reference_Count_Type_Un_Availability()

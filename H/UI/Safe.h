@@ -22,6 +22,7 @@ enum MSG_Type {
 
 inline string SYNTAX_ERROR = "Syntax error";
 inline string DEFINITION_ERROR = "Use of un-defined";
+inline string MISSING_CAST = "Missing cast";
 
 #define ERROR (MSG_Type)1
 #define NO 0
@@ -114,9 +115,14 @@ private:
 	void Prefer_Class_Cast_Rather_Object_Cast(Node* n);
 	void Warn_Usage_Before_Definition(Node* n);
 
-	void Start_Check_Usage_Of_Un_Declared_Variable();
+	//Variable Un-Declarative Error givers.
+	void Go_Through_AST();
+	static void AST_Factory(Node*& n);
 	static void Check_Usage_Of_Un_Declared_Variable(Node*& n);
 	void Flush_Errors();
+
+	//Cast missing error givers.
+	static void Report_Missing_Cast(Node*& n);
 
 	void Reference_Count_Type_Un_Availability();
 	vector<Node*> Input;
