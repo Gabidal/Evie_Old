@@ -1626,6 +1626,18 @@ void Parser::Type_Pattern(int i)
 			s.Check_For_Undefined_Inheritance(j);
 		}
 
+		//before giving the node->Childs to the class as body, we need to first remove the 
+		//only Object_Definition_Nodes and functions.
+		//size, Sum, etc
+		//Only left behind body intended nodes like operators.
+
+		for (int c = 0; c < p.Input[0].node->Childs.size(); c++) {
+			if (p.Input[0].node->Childs[c]->Has({ OBJECT_DEFINTION_NODE, FUNCTION_NODE })) {
+				p.Input[0].node->Childs.erase(p.Input[0].node->Childs.begin() + c);
+				c--;
+			}
+		}
+
 		Type->Append(Type->Childs, p.Input[0].node->Childs);
 		p.Input.clear();
 	}

@@ -12,6 +12,8 @@ Analyzer::Analyzer()
 void Analyzer::Factory()
 {
 	//gather information about the AST that we have made
+	Safe::Go_Through_AST(Safe::Report_Missing_Cast);
+	Safe::Flush_Errors();
 	Detect_Abnormal_Start_Address();
 	List_All_Exported();
 

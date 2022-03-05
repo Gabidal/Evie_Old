@@ -103,29 +103,31 @@ public:
 	Safe(vector<Node*> i) : Input(i) { PostProsessor_Factory(); }
 	Safe(){}
 	//single uses
-	void Check_For_Undefined_Inheritance(Node* n);
+	static void Check_For_Undefined_Inheritance(Node* n);
 
-	void Parser_Factory();
-private:
-	void PostProsessor_Factory();
-	void Check_Return_Validity(Node* n);
-	void Disable_Non_Ptr_Class_Return(Node* n);
-	void Check_For_Unitialized_Objects(Node* func);
-	void Warn_Usage_Of_Depricated(Node* n);
-	void Prefer_Class_Cast_Rather_Object_Cast(Node* n);
-	void Warn_Usage_Before_Definition(Node* n);
+	static void Parser_Factory();
+
+	static void Go_Through_AST(void(*Modifier)(Node*& n));
+	static void Check_Return_Validity(Node* n);
+	static void Disable_Non_Ptr_Class_Return(Node* n);
+	static void Check_For_Unitialized_Objects(Node* func);
+	static void Warn_Usage_Of_Depricated(Node* n);
+	static void Prefer_Class_Cast_Rather_Object_Cast(Node* n);
+	static void Warn_Usage_Before_Definition(Node* n);
 
 	//Variable Un-Declarative Error givers.
-	void Go_Through_AST();
 	static void AST_Factory(Node*& n);
 	static void Check_Usage_Of_Un_Declared_Variable(Node*& n);
-	void Flush_Errors();
+	static void Flush_Errors();
 
 	//Cast missing error givers.
 	static void Report_Missing_Cast(Node*& n);
 
-	void Reference_Count_Type_Un_Availability();
+	static void Reference_Count_Type_Un_Availability();
 	vector<Node*> Input;
+
+
+	void PostProsessor_Factory();
 };
 
 #endif

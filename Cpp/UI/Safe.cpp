@@ -309,14 +309,14 @@ void Safe::Warn_Usage_Before_Definition(Node* n)
 	}
 }
 
-void Safe::Go_Through_AST()
+void Safe::Go_Through_AST(void(*Checker)(Node*& n))
 {
 	vector<Node*> All_Defined = Global_Scope->Defined;
 	Global_Scope->Append(All_Defined, Global_Scope->Inlined_Items);
 	for (int i = 0; i < All_Defined.size(); i++) {
 		All_Defined[i]->Modify_AST(
 			All_Defined[i], [](Node* n) {return true; },
-			AST_Factory
+			Checker
 		);
 	}
 }
@@ -324,7 +324,6 @@ void Safe::Go_Through_AST()
 void Safe::AST_Factory(Node*& n)
 {
 	Check_Usage_Of_Un_Declared_Variable(n);
-	Report_Missing_Cast(n);
 }
 
 void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
@@ -396,7 +395,7 @@ void Safe::Parser_Factory()
 {
 	Reference_Count_Type_Un_Availability();
 
-	Go_Through_AST();
+	Go_Through_AST(AST_Factory);
 
 	Flush_Errors();
 }
@@ -417,12 +416,18 @@ void Safe::Report_Missing_Cast(Node*& n)
 
 		//try to remove same class types and inheritted base types
 		for (int i = 0; i < Left_Inheritance.size(); i++) {
-			if (Lexer::GetComponent(Left_Inheritance[i]).is(Flags::KEYWORD_COMPONENT))
+			if (Lexer::GetComponent(Left_Inheritance[i]).is(Flags::KEYWORD_COMPONENT)) {
+				Left_Inheritance.erase(Left_Inheritance.begin() + i);
+				i--;
 				continue;
+			}
 
 			for (int j = 0; j < Right_Inheritance.size(); j++) {
-				if (Lexer::GetComponent(Right_Inheritance[j]).is(Flags::KEYWORD_COMPONENT))
+				if (Lexer::GetComponent(Right_Inheritance[j]).is(Flags::KEYWORD_COMPONENT)) {
+					Right_Inheritance.erase(Right_Inheritance.begin() + j);
+					j--;
 					continue;
+				}
 
 				if (Left_Inheritance[i] == Right_Inheritance[j]) {
 					Left_Inheritance.erase(Left_Inheritance.begin() + i);
@@ -456,20 +461,20 @@ void Safe::Report_Missing_Cast(Node*& n)
 
 		if (Left_Inheritance != Right_Inheritance) {
 			string Left = "'";
-			for (int i = 0; i < (int)n->Left->Inheritted.size() - 1; i++) {
-				Left += n->Left->Inheritted[i] + ", ";
+			for (int i = 0; i < (int)Left_Inheritance.size() - 1; i++) {
+				Left += Left_Inheritance[i] + ", ";
 			}
-			if (n->Left->Inheritted.size() > 0) {
-				Left += n->Left->Inheritted.back();
+			if (Left_Inheritance.size() > 0) {
+				Left += Left_Inheritance.back();
 			}
 			Left += "'";
 
 			string Right = "'";
-			for (int i = 0; i < (int)n->Right->Inheritted.size() - 1; i++) {
-				Right += n->Right->Inheritted[i] + ", ";
+			for (int i = 0; i < (int)Right_Inheritance.size() - 1; i++) {
+				Right += Right_Inheritance[i] + ", ";
 			}
-			if (n->Right->Inheritted.size() > 0) {
-				Right += n->Right->Inheritted.back();
+			if (Right_Inheritance.size() > 0) {
+				Right += Right_Inheritance.back();
 			}
 			Right += "'";
 
