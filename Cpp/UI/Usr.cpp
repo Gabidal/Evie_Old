@@ -75,7 +75,7 @@ void Usr::Find_Bits_Mode(int &i)
 {
 	if ((i <= Argument_Amount) && strcmp(Input[i], "-mode") == 0)
 	{
-		Info.Bits_Mode = to_string(atoi(Input[i + 1]) / 8);
+		Info.Bytes_Mode = to_string(atoi(Input[i + 1]) / 8);
 		i++;
 	}
 }
@@ -160,12 +160,12 @@ void output::Fill_Empty_Arguments()
 	//Evie.exe -in IO/test.e
 
 	//first check if bit mode is set or not
-	if (Bits_Mode == "0")
-		Bits_Mode = to_string(sizeof(void*));
+	if (Bytes_Mode == "0")
+		Bytes_Mode = to_string(sizeof(void*));
 
 	//initialize the default reference count
 	if (Reference_Count_Size == -1)
-		Reference_Count_Size = atoi(Bits_Mode.c_str());
+		Reference_Count_Size = atoi(Bytes_Mode.c_str());
 
 	//we can always use the source files name to output files name and add the .asm at the end
 	if (Destination_File == "")

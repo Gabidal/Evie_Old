@@ -1,6 +1,7 @@
 #include "../../H/Parser/Analyzer.h"
 #include "../../H/Parser/Algebra.h"
 #include "../../H/Parser/Memory_Manager.h"
+#include "../../H/Parser/PostProsessor.h"
 
 extern bool Optimized;
 
@@ -12,9 +13,9 @@ Analyzer::Analyzer()
 void Analyzer::Factory()
 {
 	//gather information about the AST that we have made
+	Detect_Abnormal_Start_Address();
 	Safe::Go_Through_AST(Safe::Report_Missing_Cast);
 	Safe::Flush_Errors();
-	Detect_Abnormal_Start_Address();
 	List_All_Exported();
 
 	for (auto* f : Start_Of_Proccesses) {
@@ -24,11 +25,46 @@ void Analyzer::Factory()
 
 void Analyzer::Detect_Abnormal_Start_Address()
 {
-	if (sys->Info.Format == "exe") {
-		Node* Main = Global_Scope->Find("main", Global_Scope, FUNCTION_NODE);
+	Node* Main = Global_Scope->Find("main", Global_Scope, FUNCTION_NODE);
 
-		if (Main)
-			Start_Of_Proccesses.push_back(Main);
+	vector<Node*> Initializers;
+	for (auto& i : Global_Scope->Childs) {
+		if (!i->is(ASSIGN_OPERATOR_NODE))
+			continue;
+
+		Initializers.push_back(i);
+	}
+
+	if (Main && sys->Info.Format == "exe") {
+		Start_Of_Proccesses.push_back(Main);
+
+		for (auto& i : Initializers)
+			i->Scope = Main;
+
+		//Because the global variable initializers are not in any function particulary before this.
+		//Thus: they are not PostProsessed.
+		PostProsessor p(Main, Initializers);
+
+		//Insert the global variable initializations to Main
+		Main->Childs.insert(Main->Childs.begin(), Initializers.begin(), Initializers.end());
+
+	}
+	else {
+		//create a new initialization function for the global variables.
+		Node* Func = new Node(FUNCTION_NODE, new Position());
+		Func->Name = "_INIT_";
+		Func->Childs = Initializers;
+
+		for (auto& i : Func->Childs)
+			i->Scope = Func;
+
+		Func->Scope = Global_Scope;
+
+		Global_Scope->Defined.push_back(Func);
+
+		//Because the global variable initializers are not in any function particulary before this.
+		//Thus: they are not PostProsessed.
+		PostProsessor p(Func, Func->Childs);
 	}
 }
 

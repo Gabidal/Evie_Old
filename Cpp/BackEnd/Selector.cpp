@@ -8,7 +8,7 @@ extern ARM_64 _ARM_64;
 
 void Selector::Init() {
 	if (sys->Info.Architecture == "x86") {
-		if (sys->Info.Bits_Mode == "8") {
+		if (sys->Info.Bytes_Mode == "8") {
 			X86_64.Init();
 			for (auto i : X86_64.Registers)
 				Registers.push_back({ nullptr, i });
@@ -24,7 +24,7 @@ void Selector::Init() {
 
 	}
 	else if (sys->Info.Architecture == "arm") {
-		if (sys->Info.Bits_Mode == "8") {
+		if (sys->Info.Bytes_Mode == "8") {
 			if (sys->Info.OS == "win" || sys->Info.OS == "unix") {
 				_ARM_64.Init();
 				for (auto i : _ARM_64.Registers)

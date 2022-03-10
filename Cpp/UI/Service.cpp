@@ -525,7 +525,7 @@ void Service::Parse_Code(Proxy* proxy)
 			{"OS",                  Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
 			{"ARCHITECTURE",        Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
 			{"FORMAT",              Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
-			{"BITS_MODE",           Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
+			{"BITS_MODE",           Component(sys->Info.Bytes_Mode, Flags::NUMBER_COMPONENT)},
 			{"true",                Component("1", Flags::NUMBER_COMPONENT)},
 			{"false",               Component("0", Flags::NUMBER_COMPONENT)},
 		};

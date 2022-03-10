@@ -90,7 +90,7 @@ int Build(int argc, const char* argv[])
 
     if (VT_API != "")
         sys->Info.VT_API = VT_API;
-    _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bits_Mode.c_str());
+    _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bytes_Mode.c_str());
     if (sys->Info.Architecture == "x86")
         Output = ".intel_syntax noprefix\n";
     string start_file = sys->Info.Source_File.c_str();
@@ -153,14 +153,15 @@ int Build(int argc, const char* argv[])
     
     preprosessor.Defined_Constants =
     {
-        {"SOURCE_FILE",         Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
-        {"DESTINATION_FILE",    Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
-        {"OS",                  Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
-        {"ARCHITECTURE",        Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
-        {"FORMAT",              Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
-        {"BITS_MODE",           Component(sys->Info.Bits_Mode, Flags::NUMBER_COMPONENT)},
-        {"true",                Component("1", Flags::NUMBER_COMPONENT)},
-        {"false",               Component("0", Flags::NUMBER_COMPONENT)},
+        {"SOURCE_FILE",             Component("\"" + sys->Info.Source_File + "\"", Flags::STRING_COMPONENT)},
+        {"DESTINATION_FILE",        Component("\"" + sys->Info.Destination_File + "\"", Flags::STRING_COMPONENT)},
+        {"OS",                      Component("\"" + sys->Info.OS + "\"", Flags::STRING_COMPONENT)},
+        {"HOST_OS",                 Component("\"" + sys->Info.HOST_OS + "\"", Flags::STRING_COMPONENT)},
+        {"ARCHITECTURE",            Component("\"" + sys->Info.Architecture + "\"", Flags::STRING_COMPONENT)},
+        {"FORMAT",                  Component("\"" + sys->Info.Format + "\"", Flags::STRING_COMPONENT)},
+        {"BYTES_MODE",              Component(sys->Info.Bytes_Mode, Flags::NUMBER_COMPONENT)},
+        {"true",                    Component("1", Flags::NUMBER_COMPONENT)},
+        {"false",                   Component("0", Flags::NUMBER_COMPONENT)},
     };
     
     if (sys->Info.Is_Service) {

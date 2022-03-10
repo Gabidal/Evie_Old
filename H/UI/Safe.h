@@ -23,6 +23,7 @@ enum MSG_Type {
 inline string SYNTAX_ERROR = "Syntax error";
 inline string DEFINITION_ERROR = "Use of un-defined";
 inline string MISSING_CAST = "Missing cast";
+inline string ONLY_NUMBER_OPERATION = "Use of most left side of an operand as a number";
 
 #define ERROR (MSG_Type)1
 #define NO 0

@@ -81,7 +81,6 @@ public:
 
 	//Misc
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-	void Algebra_Laucher(Node* Scope, vector<Node*> &List);					//utilisez algebra to optimize the code in the function.
 	void Combine_Member_Fetching(Node*& n);			//combines the fether into the fetching member
 	void Define_Sizes(Node* p);						//defines sizes of every type that the parent has init.
 	void Combine_Condition(int i);					//combines the ifs and elses
@@ -98,7 +97,6 @@ public:
 
 	int Get_Amount(string t, Node* n);
 
-	void Analyze_Global_Variable_Changes(int i);
 	void Change_Local_Strings_To_Global_Pointters(int i);
 
 	void Move_Global_Varibles_To_Header(int i);

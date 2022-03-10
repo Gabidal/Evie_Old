@@ -9,7 +9,7 @@ extern Selector* selector;
 void BackEnd::Init()
 {
 	if (sys->Info.Architecture == "x86") {
-		if (sys->Info.Bits_Mode == "8") {
+		if (sys->Info.Bytes_Mode == "8") {
 			Seperator = X86_64.Seperator;
 			Register_Pre_Fix = X86_64.Register_Pre_Fix;
 			Number_Pre_Fix = X86_64.Number_Pre_Fix;
@@ -18,7 +18,7 @@ void BackEnd::Init()
 
 	}	
 	else if (sys->Info.Architecture == "arm") {
-		if (sys->Info.Bits_Mode == "8") {
+		if (sys->Info.Bytes_Mode == "8") {
 			if (sys->Info.OS == "win" || sys->Info.OS == "unix") {
 				Seperator = _ARM_64.Seperator;
 				Register_Pre_Fix = _ARM_64.Register_Pre_Fix;

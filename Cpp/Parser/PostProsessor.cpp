@@ -38,9 +38,7 @@ void PostProsessor::Factory() {
 	if (sys->Info.Is_Service && sys->Service_Info != Document_Request_Type::ASM)
 		return;
 
-	//Define_Sizes(Parent);
 	for (int i = 0; i < Input.size(); i++) {
-		//Handle_Namespace_Inlining(i);
 		Cast(Input[i]);
 		//Never ever duper gever seperate these two funktions from each others, or modify this order.
 		Open_Paranthesis(i);
@@ -49,22 +47,20 @@ void PostProsessor::Factory() {
 		Operator_Overload(i);
 		Open_Condition_For_Prosessing(i);
 		Open_Loop_For_Prosessing(i);
-		//Combine_Conditions(i);
 		Combine_Member_Fetching(Input[i]);
 		Go_Through_Un_Combined_Fetching(Input[i]);
 		Determine_Return_Type(i);
 		Determine_Array_Type(i);
 		Open_Call_Parameters_For_Prosessing(i);
 		Find_Call_Owner(Input[i]);
-		Analyze_Global_Variable_Changes(i);
 		Change_Local_Strings_To_Global_Pointters(i);
-		Update_Operator_Inheritance(Input[i]);
+		//Why is this even a thing if Determine return type is a thing?
+		//Update_Operator_Inheritance(Input[i]);
 		Analyze_Return_Value(Input[i]);
 		Increase_Calling_Number_For_Function_Address_Givers(Input[i]);
 		Open_PreFix_Operator(i);
 		Open_PostFix_Operator(i);
 	}
-	//Open_Safe(Input);
 	for (int i = 0; i < Input.size(); i++)
 		Combine_Condition(i);
 	for (int i = 0; i < Input.size(); i++)
@@ -1746,15 +1742,6 @@ void PostProsessor::Determine_Return_Type(int i)
 		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right, &Input[i]->Left });
 	}
 
-	/*vector<Node*> Tmp;
-
-	if (!Input[i]->is(PREFIX_NODE))
-		Tmp.push_back(Input[i]->Left);
-	if (!Input[i]->is(POSTFIX_NODE))
-		Tmp.push_back(Input[i]->Right);
-
-	Algebra_Laucher(Input[i], Tmp);*/
-
 	if (!Input[i]->Has({ PREFIX_NODE, POSTFIX_NODE })) {
 		//try to find a suitable operator overload if there is one
 		for (auto& overload : Input[i]->Left->Operator_Overloads) {
@@ -1764,6 +1751,36 @@ void PostProsessor::Determine_Return_Type(int i)
 			Input[i]->Inheritted = overload->Inheritted;
 			return;
 		}
+
+		//This is responsible for setting inheritanse for numbers
+		Node** Number = &Input[i]->Left;
+		Node** Non_Number = &Input[i]->Right;
+
+		if ((*Non_Number)->is(NUMBER_NODE)) {
+			if (!(*Number)->is(NUMBER_NODE)) {
+				Number = &Input[i]->Right;
+				Non_Number = &Input[i]->Left;
+			}
+			else {
+				//Both of em are numbers
+				vector<string> Inheritance;
+				vector<Node*> Contexts = (*Number)->Get_Context_Path();
+				reverse(Contexts.begin(), Contexts.end());
+				for (auto Context : Contexts) {
+					if (Context->Inheritted.size() > 0) {
+						(*Number)->Inheritted = Context->Inheritted;
+						(*Non_Number)->Inheritted = Context->Inheritted;
+					}
+				}
+
+				if (Inheritance.size() == 0) {
+					Report(Observation(WARNING, "Un-clear context for '" + (*Number)->Name + "' to decide type", *(*Number)->Location, ONLY_NUMBER_OPERATION));
+				}
+			}
+		}
+		
+		if ((*Number)->is(NUMBER_NODE))
+			(*Number)->Inheritted = (*Non_Number)->Inheritted;
 
 		if (Input[i]->Left->is(NUMBER_NODE)) {
 			//Some operators cannot be swapped, like - and /
@@ -2064,36 +2081,6 @@ int PostProsessor::Get_Amount(string t, Node* n)
 	return result;
 }
 
-void PostProsessor::Analyze_Global_Variable_Changes(int i)
-{
-	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
-		return;
-
-	//check if the parent is global scope.
-	if (Input[i]->Left->Scope->Name != "GLOBAL_SCOPE")
-		return;
-
-	Node* og = Scope->Find(Input[i]->Left->Name);
-
-	if (Scope->Name == "GLOBAL_SCOPE") {
-		//We are in global scope area.
-		if (!Input[i]->Right->Get_Most_Left()->is(NUMBER_NODE) && !Input[i]->Right->Get_Most_Left()->is(STRING_NODE)) {
-			Node* Right = Scope->Find(Input[i]->Right->Get_Most_Left()->Name);
-			if (!Right->is("const"))
-				if (og->is("const")) {
-					og->Inheritted.erase(og->Inheritted.begin() + og->Get_Index_of_Inheritted("const"));
-				}
-		}
-	}
-	else {
-		//we are in a fucntion of some sort.
-		//if this is the case the global variable cannot be a constant anymore.
-		if (og->is("const")) {
-			og->Inheritted.erase(og->Inheritted.begin() + og->Get_Index_of_Inheritted("const"));
-		}
-	}
-}
-
 void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 {
 	if (!Input[i]->is(STRING_NODE))
@@ -2156,7 +2143,8 @@ void PostProsessor::Move_Global_Varibles_To_Header(int i)
 
 	Input.erase(Input.begin() + i);
 
-	Move_Global_Varibles_To_Header(i);
+	if (i - 1 >= 0)
+		Move_Global_Varibles_To_Header(i);
 }
 
 bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)

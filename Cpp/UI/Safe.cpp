@@ -323,6 +323,10 @@ void Safe::Go_Through_AST(void(*Checker)(Node*& n))
 
 void Safe::AST_Factory(Node*& n)
 {
+	for (auto& i : n->Defined) {
+		i->Modify_AST(i, [](Node* n) {return true; }, AST_Factory);
+	}
+
 	Check_Usage_Of_Un_Declared_Variable(n);
 }
 
@@ -407,33 +411,37 @@ void Safe::Report_Missing_Cast(Node*& n)
 		//to:
 		//Page ptr a = c->(Page ptr)
 		vector<string> Left_Inheritance = n->Left->Inheritted;
-		if (n->Left->is(NUMBER_NODE))
+		if (n->Left->is(NUMBER_NODE) && Left_Inheritance.size() == 0)
 			n->Append(Left_Inheritance, n->Left->Get_Inheritted(true, false, true));
 
 		vector<string> Right_Inheritance = n->Right->Inheritted;
-		if (n->Right->is(NUMBER_NODE))
+		if (n->Right->is(NUMBER_NODE) && Right_Inheritance.size() == 0)
 			n->Append(Right_Inheritance, n->Right->Get_Inheritted(true, false, true));
 
-		//try to remove same class types and inheritted base types
 		for (int i = 0; i < Left_Inheritance.size(); i++) {
 			if (Lexer::GetComponent(Left_Inheritance[i]).is(Flags::KEYWORD_COMPONENT)) {
 				Left_Inheritance.erase(Left_Inheritance.begin() + i);
 				i--;
-				continue;
 			}
+		}
+
+		for (int i = 0; i < Right_Inheritance.size(); i++) {
+			if (Lexer::GetComponent(Right_Inheritance[i]).is(Flags::KEYWORD_COMPONENT)) {
+				Right_Inheritance.erase(Right_Inheritance.begin() + i);
+				i--;
+			}
+		}
+
+		//try to remove same class types and inheritted base types
+		for (int i = 0; i < Left_Inheritance.size(); i++) {
 
 			for (int j = 0; j < Right_Inheritance.size(); j++) {
-				if (Lexer::GetComponent(Right_Inheritance[j]).is(Flags::KEYWORD_COMPONENT)) {
-					Right_Inheritance.erase(Right_Inheritance.begin() + j);
-					j--;
-					continue;
-				}
-
 				if (Left_Inheritance[i] == Right_Inheritance[j]) {
 					Left_Inheritance.erase(Left_Inheritance.begin() + i);
 					Right_Inheritance.erase(Right_Inheritance.begin() + j);
 					j--;
 					i--;
+					goto Next_Left_Inheritance;
 				}
 				else {
 					//check if the other inherits the other
@@ -457,6 +465,8 @@ void Safe::Report_Missing_Cast(Node*& n)
 				Next:;
 				}
 			}
+
+		Next_Left_Inheritance:;
 		}
 
 		if (Left_Inheritance != Right_Inheritance) {

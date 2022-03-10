@@ -13,7 +13,7 @@ public:
 	string Seperator = "&&";
 	Producer()
 	{
-		Size = to_string(atoi(sys->Info.Bits_Mode.c_str()) * 8);
+		Size = to_string(atoi(sys->Info.Bytes_Mode.c_str()) * 8);
 		Output_File = sys->Info.Destination_File;
 		Type = sys->Info.Format;
 		arch = sys->Info.Architecture;

@@ -2140,16 +2140,6 @@ void Parser::Use_Pattern(int i)
 	Closest_Namespace->Inlined_Namespaces.push_back(Namespace);
 
 	for (auto &j : Inlined) {
-		Node* n = j;
-		if (j->is(FUNCTION_NODE)) {
-			continue;
-			//n = new Node(*n);
-		}
-
-		//j = j->Copy_Node(n, Closest_Namespace);
-	}
-
-	for (auto &j : Inlined) {
 		if (j->Fetcher)
 			continue;
 
@@ -2166,6 +2156,9 @@ void Parser::Use_Pattern(int i)
 	}
 
 	Closest_Namespace->Append(Closest_Namespace->Inlined_Items, Inlined);
+
+	//This adds the init code to the new namespace.
+	Closest_Namespace->Append(Closest_Namespace->Childs, Namespace->Childs);
 
 	Input.erase(Input.begin() + i, Input.begin() + i + 2);
 }

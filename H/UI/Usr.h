@@ -21,7 +21,7 @@ public:
 	string Repo_Dir = "";
 	vector<string> Source_Files;
 	string Format = "exe";
-	string Bits_Mode = "0";
+	string Bytes_Mode = "0";
 	string Disable = "";
 	bool Debug = false;
 	string VT_API = "";
