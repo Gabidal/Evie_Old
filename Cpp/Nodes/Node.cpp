@@ -124,7 +124,7 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip
 		//when using the address cast the inheritant of the casted is not changes so use that.
 		if (Cast_Type != nullptr && Cast_Type->Name != "address") {
 			if (MANGLER::Is_Base_Type(Cast_Type))
-				Result.push_back(Cast_Type->Name);
+				Result = { Cast_Type->Name };
 			else
 				Result = Cast_Type->Get_Inheritted(Skip_Prefixes, Get_Name, Skip_Keywords);
 		}

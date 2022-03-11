@@ -578,14 +578,14 @@ bool MANGLER::Is_Base_Type(Node* n)
 	if (n->is(NUMBER_NODE) || n->is(OPERATOR_NODE) || n->is(ASSIGN_OPERATOR_NODE) || n->is(CONDITION_OPERATOR_NODE) || n->is(BIT_OPERATOR_NODE) || n->is(ARRAY_NODE) || n->is(CALL_NODE))
 		return false;
 	bool Result = true;
-	for (auto i : n->Childs) {
+	for (auto i : n->Defined) {
 		if (i->Name == "size" && i->is("const"))
 			continue;
 		else if (i->Name == "format" && i->is("const"))
 			continue;
 		else if (i->is(FUNCTION_NODE))
 			continue;
-		Result = false;	//because base types do not have any other member other than the Size.
+		Result = false;
 		break;
 	}
 	

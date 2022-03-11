@@ -227,6 +227,7 @@ void PostProsessor::Type_Definer(Node* type)
 	if (!Constructor_Already_Defined) {
 		PostProsessor p(type);
 		Function->Childs = type->Childs;
+		type->Childs.clear();
 		//First make sure all the class intializations are member fetching combined.
 		for (auto& i : Function->Childs) {
 			p.Combine_Member_Fetching(i);
