@@ -1565,6 +1565,11 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 			n->Right->Parameters.insert(n->Right->Parameters.begin(), n->Left);
 		n->Right->Context = n->Context;
 		n->Right->Fetcher = n->Left;
+
+		//Pass the casting to the caller, if it doesnt have already one.
+		if (!n->Right->Cast_Type)
+			n->Right->Cast_Type = n->Cast_Type;
+
 		n->Copy_Node(n, n->Right, n->Scope);
 	}
 	else {
@@ -1804,6 +1809,7 @@ void PostProsessor::Determine_Return_Type(int i)
 					Constant_Tmp = new Node(OBJECT_DEFINTION_NODE, Input[i]->Left->Location);
 					Constant_Tmp->Name = Constant_Name;
 					Constant_Tmp->Scope = Input[i]->Scope;
+					Constant_Tmp->Inheritted = Input[i]->Left->Get_Inheritted();
 
 					Scope->Defined.push_back(Constant_Tmp);
 				}

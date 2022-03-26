@@ -1181,18 +1181,24 @@ void Parser::String_Pattern(int i)
 	return;
 }
 
+//<summary>
+//-123/-a/-b()
+//++a/++b()
+//Adds the Operator_Prefix into the next object
+//</summary>
 void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 {
-	//<summary>
-	//-123/-a/-b()
-	//++a/++b()
-	//Adds the Operator_Prefix into the next object
-	//</summary>
+	bool op_Pass = false;
+	for (string s : Prefixes)
+		if (Input[i].Value == s)
+			op_Pass = true;
+	if (!op_Pass)
+		return;
+
 	if (i + 1 > Input.size() - 1)
 		return; 
-	if (i + 2 <= Input.size() - 1)
-		if (!Input[i + 2].is(Flags::END_COMPONENT))
-			return;
+	if (Input[i + 1].is(Flags::END_COMPONENT))
+		return;
 	if (Input[i].node != nullptr)
 		return;
 	if (!Input[i].is(Flags::OPERATOR_COMPONENT))
@@ -1207,27 +1213,28 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 		return;
 	}
 
-	bool op_Pass = false;
-	for (string s : Prefixes)
-		if (Input[i].Value == s)
-			op_Pass = true;
-	if (!op_Pass)
-		return;
 
-	Node* PreFix = new Node(PREFIX_NODE, new Position(Input[i].Location));
-	PreFix->Scope = Scope;
-	//name
-	PreFix->Name = Input[i].Value;
-	PreFix->Right = Input[(size_t)i + 1].node;
+	if (Input[i].Value == "-" && Input[i + 1].is(Flags::NUMBER_COMPONENT)) {
+		Input[i + 1].Value = "-" + Input[i + 1].Value;
 
-	PreFix->Right->Context = PreFix;
-	PreFix->Right->Scope = PreFix->Scope;
-	
-	//Operator_Node PreFix;	//++a/-a/--a
-	//Operator_Node PostFix;	//a++/a--
-	Input[i].node = PreFix;
+		Input.erase(Input.begin() + i);
+	}
+	else {
+		Node* PreFix = new Node(PREFIX_NODE, new Position(Input[i].Location));
+		PreFix->Scope = Scope;
+		//name
+		PreFix->Name = Input[i].Value;
+		PreFix->Right = Input[(size_t)i + 1].node;
 
-	Input.erase(Input.begin() + i + 1);
+		PreFix->Right->Context = PreFix;
+		PreFix->Right->Scope = PreFix->Scope;
+
+		//Operator_Node PreFix;	//++a/-a/--a
+		//Operator_Node PostFix;	//a++/a--
+		Input[i].node = PreFix;
+
+		Input.erase(Input.begin() + i + 1);
+	}
 }
 
 void Parser::Operator_PostFix_Pattern(int i, vector<string> Postfix)

@@ -391,8 +391,15 @@ void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 
 void Safe::Flush_Errors()
 {
-	if (Notices.size() > 0)
-		Report(Observation(ERROR, "", DEFINITION_ERROR, YES));
+	bool Notices_Have_An_Error = false;
+
+	for (auto i : Notices) {
+		if (i.second.size() > 0 && i.second[0].Type == ERROR)
+			Notices_Have_An_Error = true;
+	}
+
+	if (Notices_Have_An_Error)
+		Report(Observation(ERROR, "", "", YES));
 }
 
 void Safe::Parser_Factory()
@@ -414,10 +421,30 @@ void Safe::Report_Missing_Cast(Node*& n)
 		if (n->Left->is(NUMBER_NODE) && Left_Inheritance.size() == 0)
 			n->Append(Left_Inheritance, n->Left->Get_Inheritted(true, false, true));
 
+		if (n->Left->Cast_Type && n->Left->Cast_Type->Name != "address")
+			Left_Inheritance = n->Left->Get_Inheritted(true, false, true);
+
 		vector<string> Right_Inheritance = n->Right->Inheritted;
 		if (n->Right->is(NUMBER_NODE) && Right_Inheritance.size() == 0)
 			n->Append(Right_Inheritance, n->Right->Get_Inheritted(true, false, true));
 
+		if (n->Right->Cast_Type && n->Right->Cast_Type->Name != "address")
+			Right_Inheritance = n->Right->Get_Inheritted(true, false, true);
+
+
+		//If the other side has a address caster then it means that, that side is a offsetter of the other side
+		//for example the other side might be a char ptr, mean while this address variable might be int
+		//for these kiond of situations we need to overlook the difference between the inheritances and just use the non address for both
+		if (n->Left->Cast_Type && n->Left->Cast_Type->Name == "address")
+			if (n->Right->is("ptr"))
+				Left_Inheritance = Right_Inheritance;
+
+		if (n->Right->Cast_Type && n->Right->Cast_Type->Name == "address")
+			if (n->Left->is("ptr"))
+				Right_Inheritance = Left_Inheritance;
+
+		//because a one difference in ptr count (that is illegible) might throw a error.
+		//because we measure the contentual difference between two vectors.
 		for (int i = 0; i < Left_Inheritance.size(); i++) {
 			if (Lexer::GetComponent(Left_Inheritance[i]).is(Flags::KEYWORD_COMPONENT)) {
 				Left_Inheritance.erase(Left_Inheritance.begin() + i);
