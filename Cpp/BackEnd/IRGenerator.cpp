@@ -1201,6 +1201,7 @@ void IRGenerator::Parse_PostFixes(int i)
 
 void IRGenerator::Parse_Reference_Count_Increase(int i)
 {
+	return;
 	if (Input[i]->is(PARSED_BY::REFERENCE_COUNT_INCREASE))
 		return;
 

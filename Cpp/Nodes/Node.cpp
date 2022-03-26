@@ -623,13 +623,16 @@ vector<Node*> Node::Get_Scope_Path(bool Include_Global_Scope)
 	return Result;
 }
 
-Node* Node::Find(Node* n, Node* s)
+Node* Node::Find(Node* n, Node* s, bool Get_Inheritted_Definition)
 {
+	Node* Const_Scope = s;
+
 	//The 'n != s' is for this: 'n->Find(n, n);' to not to 
 	bool Is_Valid_To_Check_Scope_Definition =
 		n != s &&
-		!s->Has({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ASSIGN_OPERATOR_NODE, ARRAY_NODE, NODE_CASTER })
-		;
+		!s->Has({ OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, LOGICAL_OPERATOR_NODE, ASSIGN_OPERATOR_NODE, ARRAY_NODE, NODE_CASTER }) && 
+		Get_Inheritted_Definition;
+
 	if (s->Defined.size() == 0 && Is_Valid_To_Check_Scope_Definition) {
 		//we need to ignore the casts that the scope might have, becasue something after must not 
 		//affect something before
@@ -725,6 +728,12 @@ Node* Node::Find(Node* n, Node* s)
 			if (i->Templates.size() == n->Templates.size())
 				if (i->Name == n->Name)
 					return i;
+
+	if (Get_Inheritted_Definition) {
+		Node* Result = Find(n, Const_Scope, false);
+		if (Result)
+			return Result;
+	}
 
 	return nullptr;
 }

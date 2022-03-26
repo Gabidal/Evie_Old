@@ -321,7 +321,7 @@ public:
 
 	Node* Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_Base_Type);
 
-	Node* Find(Node* n, Node* p);
+	Node* Find(Node* n, Node* p, bool Get_Inheritted_Definition = true);
 
 	Node* Find(Node* n, Node* p, int f, bool Get_Inheritted_Definition = true, bool Ignore_Parental_Defined = false);
 
