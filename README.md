@@ -4,9 +4,9 @@
 <br/>
 
 ### Catalog:
- - ### [Documentation](#Documentation)
- - ### [Arguments](#Arguments)
- - ### [Notices](#Notices)
+ - ### [Documentation](#documentation)
+ - ### [Arguments](#arguments)
+ - ### [Notices](#notices)
 
  <br/>
  <br/>
