@@ -738,7 +738,7 @@ Node* Node::Find(Node* n, Node* s, bool Get_Inheritted_Definition)
 	return nullptr;
 }
 
-Node* Node::Find(int size, Node* Parent, int flags, string f, bool Needs_To_Be_Base_Type) {
+Node* Node::Find(int size, Node* Parent, int flags, string format, bool Needs_To_Be_Base_Type) {
 	if (Parent->Defined.size() == 0) {
 		Node* S = Parent->Get_Definition_Type();
 

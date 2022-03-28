@@ -75,7 +75,7 @@ public:
 	IR* Make_Label(Node* n, bool Mangle);
 	IR* Make_Label(string n);
 	IR* Make_Jump(string condition, string l);
-	int Get_Amount(string t, Node* n);
+	static int Get_Amount(string t, Node* n);
 
 private:
 	bool Is_In_Left_Side_Of_Operator = false;

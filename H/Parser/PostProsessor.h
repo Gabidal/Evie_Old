@@ -109,6 +109,12 @@ public:
 	void Update_Inheritance(Node* n);
 	void Analyze_Return_Value(Node* n);
 
+
+	//String handlers
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Handle_String_Escapees(Node* n);
+	void Handle_Const_Char_Strings(Node* n);
+
 	//Dot related
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	vector<Node*> Insert_Dot(vector<Node*> Childs, Node* Function, Node* This);

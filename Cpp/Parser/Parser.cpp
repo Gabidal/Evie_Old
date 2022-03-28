@@ -1168,24 +1168,19 @@ void Parser::Number_Pattern(int i)
 	return;
 }
 
+// String a = "123456"
 void Parser::String_Pattern(int i)
 {
-	//<summary>
-	//Make component string into real string_node.
-	//</summary>
 	if (!Input[i].is(Flags::STRING_COMPONENT))
 		return;
+
 	Node* String = new Node(STRING_NODE, new Position(Input[i].Location));
 	String->Name = Input[i].Value;
 	Input[i].node = String;
 	return;
 }
 
-//<summary>
-//-123/-a/-b()
-//++a/++b()
-//Adds the Operator_Prefix into the next object
-//</summary>
+// -a | --a | ++a
 void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 {
 	bool op_Pass = false;

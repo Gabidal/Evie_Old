@@ -6,6 +6,10 @@
 #include "../../H/UI/Usr.h"
 #include "../../H/Docker/Docker.h"
 
+#include <cstring>
+
+#include "../../H/BackEnd/IRGenerator.h"
+
 extern Node* Global_Scope;
 extern Usr* sys;
 
@@ -374,6 +378,62 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 	if (There_Is_No_User_Defined_Return) {
 		childs.insert(childs.end(), P.Input.begin(), P.Input.end());
 	}
+}
+
+// "\0" -> 0 | "\xA1FF" -> "1234"
+void PostProsessor::Handle_String_Escapees(Node* n)
+{
+	if (!n->is(STRING_NODE))
+		return;
+
+	string Result;
+
+	for (int i = 0; i < n->Name.size(); i++) {
+
+		char Value = n->Name[i];
+
+		if (n->Name[i] == '\\') {
+			size_t Index = i + 1;
+
+			Value = stoi(n->Name, &Index, 16);
+
+			i += Index - i + 1;
+		}
+
+		Result += Value;
+	}
+}
+
+void PostProsessor::Handle_Const_Char_Strings(Node* n)
+{
+	if (!n->is(STRING_NODE))
+		return;
+
+	if (n->Name.size() > 4)
+		return;
+
+	if (n->Context && IRGenerator::Get_Amount("ptr", n->Get_Pair()) > IRGenerator::Get_Amount("ptr", n))
+		return;
+
+	int Result = 0;
+
+	constexpr int Byte = 8;
+
+	for (auto c : n->Name) {
+
+		Result = Result << Byte;
+
+		Result += c;
+	}
+
+	n->Name = to_string(Result);
+	n->Size = 1;
+
+	Node* Char = n->Find(n->Size, n, CLASS_NODE, "integer", true);
+
+	n->Inheritted.clear();
+
+	n->Inheritted.push_back(Char->Name);
 }
 
 vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)

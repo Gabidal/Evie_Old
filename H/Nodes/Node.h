@@ -319,7 +319,7 @@ public:
 		return nullptr;
 	}
 
-	Node* Find(int size, Node* parent, int flags, string f, bool Needs_To_Be_Base_Type);
+	Node* Find(int size, Node* parent, int flags, string format, bool Needs_To_Be_Base_Type);
 
 	Node* Find(Node* n, Node* p, bool Get_Inheritted_Definition = true);
 
