@@ -825,7 +825,7 @@ IR* Selector::Get_Opcode(IR* i)
 	for (auto j : i->Arguments)
 		args += j->Get_Name() + "[" + to_string(j->Get_Size()) + "]" + ", ";
 	args += ")";
-	Report(Observation(ERROR, "No suitable OPCODE found for " + i->OPCODE->Get_Name() + args, Position()));
+	Report(Observation(ERROR, "No suitable OPCODE found for " + i->OPCODE->Get_Name() + args));
 	throw std::runtime_error("Error");
 	return nullptr;
 }

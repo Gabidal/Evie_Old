@@ -112,7 +112,8 @@ public:
 
 	//String handlers
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
-	void Handle_String_Escapees(Node* n);
+	void Handle_String_Hexadecimals(Node* n);
+	void Handle_String_Char_Numbers(Node* n);
 	void Handle_Const_Char_Strings(Node* n);
 
 	//Dot related

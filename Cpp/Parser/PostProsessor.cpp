@@ -57,7 +57,13 @@ void PostProsessor::Factory() {
 		Determine_Array_Type(i);
 		Open_Call_Parameters_For_Prosessing(i);
 		Find_Call_Owner(Input[i]);
+
+		//String handlers
+		Handle_String_Hexadecimals(Input[i]);
+		Handle_String_Char_Numbers(Input[i]);
+		Handle_Const_Char_Strings(Input[i]);
 		Change_Local_Strings_To_Global_Pointters(i);
+
 		//Why is this even a thing if Determine return type is a thing?
 		//Update_Operator_Inheritance(Input[i]);
 		Analyze_Return_Value(Input[i]);
@@ -380,30 +386,71 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 	}
 }
 
-// "\0" -> 0 | "\xA1FF" -> "1234"
-void PostProsessor::Handle_String_Escapees(Node* n)
+//"\xA1FF" -> "\1234"
+void PostProsessor::Handle_String_Hexadecimals(Node* n)
 {
 	if (!n->is(STRING_NODE))
 		return;
 
-	string Result;
+	string Result = "";
 
 	for (int i = 0; i < n->Name.size(); i++) {
 
 		char Value = n->Name[i];
 
-		if (n->Name[i] == '\\') {
-			size_t Index = i + 1;
+		//"\xAFBG"
+		if (i - 2 >= 0 && n->Name[i - 2] == '\\' && n->Name[i - 1] == 'x') {
+			size_t Index = i;
 
-			Value = stoi(n->Name, &Index, 16);
+			Value = stoi(n->Name.substr(Index), &Index, 16);
 
-			i += Index - i + 1;
+			i += Index - i;
 		}
 
 		Result += Value;
 	}
+
+	n->Name = Result;
 }
 
+//"\0" -> 0
+void PostProsessor::Handle_String_Char_Numbers(Node* n)
+{
+	if (!n->is(STRING_NODE))
+		return;
+
+	string Content = n->Name.substr(1, n->Name.size() - 2);
+
+	if (Content.size() == 0)
+		return;
+
+	long long Result = 0;
+
+	if (Content[0] == '\\') {
+		if (Content.size() < 2) {
+			Report(Observation(ERROR, "Missing escape value after escape character '\\'", *n->Location, MISSING_CRITICAL_INFORMATION));
+		}
+
+		size_t Length = 0;
+
+		Result = stoi(Content.substr(1), &Length, 10);
+
+		n->Name = to_string(Result);
+
+		n->Type = NUMBER_NODE;
+
+		if (n->Cast_Type == nullptr) {
+			//Here is a prophesi: this sizeof(char) is going to break the entire world.
+			Node* Char = n->Find(sizeof(char), n, CLASS_NODE, "integer", true);
+
+			n->Cast_Type = Char;
+		}
+	}
+
+
+}
+
+// "a" -> 48
 void PostProsessor::Handle_Const_Char_Strings(Node* n)
 {
 	if (!n->is(STRING_NODE))
@@ -419,7 +466,9 @@ void PostProsessor::Handle_Const_Char_Strings(Node* n)
 
 	constexpr int Byte = 8;
 
-	for (auto c : n->Name) {
+	string New_Name = n->Name.substr(1, n->Name.size() - 2);
+
+	for (auto c : New_Name) {
 
 		Result = Result << Byte;
 
@@ -429,11 +478,13 @@ void PostProsessor::Handle_Const_Char_Strings(Node* n)
 	n->Name = to_string(Result);
 	n->Size = 1;
 
-	Node* Char = n->Find(n->Size, n, CLASS_NODE, "integer", true);
+	n->Type = NUMBER_NODE;
 
-	n->Inheritted.clear();
+	if (n->Cast_Type == nullptr) {
+		Node* Char = n->Find(n->Size, n, CLASS_NODE, "integer", true);
 
-	n->Inheritted.push_back(Char->Name);
+		n->Cast_Type = Char;
+	}
 }
 
 vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, Node* This)

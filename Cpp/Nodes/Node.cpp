@@ -95,7 +95,16 @@ Stop:;
 /// <returns></returns>
 vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip_Keywords) {
 	vector<string> Result;
-	if (MANGLER::Is_Base_Type(this) || Get_Name) {
+	//when using the address cast the inheritant of the casted is not changes so use that.
+	if (Cast_Type != nullptr && Cast_Type->Name != "address") {
+		if (MANGLER::Is_Base_Type(Cast_Type))
+			Result = { Cast_Type->Name };
+		else
+			Result = Cast_Type->Get_Inheritted(Skip_Prefixes, Get_Name, Skip_Keywords);
+
+		return Result;
+	}
+	else if (MANGLER::Is_Base_Type(this) || Get_Name) {
 		return { Name };
 	}
 	else if (is(NUMBER_NODE)) {
@@ -121,18 +130,23 @@ vector<string> Node::Get_Inheritted(bool Skip_Prefixes, bool Get_Name, bool Skip
 				continue;
 			Result.push_back(Inheritted[i]);
 		}
-		//when using the address cast the inheritant of the casted is not changes so use that.
-		if (Cast_Type != nullptr && Cast_Type->Name != "address") {
-			if (MANGLER::Is_Base_Type(Cast_Type))
-				Result = { Cast_Type->Name };
-			else
-				Result = Cast_Type->Get_Inheritted(Skip_Prefixes, Get_Name, Skip_Keywords);
-		}
+
 		return Result;
 	}
 }
 
 string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name, bool Skip_Keywords, bool Ignore_cast) {
+	//when using the address cast the inheritant of the casted is not changes so use that.
+	if (Cast_Type != nullptr && !Ignore_cast && Cast_Type->Name != "address") {
+		string Result = "";
+
+		if (MANGLER::Is_Base_Type(Cast_Type))
+			Result = Seperator + Cast_Type->Name;
+		else
+			Result = Cast_Type->Get_Inheritted(Seperator, Skip_Prefixes, Get_Name, Skip_Keywords);
+
+		return Result;
+	}
 	if (MANGLER::Is_Base_Type(this) || Get_Name) {
 		return Seperator + Name;
 	}
@@ -164,13 +178,7 @@ string Node::Get_Inheritted(string Seperator, bool Skip_Prefixes, bool Get_Name,
 				continue;
 			Result += Seperator + Inheritted[i];
 		}
-		//when using the address cast the inheritant of the casted is not changes so use that.
-		if (Cast_Type != nullptr && !Ignore_cast && Cast_Type->Name != "address") {
-			if (MANGLER::Is_Base_Type(Cast_Type))
-				Result = Seperator + Cast_Type->Name;
-			else
-				Result = Cast_Type->Get_Inheritted(Seperator, Skip_Prefixes, Get_Name, Skip_Keywords);
-		}
+
 		return Result;
 	}
 }
@@ -749,7 +757,7 @@ Node* Node::Find(int size, Node* Parent, int flags, string format, bool Needs_To
 	for (Node* i : Parent->Defined)
 		if (i->is(flags) && (i->Size == size)) {
 			i->Update_Format();
-			if (i->Format == f)
+			if (i->Format == format)
 				if (Needs_To_Be_Base_Type) {
 					if (MANGLER::Is_Base_Type(i))
 						return i;
@@ -761,7 +769,7 @@ Node* Node::Find(int size, Node* Parent, int flags, string format, bool Needs_To
 	for (Node* i : Parent->Inlined_Items)
 		if (i->is(flags) && (i->Size == size)) {
 			i->Update_Format();
-			if (i->Format == f)
+			if (i->Format == format)
 				if (Needs_To_Be_Base_Type) {
 					if (MANGLER::Is_Base_Type(i))
 						return i;
@@ -771,7 +779,7 @@ Node* Node::Find(int size, Node* Parent, int flags, string format, bool Needs_To
 		}
 
 	if (Parent->Scope != nullptr) {
-		return Find(size, Parent->Scope, flags, f, Needs_To_Be_Base_Type);
+		return Find(size, Parent->Scope, flags, format, Needs_To_Be_Base_Type);
 	}
 
 	return nullptr;
