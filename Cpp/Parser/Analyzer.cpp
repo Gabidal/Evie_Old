@@ -28,18 +28,21 @@ void Analyzer::Detect_Abnormal_Start_Address()
 	Node* Main = Global_Scope->Find("main", Global_Scope, FUNCTION_NODE);
 
 	vector<Node*> Initializers;
-	for (auto& i : Global_Scope->Childs) {
-		if (!i->is(ASSIGN_OPERATOR_NODE))
+	vector<int> Indicies;
+	for (int i = 0; i < Global_Scope->Childs.size(); i++) {
+		if (!Global_Scope->Childs[i]->is(ASSIGN_OPERATOR_NODE))
 			continue;
 
-		Initializers.push_back(i);
+		Initializers.push_back(Global_Scope->Childs[i]);
+		Indicies.push_back(i);
 	}
 
 	if (Main && sys->Info.Format == "exe") {
 		Start_Of_Proccesses.push_back(Main);
 
-		for (auto& i : Initializers)
-			i->Scope = Main;
+		for (auto& i : Initializers) {
+			i->Copy_Node(i, i, Main);
+		}
 
 		//Because the global variable initializers are not in any function particulary before this.
 		//Thus: they are not PostProsessed.
@@ -54,9 +57,11 @@ void Analyzer::Detect_Abnormal_Start_Address()
 		Node* Func = new Node(FUNCTION_NODE, new Position());
 		Func->Name = "_INIT_";
 		Func->Childs = Initializers;
+		Func->Inheritted = { "func", "export" };
 
-		for (auto& i : Func->Childs)
-			i->Scope = Func;
+		for (auto& i : Func->Childs) {
+			i->Copy_Node(i, i, Main);
+		}
 
 		Func->Scope = Global_Scope;
 
@@ -65,6 +70,15 @@ void Analyzer::Detect_Abnormal_Start_Address()
 		//Because the global variable initializers are not in any function particulary before this.
 		//Thus: they are not PostProsessed.
 		PostProsessor p(Func, Func->Childs);
+	}
+
+	//now that the global variables are transferred to the right functions, 
+	//we may proceed to delete those ghost fragments from the global scope.
+	for (int i = 0; i < Indicies.size(); i++) {
+		//we remove the index i from the current index, 
+		//because for every list index removal the latter indicies are offsetted wrongly by the amount i.
+		int Index = Indicies[i] - i;
+		Global_Scope->Childs.erase(Global_Scope->Childs.begin() + Index);
 	}
 }
 

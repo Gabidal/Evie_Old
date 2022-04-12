@@ -322,5 +322,8 @@
     <ClInclude Include="tests\h\Test_Lexer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="H\Assembler\Assembler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

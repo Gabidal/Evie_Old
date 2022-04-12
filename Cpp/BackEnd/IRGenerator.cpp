@@ -1391,6 +1391,14 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 void IRGenerator::Parse_Static_Variables(Node* n)
 {
 	if (n->is(CLASS_NODE)) {
+		//If the namespace in question is already inlined, 
+		//then the static content is also moved to the main or _INIT_ function in global_scope
+		for (auto i : n->Scope->Inlined_Namespaces) {
+			if (i->Name == n->Name) {
+				return;
+			}
+		}
+
 		if (n->is("static"))
 			//this is for the running code of a namespace for global variable initializations
 			for (auto i : n->Childs)
@@ -1398,6 +1406,7 @@ void IRGenerator::Parse_Static_Variables(Node* n)
 		else
 			for (auto i : n->Header)
 				Parse_Static_Variables(i);
+
 		return;
 	}
 

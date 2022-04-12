@@ -342,7 +342,7 @@ Token* Selector::Get_Right_Parameter_Register(Token* t, int parameter_index)
 {
 	int Offset = 0;
 	if (t->is(TOKEN::DECIMAL))
-		for (auto i : Parameter_Registers) {
+		for (auto& i : Parameter_Registers) {
 			if (i[0]->is(TOKEN::DECIMAL))
 				break;
 			Offset++;
@@ -460,7 +460,7 @@ Token* Selector::Get_Register(long F, Descriptor* user, int i, Token* t)
 int Selector::Get_Largest_Register_Size()
 {
 	int Result = 0;
-	for (auto i : Registers)
+	for (auto& i : Registers)
 		if (i.second->Get_Size() > Result)
 			Result = i.second->Get_Size();
 	return Result;
@@ -468,7 +468,7 @@ int Selector::Get_Largest_Register_Size()
 
 Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 {
-	for (auto i : Registers) {
+	for (auto& i : Registers) {
 		if (i.second->Get_Name() == r->Get_Name()) {
 			if (i.first != nullptr)
 				return i.first;
@@ -484,7 +484,7 @@ Descriptor* Selector::Check_If_Smaller_Register_Is_In_Use(Token* r)
 
 Descriptor* Selector::Check_If_Larger_Register_Is_In_Use(Token* r)
 {
-	for (auto i : Registers) {
+	for (auto& i : Registers) {
 		//if (i.second->Get_Name() == r->Get_Name()) {
 		if (i.second == r){
 			if (i.first != nullptr)
@@ -594,13 +594,13 @@ int Selector::Get_Numerical_Parameter_Register_Count(vector<Node*> Parameters)
 	if(sys->Info.OS == "win") {
 		//first get the amount of all non decimal registers
 		int Non_Decimal_Register_Count = 0;
-		for (auto i : Parameter_Registers) {
+		for (auto& i : Parameter_Registers) {
 			if (!i[0]->is(TOKEN::DECIMAL))
 				Non_Decimal_Register_Count++;
 		}
 		//then get the amount of all decimal registers
 		int Decimal_Register_Count = 0;
-		for (auto i : Parameter_Registers) {
+		for (auto& i : Parameter_Registers) {
 			if (i[0]->is(TOKEN::DECIMAL))
 				Decimal_Register_Count++;
 		}
@@ -616,7 +616,7 @@ int Selector::Get_Numerical_Parameter_Register_Count(vector<Node*> Parameters)
 	}
 	else {
 		int Non_Decimal_Register_Count = 0;
-		for (auto i : Parameter_Registers) {
+		for (auto& i : Parameter_Registers) {
 			if (!i[0]->is(TOKEN::DECIMAL))
 				Non_Decimal_Register_Count++;
 		}
@@ -629,13 +629,13 @@ int Selector::Get_Floating_Parameter_Register_Count(vector<Node*> Parameters)
 	if (sys->Info.OS == "win") {
 		//first get the amount of all non decimal registers
 		int Non_Decimal_Register_Count = 0;
-		for (auto i : Parameter_Registers) {
+		for (auto& i : Parameter_Registers) {
 			if (!i[0]->is(TOKEN::DECIMAL))
 				Non_Decimal_Register_Count++;
 		}
 		//then get the amount of all decimal registers
 		int Decimal_Register_Count = 0;
-		for (auto i : Parameter_Registers) {
+		for (auto& i : Parameter_Registers) {
 			if (i[0]->is(TOKEN::DECIMAL))
 				Decimal_Register_Count++;
 		}
@@ -651,7 +651,7 @@ int Selector::Get_Floating_Parameter_Register_Count(vector<Node*> Parameters)
 	}
 	else {
 		int Decimal_Register_Count = 0;
-		for (auto i : Parameter_Registers) {
+		for (auto& i : Parameter_Registers) {
 			if (i[0]->is(TOKEN::DECIMAL))
 				Decimal_Register_Count++;
 		}
@@ -741,7 +741,7 @@ void Selector::Init_Stack(Node* Func)
 
 Token* Selector::Get_Memory_Location(Token* v)
 {
-	for (auto i : Stack) {
+	for (auto& i : Stack) {
 		if (i.second->Get_Name() == v->Get_Name()) {
 			return new Token(*i.second);
 		}
@@ -759,7 +759,7 @@ long long Selector::Calculate_Memory_Address(Token* m)
 	long long Result = 0;
 
 	for (auto i : { TOKEN::CALL_PARAMETER_SPACE, TOKEN::REGISTER_SAVE_SPACE, TOKEN::LOCAL_VARIABLE_SCOPE, TOKEN::PUSH_SPACE,  TOKEN::PARAMETER_SPACE})
-		for (auto j : Stack) {
+		for (auto& j : Stack) {
 			//this may need flag checkings
 			if (j.second->Get_Name() == m->Get_Name() && m->is(i))
 				return Result;
@@ -778,7 +778,7 @@ long long Selector::Calculate_Memory_Address(long long F)
 	for (auto i : { TOKEN::CALL_PARAMETER_SPACE, TOKEN::REGISTER_SAVE_SPACE, TOKEN::LOCAL_VARIABLE_SCOPE, TOKEN::PUSH_SPACE,  TOKEN::PARAMETER_SPACE }) {
 		if ((F & i) == i)
 			return Result;
-		for (auto j : Stack) {
+		for (auto& j : Stack) {
 			if (j.second->is(i)) {
 				Result += j.second->Get_Size();
 			}
@@ -799,7 +799,7 @@ IR* Selector::Get_Opcode(IR* i)
 	for (auto opc : Opcodes) {
 		if (opc->ID != i->OPCODE->Get_Name())
 			continue;
-		for (auto o : opc->Order) {
+		for (auto& o : opc->Order) {
 			//check if this order has same amount of arguments as i.
 			if (o.size() != sizes.size())
 				continue;	//this is wrong order

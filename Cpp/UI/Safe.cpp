@@ -58,7 +58,7 @@ void Observation::Report(bool Last)
 	}
 	if ((Type == ERROR || Type == FAIL || (sys->Service_Info == Document_Request_Type::ASM && Last)) && Stop_On_Error) {
 		//flush here:
-		for (auto N : Notices) {
+		for (auto& N : Notices) {
 			string Result = "";
 			//Tell the Severity of this Report.
 			if (N.second[0].Type == ERROR)
@@ -86,7 +86,7 @@ void Observation::Report(bool Last)
 
 			vector<string> Error_History;
 			//List all the reporters and their locations.
-			for (auto O : N.second) {
+			for (auto& O : N.second) {
 				if (O.Msg == N.first)
 					continue;
 				if (O.Msg == "")
@@ -98,7 +98,7 @@ void Observation::Report(bool Last)
 
 				bool Publish_Error = true;
 
-				for (auto S : Error_History) {
+				for (auto& S : Error_History) {
 					if (S == Current_Error)
 						Publish_Error = false;
 				}
@@ -393,7 +393,7 @@ void Safe::Flush_Errors()
 {
 	bool Notices_Have_An_Error = false;
 
-	for (auto i : Notices) {
+	for (auto& i : Notices) {
 		if (i.second.size() > 0 && i.second[0].Type == ERROR)
 			Notices_Have_An_Error = true;
 	}
@@ -413,6 +413,9 @@ void Safe::Parser_Factory()
 
 void Safe::Report_Missing_Cast(Node*& n)
 {
+	if (n->Scope->is("static") && n->Scope->is(CLASS_NODE))
+		return;
+
 	if (n->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, LOGICAL_OPERATOR_NODE })) {
 		//Page ptr a = c (<- char ptr)
 		//to:
@@ -545,9 +548,9 @@ void Safe::Reference_Count_Type_Un_Availability()
 
 void Safe::Check_For_Undefined_Inheritance(Node* n)
 {
-	for (auto i : n->Inheritted) {
+	for (auto& i : n->Inheritted) {
 		//ignore keywords
-		for (auto j : Lexer::Keywords)
+		for (auto& j : Lexer::Keywords)
 			if (i == j)
 				goto Next;
 		//ignore template inheritances
