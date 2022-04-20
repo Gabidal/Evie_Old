@@ -48,6 +48,11 @@ public:
     }
 };
 
+class Opcode{
+public:
+
+};
+
 namespace CHAR_GROUPS{
     constexpr char BIG_LETTER_GROUP_START_INDEX = 65;
     constexpr char BIG_LETTER_GROUP_END_INDEX = 90;
@@ -63,7 +68,20 @@ namespace CHAR_GROUPS{
     constexpr char OPERATOR_GROUP_END_INDEX = 46;
 
     constexpr char SPACE_INDEX = 32;   // ' '
-    constexpr char LINE_ENDING_INDEX = '10'; // '\n'
+    constexpr char LINE_ENDING_INDEX = 10; // '\n'
+
+    constexpr char OPENING_PARANTHESIS_INDEX = 40;
+    constexpr char CLOSING_PARANTHESIS_INDEX = 41;
+
+    constexpr char OPENING_BRACKET_INDEX = 123;
+    constexpr char CLOSING_BRACKET_INDEX = 125;
+
+    constexpr char HASH_TAG_INDEX = 35;
+    constexpr char DOLLAR_SIGN_INDEX = 36;
+    constexpr char PERCENT_SIGN_INDEX = 37;
+    constexpr char AT_SIGN_INDEX = 64;
+    constexpr char UNDERLINE_INDEX = 95;
+    constexpr char QUESTION_MARK_INDEX = 63;
 }
 
 #endif

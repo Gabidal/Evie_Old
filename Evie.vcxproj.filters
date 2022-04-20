@@ -126,6 +126,9 @@
     <ClCompile Include="tests\cpp\Test_Lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cpp\Assembler\Assembler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="io\test.e.asm">
@@ -323,6 +326,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="H\Assembler\Assembler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="H\Assembler\Assembler_Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -25,7 +25,16 @@ public:
 
     }
 
-    vector<string> Tokenizer(string Input);
+    //Tokenizer stuff
+    //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+    vector<Word*> Tokenizer(string Input);
+    int Get_Paranthesis_Content_Length(char Opening_Paranthesis_Type, int Start_Index, string Input);
+    char Get_Closing_Character(char Opening_Character);
+    //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+
+    //Grouper stuff
+    //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+    vector<Opcode*> Grouper(vector<Word*> Tokens);
     void Factory();
 };
 

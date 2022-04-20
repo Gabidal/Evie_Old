@@ -199,6 +199,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cpp\Assembler\Assembler.cpp" />
     <ClCompile Include="cpp\backend\ARM.cpp" />
     <ClCompile Include="cpp\backend\BackEnd.cpp" />
     <ClCompile Include="cpp\backend\DebugGenerator.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="dependencies\curl\typecheck-gcc.h" />
     <ClInclude Include="dependencies\curl\urlapi.h" />
     <ClInclude Include="H\Assembler\Assembler.h" />
+    <ClInclude Include="H\Assembler\Assembler_Types.h" />
     <ClInclude Include="h\backend\ARM.h" />
     <ClInclude Include="h\backend\BackEnd.h" />
     <ClInclude Include="h\backend\DebugGenerator.h" />

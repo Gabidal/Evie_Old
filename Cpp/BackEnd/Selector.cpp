@@ -801,22 +801,28 @@ IR* Selector::Get_Opcode(IR* i)
 			continue;
 		for (auto& o : opc->Order) {
 			//check if this order has same amount of arguments as i.
-			if (o.size() != sizes.size())
+			if (o.Order.size() != sizes.size())
 				continue;	//this is wrong order
 			for (int j = 0; j < sizes.size(); j++) {
-				if (!(o[j].second.first <= sizes[j] && o[j].second.second >= sizes[j]))
+				if (!(o.Order[j].Max_Size <= sizes[j] && o.Order[j].Min_Size >= sizes[j]))
 					goto Wrong;
 			}
 			//if (!Check_Resource_Availability(i, o))
 			//	goto Wrong;
 			for (int j = 0; j < sizes.size(); j++) {
-				if (!o[j].first->is(i->Arguments[j]->Get_Flags()))
+				if (!o.Order[j].Type->is(i->Arguments[j]->Get_Flags()))
 					goto Wrong;
 			}
 			return opc;
 		Wrong:;
 		}
-		if (opc->Order.size() < 1) {
+
+		//We want to skip nullptr orders, they are there because we need the opcode asm hex number, but dont want to count order as a nessessity for selection.
+		bool Skip_NULLPTR_ORDER = false;
+		if (opc->Order.size() > 1 && opc->Order[0].Order[0].Type == nullptr)
+			Skip_NULLPTR_ORDER = true;
+
+		if (opc->Order.size() - Skip_NULLPTR_ORDER < 1) {
 			if (sizes.size() == 0)
 				return opc;
 		}
