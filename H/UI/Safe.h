@@ -26,6 +26,8 @@ inline string MISSING_CAST = "Missing cast";
 inline string ONLY_NUMBER_OPERATION = "Use of most left side of an operand as a number";
 inline string MISSING_CRITICAL_INFORMATION = "Missing critical information";
 
+inline string ASSEMBLER_SYNTAX_ERROR = "Error in given assembly code";
+
 #define ERROR (MSG_Type)1
 #define NO 0
 #define YES 1

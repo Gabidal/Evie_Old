@@ -40,7 +40,7 @@ public:
 //};
 
 class Selector {
-private:
+public:
 	void Init();
 	//tools
 	bool Find(string n, Token* ast);
@@ -61,7 +61,6 @@ private:
 	vector<IR*> Opcodes;
 	vector<Token*> Size_Identifiers;
 
-public:
 	Selector() { Init(); }
 	Path* Get_Path_Info(vector<IR*> source, int i, Token* t);
 	//REGISTERS:

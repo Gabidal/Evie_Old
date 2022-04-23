@@ -34,7 +34,11 @@ public:
 
     //Grouper stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-    vector<Opcode*> Grouper(vector<Word*> Tokens);
+    vector<class Token*> Grouper(vector<Word*> Tokens);
+
+    //Parser stuff
+    //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+    vector<class IR*> Parser(vector<class Token*> Tokens);
     void Factory();
 };
 

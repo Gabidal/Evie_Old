@@ -1,10 +1,16 @@
 #include "../../H/Assembler/Assembler.h"
 
+#include "../../H/BackEnd/Selector.h"
+#include "../../H/UI/Safe.h"
+
+Selector* selector;
+
 vector<Word*> Assembler::Tokenizer(string Input){
     vector<Word*> Tokens;
     
     char Previus_Char = '\0';
     string Token = "";
+    int Current_Flag = 0;
 
     Input = Input.replace(Input.find("\t"), 1, " ");
     Input = Input.replace(Input.find("\r"), 1, " ");
@@ -27,11 +33,12 @@ vector<Word*> Assembler::Tokenizer(string Input){
                 Previus_Char_Group.first != CHAR_GROUPS::AT_SIGN_INDEX &&
                 Previus_Char_Group.first != CHAR_GROUPS::UNDERLINE_INDEX
             ){
-                Tokens.push_back(new Word(Token));
+                Tokens.push_back(new Word(Token, Current_Flag));
                 Token = "";
             }
             else{
                 Token += c;
+                Current_Flag = WORD_FLAGS::LABEL | WORD_FLAGS::OPCODE | WORD_FLAGS::REGISTER | WORD_FLAGS::TEXT;
             }
         }
         else if (c >= CHAR_GROUPS::NUMBER_GROUP_START_INDEX && c <= CHAR_GROUPS::NUMBER_GROUP_END_INDEX){
@@ -40,19 +47,22 @@ vector<Word*> Assembler::Tokenizer(string Input){
                 Previus_Char_Group.first != CHAR_GROUPS::BIG_LETTER_GROUP_START_INDEX &&
                 Previus_Char_Group.first != CHAR_GROUPS::NUMBER_GROUP_START_INDEX
             ){
-                Tokens.push_back(new Word(Token));
+                Tokens.push_back(new Word(Token, Current_Flag));
                 Token = "";
             }
             else{
                 Token += c;
+                Current_Flag = WORD_FLAGS::NUMBER;
             }
         }
         else if (c >= CHAR_GROUPS::OPERATOR_GROUP_START_INDEX && c <= CHAR_GROUPS::OPERATOR_GROUP_END_INDEX){
             //sticks to no one.
-            Tokens.push_back(new Word(Token));
+            Tokens.push_back(new Word(Token, Current_Flag));
             Token = c;
+            Current_Flag = WORD_FLAGS::OPERATOR;
         }
         else if (c == CHAR_GROUPS::OPENING_PARANTHESIS_INDEX || c == CHAR_GROUPS::OPENING_BRACKET_INDEX){
+            Tokens.push_back(new Word(Token, Current_Flag));
 
             //first get the contents lenght
             int Contents_Length = Get_Paranthesis_Content_Length(c, i, Input);
@@ -64,7 +74,8 @@ vector<Word*> Assembler::Tokenizer(string Input){
             vector<Word*> Content_Tokens = Tokenizer(Content);
 
             //now add the content tokens to the tokens
-            Word* Content_Word = new Word(to_string(c));
+            //dont need to affect current flag
+            Word* Content_Word = new Word(to_string(c), WORD_FLAGS::MEMORY);
             Content_Word->Childs = Content_Tokens;
 
             Tokens.push_back(Content_Word);
@@ -83,19 +94,89 @@ vector<Word*> Assembler::Tokenizer(string Input){
                 Previus_Char_Group.first != CHAR_GROUPS::AT_SIGN_INDEX &&
                 Previus_Char_Group.first != CHAR_GROUPS::UNDERLINE_INDEX
             ){
-                Tokens.push_back(new Word(Token));
+                Tokens.push_back(new Word(Token, Current_Flag));
                 Token = "";
             }
             else{
-                Token += c;
+                Token += c; 
+                Current_Flag = WORD_FLAGS::LABEL | WORD_FLAGS::OPCODE | WORD_FLAGS::REGISTER | WORD_FLAGS::TEXT;
             }
+        }
+        else if (c == CHAR_GROUPS::LABEL_START_CHARACHTER_INDEX) {
+            Tokens.push_back(new Word(Token, Current_Flag));
+            Token = "";
+
+            Token = CHAR_GROUPS::LABEL_START_CHARACHTER_INDEX;
+            Current_Flag = WORD_FLAGS::LABEL_INDICATOR;
+        }
+        else if (c == CHAR_GROUPS::LINE_ENDING_INDEX) {
+            Tokens.push_back(new Word(Token, Current_Flag));
+
+            Token = CHAR_GROUPS::LINE_ENDING_INDEX;
+            Current_Flag |= WORD_FLAGS::LINE_ENDING;
         }
         else{
             //Sticks to no one.
-            Tokens.push_back(new Word(Token));
+            Tokens.push_back(new Word(Token, Current_Flag));
 
             if (c != CHAR_GROUPS::SPACE_INDEX){
-                Tokens.push_back(new Word(to_string(c)));
+                Tokens.push_back(new Word(to_string(c), WORD_FLAGS::UNKNOWN));
+            }
+        }
+    }
+
+    //get more accurate representation for the tokens
+    for (int i = 0; i < Tokens.size(); i++) {
+        if (Tokens[i]->is(WORD_FLAGS::TEXT)) {
+            //check if the Token is a OPCODE
+            Tokens[i]->Flags = 0;
+
+            if (Tokens[i]->Flags == 0) {
+                if (i + 1 < Tokens.size() && Tokens[i + 1]->is(WORD_FLAGS::LABEL_INDICATOR)) {
+                    Tokens[i]->Flags = WORD_FLAGS::LABEL;
+                    Tokens.erase(Tokens.begin() + i + 1);
+                    i--;
+                }
+            }
+
+            //If the flags is still zero, it means that the token wasnt a label, try opcode
+            if (Tokens[i]->Flags == 0) {
+                for (auto& OPCODE : selector->Opcodes) {
+                    if (OPCODE->OPCODE->Name == Tokens[i]->Name) {
+                        Tokens[i]->Flags = WORD_FLAGS::OPCODE;
+                        break;
+                    }
+                }
+            }
+
+            //If the flags is still zero, it means that the token wasnt a opcode, try register
+            if (Tokens[i]->Flags == 0) {
+                for (auto& REGISTER : selector->Registers) {
+                    if (REGISTER.second->Name == Tokens[i]->Name) {
+                        Tokens[i]->Flags = WORD_FLAGS::REGISTER;
+                    }
+                }
+            }
+        
+            if (Tokens[i]->Flags == 0) {
+                Alias* Alias_Reference = Tokens[i]->is(ALIASES);
+
+                if (Alias_Reference != nullptr) {
+                    Tokens[i]->Name = Alias_Reference->Name;
+
+                    //look if the selector has a size identifier that is same as one of the aliases
+                    for (auto& size : selector->Size_Identifiers) {
+                        if (Alias_Reference->Has(size->Name)) {
+                            Tokens[i]->Flags = WORD_FLAGS::SIZE_IDENTIFIER;
+                            Tokens[i]->SIZE_IDENTIFIER_VALUE = size->Size;
+                        }
+                    }
+
+                    if (Tokens[i]->Flags == 0) {
+                        Tokens[i]->Flags = WORD_FLAGS::ALIAS;
+                    }
+
+                }
             }
         }
     }
@@ -131,8 +212,40 @@ char Assembler::Get_Closing_Character(char Opening_Character){
         return -1;
 }
 
-vector<Opcode*> Assembler::Grouper(vector<Word*> Tokens){
-    return vector<Opcode*>();
+vector<Token*> Assembler::Grouper(vector<Word*> Tokens)
+{
+    //NOTE:
+    //The DWORD and alike are stored by finding their sizes from the selector and then putting into the argument.
+
+    for (int i = 0; i < Tokens.size(); i++) {
+        Token* Result = nullptr;
+
+        if (Tokens[i]->is(WORD_FLAGS::OPCODE)) {
+            int j = 0;
+            //we need to slice the arguments for this opcode because the recursive feature for 
+            //'dword eax', cases
+            vector<Word*> Args;
+            for (; j < Tokens.size() && !Tokens[j]->is(WORD_FLAGS::LINE_ENDING); j++) {
+                Args.push_back(Tokens[j]);
+            }
+
+            vector<Token*>  Disected_Args = Grouper(Args);
+        }
+        else if (Tokens[i]->is(WORD_FLAGS::SIZE_IDENTIFIER)) {
+            
+            if (i + 1 > Tokens.size()) {
+                Report(Observation(ERROR, "Missing content after size identifier", ASSEMBLER_SYNTAX_ERROR));
+            }
+
+            Token* Arg = Grouper({Tokens[i + 1]})[0];
+
+            Arg->Size = Tokens[i]->SIZE_IDENTIFIER_VALUE;
+        }
+    }
+}
+
+vector<IR*> Assembler::Parser(vector<Token*> Tokens){
+
 }
 
 void Assembler::Factory(){

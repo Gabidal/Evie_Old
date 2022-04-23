@@ -11,7 +11,7 @@ using namespace std;
 
 //memory(handle, operator(offsetter), num(12))
 class Token{
-private:
+public:
 	long long Flags = 0;
 	int Life_Span = 0;
 	int Size = 0;
@@ -21,7 +21,6 @@ private:
 	vector<vector<pair<Token*, pair<int, int>>>> Combinations;
 
 	Node* Parent = nullptr;
-public:
 	string OG = "";	//REG_a_Parameter og is a
 	//for return
 	bool Is_Initted = false;

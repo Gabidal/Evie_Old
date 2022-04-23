@@ -15,26 +15,53 @@ public:
         Aliases = Aliases;
         Name = Name;
     }
+
+    bool Has(string value) {
+        if (value == Name)
+            return true;
+        for (auto i : Aliases) {
+            if (i == value)
+                return true;
+        }
+
+        return false;
+    }
 };
 
-namespace KEYWORDS{
-    const Alias GLOBAL("global", { "extern", "global", "globl" });
-    const Alias SECTION("section", { "section", "segment" });
-    const Alias TEXT("text", { "code", "text" });
-    const Alias DATA("data", { "data" });
-    const Alias INTEL_SYNTAX("intel_syntax", { "intel_syntax" });
-    const Alias PREFIX("noprefix", { "noprefix" });
+vector<Alias> ALIASES = {
+    {"global", { "extern", "global", "globl" }},
+    {"section", { "section", "segment" }},
+    {"text", { "code", "text" }},
+    {"data", { "data" }},
+    {"intel_syntax", { "intel_syntax" }},
+    {"noprefix", { "noprefix" }},
 
-    const Alias ZERO("zero", { "zero" });
-    const Alias ASCII("asciz", { "asciz", "string" });
-    const Alias BYTE("byte", { "byte", "byte ptr", "db", "ascii" });
-    const Alias WORD("word", { "word", "word ptr" "short", "dw", "half" });
-    const Alias DWORD("dword", { "dword", "dword ptr" "long", "dd" });
-    const Alias QWORD("qword", { "qword", "qword ptr", "quad", "dq" });
+    {"zero", { "zero" }},
+    {"asciz", { "asciz", "string" }},
+    {"byte", { "byte", "byte ptr", "db", "ascii" }},
+    {"word", { "word", "word ptr" "short", "dw", "half" }},
+    {"dword", { "dword", "dword ptr" "long", "dd" }},
+    {"qword", { "qword", "qword ptr", "quad", "dq" }},
+ 
+    {"xmmword", { "xmmword", "xmmword ptr", "xword", "xword ptr" }},
+    {"ymmword", { "ymmword", "ymmword ptr", "yword", "yword ptr" }},
+    {"zmmword", { "zmmword", "zmmword ptr", "zword", "zword ptr" }}
+};
 
-    const Alias XMMWORD("xmmword", { "xmmword", "xmmword ptr", "xword", "xword ptr" });
-    const Alias YMMWORD("ymmword", { "ymmword", "ymmword ptr", "yword", "yword ptr" });
-    const Alias ZMMWORD("zmmword", { "zmmword", "zmmword ptr", "zword", "zword ptr" });
+namespace WORD_FLAGS {
+    const int UNKNOWN               = 0;
+    const int REGISTER              = 1 << 0;
+    const int MEMORY                = 1 << 1;
+    const int OPCODE                = 1 << 2;
+    const int LABEL                 = 1 << 3;   
+    const int NUMBER                = 1 << 4;
+    const int OPERATOR              = 1 << 5;
+    const int LABEL_INDICATOR       = 1 << 6;
+    const int TEXT                  = 1 << 7;
+    const int LINE_ENDING           = 1 << 8;
+    const int SIZE_IDENTIFIER       = 1 << 9;   //dword ptr
+    const int DATA_SIZE_IDENTIFIER  = 1 << 10;   //db, dd, dw, dq, etc..
+    const int ALIAS                 = 1 << 11;
 }
 
 class Word{
@@ -42,15 +69,58 @@ public:
     string Name = "";
     vector<Word*> Childs;
 
+    int Flags = 0;
+
+    int SIZE_IDENTIFIER_VALUE = 0;
+
     Word(){}
-    Word(string name){
+    Word(string name, int f){
         Name = name;
+        Flags = f;
     }
-};
 
-class Opcode{
-public:
+    bool is(int f) {
+        return (Flags & f) == f;
+    }
 
+    void Remove(int f) {
+        f = Flags & ~f;
+    }
+
+    string is(Alias a) {
+        for (auto& i : a.Aliases){
+            if (i == Name)
+                return a.Name;
+        }
+        return "";
+    }
+
+    Alias* is(vector<Alias> values) {
+        for (auto& i : values) {
+            if (is(i) != "")
+                return &i;
+        }
+        return nullptr;
+    }
+
+    bool is(string name) {
+        if (Name == name)
+            return true;
+        return false;
+    }
+
+    bool is(vector<string> values) {
+        for (auto& i : values) {
+            if (is(i))
+                return true;
+        }
+        return false;
+    }
+
+    bool Is_Number(string n) {
+        char* index = nullptr;
+        return strtol(n.c_str(), &index, 10) >= 0;
+    }
 };
 
 namespace CHAR_GROUPS{
@@ -82,6 +152,9 @@ namespace CHAR_GROUPS{
     constexpr char AT_SIGN_INDEX = 64;
     constexpr char UNDERLINE_INDEX = 95;
     constexpr char QUESTION_MARK_INDEX = 63;
+
+    constexpr char LABEL_START_CHARACHTER_INDEX = 58; // ":"
+    constexpr char SEMICOLON_INDEX = 59;
 }
 
 #endif
