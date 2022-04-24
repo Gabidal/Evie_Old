@@ -55,7 +55,7 @@ namespace WORD_FLAGS {
     const int OPCODE                = 1 << 2;
     const int LABEL                 = 1 << 3;   
     const int NUMBER                = 1 << 4;
-    const int OPERATOR              = 1 << 5;
+    const int OPERATOR              = 1 << 5;   //// '*', '+', ',', '-', '.'
     const int LABEL_INDICATOR       = 1 << 6;
     const int TEXT                  = 1 << 7;
     const int LINE_ENDING           = 1 << 8;

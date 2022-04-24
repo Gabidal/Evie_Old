@@ -214,11 +214,11 @@ char Assembler::Get_Closing_Character(char Opening_Character){
 
 vector<Token*> Assembler::Grouper(vector<Word*> Tokens)
 {
+    vector<Token*> Result;
     //NOTE:
     //The DWORD and alike are stored by finding their sizes from the selector and then putting into the argument.
-
     for (int i = 0; i < Tokens.size(); i++) {
-        Token* Result = nullptr;
+        Token* Current_Token = nullptr;
 
         if (Tokens[i]->is(WORD_FLAGS::OPCODE)) {
             int j = 0;
@@ -240,8 +240,54 @@ vector<Token*> Assembler::Grouper(vector<Word*> Tokens)
             Token* Arg = Grouper({Tokens[i + 1]})[0];
 
             Arg->Size = Tokens[i]->SIZE_IDENTIFIER_VALUE;
+            Current_Token = Arg;
+
+
+            Tokens.erase(Tokens.begin() + i, Tokens.begin() + i + 1);
+            i --;
         }
+        else if (Tokens[i]->is(WORD_FLAGS::REGISTER)) {
+            for (auto& r : selector->Registers)
+                if (r.second->Name == Tokens[i]->Name)
+                    Current_Token = new Token(*r.second);
+        }
+        else if (Tokens[i]->is(WORD_FLAGS::MEMORY)) {
+            Token* Wrapper = new Token(TOKEN::MEMORY);
+
+            Token* Content = Grouper({ Tokens[i]->Childs })[0];
+            Content->Flags |= TOKEN::CONTENT;
+
+            Wrapper->Childs.push_back(Content);
+
+            Current_Token = Wrapper;
+        }
+        else if (Tokens[i]->is(WORD_FLAGS::NUMBER)) {
+            Token* Number = new Token(TOKEN::NUM);
+            Number->Name = Tokens[i]->Name;
+        }
+        else if (Tokens[i]->is(WORD_FLAGS::OPERATOR) && !Tokens[i]->is(vector<string>{",", "."})) {
+            
+            //The left side is probably already inside the Result list.
+            Token* Left = Result.back();
+            Token* Right = Grouper({ Tokens[i + 1] })[0];
+
+            Token* Operator = new Token(TOKEN::OPERATOR, { Left, Right }, 0, Tokens[i]->Name);
+
+            //remove the left side 
+            Result.pop_back();
+
+            //remove the right side and the operator
+            Tokens.erase(Tokens.begin() + i, Tokens.begin() + i + 1);
+            i--;
+
+            Current_Token = Operator;
+        }
+
+
+        Result.push_back(Current_Token);
     }
+
+    return Result;
 }
 
 vector<IR*> Assembler::Parser(vector<Token*> Tokens){
