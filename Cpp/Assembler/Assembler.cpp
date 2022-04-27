@@ -2,6 +2,8 @@
 
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/UI/Safe.h"
+#include "../../H/Docker/Docker.h"
+#include "../../H/Docker/Mangler.h"
 
 Selector* selector;
 
@@ -223,13 +225,31 @@ vector<Token*> Assembler::Grouper(vector<Word*> Tokens)
         if (Tokens[i]->is(WORD_FLAGS::OPCODE)) {
             int j = 0;
             //we need to slice the arguments for this opcode because the recursive feature for 
-            //'dword eax', cases
+            //'<dword> <[rax]>' -> '<[rax]{size: 4}>', cases
             vector<Word*> Args;
             for (; j < Tokens.size() && !Tokens[j]->is(WORD_FLAGS::LINE_ENDING); j++) {
                 Args.push_back(Tokens[j]);
             }
 
+            //The commas are removed automatically.
             vector<Token*>  Disected_Args = Grouper(Args);
+
+            Token* Opcode;
+            for (auto& opc : selector->Opcodes) {
+                if (opc->OPCODE->Name == Tokens[i]->Name) {
+                    Opcode = new Token(*opc->OPCODE);
+                    break;
+                }
+            }
+
+            Opcode->Flags |= TOKEN::OPCODE;
+
+            //we cant use the Current_Token because the order of the tokens would be incorrect,
+            //because of how the opcode would have been added later than the args
+            Result.push_back(Opcode);
+            DOCKER::Append(Result, Disected_Args);
+
+            Result.push_back(new Token(TOKEN::NEWLINE, "\n"));
         }
         else if (Tokens[i]->is(WORD_FLAGS::SIZE_IDENTIFIER)) {
             
@@ -282,7 +302,12 @@ vector<Token*> Assembler::Grouper(vector<Word*> Tokens)
 
             Current_Token = Operator;
         }
+        else if (Tokens[i]->is(WORD_FLAGS::LABEL_INDICATOR)) {
+            if (i - 1 < 0)
+                Report(Observation(ERROR, "Missing label name", ASSEMBLER_SYNTAX_ERROR));
 
+            Current_Token = new Token(TOKEN::LABEL, Tokens[i - 1]->Name);
+        }
 
         Result.push_back(Current_Token);
     }
@@ -291,6 +316,77 @@ vector<Token*> Assembler::Grouper(vector<Word*> Tokens)
 }
 
 vector<IR*> Assembler::Parser(vector<Token*> Tokens){
+    vector<IR*> Result;
+
+    for (int i = 0; i < Tokens.size(); i++) {
+
+        if (Tokens[i]->is(TOKEN::OPCODE)) {
+
+            vector<Token*> Args;
+
+            for (int j = i + 1; j < Tokens.size() && !Tokens[j]->is(TOKEN::NEWLINE); Args.push_back(Tokens[j++]));
+
+            Result.push_back(new IR(Tokens[i], Args, new Position()));
+        }
+        else if (Tokens[i]->is(TOKEN::LABEL)) {
+            //This shouldt contain paranthesis nor return type, and it does, so find a way to remove everything other than the name itself.
+            Tokens[i]->OG = MANGLER::Un_Mangle(Tokens[i]->Name);
+
+            Result.push_back(new IR(Tokens[i], {}, new Position()));
+        }
+    }
+
+    return Result;
+}
+
+//This function tries to find the mathing opcodes that are in the architecture files.
+vector<class IR*> Assembler::Post_Prosessor(vector<class IR*> IRs)
+{
+    for (auto& i : IRs) {
+
+        vector<Token*> Arguments = i->Arguments;
+
+        for (auto& j : selector->Opcodes) {
+
+            if (i->OPCODE->Name != j->OPCODE->Name)
+                continue;
+
+            for (auto& Opcode_Variant : j->Order) {
+
+                if (Opcode_Variant.Order.size() != Arguments.size())
+                    continue;
+
+                bool This_Opcode_Variant_Is_Suitable = true;
+
+                int Arg_Index = 0;
+                for (auto& Args : Opcode_Variant.Order) {
+
+                    if (Arguments[Arg_Index]->Size <= Args.Max_Size && Arguments[Arg_Index]->Size >= Args.Min_Size) {
+
+                        if (!Args.Type->is(Arguments[Arg_Index]->Flags)) {
+                            This_Opcode_Variant_Is_Suitable = false;
+                        }
+
+                    }
+                    else {
+                        This_Opcode_Variant_Is_Suitable = false;
+                    }
+
+                    Arg_Index++;
+                }
+
+                if (This_Opcode_Variant_Is_Suitable) {
+                    i->Order.push_back(Opcode_Variant);
+
+                    goto Found_Suitable_Opcode;
+                }
+
+            }
+        }
+
+    Found_Suitable_Opcode:;
+    }
+
 
 }
 

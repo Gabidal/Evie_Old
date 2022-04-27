@@ -39,6 +39,12 @@ public:
     //Parser stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
     vector<class IR*> Parser(vector<class Token*> Tokens);
+
+    //Post-Prosessor stuff
+    //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+    vector<class IR*> Post_Prosessor(vector<class IR*> IRs);
+
+
     void Factory();
 };
 

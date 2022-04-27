@@ -4,73 +4,77 @@
 #undef OPTIONAL
 
 namespace TOKEN {
-	constexpr long long REGISTER				 = 1 << 0;	//this is for that the selector can select an register if it sees this
-	constexpr long long VOLATILE				 = 1 << 1;
-	constexpr long long NONVOLATILE				 = 1 << 2;
-	constexpr long long RETURNING				 = 1 << 3;
-	constexpr long long PARAMETER				 = 1 << 4;	//fast call
-	constexpr long long REMAINDER				 = 1 << 5;
-	constexpr long long QUOTIENT				 = 1 << 6;
-	constexpr long long STACK_POINTTER			 = 1 << 7;
+	static constexpr long long REGISTER						= 1 << 0;	//this is for that the selector can select an register if it sees this
+	static constexpr long long VOLATILE						= 1 << 1;
+	static constexpr long long NONVOLATILE					= 1 << 2;
+	static constexpr long long RETURNING					= 1 << 3;
+	static constexpr long long PARAMETER					= 1 << 4;	//fast call
+	static constexpr long long REMAINDER					= 1 << 5;
+	static constexpr long long QUOTIENT						= 1 << 6;
+	static constexpr long long STACK_POINTTER				= 1 << 7;
 
-	constexpr long long NUM						 = 1 << 8;
-	constexpr long long DECIMAL					 = 1 << 9;
+	static constexpr long long NUM							= 1 << 8;
+	static constexpr long long DECIMAL						= 1 << 9;
 
-	constexpr long long MEMORY					 = 1 << 10;
+	static constexpr long long MEMORY						= 1 << 10;
 
-	constexpr long long OPERATOR				 = 1 << 11;	//any operator
-	constexpr long long SCALER					 = 1 << 12;		//*
-	constexpr long long OFFSETTER				 = 1 << 13;	//+
-	constexpr long long DEOFFSETTER				 = 1 << 14;	//+
+	static constexpr long long OPERATOR						= 1 << 11;	//any operator
+	static constexpr long long SCALER						= 1 << 12;		//*
+	static constexpr long long OFFSETTER					= 1 << 13;	//+
+	static constexpr long long DEOFFSETTER					= 1 << 14;	//+
 
-	constexpr long long CONTENT					 = 1 << 15;	//any childs owner
-	constexpr long long LABEL					 = 1 << 16;
+	static constexpr long long CONTENT						= 1 << 15;	//any childs owner
+	static constexpr long long LABEL						= 1 << 16;
 
-	constexpr long long FLOW					 = 1 << 17; //ret, jmp
-	constexpr long long CALL					 = 1 << 18; // calls
+	static constexpr long long FLOW							= 1 << 17; //ret, jmp
+	static constexpr long long CALL							= 1 << 18; // calls
 
 	//RULES
-	constexpr long long ALL_ARGS_SAME_SIZE		 = 1 << 19;	//this means that all args on the OPCODE must be same size
-	constexpr long long OPTIONAL				 = 1 << 20;
-	constexpr long long INF						 = 1 << 21;
-	constexpr long long UN_ORDERED				 = 1 << 22;
-	constexpr long long END_OF_FUNCTION			 = 1 << 23;
-	constexpr long long START_OF_FUNCTION		 = 1 << 24;
-	constexpr long long END_OF_LOOP				 = 1 << 25;
-	constexpr long long NEEDS_SIZE_IDENTIFIER	 = 1 << 26;
-	constexpr long long SIZE_INDENTIFIER		 = 1 << 27;
+	static constexpr long long ALL_ARGS_SAME_SIZE			= 1 << 19;	//this means that all args on the OPCODE must be same size
+	static constexpr long long OPTIONAL						= 1 << 20;
+	static constexpr long long INF							= 1 << 21;
+	static constexpr long long UN_ORDERED					= 1 << 22;
+	static constexpr long long END_OF_FUNCTION				= 1 << 23;
+	static constexpr long long START_OF_FUNCTION			= 1 << 24;
+	static constexpr long long END_OF_LOOP					= 1 << 25;
+	static constexpr long long NEEDS_SIZE_IDENTIFIER		= 1 << 26;
+	static constexpr long long SIZE_INDENTIFIER				= 1 << 27;
 
-	constexpr long long GLOBAL_LABEL			 = 1 << 28;
-	constexpr long long SET_DATA				 = 1 << 29;
-	constexpr long long GLOBAL_VARIABLE			 = 1 << 30;
-	constexpr long long STRING								 = (long long)1 << 31;
-	constexpr long long ADD_NON_VOLATILE_SPACE_NEEDS_HERE	 = (long long)1 << 32;
-	constexpr long long POSITION_INDEPENDENT_REGISTER		 = (long long)1 << 33;
-	constexpr long long STACK_ALLOCATION_CONSTANT			 = (long long)1 << 34;
-	constexpr long long UN_DECIDED							 = (long long)1 << 35;
-	constexpr long long PARAMETER_SPACE						 = (long long)1 << 36;
-	constexpr long long PUSH_SPACE							 = (long long)1 << 37;
-	constexpr long long LOCAL_VARIABLE_SCOPE				 = (long long)1 << 38;
-	constexpr long long REGISTER_SAVE_SPACE					 = (long long)1 << 39;
-	constexpr long long CALL_PARAMETER_SPACE				 = (long long)1 << 40;
-	constexpr long long ALREADY_GIVEN_REGISTER_NAME			 = (long long)1 << 41;
+	static constexpr long long GLOBAL_LABEL					= 1 << 28;
+	static constexpr long long SET_DATA						= 1 << 29;
+	static constexpr long long GLOBAL_VARIABLE				= 1 << 30;
+	static constexpr long long STRING								 = (long long)1 << 31;
+	static constexpr long long ADD_NON_VOLATILE_SPACE_NEEDS_HERE	 = (long long)1 << 32;
+	static constexpr long long POSITION_INDEPENDENT_REGISTER		 = (long long)1 << 33;
+	static constexpr long long STACK_ALLOCATION_CONSTANT			 = (long long)1 << 34;
+	static constexpr long long UN_DECIDED							 = (long long)1 << 35;
+	static constexpr long long PARAMETER_SPACE						 = (long long)1 << 36;
+	static constexpr long long PUSH_SPACE							 = (long long)1 << 37;
+	static constexpr long long LOCAL_VARIABLE_SCOPE					 = (long long)1 << 38;
+	static constexpr long long REGISTER_SAVE_SPACE					 = (long long)1 << 39;
+	static constexpr long long CALL_PARAMETER_SPACE					 = (long long)1 << 40;
+	static constexpr long long ALREADY_GIVEN_REGISTER_NAME			 = (long long)1 << 41;
+
+	//This is for the Assembler to identify end of opcode args, before Parser phase.
+	static constexpr long long NEWLINE								 = (long long)1 << 42;
+	static constexpr long long OPCODE								 = (long long)1 << 43;
 }
 
 namespace Flags{
 	//the main flags that LEXER uses
-	constexpr long KEYWORD_COMPONENT					= 1 << 0;
-	constexpr long UNDEFINED_COMPONENT					= 1 << 1;
-	constexpr long PAREHTHESIS_COMPONENT				= 1 << 2;
-	constexpr long END_COMPONENT						= 1 << 3;
-	constexpr long STRING_COMPONENT						= 1 << 4;
-	constexpr long NUMBER_COMPONENT						= 1 << 5;
-	constexpr long COMMENT_COMPONENT					= 1 << 6;
-	constexpr long OPERATOR_COMPONENT					= 1 << 7;
-	constexpr long TEXT_COMPONENT						= 1 << 8;
-	constexpr long END_OF_DIRECTIVE_CHANGING_FILE		= 1 << 9;
-	constexpr long TEMPLATE_COMPONENT					= 1 << 10;
-	constexpr long NUMERICAL_TYPE_COMPONENT				= 1 << 11;
-	constexpr long PROCESSED_STRING						= 1 << 12;
+	static constexpr long KEYWORD_COMPONENT						= 1 << 0;
+	static constexpr long UNDEFINED_COMPONENT					= 1 << 1;
+	static constexpr long PAREHTHESIS_COMPONENT					= 1 << 2;
+	static constexpr long END_COMPONENT							= 1 << 3;
+	static constexpr long STRING_COMPONENT						= 1 << 4;
+	static constexpr long NUMBER_COMPONENT						= 1 << 5;
+	static constexpr long COMMENT_COMPONENT						= 1 << 6;
+	static constexpr long OPERATOR_COMPONENT					= 1 << 7;
+	static constexpr long TEXT_COMPONENT						= 1 << 8;
+	static constexpr long END_OF_DIRECTIVE_CHANGING_FILE		= 1 << 9;
+	static constexpr long TEMPLATE_COMPONENT					= 1 << 10;
+	static constexpr long NUMERICAL_TYPE_COMPONENT				= 1 << 11;
+	static constexpr long PROCESSED_STRING						= 1 << 12;
 }
 
 enum Node_Type {
