@@ -10,6 +10,7 @@ using namespace std;
 #include "../Nodes/Token.h"
 #include "../Nodes/IR.h"
 #include "../Flags.h"
+#include "../Assembler/Assembler_Types.h"
 
 class x86_64 {
 public:
@@ -29,7 +30,24 @@ public:
 	//DEBUG
 	int STACK_REPRESENTIVE_REGISTER = 87; //RSP
 
+	//Assembler
+	static class Byte_Map* Build(IR* ir);
 
+	static bool is(unsigned char value, unsigned char mask) {
+		return (value & mask) == mask;
+	}
+
+	static map<unsigned char, unsigned char> MODRMS;
 };
+
+static constexpr unsigned char REX_DEFAULT = 0b01000000;
+static constexpr unsigned char REX_W = 0b01001000;
+static constexpr unsigned char REX_R = 0b01000100;
+static constexpr unsigned char REX_X = 0b01000010;
+static constexpr unsigned char REX_B = 0b01000001;
+
+static constexpr unsigned char OPERAND_SIZE_OVERRIDE = 0b01100110; //0x66
+
+static constexpr unsigned char REX_BIT_SETTED = 0b1000;
 
 #endif

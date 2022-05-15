@@ -42,8 +42,11 @@ public:
 
     //Post-Prosessor stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-    vector<class IR*> Post_Prosessor(vector<class IR*> IRs);
+    vector<class IR*> Parser_Post_Prosessor(vector<class IR*> IRs);
 
+    //Encoder stuff
+    //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+    vector<Byte_Map*> Intermediate_Encoder(vector<class IR*>);
 
     void Factory();
 };

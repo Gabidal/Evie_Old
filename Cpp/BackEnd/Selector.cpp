@@ -20,6 +20,9 @@ void Selector::Init() {
 
 			//DEBUG
 			STACK_REPRESENTIVE_REGISTER = X86_64.STACK_REPRESENTIVE_REGISTER;
+
+			//Assembler
+			Build = X86_64.Build;
 		}
 
 	}

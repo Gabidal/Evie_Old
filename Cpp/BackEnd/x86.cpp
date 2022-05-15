@@ -1,6 +1,8 @@
 #include "../../H/BackEnd/x86.h"
 #include "../../H/UI/Usr.h"
 
+#include "../../H/Assembler/Assembler_Types.h"
+
 extern Usr* sys;
 
 void x86_64::Init()
@@ -17,148 +19,160 @@ void x86_64::Init()
 	Number_Pre_Fix = "";
 	Label_Post_Fix = ":";
 
-	Token* AL = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "al", 1, {});
-	Token* AH = new Token(TOKEN::RETURNING, "ah", 1, {});
-	Token* AX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "ax", 2, { AH, AL });
-	Token* EAX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "eax", 4, { AX });
-	Token* RAX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "rax", 8, { EAX });
+	MODRMS = {
+		{0, 0},
 
-	Token* BL = new Token(TOKEN::NONVOLATILE, "bl", 1, {});
-	Token* BH = new Token(TOKEN::NONVOLATILE, "bh", 1, {});
-	Token* BX = new Token(TOKEN::NONVOLATILE, "bx", 2, { BH, BL });
-	Token* EBX = new Token(TOKEN::NONVOLATILE, "ebx", 4, { BX });
-	Token* RBX = new Token(TOKEN::NONVOLATILE, "rbx", 8, { EBX });
+		{MODRM::RM | MODRM::MEMORY, 0b00000000},
+		{MODRM::RM | MODRM::MEMORY | MODRM::DISP32, 0b10000000},
+		{MODRM::RM, 0b11000000},
+		
+		{MODRM::SIB | MODRM::MEMORY, 0b00000000},
+		{MODRM::SIB | MODRM::MEMORY | MODRM::DISP32, 0b10000000},
+		{MODRM::SIB, 0b11000000}
+	};
 
-	Token* CL = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "cl", 1, {});
-	Token* CH = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "ch", 1, {});
-	Token* CX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "cx", 2, { CH, CL });
-	Token* ECX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "ecx", 4, { CX });
-	Token* RCX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "rcx", 8, { ECX});
+	Token* AL = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "al", 1, {}, 0b0000);
+	Token* AH = new Token(TOKEN::RETURNING, "ah", 1, {}, 0b0100);
+	Token* AX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "ax", 2, { AH, AL }, 0b0000);
+	Token* EAX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "eax", 4, { AX }, 0b0000);
+	Token* RAX = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "rax", 8, { EAX }, 0b0000);
 
-	Token* DL = new Token( TOKEN::PARAMETER, "dl", 1, {});
-	Token* DH = new Token( TOKEN::PARAMETER, "dh", 1, {});
-	Token* DX = new Token( TOKEN::PARAMETER  | TOKEN::REMAINDER, "dx", 2, { DH, DL });
-	Token* EDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "edx", 4, { DX });
-	Token* RDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "rdx", 8, { EDX });
+	Token* BL = new Token(TOKEN::NONVOLATILE, "bl", 1, {}, 0b0011);
+	Token* BH = new Token(TOKEN::NONVOLATILE, "bh", 1, {}, 0b0111);
+	Token* BX = new Token(TOKEN::NONVOLATILE, "bx", 2, { BH, BL }, 0b0011);
+	Token* EBX = new Token(TOKEN::NONVOLATILE, "ebx", 4, { BX }, 0b0011);
+	Token* RBX = new Token(TOKEN::NONVOLATILE, "rbx", 8, { EBX }, 0b0011);
 
-	Token* DIL = new Token(OS_DEPENDENT_FLAG, "dil", 1, {});
+	Token* CL = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "cl", 1, {}, 0b0001);
+	Token* CH = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "ch", 1, {}, 0b0101);
+	Token* CX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "cx", 2, { CH, CL }, 0b0001);
+	Token* ECX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "ecx", 4, { CX }, 0b0001);
+	Token* RCX = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "rcx", 8, { ECX}, 0b0001);
+
+	Token* DL = new Token( TOKEN::PARAMETER, "dl", 1, {}, 0b0010);
+	Token* DH = new Token( TOKEN::PARAMETER, "dh", 1, {}, 0b0110);
+	Token* DX = new Token( TOKEN::PARAMETER  | TOKEN::REMAINDER, "dx", 2, { DH, DL }, 0b0010);
+	Token* EDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "edx", 4, { DX }, 0b0010);
+	Token* RDX = new Token( TOKEN::PARAMETER | TOKEN::REMAINDER, "rdx", 8, { EDX }, 0b0010);
+
+	Token* DIL = new Token(OS_DEPENDENT_FLAG, "dil", 1, {}, 0b0111);
 	//Token* DIH = new Token(TOKEN::NONVOLATILE, "dih", 1, {});
-	Token* DI = new Token(OS_DEPENDENT_FLAG, "di", 2, {DIL });
-	Token* EDI = new Token(OS_DEPENDENT_FLAG, "edi", 4, { DI });
-	Token* RDI = new Token(OS_DEPENDENT_FLAG, "rdi", 8, { EDI });
+	Token* DI = new Token(OS_DEPENDENT_FLAG, "di", 2, {DIL }, 0b0111);
+	Token* EDI = new Token(OS_DEPENDENT_FLAG, "edi", 4, { DI }, 0b0111);
+	Token* RDI = new Token(OS_DEPENDENT_FLAG, "rdi", 8, { EDI }, 0b0111);
 
-	Token* SIL = new Token(OS_DEPENDENT_FLAG, "sil", 1, {});
+	Token* SIL = new Token(OS_DEPENDENT_FLAG, "sil", 1, {}, 0b0110);
 	//Token* SIH = new Token(TOKEN::NONVOLATILE, "sih", 1, {});
-	Token* SI = new Token(OS_DEPENDENT_FLAG, "si", 2, {SIL });
-	Token* ESI = new Token(OS_DEPENDENT_FLAG, "esi", 4, { SI });
-	Token* RSI = new Token(OS_DEPENDENT_FLAG, "rsi", 8, { ESI });
+	Token* SI = new Token(OS_DEPENDENT_FLAG, "si", 2, {SIL }, 0b0110);
+	Token* ESI = new Token(OS_DEPENDENT_FLAG, "esi", 4, { SI }, 0b0110);
+	Token* RSI = new Token(OS_DEPENDENT_FLAG, "rsi", 8, { ESI }, 0b0110);
 
 
-	Token* BPL = new Token(TOKEN::NONVOLATILE, "bpl", 1, {});
-	Token* BP = new Token(TOKEN::NONVOLATILE, "bp", 2, { BPL });
-	Token* EBP = new Token(TOKEN::NONVOLATILE, "ebp", 4, { BP });
-	Token* RBP = new Token(TOKEN::NONVOLATILE, "rbp", 8, { EBP });
+	Token* BPL = new Token(TOKEN::NONVOLATILE, "bpl", 1, {}, 0b0101);
+	Token* BP = new Token(TOKEN::NONVOLATILE, "bp", 2, { BPL }, 0b0101);
+	Token* EBP = new Token(TOKEN::NONVOLATILE, "ebp", 4, { BP }, 0b0101);
+	Token* RBP = new Token(TOKEN::NONVOLATILE, "rbp", 8, { EBP }, 0b0101);
 
-	Token* SPL = new Token(TOKEN::STACK_POINTTER, "spl", 1, {});
-	Token* SP = new Token(TOKEN::STACK_POINTTER, "sp", 2, { SPL });
-	Token* ESP = new Token(TOKEN::STACK_POINTTER, "esp", 4, { SP });
-	Token* RSP = new Token(TOKEN::STACK_POINTTER, "rsp", 8, { ESP });
+	Token* SPL = new Token(TOKEN::STACK_POINTTER, "spl", 1, {}, 0b0100);
+	Token* SP = new Token(TOKEN::STACK_POINTTER, "sp", 2, { SPL }, 0b0100);
+	Token* ESP = new Token(TOKEN::STACK_POINTTER, "esp", 4, { SP }, 0b0100);
+	Token* RSP = new Token(TOKEN::STACK_POINTTER, "rsp", 8, { ESP }, 0b0100);
 
-	Token* IPL = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ipl", 1, {});
-	Token* IP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ip", 2, {IPL});
-	Token* EIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "eip", 4, { IP });
-	Token* RIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "rip", 8, { EIP });
+	Token* IPL = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ipl", 1, {}, 0);
+	Token* IP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ip", 2, {IPL}, 0);
+	Token* EIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "eip", 4, { IP }, 0);
+	Token* RIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "rip", 8, { EIP }, 0);
 
-	Token* XMM0D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 4, {});
-	Token* XMM1D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 4, {});
-	Token* XMM2D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 4, {});
-	Token* XMM3D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 4, {});
-	Token* XMM4D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 4, {});
-	Token* XMM5D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 4, {});
-	Token* XMM6D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 4, {});
-	Token* XMM7D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 4, {});
-	Token* XMM8D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 4, {});
-	Token* XMM9D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 4, {});
-	Token* XMM10D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 4, {});
-	Token* XMM11D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 4, {});
-	Token* XMM12D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 4, {});
-	Token* XMM13D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 4, {});
-	Token* XMM14D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 4, {});
-	Token* XMM15D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 4, {});
+	Token* XMM0D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 4, {}, 0b0000);
+	Token* XMM1D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 4, {}, 0b0001);
+	Token* XMM2D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 4, {}, 0b0010);
+	Token* XMM3D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 4, {}, 0b0011);
+	Token* XMM4D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 4, {}, 0b0100);
+	Token* XMM5D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 4, {}, 0b0101);
+	Token* XMM6D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 4, {}, 0b0110);
+	Token* XMM7D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 4, {}, 0b0111);
+	Token* XMM8D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 4, {}, 0b1000);
+	Token* XMM9D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 4, {}, 0b1001);
+	Token* XMM10D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 4, {}, 0b1010);
+	Token* XMM11D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 4, {}, 0b1011);
+	Token* XMM12D = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 4, {}, 0b1100);
+	Token* XMM13D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 4, {}, 0b1101);
+	Token* XMM14D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 4, {}, 0b1110);
+	Token* XMM15D = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 4, {}, 0b1111);
 
-	Token* XMM0Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 8, {XMM0D});
-	Token* XMM1Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 8, {XMM1D});
-	Token* XMM2Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 8, { XMM2D });
-	Token* XMM3Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 8, { XMM3D });
-	Token* XMM4Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 8, { XMM4D });
-	Token* XMM5Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 8, { XMM5D });
-	Token* XMM6Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 8, { XMM6D });
-	Token* XMM7Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 8, { XMM7D });
-	Token* XMM8Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 8, { XMM8D });
-	Token* XMM9Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 8, { XMM9D });
-	Token* XMM10Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 8, { XMM10D });
-	Token* XMM11Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 8, { XMM11D });
-	Token* XMM12Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 8, { XMM12D });
-	Token* XMM13Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 8, { XMM13D });
-	Token* XMM14Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 8, { XMM14D });
-	Token* XMM15Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 8, { XMM15D });
+	Token* XMM0Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 8, {XMM0D}, 0b0000);
+	Token* XMM1Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 8, {XMM1D}, 0b0001);
+	Token* XMM2Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 8, { XMM2D }, 0b0010);
+	Token* XMM3Q = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 8, { XMM3D }, 0b0011);
+	Token* XMM4Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 8, { XMM4D }, 0b0100);
+	Token* XMM5Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 8, { XMM5D }, 0b0101);
+	Token* XMM6Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 8, { XMM6D }, 0b0110);
+	Token* XMM7Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 8, { XMM7D }, 0b0111);
+	Token* XMM8Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 8, { XMM8D }, 0b1000);
+	Token* XMM9Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 8, { XMM9D }, 0b1001);
+	Token* XMM10Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 8, { XMM10D }, 0b1010);
+	Token* XMM11Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 8, { XMM11D }, 0b1011);
+	Token* XMM12Q = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 8, { XMM12D }, 0b1100);
+	Token* XMM13Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 8, { XMM13D }, 0b1101);
+	Token* XMM14Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 8, { XMM14D }, 0b1110);
+	Token* XMM15Q = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 8, { XMM15D }, 0b1111);
 
-	Token* XMM0 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 12, { XMM0Q });
-	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 12, { XMM1Q });
-	Token* XMM2 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 12, { XMM2Q });
-	Token* XMM3 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 12, { XMM3Q });
-	Token* XMM4 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 12, { XMM4Q });
-	Token* XMM5 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 12, { XMM5Q });
-	Token* XMM6 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 12, { XMM6Q });
-	Token* XMM7 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 12, { XMM7Q });
-	Token* XMM8 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 12, { XMM8Q });
-	Token* XMM9 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 12, { XMM9Q });
-	Token* XMM10 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 12, { XMM10Q });
-	Token* XMM11 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 12, { XMM11Q });
-	Token* XMM12 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 12, { XMM12Q });
-	Token* XMM13 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 12, { XMM13Q });
-	Token* XMM14 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 12, { XMM14Q });
-	Token* XMM15 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 12, { XMM15Q });
+	Token* XMM0 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL, "xmm0", 12, { XMM0Q }, 0b0000);
+	Token* XMM1 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm1", 12, { XMM1Q }, 0b0001);
+	Token* XMM2 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm2", 12, { XMM2Q }, 0b0010);
+	Token* XMM3 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL, "xmm3", 12, { XMM3Q }, 0b0011);
+	Token* XMM4 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm4", 12, { XMM4Q }, 0b0100);
+	Token* XMM5 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm5", 12, { XMM5Q }, 0b0101);
+	Token* XMM6 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm6", 12, { XMM6Q }, 0b0110);
+	Token* XMM7 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm7", 12, { XMM7Q }, 0b0111);
+	Token* XMM8 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm8", 12, { XMM8Q }, 0b1000);
+	Token* XMM9 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm9", 12, { XMM9Q }, 0b1001);
+	Token* XMM10 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xm10", 12, { XMM10Q }, 0b1010);
+	Token* XMM11 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm11", 12, { XMM11Q }, 0b1011);
+	Token* XMM12 = new Token(TOKEN::VOLATILE | TOKEN::DECIMAL, "xmm12", 12, { XMM12Q }, 0b1100);
+	Token* XMM13 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm13", 12, { XMM13Q }, 0b1101);
+	Token* XMM14 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm14", 12, { XMM14Q }, 0b1110);
+	Token* XMM15 = new Token(TOKEN::NONVOLATILE | TOKEN::DECIMAL, "xmm15", 12, { XMM15Q }, 0b1111);
 
-	Token* R8B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8b", 1, {});
-	Token* R8W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8w", 2, { R8B });
-	Token* R8D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8d", 4, { R8W });
-	Token* R8 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8", 8, { R8D });
+	Token* R8B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8b", 1, {}, 0b1000);
+	Token* R8W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8w", 2, { R8B }, 0b1000);
+	Token* R8D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8d", 4, { R8W }, 0b1000);
+	Token* R8 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r8", 8, { R8D }, 0b1000);
 
-	Token* R9B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9b", 1, {});
-	Token* R9W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9w", 2, { R9B });
-	Token* R9D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9d", 4, { R9W });
-	Token* R9 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9", 8, { R9D });
+	Token* R9B = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9b", 1, {}, 0b1001);
+	Token* R9W = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9w", 2, { R9B }, 0b1001);
+	Token* R9D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9d", 4, { R9W }, 0b1001);
+	Token* R9 = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER, "r9", 8, { R9D }, 0b1001);
 
-	Token* R10B = new Token(TOKEN::VOLATILE, "r10b", 1, {});
-	Token* R10W = new Token(TOKEN::VOLATILE, "r10w", 2, { R10B });
-	Token* R10D = new Token(TOKEN::VOLATILE, "r10d", 4, { R10W });
-	Token* R10 = new Token(TOKEN::VOLATILE , "r10", 8, { R10D });
+	Token* R10B = new Token(TOKEN::VOLATILE, "r10b", 1, {}, 0b1010);
+	Token* R10W = new Token(TOKEN::VOLATILE, "r10w", 2, { R10B }, 0b1010);
+	Token* R10D = new Token(TOKEN::VOLATILE, "r10d", 4, { R10W }, 0b1010);
+	Token* R10 = new Token(TOKEN::VOLATILE , "r10", 8, { R10D }, 0b1010);
 
-	Token* R11B = new Token(TOKEN::VOLATILE, "r11b", 1, {});
-	Token* R11W = new Token(TOKEN::VOLATILE, "r11w", 2, { R11B });
-	Token* R11D = new Token(TOKEN::VOLATILE, "r11d", 4, { R11W });
-	Token* R11 = new Token(TOKEN::VOLATILE , "r11", 8, { R11D });
+	Token* R11B = new Token(TOKEN::VOLATILE, "r11b", 1, {}, 0b1011);
+	Token* R11W = new Token(TOKEN::VOLATILE, "r11w", 2, { R11B }, 0b1011);
+	Token* R11D = new Token(TOKEN::VOLATILE, "r11d", 4, { R11W }, 0b1011);
+	Token* R11 = new Token(TOKEN::VOLATILE , "r11", 8, { R11D }, 0b1011);
 
-	Token* R12B = new Token(TOKEN::NONVOLATILE, "r12b", 1, {});
-	Token* R12W = new Token(TOKEN::NONVOLATILE, "r12w", 2, { R12B });
-	Token* R12D = new Token(TOKEN::NONVOLATILE, "r12d", 4, { R12W });
-	Token* R12 = new Token(TOKEN::NONVOLATILE , "r12", 8, { R12D });
+	Token* R12B = new Token(TOKEN::NONVOLATILE, "r12b", 1, {}, 0b1100);
+	Token* R12W = new Token(TOKEN::NONVOLATILE, "r12w", 2, { R12B }, 0b1100);
+	Token* R12D = new Token(TOKEN::NONVOLATILE, "r12d", 4, { R12W }, 0b1100);
+	Token* R12 = new Token(TOKEN::NONVOLATILE , "r12", 8, { R12D }, 0b1100);
 
-	Token* R13B = new Token(TOKEN::NONVOLATILE, "r13b", 1, {});
-	Token* R13W = new Token(TOKEN::NONVOLATILE, "r13w", 2, { R13B });
-	Token* R13D = new Token(TOKEN::NONVOLATILE, "r13d", 4, { R13W });
-	Token* R13 = new Token(TOKEN::NONVOLATILE , "r13", 8, { R13D });
+	Token* R13B = new Token(TOKEN::NONVOLATILE, "r13b", 1, {}, 0b1101);
+	Token* R13W = new Token(TOKEN::NONVOLATILE, "r13w", 2, { R13B }, 0b1101);
+	Token* R13D = new Token(TOKEN::NONVOLATILE, "r13d", 4, { R13W }, 0b1101);
+	Token* R13 = new Token(TOKEN::NONVOLATILE , "r13", 8, { R13D }, 0b1101);
 
-	Token* R14B = new Token(TOKEN::NONVOLATILE, "r14b", 1, {});
-	Token* R14W = new Token(TOKEN::NONVOLATILE, "r14w", 2, { R14B });
-	Token* R14D = new Token(TOKEN::NONVOLATILE, "r14d", 4, { R14W });
-	Token* R14 = new Token(TOKEN::NONVOLATILE , "r14", 8, { R14D });
+	Token* R14B = new Token(TOKEN::NONVOLATILE, "r14b", 1, {}, 0b1110);
+	Token* R14W = new Token(TOKEN::NONVOLATILE, "r14w", 2, { R14B }, 0b1110);
+	Token* R14D = new Token(TOKEN::NONVOLATILE, "r14d", 4, { R14W }, 0b1110);
+	Token* R14 = new Token(TOKEN::NONVOLATILE , "r14", 8, { R14D }, 0b1110);
 
-	Token* R15B = new Token(TOKEN::NONVOLATILE, "r15b", 1, {});
-	Token* R15W = new Token(TOKEN::NONVOLATILE, "r15w", 2, { R15B });
-	Token* R15D = new Token(TOKEN::NONVOLATILE, "r15d", 4, { R15W });
-	Token* R15 = new Token(TOKEN::NONVOLATILE , "r15", 8, { R15D });
+	Token* R15B = new Token(TOKEN::NONVOLATILE, "r15b", 1, {}, 0b1111);
+	Token* R15W = new Token(TOKEN::NONVOLATILE, "r15w", 2, { R15B }, 0b1111);
+	Token* R15D = new Token(TOKEN::NONVOLATILE, "r15d", 4, { R15W }, 0b1111);
+	Token* R15 = new Token(TOKEN::NONVOLATILE , "r15", 8, { R15D }, 0b1111);
 
 	if (sys->Info.OS == "win")
 		Parameter_Registers = { RCX, RDX, R8, R9, XMM0, XMM1, XMM2, XMM3 };
@@ -997,4 +1011,51 @@ void x86_64::Init()
 		F_DIVSS,
 		F_DIVSD
 	};
+}
+
+Byte_Map* x86_64::Build(IR* ir)
+{
+	Byte_Map* Result = new Byte_Map();
+
+	Result->Opcode = ir->Order[0].ID;
+	Result->Rex.ID = REX_DEFAULT;
+
+	Token* Left = ir->Arguments.size() > 0 ? ir->Arguments[0] : nullptr;
+	Token* Right = ir->Arguments.size() > 1 ? ir->Arguments[1] : nullptr;
+
+	//Push memory to reside in right side than left side.
+	if (Left->is(TOKEN::MEMORY)) {
+		Token* tmp = Right;
+		Right = Left;
+		Left = tmp;
+	}
+
+	unsigned char MODRM_Key = 0;
+		
+	if (Right) {
+		Right->Get_MODRM_Type();
+	}
+
+	Result->ModRM = MODRMS[MODRM_Key];
+
+	//Add the 0x66 prefix if the args size is 16bits
+	if (ir->Arguments.size() > 0) {
+		if (ir->Arguments[0]->Size == 2) {
+
+			Result->Prefix = OPERAND_SIZE_OVERRIDE;
+
+		}
+		//8 bits args decrease the opcode id by 1
+		else if (ir->Arguments[0]->Size == 1) {
+
+			Result->Opcode - 1;
+
+		}
+		else if (ir->Arguments[0]->Size == 8) {
+
+			Result->Rex.R = 
+	
+		}
+	}
+	
 }

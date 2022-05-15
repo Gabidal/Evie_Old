@@ -123,6 +123,31 @@ public:
     }
 };
 
+class REX {
+public:
+    unsigned char ID = 0;
+    bool W = false;
+    bool R = false;
+    bool X = false;
+    bool B = false;
+};
+
+class Byte_Map {
+public:
+    unsigned char Prefix = 0;
+    REX Rex;
+    unsigned char Opcode = 0;
+    unsigned char ModRM = 0;
+};
+
+namespace MODRM {
+    static constexpr unsigned char RM       = 1 << 0;
+    static constexpr unsigned char DISP8    = 1 << 1;
+    static constexpr unsigned char DISP32   = 1 << 2;
+    static constexpr unsigned char MEMORY   = 1 << 3;
+    static constexpr unsigned char SIB      = 1 << 4;
+};
+
 namespace CHAR_GROUPS{
     constexpr char BIG_LETTER_GROUP_START_INDEX = 65;
     constexpr char BIG_LETTER_GROUP_END_INDEX = 90;

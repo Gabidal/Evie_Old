@@ -340,7 +340,7 @@ vector<IR*> Assembler::Parser(vector<Token*> Tokens){
 }
 
 //This function tries to find the mathing opcodes that are in the architecture files.
-vector<class IR*> Assembler::Post_Prosessor(vector<class IR*> IRs)
+vector<class IR*> Assembler::Parser_Post_Prosessor(vector<class IR*> IRs)
 {
     for (auto& i : IRs) {
 
@@ -387,6 +387,18 @@ vector<class IR*> Assembler::Post_Prosessor(vector<class IR*> IRs)
     Found_Suitable_Opcode:;
     }
 
+    return IRs;
+}
+
+vector<Byte_Map*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
+{
+    vector<Byte_Map*> Result;
+
+    for (auto& ir : IRs) {
+
+        Result.push_back(selector->Build(ir));
+
+    }
 
 }
 

@@ -4,6 +4,8 @@
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Mangler.h"
 
+#include "../../H/Assembler/Assembler_Types.h"
+
 extern Selector* selector;
 extern Usr* sys;
 
@@ -129,5 +131,40 @@ vector<Token*> Token::Get_All(long long F)
 	if (this->is(F))
 		Result.push_back(this);
 
+	return Result;
+}
+
+unsigned char Token::Get_MODRM_Type()
+{
+	unsigned char Result = 0;
+
+	vector<Token*> Contents = Get_All(TOKEN::STACK_POINTTER);
+
+	if (Contents.size() > 0) {
+
+		Result |= MODRM::SIB;
+
+	}
+
+	Contents = Get_All(TOKEN::OFFSETTER);
+	if (Contents.size() > 0) {
+
+		Result |= MODRM::DISP32;
+
+	}
+
+	Contents = Get_All(TOKEN::REGISTER);
+	if (Contents.size() > 0) {
+
+		Result |= MODRM::RM;
+
+	}
+
+	if (this->is(TOKEN::MEMORY)) {
+
+		Result |= MODRM::MEMORY;
+
+	}
+	
 	return Result;
 }

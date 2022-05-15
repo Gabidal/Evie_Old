@@ -110,6 +110,8 @@ public:
 	vector<Token*> Get_Stack_Deallocators_And_Allocators(pair<long long, long long> Function_Territory, vector<IR*> Irs);
 	pair<Descriptor*, Token*>* Get_Register_User(Token* R);
 
+	//Assembler
+	class Byte_Map* (*Build)(IR*);
 };
 
 #endif
