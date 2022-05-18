@@ -132,13 +132,25 @@ public:
     bool B = false;
 };
 
+class SIB{
+    public:
+    unsigned char ID = 0;
+    unsigned char Scaler = 0;
+    unsigned char Index = 0;
+    unsigned char Base = 0;
+    unsigned int Displacement = 0;
+
+    bool Index_Present = false;
+    bool Base_Present = false;
+};
+
 class Byte_Map {
 public:
     unsigned char Prefix = 0;           //upto 1-4 bytes
     REX Rex;                            //upto 1 byte
     unsigned int Opcode = 0;            //upto 1-4 bytes
     unsigned char ModRM = 0;            //upto 1 byte
-    unsigned char SIB = 0;              //upto 1 byte
+    SIB SIB = {0};                            //upto 1 byte
     unsigned long long Displacement = 0;//upto 1, 2, 4, 8 bytes
     unsigned long long Immediate = 0;   //upto 1, 2, 4, 8 bytes
 };

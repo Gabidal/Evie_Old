@@ -163,6 +163,8 @@ public:
 	vector<Token*> Get_All(long long F);
 
 	unsigned char Get_MODRM_Type();
+
+	class SIB Get_SIB();
 };
 
 #endif

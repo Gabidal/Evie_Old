@@ -168,3 +168,83 @@ unsigned char Token::Get_MODRM_Type()
 	
 	return Result;
 }
+
+
+SIB Token::Get_SIB(){
+	SIB Result;
+
+	Result.ID = 0b10;
+
+	if (this->Name == "*"){
+		if (this->Left->is(TOKEN::NUM)){
+			Result.Scaler = stoi(this->Left->Name.c_str());
+		}
+		else if (this->Left->is(TOKEN::REGISTER)){
+			Result.Index = this->Left->XReg ^ 0b1000;
+
+			if (this->Left->XReg & 0b1000){
+				Result.Index_Present = true;
+			}
+		}
+
+		if (this->Right->is(TOKEN::NUM)){
+			Result.Scaler = stoi(this->Right->Name.c_str());
+		}
+		else if (this->Right->is(TOKEN::REGISTER)){
+			Result.Index = this->Right->XReg ^ 0b1000;
+
+			if (this->Right->XReg & 0b1000){
+				Result.Index_Present = true;
+			}
+		}
+	}
+	else if (this->Name == "+"){
+		if (this->Left->is(TOKEN::NUM)){
+			Result.Displacement = stoi(this->Left->Name.c_str());
+		}
+		else if (this->Left->is(TOKEN::REGISTER)){
+			Result.Base = this->Left->XReg ^ 0b1000;
+
+			if (this->Left->XReg & 0b1000){
+				Result.Base_Present = true;
+			}
+		}
+
+		if (this->Right->is(TOKEN::NUM)){
+			Result.Displacement = stoi(this->Right->Name.c_str());
+		}
+		else if (this->Right->is(TOKEN::REGISTER)){
+			Result.Base = this->Right->XReg ^ 0b1000;
+
+			if (this->Right->XReg & 0b1000){
+				Result.Base_Present = true;
+			}
+		}
+	}
+	else if (this->Name == "-"){
+		if (this->Left->is(TOKEN::NUM)){
+			Result.Displacement = stoi(this->Left->Name.c_str());
+		}
+		else if (this->Left->is(TOKEN::REGISTER)){
+			Result.Base = this->Left->XReg ^ 0b1000;
+
+			if (this->Left->XReg & 0b1000){
+				Result.Base_Present = true;
+			}
+		}
+
+		if (this->Right->is(TOKEN::NUM)){
+			Result.Displacement = stoi(this->Right->Name.c_str());
+		}
+		else if (this->Right->is(TOKEN::REGISTER)){
+			Result.Base = this->Right->XReg ^ 0b1000;
+
+			if (this->Right->XReg & 0b1000){
+				Result.Base_Present = true;
+			}
+		}
+	}
+
+	return Result;
+
+}

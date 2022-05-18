@@ -1035,13 +1035,10 @@ Byte_Map* x86_64::Build(IR* ir)
 		Left = tmp;
 	}
 
-	//Calculate SIB bits.
-	unsigned char SIB_Scale;
-	unsigned char SIB_Index;
-	unsigned char SIB_Base;
-
-	//Calculate SIB Scale
-
+	//Calculate SIB
+	if (Right){
+		Result->SIB = Right->Get_SIB();
+	}
 
 
 	//Calculate the REX bits.
