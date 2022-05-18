@@ -25,6 +25,7 @@ public:
 	string Register_Pre_Fix;
 	string Number_Pre_Fix;
 	string Label_Post_Fix;
+	static inline map<unsigned char, unsigned char> MODRMS;
 	void Init();
 
 	//DEBUG
@@ -32,12 +33,11 @@ public:
 
 	//Assembler
 	static class Byte_Map* Build(IR* ir);
+	static string Assemble(class Byte_Map* Input);
 
 	static bool is(unsigned char value, unsigned char mask) {
 		return (value & mask) == mask;
 	}
-
-	static map<unsigned char, unsigned char> MODRMS;
 };
 
 static constexpr unsigned char REX_DEFAULT = 0b01000000;

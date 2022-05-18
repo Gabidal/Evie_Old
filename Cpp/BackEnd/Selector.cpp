@@ -23,6 +23,7 @@ void Selector::Init() {
 
 			//Assembler
 			Build = X86_64.Build;
+			Assemble = X86_64.Assemble;
 		}
 
 	}

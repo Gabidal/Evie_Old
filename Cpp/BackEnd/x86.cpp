@@ -3,6 +3,10 @@
 
 #include "../../H/Assembler/Assembler_Types.h"
 
+#include <string>
+
+using namespace std;
+
 extern Usr* sys;
 
 void x86_64::Init()
@@ -1013,6 +1017,7 @@ void x86_64::Init()
 	};
 }
 
+//References https://wiki.osdev.org/X86-64_Instruction_Encoding
 Byte_Map* x86_64::Build(IR* ir)
 {
 	Byte_Map* Result = new Byte_Map();
@@ -1030,13 +1035,69 @@ Byte_Map* x86_64::Build(IR* ir)
 		Left = tmp;
 	}
 
+	//Calculate SIB bits.
+	unsigned char SIB_Scale;
+	unsigned char SIB_Index;
+	unsigned char SIB_Base;
+
+	//Calculate SIB Scale
+
+
+
+	//Calculate the REX bits.
+	//A REX prefix must be encoded when:
+	// using 64-bit operand size and the instruction does not default to 64-bit operand size; or
+	// using one of the extended registers (R8 to R15, XMM8 to XMM15, YMM8 to YMM15, CR8 to CR15 and DR8 to DR15); or
+	// using one of the uniform byte registers SPL, BPL, SIL or DIL.
+	//In other words we set the REX.W bit if the instruction does not default to 64-bit operand size.
+	//We set the REX.R bit if the opcode has MODRM.reg field.
+	//We set the REX.X bit if the opcode has a 64-bit addrressing SIB.index field.
+	//We set the REX.B bit if the opcode has MODRM.rm field or SIB.base field.
+
+	//Check if the instruction defaults to 64-bit operand size.
+	if (ir->Order[0].Order[0].Min_Size == 8 && ir->Order[0].Order[0].Max_Size == 8) {
+		Result->Rex.W = 0;
+	}
+	else {
+		Result->Rex.W = 1;
+	}
+
+	//Check if the instruction has MODRM.reg field.
+	//This we can check by looking the Rex value's 4'th bit is set from the Right operand.
+	if (Right && Right->XReg & 0b1000) {
+		Result->Rex.R = 1;
+	}
+
+	//Check if the instruction has a 64-bit addrressing SIB.index field.
+
+	//Check if the instruction has MODRM.rm field or SIB.base field.
+	//This we can check by looking the Rex value's 4'th bit is set from the Left operand.
+	if (Left && Left->XReg & 0b1000) {
+		Result->Rex.B = 1;
+	}
+
 	unsigned char MODRM_Key = 0;
 		
 	if (Right) {
-		Right->Get_MODRM_Type();
+		MODRM_Key =	Right->Get_MODRM_Type();
 	}
 
 	Result->ModRM = MODRMS[MODRM_Key];
+
+	//add the reg and rm fields to the ModRM byte.
+	unsigned char Reg = 0;
+	unsigned char RM = 0;
+
+	if (Left){
+		Reg = Left->XReg ^ 0b1000;
+	}
+
+	if (Right){
+		RM = Right->XReg ^ 0b1000;
+	}
+
+	//Add the reg and rm fields to the ModRM byte.
+	Result->ModRM |= (Reg << 3) | RM;
 
 	//Add the 0x66 prefix if the args size is 16bits
 	if (ir->Arguments.size() > 0) {
@@ -1051,11 +1112,13 @@ Byte_Map* x86_64::Build(IR* ir)
 			Result->Opcode - 1;
 
 		}
-		else if (ir->Arguments[0]->Size == 8) {
-
-			Result->Rex.R = 
-	
-		}
 	}
+
+	return Result;
 	
+}
+
+string x86_64::Assemble(Byte_Map* Input)
+{
+	return "";
 }

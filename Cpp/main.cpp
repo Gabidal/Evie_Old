@@ -22,6 +22,8 @@
 #include "../H/BackEnd/ARM.h"
 #include "../H/BackEnd/IRPostProsessor.h"
 #include "../H/BackEnd/DebugGenerator.h"
+#include "../H/Assembler/Assembler.h"
+#include "../H/Linker/Linker.h"
 
 #include <sstream>
 #include <iostream>
@@ -57,6 +59,7 @@ int Build(int argc, const char* argv[])
         cout << "  -lib ---------------- [relative path/lib name]\n";
         cout << "  -repo-dir ----------- [relative/absolute path for saving git repos]\n";
         cout << "  -f ------------------ [ supported output file formats are:\n";
+        cout << "                          asm(outputs respective assembly into the output)\n";
         cout << "                          exe(executable (works for unix as well)),\n";
         cout << "                          lib(static lib),\n";
         cout << "                          dll(dynamic library (support is not made yet!))\n";
@@ -195,14 +198,23 @@ int Build(int argc, const char* argv[])
     if (sys->Info.Debug)
         DebugGenerator DG(IRs);
 
-    BackEnd Back(IRs, Output);
+    if (sys->Info.Is_Service || sys->Info.Format == "asm") {
+        BackEnd Back(IRs, Output);
 
-    ofstream o(sys->Info.Destination_File.c_str());
-    o << Output;
-    o.close();
+        ofstream o(sys->Info.Destination_File.c_str());
+        o << Output;
+        o.close();
 
-    Producer pr;
-    pr.Assemble_Command();
+        Producer pr;
+        pr.Assemble_Command();
+    }
+    else{
+
+        Assembler assembler = Assembler(IRs);
+
+
+    }
+
     return 0;
 }
 

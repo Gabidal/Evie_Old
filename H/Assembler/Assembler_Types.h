@@ -28,7 +28,7 @@ public:
     }
 };
 
-vector<Alias> ALIASES = {
+inline vector<Alias> ALIASES = {
     {"global", { "extern", "global", "globl" }},
     {"section", { "section", "segment" }},
     {"text", { "code", "text" }},
@@ -134,10 +134,13 @@ public:
 
 class Byte_Map {
 public:
-    unsigned char Prefix = 0;
-    REX Rex;
-    unsigned char Opcode = 0;
-    unsigned char ModRM = 0;
+    unsigned char Prefix = 0;           //upto 1-4 bytes
+    REX Rex;                            //upto 1 byte
+    unsigned int Opcode = 0;            //upto 1-4 bytes
+    unsigned char ModRM = 0;            //upto 1 byte
+    unsigned char SIB = 0;              //upto 1 byte
+    unsigned long long Displacement = 0;//upto 1, 2, 4, 8 bytes
+    unsigned long long Immediate = 0;   //upto 1, 2, 4, 8 bytes
 };
 
 namespace MODRM {

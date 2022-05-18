@@ -5,7 +5,26 @@
 #include "../../H/Docker/Docker.h"
 #include "../../H/Docker/Mangler.h"
 
-Selector* selector;
+#include "../../H/Assembler/Assembler_Types.h"
+
+extern Selector* selector;
+
+Assembler::Assembler(string Input){
+    vector<Word*> Words = Tokenizer(Input);
+
+    vector<Token*> Tokens = Grouper(Words);
+
+    vector<IR*> IRs = Parser(Tokens);
+
+    IRs = Parser_Post_Prosessor(IRs);
+
+    Output = Intermediate_Encoder(IRs);
+}
+
+Assembler::Assembler(vector<IR*> IRs){
+    vector<IR*> tmp = Parser_Post_Prosessor(IRs);
+    Output = Intermediate_Encoder(tmp);
+}
 
 vector<Word*> Assembler::Tokenizer(string Input){
     vector<Word*> Tokens;
@@ -400,8 +419,6 @@ vector<Byte_Map*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
 
     }
 
-}
-
-void Assembler::Factory(){
+    return Result;
 
 }

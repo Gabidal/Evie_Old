@@ -1,23 +1,34 @@
 {
-  // See https://go.microsoft.com/fwlink/?LinkId=733558 
-  // for the documentation about the tasks.json format
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "type": "shell",
-      "label": "Creatarna",
-      "command": "/usr/bin/make",
-      "args": [
-        "-Bj",
-        "Debuggarna"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}",
-      },
-      "group": "build",
-      "problemMatcher": [
-        "$gcc"
-      ]
-    }
-  ]
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Buildarna",
+            "command": "msbuild.exe",
+            "args": [
+                "Evie.sln",
+                "/p:Configuration=Test",
+                "/t:Rebuild"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$msCompile",
+                {
+                    "fileLocation": "autoDetect",
+                    "pattern": {
+                      "regexp": "^([^\\s].*)\\s*:\\s+(?:fatal\\s+)?(error|warning)\\s+(LNK\\d+)\\s*:\\s*(.*)\\[(.*)\\]$",
+                      "kind": "file",
+                      "severity": 2,
+                      "code": 3,
+                      "message": 4,
+                      "file": 5
+                    }
+                  }
+            ],
+            "group": "build",
+            "detail": "Buildarna"
+        }
+    ],
+    "version": "2.0.0"
 }

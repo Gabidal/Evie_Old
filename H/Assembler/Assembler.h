@@ -1,7 +1,7 @@
 #ifndef _ASSEMBLER_H_
 #define _ASSEMBLER_H_
 
-#include "Assembler_Types.h"
+//#include "Assembler_Types.h"
 
 #include <string>
 #include <vector>
@@ -19,22 +19,21 @@ using namespace std;
 
 class Assembler{
 public:
-    vector<Word> Words;
+    vector<class Byte_Map*> Output;
 
-    Assembler(string Input){
-
-    }
+    Assembler(string Input);
+    Assembler(vector<class IR*> IRs);
 
     //Tokenizer stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-    vector<Word*> Tokenizer(string Input);
+    vector<class Word*> Tokenizer(string Input);
     int Get_Paranthesis_Content_Length(char Opening_Paranthesis_Type, int Start_Index, string Input);
     char Get_Closing_Character(char Opening_Character);
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
     //Grouper stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-    vector<class Token*> Grouper(vector<Word*> Tokens);
+    vector<class Token*> Grouper(vector<class Word*> Tokens);
 
     //Parser stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -46,9 +45,7 @@ public:
 
     //Encoder stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-    vector<Byte_Map*> Intermediate_Encoder(vector<class IR*>);
-
-    void Factory();
+    vector<class Byte_Map*> Intermediate_Encoder(vector<class IR*>);
 };
 
 

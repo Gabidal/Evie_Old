@@ -219,6 +219,7 @@
     <ClCompile Include="cpp\lexer\Component.cpp" />
     <ClCompile Include="cpp\lexer\Lexer.cpp" />
     <ClCompile Include="cpp\lexer\Position.cpp" />
+    <ClCompile Include="cpp\linker\Linker.cpp" />
     <ClCompile Include="cpp\main.cpp" />
     <ClCompile Include="cpp\nodes\Node.cpp" />
     <ClCompile Include="cpp\nodes\Token.cpp" />
@@ -287,6 +288,7 @@
     <ClInclude Include="h\lexer\Component.h" />
     <ClInclude Include="h\lexer\Lexer.h" />
     <ClInclude Include="h\lexer\Position.h" />
+    <ClInclude Include="h\linker\Linker.h" />
     <ClInclude Include="h\nodes\IR.h" />
     <ClInclude Include="h\nodes\Node.h" />
     <ClInclude Include="h\nodes\Token.h" />

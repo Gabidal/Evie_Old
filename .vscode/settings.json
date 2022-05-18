@@ -1,9 +1,10 @@
 {
     "files.associations": {
-        "vector": "cpp",
-        "xstring": "cpp",
-        "fstream": "cpp",
         "iostream": "cpp",
-        "utility": "cpp"
+        "filesystem": "cpp",
+        "map": "cpp",
+        "vector": "cpp",
+        "format": "cpp",
+        "xstring": "cpp"
     }
 }

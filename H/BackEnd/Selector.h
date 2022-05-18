@@ -112,6 +112,7 @@ public:
 
 	//Assembler
 	class Byte_Map* (*Build)(IR*);
+	string (*Assemble)(Byte_Map*);
 };
 
 #endif
