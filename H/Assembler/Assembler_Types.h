@@ -132,30 +132,51 @@ public:
     bool B = false;
 };
 
+class MODRM{
+public:
+    unsigned char Mod = 0;
+    unsigned char Reg = 0;
+    unsigned char RM = 0;
+};
+
 class SIB{
     public:
-    unsigned char ID = 0;
-    unsigned char Scaler = 0;
+    bool Is_Used = false;
+    unsigned char Scale = 0;
     unsigned char Index = 0;
     unsigned char Base = 0;
     unsigned int Displacement = 0;
 
-    bool Index_Present = false;
-    bool Base_Present = false;
+    bool Index_Rex = false;
+    bool Base_Rex = false;
 };
 
 class Byte_Map {
 public:
-    unsigned char Prefix = 0;           //upto 1-4 bytes
+    unsigned int Prefix = 0;            //upto 1-4 bytes
     REX Rex;                            //upto 1 byte
     unsigned int Opcode = 0;            //upto 1-4 bytes
-    unsigned char ModRM = 0;            //upto 1 byte
-    SIB SIB = {0};                            //upto 1 byte
+    MODRM ModRM = {0};                  //upto 1 byte
+    SIB Sib = {0};                      //upto 1 byte
     unsigned long long Displacement = 0;//upto 1, 2, 4, 8 bytes
     unsigned long long Immediate = 0;   //upto 1, 2, 4, 8 bytes
 };
 
-namespace MODRM {
+class Byte_Map_Section{
+public:
+    string Name = "";
+    vector<Byte_Map*> Byte_Maps;
+    string Calculated_Byte_Maps = "";
+    long long Calculated_Size = 0;
+
+    bool Is_Data_Section = false;
+
+    Byte_Map_Section(string name){
+        Name = name;
+    }
+};
+
+namespace MODRM_FLAGS {
     static constexpr unsigned char RM       = 1 << 0;
     static constexpr unsigned char DISP8    = 1 << 1;
     static constexpr unsigned char DISP32   = 1 << 2;

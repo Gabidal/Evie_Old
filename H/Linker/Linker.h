@@ -10,7 +10,7 @@ class Linker{
     public:
     string Output;
 
-    Linker(vector<class Byte_Map*> Input);
+    Linker(vector<class Byte_Map_Section*> Input);
 
 };
 

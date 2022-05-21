@@ -5,6 +5,7 @@
         "map": "cpp",
         "vector": "cpp",
         "format": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "*.rh": "cpp"
     }
 }

@@ -14,6 +14,9 @@ void x86_64::Init()
 	size = 8;	//64 bit arch
 
 	long long OS_DEPENDENT_FLAG = TOKEN::NONVOLATILE;
+	STACK_REPRESENTIVE_REGISTER = 87;
+
+	OBJ_Machine_ID = 0x8664;
 
 	if (sys->Info.OS == "unix")
 		OS_DEPENDENT_FLAG = TOKEN::VOLATILE;
@@ -26,13 +29,13 @@ void x86_64::Init()
 	MODRMS = {
 		{0, 0},
 
-		{MODRM::RM | MODRM::MEMORY, 0b00000000},
-		{MODRM::RM | MODRM::MEMORY | MODRM::DISP32, 0b10000000},
-		{MODRM::RM, 0b11000000},
+		{MODRM_FLAGS::RM | MODRM_FLAGS::MEMORY, 0b00000000},
+		{MODRM_FLAGS::RM | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10000000},
+		{MODRM_FLAGS::RM, 0b11000000},
 		
-		{MODRM::SIB | MODRM::MEMORY, 0b00000000},
-		{MODRM::SIB | MODRM::MEMORY | MODRM::DISP32, 0b10000000},
-		{MODRM::SIB, 0b11000000}
+		{MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY, 0b00000000},
+		{MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10000000},
+		{MODRM_FLAGS::SIB, 0b11000000}
 	};
 
 	Token* AL = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "al", 1, {}, 0b0000);
@@ -898,7 +901,7 @@ void x86_64::Init()
 		{{{Label, 0, 0}}},
 	});
 
-	IR* SECTION = new IR("section", new Token(TOKEN::OPERATOR, ".section"), {
+	IR* SECTION = new IR("section", new Token(TOKEN::OPERATOR | TOKEN::SECTION, ".section"), {
 		{{{Label, 0, 0}}},
 	});
 
@@ -1037,9 +1040,9 @@ Byte_Map* x86_64::Build(IR* ir)
 
 	//Calculate SIB
 	if (Right){
-		Result->SIB = Right->Get_SIB();
+		Result->Sib = Right->Get_SIB();
+		Result->Displacement = Result->Sib.Displacement;
 	}
-
 
 	//Calculate the REX bits.
 	//A REX prefix must be encoded when:
@@ -1061,7 +1064,7 @@ Byte_Map* x86_64::Build(IR* ir)
 
 	//Check if the instruction has MODRM.reg field.
 	//This we can check by looking the Rex value's 4'th bit is set from the Right operand.
-	if (Right && Right->XReg & 0b1000) {
+	if (Right && Right->XReg & REX_BIT_SETTED) {
 		Result->Rex.R = 1;
 	}
 
@@ -1069,7 +1072,7 @@ Byte_Map* x86_64::Build(IR* ir)
 
 	//Check if the instruction has MODRM.rm field or SIB.base field.
 	//This we can check by looking the Rex value's 4'th bit is set from the Left operand.
-	if (Left && Left->XReg & 0b1000) {
+	if (Left && Left->XReg & REX_BIT_SETTED) {
 		Result->Rex.B = 1;
 	}
 
@@ -1079,22 +1082,17 @@ Byte_Map* x86_64::Build(IR* ir)
 		MODRM_Key =	Right->Get_MODRM_Type();
 	}
 
-	Result->ModRM = MODRMS[MODRM_Key];
-
-	//add the reg and rm fields to the ModRM byte.
-	unsigned char Reg = 0;
-	unsigned char RM = 0;
+	Result->ModRM.Mod = MODRMS[MODRM_Key];
 
 	if (Left){
-		Reg = Left->XReg ^ 0b1000;
+		//remove the rex flag bit
+		Result->ModRM.Reg = Left->XReg ^ REX_BIT_SETTED;
 	}
 
 	if (Right){
-		RM = Right->XReg ^ 0b1000;
+		//remove the rex flag bit
+		Result->ModRM.RM = Right->XReg ^ REX_BIT_SETTED;
 	}
-
-	//Add the reg and rm fields to the ModRM byte.
-	Result->ModRM |= (Reg << 3) | RM;
 
 	//Add the 0x66 prefix if the args size is 16bits
 	if (ir->Arguments.size() > 0) {
@@ -1115,7 +1113,67 @@ Byte_Map* x86_64::Build(IR* ir)
 	
 }
 
-string x86_64::Assemble(Byte_Map* Input)
+pair<int, string> x86_64::Assemble(Byte_Map* Input)
 {
-	return "";
+	string Result = "";
+	int Size = 0;
+
+	if (Input->Prefix != 0){
+		Result += Input->Prefix;
+		Size += 4;
+	}
+
+	if (Input->Rex.ID != 0){
+		//here we will contruct the REX bits with the information of bitmasks from x86_64
+		unsigned char Rex = Input->Rex.ID;
+
+		if (Input->Rex.W) {
+			Rex |= REX_W;
+		}
+		if (Input->Rex.R) {
+			Rex |= REX_R;
+		}
+		if (Input->Rex.X) {
+			Rex |= REX_X;
+		}
+		if (Input->Rex.B) {
+			Rex |= REX_B;
+		}
+	
+		Result += Rex;
+		Size += 1;
+	}
+
+	Result += Input->Opcode;
+	Size += 4;
+
+	if (Input->ModRM.Mod != 0){
+		//	7                              0
+		// +---+---+---+---+---+---+---+---+
+		// |  mod  |    reg    |     rm    |
+		// +---+---+---+---+---+---+---+---+
+		unsigned char ModRM = Input->ModRM.Mod << 6;
+
+		ModRM |= Input->ModRM.Reg << 3;
+		ModRM |= Input->ModRM.RM;
+
+		Result += ModRM;
+		Size += 1;
+	}
+
+	if (Input->Sib.Is_Used){
+		// 	 7                           0
+		// +---+---+---+---+---+---+---+---+
+		// | scale |   index   |    base   |
+		// +---+---+---+---+---+---+---+---+
+		unsigned char SIB = Input->Sib.Scale << 6;
+
+		SIB |= Input->Sib.Index << 3;
+		SIB |= Input->Sib.Base;
+
+		Result += SIB;
+		Size += 1;
+	}
+
+	return {Size, Result};
 }

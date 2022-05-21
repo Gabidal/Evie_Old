@@ -112,7 +112,10 @@ public:
 
 	//Assembler
 	class Byte_Map* (*Build)(IR*);
-	string (*Assemble)(Byte_Map*);
+	pair<int, string> (*Assemble)(Byte_Map*);
+
+	//Linker
+	unsigned short OBJ_Machine_ID;
 };
 
 #endif

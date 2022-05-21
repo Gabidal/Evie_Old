@@ -54,10 +54,11 @@ namespace TOKEN {
 	static constexpr long long REGISTER_SAVE_SPACE					 = (long long)1 << 39;
 	static constexpr long long CALL_PARAMETER_SPACE					 = (long long)1 << 40;
 	static constexpr long long ALREADY_GIVEN_REGISTER_NAME			 = (long long)1 << 41;
+	static constexpr long long SECTION							 	 = (long long)1 << 42;
 
 	//This is for the Assembler to identify end of opcode args, before Parser phase.
-	static constexpr long long NEWLINE								 = (long long)1 << 42;
-	static constexpr long long OPCODE								 = (long long)1 << 43;
+	static constexpr long long NEWLINE								 = (long long)1 << 43;
+	static constexpr long long OPCODE								 = (long long)1 << 44;
 }
 
 namespace Flags{

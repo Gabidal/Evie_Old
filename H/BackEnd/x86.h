@@ -25,15 +25,17 @@ public:
 	string Register_Pre_Fix;
 	string Number_Pre_Fix;
 	string Label_Post_Fix;
+
+	unsigned short OBJ_Machine_ID;
 	static inline map<unsigned char, unsigned char> MODRMS;
 	void Init();
 
 	//DEBUG
-	int STACK_REPRESENTIVE_REGISTER = 87; //RSP
+	int STACK_REPRESENTIVE_REGISTER; //RSP
 
 	//Assembler
 	static class Byte_Map* Build(IR* ir);
-	static string Assemble(class Byte_Map* Input);
+	static pair<int, string> Assemble(class Byte_Map* Input);
 
 	static bool is(unsigned char value, unsigned char mask) {
 		return (value & mask) == mask;
@@ -41,10 +43,10 @@ public:
 };
 
 static constexpr unsigned char REX_DEFAULT = 0b01000000;
-static constexpr unsigned char REX_W = 0b01001000;
-static constexpr unsigned char REX_R = 0b01000100;
-static constexpr unsigned char REX_X = 0b01000010;
-static constexpr unsigned char REX_B = 0b01000001;
+static constexpr unsigned char REX_W = 0b00001000;
+static constexpr unsigned char REX_R = 0b00000100;
+static constexpr unsigned char REX_X = 0b00000010;
+static constexpr unsigned char REX_B = 0b00000001;
 
 static constexpr unsigned char OPERAND_SIZE_OVERRIDE = 0b01100110; //0x66
 

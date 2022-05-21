@@ -1,5 +1,13 @@
 #include "../../H/Docker/OBJ.h"
 
+#include "../../H/BackEnd/Selector.h"
+#include "../../H/Nodes/Node.h"
+#include "../../H/Assembler/Assembler_Types.h"
+
+extern Selector* selector;
+
+extern Node* Global_Scope;
+
 vector<OBJ::Section> OBJ::Gather_All_Sections(vector<char> buffer, int Section_Count)
 {
 	vector<Section> Result;
@@ -14,12 +22,12 @@ vector<string> OBJ::Get_Symbol_Table_Content(Header h, vector<char> buffer)
 	vector<string> Result;
 
 	vector<Symbol> Symbols;
-	for (int i = *(int*)h.Pointter_To_Symbol_Table; i < buffer.size(); i++) {
+	for (int i = *(int*)h.Pointer_To_Symbol_Table; i < buffer.size(); i++) {
 		Symbols.push_back(*(Symbol*)&(buffer[i]));
 	}
 
 	for (auto& S : Symbols) {
-		if (memcmp(S.Name.Name_Header, "\0\0\0\0", 4)) {
+		if (S.Name.Name_Header == 0) {
 			string Name = "";
 			for (int i = *(int*)S.Name.Name_Offset; i < buffer.size(); i++) {
 				if (buffer[i] == '\0')
@@ -45,4 +53,37 @@ void OBJ::OBJ_Analyser(vector<string>& Output) {
 	Header header = *(Header*)&Buffer;
 
 	DOCKER::Append(Output, Get_Symbol_Table_Content(header, Buffer));
+}
+
+string OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
+	Header header;
+	header.Machine = selector->OBJ_Machine_ID;
+	header.Number_OF_Sections = Input.size();
+	header.Date_Time = time_t(time(NULL));
+	header.Pointer_To_Symbol_Table = sizeof(Header) + sizeof(Section) * Input.size();
+
+	//calculate the exports and import functions from global scope
+	for (auto s : Global_Scope->Childs){
+		if (s->Has(vector<string>{"export", "import"}) > 0){
+			header.Number_Of_Symbols++;
+		}
+	}
+
+	header.Size_Of_Optional_Header = 0;
+	header.Characteristics = IMAGE_FILE_LARGE_ADDRESS_AWARE;
+
+	header.Magic = MAGIC_PE32_PlUS;
+	header.Linker_Version = 0x0000;
+
+	for (auto i : Input){
+		header.Size_Of_Code += i->Calculated_Size;
+	}
+
+	for (auto i : Input){
+		if (i->Is_Data_Section)
+			header.Size_Of_Initialized_Data += i->Calculated_Size;
+	}
+
+	return "";
+
 }

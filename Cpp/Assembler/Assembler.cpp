@@ -409,14 +409,32 @@ vector<class IR*> Assembler::Parser_Post_Prosessor(vector<class IR*> IRs)
     return IRs;
 }
 
-vector<Byte_Map*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
+vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
 {
-    vector<Byte_Map*> Result;
+    vector<Byte_Map_Section*> Result;
 
-    for (auto& ir : IRs) {
+    for (int i = 0; i < IRs.size(); i++) {
+        if (!IRs[i]->is(TOKEN::SECTION))
+            continue;
 
-        Result.push_back(selector->Build(ir));
+        Byte_Map_Section* Section = new Byte_Map_Section(IRs[i]->OPCODE->Name);
 
+        int j = i + 1;
+        for (; j < IRs.size(); j++){
+            if (!IRs[j]->is(TOKEN::SECTION))
+                break;
+
+            if (IRs[j]->is(TOKEN::SET_DATA)){
+                Section->Is_Data_Section = true;
+            }
+
+            Section->Byte_Maps.push_back(x86_64::Build(IRs[j]));
+        }
+
+        Result.push_back(Section);
+
+        //because the current j is the already the next section go one back.
+        i = j - 1;
     }
 
     return Result;

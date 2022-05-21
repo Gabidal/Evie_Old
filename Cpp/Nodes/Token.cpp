@@ -142,27 +142,27 @@ unsigned char Token::Get_MODRM_Type()
 
 	if (Contents.size() > 0) {
 
-		Result |= MODRM::SIB;
+		Result |= MODRM_FLAGS::SIB;
 
 	}
 
 	Contents = Get_All(TOKEN::OFFSETTER);
 	if (Contents.size() > 0) {
 
-		Result |= MODRM::DISP32;
+		Result |= MODRM_FLAGS::DISP32;
 
 	}
 
 	Contents = Get_All(TOKEN::REGISTER);
 	if (Contents.size() > 0) {
 
-		Result |= MODRM::RM;
+		Result |= MODRM_FLAGS::RM;
 
 	}
 
 	if (this->is(TOKEN::MEMORY)) {
 
-		Result |= MODRM::MEMORY;
+		Result |= MODRM_FLAGS::MEMORY;
 
 	}
 	
@@ -173,28 +173,39 @@ unsigned char Token::Get_MODRM_Type()
 SIB Token::Get_SIB(){
 	SIB Result;
 
-	Result.ID = 0b10;
+	Result.Is_Used = true;
 
 	if (this->Name == "*"){
 		if (this->Left->is(TOKEN::NUM)){
-			Result.Scaler = stoi(this->Left->Name.c_str());
+			if (this->Left->Name == "1"){
+				Result.Scale = 0b00;
+			}
+			else if (this->Left->Name == "2"){
+				Result.Scale = 0b01;
+			}
+			else if (this->Left->Name == "4"){
+				Result.Scale = 0b10;
+			}
+			else if (this->Left->Name == "8"){
+				Result.Scale = 0b11;
+			}
 		}
 		else if (this->Left->is(TOKEN::REGISTER)){
-			Result.Index = this->Left->XReg ^ 0b1000;
+			Result.Index = this->Left->XReg ^ REX_BIT_SETTED;
 
-			if (this->Left->XReg & 0b1000){
-				Result.Index_Present = true;
+			if (this->Left->XReg & REX_BIT_SETTED){
+				Result.Index_Rex = true;
 			}
 		}
 
 		if (this->Right->is(TOKEN::NUM)){
-			Result.Scaler = stoi(this->Right->Name.c_str());
+			Result.Scale = stoi(this->Right->Name.c_str());
 		}
 		else if (this->Right->is(TOKEN::REGISTER)){
-			Result.Index = this->Right->XReg ^ 0b1000;
+			Result.Index = this->Right->XReg ^ REX_BIT_SETTED;
 
-			if (this->Right->XReg & 0b1000){
-				Result.Index_Present = true;
+			if (this->Right->XReg & REX_BIT_SETTED){
+				Result.Index_Rex = true;
 			}
 		}
 	}
@@ -206,7 +217,7 @@ SIB Token::Get_SIB(){
 			Result.Base = this->Left->XReg ^ 0b1000;
 
 			if (this->Left->XReg & 0b1000){
-				Result.Base_Present = true;
+				Result.Base_Rex = true;
 			}
 		}
 
@@ -217,7 +228,7 @@ SIB Token::Get_SIB(){
 			Result.Base = this->Right->XReg ^ 0b1000;
 
 			if (this->Right->XReg & 0b1000){
-				Result.Base_Present = true;
+				Result.Base_Rex = true;
 			}
 		}
 	}
@@ -229,7 +240,7 @@ SIB Token::Get_SIB(){
 			Result.Base = this->Left->XReg ^ 0b1000;
 
 			if (this->Left->XReg & 0b1000){
-				Result.Base_Present = true;
+				Result.Base_Rex = true;
 			}
 		}
 
@@ -240,7 +251,7 @@ SIB Token::Get_SIB(){
 			Result.Base = this->Right->XReg ^ 0b1000;
 
 			if (this->Right->XReg & 0b1000){
-				Result.Base_Present = true;
+				Result.Base_Rex = true;
 			}
 		}
 	}

@@ -19,7 +19,7 @@ using namespace std;
 
 class Assembler{
 public:
-    vector<class Byte_Map*> Output;
+    vector<class Byte_Map_Section*> Output;
 
     Assembler(string Input);
     Assembler(vector<class IR*> IRs);
@@ -45,7 +45,7 @@ public:
 
     //Encoder stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-    vector<class Byte_Map*> Intermediate_Encoder(vector<class IR*>);
+    vector<class Byte_Map_Section*> Intermediate_Encoder(vector<class IR*>);
 };
 
 

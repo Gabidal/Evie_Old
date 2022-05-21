@@ -18,7 +18,7 @@ void IRGenerator::Factory()
 	Scope->Append(All_Defined, Scope->Inlined_Items);
 
 	if (Scope->Name == "GLOBAL_SCOPE") 
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR | TOKEN::SECTION, "section"), { new Token(TOKEN::LABEL, ".text") }, nullptr));
 	/*for (int i = 0; i < Input.size(); i++)
 		Switch_To_Correct_Places(Input[i]);*/
 	if (Scope->is(CLASS_NODE)) {
@@ -49,7 +49,7 @@ void IRGenerator::Factory()
 		Parse_Labels(i);
 	}
 	if (Scope->Name == "GLOBAL_SCOPE") {
-		Output->push_back(new IR(new Token(TOKEN::OPERATOR, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
+		Output->push_back(new IR(new Token(TOKEN::OPERATOR | TOKEN::SECTION, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
 		for (auto i : Scope->Header)
 			Parse_Global_Variables(i);
 		for (auto i : All_Defined)

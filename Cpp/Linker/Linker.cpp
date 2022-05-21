@@ -5,10 +5,14 @@
 
 extern Selector* selector;
 
-Linker::Linker(vector<Byte_Map*> Input){
+Linker::Linker(vector<Byte_Map_Section*> Input){
 
     for (auto i : Input){
-        Output += selector->Assemble(i);
+        for (auto j : i->Byte_Maps){
+            pair<int, string> tmp = selector->Assemble(j);
+            i->Calculated_Byte_Maps += tmp.second;
+            i->Calculated_Size += tmp.first;
+        }
     }
 
 }
