@@ -1113,14 +1113,12 @@ Byte_Map* x86_64::Build(IR* ir)
 	
 }
 
-pair<int, string> x86_64::Assemble(Byte_Map* Input)
+string x86_64::Assemble(Byte_Map* Input)
 {
 	string Result = "";
-	int Size = 0;
 
 	if (Input->Prefix != 0){
 		Result += Input->Prefix;
-		Size += 4;
 	}
 
 	if (Input->Rex.ID != 0){
@@ -1141,11 +1139,9 @@ pair<int, string> x86_64::Assemble(Byte_Map* Input)
 		}
 	
 		Result += Rex;
-		Size += 1;
 	}
 
 	Result += Input->Opcode;
-	Size += 4;
 
 	if (Input->ModRM.Mod != 0){
 		//	7                              0
@@ -1158,7 +1154,6 @@ pair<int, string> x86_64::Assemble(Byte_Map* Input)
 		ModRM |= Input->ModRM.RM;
 
 		Result += ModRM;
-		Size += 1;
 	}
 
 	if (Input->Sib.Is_Used){
@@ -1172,8 +1167,41 @@ pair<int, string> x86_64::Assemble(Byte_Map* Input)
 		SIB |= Input->Sib.Base;
 
 		Result += SIB;
+	}
+
+	return Result;
+}
+
+int x86_64::Calculate_Size(class Byte_Map* Input){
+	int Size = 0;
+
+	if (Input->Prefix != 0){
+		Size += 4;
+	}
+
+	if (Input->Rex.ID != 0){
+		//here we will contruct the REX bits with the information of bitmasks from x86_64
 		Size += 1;
 	}
 
-	return {Size, Result};
+	//for opcode
+	Size += 4;
+
+	if (Input->ModRM.Mod != 0){
+		//	7                              0
+		// +---+---+---+---+---+---+---+---+
+		// |  mod  |    reg    |     rm    |
+		// +---+---+---+---+---+---+---+---+
+		Size += 1;
+	}
+
+	if (Input->Sib.Is_Used){
+		// 	 7                           0
+		// +---+---+---+---+---+---+---+---+
+		// | scale |   index   |    base   |
+		// +---+---+---+---+---+---+---+---+
+		Size += 1;
+	}
+
+	return Size;
 }

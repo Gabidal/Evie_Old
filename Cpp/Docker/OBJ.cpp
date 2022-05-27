@@ -3,10 +3,13 @@
 #include "../../H/BackEnd/Selector.h"
 #include "../../H/Nodes/Node.h"
 #include "../../H/Assembler/Assembler_Types.h"
+#include "../../H/UI/Usr.h"
 
 extern Selector* selector;
 
 extern Node* Global_Scope;
+
+extern Usr* sys;
 
 vector<OBJ::Section> OBJ::Gather_All_Sections(vector<char> buffer, int Section_Count)
 {
@@ -82,6 +85,15 @@ string OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 	for (auto i : Input){
 		if (i->Is_Data_Section)
 			header.Size_Of_Initialized_Data += i->Calculated_Size;
+	}
+
+	header.Size_Of_Uninitialized_Data = 0;
+
+	if (sys->Info.Format == "lib"){
+		header.Address_Of_Entry_Point = 0;
+	}
+	else{
+		
 	}
 
 	return "";

@@ -7,11 +7,12 @@ extern Selector* selector;
 
 Linker::Linker(vector<Byte_Map_Section*> Input){
 
-    for (auto i : Input){
-        for (auto j : i->Byte_Maps){
-            pair<int, string> tmp = selector->Assemble(j);
-            i->Calculated_Byte_Maps += tmp.second;
-            i->Calculated_Size += tmp.first;
+    for (auto& i : Input){
+        for (int j = 0; j < i->Byte_Maps.size(); j++){
+            string tmp = selector->Assemble(i->Byte_Maps[j]);
+            i->Calculated_Byte_Maps += tmp;
+
+            //give the 
         }
     }
 

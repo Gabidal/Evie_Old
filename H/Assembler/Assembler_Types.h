@@ -160,6 +160,10 @@ public:
     SIB Sib = {0};                      //upto 1 byte
     unsigned long long Displacement = 0;//upto 1, 2, 4, 8 bytes
     unsigned long long Immediate = 0;   //upto 1, 2, 4, 8 bytes
+
+    //for locations
+    int Size = 0;
+    long long Address = 0;
 };
 
 class Byte_Map_Section{
@@ -167,7 +171,9 @@ public:
     string Name = "";
     vector<Byte_Map*> Byte_Maps;
     string Calculated_Byte_Maps = "";
+
     long long Calculated_Size = 0;
+    long long Calculated_Address = 0;
 
     bool Is_Data_Section = false;
 

@@ -36,6 +36,7 @@ using namespace std;
 Usr* sys;
 Node* Global_Scope;
 Selector* selector;
+Analyzer analyzer;
 x86_64 X86_64;
 ARM_64 _ARM_64;
 int _SYSTEM_BIT_SIZE_ = 4;
@@ -188,7 +189,7 @@ int Build(int argc, const char* argv[])
     postprosessor.Factory();
     Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
 
-    Analyzer analyzer = Analyzer();
+    analyzer = Analyzer();
 
     vector<IR*> IRs;
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);

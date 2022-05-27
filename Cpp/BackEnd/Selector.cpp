@@ -24,6 +24,7 @@ void Selector::Init() {
 			//Assembler
 			Build = X86_64.Build;
 			Assemble = X86_64.Assemble;
+			Get_Size = X86_64.Calculate_Size;
 
 			//Linker
 			OBJ_Machine_ID = X86_64.OBJ_Machine_ID;

@@ -418,6 +418,11 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
             continue;
 
         Byte_Map_Section* Section = new Byte_Map_Section(IRs[i]->OPCODE->Name);
+        
+        //Set the address relative to the previous section
+        if (Result.size() > 0){
+            Section->Calculated_Address = Result.back()->Calculated_Address + Result.back()->Calculated_Size;
+        }
 
         int j = i + 1;
         for (; j < IRs.size(); j++){
@@ -428,7 +433,19 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
                 Section->Is_Data_Section = true;
             }
 
-            Section->Byte_Maps.push_back(x86_64::Build(IRs[j]));
+            if (IRs[j]->is(TOKEN::LABEL)){
+                //If the IRs[i] is a label we need to add it to the symbol table.
+                Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address);
+            }
+            else{
+                Byte_Map* Current = selector->Build(IRs[j]);
+                Current->Size = selector->Get_Size(Current);
+                //The address is calculated by adding the current sectoin starting address and the current size.
+                Current->Address = Section->Calculated_Address + Section->Calculated_Size;
+                Section->Calculated_Size += Current->Size;
+
+                Section->Byte_Maps.push_back(Current);
+            }
         }
 
         Result.push_back(Section);
@@ -439,4 +456,14 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
 
     return Result;
 
+}
+
+void Assembler::Generate_Symbol_Table_For(string Label, long long Address){
+    Symbol_Table.insert({Label, Address});
+}
+
+void Assembler::Replace_Symbol_With_Address(IR& ir){
+    for (auto& i : ir.Get_All(TOKEN::LABEL)) {
+        i->Name = to_string(Symbol_Table[i->Name]);
+    }
 }

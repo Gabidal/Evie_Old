@@ -20,6 +20,7 @@ using namespace std;
 class Assembler{
 public:
     vector<class Byte_Map_Section*> Output;
+    map<string, long long> Symbol_Table;
 
     Assembler(string Input);
     Assembler(vector<class IR*> IRs);
@@ -46,6 +47,11 @@ public:
     //Encoder stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
     vector<class Byte_Map_Section*> Intermediate_Encoder(vector<class IR*>);
+
+    //Symbol Table stuff
+    //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+    void Generate_Symbol_Table_For(string Label, long long Address);
+    void Replace_Symbol_With_Address(IR& ir);
 };
 
 
