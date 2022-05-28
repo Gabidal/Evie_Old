@@ -22,6 +22,13 @@ Assembler::Assembler(string Input){
 }
 
 Assembler::Assembler(vector<IR*> IRs){
+
+    for (int i = 0; i < IRs.size(); i++){
+        if (IRs[i]->OPCODE->Has({TOKEN::START_OF_FUNCTION, TOKEN::END_OF_FUNCTION, TOKEN::END_OF_LOOP})){
+            IRs.erase(IRs.begin() + i--);
+        }
+    }
+
     vector<IR*> tmp = Parser_Post_Prosessor(IRs);
     Output = Intermediate_Encoder(tmp);
 }
@@ -367,7 +374,7 @@ vector<class IR*> Assembler::Parser_Post_Prosessor(vector<class IR*> IRs)
 
         for (auto& j : selector->Opcodes) {
 
-            if (i->OPCODE->Name != j->OPCODE->Name)
+            if (i->OPCODE->Name != j->Intermediate_Alias)
                 continue;
 
             for (auto& Opcode_Variant : j->Order) {
@@ -425,26 +432,28 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
         }
 
         int j = i + 1;
-        for (; j < IRs.size(); j++){
-            if (!IRs[j]->is(TOKEN::SECTION))
-                break;
+        if (j <= IRs.size()){
+            for (; j < IRs.size(); j++){
+                if (IRs[j]->is(TOKEN::SECTION))
+                    break;
 
-            if (IRs[j]->is(TOKEN::SET_DATA)){
-                Section->Is_Data_Section = true;
-            }
+                if (IRs[j]->is(TOKEN::SET_DATA)){
+                    Section->Is_Data_Section = true;
+                }
 
-            if (IRs[j]->is(TOKEN::LABEL)){
-                //If the IRs[i] is a label we need to add it to the symbol table.
-                Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address);
-            }
-            else{
-                Byte_Map* Current = selector->Build(IRs[j]);
-                Current->Size = selector->Get_Size(Current);
-                //The address is calculated by adding the current sectoin starting address and the current size.
-                Current->Address = Section->Calculated_Address + Section->Calculated_Size;
-                Section->Calculated_Size += Current->Size;
+                if (IRs[j]->is(TOKEN::LABEL)){
+                    //If the IRs[i] is a label we need to add it to the symbol table.
+                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address);
+                }
+                else{
+                    Byte_Map* Current = selector->Build(IRs[j]);
+                    Current->Size = selector->Get_Size(Current);
+                    //The address is calculated by adding the current sectoin starting address and the current size.
+                    Current->Address = Section->Calculated_Address + Section->Calculated_Size;
+                    Section->Calculated_Size += Current->Size;
 
-                Section->Byte_Maps.push_back(Current);
+                    Section->Byte_Maps.push_back(Current);
+                }
             }
         }
 

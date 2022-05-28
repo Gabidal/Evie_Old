@@ -6,8 +6,8 @@
             "command": "msbuild.exe",
             "args": [
                 "Evie.sln",
-                "/p:Configuration=Debug",
-                "/t:Rebuild"
+                "/p:Configuration=Test",
+                //"/t:Rebuild"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

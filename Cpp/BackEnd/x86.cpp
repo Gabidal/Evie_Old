@@ -342,6 +342,8 @@ void x86_64::Init()
 	IR* MUL = new IR("Internal_MUL", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "imul"), {
 		{{{Register, 2, 8}, {Memory, 2, 8}}, 0x0F, OPCODE_ENCODING::RM},
 		{{{Register, 2, 8}, {Register, 2, 8}}, 0x0F, OPCODE_ENCODING::RM},
+		{{{Register, 2, 8}, {Register, 2, 8}, {Const, 1, 4}}, 0x6B, OPCODE_ENCODING::RMI},
+		{{{Register, 2, 8}, {Memory, 2, 8}, {Const, 1, 4}}, 0x6B, OPCODE_ENCODING::RMI},
 	});	
 
 	IR* DIV = new IR("Internal_DIV", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "idiv"), {
@@ -873,7 +875,7 @@ void x86_64::Init()
 	});
 
 	IR* RET = new IR("return", new Token(FLOW, "ret"), {
-		{{{nullptr, 0, 0}}, 0xC3, OPCODE_ENCODING::ZO},
+		{{}, 0xC3, OPCODE_ENCODING::ZO},
 	});
 
 	IR* PUSH = new IR("push", new Token(OPERATOR, "push"), {
@@ -1025,11 +1027,20 @@ Byte_Map* x86_64::Build(IR* ir)
 {
 	Byte_Map* Result = new Byte_Map();
 
-	Result->Opcode = ir->Order[0].ID;
-	Result->Rex.ID = REX_DEFAULT;
-
+	Result->Opcode = ir->Order[0].ID;	
+	
 	Token* Left = ir->Arguments.size() > 0 ? ir->Arguments[0] : nullptr;
 	Token* Right = ir->Arguments.size() > 1 ? ir->Arguments[1] : nullptr;
+
+	//So no biches, no args.
+	if (Left == nullptr){
+		//Single byte opcodes like 'ret' dont need even REX_DEFALTS.
+
+		return Result;
+
+	}
+
+	Result->Rex.ID = REX_DEFAULT;
 
 	//Push memory to reside in right side than left side.
 	if (Left->is(TOKEN::MEMORY)) {

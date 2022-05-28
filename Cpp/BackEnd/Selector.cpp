@@ -805,14 +805,14 @@ IR* Selector::Get_Opcode(IR* i)
 		sizes.push_back(s->Get_Size());
 
 	for (auto opc : Opcodes) {
-		if (opc->ID != i->OPCODE->Get_Name())
+		if (opc->Intermediate_Alias != i->OPCODE->Get_Name())
 			continue;
 		for (auto& o : opc->Order) {
 			//check if this order has same amount of arguments as i.
 			if (o.Order.size() != sizes.size())
 				continue;	//this is wrong order
 			for (int j = 0; j < sizes.size(); j++) {
-				if (!(o.Order[j].Max_Size <= sizes[j] && o.Order[j].Min_Size >= sizes[j]))
+				if (!(o.Order[j].Min_Size <= sizes[j] && o.Order[j].Max_Size >= sizes[j]))
 					goto Wrong;
 			}
 			//if (!Check_Resource_Availability(i, o))

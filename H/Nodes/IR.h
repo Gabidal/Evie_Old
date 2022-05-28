@@ -22,6 +22,9 @@ public:
 
 enum class OPCODE_ENCODING {
 	NaN,
+
+	RMI,
+
 	MR,
 	RM,
 	FD,
@@ -60,7 +63,7 @@ class IR {
 public:
 	//[Token:OPC] [Token:arg], [Token:arg], [Token:arg]
 	Token* OPCODE = nullptr;
-	string ID = "";
+	string Intermediate_Alias = "";
 	Position* Location;
 
 	vector<Token*> Arguments;
@@ -71,12 +74,12 @@ public:
 
 	IR(Position* p) : Location(p){}
 	IR(Token* opc, vector<Token*> args, Position* p) : OPCODE(opc), Arguments(args), Location(p) {  }
-	IR(string id, Token* opc, vector<Token*> args, Position* p) : ID(id), OPCODE(opc), Arguments(args), Location(p) {}
-	IR(string id, Token* opc, vector<Pattern> order) : ID(id), OPCODE(opc), Order(order) {}
-	IR(string id, Token* opc, vector<IR*> (*c)(vector<Token*>), Position* p) : ID(id), OPCODE(opc), Complex(c), Location(p) {}
-	IR(string id, Token* opc, vector<Pattern> order, vector<IR*> (*c)(vector<Token*>)) : ID(id), OPCODE(opc), Order(order), Complex(c) {}
+	IR(string id, Token* opc, vector<Token*> args, Position* p) : Intermediate_Alias(id), OPCODE(opc), Arguments(args), Location(p) {}
+	IR(string id, Token* opc, vector<Pattern> order) : Intermediate_Alias(id), OPCODE(opc), Order(order) {}
+	IR(string id, Token* opc, vector<IR*> (*c)(vector<Token*>), Position* p) : Intermediate_Alias(id), OPCODE(opc), Complex(c), Location(p) {}
+	IR(string id, Token* opc, vector<Pattern> order, vector<IR*> (*c)(vector<Token*>)) : Intermediate_Alias(id), OPCODE(opc), Order(order), Complex(c) {}
 
-	bool is(int flag) { return OPCODE->is(flag); }
+	bool is(long long flag) { return OPCODE->is(flag); }
 	vector<Token*> Get_All(long long F)
 	{
 		vector<Token*> Result;
