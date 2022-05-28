@@ -2,6 +2,9 @@
 #include "../../H/Parser/Algebra.h"
 #include "../../H/Parser/Memory_Manager.h"
 #include "../../H/Parser/PostProsessor.h"
+#include "../../H/UI/Safe.h"
+
+extern Usr* sys;
 
 extern bool Optimized;
 
@@ -20,7 +23,7 @@ void Analyzer::Factory()
 
 void Analyzer::Detect_Abnormal_Start_Address()
 {
-	Node* Main = Global_Scope->Find("main", Global_Scope, FUNCTION_NODE);
+	Node* Main = Global_Scope->Find(sys->Info.Start_Function_Name, Global_Scope, FUNCTION_NODE);
 
 	vector<Node*> Initializers;
 	vector<int> Indicies;
