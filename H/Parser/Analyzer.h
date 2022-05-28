@@ -17,7 +17,6 @@ class Analyzer {
 private:
 	vector<Node*> Start_Of_Proccesses;
 public:
-	Analyzer();
 
 	void Factory();
 

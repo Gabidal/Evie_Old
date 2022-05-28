@@ -28,6 +28,8 @@ public:
 	int Reference_Count_Size = -1;
 	bool Is_Service = false;
 
+	string Start_Function_Name = "main";
+
 	string Evie_Location = "";
 	string Assembler_Location = "";
 	string Linker_Location = "";
@@ -86,6 +88,7 @@ private:
 	void Find_Reference_Count(int& i);
 	void Find_Evie_Executable_Position();
 	void Find_Service(int& i);
+	void Find_Start_Function_Name(int& i);
 };
 
 

@@ -59,19 +59,13 @@ int Build(int argc, const char* argv[])
         cout << "  -arch --------------- [output assembly type (x86/arm)]\n";
         cout << "  -lib ---------------- [relative path/lib name]\n";
         cout << "  -repo-dir ----------- [relative/absolute path for saving git repos]\n";
-        cout << "  -f ------------------ [ supported output file formats are:\n";
-        cout << "                          asm(outputs respective assembly into the output)\n";
-        cout << "                          exe(executable (works for unix as well)),\n";
-        cout << "                          lib(static lib),\n";
-        cout << "                          dll(dynamic library (support is not made yet!))\n";
-        cout << "                        ]\n";
+        cout << "  -f ------------------ [supported output file formats are: asm(outputs respective assembly into the output), exe(executable (works for unix as well)), lib(static lib), dll(dynamic library (support is not made yet!))]\n";
         cout << "  -mode --------------- [bit mode for assembly output (32/64)]\n";
-        cout << "  -debug -------------- [ supported debug symbol types:\n";
-        cout << "                          dwarf2\n";
-        cout << "                        ]\n";
+        cout << "  -debug -------------- [supported debug symbol types: dwarf2]\n";
         cout << "  -vt ----------------- [virus total API-key]\n";
         cout << "  -reference-count-size [reference count size]\n";
         cout << "  -service ------------ [starts Evie as a service with a port returned in standard out]\n";
+        cout << "  -start -------------- [Tells the linker what is the starting function name (default main). Also no need to mangle the name before giving it]\n";
 
         cout << "\nQuick usage:\n";
         cout << "  ./Evie -in foo/bar/baz.e\n";
@@ -189,7 +183,7 @@ int Build(int argc, const char* argv[])
     postprosessor.Factory();
     Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
 
-    analyzer = Analyzer();
+    analyzer.Factory();
 
     vector<IR*> IRs;
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);

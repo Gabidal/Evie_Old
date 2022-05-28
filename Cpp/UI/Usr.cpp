@@ -155,6 +155,15 @@ void Usr::Find_Service(int& i)
 	}
 }
 
+void Usr::Find_Start_Function_Name(int& i){
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-start") == 0)
+	{
+		string tmp = string(Input[i + 1]);
+		Info.Start_Function_Name = tmp;
+		i++;
+	}
+}
+
 void output::Fill_Empty_Arguments()
 {
 	//Evie.exe -in IO/test.e

@@ -539,7 +539,8 @@ void Service::Parse_Code(Proxy* proxy)
 		if (proxy->Type == Document_Request_Type::ASM) {
 			Singlefile_AST->Append(Singlefile_AST->Childs, postprosessor.Input);
 
-			Analyzer analyzer = Analyzer();
+			Analyzer analyzer;
+			analyzer.Factory();
 
 			vector<IR*> IRs;
 			IRGenerator g(Singlefile_AST, Singlefile_AST->Childs, &IRs);

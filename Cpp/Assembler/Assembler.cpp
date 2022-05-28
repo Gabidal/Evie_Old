@@ -464,6 +464,6 @@ void Assembler::Generate_Symbol_Table_For(string Label, long long Address){
 
 void Assembler::Replace_Symbol_With_Address(IR& ir){
     for (auto& i : ir.Get_All(TOKEN::LABEL)) {
-        i->Name = to_string(Symbol_Table[i->Name]);
+        i->Name = to_string(Symbol_Table.at(i->Name));
     }
 }

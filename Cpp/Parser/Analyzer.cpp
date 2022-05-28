@@ -5,11 +5,6 @@
 
 extern bool Optimized;
 
-Analyzer::Analyzer()
-{
-	Factory();
-}
-
 void Analyzer::Factory()
 {
 	//gather information about the AST that we have made
