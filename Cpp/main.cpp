@@ -39,6 +39,7 @@ Selector* selector;
 Analyzer analyzer;
 x86_64 X86_64;
 ARM_64 _ARM_64;
+Assembler* assembler;
 int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output; 
@@ -205,7 +206,7 @@ int Build(int argc, const char* argv[])
     }
     else{
 
-        Assembler assembler = Assembler(IRs);
+        assembler = new Assembler(IRs);
 
 
     }

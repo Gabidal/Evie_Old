@@ -27,6 +27,7 @@ inline string ONLY_NUMBER_OPERATION = "Use of most left side of an operand as a 
 inline string MISSING_CRITICAL_INFORMATION = "Missing critical information";
 
 inline string ASSEMBLER_SYNTAX_ERROR = "Error in given assembly code";
+inline string LINKER_MISSING_STARTING_FUNCTION = "Missing starting function";
 
 #define ERROR (MSG_Type)1
 #define NO 0

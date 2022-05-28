@@ -4,12 +4,16 @@
 #include "../../H/Nodes/Node.h"
 #include "../../H/Assembler/Assembler_Types.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/UI/Safe.h"
+#include "../../H/Assembler/Assembler.h"
 
 extern Selector* selector;
 
 extern Node* Global_Scope;
 
 extern Usr* sys;
+
+extern Assembler* assembler;
 
 vector<OBJ::Section> OBJ::Gather_All_Sections(vector<char> buffer, int Section_Count)
 {
@@ -93,7 +97,17 @@ string OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 		header.Address_Of_Entry_Point = 0;
 	}
 	else{
-		
+		string Unmangled_Starting_Function_Name = sys->Info.Start_Function_Name;
+		Node* Function = Global_Scope->Find(Unmangled_Starting_Function_Name, Global_Scope, FUNCTION_NODE);
+
+		if (Function == nullptr){
+			Report(Observation(ERROR, "Function " + Unmangled_Starting_Function_Name + " not found in the global scope", LINKER_MISSING_STARTING_FUNCTION));
+			return "";
+		}
+
+		string Mangled_Starting_Function_Name = Function->Mangled_Name;
+
+		header.Address_Of_Entry_Point = assembler->Symbol_Table.at(Mangled_Starting_Function_Name);
 	}
 
 	return "";
