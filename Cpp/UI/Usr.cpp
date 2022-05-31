@@ -178,7 +178,7 @@ void output::Fill_Empty_Arguments()
 
 	//we can always use the source files name to output files name and add the .asm at the end
 	if (Destination_File == "")
-		Destination_File = (string)Source_File + ".asm";
+		Destination_File = (string)Source_File + "." + Format;
 
 	if (Repo_Dir == "") {
 		char* Env = getenv("Repo-Dir");

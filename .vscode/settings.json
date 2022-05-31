@@ -6,6 +6,7 @@
         "vector": "cpp",
         "format": "cpp",
         "xstring": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "utility": "cpp"
     }
 }

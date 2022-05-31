@@ -42,7 +42,7 @@ ARM_64 _ARM_64;
 Assembler* assembler;
 int _SYSTEM_BIT_SIZE_ = 4;
 
-string Output; 
+string Output = "";
 
 extern string VT_API;
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -d
@@ -90,8 +90,7 @@ int Build(int argc, const char* argv[])
     if (VT_API != "")
         sys->Info.VT_API = VT_API;
     _SYSTEM_BIT_SIZE_ = atoi(sys->Info.Bytes_Mode.c_str());
-    if (sys->Info.Architecture == "x86")
-        Output = ".intel_syntax noprefix\n";
+    
     string start_file = sys->Info.Source_File.c_str();
 
     Satellite satellite;
@@ -194,22 +193,7 @@ int Build(int argc, const char* argv[])
     if (sys->Info.Debug)
         DebugGenerator DG(IRs);
 
-    if (sys->Info.Is_Service || sys->Info.Format == "asm") {
-        BackEnd Back(IRs, Output);
-
-        ofstream o(sys->Info.Destination_File.c_str());
-        o << Output;
-        o.close();
-
-        Producer pr;
-        pr.Assemble_Command();
-    }
-    else{
-
-        assembler = new Assembler(IRs);
-
-
-    }
+    Producer producer(IRs);
 
     return 0;
 }

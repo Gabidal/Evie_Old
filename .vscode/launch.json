@@ -7,7 +7,12 @@
         "request": "launch",
         "program": "${workspaceFolder}/Evie.exe",
         "args": [
-          
+          "-in",
+          "${workspaceFolder}/IO/Test.e",
+          "-f",
+          "obj",
+          "-reference-count-size",
+          "0"
         ],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",

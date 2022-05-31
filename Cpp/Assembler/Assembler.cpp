@@ -24,7 +24,7 @@ Assembler::Assembler(string Input){
 Assembler::Assembler(vector<IR*> IRs){
 
     for (int i = 0; i < IRs.size(); i++){
-        if (IRs[i]->OPCODE->Has({TOKEN::START_OF_FUNCTION, TOKEN::END_OF_FUNCTION, TOKEN::END_OF_LOOP})){
+        if (IRs[i]->OPCODE->Has({TOKEN::END_OF_FUNCTION, TOKEN::END_OF_LOOP})){
             IRs.erase(IRs.begin() + i--);
         }
     }
