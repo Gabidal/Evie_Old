@@ -89,6 +89,8 @@ private:
 	void Find_Evie_Executable_Position();
 	void Find_Service(int& i);
 	void Find_Start_Function_Name(int& i);
+
+	void Single_Argument_Use();
 };
 
 

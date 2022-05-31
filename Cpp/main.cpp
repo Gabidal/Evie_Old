@@ -69,7 +69,7 @@ int Build(int argc, const char* argv[])
         cout << "  -start -------------- [Tells the linker what is the starting function name (default main). Also no need to mangle the name before giving it]\n";
 
         cout << "\nQuick usage:\n";
-        cout << "  ./Evie -in foo/bar/baz.e\n";
+        cout << "  ./Evie foo/bar/baz.e\n";
 
         cout << "\nRemember to set up an environment path named: \'Repo-Dir\'\n";
         cout << endl;

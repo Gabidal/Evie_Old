@@ -1,2 +1,1 @@
-export func main(){
-}
+export func main(){}

@@ -10,6 +10,10 @@ void Usr::Create_Argument_Stats()
 {
 	Find_Evie_Executable_Position();
 
+	if (Argument_Amount == 2){
+		Single_Argument_Use();
+	}
+
 	for (int i = 1; i < Argument_Amount; i++) {
 		Find_Destination_File(i);
 		Find_Source_File(i);
@@ -207,4 +211,8 @@ optional<int> If_Int(string s) {
 		};
 	}
 	return nullopt;
+}
+
+void Usr::Single_Argument_Use(){
+	Info.Source_File = string( Input[1]);
 }
