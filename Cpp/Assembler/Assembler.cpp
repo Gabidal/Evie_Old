@@ -424,7 +424,16 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
         if (!IRs[i]->is(TOKEN::SECTION))
             continue;
 
-        Byte_Map_Section* Section = new Byte_Map_Section(IRs[i]->OPCODE->Name);
+        Byte_Map_Section* Section = new Byte_Map_Section(IRs[i]->Arguments[0]->Name);
+
+        for (auto& a : ALIASES){
+            if (a.Name == "data"){
+                if (a.Has(Section->Name)){
+                    Section->Is_Data_Section = true;
+                    break;
+                }
+            }
+        }
         
         //Set the address relative to the previous section
         if (Result.size() > 0){
@@ -443,7 +452,7 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
 
                 if (IRs[j]->is(TOKEN::LABEL)){
                     //If the IRs[i] is a label we need to add it to the symbol table.
-                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address);
+                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address + Section->Calculated_Size);
                 }
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);

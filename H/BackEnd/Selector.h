@@ -112,7 +112,7 @@ public:
 
 	//Assembler
 	class Byte_Map* (*Build)(IR*);
-	string (*Assemble)(Byte_Map*);
+	 vector<unsigned char> (*Assemble)(Byte_Map*);
 	int (*Get_Size)(Byte_Map*);
 
 	//Linker

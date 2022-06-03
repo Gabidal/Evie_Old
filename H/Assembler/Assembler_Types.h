@@ -12,8 +12,8 @@ public:
     vector<string> Aliases;
 
     Alias(string Name, vector<string> Aliases){
-        Aliases = Aliases;
-        Name = Name;
+        this->Aliases = Aliases;
+        this->Name = Name;
     }
 
     bool Has(string value) {
@@ -31,8 +31,8 @@ public:
 inline vector<Alias> ALIASES = {
     {"global", { "extern", "global", "globl" }},
     {"section", { "section", "segment" }},
-    {"text", { "code", "text" }},
-    {"data", { "data" }},
+    {"text", { "code", "text", ".text" }},
+    {"data", { "data", ".data" }},
     {"intel_syntax", { "intel_syntax" }},
     {"noprefix", { "noprefix" }},
 
@@ -42,7 +42,7 @@ inline vector<Alias> ALIASES = {
     {"word", { "word", "word ptr" "short", "dw", "half" }},
     {"dword", { "dword", "dword ptr" "long", "dd" }},
     {"qword", { "qword", "qword ptr", "quad", "dq" }},
- 
+
     {"xmmword", { "xmmword", "xmmword ptr", "xword", "xword ptr" }},
     {"ymmword", { "ymmword", "ymmword ptr", "yword", "yword ptr" }},
     {"zmmword", { "zmmword", "zmmword ptr", "zword", "zword ptr" }}

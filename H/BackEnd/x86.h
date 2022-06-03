@@ -35,7 +35,7 @@ public:
 
 	//Assembler
 	static class Byte_Map* Build(IR* ir);
-	static string Assemble(class Byte_Map* Input);
+	static vector<unsigned char> Assemble(class Byte_Map* Input);
 	static int Calculate_Size(class Byte_Map* Input);
 
 	static bool is(unsigned char value, unsigned char mask) {

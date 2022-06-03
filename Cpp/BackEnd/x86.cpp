@@ -1124,9 +1124,9 @@ Byte_Map* x86_64::Build(IR* ir)
 	
 }
 
-string x86_64::Assemble(Byte_Map* Input)
+ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 {
-	string Result = "";
+	 string Result = "";
 
 	if (Input->Prefix != 0){
 		Result += Input->Prefix;
@@ -1180,7 +1180,15 @@ string x86_64::Assemble(Byte_Map* Input)
 		Result += SIB;
 	}
 
-	return Result;
+
+	//transform string Result into  vector<unsigned char>
+	vector<unsigned char> Result_Bytes;
+
+	for (int i = 0; i < Result.size(); i++) {
+		Result_Bytes.push_back(Result[i]);
+	}
+
+	return Result_Bytes;
 }
 
 int x86_64::Calculate_Size(class Byte_Map* Input){
