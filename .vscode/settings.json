@@ -7,6 +7,8 @@
         "format": "cpp",
         "xstring": "cpp",
         "*.rh": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "unordered_set": "cpp",
+        "xhash": "cpp"
     }
 }

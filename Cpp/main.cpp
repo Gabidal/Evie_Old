@@ -33,7 +33,7 @@
 #include <ctime>
 using namespace std;
 
-Usr* sys;
+Usr* sys; 
 Node* Global_Scope;
 Selector* selector;
 Analyzer analyzer;

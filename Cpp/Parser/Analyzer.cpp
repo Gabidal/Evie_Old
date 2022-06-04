@@ -68,6 +68,9 @@ void Analyzer::Detect_Abnormal_Start_Address()
 		//Because the global variable initializers are not in any function particulary before this.
 		//Thus: they are not PostProsessed.
 		PostProsessor p(Func, Func->Childs);
+
+		Dependency_Injector(Func->Childs);
+
 	}
 
 	//now that the global variables are transferred to the right functions, 
@@ -252,5 +255,46 @@ void Analyzer::Define_Sizes(Node* p)
 
 	p->Update_Local_Variable_Mem_Offsets();
 	p->Update_Member_Variable_Offsets(p);
+
+}
+
+void Analyzer::Dependency_Injector(vector<Node*>& nodes){
+
+	std::sort(nodes.begin(), nodes.end(), [](Node* a, Node* b) {
+		
+		bool Result = false;
+
+		//Ceck if the a if a function
+		//If a is a function, then check if a contains b
+		//If a contains b, then  put b before a
+		for (auto i : a->Get_all({ CALL_NODE })) {
+			for (auto j : i->Function_Implementation->Childs){
+
+				if (j->Has(b)) {
+					Result = true;
+					break;
+				}
+
+			}
+		}
+
+		for (auto i : b->Get_all({ CALL_NODE })) {
+			for (auto j : i->Function_Implementation->Childs){
+
+				bool Has_a = j->Has(a);
+
+				if (Result && Has_a) {
+					//If a contains b, but b also contains a, then dont do shit.
+					Result = false;
+					break;
+				}
+
+			}
+		}
+
+
+		return Result;
+
+	});
 
 }

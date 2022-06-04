@@ -145,7 +145,6 @@ vector<unsigned char> OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 	
 	vector<OBJ::Section> Sections = Generate_Section_Table(Input, header.Pointer_To_Symbol_Table + sizeof(header.Pointer_To_Symbol_Table) + sizeof(OBJ::Symbol) * Symbols.size() + Symbol_Name_Size);
 
-
 	//Now inline all the data into one humongus buffer
 	vector<unsigned char> Buffer;
 

@@ -1896,3 +1896,55 @@ vector<Node*> Node::Get_Adjacent_Coefficients()
 		DOCKER::Append(Result, Right->Get_Adjacent_Coefficients());
 	}
 }
+
+Node* Node::Has(Node* n, unordered_set<Node*> trace){
+	
+	if (trace.find(this) != trace.end())
+		return nullptr;
+	
+	if (this->Name == n->Name)
+		if (this->Get_Inheritted() == n->Get_Inheritted())
+			return this;
+
+	if (this->is(CALL_NODE)){
+		return this->Function_Implementation->Has(n, trace);
+	} 
+
+	for (auto& i : Childs) {
+		Node* Result = i->Has(n);
+		if (Result)
+			return Result;
+	}
+
+	for (auto& i : Parameters) {
+		Node* Result = i->Has(n);
+		if (Result)
+			return Result;
+	}
+
+	if (Left) {
+		Node* Result = Left->Has(n);
+		if (Result)
+			return Result;
+	}
+	if (Right) {
+		Node* Result = Right->Has(n);
+		if (Result)
+			return Result;
+	}
+	if (Cast_Type) {
+		Node* Result = Cast_Type->Has(n);
+		if (Result)
+			return Result;
+	}
+
+	return nullptr;
+
+
+}
+
+Node* Node::Has(Node* n){
+
+	return Has(n, unordered_set<Node*>());
+
+}

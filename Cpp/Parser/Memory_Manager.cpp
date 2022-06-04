@@ -41,31 +41,31 @@ void Memory_Manager::Manage_Class_Padding()
 	if (!Scope->is("plain")) {
 		//Try to compress memory usage, if the user agrees to it.
 		Manage_Class_Re_Order();
-	}
 
-	const int BITS = selector->Get_Largest_Register_Size(); //<- this can be the maximun register size
-	int Remainder = Scope->Size % BITS;
+		const int BITS = selector->Get_Largest_Register_Size(); //<- this can be the maximun register size
+		int Remainder = Scope->Size % BITS;
 
-	Scope->Parsed_By |= PARSED_BY::CLASS_MEMORY_PADDER;
-	if (Remainder == 0)
-		return;
+		Scope->Parsed_By |= PARSED_BY::CLASS_MEMORY_PADDER;
+		if (Remainder == 0)
+			return;
 
-	Report(Observation(INFO, "Added " + to_string(Remainder) + " bytes to the end of '" + Scope->Name + "'.", *Scope->Location));
+		Report(Observation(INFO, "Added " + to_string(Remainder) + " bytes to the end of '" + Scope->Name + "'.", *Scope->Location));
 
-	//If the base class has already a padder, then modify it.
-	Node* Padder = Scope->Find("__CLASS_MEMORY_PADDER__", Scope, OBJECT_DEFINTION_NODE, false);
-	if (Padder) {
-		Padder->Name = to_string(stoi(Padder->Name) + Remainder);
-	}
-	else {
-		Padder = new Node(OBJECT_DEFINTION_NODE, Scope->Location);
-		Padder->Name = "__CLASS_MEMORY_PADDER__";
-		//NOTE: const as inheritance may not negate re-sizing!
-		Padder->Inheritted.push_back("const");
-		Padder->Size = Remainder;
-		Padder->Scope = Scope;
+		//If the base class has already a padder, then modify it.
+		Node* Padder = Scope->Find("__CLASS_MEMORY_PADDER__", Scope, OBJECT_DEFINTION_NODE, false);
+		if (Padder) {
+			Padder->Name = to_string(stoi(Padder->Name) + Remainder);
+		}
+		else {
+			Padder = new Node(OBJECT_DEFINTION_NODE, Scope->Location);
+			Padder->Name = "__CLASS_MEMORY_PADDER__";
+			//NOTE: const as inheritance may not negate re-sizing!
+			Padder->Inheritted.push_back("const");
+			Padder->Size = Remainder;
+			Padder->Scope = Scope;
 
-		Scope->Defined.push_back(Padder);
+			Scope->Defined.push_back(Padder);
+		}
 	}
 }
 

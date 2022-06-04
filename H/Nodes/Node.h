@@ -7,6 +7,7 @@ extern int _SYSTEM_BIT_SIZE_;
 #include <vector>
 #include <iostream>
 #include <regex>
+#include <unordered_set>
 
 #include "../Lexer/Lexer.h"
 #include "../Lexer/Position.h"
@@ -642,6 +643,10 @@ public:
 					return true;
 		return false;
 	}
+
+	Node* Has(Node* n, unordered_set<Node*> trace);
+
+	Node* Has(Node* n);
 
 	vector<Node*> Get_All_Exept(vector<int> flags);
 

@@ -32,6 +32,8 @@ public:
 	void Analyze_Variable_Address_Pointing(Node* v, Node* n);
 	int Get_Amount(string t, Node* n);
 	void Define_Sizes(Node* p);
+
+	void Dependency_Injector(vector<Node*>& nodes);
 };
 
 #endif
