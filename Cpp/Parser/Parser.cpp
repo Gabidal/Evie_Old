@@ -66,6 +66,7 @@ vector<Component> Parser::Get_Inheritting_Components(int i)
 	return Result;
 }
 
+//Internal.Allocate(){} -> [Internal.Allocate]()
 void Parser::Combine_Dot_In_Member_Functions(int& i)
 {
 	if (!Scope->is(CLASS_NODE) || !Scope->is("static"))
@@ -73,7 +74,31 @@ void Parser::Combine_Dot_In_Member_Functions(int& i)
 	if (Input[i].Value != ".")
 		return;
 
-	Math_Pattern(i, { "." }, OPERATOR_NODE, true);
+	//This is nice and handy, but what happends when you try to call a namespace function from out function scope?
+	//Internal.Allocate<int>()
+	bool Is_Call_Node = false;
+	if (i + 1 < Input.size() && Input[i + 1].is(Flags::TEXT_COMPONENT)){
+
+		int j = i + 2;
+		if (i + 2 < Input.size() && Input[i + 2].is(Flags::TEMPLATE_COMPONENT)){
+
+			j++;
+
+		}
+
+		if (Get_Amount_Of(j, Flags::PAREHTHESIS_COMPONENT, false).size() == 1){
+			
+			Is_Call_Node = true;
+
+		}
+
+	}
+
+	if (!Is_Call_Node){
+
+		Math_Pattern(i, { "." }, OPERATOR_NODE, true);
+
+	}
 }
 
 void Parser::Template_Pattern(int& i)

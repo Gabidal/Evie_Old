@@ -402,11 +402,29 @@ void Safe::Flush_Errors()
 		Report(Observation(ERROR, "", "", YES));
 }
 
+void Safe::Report_Component_Woth_Empty_Node(){
+
+	for (auto& i : Components) {
+		for (auto& j : i.Get_all()){
+			if (!j->is(Flags::TEXT_COMPONENT))
+				continue;
+
+			if (j->node)
+				continue;
+
+			Report(Observation(ERROR, "Use of undefined '" + j->Value + "'", MISSING_DEFINITION, NO));
+		}
+	}
+
+}
+
 void Safe::Parser_Factory()
 {
 	Reference_Count_Type_Un_Availability();
 
 	Go_Through_AST(AST_Factory);
+
+	Report_Component_Woth_Empty_Node();
 
 	Flush_Errors();
 }

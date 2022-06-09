@@ -51,6 +51,7 @@ namespace PARSED_BY {
 	constexpr long long CLASS_RE_ORDERER				= 1 << 19;
 
 	constexpr long long CLASS_ANALYSER					= 1 << 20;
+	constexpr long long OPEN_NAMESPACE					= 1 << 21;
 
 };
 
@@ -77,8 +78,8 @@ public:
 	//Node(Node* n, int f) { Copy_Node(&this, n, n->Scope); Type = f; }
 	//Node(){}
 	//Normal features
-	Position* Location = nullptr;
 	string Name = "";
+	Position* Location = nullptr;
 	COMMENT Comment;
 	//for string or char lists
 	string String = "";

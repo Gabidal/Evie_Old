@@ -1085,7 +1085,12 @@ string Node::Print()
 	string Result = "";
 
 	if (is(CALL_NODE)) {
-		Result += Get_Inheritted(" ", false, false, false) + " " + Name + "(";
+		Result += Get_Inheritted(" ", false, false, false) + " ";
+
+		Result += Get_Uninitialized_Templates();
+
+		Result += "(";
+
 		for (int i = 0; i < Parameters.size(); i++) {
 			string Seperator = ",";
 			if (i == Parameters.size() - 1) {
@@ -1901,6 +1906,8 @@ Node* Node::Has(Node* n, unordered_set<Node*> trace){
 	
 	if (trace.find(this) != trace.end())
 		return nullptr;
+
+	trace.insert(this);
 	
 	if (this->Name == n->Name)
 		if (this->Get_Inheritted() == n->Get_Inheritted())
@@ -1911,29 +1918,29 @@ Node* Node::Has(Node* n, unordered_set<Node*> trace){
 	} 
 
 	for (auto& i : Childs) {
-		Node* Result = i->Has(n);
+		Node* Result = i->Has(n, trace);
 		if (Result)
 			return Result;
 	}
 
 	for (auto& i : Parameters) {
-		Node* Result = i->Has(n);
+		Node* Result = i->Has(n, trace);
 		if (Result)
 			return Result;
 	}
 
 	if (Left) {
-		Node* Result = Left->Has(n);
+		Node* Result = Left->Has(n, trace);
 		if (Result)
 			return Result;
 	}
 	if (Right) {
-		Node* Result = Right->Has(n);
+		Node* Result = Right->Has(n, trace);
 		if (Result)
 			return Result;
 	}
 	if (Cast_Type) {
-		Node* Result = Cast_Type->Has(n);
+		Node* Result = Cast_Type->Has(n, trace);
 		if (Result)
 			return Result;
 	}

@@ -58,6 +58,10 @@ public:
 	void Member_Function_Defined_Inside(Node* f);		//
 	void Update_Template_Member_Members(Node* f, Node* Class);
 
+	//Namespace handlers
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Open_Namespace_For_Prosessing(Node* n);
+
 
 	//void Combine_Conditions(int i);				//combines the if and else
 	void Open_Function_For_Prosessing(Node* f);		//just opens the functions insides for post prosessor.

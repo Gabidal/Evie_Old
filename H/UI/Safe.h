@@ -29,6 +29,8 @@ inline string MISSING_CRITICAL_INFORMATION = "Missing critical information";
 inline string ASSEMBLER_SYNTAX_ERROR = "Error in given assembly code";
 inline string LINKER_MISSING_STARTING_FUNCTION = "Missing starting function";
 
+inline string MISSING_DEFINITION = "Missing definition";
+
 #define ERROR (MSG_Type)1
 #define NO 0
 #define YES 1
@@ -106,6 +108,7 @@ void Report(long type, Back_Expectation_Set expectation, string source, vector<B
 class Safe {
 public:
 	Safe(vector<Node*> i) : Input(i) { PostProsessor_Factory(); }
+	Safe(vector<Component> c) { Components = c; Parser_Factory(); }
 	Safe(){}
 	//single uses
 	static void Check_For_Undefined_Inheritance(Node* n);
@@ -128,8 +131,13 @@ public:
 	//Cast missing error givers.
 	static void Report_Missing_Cast(Node*& n);
 
+	//Big Brain Solutions.inc 2000
+	static void Report_Component_Woth_Empty_Node();
+
 	static void Reference_Count_Type_Un_Availability();
 	vector<Node*> Input;
+
+	static inline vector<Component> Components;
 
 
 	void PostProsessor_Factory();

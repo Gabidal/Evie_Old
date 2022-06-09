@@ -30,6 +30,7 @@ void PostProsessor::Factory() {
 		}
 		for (int i = 0; i < All_Defined.size(); i++) {
 			Type_Definer(All_Defined[i]);
+			Open_Namespace_For_Prosessing(All_Defined[i]);
 		}
 		for (auto& i : All_Defined) {
 			//the prototypes needs the types to have sizes to determine the number parameters assosiative type.
@@ -384,6 +385,51 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 	if (There_Is_No_User_Defined_Return) {
 		childs.insert(childs.end(), P.Input.begin(), P.Input.end());
 	}
+}
+
+void PostProsessor::Open_Namespace_For_Prosessing(Node* n){
+
+	if (!n->is("static"))
+		return;
+
+	if (!n->is(CLASS_NODE))
+		return;
+
+	if (n->is(PARSED_BY::OPEN_NAMESPACE))
+		return;
+
+	n->Parsed_By |= PARSED_BY::OPEN_NAMESPACE;
+
+	for (auto& i : n->Defined) {
+		if (i->is(FUNCTION_NODE)) {
+			PostProsessor p(n);
+			p.Open_Function_For_Prosessing(i);
+		}
+	}
+
+	//Create the initialization code to be given to global scope
+	for (auto& i : n->Childs){
+
+		for (auto& j : i->Get_all()){
+			if (j->Has({NUMBER_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, BIT_OPERATOR_NODE, CONDITION_OPERATOR_NODE, ARRAY_NODE}))
+				continue;
+			if (j->Fetcher)
+				continue;
+
+			Node* Definition = j->Find(j, j);
+
+			if (Definition->Scope != n)
+				continue;
+
+			
+			j->Fetcher = n;
+
+		}
+
+	}
+
+	Global_Scope->Childs.insert(Global_Scope->Childs.end(), n->Childs.begin(), n->Childs.end());
+
 }
 
 //"\xA1FF" -> "\1234"
@@ -802,6 +848,7 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 	});
 
 	PostProsessor p(func);
+
 	func->Childs = p.Insert_Dot(func->Childs, func, func->Parameters[0]);
 
 	Node* Fetcher = func->Find_Scope(func);
@@ -1023,6 +1070,7 @@ void PostProsessor::Find_Call_Owner(Node* n, bool Stop)
 	vector<pair<Node*, Node*>> Candidates;
 	bool It_Is_A_Function_Pointter = false;
 	bool Use_All_Scopes = false;
+
 	while (n->Function_Implementation == nullptr) {
 		Candidates = Find_Suitable_Function_Candidates(n, It_Is_A_Function_Pointter, Use_All_Scopes);
 		int Note = Choose_Most_Suited_Function_Candidate(Order_By_Accuracy(Candidates, n), n, It_Is_A_Function_Pointter);
@@ -1080,7 +1128,10 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 	//Compare(x, y)
 	//x is not a fetcher in this example but the Compare is still it's member function.
 	Node* Fetcher = caller->Fetcher;
+	//Checkif the first parameter could work as the fetcher
 	if (Fetcher == nullptr && caller->Parameters.size() > 0 && !caller->Parameters[0]->is(NUMBER_NODE)) {
+
+		//if the fetcher is residing inside the first parameter, then add it to Scopes.
 		if (caller->Parameters[0]->Cast_Type && caller->Parameters[0]->Cast_Type->Name != "address") {
 			Fetcher = Scope->Find(caller->Parameters[0]->Cast_Type, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
 
@@ -1095,15 +1146,17 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 			if (Fetcher)
 				Scopes.push_back(Fetcher);
 		}
+
+		//If the fetcher NOW is nullptr, it means that the first parameter was not the fetcher.
 		if (!Fetcher)
+			//We still will not give up, we will try to find the fetcher from the inheritance of the the first parameter.
 			for (auto i : caller->Parameters[0]->Inheritted) {
 				if (Lexer::GetComponent(i).is(Flags::KEYWORD_COMPONENT))
 					continue;
 
 				Fetcher = Scope->Find(i, Scope, { CLASS_NODE, OBJECT_DEFINTION_NODE });
 
-				//check if the first parameter is actually the fewtcher or just a ordinary parameter.
-				//if so then nullify the fetcher node.
+				//Is the first parameters inheritance contains the caller, then set it as the fetcher.
 				if (MANGLER::Is_Base_Type(Fetcher)) {
 					Node* tmp = Fetcher->Find(caller, Fetcher, { FUNCTION_NODE }, true, true);
 					if (!tmp)
@@ -1131,6 +1184,21 @@ vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node
 
 			Scopes.push_back(Inheritted);
 		}
+
+		if (Scopes.size() == 0) {
+
+			if (Fetcher->is("static")){
+
+				//Fond the definition of the Fetcher
+				Node* tmp = Fetcher->Find(Fetcher, Fetcher, { CLASS_NODE }, false);
+
+				Scopes.push_back(tmp);
+
+			}
+			
+		}
+
+		
 	}
 	else if (caller->Get_Scope_As(CLASS_NODE, { "static" }, Scope) != Global_Scope) {
 		Scopes.push_back(caller->Get_Scope_As(CLASS_NODE, {"static"}, Scope));
