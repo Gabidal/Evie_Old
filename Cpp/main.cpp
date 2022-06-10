@@ -40,6 +40,7 @@ Analyzer analyzer;
 x86_64 X86_64;
 ARM_64 _ARM_64;
 Assembler* assembler;
+Safe* safe;
 int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output = "";
@@ -175,7 +176,9 @@ int Build(int argc, const char* argv[])
     p.Input = Input;
     p.Factory();
 
-    Safe s(p.Input);
+    safe = new Safe();
+    safe->Components = p.Input;
+    safe->Parser_Factory();
 
     PostProsessor postprosessor(Global_Scope);
     postprosessor.Components = p.Input;

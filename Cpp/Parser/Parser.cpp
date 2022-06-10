@@ -5,6 +5,7 @@
 //this is for unamed parameters.
 int arg_count = 0;
 extern Usr* sys;
+extern Safe* safe;
 
 vector<int> Parser::Get_Amount_Of(int i, long Flag, bool All_in_Same_Line)
 {
@@ -1569,6 +1570,7 @@ void Parser::Function_Pattern(int i, Node* Class)
 
 		p.Input.push_back(Input[Parenthesis_Indexes[1]]);
 		p.Factory();
+
 		func->Childs = p.Input[0].node->Childs;
 		p.Input.clear();
 
@@ -2284,6 +2286,5 @@ void Parser::Factory() {
 	for (int i = 0; i < Input.size(); i++) {
 		Return_Pattern(i);
 	}
-
 }
 

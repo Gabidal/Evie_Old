@@ -108,8 +108,13 @@ void Report(long type, Back_Expectation_Set expectation, string source, vector<B
 class Safe {
 public:
 	Safe(vector<Node*> i) : Input(i) { PostProsessor_Factory(); }
-	Safe(vector<Component> c) { Components = c; Parser_Factory(); }
 	Safe(){}
+
+	
+	vector<Node*> Input;
+	static inline vector<Component> Components;
+
+
 	//single uses
 	static void Check_For_Undefined_Inheritance(Node* n);
 
@@ -131,13 +136,10 @@ public:
 	//Cast missing error givers.
 	static void Report_Missing_Cast(Node*& n);
 
-	//Big Brain Solutions.inc 2000
-	static void Report_Component_Woth_Empty_Node();
-
 	static void Reference_Count_Type_Un_Availability();
-	vector<Node*> Input;
 
-	static inline vector<Component> Components;
+	static void Report_Use_Of_Un_Defined_Variable(Component& component, Node* Scope, vector<Component>& Context, int index);
+	static void Report_Use_Of_Un_Defined_Variable(Node* n, Node* Scope);
 
 
 	void PostProsessor_Factory();
