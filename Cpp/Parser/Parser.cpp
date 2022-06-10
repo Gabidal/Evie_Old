@@ -138,6 +138,7 @@ void Parser::Template_Pattern(int& i)
 
 	Parser p(Scope);
 	p.Input = { Input[i].Components };
+	p.Dont_Give_Error_On_Templates = true;
 	p.Factory();
 
 	Input[i].Components = p.Input;
@@ -207,6 +208,7 @@ void Parser::Construct_Virtual_Class_To_Represent_Multiple_Template_Inputs(Compo
 
 	Parser p(Global_Scope);
 	p.Input = i.Components;
+	p.Dont_Give_Error_On_Templates = true;
 	p.Factory();
 	i.Components = p.Input;
 
@@ -961,12 +963,26 @@ void Parser::Object_Pattern(int i)
 	//</summary>
 	if (!Input[i].is(Flags::TEXT_COMPONENT))
 		return;
-	if (!Scope->Find(Input[i].Value, Scope, { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false))
-		return;
+		//{ PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }
+	if (!Scope->Find(Input[i].Value, Scope, false)){
+
+		if (Dont_Give_Error_On_Templates)
+			return;
+
+		if (Input[i].Value == "address" || Input[i].Value == "size" || Input[i].Value == "format" || Input[i].Value == "integer" || Input[i].Value == "decimal")
+			return;
+
+		if (i - 1 >= 0 && Input[i - 1].Value == ".")
+			return;
+
+		Report(Observation(ERROR, "'" + Input[i].Value + "'", Input[i].Location, DEFINITION_ERROR));
+
+	}
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
-	Scope->Copy_Node(Input[i].node, new Node(*Scope->Find(Input[i].Value, Scope, {PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }, false)), Scope);
+	//{ PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }
+	Scope->Copy_Node(Input[i].node, new Node(*Scope->Find(Input[i].Value, Scope, false)), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
 	Input[i].node->Defined.clear();
 

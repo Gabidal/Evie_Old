@@ -21,6 +21,8 @@ public:
 	vector<int> Get_Amount_Of(int i, long Flag, bool All_in_Same_Line = true);
 	vector<int> Get_Amount_Of(int i, vector<int> Flags, bool All_in_Same_Line = true);
 
+	bool Dont_Give_Error_On_Templates = false;
+
 	//POST-PREPROSESSOR PATTERNS
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Combine_Dot_In_Member_Functions(int& i);

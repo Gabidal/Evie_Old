@@ -389,52 +389,6 @@ void Safe::Check_Usage_Of_Un_Declared_Variable(Node*& n)
 		Report(Observation(ERROR, "'" + n->Name + "'", *n->Location, DEFINITION_ERROR, NO));
 }
 
-void Safe::Report_Use_Of_Un_Defined_Variable(Component& component, Node* Scope, vector<Component>& Context, int index){
-
-	if (component.node){
-
-		Report_Use_Of_Un_Defined_Variable(component.node, Scope);
-
-	}
-
-	for (int i = 0; i < component.Components.size(); i++){
-
-		Report_Use_Of_Un_Defined_Variable(component.Components[i], Scope, component.Components, i);
-
-	}
-
-	if (Scope->Find(component.Value))
-		return;
-
-	if (!component.is(Flags::TEXT_COMPONENT) || component.Value == "address")
-		return;
-
-	if (index - 1 >= 0 && Context[index - 1].Value == "."){
-
-		return;
-
-	}
-
-
-	Report(Observation(ERROR, "'" + component.Value + "'", component.Location, DEFINITION_ERROR, NO));
-
-}
-
-void Safe::Report_Use_Of_Un_Defined_Variable(Node* n, Node* Scope){
-
-	if (n->Is_Template_Object)
-		return;
-
-	Check_Usage_Of_Un_Declared_Variable(n);
-
-	if (n->Template_Children.size() > 0) {
-		for (auto& i : n->Template_Children) {
-			Report_Use_Of_Un_Defined_Variable(i, n, i.Components, 0);
-		}
-	}
-
-}
-
 void Safe::Flush_Errors()
 {
 	bool Notices_Have_An_Error = false;
@@ -453,18 +407,6 @@ void Safe::Parser_Factory()
 	Reference_Count_Type_Un_Availability();
 
 	Go_Through_AST(AST_Factory);
-
-	for (auto& i : Global_Scope->Defined) {
-
-		Report_Use_Of_Un_Defined_Variable(i, Global_Scope);
-
-	}
-
-	for (auto& i : Global_Scope->Inlined_Items) {
-
-		Report_Use_Of_Un_Defined_Variable(i, Global_Scope);
-
-	}
 
 	Flush_Errors();
 }

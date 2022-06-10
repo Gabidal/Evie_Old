@@ -98,18 +98,18 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)</OutDir>
-    <LibraryPath>C:\Users\Quanf\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Dependencies\Curl;$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
     <ClangTidyChecks>-*,readability-*,-readability-braces-around-statements</ClangTidyChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Test|x64'">
     <OutDir>$(SolutionDir)</OutDir>
-    <LibraryPath>C:\Users\Quanf\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Dependencies\Curl;$(LibraryPath)</LibraryPath>
     <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
     <ClangTidyChecks>-*,readability-*,-readability-braces-around-statements</ClangTidyChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>C:\Users\Quanf\source\repos\Evie\Dependencies\Curl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Dependencies\Curl;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -138,9 +138,6 @@ public:
 
 	static void Reference_Count_Type_Un_Availability();
 
-	static void Report_Use_Of_Un_Defined_Variable(Component& component, Node* Scope, vector<Component>& Context, int index);
-	static void Report_Use_Of_Un_Defined_Variable(Node* n, Node* Scope);
-
 
 	void PostProsessor_Factory();
 };
