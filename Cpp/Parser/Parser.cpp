@@ -2,6 +2,7 @@
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Mangler.h"
 #include "../../H/UI/Usr.h"
+#include "../../H/Parser/PostProsessor.h"
 //this is for unamed parameters.
 int arg_count = 0;
 extern Usr* sys;
@@ -975,6 +976,32 @@ void Parser::Object_Pattern(int i)
 		if (i - 1 >= 0 && Input[i - 1].Value == ".")
 			return;
 
+
+		for (auto& parmaeter : Scope->Parameters){
+
+			if (parmaeter->Name != "this")
+				return;
+
+
+			//Make an emulation by placing 'this' into the Input node to see if this is a memebr of the class.
+			//This is for template function callers.
+
+			Node* Emulation_Node = Input[i].node;
+			Emulation_Node->Fetcher = parmaeter;
+
+			string Emulation_Name = Emulation_Node->Name;
+			if (Emulation_Node->Get_Template().size() > 0){
+				Emulation_Name = Emulation_Node->Construct_Template_Type_Name();
+			}
+
+			if (Scope->Find(Emulation_Name, Scope)){
+				//This is a member of the class.
+				Input[i].node->Fetcher = nullptr;
+				return;
+
+			}
+		}
+
 		Report(Observation(ERROR, "'" + Input[i].Value + "'", Input[i].Location, DEFINITION_ERROR));
 
 	}
@@ -1537,7 +1564,7 @@ void Parser::Function_Pattern(int i, Node* Class)
 	}
 
 	if (Class) {
-		//Make the returning type to follow the template returning protocols.
+		//Take class templates and make them into component AST format.
 		Component* Uninitialized_Templates;
 		if (Class->Is_Template_Object) {
 			string Result = Class->Get_Uninitialized_Templates();
@@ -1548,6 +1575,7 @@ void Parser::Function_Pattern(int i, Node* Class)
 
 			Parser p(tmp_Class);
 			p.Input = tmp;
+			p.Dont_Give_Error_On_Templates = true;
 			p.Factory();
 
 			Uninitialized_Templates = new Component(Class->Generate_Uninitialized_Template_Component(p.Input));
@@ -2134,9 +2162,15 @@ void Parser::Member_Function_Pattern(int i)
 			*Fetcher = *Class;
 	}*/
 
+
+	//Parser p(Class);
+	//p.Input = Input;
+
 	Function_Pattern(i, Class);
 
 	Class->Defined.push_back(Input[i].node);
+
+	//Input = p.Input;
 
 	//Node* Fethcer = Input[i].node->Fetcher;
 	//Input[i].node->Fetcher = nullptr;
