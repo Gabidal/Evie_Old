@@ -8,6 +8,7 @@ extern int _SYSTEM_BIT_SIZE_;
 #include <iostream>
 #include <regex>
 #include <unordered_set>
+#include <functional>
 
 #include "../Lexer/Lexer.h"
 #include "../Lexer/Position.h"
@@ -774,7 +775,7 @@ public:
 
 	void Update_Members_To_New_Parent();
 
-	void Modify_AST(Node*& n, bool(*Filter)(Node* n), void(*Modifier)(Node*& n));
+	void Modify_AST(Node*& n, bool(*Filter)(Node* n),  function<void(Node*& n, unordered_set<Node*>& Trace)> Modifier, unordered_set<Node*>& Trace);
 
 	//this function return list of all contexes that a node has until it reaches the null
 	vector<Node*> Get_Context_Path();

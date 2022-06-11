@@ -313,10 +313,14 @@ void Safe::Go_Through_AST(void(*Checker)(Node*& n))
 {
 	vector<Node*> All_Defined = Global_Scope->Defined;
 	Global_Scope->Append(All_Defined, Global_Scope->Inlined_Items);
+
+	unordered_set<Node*> Trace;
+
 	for (int i = 0; i < All_Defined.size(); i++) {
 		All_Defined[i]->Modify_AST(
 			All_Defined[i], [](Node* n) {return true; },
-			Checker
+			[=](Node*& n, unordered_set<Node*>& Trace){ Checker(n); },
+			Trace
 		);
 	}
 }
@@ -324,7 +328,10 @@ void Safe::Go_Through_AST(void(*Checker)(Node*& n))
 void Safe::AST_Factory(Node*& n)
 {
 	for (auto& i : n->Defined) {
-		i->Modify_AST(i, [](Node* n) {return true; }, AST_Factory);
+
+		unordered_set<Node*> Trace;
+
+		i->Modify_AST(i, [](Node* n) {return true; }, [](Node*& n, unordered_set<Node*> Trace){ AST_Factory(n); }, Trace);
 	}
 
 	Check_Usage_Of_Un_Declared_Variable(n);

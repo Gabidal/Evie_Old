@@ -5,6 +5,7 @@
 #include "../../H/Parser/Parser.h"
 
 #include <cmath>
+#include <unordered_set>
 
 bool Optimized = false;
 long long Inlined_Function_Count = 0;
@@ -26,7 +27,9 @@ void Algebra::Start_Factory()
 	for (int i = 0; i < Input->size(); i++)
 		Function_Inliner(Input->at(i), i);
 
-	Scope->Modify_AST(Scope, [](Node* n) { return true; }, Factory);
+	unordered_set<Node*> Trace;
+
+	Scope->Modify_AST(Scope, [](Node* n) { return true; }, [](Node*& n, unordered_set<Node*>& Trace){ Factory(n); }, Trace);
 }
 
 void Algebra::Set_Return_To_Jump(Node* n, Node* Return_Value, Node* end)
@@ -947,7 +950,10 @@ bool Algebra::Has_Inlining_Value(Node* n)
 
 void Algebra::Run_Variable_Inliner(Node* n)
 {
-	n->Modify_AST(n, Has_Inlining_Value, Inline_Variable);
+
+	unordered_set<Node*> Trace;
+
+	n->Modify_AST(n, Has_Inlining_Value, [](Node*&n, unordered_set<Node*>& Trace){ Inline_Variable(n); }, Trace);
 }
 
 // This function goes recursively through the Values, gets the value from the list

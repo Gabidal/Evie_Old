@@ -976,7 +976,6 @@ void Parser::Object_Pattern(int i)
 		if (i - 1 >= 0 && Input[i - 1].Value == ".")
 			return;
 
-
 		for (auto& parmaeter : Scope->Parameters){
 
 			if (parmaeter->Name != "this")
@@ -999,6 +998,9 @@ void Parser::Object_Pattern(int i)
 				Input[i].node->Fetcher = nullptr;
 				return;
 
+			}
+			else{
+				Input[i].node->Fetcher = nullptr;
 			}
 		}
 

@@ -1827,26 +1827,26 @@ COMMENT::COMMENT(string raw) {
 	}
 }
 
-void Node::Modify_AST(Node*& n, bool(*Filter)(Node* n), void(*Modifier)(Node*& n))
+void Node::Modify_AST(Node*& n, bool(*Filter)(Node* n), function<void(Node*& n, unordered_set<Node*>& Trace)> Modifier, unordered_set<Node*>& Trace)
 {
 	if (Filter(n)) {
-		Modifier(n);
+		Modifier(n, Trace);
 	}
 
 	for (auto& i : n->Childs) {
-		i->Modify_AST(i, Filter, Modifier);
+		i->Modify_AST(i, Filter, Modifier, Trace);
 	}
 
 	for (auto& i : n->Parameters) {
-		i->Modify_AST(i, Filter, Modifier);
+		i->Modify_AST(i, Filter, Modifier, Trace);
 	}
 
 	if (n->Left)
-		n->Modify_AST(n->Left, Filter, Modifier);
+		n->Modify_AST(n->Left, Filter, Modifier, Trace);
 	if (n->Right)
-		n->Modify_AST(n->Right, Filter, Modifier);
+		n->Modify_AST(n->Right, Filter, Modifier, Trace);
 	if (n->Cast_Type)
-		n->Modify_AST(n->Cast_Type, Filter, Modifier);
+		n->Modify_AST(n->Cast_Type, Filter, Modifier, Trace);
 }
 
 vector<Node*> Node::Get_Context_Path(){

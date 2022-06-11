@@ -7,6 +7,7 @@
 #include "../../H/Docker/Docker.h"
 
 #include <cstring>
+#include <unordered_set>
 
 #include "../../H/BackEnd/IRGenerator.h"
 
@@ -687,9 +688,15 @@ Node*& PostProsessor::Get_Possible_Fetcher(Node*& n)
 	return *Result;
 }
 
-void Lambda(Node*& n) {
+void Lambda(Node*& n, unordered_set<Node*>& Trace) {
+
+	if (Trace.find(n) != Trace.end())
+		return;
+
+	Trace.insert(n);
+
 	if (n->Fetcher) {
-		n->Modify_AST(n->Fetcher, [](Node* n) { return true; }, Lambda);
+		n->Modify_AST(n->Fetcher, [](Node* n) { return true; }, Lambda, Trace);
 	}
 
 	if (n->Fetcher && n->Fetcher->Name == ".") {
@@ -700,7 +707,9 @@ void Lambda(Node*& n) {
 
 void PostProsessor::Go_Through_Un_Combined_Fetching(Node* n)
 {
-	n->Modify_AST(n, [](Node* n) { return true; }, Lambda);
+	unordered_set<Node*> Trace;
+
+	n->Modify_AST(n, [](Node* n) { return true; }, Lambda , Trace);
 }
 
 void PostProsessor::Cast(Node* n)
@@ -843,11 +852,13 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 	if (Class->is("static"))
 		return;
 
+	unordered_set<Node*> Trace;
+
 	//Combine all the member fetchings that are not This based.
-	func->Modify_AST(func, [](Node* n) { if (n->Name == ".") return true; return false; }, [](Node*& n) {
+	func->Modify_AST(func, [](Node* n) { if (n->Name == ".") return true; return false; }, [](Node*& n, unordered_set<Node*>& Trace) {
 		PostProsessor p(n);
 		p.Combine_Member_Fetching(n);
-	});
+	}, Trace);
 
 	PostProsessor p(func);
 
@@ -1068,8 +1079,6 @@ void PostProsessor::Find_Call_Owner(Node* n, bool Stop)
 	// Differential template inserion analysis
 	// Differential template class insertion analysis
 	// 
-
-	
 
 	vector<pair<Node*, Node*>> Candidates;
 	bool It_Is_A_Function_Pointter = false;
