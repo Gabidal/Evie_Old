@@ -400,12 +400,14 @@ void PostProsessor::Open_Namespace_For_Prosessing(Node* n){
 
 	n->Parsed_By |= PARSED_BY::OPEN_NAMESPACE;
 
-	for (auto& i : n->Defined) {
-		if (i->is(FUNCTION_NODE)) {
-			PostProsessor p(n);
-			p.Open_Function_For_Prosessing(i);
-		}
-	}
+	// for (auto& i : n->Defined) {
+	// 	if (i->is(FUNCTION_NODE)) {
+	// 		PostProsessor p(n);
+	// 		p.Open_Function_For_Prosessing(i);
+	// 	}
+	// }
+
+	PostProsessor p(n, n->Childs);
 
 	//Create the initialization code to be given to global scope
 	for (auto& i : n->Childs){
@@ -1067,6 +1069,8 @@ void PostProsessor::Find_Call_Owner(Node* n, bool Stop)
 	// Differential template class insertion analysis
 	// 
 
+	
+
 	vector<pair<Node*, Node*>> Candidates;
 	bool It_Is_A_Function_Pointter = false;
 	bool Use_All_Scopes = false;
@@ -1712,31 +1716,6 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 	else {
 		p = PostProsessor(Scope, vector<Node**>{&n->Right}, true);
 	}
-	//Cast(n->Left);
-	//Cast(n->Right);
-	//Combine_Member_Fetching(n->Left);
-	// 
-	//this is for the manual writation usage of this.X
-	//for (auto* i : n->Get_All_Exept({FUNCTION_NODE, CLASS_NODE})) {
-	//	if (i->is(CALL_NODE))
-	//		continue;
-	//	if (i->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE, PARAMETER_NODE })) {
-	//		Node* Definition = nullptr;
-	//		for (auto j : { PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE }) {
-	//			Definition = i->Find(i, i, j, false);
-	//			//if the current flag isn't it then try another one
-	//			if (Definition)
-	//				break;
-	//		}
-	//		//if all flags dont match, then break process
-	//		if (Definition == nullptr)
-	//			continue;	//this can occur if the definition points to the rght side of the dot
-	//		if (Definition->Is_Template_Object)
-	//			continue;
-	//		i->Inheritted = Definition->Inheritted;
-	//		//i->Defined = Definition->Defined;
-	//	}
-	//}
 
 	if (n->Right->is(CALL_NODE)) {
 		//We dont want to add a namespace into a parameter as 'this'
@@ -2313,7 +2292,7 @@ void PostProsessor::Change_Local_Strings_To_Global_Pointters(int i)
 	Change_Local_Strings_To_Global_Pointters(i);
 }
 
-void PostProsessor::Move_Global_Varibles_To_Header(int i)
+void PostProsessor::Move_Global_Varibles_To_Header(int& i)
 {
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
@@ -2327,10 +2306,7 @@ void PostProsessor::Move_Global_Varibles_To_Header(int i)
 
 	Scope->Header.push_back(Input[i]);
 
-	Input.erase(Input.begin() + i);
-
-	if (i - 1 >= 0)
-		Move_Global_Varibles_To_Header(i);
+	Input.erase(Input.begin() + i--);
 }
 
 bool PostProsessor::Check_If_Template_Function_Is_Right_One(Node* t, Node* c)
