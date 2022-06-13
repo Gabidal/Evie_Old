@@ -17,8 +17,11 @@ void Analyzer::Factory()
 	List_All_Exported();
 
 	for (auto* f : Start_Of_Proccesses) {
-		Calling_Count_Incrementer(f);
+		vector<Node*> Callin_Trace;
+		Calling_Count_Incrementer(f, Callin_Trace);
 	}
+
+	Give_Global_Scope_All_Used_Functions();
 }
 
 void Analyzer::Detect_Abnormal_Start_Address()
@@ -58,7 +61,7 @@ void Analyzer::Detect_Abnormal_Start_Address()
 		Func->Inheritted = { "func", "export" };
 
 		for (auto& i : Func->Childs) {
-			i->Copy_Node(i, i, Main);
+			i->Copy_Node(i, i, Func);
 		}
 
 		Func->Scope = Global_Scope;
@@ -95,8 +98,7 @@ void Analyzer::Analyze_Class(Node* c)
 
 }
 
-vector<Node*> Callin_Trace;
-void Analyzer::Calling_Count_Incrementer(Node* f)
+void Analyzer::Calling_Count_Incrementer(Node* f, vector<Node*>& Callin_Trace)
 {
 	for (auto* i : Callin_Trace)
 		if (i == f)
@@ -144,7 +146,7 @@ void Analyzer::Calling_Count_Incrementer(Node* f)
 	//repeat this for its calling as so on...
 	for (auto* c : f->Childs) {
 		for (auto* i : c->Get_all({CALL_NODE})) {
-			Calling_Count_Incrementer(i->Function_Implementation);
+			Calling_Count_Incrementer(i->Function_Implementation, Callin_Trace);
 		}
 	}
 
@@ -296,5 +298,44 @@ void Analyzer::Dependency_Injector(vector<Node*>& nodes){
 		return Result;
 
 	});
+
+}
+
+void Analyzer::Give_Global_Scope_All_Used_Functions(){
+
+	//All functionas are located either in the Global_Scope->Defined and Global_Scope->Inlined items
+	//Put these into the Global_Scope->Childs
+
+	for (auto i : Global_Scope->Defined) {
+		if (i->is(FUNCTION_NODE))
+			Global_Scope->Childs.push_back(i);
+	}
+
+	for (auto i : Global_Scope->Inlined_Items) {
+		if (i->is(FUNCTION_NODE))
+			Global_Scope->Childs.push_back(i);
+	}
+
+	//Now that the usual functions that are either inlined from namespace are in the childs list, we need to include also those functions
+	//that are in the namespaces that are NOT inlined.
+
+	for (auto i : Global_Scope->Defined) {
+		if (i->is("static") && i->is(CLASS_NODE)) {
+			bool Inlined = false;
+			for (auto inlined : Global_Scope->Inlined_Namespaces){
+
+				if (inlined->Name == i->Name)
+					Inlined = true;
+			}
+
+			if (Inlined)
+				continue;
+
+			for (auto j : i->Defined) {
+				if (j->is(FUNCTION_NODE))
+					Global_Scope->Childs.push_back(j);
+			}
+		}
+	}
 
 }

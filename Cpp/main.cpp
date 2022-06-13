@@ -183,8 +183,8 @@ int Build(int argc, const char* argv[])
     PostProsessor postprosessor(Global_Scope);
     postprosessor.Components = p.Input;
     postprosessor.Factory();
-    Global_Scope->Append(Global_Scope->Childs, postprosessor.Input);
 
+    
     analyzer.Factory();
 
     vector<IR*> IRs;

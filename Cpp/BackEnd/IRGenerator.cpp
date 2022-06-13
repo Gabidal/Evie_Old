@@ -71,11 +71,17 @@ void IRGenerator::Parse_Function(Node* Func)
 		if (j->is("type") || j->Inherits_Template_Type())
 			return;	//skip template functions.
 
+	if (Func->Name == "_INIT_"){
+
+		int a = 0;
+
+	}
+
 	Node* Function_Scope = Scope;
 	if (Func->Fetcher != nullptr)
 		Function_Scope = Func->Fetcher;
 
-	if ((Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->Calling_Count == 0) && !Function_Scope->Find(Func->Name, Function_Scope, FUNCTION_NODE)->is("export"))
+	if (Func->Calling_Count == 0 && !Func->is("export"))
 		return;
 
 	if (Func->is("export"))
@@ -1471,6 +1477,12 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;
 	if (n->is(PARSED_BY::IRGENERATOR))
 		return;
+
+	if (n->Size == 0){
+
+		n->Size = n->Find(n, n->Scope)->Size;
+
+	}
 
 	//Namespace fetcher
 	Token* Fetcher;

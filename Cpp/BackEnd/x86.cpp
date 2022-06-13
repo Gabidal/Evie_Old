@@ -874,6 +874,22 @@ void x86_64::Init()
 		{{{Label, 0, 0}}, 0x7E, OPCODE_ENCODING::D, 0xCB},
 	});
 
+	IR* AND = new IR("&", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "and"), {
+		{{{Register, 1, 8}, {Register, 1, 8}}, 0x21, OPCODE_ENCODING::MR},
+		{{{Register, 1, 8}, {Memory, 1, 8}}, 0x23, OPCODE_ENCODING::RM},
+		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x21, OPCODE_ENCODING::MR},
+		{{{Register, 1, 8}, {Const, 1, 8}}, 0x81, OPCODE_ENCODING::MI, 4},
+		{{{Memory, 1, 8}, {Const, 1, 8}}, 0x81, OPCODE_ENCODING::MI, 4}
+	});
+
+	IR* OR = new IR("|", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "or"), {
+		{{{Register, 1, 8}, {Register, 1, 8}}, 0x09, OPCODE_ENCODING::MR},
+		{{{Register, 1, 8}, {Memory, 1, 8}}, 0x0B, OPCODE_ENCODING::RM},
+		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x09, OPCODE_ENCODING::MR},
+		{{{Register, 1, 8}, {Const, 1, 8}}, 0x81, OPCODE_ENCODING::MI, 1},
+		{{{Memory, 1, 8}, {Const, 1, 8}}, 0x81, OPCODE_ENCODING::MI, 1}
+	});
+
 	IR* RET = new IR("return", new Token(FLOW, "ret"), {
 		{{}, 0xC3, OPCODE_ENCODING::ZO},
 	});
@@ -975,6 +991,8 @@ void x86_64::Init()
 		JG,
 		JGE,
 		JNG,
+		AND,
+		OR,
 		RET,
 		SET,
 		PUSH,

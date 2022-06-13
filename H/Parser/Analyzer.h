@@ -27,13 +27,15 @@ public:
 	void Analyze_Class(Node* c);
 
 	//Function tools
-	void Calling_Count_Incrementer(Node* f);
+	void Calling_Count_Incrementer(Node* f, vector<Node*>& Callin_Trace);
 	void Call_Algebra(Node* n);
 	void Analyze_Variable_Address_Pointing(Node* v, Node* n);
 	int Get_Amount(string t, Node* n);
 	void Define_Sizes(Node* p);
 
 	void Dependency_Injector(vector<Node*>& nodes);
+
+	void Give_Global_Scope_All_Used_Functions();
 };
 
 #endif

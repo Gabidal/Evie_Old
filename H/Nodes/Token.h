@@ -11,11 +11,13 @@ using namespace std;
 //memory(handle, operator(offsetter), num(12))
 class Token{
 public:
+
+	string Name = "";
+
 	long long Flags = 0;
 	int Life_Span = 0;
 	int Size = 0;
 	bool Has_Floating_Point_Value = false;
-	string Name = "";
 	vector<pair<Token*, int>> Resources;
 	vector<vector<pair<Token*, pair<int, int>>>> Combinations;
 
