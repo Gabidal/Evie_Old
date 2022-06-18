@@ -71,11 +71,6 @@ void IRGenerator::Parse_Function(Node* Func)
 		if (j->is("type") || j->Inherits_Template_Type())
 			return;	//skip template functions.
 
-	if (Func->Name == "_INIT_"){
-
-		int a = 0;
-
-	}
 
 	Node* Function_Scope = Scope;
 	if (Func->Fetcher != nullptr)

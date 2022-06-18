@@ -109,6 +109,12 @@ void Analyzer::Calling_Count_Incrementer(Node* f, vector<Node*>& Callin_Trace)
 	if (f->Is_Template_Object)
 		return;
 
+	if (f->Name == "Read"){
+
+		int a = 0;
+
+	}
+
 	//nevertheless we always want to increment the calling count 
 	//be it by the start list, or calld for.
 	f->Calling_Count++;

@@ -729,6 +729,14 @@ void PostProsessor::Increase_Calling_Number_For_Function_Address_Givers(Node* n)
 	if (!n->is(OBJECT_NODE))
 		return;
 
+	//If this object is same named as a function, but it is not a function address giver.
+	//This missconseption can be solved by checking if the definition of this object has 'func ptr'.
+	if (!n->is("func")){
+
+		return;
+
+	}
+
 	Node* f;
 	if (!n->Find(n->Name, n->Scope, FUNCTION_NODE)) {
 		if (!n->Find(n->Name, n->Scope, IMPORT)) {
