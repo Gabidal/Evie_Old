@@ -365,6 +365,9 @@ void x86_64::Init()
 			vector<Token*> Args;
 
 			if (args[1]->is(NUM)) {
+				if (args[1]->Size > 4){
+					args[1]->Size = 4;
+				}
 				Args = { args[0], args[0], args[1] };
 			}
 			else {
