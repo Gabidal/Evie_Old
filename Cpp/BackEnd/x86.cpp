@@ -3,6 +3,8 @@
 
 #include "../../H/Assembler/Assembler_Types.h"
 
+#include "../../H/UI/Safe.h"
+
 #include <string>
 
 using namespace std;
@@ -1062,6 +1064,13 @@ Byte_Map* x86_64::Build(IR* ir)
 		return Result;
 
 	}
+	else{
+		for (auto& i : Left->Get_All(TOKEN::NUM)){
+			Result->Immediate = atoi(i->Name.c_str());
+			break;
+		}
+	}
+	
 
 	Result->Rex.ID = REX_DEFAULT;
 
@@ -1076,8 +1085,19 @@ Byte_Map* x86_64::Build(IR* ir)
 	if (Right){
 		Result->Sib = Right->Get_SIB();
 		Result->Displacement = Result->Sib.Displacement;
+
+		if (Result->Immediate == 0){
+			for (auto& i : Right->Get_All(TOKEN::NUM)){
+				Result->Immediate = atoi(i->Name.c_str());
+				break;
+			}
+		}
+		else{
+
+			Report(Observation(ERROR, "Cannot have more than 1 number", *ir->Location ,ASSEMBLER_SYNTAX_ERROR));
+
+		}
 	}
-	
 
 	//Calculate the REX bits.
 	//A REX prefix must be encoded when:
@@ -1204,6 +1224,25 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 		Result += SIB;
 	}
 
+	else if (Input->Immediate != 0){
+
+		int Size = _SYSTEM_BIT_SIZE_;
+
+		if (!Input->Has_External_Label){
+			if (Input->Immediate < LONG_MAX){
+				Size = 4;
+				if (Input->Immediate < INT16_MAX){
+					Size = 2;
+					if (Input->Immediate < SHRT_MAX){
+						Size = 1;
+					}
+				}
+			}
+		}
+
+		Result.insert(Result.end(), (unsigned char*)&Input->Immediate, (unsigned char*)&Input->Immediate + Size);
+
+	}
 
 	//transform string Result into  vector<unsigned char>
 	vector<unsigned char> Result_Bytes;

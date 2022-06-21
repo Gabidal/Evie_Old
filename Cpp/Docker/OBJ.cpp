@@ -366,18 +366,33 @@ string PE::Symbol::Get_Name(vector<unsigned char>& String_Table){
 vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table){
 	vector<PE::Relocation> Result;
 
-	vector<string> Extern_Symbols;
+	map<string, int> Extern_Symbols;
 
 	//First extract all the extern symbols from the symbols list
+	int Index = 0;
 	for (auto i : Symbols){
 		if (i.Section_Number == 0){
-			Extern_Symbols.push_back(i.Get_Name(String_Table));
+			Extern_Symbols.insert({i.Get_Name(String_Table), Index});
 		}
+		Index++;
 	}
 
 	for (auto& section : Sections){
 
-		
+		for (auto& byte_map : section->Byte_Maps){
+
+			if (byte_map->Has_External_Label){
+
+				PE::Relocation relocation;
+				relocation.Virtual_Address = byte_map->Address;
+				relocation.Symbol_Table_Index = Extern_Symbols[byte_map->Label];
+				relocation.Type = _SYSTEM_BIT_SIZE_;
+
+				Result.push_back(relocation);
+
+			}
+
+		}
 
 	}
 

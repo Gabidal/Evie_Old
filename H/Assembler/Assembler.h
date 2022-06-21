@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 
+#include <unordered_set>
+
 using namespace std;
 
 //Transforms the input string into a vector of tokens
@@ -51,8 +53,10 @@ public:
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
     vector<class Byte_Map_Section*> Intermediate_Encoder(vector<class IR*>);
 
-    void Apply_Self_Recursion(vector<class Byte_Map_Section*> Sections);
-    void Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference);
+    void Apply_Self_Recursion(vector<class Byte_Map_Section*>& Sections);
+    void Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, class Byte_Map* Back_Reference);
+    void Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference, unordered_set<Token*>& Trace);
+    void Calculate_Constant_Expressions(Token* Current, unordered_set<Token*>& Trace);
     void Calculate_Constant_Expressions(Token* Current);
     
 

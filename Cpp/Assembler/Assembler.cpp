@@ -7,6 +7,8 @@
 
 #include "../../H/Assembler/Assembler_Types.h"
 
+#include "../../H/Nodes/IR.h"
+
 extern Selector* selector;
 
 Assembler::Assembler(string Input){
@@ -366,7 +368,7 @@ vector<IR*> Assembler::Parser(vector<Token*> Tokens){
 }
 
 //This function tries to find the mathing opcodes that are in the architecture files.
-vector<class IR*> Assembler::Parser_Post_Prosessor(vector<class IR*> IRs)
+vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
 {
     for (auto& i : IRs) {
 
@@ -416,7 +418,7 @@ vector<class IR*> Assembler::Parser_Post_Prosessor(vector<class IR*> IRs)
     return IRs;
 }
 
-vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
+vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
 {
     vector<Byte_Map_Section*> Result;
 
@@ -477,6 +479,8 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
         i = j - 1;
     }
 
+    Apply_Self_Recursion(Result);
+
     return Result;
 
 }
@@ -484,7 +488,7 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
 //This function uses the now address that are calculated to go back to the IR level and replace all the
 //labels with the correct address.
 //After this this function will use the modified IR to generate this Byte_Map again with the new information.
-void Assembler::Apply_Self_Recursion(vector<class Byte_Map_Section*> Sections){
+void Assembler::Apply_Self_Recursion(vector<Byte_Map_Section*>& Sections){
 
     for (auto& section : Sections){
         for (auto& byte_map : section->Byte_Maps){
@@ -503,13 +507,20 @@ void Assembler::Apply_Self_Recursion(vector<class Byte_Map_Section*> Sections){
 
 }
 
-void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference){
+void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference, unordered_set<Token*>& Trace){
+
+    if (Trace.find(Current) != Trace.end())
+        return;
+
+    Trace.insert(Trace.end(), Current);
 
     if (Current->is(TOKEN::LABEL)){
         pair<long long, int> symbol = Symbol_Table.find(Current->Name)->second;
 
         if (symbol.second == 0){
             //This is an external symbol witch address we dont know.
+            Back_Reference->Has_External_Label = true;
+
             return;
         }
 
@@ -523,22 +534,37 @@ void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Cu
     else{
         for (auto& Content : Current->Get_All()){
 
-            Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Content, Back_Reference);
+            Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Content, Back_Reference, Trace);
 
         }
 
     }
+}
+
+void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference){
+
+    unordered_set<Token*> tmp;
+
+    Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Current, Back_Reference, tmp);
 
 }
 
 //2 - 1 => 1
-void Assembler::Calculate_Constant_Expressions(Token* Current){
+void Assembler::Calculate_Constant_Expressions(Token* Current, unordered_set<Token*>& Trace){
+
+    if (Trace.find(Current) != Trace.end())
+        return;
+
+    Trace.insert(Trace.end(), Current);
 
     for (auto& Content : Current->Get_All({TOKEN::OFFSETTER, TOKEN::SCALER})){
 
-        Calculate_Constant_Expressions(Content);
+        Calculate_Constant_Expressions(Content, Trace);
 
     }
+
+    if (!Current->is({TOKEN::OFFSETTER, TOKEN::SCALER}))
+        return;
 
     if (Current->Left->is(TOKEN::NUM) && Current->Right->is(TOKEN::NUM)){
         if (Current->Name == "+"){
@@ -592,6 +618,14 @@ void Assembler::Calculate_Constant_Expressions(Token* Current){
                 Current->Right = nullptr;
         }
     }
+
+}
+
+void Assembler::Calculate_Constant_Expressions(Token* Current){
+
+    unordered_set<Token*> tmp;
+
+    Calculate_Constant_Expressions(Current, tmp);
 
 }
 

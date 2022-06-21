@@ -165,8 +165,11 @@ public:
     //for locations
     int Size = 0;
     long long Address = 0;
+    string Label = "";
 
-    IR* Ir = nullptr;
+    class IR* Ir = nullptr;
+
+    bool Has_External_Label = false;
 };
 
 class Byte_Map_Section{
