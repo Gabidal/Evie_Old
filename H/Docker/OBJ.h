@@ -9,11 +9,11 @@ using namespace std;
 
 class Byte_Map_Section;
 
-namespace OBJ {
+namespace PE {
 	class Header {
 	public:
 		unsigned short Machine = 0;
-		unsigned short Number_OF_Sections = 0;
+		unsigned short Number_Of_Sections = 0;
 		unsigned int Date_Time = 0;
 		unsigned int Pointer_To_Symbol_Table = 0;
 		unsigned int Number_Of_Symbols = 0;
@@ -107,8 +107,39 @@ namespace OBJ {
 		short Type = 0;
 		char Storage_Class = 0;
 		char Number_Of_Aux_Symbols = 0;
+
+		string Get_Name(vector<unsigned char>& String_Table);
 	};
 
+	class Raw_Section{
+	public:
+		string Name = "";
+		
+		vector<unsigned char> Data;
+
+	};
+
+	class PE_OBJ{
+	public:
+		Header Header;
+		vector<Section> Sections;
+		vector<Symbol> Symbols;
+		vector<string> String_Table;
+
+		vector<Raw_Section> Raw_Sections;
+
+		PE_OBJ(vector<unsigned char> File);
+
+	};
+
+	class Relocation{
+	public:
+		unsigned int Virtual_Address = 0;
+		unsigned int Symbol_Table_Index = 0;
+		unsigned short Type = 0;
+	};
+
+	vector<Relocation> Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table);
 
 	vector<Section> Gather_All_Sections(vector<char> buffer, int Section_Count);
 

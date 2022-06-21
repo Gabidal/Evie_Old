@@ -134,6 +134,31 @@ vector<Token*> Token::Get_All(long long F)
 	return Result;
 }
 
+vector<Token*> Token::Get_All()
+{
+	vector<Token*> Result;
+	for (auto i : Childs) {
+		vector<Token*> Tmp = i->Get_All();
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}	
+	for (auto i : Parameters) {
+		vector<Token*> Tmp = i->Get_All();
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}
+	if (Left) {
+		vector<Token*> Tmp = Left->Get_All();
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}
+	if (Right) {
+		vector<Token*> Tmp = Right->Get_All();
+		Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+	}
+
+	Result.push_back(this);
+
+	return Result;
+}
+
 unsigned char Token::Get_MODRM_Type()
 {
 	unsigned char Result = 0;

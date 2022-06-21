@@ -16,7 +16,7 @@ extern Usr* sys;
 
 extern Assembler* assembler;
 
-vector<OBJ::Section> OBJ::Gather_All_Sections(vector<char> buffer, int Section_Count)
+vector<PE::Section> PE::Gather_All_Sections(vector<char> buffer, int Section_Count)
 {
 	vector<Section> Result;
 	for (int i = sizeof(Header); i < Section_Count; i += sizeof(Section)) {
@@ -25,7 +25,7 @@ vector<OBJ::Section> OBJ::Gather_All_Sections(vector<char> buffer, int Section_C
 	return Result;
 }
 
-vector<string> OBJ::Get_Symbol_Table_Content(Header h, vector<char> buffer)
+vector<string> PE::Get_Symbol_Table_Content(Header h, vector<char> buffer)
 {
 	vector<string> Result;
 
@@ -51,7 +51,7 @@ vector<string> OBJ::Get_Symbol_Table_Content(Header h, vector<char> buffer)
 	return Result;
 }
 
-void OBJ::OBJ_Analyser(vector<string>& Output) {
+void PE::OBJ_Analyser(vector<string>& Output) {
 	//get the header and then start up the section suckup syste 2000 :D
 	//read the file
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(DOCKER::Working_Dir.back().second + DOCKER::FileName.back(), "");
@@ -63,12 +63,12 @@ void OBJ::OBJ_Analyser(vector<string>& Output) {
 	DOCKER::Append(Output, Get_Symbol_Table_Content(header, Buffer));
 }
 
-vector<unsigned char> OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
-	OBJ::Header header;
+vector<unsigned char> PE::Create_Obj(vector<Byte_Map_Section*> Input){
+	PE::Header header;
 	header.Machine = selector->OBJ_Machine_ID;
-	header.Number_OF_Sections = Input.size();
+	header.Number_Of_Sections = Input.size();
 	header.Date_Time = time_t(time(NULL));
-	header.Pointer_To_Symbol_Table = offsetof(OBJ::Header, Characteristics) + sizeof(Header::Characteristics) + sizeof(OBJ::Section) * Input.size();
+	header.Pointer_To_Symbol_Table = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(Header::Characteristics) + sizeof(PE::Section) * Input.size();
 
 	//calculate the exports and import functions from global scope
 	for (auto s : Global_Scope->Defined){
@@ -132,7 +132,7 @@ vector<unsigned char> OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 	// header.Loader_Flags = 0;
 	// header.Number_Of_Rva_And_Sizes = 0;
 
-	vector<OBJ::Symbol> Symbols = Generate_Symbol_Table();
+	vector<PE::Symbol> Symbols = Generate_Symbol_Table();
 
 	vector<string> Symbol_Names = Generate_Name_Section_For_Symbol_Table();
 
@@ -143,7 +143,7 @@ vector<unsigned char> OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 
 	}
 	
-	vector<OBJ::Section> Sections = Generate_Section_Table(Input, header.Pointer_To_Symbol_Table + sizeof(header.Pointer_To_Symbol_Table) + sizeof(OBJ::Symbol) * Symbols.size() + Symbol_Name_Size);
+	vector<PE::Section> Sections = Generate_Section_Table(Input, header.Pointer_To_Symbol_Table + sizeof(header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + Symbol_Name_Size);
 
 	//Now inline all the data into one humongus buffer
 	vector<unsigned char> Buffer;
@@ -154,11 +154,11 @@ vector<unsigned char> OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 
 	Buffer.insert(Buffer.end(), (unsigned char*)&header, Header_End_Address);
 
-	Buffer.insert(Buffer.end(), (unsigned char*)Sections.data(), (unsigned char*)Sections.data() + sizeof(OBJ::Section) * Input.size());
+	Buffer.insert(Buffer.end(), (unsigned char*)Sections.data(), (unsigned char*)Sections.data() + sizeof(PE::Section) * Input.size());
 
-	Buffer.insert(Buffer.end(), (unsigned char*)Symbols.data(), (unsigned char*)Symbols.data() + sizeof(OBJ::Symbol) * Symbols.size());
+	Buffer.insert(Buffer.end(), (unsigned char*)Symbols.data(), (unsigned char*)Symbols.data() + sizeof(PE::Symbol) * Symbols.size());
 
-	int s = sizeof(OBJ::Symbol);
+	int s = sizeof(PE::Symbol);
 
 	unsigned int String_Table_Size = 0;
 
@@ -173,6 +173,7 @@ vector<unsigned char> OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 	}
 	String_Table_Size = String_Table_Buffer.size() + sizeof(String_Table_Size);
 
+	vector<PE::Relocation> Relocations = Generate_Relocation_Table(Input, Symbols, String_Table_Buffer);
 
 	Buffer.insert(Buffer.end(), (unsigned char*)&String_Table_Size, (unsigned char*)&String_Table_Size + sizeof(String_Table_Size));
 
@@ -196,9 +197,85 @@ vector<unsigned char> OBJ::Create_Obj(vector<Byte_Map_Section*> Input){
 
 }
 
-vector<OBJ::Section> OBJ::Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo){
+//This function takes a files contant and disects it into a PE OBJ object
+PE::PE_OBJ::PE_OBJ(vector<unsigned char> File){
 
-	vector<OBJ::Section> Result;
+	bool File_Does_Not_Use_Optional_Header = false;
+
+	//First we need to check if the file is a valid PE file
+	if (File.size() < sizeof(PE::Header)){
+		//The OBJ headers could not have the optional header
+		if (File.size() < offsetof(PE::Header, PE::Header::Characteristics)){
+			//The file is too small to be a valid PE file
+			Report(Observation(ERROR, "File is too small to be a valid PE file", LINKER_INVALID_FILE));
+			return;
+		}
+		else{
+			//The file is a valid PE file without an optional header
+			File_Does_Not_Use_Optional_Header = true;
+		}
+	}
+
+	int Header_Size = sizeof(PE::Header);
+
+	//Now we can safely assume that the file is a valid PE file
+	if (File_Does_Not_Use_Optional_Header){
+		//Move the file start content to header with the size of the non optional header
+		Header_Size = offsetof(PE::Header, PE::Header::Characteristics);
+	}
+	
+	move(File.begin(), File.begin() + Header_Size, (unsigned char*)&this->Header);
+
+	//now that we have the header information we can extract the section table
+	for (int i = 0; i < this->Header.Number_Of_Sections; i++){
+		PE::Section Section;
+
+		move(File.begin() + Header_Size + sizeof(PE::Section) * i, File.begin() + Header_Size + sizeof(PE::Section) * (i + 1), (unsigned char*)&Section);
+
+		Sections.push_back(Section);
+	}
+
+	//Now we can extract the symbol table
+	for (int i = 0; i < this->Header.Number_Of_Symbols; i++){
+		PE::Symbol Symbol;
+
+		move(File.begin() + Header_Size + sizeof(PE::Section) * this->Header.Number_Of_Sections + sizeof(PE::Symbol) * i, File.begin() + Header_Size + sizeof(PE::Section) * this->Header.Number_Of_Sections + sizeof(PE::Symbol) * (i + 1), (unsigned char*)&Symbol);
+
+		Symbols.push_back(Symbol);
+	}
+
+	//Now we can extract the string table
+	unsigned int String_Table_Size = 0;
+
+	//For reading purposes
+	int Current_Offset = Header_Size + sizeof(PE::Section) * this->Header.Number_Of_Sections + sizeof(PE::Symbol) * this->Header.Number_Of_Symbols;
+	move(File.begin() + Current_Offset, File.begin() + Current_Offset + sizeof(String_Table_Size), (unsigned char*)&String_Table_Size);
+	Current_Offset += sizeof(String_Table_Size);
+
+
+	String_Table.resize(String_Table_Size);
+	move(File.begin() + Current_Offset, File.begin() + Current_Offset + String_Table_Size, String_Table.begin());
+
+
+	//Now we can extract the Sections
+	Current_Offset += String_Table_Size;
+
+	for (auto i : Sections){
+		vector<unsigned char> Section_Data;
+		Section_Data.resize(i.Size_Of_Raw_Data);
+
+		move(File.begin() + i.Pointer_To_Raw_Data, File.begin() + i.Pointer_To_Raw_Data + i.Size_Of_Raw_Data, Section_Data.begin());
+
+		Raw_Section section;
+		section.Name = i.Name;
+		section.Data = Section_Data;
+	}
+
+}
+
+vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo){
+
+	vector<PE::Section> Result;
 
 	for (auto i : Input){
 		Section tmp;
@@ -226,22 +303,22 @@ vector<OBJ::Section> OBJ::Generate_Section_Table(vector<Byte_Map_Section*> Input
 
 }
 
-vector<OBJ::Symbol> OBJ::Generate_Symbol_Table(){
+vector<PE::Symbol> PE::Generate_Symbol_Table(){
 
-	vector<OBJ::Symbol> Result;
+	vector<PE::Symbol> Result;
 
 	//Skip the String_Table_Size identifier
 
 	long long Current_Symbol_Offset = sizeof(unsigned int);
 	for (auto i : assembler->Symbol_Table){
 
-		OBJ::Symbol Current;
+		PE::Symbol Current;
 
 		//Generate the offset for the name redies in, transform it to text
 		Current.Full_Name = Current_Symbol_Offset << 32;
 
-		Current.Value = i.second;
-		Current.Section_Number = 0;
+		Current.Value = i.second.first;
+		Current.Section_Number = i.second.second;
 		Current.Type = 0;
 		Current.Storage_Class = _IMAGE_SYM_CLASS_LABEL;
 		Current.Number_Of_Aux_Symbols = 0;
@@ -257,7 +334,7 @@ vector<OBJ::Symbol> OBJ::Generate_Symbol_Table(){
 
 }
 
-vector<string> OBJ::Generate_Name_Section_For_Symbol_Table(){
+vector<string> PE::Generate_Name_Section_For_Symbol_Table(){
 	
 	vector<string> Result;
 
@@ -267,4 +344,42 @@ vector<string> OBJ::Generate_Name_Section_For_Symbol_Table(){
 
 	return Result;
 
+}
+
+string PE::Symbol::Get_Name(vector<unsigned char>& String_Table){
+	string Result = "";
+
+	for (int i = Full_Name; i < String_Table.size(); i++){
+
+		if (String_Table[i] == 0){
+			break;
+		}
+		else{
+			Result += String_Table[i];
+		}
+
+	}
+
+	return Result;
+}
+
+vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table){
+	vector<PE::Relocation> Result;
+
+	vector<string> Extern_Symbols;
+
+	//First extract all the extern symbols from the symbols list
+	for (auto i : Symbols){
+		if (i.Section_Number == 0){
+			Extern_Symbols.push_back(i.Get_Name(String_Table));
+		}
+	}
+
+	for (auto& section : Sections){
+
+		
+
+	}
+
+	return Result;
 }

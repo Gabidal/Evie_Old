@@ -8,9 +8,8 @@ using namespace std;
 
 class Linker{
     public:
-    string Output;
 
-    Linker(vector<class Byte_Map_Section*> Input);
+    vector<unsigned char> Link_PE_Object(vector<unsigned char> Input);
 
 };
 

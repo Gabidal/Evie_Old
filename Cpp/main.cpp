@@ -134,9 +134,9 @@ int Build(int argc, const char* argv[])
     DOCKER::Add_Translator(Location::Header, "!<arch>", LIB::LIB_Analyzer);
     DOCKER::Add_Translator(Location::Header, "#analyze", ASM::ASM_Analyzer);
     DOCKER::Add_Translator(Location::Header, "https", HTTPS::HTTPS_Analyser);
-    DOCKER::Add_Translator(Location::Header, "L\x1", OBJ::OBJ_Analyser);
-    DOCKER::Add_Translator(Location::Header, "\x64\x86", OBJ::OBJ_Analyser);
-    DOCKER::Add_Translator(Location::Header, "\x32\x86", OBJ::OBJ_Analyser);
+    DOCKER::Add_Translator(Location::Header, "L\x1", PE::OBJ_Analyser);
+    DOCKER::Add_Translator(Location::Header, "\x64\x86", PE::OBJ_Analyser);
+    DOCKER::Add_Translator(Location::Header, "\x32\x86", PE::OBJ_Analyser);
     DOCKER::Add_Translator(Location::Header, "\x4D\x5A", DLL::DLL_Analyser);
 
     DOCKER::Add_Translator(Location::File_Name, "asm", ASM::ASM_Analyzer);

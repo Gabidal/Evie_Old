@@ -29,7 +29,8 @@ public:
 };
 
 inline vector<Alias> ALIASES = {
-    {"global", { "extern", "global", "globl" }},
+    {"extern", {"extern"}},
+    {"global", { "global", "globl" }},
     {"section", { "section", "segment" }},
     {"text", { "code", "text", ".text" }},
     {"data", { "data", ".data" }},
@@ -164,6 +165,8 @@ public:
     //for locations
     int Size = 0;
     long long Address = 0;
+
+    IR* Ir = nullptr;
 };
 
 class Byte_Map_Section{

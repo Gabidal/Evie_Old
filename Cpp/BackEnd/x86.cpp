@@ -1048,6 +1048,8 @@ Byte_Map* x86_64::Build(IR* ir)
 {
 	Byte_Map* Result = new Byte_Map();
 
+	Result->Ir = ir;
+
 	Result->Opcode = ir->Order[0].ID;	
 	
 	Token* Left = ir->Arguments.size() > 0 ? ir->Arguments[0] : nullptr;
@@ -1075,6 +1077,7 @@ Byte_Map* x86_64::Build(IR* ir)
 		Result->Sib = Right->Get_SIB();
 		Result->Displacement = Result->Sib.Displacement;
 	}
+	
 
 	//Calculate the REX bits.
 	//A REX prefix must be encoded when:
@@ -1145,7 +1148,7 @@ Byte_Map* x86_64::Build(IR* ir)
 	
 }
 
- vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
+vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 {
 	 string Result = "";
 

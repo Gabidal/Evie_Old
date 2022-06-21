@@ -38,7 +38,7 @@ Producer::Producer(vector<IR*> IRs){
 
         if (sys->Info.Format == "obj"){
 
-            vector<unsigned char> Buffer = OBJ::Create_Obj(assembler->Output);
+            vector<unsigned char> Buffer = PE::Create_Obj(assembler->Output);
 
             ofstream o(sys->Info.Destination_File.c_str());
 

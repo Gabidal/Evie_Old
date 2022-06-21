@@ -452,7 +452,12 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
 
                 if (IRs[j]->is(TOKEN::LABEL)){
                     //If the IRs[i] is a label we need to add it to the symbol table.
-                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address + Section->Calculated_Size);
+                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address + Section->Calculated_Size, Result.size() + 1);
+                }
+                else if (IRs[j]->OPCODE->Name == "extern"){
+                    
+                    Generate_Symbol_Table_For(IRs[j]->Arguments[0]->Name, 0, 0);
+
                 }
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);
@@ -476,12 +481,120 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<class IR*> IRs)
 
 }
 
-void Assembler::Generate_Symbol_Table_For(string Label, long long Address){
-    Symbol_Table.insert({Label, Address});
+//This function uses the now address that are calculated to go back to the IR level and replace all the
+//labels with the correct address.
+//After this this function will use the modified IR to generate this Byte_Map again with the new information.
+void Assembler::Apply_Self_Recursion(vector<class Byte_Map_Section*> Sections){
+
+    for (auto& section : Sections){
+        for (auto& byte_map : section->Byte_Maps){
+
+            for (auto& T : byte_map->Ir->Arguments){
+
+                Go_Through_Token_And_Replace_Local_Labels_With_Numbers(T, byte_map);
+                Calculate_Constant_Expressions(T);
+
+            }
+
+            //Now apply the new modifications and build new byte map from it.
+            *byte_map = *selector->Build(byte_map->Ir);
+        }
+    }
+
 }
 
-void Assembler::Replace_Symbol_With_Address(IR& ir){
-    for (auto& i : ir.Get_All(TOKEN::LABEL)) {
-        i->Name = to_string(Symbol_Table.at(i->Name));
+void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference){
+
+    if (Current->is(TOKEN::LABEL)){
+        pair<long long, int> symbol = Symbol_Table.find(Current->Name)->second;
+
+        if (symbol.second == 0){
+            //This is an external symbol witch address we dont know.
+            return;
+        }
+
+        Current->Flags = TOKEN::NUM;
+        Current->Size = _SYSTEM_BIT_SIZE_;
+
+        //Calculate the distance between this label reference and the definition declaration address.
+        Current->Name = symbol.first - Back_Reference->Address;
+
     }
+    else{
+        for (auto& Content : Current->Get_All()){
+
+            Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Content, Back_Reference);
+
+        }
+
+    }
+
+}
+
+//2 - 1 => 1
+void Assembler::Calculate_Constant_Expressions(Token* Current){
+
+    for (auto& Content : Current->Get_All({TOKEN::OFFSETTER, TOKEN::SCALER})){
+
+        Calculate_Constant_Expressions(Content);
+
+    }
+
+    if (Current->Left->is(TOKEN::NUM) && Current->Right->is(TOKEN::NUM)){
+        if (Current->Name == "+"){
+                long long New_Val = atoi(Current->Left->Name.c_str()) + atoi(Current->Right->Name.c_str());
+
+                Current->Name = to_string(New_Val);
+                Current->Flags = TOKEN::NUM;
+                Current->Size = Current->Left->Size;
+
+                Current->Left = nullptr;
+                Current->Right = nullptr;
+        }
+        else if (Current->Name == "-"){
+                long long New_Val = atoi(Current->Left->Name.c_str()) - atoi(Current->Right->Name.c_str());
+
+                Current->Name = to_string(New_Val);
+                Current->Flags = TOKEN::NUM;
+                Current->Size = Current->Left->Size;
+
+                Current->Left = nullptr;
+                Current->Right = nullptr;
+        }
+        else if (Current->Name == "*"){
+                long long New_Val = atoi(Current->Left->Name.c_str()) * atoi(Current->Right->Name.c_str());
+
+                Current->Name = to_string(New_Val);
+                Current->Flags = TOKEN::NUM;
+                Current->Size = Current->Left->Size;
+
+                Current->Left = nullptr;
+                Current->Right = nullptr;
+        }
+        else if (Current->Name == "/"){
+                long long New_Val = atoi(Current->Left->Name.c_str()) / atoi(Current->Right->Name.c_str());
+
+                Current->Name = to_string(New_Val);
+                Current->Flags = TOKEN::NUM;
+                Current->Size = Current->Left->Size;
+
+                Current->Left = nullptr;
+                Current->Right = nullptr;
+        }
+        else if (Current->Name == "%"){
+                long long New_Val = atoi(Current->Left->Name.c_str()) % atoi(Current->Right->Name.c_str());
+
+                Current->Name = to_string(New_Val);
+                Current->Flags = TOKEN::NUM;
+                Current->Size = Current->Left->Size;
+
+                Current->Left = nullptr;
+                Current->Right = nullptr;
+        }
+    }
+
+}
+
+void Assembler::Generate_Symbol_Table_For(string Label, long long Address, int Section_ID){
+    Symbol_Table.insert({Label, {Address, Section_ID}});
 }
