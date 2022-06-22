@@ -26,8 +26,9 @@ public:
 	void Generate(vector<Node*> in, bool set_insert_mode) { Handle = nullptr; Input = in; Is_In_Left_Side_Of_Operator = set_insert_mode; Factory(); }
 
 	void Factory();
+
+	void Parse_Classes(Node* Class);
 	void Parse_Function(Node* Func);
-	void Parse_Member_Functions(Node* Class);
 	void Parse_Calls(int i);
 	void Parse_If(int i);
 	void Loop_Elses(Node* e);

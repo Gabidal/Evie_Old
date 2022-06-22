@@ -25,7 +25,7 @@ void IRGenerator::Factory()
 		for (auto i : All_Defined)
 			Parse_Function(i);
 		for (auto i : All_Defined)
-			Parse_Member_Functions(i);
+			Parse_Classes(i);
 	}
 
 	for (int i = 0; i < Input.size(); i++) {
@@ -57,6 +57,17 @@ void IRGenerator::Factory()
 	}
 }
 
+void IRGenerator::Parse_Classes(Node* Class){
+	if (!Class->is(CLASS_NODE))
+		return;
+	if (Class->Is_Template_Object)
+		return;
+	
+
+	IRGenerator(Class, {}, Output);
+
+}
+
 void IRGenerator::Parse_Function(Node* Func)
 {
 	if (Func->is(IMPORT)) {
@@ -67,10 +78,13 @@ void IRGenerator::Parse_Function(Node* Func)
 		return;
 	if (Func->Is_Template_Object)
 		return;
+	if (Func->is(PARSED_BY::IRGENERATOR))
+		return;
 	for (auto j : Func->Parameters)
 		if (j->is("type") || j->Inherits_Template_Type())
 			return;	//skip template functions.
 
+	Func->Parsed_By |= PARSED_BY::IRGENERATOR;
 
 	Node* Function_Scope = Scope;
 	if (Func->Fetcher != nullptr)
@@ -107,6 +121,12 @@ void IRGenerator::Parse_Function(Node* Func)
 		}
 	}
 
+	if (Func->Name == "____Add_int_"){
+
+		int a = 0;
+
+	}
+
 	//go through the childs of the function
 	IRGenerator g(Func, Func->Childs, Output);
 
@@ -117,24 +137,6 @@ void IRGenerator::Parse_Function(Node* Func)
 
 	//make the end of funciton like End Proc like label
 	Output->push_back(new IR(new Token(TOKEN::END_OF_FUNCTION, MANGLER::Mangle(Func, "")), {}, nullptr));
-}
-
-void IRGenerator::Parse_Member_Functions(Node* Class)
-{
-	if (!Class->is(CLASS_NODE))
-		return;
-	if (Class->Templates.size() > 0)
-		return;
-
-	for (auto i : Class->Defined) {
-		if (i->is(FUNCTION_NODE))
-			if (i->Fetcher == nullptr) {	//if this function has a fetcher then it is defined in global scope.
-				IRGenerator g(Class, Output);
-				g.Parse_Function(i);
-			}
-		else if (i->is(CLASS_NODE))
-			Parse_Member_Functions(i);
-	}
 }
 
 void IRGenerator::Parse_Calls(int i)
@@ -602,10 +604,6 @@ void IRGenerator::Parse_Operators(int i)
 		Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 		return;
 	}
-	//If this operator is handling with pointters we cant use general operator handles
-	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
-	if (Level_Difference != 0)
-		return;
 
 	Token* Left = nullptr;
 	Token* Right = nullptr;
@@ -614,6 +612,11 @@ void IRGenerator::Parse_Operators(int i)
 
 	vector<IR*> tmp;
 	IRGenerator g2(Scope, { Input[i]->Right }, &tmp);
+
+	//If this operator is handling with pointters we cant use general operator handles
+	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
+	if (Level_Difference != 0)
+		return;
 
 	//if (Input[i]->Generated)
 	//	return;
