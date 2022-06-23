@@ -121,12 +121,6 @@ void IRGenerator::Parse_Function(Node* Func)
 		}
 	}
 
-	if (Func->Name == "____Add_int_"){
-
-		int a = 0;
-
-	}
-
 	//go through the childs of the function
 	IRGenerator g(Func, Func->Childs, Output);
 
@@ -1361,13 +1355,32 @@ void IRGenerator::Generate_Global_Variable(string Variable_Name, Node* value)
 {
 	Output->push_back(Make_Label(Variable_Name));
 
-	Token* Value = new Token(TOKEN::LABEL, value->Get_Definition_Type()->Size);
+	long long Flag = 0;
+	string Init_Type = "init";
+
+	if (value->is(NUMBER_NODE)){
+
+		Flag = TOKEN::NUM;
+
+	}
+	else if (value->is(STRING_NODE)){
+
+		Flag = TOKEN::STRING;
+		Init_Type = "ascii";
+
+
+	}
+	else{
+
+		Flag = TOKEN::LABEL;
+
+	}
+
+	Token* Value = new Token(Flag, value->Get_Definition_Type()->Size);
 	Value->Set_Name(Construct_Complex_Init_Values(value));
 
-	string Init_Type = "init";
-	if (Value->is(TOKEN::STRING))
-		Init_Type = "ascii";
 	Output->push_back(new IR(new Token(TOKEN::SET_DATA, Init_Type), { Value }, nullptr));
+	
 	if (Value->is(TOKEN::STRING))
 		Output->push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1) }, nullptr));
 }

@@ -423,7 +423,13 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
     vector<Byte_Map_Section*> Result;
 
     for (int i = 0; i < IRs.size(); i++) {
-        if (!IRs[i]->is(TOKEN::SECTION))
+        if (IRs[i]->OPCODE->Name == "extern"){
+
+            Generate_Symbol_Table_For(IRs[i]->Arguments[0]->Name, 0, 0);
+            continue;
+
+        }
+        else if (!IRs[i]->is(TOKEN::SECTION))
             continue;
 
         Byte_Map_Section* Section = new Byte_Map_Section(IRs[i]->Arguments[0]->Name);
@@ -455,11 +461,6 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
                 if (IRs[j]->is(TOKEN::LABEL)){
                     //If the IRs[i] is a label we need to add it to the symbol table.
                     Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address + Section->Calculated_Size, Result.size() + 1);
-                }
-                else if (IRs[j]->OPCODE->Name == "extern"){
-                    
-                    Generate_Symbol_Table_For(IRs[j]->Arguments[0]->Name, 0, 0);
-
                 }
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);
