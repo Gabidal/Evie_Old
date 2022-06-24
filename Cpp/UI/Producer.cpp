@@ -34,16 +34,34 @@ Producer::Producer(vector<IR*> IRs){
         o.close();
     }
     else{
+
+        vector<PE::PE_OBJ*> Objects;
+
+        for (auto& i : sys->Info.Source_Files){
+
+            Assembler a(i);
+
+            Objects.push_back(new PE::PE_OBJ(a.Output));
+        }
+
         assembler = new Assembler(IRs);
+
+        Objects.push_back(new PE::PE_OBJ(assembler->Output));
+
+        PE::PE_OBJ* obj = PE::Cluster_PE_Objects(Objects);
 
         if (sys->Info.Format == "obj"){
 
-            vector<unsigned char> Buffer = PE::Create_Obj(assembler->Output);
+            vector<unsigned char> Buffer = PE::Write_Obj(*obj);
 
             ofstream o(sys->Info.Destination_File.c_str());
 
             o.write((char*)Buffer.data(), Buffer.size());
             o.close();
+        }
+        else if (sys->Info.Format == "exe"){
+
+
 
         }
     }

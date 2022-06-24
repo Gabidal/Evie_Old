@@ -4,12 +4,16 @@
 #include <vector>
 #include <string>
 
+namespace PE{
+    class PE_OBJ;
+};
+
 using namespace std;
 
 class Linker{
     public:
 
-    vector<unsigned char> Link_PE_Object(vector<unsigned char> Input);
+    void Resolve_Relocations(PE::PE_OBJ* obj);
 
 };
 

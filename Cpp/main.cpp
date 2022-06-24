@@ -45,6 +45,16 @@ int _SYSTEM_BIT_SIZE_ = 4;
 
 string Output = "";
 
+class A{
+    public:
+    int a;
+};
+
+class B : public A{
+    public:
+    int b = 0;
+};
+
 extern string VT_API;
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -d
 //Evie.exe -in ~/test.e
@@ -201,6 +211,7 @@ int Build(int argc, const char* argv[])
 }
 
 #ifndef Test
+
 //Evie.exe -in ~/test.e -out ~/test.asm -f exe -os win32 -arch x86 -mode 32 -debug dwarf2
 //Evie.exe -in ~/test.e
 int main(int argc, const char* argv[])
@@ -208,4 +219,5 @@ int main(int argc, const char* argv[])
     Build(argc, argv);
     return 0;
 }
+
 #endif

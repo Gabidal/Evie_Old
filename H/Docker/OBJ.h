@@ -119,24 +119,31 @@ namespace PE {
 
 	};
 
+	class Relocation{
+	public:
+		unsigned int Virtual_Address = 0;
+		unsigned int Symbol_Table_Index = 0;
+		unsigned short Type = 0;
+	};
+
 	class PE_OBJ{
 	public:
 		Header Header;
 		vector<Section> Sections;
 		vector<Symbol> Symbols;
 		vector<string> String_Table;
-
+		vector<unsigned char> String_Table_Buffer;
+		unsigned long long String_Table_Size = 0;
+		vector<Relocation> Relocations;
 		vector<Raw_Section> Raw_Sections;
+
+		vector<Byte_Map_Section*> Content;
+
+		PE_OBJ(){}
 
 		PE_OBJ(vector<unsigned char> File);
 
-	};
-
-	class Relocation{
-	public:
-		unsigned int Virtual_Address = 0;
-		unsigned int Symbol_Table_Index = 0;
-		unsigned short Type = 0;
+		PE_OBJ(vector<Byte_Map_Section*> Sections);
 	};
 
 	vector<Relocation> Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table);
@@ -147,7 +154,9 @@ namespace PE {
 
 	void OBJ_Analyser(vector<string>& Output);
 
-	vector<unsigned char> Create_Obj(vector<Byte_Map_Section*> Input);
+	vector<unsigned char> Write_Obj(PE_OBJ& Input);
+
+	PE::PE_OBJ* Cluster_PE_Objects(vector<PE::PE_OBJ*> Input);
 
 	vector<Section> Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo);
 

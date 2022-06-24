@@ -7,17 +7,8 @@
 
 extern Selector* selector;
 
-//This file takes list of files and theyre contents and links them together
-vector<unsigned char> Link_PE_Object(vector<vector<unsigned char>> Input){
-    vector<unsigned char> Result;
-
-    vector<PE::PE_OBJ> Objects;
-
-    for (auto& i : Input){
-        Objects.push_back(PE::PE_OBJ(i));
-    }
+void Linker::Resolve_Relocations(PE::PE_OBJ* obj){
 
     
-    
-    return Result;
+
 }

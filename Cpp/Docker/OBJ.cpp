@@ -63,76 +63,23 @@ void PE::OBJ_Analyser(vector<string>& Output) {
 	DOCKER::Append(Output, Get_Symbol_Table_Content(header, Buffer));
 }
 
-vector<unsigned char> PE::Create_Obj(vector<Byte_Map_Section*> Input){
-	PE::Header header;
-	header.Machine = selector->OBJ_Machine_ID;
-	header.Number_Of_Sections = Input.size();
-	header.Date_Time = time_t(time(NULL));
-	header.Pointer_To_Symbol_Table = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(Header::Characteristics) + sizeof(PE::Section) * Input.size();
+PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
+	this->Header.Machine = selector->OBJ_Machine_ID;
+	this->Header.Number_Of_Sections = Sections.size();
+	this->Header.Date_Time = time_t(time(NULL));
+	this->Header.Pointer_To_Symbol_Table = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(Header::Characteristics) + sizeof(PE::Section) * Sections.size();
 
 	//calculate the exports and import functions from global scope
 	for (auto s : Global_Scope->Defined){
 		if (s->Has(vector<string>{"export", "import"}) > 0){
-			header.Number_Of_Symbols++;
+			this->Header.Number_Of_Symbols++;
 		}
 	}
 
-	header.Size_Of_Optional_Header = 0;
-	header.Characteristics = _IMAGE_FILE_LARGE_ADDRESS_AWARE;
+	this->Header.Size_Of_Optional_Header = 0;
+	this->Header.Characteristics = _IMAGE_FILE_LARGE_ADDRESS_AWARE;
 
-	// header.Magic = _MAGIC_PE32_PlUS;
-	// header.Linker_Version = 0x0000;
-	// for (auto i : Input){
-	// 	header.Size_Of_Code += i->Calculated_Size;
-	// }
-	// for (auto i : Input){
-	// 	if (i->Is_Data_Section)
-	// 		header.Size_Of_Initialized_Data += i->Calculated_Size;
-	// }
-	// header.Size_Of_Uninitialized_Data = 0;
-	// if (sys->Info.Format == "lib"){
-	// 	header.Address_Of_Entry_Point = 0;
-	// }
-	// else{
-	// 	string Unmangled_Starting_Function_Name = sys->Info.Start_Function_Name;
-	// 	Node* Function = Global_Scope->Find(Unmangled_Starting_Function_Name, Global_Scope, FUNCTION_NODE);
-	// 	if (Function == nullptr){
-	// 		Report(Observation(ERROR, "Function " + Unmangled_Starting_Function_Name + " not found in the global scope", LINKER_MISSING_STARTING_FUNCTION));
-	// 		return vector<unsigned char>();
-	// 	}
-	// 	string Mangled_Starting_Function_Name = Function->Mangled_Name;
-	// 	header.Address_Of_Entry_Point = assembler->Symbol_Table.at(Mangled_Starting_Function_Name);
-	// }
-	// header.Base_Of_Code = Input.size() * sizeof(Section) + header.Number_Of_Symbols * sizeof(Symbol) + sizeof(Header);
-	// header.Base_Of_Data = header.Base_Of_Code + header.Size_Of_Code;
-	// if (sys->Info.OS == "win"){ 
-	// 	if (sys->Info.Format == "exe"){
-	// 		header.Image_Base = _WINDOWS_PE_EXE_BASE_IMAGE;
-	// 	}
-	// 	else if (sys->Info.Format == "dll"){
-	// 		header.Image_Base = _WINDOWS_PE_DLL_BASE_IMAGE;
-	// 	}
-	// }
-	// header.Section_Alignment = _FILE_ALIGNMENT;
-	// header.File_Alignment = _FILE_ALIGNMENT;
-	// header.Operating_System_Version = 0x0006;
-	// header.Image_Version = 0;
-	// header.Subsystem_Version = 0;
-	// header.Win32_Version_Value = 0;
-	// header.Size_Of_Image = header.Size_Of_Code + header.Size_Of_Initialized_Data + header.Size_Of_Uninitialized_Data + sizeof(Section) * Input.size() + header.Number_Of_Symbols * sizeof(Symbol) + sizeof(Header);
-	// header.Size_Of_Headers = sizeof(Header) + sizeof(Section) * Input.size() + header.Number_Of_Symbols * sizeof(Symbol);
-	// header.Check_Sum = 0;
-	// header.Subsystem = 0;
-	// header.Dll_Characteristics = 0;
-	// header.Size_Of_Stack_Reserve = 0x100000;
-	// header.Size_Of_Stack_Commit = 0x1000;
-	// //Allocate for one bucket + bucket buffer for the Evie allocator.
-	// header.Size_Of_Heap_Reserve = _BUCKET_SIZE;
-	// header.Size_Of_Heap_Commit = _ALLOCATOR_BUCKET_COUNT + _BUCKET_SIZE;
-	// header.Loader_Flags = 0;
-	// header.Number_Of_Rva_And_Sizes = 0;
-
-	vector<PE::Symbol> Symbols = Generate_Symbol_Table();
+	this->Symbols = Generate_Symbol_Table();
 
 	vector<string> Symbol_Names = Generate_Name_Section_For_Symbol_Table();
 
@@ -143,20 +90,11 @@ vector<unsigned char> PE::Create_Obj(vector<Byte_Map_Section*> Input){
 
 	}
 	
-	vector<PE::Section> Sections = Generate_Section_Table(Input, header.Pointer_To_Symbol_Table + sizeof(header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + Symbol_Name_Size);
-
-	//Now inline all the data into one humongus buffer
-	vector<unsigned char> Buffer;
+	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + Symbol_Name_Size);
 
 	//Remove the optional headers from the buffer
-	unsigned char* Header_Start_Address = (unsigned char*)&header;
-	unsigned char* Header_End_Address = (unsigned char*)&header.Characteristics + sizeof(header.Characteristics);
-
-	Buffer.insert(Buffer.end(), (unsigned char*)&header, Header_End_Address);
-
-	Buffer.insert(Buffer.end(), (unsigned char*)Sections.data(), (unsigned char*)Sections.data() + sizeof(PE::Section) * Input.size());
-
-	Buffer.insert(Buffer.end(), (unsigned char*)Symbols.data(), (unsigned char*)Symbols.data() + sizeof(PE::Symbol) * Symbols.size());
+	unsigned char* Header_Start_Address = (unsigned char*)&this->Header;
+	unsigned char* Header_End_Address = (unsigned char*)&this->Header.Characteristics + sizeof(this->Header.Characteristics);
 
 	int s = sizeof(PE::Symbol);
 
@@ -172,14 +110,29 @@ vector<unsigned char> PE::Create_Obj(vector<Byte_Map_Section*> Input){
 
 	}
 	String_Table_Size = String_Table_Buffer.size() + sizeof(String_Table_Size);
+	this->String_Table_Buffer = String_Table_Buffer; 
 
-	vector<PE::Relocation> Relocations = Generate_Relocation_Table(Input, Symbols, String_Table_Buffer);
+	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer);
+}
 
-	Buffer.insert(Buffer.end(), (unsigned char*)&String_Table_Size, (unsigned char*)&String_Table_Size + sizeof(String_Table_Size));
+vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
+	vector<unsigned char> Buffer;
 
-	Buffer.insert(Buffer.end(), String_Table_Buffer.begin(), String_Table_Buffer.end());
+	//Remove the optional headers from the buffer
+	unsigned char* Header_Start_Address = (unsigned char*)&obj.Header;
+	unsigned char* Header_End_Address = (unsigned char*)&obj.Header.Characteristics + sizeof(obj.Header.Characteristics);
 
-	for (auto i : Input){
+	Buffer.insert(Buffer.end(), (unsigned char*)&obj.Header, Header_End_Address);
+
+	Buffer.insert(Buffer.end(), (unsigned char*)obj.Sections.data(), (unsigned char*)obj.Sections.data() + sizeof(PE::Section) * obj.Sections.size());
+
+	Buffer.insert(Buffer.end(), (unsigned char*)obj.Symbols.data(), (unsigned char*)obj.Symbols.data() + sizeof(PE::Symbol) * obj.Symbols.size());
+
+	Buffer.insert(Buffer.end(), (unsigned char*)&obj.String_Table_Size, (unsigned char*)&obj.String_Table_Size + sizeof(obj.String_Table_Size));
+
+	Buffer.insert(Buffer.end(), obj.String_Table_Buffer.begin(), obj.String_Table_Buffer.end());
+
+	for (auto i : obj.Content){
 
 		for (auto& j : i->Byte_Maps){
 
@@ -189,12 +142,36 @@ vector<unsigned char> PE::Create_Obj(vector<Byte_Map_Section*> Input){
 
 		}
 
-
 	}
 
 	//transform the 
 	return Buffer;
 
+}
+
+PE::PE_OBJ* PE::Cluster_PE_Objects(vector<PE::PE_OBJ*> Input){
+	//Combine the content sections
+	unsigned long long Current_Offset = 0;
+	for (auto& Current_Section : Input[0]->Content){
+
+		//Give the starting address of this section
+		Current_Offset += Current_Section->Calculated_Address;
+		Current_Section->Calculated_Address = Current_Offset;
+
+
+		for (int i = 1; i < Input.size(); i++){
+			for (auto& j : Input[i]->Content){
+				if (j->Name == Current_Section->Name){
+					Current_Section->Byte_Maps.insert(Current_Section->Byte_Maps.end(), j->Byte_Maps.begin(), j->Byte_Maps.end());
+					Current_Section->Calculated_Size += j->Calculated_Size;
+				}
+			}
+		}
+	}
+
+	PE_OBJ* Result = new PE_OBJ(Input[0]->Content);
+
+	return Result;
 }
 
 //This function takes a files contant and disects it into a PE OBJ object
