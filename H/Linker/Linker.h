@@ -4,16 +4,17 @@
 #include <vector>
 #include <string>
 
-namespace PE{
-    class PE_OBJ;
-};
+#include "../Assembler/Assembler_Types.h"
+#include "../Docker/OBJ.h"
 
 using namespace std;
 
 class Linker{
     public:
 
-    void Resolve_Relocations(PE::PE_OBJ* obj);
+    static void En_Large_PE_Header(PE::PE_OBJ* obj);
+
+    static vector<unsigned char> Write_PE_Executable(PE::PE_OBJ* obj);
 
 };
 

@@ -52,6 +52,7 @@ void Analyzer::Detect_Abnormal_Start_Address()
 		//Insert the global variable initializations to Main
 		Main->Childs.insert(Main->Childs.begin(), Initializers.begin(), Initializers.end());
 
+		sys->Info.Starting_Address = Main;
 	}
 	else {
 		//create a new initialization function for the global variables.
@@ -74,6 +75,8 @@ void Analyzer::Detect_Abnormal_Start_Address()
 
 		Dependency_Injector(Func->Childs);
 
+
+		sys->Info.Starting_Address = Func;
 	}
 
 	//now that the global variables are transferred to the right functions, 

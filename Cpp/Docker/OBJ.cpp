@@ -151,19 +151,21 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 PE::PE_OBJ* PE::Cluster_PE_Objects(vector<PE::PE_OBJ*> Input){
 	//Combine the content sections
-	unsigned long long Current_Offset = 0;
-	for (auto& Current_Section : Input[0]->Content){
+	if (Input.size() > 1){
+		unsigned long long Current_Offset = 0;
+		for (auto& Current_Section : Input[0]->Content){
 
-		//Give the starting address of this section
-		Current_Offset += Current_Section->Calculated_Address;
-		Current_Section->Calculated_Address = Current_Offset;
+			//Give the starting address of this section
+			Current_Offset += Current_Section->Calculated_Address;
+			Current_Section->Calculated_Address = Current_Offset;
 
 
-		for (int i = 1; i < Input.size(); i++){
-			for (auto& j : Input[i]->Content){
-				if (j->Name == Current_Section->Name){
-					Current_Section->Byte_Maps.insert(Current_Section->Byte_Maps.end(), j->Byte_Maps.begin(), j->Byte_Maps.end());
-					Current_Section->Calculated_Size += j->Calculated_Size;
+			for (int i = 1; i < Input.size(); i++){
+				for (auto& j : Input[i]->Content){
+					if (j->Name == Current_Section->Name){
+						Current_Section->Byte_Maps.insert(Current_Section->Byte_Maps.end(), j->Byte_Maps.begin(), j->Byte_Maps.end());
+						Current_Section->Calculated_Size += j->Calculated_Size;
+					}
 				}
 			}
 		}

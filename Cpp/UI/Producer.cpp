@@ -14,6 +14,7 @@
 
 #include "../../H/BackEnd/BackEnd.h"
 #include "../../H/Assembler/Assembler.h"
+#include "../../H/Linker/Linker.h"
 
 extern Usr* sys;
 
@@ -37,8 +38,8 @@ Producer::Producer(vector<IR*> IRs){
 
         vector<PE::PE_OBJ*> Objects;
 
+        //This only contains asm files, dll and lib files are in the sys->Info.Libs
         for (auto& i : sys->Info.Source_Files){
-
             Assembler a(i);
 
             Objects.push_back(new PE::PE_OBJ(a.Output));
@@ -61,7 +62,14 @@ Producer::Producer(vector<IR*> IRs){
         }
         else if (sys->Info.Format == "exe"){
 
+            Linker::En_Large_PE_Header(obj);
 
+            vector<unsigned char> Buffer = Linker::Write_PE_Executable(obj);
+
+            ofstream o(sys->Info.Destination_File.c_str());
+
+            o.write((char*)Buffer.data(), Buffer.size());
+            o.close();
 
         }
     }

@@ -34,6 +34,8 @@ public:
 	string Assembler_Location = "";
 	string Linker_Location = "";
 
+	class Node* Starting_Address = nullptr;
+
 	output() {
 		#if _WIN32
 			OS = "win";

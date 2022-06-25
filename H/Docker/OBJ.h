@@ -165,11 +165,14 @@ namespace PE {
 	vector<string> Generate_Name_Section_For_Symbol_Table();
 
 	static constexpr unsigned char _IMAGE_FILE_LARGE_ADDRESS_AWARE = 0x0020;
+	static constexpr unsigned char _IMAGE_FILE_EXECUTABLE_IMAGE = 0x0002;
+	static constexpr unsigned char _IMAGE_FILE_DEBUG_STRIPPED = 0x0200;
 	static constexpr unsigned short _MAGIC_PE32_PlUS = 0x20b;
 	static constexpr unsigned long _WINDOWS_PE_DLL_BASE_IMAGE = 0x10000000;
 	static constexpr unsigned long _WINDOWS_PE_EXE_BASE_IMAGE = 0x00400000;
 
 	static constexpr unsigned long _FILE_ALIGNMENT = 0x200;
+	static constexpr unsigned long _SECTION_ALIGNMENT = 0x200;
 
 	static constexpr unsigned long _ALLOCATOR_BUCKET_COUNT = 100000;
 	static constexpr unsigned long _BUCKET_SIZE = 700000;
