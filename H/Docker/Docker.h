@@ -80,7 +80,7 @@ namespace DOCKER {
 	string Remove(string raw, char id, int cut);
 	bool Is_Folder(string path);
 	bool Is_Same_File(string first, string second);
-	char* Read_Bin_File(string fileName);
+	pair<char*, long long> Read_Bin_File(string fileName);
 	string Find(string File_Name);
 	string Find(string File_Name, filesystem::directory_entry Folder);
 	vector<string> Get_System_Paths();

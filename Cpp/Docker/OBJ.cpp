@@ -58,7 +58,11 @@ void PE::OBJ_Analyser(vector<string>& Output) {
 	vector<char> Buffer = vector<char>(*(char*)tmp.data(), tmp.size());
 
 	//read the header of this obj file
-	Header header = *(Header*)&Buffer;
+	int Small_Header_Size = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics);
+
+	Header header;
+
+	memcpy(&header, &Buffer[0], Small_Header_Size);
 
 	DOCKER::Append(Output, Get_Symbol_Table_Content(header, Buffer));
 }
@@ -149,7 +153,7 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 }
 
-PE::PE_OBJ* PE::Cluster_PE_Objects(vector<PE::PE_OBJ*> Input){
+PE::PE_OBJ* PE::Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input){
 	//Combine the content sections
 	if (Input.size() > 1){
 		unsigned long long Current_Offset = 0;
@@ -176,8 +180,227 @@ PE::PE_OBJ* PE::Cluster_PE_Objects(vector<PE::PE_OBJ*> Input){
 	return Result;
 }
 
+PE::PE_OBJ* PE::Cluster_External_PE_Objects(vector<string> Input){
+
+	//First transform the input of file names into PE::PE_OBJ*
+	vector<PE::PE_OBJ*> OBJs;
+
+	for (auto i : Input){
+		pair<char*, long long> Raw_Buffer = DOCKER::Read_Bin_File(i);
+
+		vector<unsigned char> Buffer = vector<unsigned char>(Raw_Buffer.first, Raw_Buffer.first + Raw_Buffer.second);
+
+		OBJs.push_back(new PE::PE_OBJ(Buffer, i));
+	}
+
+	PE::OBJ_Pile* Pile = new PE::OBJ_Pile(OBJs);
+	
+	PE::PE_OBJ* Result = Pile->Compile();
+
+}
+
+PE::PE_OBJ* PE::OBJ_Pile::Compile(){
+
+	PE::PE_OBJ* Result = new PE::PE_OBJ();
+
+	Result->Header = header;
+
+	//Calculate the new values based on the new grouping of the section pile.
+	for (auto& s_group : Sections){
+
+		for (auto& r_group : Raw_Sections){
+			if (r_group.File_Origin != s_group.File_Origin)
+				continue;
+
+			for (auto& s : s_group.Data){
+				unsigned long long Current_Offset = 0;
+
+				for (auto& r : r_group.Data){
+					unsigned long long Name;
+		 			memcpy(&Name, r.Name.data(), r.Name.size());
+
+					if (s.Name == Name){
+						
+						s.Pointer_To_Raw_Data += r_group.Additional_Offset + Current_Offset;
+
+					}
+
+					r.Section_Address += r_group.Additional_Offset + Current_Offset;
+					Current_Offset += r.Data.size();
+				}
+			}
+
+			//now combine the sections
+			Result->Sections.insert(Result->Sections.end(), s_group.Data.begin(), s_group.Data.end());
+		}
+	}
+
+	//Calculate the new values for the symbol table
+	unsigned long long String_Table_Offset = 0;
+	for (auto& s_group : Symbols){
+		for (auto& symbol : s_group.Data){
+			
+			vector<unsigned char> Current_String_Table_Buffer;
+
+			for (auto& s_table_buffer : String_Table_Buffer){
+				if (s_table_buffer.File_Origin != s_group.File_Origin)
+					continue;
+
+				Current_String_Table_Buffer = s_table_buffer.Data;
+			}
+
+			Group_Info<string> Current_Symbol_Table;
+
+			for (auto& s_table : String_Table){
+				if (s_group.File_Origin != s_table.File_Origin)
+					continue;
+
+				Current_Symbol_Table = s_table;
+			}
+
+			//Calculate the new offset of the symbol name.
+			for (auto& s : Current_Symbol_Table.Data){
+				string Symbol_Name = symbol.Get_Name(Current_String_Table_Buffer);
+
+				if (Symbol_Name == s){
+
+					symbol.Full_Name = String_Table_Offset << 32;
+				}
+
+				String_Table_Offset += s.size() + 1;
+			}
+
+			//Now calculate the new offset of the symbol address.
+			unsigned long long Relative_Address = PE::Get_Relative_Address(symbol, *this, s_group.File_Origin);
+			unsigned long long Absolute_Address = 0;
+
+			for (auto& r_group : Raw_Sections){
+				if (r_group.File_Origin != s_group.File_Origin)
+					continue;
+
+				Absolute_Address = r_group.Additional_Offset;
+			}
+			symbol.Value = Absolute_Address + Relative_Address;
+		}
+	
+		//Now combine the symbol tables
+		Result->Symbols.insert(Result->Symbols.end(), s_group.Data.begin(), s_group.Data.end());
+	}
+	
+
+}
+
+unsigned long long PE::Get_Relative_Address(PE::Symbol& s, PE::OBJ_Pile& pile, string File_Origin){
+	//we can achieve this by removing the current offset value and comparing the difference.
+	//Also remove the small header.
+	unsigned long long Offset_Difference = s.Value - (offsetof(Header, Header::Characteristics) + sizeof(Header::Characteristics));
+
+	//remove all other values from the offset from the obj
+	unsigned long long Sections_Size = 0;
+
+	for (auto& i : pile.Sections){
+		if (i.File_Origin == File_Origin){
+			Sections_Size = i.Data.size() * sizeof(Section);
+		}
+	}
+
+	unsigned long long Symbols_Size = 0;
+
+	for (auto& i : pile.Symbols){
+		if (i.File_Origin == File_Origin){
+			Symbols_Size = i.Data.size() * sizeof(Symbol);
+		}
+	}
+
+	unsigned long long String_Table_Size = 0;
+
+	for (auto& i : pile.String_Table_Size){
+		if (i.first == File_Origin){
+			String_Table_Size = i.second;
+		}
+	}
+
+	unsigned long long Relocations_Size = 0;
+
+	for (auto& i : pile.Relocations){
+		if (i.File_Origin == File_Origin){
+			Relocations_Size = i.Data.size() * sizeof(Relocation);
+		}
+	}
+
+	int Section_ID = s.Section_Number;
+
+	// unsigned long long Predesessor_Section_Sizes = 0;
+
+	// for (auto& i : pile.Raw_Sections){
+	// 	if (i.File_Origin == File_Origin){
+	// 		for (int j = 0; j < i.Data.size(); j++){
+	// 			if (j < Section_ID){
+	// 				Predesessor_Section_Sizes += i.Data[j].Data.size();
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	//Now remove all the gathered offsets from the offset difference.
+	Offset_Difference -= Sections_Size + Symbols_Size + String_Table_Size + Relocations_Size;
+
+	return Offset_Difference;
+}
+
+PE::OBJ_Pile::OBJ_Pile(vector<PE::PE_OBJ*> OBJs){
+	this->header = OBJs[0]->Header;
+
+	unsigned long long Current_Additional_Offset = 0;
+
+	//Add the sections to the this
+	for (auto i : OBJs){
+		this->Sections.insert(this->Sections.end(), Group_Info<Section>{i->File_Name, Current_Additional_Offset, i->Sections});
+		Current_Additional_Offset += i->Sections.size() * sizeof(PE::Section);
+	}
+
+	//Add the symbols to the this
+	for (auto i : OBJs){
+		this->Symbols.insert(this->Symbols.end(), Group_Info<Symbol>{i->File_Name, Current_Additional_Offset, i->Symbols});
+		Current_Additional_Offset += i->Symbols.size() * sizeof(PE::Symbol);
+	}
+
+	//Add the string table to the this
+	for (auto i : OBJs){
+		this->String_Table.insert(this->String_Table.end(), Group_Info<string>{i->File_Name, Current_Additional_Offset, i->String_Table});
+	}
+
+	//Add the string table buffer to the this
+	for (auto i : OBJs){
+		this->String_Table_Buffer.insert(this->String_Table_Buffer.end(), Group_Info<unsigned char>{i->File_Name, Current_Additional_Offset, i->String_Table_Buffer});
+		Current_Additional_Offset += i->String_Table_Size;
+	}
+
+	//Add the string table sizes
+	for (auto i : OBJs){
+		this->String_Table_Size.push_back({i->File_Name, i->String_Table_Size});
+	}
+
+	//Add the relocations to the this
+	for (auto i : OBJs){
+		this->Relocations.insert(this->Relocations.end(), Group_Info<Relocation>{i->File_Name, Current_Additional_Offset, i->Relocations});
+		Current_Additional_Offset += i->Relocations.size() * sizeof(PE::Relocation);
+	}
+
+	//Add the raw sections to the this
+	for (auto i : OBJs){
+		this->Raw_Sections.insert(this->Raw_Sections.end(), Group_Info<Raw_Section>{i->File_Name, Current_Additional_Offset, i->Raw_Sections});
+		
+		for (auto& j : i->Raw_Sections){
+			Current_Additional_Offset += j.Data.size();
+		}
+	}
+}
+
 //This function takes a files contant and disects it into a PE OBJ object
-PE::PE_OBJ::PE_OBJ(vector<unsigned char> File){
+PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
+
+	this->File_Name = File_Name;
 
 	bool File_Does_Not_Use_Optional_Header = false;
 
@@ -248,6 +471,8 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File){
 		Raw_Section section;
 		section.Name = i.Name;
 		section.Data = Section_Data;
+
+		this->Raw_Sections.push_back(section);
 	}
 
 }
@@ -287,7 +512,6 @@ vector<PE::Symbol> PE::Generate_Symbol_Table(){
 	vector<PE::Symbol> Result;
 
 	//Skip the String_Table_Size identifier
-
 	long long Current_Symbol_Offset = sizeof(unsigned int);
 	for (auto i : assembler->Symbol_Table){
 

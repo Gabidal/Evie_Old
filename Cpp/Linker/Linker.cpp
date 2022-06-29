@@ -1,8 +1,8 @@
 #include "../../H/Linker/Linker.h"
-#include "../Nodes/Node.h"
-#include "../BackEnd/Selector.h"
+#include "../../H/Nodes/Node.h"
+#include "../../H/BackEnd/Selector.h"
 
-#include "../UI/Usr.h"
+#include "../../H/UI/Usr.h"
 
 extern Usr* sys;
 extern Selector* selector;

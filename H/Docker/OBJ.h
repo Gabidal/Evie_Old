@@ -100,7 +100,7 @@ namespace PE {
 				char Header;
 				char Offset[7];
 			}Name;
-			long long Full_Name = 0;
+			unsigned long long Full_Name = 0;
 		};
 		int Value = 0;
 		short Section_Number = 0;
@@ -114,6 +114,8 @@ namespace PE {
 	class Raw_Section{
 	public:
 		string Name = "";
+
+		unsigned long long Section_Address = 0;
 		
 		vector<unsigned char> Data;
 
@@ -128,6 +130,8 @@ namespace PE {
 
 	class PE_OBJ{
 	public:
+		string File_Name = "";
+
 		Header Header;
 		vector<Section> Sections;
 		vector<Symbol> Symbols;
@@ -141,9 +145,34 @@ namespace PE {
 
 		PE_OBJ(){}
 
-		PE_OBJ(vector<unsigned char> File);
+		PE_OBJ(vector<unsigned char> File, string File_Name);
 
 		PE_OBJ(vector<Byte_Map_Section*> Sections);
+	};
+
+	template<typename T>
+	class Group_Info{
+	public:
+		string File_Origin = "";
+		unsigned long long Additional_Offset = 0;
+		vector<T> Data;
+	};
+
+	class OBJ_Pile{
+	public:
+		Header header;
+
+		vector<Group_Info<Section>> Sections;
+		vector<Group_Info<Symbol>> Symbols;
+		vector<Group_Info<string>> String_Table;
+		vector<Group_Info<unsigned char>> String_Table_Buffer;
+		vector<pair<string, unsigned long long>> String_Table_Size;
+		vector<Group_Info<Relocation>> Relocations;
+		vector<Group_Info<Raw_Section>> Raw_Sections;
+
+		OBJ_Pile(vector<PE::PE_OBJ*> OBJs);
+
+		PE::PE_OBJ* Compile();
 	};
 
 	vector<Relocation> Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table);
@@ -156,7 +185,10 @@ namespace PE {
 
 	vector<unsigned char> Write_Obj(PE_OBJ& Input);
 
-	PE::PE_OBJ* Cluster_PE_Objects(vector<PE::PE_OBJ*> Input);
+	PE::PE_OBJ* Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input);
+	PE::PE_OBJ* Cluster_External_PE_Objects(vector<string> Input);
+
+	unsigned long long Get_Relative_Address(PE::Symbol& s, PE::OBJ_Pile& pile, string File_Origin);
 
 	vector<Section> Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo);
 

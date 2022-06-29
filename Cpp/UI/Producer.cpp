@@ -49,7 +49,7 @@ Producer::Producer(vector<IR*> IRs){
 
         Objects.push_back(new PE::PE_OBJ(assembler->Output));
 
-        PE::PE_OBJ* obj = PE::Cluster_PE_Objects(Objects);
+        PE::PE_OBJ* obj = PE::Cluster_Local_PE_Objects(Objects);
 
         if (sys->Info.Format == "obj"){
 

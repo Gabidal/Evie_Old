@@ -17,6 +17,7 @@
         "list": "cpp",
         "regex": "cpp",
         "xtree": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "iosfwd": "cpp"
     }
 }

@@ -12,7 +12,20 @@
 extern Selector* selector;
 
 Assembler::Assembler(string Input){
-    vector<Word*> Words = Tokenizer(Input);
+	ifstream file(Input, std::ios::binary);
+
+	if (!file.is_open()) {
+		throw::runtime_error("FILE NOT FOUND!");
+	}
+	file.seekg(0, ios_base::end);
+	long long size = file.tellg();
+	char* Buffer = new char[size + 1];
+	file.seekg(0, ios_base::beg);
+	file.read(Buffer, size);
+	Buffer[size] = '\0';
+	file.close();
+
+    vector<Word*> Words = Tokenizer(string(Buffer));
 
     vector<Token*> Tokens = Grouper(Words);
 

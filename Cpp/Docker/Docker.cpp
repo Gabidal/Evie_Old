@@ -342,9 +342,9 @@ bool DOCKER::Is_Same_File(string first, string second)
 {
 	string tmp = "";
 	string JustNameF = DOCKER::Update_Working_Dir(first, tmp);
-	char* BufferF = Read_Bin_File(JustNameF);
+	char* BufferF = Read_Bin_File(JustNameF).first;
 	string JustNameS = DOCKER::Update_Working_Dir(second, tmp);
-	char* BufferS = Read_Bin_File(JustNameS);
+	char* BufferS = Read_Bin_File(JustNameS).first;
 
 	if (JustNameF != JustNameS)
 		return false;
@@ -363,7 +363,7 @@ bool DOCKER::Is_Same_File(string first, string second)
 	return true;
 }
 
-char* DOCKER::Read_Bin_File(string fileName)
+pair<char*, long long> DOCKER::Read_Bin_File(string fileName)
 {
 	ifstream file(DOCKER::Working_Dir.back().second + fileName, std::ios::binary);
 	file.seekg(0, ios_base::end);
@@ -373,7 +373,7 @@ char* DOCKER::Read_Bin_File(string fileName)
 	file.read(Buffer, size);
 	Buffer[size] = '\0';
 	file.close();
-	return Buffer;
+	return {Buffer, size};
 }
 
 string DOCKER::Find(string File_Name)
