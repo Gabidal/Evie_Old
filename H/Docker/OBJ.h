@@ -26,8 +26,8 @@ namespace PE {
 		unsigned int Size_Of_Uninitialized_Data = 0;
 		unsigned int Address_Of_Entry_Point = 0;
 		unsigned int Base_Of_Code = 0;
-		unsigned int Base_Of_Data = 0;
-		unsigned int Image_Base = 0;
+		//unsigned int Base_Of_Data = 0;
+		unsigned long long Image_Base = 0;
 		unsigned int Section_Alignment = 0;
 		unsigned int File_Alignment = 0;
 		unsigned int Operating_System_Version = 0;
@@ -39,10 +39,10 @@ namespace PE {
 		unsigned int Check_Sum = 0;
 		unsigned short Subsystem = 0;
 		unsigned short Dll_Characteristics = 0;
-		unsigned int Size_Of_Stack_Reserve = 0;
-		unsigned int Size_Of_Stack_Commit = 0;
-		unsigned int Size_Of_Heap_Reserve = 0;
-		unsigned int Size_Of_Heap_Commit = 0;
+		unsigned long long Size_Of_Stack_Reserve = 0;
+		unsigned long long Size_Of_Stack_Commit = 0;
+		unsigned long long Size_Of_Heap_Reserve = 0;
+		unsigned long long Size_Of_Heap_Commit = 0;
 		unsigned int Loader_Flags = 0;
 		unsigned int Number_Of_Rva_And_Sizes = 0;
 
@@ -77,6 +77,14 @@ namespace PE {
 		unsigned int CLR_Runtime_Header = 0;
 		unsigned int Size_Of_CLR_Runtime_Header = 0;
 		unsigned long long RESERVED = 0;
+	};
+
+	class Bull_Shit_Headers {
+	public:
+		unsigned short Signature = 0x5A4D;
+		unsigned char Empty2[64 - 2 - 4] = { 0 };
+		unsigned int PE_Offset = 64;
+		unsigned int Signature_The_Second = 0x4550;
 	};
 
 	class Section {
@@ -219,6 +227,10 @@ namespace PE {
 	static constexpr unsigned long _IMAGE_SCN_CNT_CODE = 0x00000020;
 
 	static constexpr unsigned long _IMAGE_SYM_CLASS_LABEL = 0x00000006;
+
+	static constexpr unsigned long _IMAGE_FILE_MACHINE_AMD64 = 0x8664;
+
+	static constexpr unsigned long MAGIC_NUMBER = 0x20b;
 }
 
 #pragma pack(pop) // Restore alignment

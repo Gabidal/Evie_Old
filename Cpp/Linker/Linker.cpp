@@ -58,16 +58,18 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     //The final value of the image size is the multiple of alignments
     Image_Size = (Image_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
+    obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
     obj->Header.Number_Of_Sections = obj->Sections.size();
     obj->Header.Size_Of_Optional_Header = 0xE0;
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | Optional;
     obj->Header.Date_Time = time_t(time(NULL));
+    obj->Header.Magic = PE::MAGIC_NUMBER;
     obj->Header.Linker_Version = 0;
     obj->Header.Size_Of_Code = Code_Size;
     obj->Header.Size_Of_Initialized_Data = Data_Size;
     obj->Header.Size_Of_Uninitialized_Data = 0;
     obj->Header.Base_Of_Code = Code_Starting_Address;
-    obj->Header.Base_Of_Data = Data_Starting_Address;
+    //obj->Header.Base_Of_Data = Data_Starting_Address;
     obj->Header.Image_Base = PE::_WINDOWS_PE_EXE_BASE_IMAGE;
     obj->Header.Section_Alignment = PE::_SECTION_ALIGNMENT;
     obj->Header.File_Alignment = PE::_FILE_ALIGNMENT;

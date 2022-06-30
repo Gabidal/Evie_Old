@@ -47,10 +47,13 @@ Producer::Producer(vector<IR*> IRs){
 
         assembler = new Assembler(IRs);
 
-        Objects.push_back(new PE::PE_OBJ(assembler->Output));
+        PE::PE_OBJ* obj = new PE::PE_OBJ(assembler->Output);
 
-        //This only gets asm files, dont bother with external obj files.
-        PE::PE_OBJ* obj = PE::Cluster_Local_PE_Objects(Objects);
+        if (sys->Info.Source_Files.size() > 0){
+            Objects.push_back(obj);
+            //This only gets asm files, dont bother with external obj files.
+            obj = PE::Cluster_Local_PE_Objects(Objects);
+        }
 
         //Transform the main local information into a PE object.
         vector<unsigned char> Buffer = PE::Write_Obj(*obj);
@@ -60,10 +63,11 @@ Producer::Producer(vector<IR*> IRs){
         o.write((char*)Buffer.data(), Buffer.size());
         o.close();
 
-        //now add the newly created obj file to the libs.
-        sys->Info.Libs.push_back(sys->Info.Destination_File);
-
-        PE::PE_OBJ* obj = PE::Cluster_External_PE_Objects(sys->Info.Libs);
+        if (sys->Info.Libs.size()){
+            //now add the newly created obj file to the libs.
+            sys->Info.Libs.push_back(sys->Info.Destination_File);
+            PE::PE_OBJ* obj = PE::Cluster_External_PE_Objects(sys->Info.Libs);
+        }
 
         if (sys->Info.Format != "obj"){
             //if the desired output is not obj, then destroy the newly created obj file.
@@ -75,6 +79,11 @@ Producer::Producer(vector<IR*> IRs){
             Linker::En_Large_PE_Header(obj);
 
             vector<unsigned char> Buffer = Linker::Write_PE_Executable(obj);
+
+            PE::Bull_Shit_Headers dos;
+
+            //add DOS bullshittery
+            Buffer.insert(Buffer.begin(), (unsigned char*)&dos, (unsigned char*)&dos + sizeof(dos));
 
             ofstream o(sys->Info.Destination_File.c_str());
 

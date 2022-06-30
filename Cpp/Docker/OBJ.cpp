@@ -117,6 +117,15 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	this->String_Table_Buffer = String_Table_Buffer; 
 
 	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer);
+
+	unsigned long long Header_Size = Header_End_Address - Header_Start_Address + this->Sections.size() * sizeof(PE::Section) + this->Symbols.size() * sizeof(PE::Symbol) + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation);
+
+	//now we need to go the generated symbo table and update all the relative values to absolute values
+	for (auto& i : this->Symbols){
+
+		i.Value += Header_Size;
+
+	}
 }
 
 vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
