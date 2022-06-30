@@ -89,6 +89,9 @@ namespace DOCKER {
 	void Write_File(string File_Name, string Buffer);
 	void Clear_File(string File_Name);
 	int Initialize_Number(string raw);
+
+	using Function_Pointter = void(*)(vector<string>&);
+	Function_Pointter Get_Translator(vector<unsigned char>& Buffer);
 }
 
 class Docker

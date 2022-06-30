@@ -190,6 +190,12 @@ PE::PE_OBJ* PE::Cluster_External_PE_Objects(vector<string> Input){
 
 		vector<unsigned char> Buffer = vector<unsigned char>(Raw_Buffer.first, Raw_Buffer.first + Raw_Buffer.second);
 
+		//check that this is a PE file
+		DOCKER::Function_Pointter f = DOCKER::Get_Translator(Buffer);
+
+		if (f != PE::OBJ_Analyser)
+			continue;
+
 		OBJs.push_back(new PE::PE_OBJ(Buffer, i));
 	}
 
@@ -197,6 +203,7 @@ PE::PE_OBJ* PE::Cluster_External_PE_Objects(vector<string> Input){
 	
 	PE::PE_OBJ* Result = Pile->Compile();
 
+	return Result;
 }
 
 PE::PE_OBJ* PE::OBJ_Pile::Compile(){
@@ -271,7 +278,7 @@ PE::PE_OBJ* PE::OBJ_Pile::Compile(){
 			}
 
 			//Now calculate the new offset of the symbol address.
-			unsigned long long Relative_Address = PE::Get_Relative_Address(symbol, *this, s_group.File_Origin);
+			unsigned long long Relative_Address = PE::Get_Relative_Address(symbol.Value, *this, s_group.File_Origin);
 			unsigned long long Absolute_Address = 0;
 
 			for (auto& r_group : Raw_Sections){
@@ -280,6 +287,7 @@ PE::PE_OBJ* PE::OBJ_Pile::Compile(){
 
 				Absolute_Address = r_group.Additional_Offset;
 			}
+
 			symbol.Value = Absolute_Address + Relative_Address;
 		}
 	
@@ -287,13 +295,66 @@ PE::PE_OBJ* PE::OBJ_Pile::Compile(){
 		Result->Symbols.insert(Result->Symbols.end(), s_group.Data.begin(), s_group.Data.end());
 	}
 	
+	//Join String table since there is nothing to calculate.
+	for (auto& s_table : String_Table){
+		Result->String_Table.insert(Result->String_Table.end(), s_table.Data.begin(), s_table.Data.end());
+	}
 
+	//Join the string table buffer since there is nothing to calculate.
+	for (auto& s_table_buffer : String_Table_Buffer){
+		Result->String_Table_Buffer.insert(Result->String_Table_Buffer.end(), s_table_buffer.Data.begin(), s_table_buffer.Data.end());
+	}
+
+	//Calculate the new string table buffer size
+	for (auto& s_table_buffer : String_Table_Buffer){
+		Result->String_Table_Size += s_table_buffer.Data.size();
+	}
+
+	//Calculate the new values for the relocations table.
+	//first update the Symbol table indexs.
+	int Current_Symbols_Count = 0; 
+	for (int r_group_index = 0; r_group_index < Relocations.size(); r_group_index++){
+
+		for (auto& r : Relocations[r_group_index].Data){
+			r.Symbol_Table_Index += Current_Symbols_Count;
+		}
+
+		//because there is as many relocation tables as there are sections, we can just use the relocation pile index to get the same file's symbol table size.
+		Current_Symbols_Count += Symbols[r_group_index].Data.size();
+	}
+
+	//now we can calculate the virtual addresses of the relocations.
+	for (auto& r_group : Relocations){
+		for (auto& r : r_group.Data){
+			unsigned long long Relative_Address = PE::Get_Relative_Address(r.Virtual_Address, *this, r_group.File_Origin);
+			unsigned long long Absolute_Address = 0;
+
+			for (auto& r_group : Raw_Sections){
+				if (r_group.File_Origin != r_group.File_Origin)
+					continue;
+
+				Absolute_Address = r_group.Additional_Offset;
+			}
+
+			r.Virtual_Address = Absolute_Address + Relative_Address;
+		}
+
+		//now combine the relocations
+		Result->Relocations.insert(Result->Relocations.end(), r_group.Data.begin(), r_group.Data.end());
+	}
+
+	//now combine the raw sections
+	for (auto& r_group : Raw_Sections){
+		Result->Raw_Sections.insert(Result->Raw_Sections.end(), r_group.Data.begin(), r_group.Data.end());
+	}
+
+	return Result;
 }
 
-unsigned long long PE::Get_Relative_Address(PE::Symbol& s, PE::OBJ_Pile& pile, string File_Origin){
+unsigned long long PE::Get_Relative_Address(unsigned long long address, PE::OBJ_Pile& pile, string File_Origin){
 	//we can achieve this by removing the current offset value and comparing the difference.
 	//Also remove the small header.
-	unsigned long long Offset_Difference = s.Value - (offsetof(Header, Header::Characteristics) + sizeof(Header::Characteristics));
+	unsigned long long Offset_Difference = address - (offsetof(Header, Header::Characteristics) + sizeof(Header::Characteristics));
 
 	//remove all other values from the offset from the obj
 	unsigned long long Sections_Size = 0;
@@ -327,8 +388,6 @@ unsigned long long PE::Get_Relative_Address(PE::Symbol& s, PE::OBJ_Pile& pile, s
 			Relocations_Size = i.Data.size() * sizeof(Relocation);
 		}
 	}
-
-	int Section_ID = s.Section_Number;
 
 	// unsigned long long Predesessor_Section_Sizes = 0;
 
@@ -471,6 +530,9 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 		Raw_Section section;
 		section.Name = i.Name;
 		section.Data = Section_Data;
+		section.Section_Address = Current_Offset;
+
+		Current_Offset += i.Size_Of_Raw_Data;
 
 		this->Raw_Sections.push_back(section);
 	}

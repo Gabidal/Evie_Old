@@ -538,3 +538,16 @@ vector<string>& DOCKER::Append(vector<string>& d, vector<pair<string, string>> s
 	}
 	return d;
 }
+
+DOCKER::Function_Pointter DOCKER::Get_Translator(vector<unsigned char>& Buffer){
+	//iterate every map ID in Translators map
+	for (auto i : Translators) {
+		if (i.first == Location::Header) {
+			if (strncmp((char*)Buffer.data(), i.second.first.c_str(), i.second.first.size()) == 0) {
+				return i.second.second;
+			}
+		}
+	}
+	
+	return nullptr;
+}

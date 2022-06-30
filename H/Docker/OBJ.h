@@ -188,7 +188,7 @@ namespace PE {
 	PE::PE_OBJ* Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input);
 	PE::PE_OBJ* Cluster_External_PE_Objects(vector<string> Input);
 
-	unsigned long long Get_Relative_Address(PE::Symbol& s, PE::OBJ_Pile& pile, string File_Origin);
+	unsigned long long Get_Relative_Address(unsigned long long address, PE::OBJ_Pile& pile, string File_Origin);
 
 	vector<Section> Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo);
 

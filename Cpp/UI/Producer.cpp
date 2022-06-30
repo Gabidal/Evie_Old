@@ -49,18 +49,28 @@ Producer::Producer(vector<IR*> IRs){
 
         Objects.push_back(new PE::PE_OBJ(assembler->Output));
 
+        //This only gets asm files, dont bother with external obj files.
         PE::PE_OBJ* obj = PE::Cluster_Local_PE_Objects(Objects);
 
-        if (sys->Info.Format == "obj"){
+        //Transform the main local information into a PE object.
+        vector<unsigned char> Buffer = PE::Write_Obj(*obj);
 
-            vector<unsigned char> Buffer = PE::Write_Obj(*obj);
+        ofstream o(sys->Info.Destination_File.c_str());
 
-            ofstream o(sys->Info.Destination_File.c_str());
+        o.write((char*)Buffer.data(), Buffer.size());
+        o.close();
 
-            o.write((char*)Buffer.data(), Buffer.size());
-            o.close();
+        //now add the newly created obj file to the libs.
+        sys->Info.Libs.push_back(sys->Info.Destination_File);
+
+        PE::PE_OBJ* obj = PE::Cluster_External_PE_Objects(sys->Info.Libs);
+
+        if (sys->Info.Format != "obj"){
+            //if the desired output is not obj, then destroy the newly created obj file.
+            remove(sys->Info.Destination_File.c_str());
         }
-        else if (sys->Info.Format == "exe"){
+        
+        if (sys->Info.Format == "exe"){
 
             Linker::En_Large_PE_Header(obj);
 
