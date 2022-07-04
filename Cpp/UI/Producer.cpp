@@ -30,7 +30,7 @@ Producer::Producer(vector<IR*> IRs){
 
         BackEnd Back(IRs, Output);
 
-        ofstream o(sys->Info.Destination_File.c_str());
+        ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
         o << Output;
         o.close();
     }
@@ -58,7 +58,7 @@ Producer::Producer(vector<IR*> IRs){
         //Transform the main local information into a PE object.
         vector<unsigned char> Buffer = PE::Write_Obj(*obj);
 
-        ofstream o(sys->Info.Destination_File.c_str());
+        ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
 
         o.write((char*)Buffer.data(), Buffer.size());
         o.close();
@@ -75,7 +75,6 @@ Producer::Producer(vector<IR*> IRs){
         }
         
         if (sys->Info.Format == "exe"){
-
             Linker::En_Large_PE_Header(obj);
 
             vector<unsigned char> Buffer = Linker::Write_PE_Executable(obj);
@@ -85,15 +84,12 @@ Producer::Producer(vector<IR*> IRs){
             //add DOS bullshittery
             Buffer.insert(Buffer.begin(), (unsigned char*)&dos, (unsigned char*)&dos + sizeof(dos));
 
-            ofstream o(sys->Info.Destination_File.c_str());
+            ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
 
             o.write((char*)Buffer.data(), Buffer.size());
             o.close();
-
         }
     }
-
-
 }
 
 /*

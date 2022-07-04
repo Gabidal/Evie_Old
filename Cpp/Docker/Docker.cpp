@@ -505,14 +505,14 @@ void DOCKER::Write_File(string File_Name, string Buffer)
 {
 	string File_Remains = Open_File(File_Name);
 
-	std::ofstream ofs(File_Name);
+	std::ofstream ofs(File_Name, ios::binary);
 	ofs << File_Remains + Buffer;
 	ofs.close();
 }
 
 void DOCKER::Clear_File(string File_Name)
 {
-	std::ofstream ofs(File_Name);
+	std::ofstream ofs(File_Name, ios::binary);
 	ofs << "";
 	ofs.close();
 }

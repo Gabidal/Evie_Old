@@ -10,6 +10,7 @@ using namespace std;
 class Byte_Map_Section;
 
 namespace PE {
+	
 	class Header {
 	public:
 		unsigned short Machine = 0;
@@ -145,7 +146,7 @@ namespace PE {
 		vector<Symbol> Symbols;
 		vector<string> String_Table;
 		vector<unsigned char> String_Table_Buffer;
-		unsigned long long String_Table_Size = 0;
+		unsigned int String_Table_Size = 0;
 		vector<Relocation> Relocations;
 		vector<Raw_Section> Raw_Sections;
 
@@ -191,6 +192,8 @@ namespace PE {
 
 	void OBJ_Analyser(vector<string>& Output);
 
+	void Add_Padding_To_Offsets(PE::PE_OBJ& obj);
+
 	vector<unsigned char> Write_Obj(PE_OBJ& Input);
 
 	PE::PE_OBJ* Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input);
@@ -231,6 +234,12 @@ namespace PE {
 	static constexpr unsigned long _IMAGE_FILE_MACHINE_AMD64 = 0x8664;
 
 	static constexpr unsigned long MAGIC_NUMBER = 0x20b;
+
+	static constexpr unsigned long _IMAGE_SUBSYSTEM_WINDOWS_CUI = 0x3;
+
+	static constexpr unsigned long _IMAGE_OS_VERSION = (1 << (sizeof(short) * 8)) + 6;
+
+	static constexpr unsigned long _IMAGE_SUBSYSTEM_VERSION = (1 << (sizeof(short) * 8)) + 6;
 }
 
 #pragma pack(pop) // Restore alignment

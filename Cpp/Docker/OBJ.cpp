@@ -85,6 +85,8 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 
 	this->Symbols = Generate_Symbol_Table();
 
+	this->Content = Sections;
+
 	vector<string> Symbol_Names = Generate_Name_Section_For_Symbol_Table();
 
 	unsigned long long Symbol_Name_Size = 0;
@@ -94,15 +96,11 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 
 	}
 	
-	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + Symbol_Name_Size);
-
 	//Remove the optional headers from the buffer
 	unsigned char* Header_Start_Address = (unsigned char*)&this->Header;
 	unsigned char* Header_End_Address = (unsigned char*)&this->Header.Characteristics + sizeof(this->Header.Characteristics);
 
 	int s = sizeof(PE::Symbol);
-
-	unsigned int String_Table_Size = 0;
 
 	vector<unsigned char> String_Table_Buffer;
 
@@ -113,10 +111,12 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 		String_Table_Buffer.push_back(0);
 
 	}
-	String_Table_Size = String_Table_Buffer.size() + sizeof(String_Table_Size);
+	this->String_Table_Size = String_Table_Buffer.size() + sizeof(String_Table_Size);
 	this->String_Table_Buffer = String_Table_Buffer; 
 
 	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer);
+
+	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + Symbol_Name_Size + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation));
 
 	unsigned long long Header_Size = Header_End_Address - Header_Start_Address + this->Sections.size() * sizeof(PE::Section) + this->Symbols.size() * sizeof(PE::Symbol) + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation);
 
@@ -126,6 +126,61 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 		i.Value += Header_Size;
 
 	}
+
+	Add_Padding_To_Offsets(*this);
+}
+
+void PE::Add_Padding_To_Offsets(PE::PE_OBJ& obj){
+	unsigned long long Symbol_Name_Size = 0;
+	for (auto i : obj.Symbols){
+		//add the null terminator
+		Symbol_Name_Size += i.Get_Name(obj.String_Table_Buffer).size() + 1;
+
+	}
+
+	int Origo = obj.Header.Pointer_To_Symbol_Table + sizeof(obj.Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * obj.Symbols.size() + Symbol_Name_Size + obj.String_Table_Size + obj.Relocations.size() * sizeof(PE::Relocation);
+
+	unsigned long long Current_Offset = Origo;
+
+	Current_Offset = (Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
+	//	 section id, address difference
+	vector<pair<int, int>> Changes;
+
+	int index = 0;
+	for (auto& s : obj.Sections){
+		pair<int, int> Change;
+
+		Change.second = Current_Offset - s.Pointer_To_Raw_Data;
+		Change.first = index;
+
+		Changes.push_back(Change);
+
+		s.Pointer_To_Raw_Data = Current_Offset;
+		Current_Offset += s.Size_Of_Raw_Data;
+		Current_Offset = (Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+	}
+
+
+	//Now add the changes to symbols
+	int Symbol_Index = 0;
+	for (auto& s : obj.Symbols){
+		for (auto& c : Changes){
+			if (s.Section_Number == c.first){
+				s.Value += c.second;
+			}
+		}
+
+		//Shift the relocations pointing to the section by the section shift.
+		for (auto& r : obj.Relocations){
+			if (r.Symbol_Table_Index == Symbol_Index){
+				r.Virtual_Address += Changes[s.Section_Number].second;
+			}
+		}
+
+		Symbol_Index++;
+	}
+
 }
 
 vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
@@ -145,7 +200,23 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 	Buffer.insert(Buffer.end(), obj.String_Table_Buffer.begin(), obj.String_Table_Buffer.end());
 
+	unsigned long long Symbol_Name_Size = 0;
+	for (auto i : obj.Symbols){
+		//add the null terminator
+		Symbol_Name_Size += i.Get_Name(obj.String_Table_Buffer).size() + 1;
+
+	}
+
+	int Origo = obj.Header.Pointer_To_Symbol_Table + sizeof(obj.Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * obj.Symbols.size() + Symbol_Name_Size + obj.String_Table_Size + obj.Relocations.size() * sizeof(PE::Relocation);
+
+	unsigned long long Current_Offset = Origo;
+
 	for (auto i : obj.Content){
+
+		//add padding
+		int Padding = (Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
+		Buffer.insert(Buffer.end(), Padding, 0);
 
 		for (auto& j : i->Byte_Maps){
 
@@ -546,19 +617,25 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 		this->Raw_Sections.push_back(section);
 	}
 
+	Add_Padding_To_Offsets(*this);
 }
 
 vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo){
 
 	vector<PE::Section> Result;
 
+	unsigned long long Padding = 0;
+
 	for (auto i : Input){
+
+		Padding = (Padding + i->Calculated_Address + Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
 		Section tmp;
 		 memcpy(&tmp.Name, i->Name.data(), i->Name.size());
 		 tmp.Virtual_Size = i->Calculated_Size;
-		 tmp.Virtual_Address = i->Calculated_Address;
+		 tmp.Virtual_Address = Padding;
 		 tmp.Size_Of_Raw_Data = i->Calculated_Size;
-		 tmp.Pointer_To_Raw_Data = i->Calculated_Address + Origo;
+		 tmp.Pointer_To_Raw_Data = Padding;
 		 tmp.Pointer_To_Relocations = 0;
 		 tmp.Pointer_To_Line_Numbers = 0;
 		 tmp.Number_Of_Relocations = 0;

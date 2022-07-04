@@ -39,7 +39,7 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     unsigned long long Image_Size = 0;
 
     for (auto& i : obj->Content){
-        if (i->Is_Data_Section){
+        if (!i->Is_Data_Section){
 
             Code_Size += i->Calculated_Size;
             Code_Starting_Address = i->Calculated_Address;
@@ -60,7 +60,8 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
 
     obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
     obj->Header.Number_Of_Sections = obj->Sections.size();
-    obj->Header.Size_Of_Optional_Header = 0xE0;
+    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
+    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header)) - (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | Optional;
     obj->Header.Date_Time = time_t(time(NULL));
     obj->Header.Magic = PE::MAGIC_NUMBER;
@@ -73,14 +74,14 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Image_Base = PE::_WINDOWS_PE_EXE_BASE_IMAGE;
     obj->Header.Section_Alignment = PE::_SECTION_ALIGNMENT;
     obj->Header.File_Alignment = PE::_FILE_ALIGNMENT;
-    obj->Header.Operating_System_Version = 0;
+    obj->Header.Operating_System_Version = PE::_IMAGE_OS_VERSION;
     obj->Header.Image_Version = 0;
-    obj->Header.Subsystem_Version = 0;
+    obj->Header.Subsystem_Version = PE::_IMAGE_SUBSYSTEM_VERSION;
     obj->Header.Win32_Version_Value = 0;
     obj->Header.Size_Of_Image = Image_Size;
     obj->Header.Size_Of_Headers = sizeof(PE::Header);
     obj->Header.Check_Sum = 0;
-    obj->Header.Subsystem = 0;
+    obj->Header.Subsystem = PE::_IMAGE_SUBSYSTEM_WINDOWS_CUI;
     obj->Header.Dll_Characteristics = 0;
     obj->Header.Size_Of_Stack_Reserve = PE::_BUCKET_SIZE;
     obj->Header.Size_Of_Stack_Commit = PE::_BUCKET_SIZE;
@@ -103,7 +104,21 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 
 	Buffer.insert(Buffer.end(), obj->String_Table_Buffer.begin(), obj->String_Table_Buffer.end());
 
+	unsigned long long Symbol_Name_Size = 0;
+	for (auto i : obj->Symbols){
+		//add the null terminator
+		Symbol_Name_Size += i.Get_Name(obj->String_Table_Buffer).size() + 1;
+	}
+
+    int Origo = sizeof(PE::Header) + sizeof(PE::Symbol) * obj->Symbols.size() + Symbol_Name_Size + obj->String_Table_Size + obj->Relocations.size() * sizeof(PE::Relocation);
+
+    unsigned long long Current_Offset = Origo;
+
 	for (auto i : obj->Content){
+        //add padding
+        int Padding = (Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
+        Buffer.insert(Buffer.end(), Padding, 0);
 
 		for (auto& j : i->Byte_Maps){
 
@@ -114,6 +129,10 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 		}
 
 	}
+
+    unsigned long long A = PE::_BUCKET_SIZE;
+
+    Buffer.insert(Buffer.end(), (unsigned char*)&A, (unsigned char*)&A + 8);
 
 	//transform the 
 	return Buffer;

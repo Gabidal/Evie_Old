@@ -185,7 +185,7 @@ void HTTPS::HTTPS_Analyser(vector<string>& output)
 				Report(Observation(ERROR, curl_easy_strerror(res), Position()));
 			}
 			else {
-				ofstream o(Remote_Dir_Location + Name.c_str());
+				ofstream o(Remote_Dir_Location + Name.c_str(), ios::binary);
 				if (!o.is_open()) {
 					Report(Observation(ERROR, "Could not save contents of " + Name, Position()));
 				}
