@@ -89,6 +89,11 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Heap_Commit = PE::_BUCKET_SIZE;
 
 
+    //Now we need to add the export and import tables
+    obj->Header.Number_Of_Rva_And_Sizes = 2;
+
+    Add_Export_Table(obj);
+    Add_Import_Table(obj);
 }
 
 vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
@@ -104,6 +109,7 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 
 	Buffer.insert(Buffer.end(), obj->String_Table_Buffer.begin(), obj->String_Table_Buffer.end());
 
+    //Calculate the padding for the sections
 	unsigned long long Symbol_Name_Size = 0;
 	for (auto i : obj->Symbols){
 		//add the null terminator
@@ -130,10 +136,156 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 
 	}
 
-    unsigned long long A = PE::_BUCKET_SIZE;
-
-    Buffer.insert(Buffer.end(), (unsigned char*)&A, (unsigned char*)&A + 8);
+    Write_Export_Table(obj, Buffer);
+    Write_Import_Table(obj, Buffer);
 
 	//transform the 
 	return Buffer;
 }
+
+void Linker::Add_Export_Table(PE::PE_OBJ* obj){
+    int Origo = sizeof(PE::Header) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size + obj->Relocations.size() * sizeof(PE::Relocation);
+
+    int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
+    int End_Of_Code = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int End_Of_Data = End_Of_Code + obj->Header.Size_Of_Initialized_Data;
+
+    Origo += End_Of_Data;
+
+    //First we need to gather all the exporting functions
+    vector<PE::Symbol> Exported_Functions;
+
+    for (auto& s : obj->Symbols)
+        if (s.Storage_Class == PE::_IMAGE_SYM_CLASS_EXTERNAL)
+            Exported_Functions.push_back(s);
+
+    PE::Export_Table Table;
+
+    unsigned int Current_RVA = Origo + sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * Exported_Functions.size() ;
+
+    for (auto& s : Exported_Functions){
+        PE::Export_Address_Table Entry;
+
+        Entry.Address = s.Value;
+
+        Entry.Name_Address = Current_RVA;
+
+        //Also add the symbol name to the name list, for later on to calculate
+        //the RVA of the symbol name address.
+        Table.Name_Table.push_back(s.Get_Name(obj->String_Table_Buffer));
+
+        Table.Size_Of_Name_Table += s.Get_Name(obj->String_Table_Buffer).size() + 1;
+
+        //Update RVA
+        Current_RVA += s.Get_Name(obj->String_Table_Buffer).size() + 1;
+
+        Table.Address_Table.push_back(Entry);
+    }
+
+    Table.Directory.Time_Date_Stamp = time_t(time(NULL));
+    Table.Directory.Major_Version = 0;
+    Table.Directory.Minor_Version = 0;
+    Table.Directory.DLL_Name_RVA = 0;
+    Table.Directory.Ordinal_Base = 0;
+    Table.Directory.Address_Table_Entries = Exported_Functions.size();
+    Table.Directory.Number_Of_Name_Entries = 0;
+    Table.Directory.Export_Address_Table_RVA = obj->Header.Image_Base + Origo + sizeof(PE::Export_Directory);
+    Table.Directory.Ordinal_Table_RVA = 0;
+
+    obj->Header.Export_Table = Origo;
+    obj->Header.Size_Of_Export_Table = sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * Exported_Functions.size() + Table.Size_Of_Name_Table;
+
+    obj->Exports = Table;
+}
+
+void Linker::Add_Import_Table(PE::PE_OBJ* obj){
+    int Origo = sizeof(PE::Header) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size + obj->Relocations.size() * sizeof(PE::Relocation);
+
+    int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
+    int End_Of_Code = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int End_Of_Data = End_Of_Code + obj->Header.Size_Of_Initialized_Data;
+
+    Origo += End_Of_Data;
+
+    vector<PE::Symbol> Imported_Functions;
+
+    //We also need to calculate the RVA Origo
+    Origo += sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * obj->Exports.Address_Table.size() + obj->Exports.Size_Of_Name_Table;
+
+    for (auto& s : obj->Exports.Name_Table){
+        Origo += s.size() + 1;
+    }
+
+    for (auto& s : obj->Symbols)
+        if (s.Storage_Class == PE::_IMAGE_SYM_CLASS_EXTERNAL_DEF)
+            Imported_Functions.push_back(s);
+
+    PE::Import_Table Table;
+
+    Table.Directory.Lookup_Table_RVA = Origo + sizeof(PE::Import_Directory);
+    Table.Directory.Time_Date_Stamp = time_t(time(NULL));
+    Table.Directory.Forwarder_Chain = 0;
+    Table.Directory.DLL_Name = 0;
+    Table.Directory.Import_Address_Table_RVA = 0;
+
+    for (auto& s : Imported_Functions){
+        PE::Import_Lookup Lookup;
+
+        Lookup.Set_Name_Flag(false);
+
+        Table.Lookup_Table.push_back(Lookup);
+
+        PE::Hint hint;
+        hint.Name = s.Get_Name(obj->String_Table_Buffer);
+
+        if ((hint.Name.size() + 1) % 2 != 0)
+            hint.Padding = true;
+    }
+
+    unsigned int Hint_Name_Size = 0;
+
+    for (auto& s : Imported_Functions){
+        Hint_Name_Size += s.Get_Name(obj->String_Table_Buffer).size() + 1;
+    }
+
+    obj->Header.Import_Table = Origo;
+    //                            ->                              ->                               ->                         Hint table index * hint count + hint name size + null terminator * hint count
+    obj->Header.Size_Of_Import_Table = sizeof(PE::Import_Directory) + sizeof(PE::Import_Lookup) * Imported_Functions.size() + sizeof(short) * Imported_Functions.size() + Hint_Name_Size;
+
+    obj->Imports = Table;
+}
+
+void Linker::Write_Export_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){
+    Buffer.insert(Buffer.end(), (unsigned char*)&obj->Exports.Directory, (unsigned char*)&obj->Exports.Directory + sizeof(PE::Export_Directory));
+
+    if (obj->Exports.Address_Table.size() > 0)
+        Buffer.insert(Buffer.end(), (unsigned char*)&obj->Exports.Address_Table[0], (unsigned char*)&obj->Exports.Address_Table[0] + sizeof(PE::Export_Address_Table) * obj->Exports.Address_Table.size());
+
+    //We skip name address table because we dont use them 
+    //we also dint use ordinal table
+
+    for (auto& s : obj->Exports.Name_Table){
+        Buffer.insert(Buffer.end(), s.begin(), s.end());
+        Buffer.push_back(0);
+    }
+}
+
+void Linker::Write_Import_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){
+    Buffer.insert(Buffer.end(), (unsigned char*)&obj->Imports.Directory, (unsigned char*)&obj->Imports.Directory + sizeof(PE::Import_Directory));
+    
+    if (obj->Imports.Lookup_Table.size() > 0)
+        Buffer.insert(Buffer.end(), (unsigned char*)&obj->Imports.Lookup_Table[0], (unsigned char*)&obj->Imports.Lookup_Table[0] + sizeof(PE::Import_Lookup) * obj->Imports.Lookup_Table.size());
+    
+    for (auto& h : obj->Imports.Hint_Table){
+
+        Buffer.insert(Buffer.end(), (unsigned char*)&h, (unsigned char*)&h + sizeof(short));
+
+        Buffer.insert(Buffer.end(), (unsigned char*)&h.Name[0], (unsigned char*)&h.Name[0] + h.Name.size());
+
+        if (h.Padding)
+            Buffer.push_back(0);
+    }
+}
+

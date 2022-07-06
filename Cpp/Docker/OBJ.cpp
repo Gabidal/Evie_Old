@@ -668,10 +668,19 @@ vector<PE::Symbol> PE::Generate_Symbol_Table(){
 		//Generate the offset for the name redies in, transform it to text
 		Current.Full_Name = Current_Symbol_Offset << 32;
 
-		Current.Value = i.second.first;
-		Current.Section_Number = i.second.second;
+		Current.Value = i.second.Address;
+		Current.Section_Number = i.second.Section_ID;
 		Current.Type = 0;
-		Current.Storage_Class = _IMAGE_SYM_CLASS_LABEL;
+
+		if (i.second.Origin->is("export")){
+			Current.Storage_Class = _IMAGE_SYM_CLASS_EXTERNAL;
+		}
+		else if (i.second.Origin->is("import")){
+			Current.Storage_Class = _IMAGE_SYM_CLASS_EXTERNAL_DEF;
+		}
+		else{
+			Current.Storage_Class = _IMAGE_SYM_CLASS_LABEL;
+		}
 		Current.Number_Of_Aux_Symbols = 0;
 
 		Result.push_back(Current);

@@ -20,12 +20,19 @@ using namespace std;
 //      size = qword ptr
 //  size = qword ptr
 
+class Symbol_Data{
+public:
+    long long Address;
+    int Section_ID;
+    class Node* Origin;
+};
+
 class Assembler{
 public:
     vector<class Byte_Map_Section*> Output;
 
-    //name, address, section id
-    map<string, pair<long long, int>> Symbol_Table;
+    //         name, Origin,        address, section id
+    map<string, Symbol_Data> Symbol_Table;
 
     Assembler(string Input);
     Assembler(vector<class IR*> IRs);
@@ -62,7 +69,7 @@ public:
 
     //Symbol Table stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-    void Generate_Symbol_Table_For(string Label, long long Address, int Section_ID);
+    void Generate_Symbol_Table_For(string Label, long long Address, int Section_ID, class Node* Origin);
     void Replace_Symbol_With_Address(IR& ir);
 };
 

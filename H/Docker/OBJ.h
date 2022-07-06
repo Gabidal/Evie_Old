@@ -137,28 +137,6 @@ namespace PE {
 		unsigned short Type = 0;
 	};
 
-	class PE_OBJ{
-	public:
-		string File_Name = "";
-
-		Header Header;
-		vector<Section> Sections;
-		vector<Symbol> Symbols;
-		vector<string> String_Table;
-		vector<unsigned char> String_Table_Buffer;
-		unsigned int String_Table_Size = 0;
-		vector<Relocation> Relocations;
-		vector<Raw_Section> Raw_Sections;
-
-		vector<Byte_Map_Section*> Content;
-
-		PE_OBJ(){}
-
-		PE_OBJ(vector<unsigned char> File, string File_Name);
-
-		PE_OBJ(vector<Byte_Map_Section*> Sections);
-	};
-
 	template<typename T>
 	class Group_Info{
 	public:
@@ -167,30 +145,13 @@ namespace PE {
 		vector<T> Data;
 	};
 
-	class OBJ_Pile{
-	public:
-		Header header;
-
-		vector<Group_Info<Section>> Sections;
-		vector<Group_Info<Symbol>> Symbols;
-		vector<Group_Info<string>> String_Table;
-		vector<Group_Info<unsigned char>> String_Table_Buffer;
-		vector<pair<string, unsigned long long>> String_Table_Size;
-		vector<Group_Info<Relocation>> Relocations;
-		vector<Group_Info<Raw_Section>> Raw_Sections;
-
-		OBJ_Pile(vector<PE::PE_OBJ*> OBJs);
-
-		PE::PE_OBJ* Compile();
-	};
-
 	class Export_Directory{
 	public:
 		unsigned int Export_Flags = 0;
 		unsigned int Time_Date_Stamp = 0;
 		unsigned short Major_Version = 0;
 		unsigned short Minor_Version = 0;
-		unsigned int Name_Table_RVA = 0;
+		unsigned int DLL_Name_RVA = 0;
 		unsigned int Ordinal_Base = 0;
 		unsigned int Address_Table_Entries = 0;
 		unsigned int Number_Of_Name_Entries = 0;
@@ -212,6 +173,7 @@ namespace PE {
 		vector<unsigned int> Name_Address_Table;
 		vector<unsigned short> Ordinal_Table;
 		vector<string> Name_Table;
+		unsigned int Size_Of_Name_Table = 0;
 	};
 
 	class Hint{
@@ -219,6 +181,7 @@ namespace PE {
 		unsigned short Hint_Name_Table_Index = 0;
 		string Name = "";
 		bool Padding = false;
+		unsigned int Hint_Name_Size = 0;
 	};
 
 	class Import_Lookup{
@@ -310,7 +273,7 @@ namespace PE {
 
 	class Import_Directory{
 	public:
-		Import_Lookup Lookup_Table_RVA;
+		unsigned int Lookup_Table_RVA = 0;
 		unsigned int Time_Date_Stamp = 0;
 		unsigned int Forwarder_Chain = 0;
 		unsigned int DLL_Name = 0;
@@ -322,9 +285,51 @@ namespace PE {
 		Import_Directory Directory;
 		vector<Import_Lookup> Lookup_Table;
 		vector<Hint> Hint_Table;
-
 	};
 
+	class PE_OBJ{
+	public:
+		string File_Name = "";
+
+		Header Header;
+		vector<Section> Sections;
+		vector<Symbol> Symbols;
+		vector<string> String_Table;
+		vector<unsigned char> String_Table_Buffer;
+		unsigned int String_Table_Size = 0;
+		vector<Relocation> Relocations;
+
+		vector<Raw_Section> Raw_Sections;
+		vector<Byte_Map_Section*> Content;
+		
+		//DLL/EXE Stuff
+		Export_Table Exports;
+		Import_Table Imports;
+		//END of DLL/EXE stuff
+
+		PE_OBJ(){}
+
+		PE_OBJ(vector<unsigned char> File, string File_Name);
+
+		PE_OBJ(vector<Byte_Map_Section*> Sections);
+	};
+
+	class OBJ_Pile{
+	public:
+		Header header;
+
+		vector<Group_Info<Section>> Sections;
+		vector<Group_Info<Symbol>> Symbols;
+		vector<Group_Info<string>> String_Table;
+		vector<Group_Info<unsigned char>> String_Table_Buffer;
+		vector<pair<string, unsigned long long>> String_Table_Size;
+		vector<Group_Info<Relocation>> Relocations;
+		vector<Group_Info<Raw_Section>> Raw_Sections;
+
+		OBJ_Pile(vector<PE::PE_OBJ*> OBJs);
+
+		PE::PE_OBJ* Compile();
+	};
 
 	vector<Relocation> Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table);
 
@@ -371,6 +376,8 @@ namespace PE {
 
 	static constexpr unsigned long _IMAGE_SCN_CNT_CODE = 0x00000020;
 
+	static constexpr unsigned long _IMAGE_SYM_CLASS_EXTERNAL = 0x00000002;
+	static constexpr unsigned long _IMAGE_SYM_CLASS_EXTERNAL_DEF = 0x00000005;
 	static constexpr unsigned long _IMAGE_SYM_CLASS_LABEL = 0x00000006;
 
 	static constexpr unsigned long _IMAGE_FILE_MACHINE_AMD64 = 0x8664;

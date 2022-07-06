@@ -438,7 +438,7 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
     for (int i = 0; i < IRs.size(); i++) {
         if (IRs[i]->OPCODE->Name == "extern"){
 
-            Generate_Symbol_Table_For(IRs[i]->Arguments[0]->Name, 0, 0);
+            Generate_Symbol_Table_For(IRs[i]->Arguments[0]->Name, 0, 0, IRs[i]->Arguments[0]->Parent->Find(IRs[i]->Arguments[0]->Name));
             continue;
 
         }
@@ -473,7 +473,7 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
 
                 if (IRs[j]->is(TOKEN::LABEL)){
                     //If the IRs[i] is a label we need to add it to the symbol table.
-                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address + Section->Calculated_Size, Result.size() + 1);
+                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address + Section->Calculated_Size, Result.size() + 1, IRs[j]->OPCODE->Parent->Find(IRs[j]->OPCODE->OG));
                 }
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);
@@ -529,9 +529,9 @@ void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Cu
     Trace.insert(Trace.end(), Current);
 
     if (Current->is(TOKEN::LABEL)){
-        pair<long long, int> symbol = Symbol_Table.find(Current->Name)->second;
+        Symbol_Data symbol = Symbol_Table.find(Current->Name)->second;
 
-        if (symbol.second == 0){
+        if (symbol.Section_ID == 0){
             //This is an external symbol witch address we dont know.
             Back_Reference->Has_External_Label = true;
 
@@ -542,7 +542,7 @@ void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Cu
         Current->Size = _SYSTEM_BIT_SIZE_;
 
         //Calculate the distance between this label reference and the definition declaration address.
-        Current->Name = symbol.first - Back_Reference->Address;
+        Current->Name = symbol.Address - Back_Reference->Address;
 
     }
     else{
@@ -643,6 +643,6 @@ void Assembler::Calculate_Constant_Expressions(Token* Current){
 
 }
 
-void Assembler::Generate_Symbol_Table_For(string Label, long long Address, int Section_ID){
-    Symbol_Table.insert({Label, {Address, Section_ID}});
+void Assembler::Generate_Symbol_Table_For(string Label, long long Address, int Section_ID, Node* Origin){
+    Symbol_Table.insert({Label, {Address, Section_ID, Origin}});
 }
