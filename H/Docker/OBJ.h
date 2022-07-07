@@ -186,89 +186,7 @@ namespace PE {
 
 	class Import_Lookup{
 	public:
-		unsigned char Data[8] = {0};
-
-		//returns the first bit of of the Data
-		bool Get_Name_Flag(){
-			unsigned char& p = Data[0];
-
-			if (p >> 7 == 1)
-				return true;
-			else
-				return false;
-		}
-
-		void Set_Name_Flag(bool Flag){
-			unsigned char& p = Data[0];
-
-			if (Flag)
-				p |= 1 << 7;
-			else
-				p &= ~(1 << 7);
-		}
-
-		unsigned short& Get_Ordinal_Number(){
-
-			//the ordinal resides after the first bit of the data
-			unsigned int All_Data = *(unsigned int*)&Data;
-
-			//shift the flag that resides in the first bit out of the data
-			//then read only the first 16 bits of the data
-			unsigned short Ordinal_Number = (unsigned short)(All_Data << 1);
-
-			return Ordinal_Number;
-		} 
-
-		void Set_Ordinal_Number(unsigned short Ordinal_Number){
-			//first store the first flag
-			bool Name_Flag = Get_Name_Flag();
-
-			//the data to the left by 1, to remove the first bit and to aling the ordinal number
-			unsigned int All_Data = *(unsigned int*)&Data;
-
-			All_Data = All_Data << 1;
-
-			//add the the ordinal number to the first 2 bits of the data
-			*(unsigned short*)&All_Data = Ordinal_Number;
-
-			//now we can shift the data back to the right and then add the flag back
-			All_Data = All_Data >> 1;
-
-			*(unsigned int*)&Data = All_Data;
-
-			Set_Name_Flag(Name_Flag);
-		}
-			
-		unsigned int Get_Hint(){
-			unsigned long long All_Data = *(unsigned long long*)&Data;
-
-			//shift the all data by 16 + 1
-			All_Data = All_Data << 16 + 1;
-
-			return All_Data;
-		}
-
-		void Set_Hint(unsigned int Hint){
-			unsigned long long All_Data = *(unsigned long long*)&Data;
-
-			//first store the first flag
-			bool Name_Flag = Get_Name_Flag();
-
-			//then store the ordinal
-			unsigned short Ordinal_Number = Get_Ordinal_Number();
-
-			//shift the ordinal number to the left by 16 + 1
-			All_Data = All_Data << 16 + 1;
-
-			*(unsigned int*)&All_Data = Hint;
-
-			//shift the data back to the right and then add the ordinal number back
-			All_Data = All_Data >> 16 + 1;
-
-			Set_Ordinal_Number(Ordinal_Number);
-
-			Set_Name_Flag(Name_Flag);
-		}
+		unsigned long long Name_Address = 0;
 	};
 
 	class Import_Directory{
@@ -283,7 +201,9 @@ namespace PE {
 	class Import_Table{
 	public:
 		Import_Directory Directory;
+		Import_Directory Null_Directory_Table;
 		vector<Import_Lookup> Lookup_Table;
+		unsigned long long Null_Lookup_Table;
 		vector<Hint> Hint_Table;
 	};
 
