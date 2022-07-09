@@ -121,11 +121,11 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	unsigned long long Header_Size = Header_End_Address - Header_Start_Address + this->Sections.size() * sizeof(PE::Section) + this->Symbols.size() * sizeof(PE::Symbol) + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation);
 
 	//now we need to go the generated symbo table and update all the relative values to absolute values
-	for (auto& i : this->Symbols){
+	// for (auto& i : this->Symbols){
 
-		i.Value += Header_Size;
+	// 	i.Value += Header_Size;
 
-	}
+	// }
 
 	Add_Padding_To_Offsets(*this);
 }
@@ -158,7 +158,7 @@ void PE::Add_Padding_To_Offsets(PE::PE_OBJ& obj){
 
 		s.Pointer_To_Raw_Data = Current_Offset;
 		Current_Offset += s.Size_Of_Raw_Data;
-		Current_Offset = (Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+		Current_Offset = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
 	}
 
 
@@ -214,7 +214,7 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 	for (auto i : obj.Content){
 
 		//add padding
-		int Padding = (Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+		int Padding = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
 
 		Buffer.insert(Buffer.end(), Padding, 0);
 
@@ -224,6 +224,7 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 			Buffer.insert(Buffer.end(), Data.begin(), Data.end());
 
+			Current_Offset += Data.size() + Padding;
 		}
 
 	}
@@ -469,20 +470,38 @@ unsigned long long PE::Get_Relative_Address(unsigned long long address, PE::OBJ_
 		}
 	}
 
-	// unsigned long long Predesessor_Section_Sizes = 0;
+	//get the section id that the address is part of.
+	int Section_ID = 0;
+	vector<PE::Section> right_sections;
 
-	// for (auto& i : pile.Raw_Sections){
-	// 	if (i.File_Origin == File_Origin){
-	// 		for (int j = 0; j < i.Data.size(); j++){
-	// 			if (j < Section_ID){
-	// 				Predesessor_Section_Sizes += i.Data[j].Data.size();
-	// 			}
-	// 		}
-	// 	}
-	// }
+	for (auto& i : pile.Sections){
+		if (i.File_Origin == File_Origin){
+			right_sections = i.Data;
+			for (int j = 0; j < i.Data.size(); j++){
+				if (i.Data[j].Pointer_To_Raw_Data <= address){
+					Section_ID = j;
+					break;
+				}
+			}
+		}
+	}
+
+	//now that we know in what section this address resides in, we can compute the paddings that occur before the sections.
+	unsigned long long Overall_Padding = 0;
+
+	unsigned int Current_Offset = (offsetof(Header, Header::Characteristics) + sizeof(Header::Characteristics)) + Sections_Size + Symbols_Size + String_Table_Size + Relocations_Size;
+
+	for (int i = 0; i < Section_ID; i++){
+
+		unsigned Tmp_Padding = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
+
+		Current_Offset += right_sections[i].Virtual_Size + Tmp_Padding;
+		
+		Overall_Padding += Tmp_Padding;
+	}
 
 	//Now remove all the gathered offsets from the offset difference.
-	Offset_Difference -= Sections_Size + Symbols_Size + String_Table_Size + Relocations_Size;
+	Offset_Difference -= Sections_Size + Symbols_Size + String_Table_Size + Relocations_Size + Overall_Padding;
 
 	return Offset_Difference;
 }

@@ -79,11 +79,6 @@ Producer::Producer(vector<IR*> IRs){
 
             vector<unsigned char> Buffer = Linker::Write_PE_Executable(obj);
 
-            PE::Bull_Shit_Headers dos;
-
-            //add DOS bullshittery
-            Buffer.insert(Buffer.begin(), (unsigned char*)&dos, (unsigned char*)&dos + sizeof(dos));
-
             ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
 
             o.write((char*)Buffer.data(), Buffer.size());

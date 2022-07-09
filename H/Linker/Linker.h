@@ -13,6 +13,7 @@ class Linker{
     public:
 
     static void En_Large_PE_Header(PE::PE_OBJ* obj);
+    static void Update_Obj_Headers(PE::PE_OBJ* obj);
 
     static vector<unsigned char> Write_PE_Executable(PE::PE_OBJ* obj);
 
