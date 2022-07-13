@@ -15,6 +15,7 @@
 #include "../../H/BackEnd/BackEnd.h"
 #include "../../H/Assembler/Assembler.h"
 #include "../../H/Linker/Linker.h"
+#include "../../H/Docker/DLL.h"
 
 extern Usr* sys;
 
@@ -78,6 +79,19 @@ Producer::Producer(vector<IR*> IRs){
             Linker::En_Large_PE_Header(obj);
 
             vector<unsigned char> Buffer = Linker::Write_PE_Executable(obj);
+
+            ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
+
+            o.write((char*)Buffer.data(), Buffer.size());
+            o.close();
+        }
+
+        if (sys->Info.Format == "dll"){
+            DLL::Enlarge_PE_Header(obj);
+
+            vector<unsigned char> Buffer;
+
+            DLL::Write_Base_Relocation_Table(obj, Buffer);
 
             ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
 

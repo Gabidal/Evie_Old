@@ -51,7 +51,6 @@ namespace PE {
 		unsigned int Size_Of_Export_Table = 0;
 		unsigned int Import_Table = 0;
 		unsigned int Size_Of_Import_Table = 0;
-
 		unsigned int Resource_Table = 0;
 		unsigned int Size_Of_Resource_Table = 0;
 		unsigned int Exception_Table = 0;
@@ -64,6 +63,8 @@ namespace PE {
 		unsigned int Size_Of_Debug = 0;
 		unsigned int Architecture_Data = 0;
 		unsigned int Size_Of_Architecture_Data = 0;
+
+
 		unsigned long long Global_Pointer = 0;
 		unsigned int TLS_Table = 0;
 		unsigned int Size_Of_TLS_Table = 0;
@@ -207,6 +208,43 @@ namespace PE {
 		vector<Hint> Hint_Table;
 	};
 
+	class Relocation_Field{
+	public:
+		unsigned short Data;
+
+		unsigned char Get_Type(){
+			return Data >> 12;
+		}
+
+		unsigned short Get_Virtual_Address(){
+			return Data & 0x0FFF;
+		}
+
+		void Set_Type(unsigned char c){
+			Data = (Data & 0x0FFF) | (c << 12);
+		}
+
+		void Set_Virtual_Address(unsigned short c){
+			unsigned char Type = Get_Type();
+
+			Data = c;
+
+			Set_Type(Type);
+		}
+	};
+
+	class Base_Relocation_Block{
+	public:
+		unsigned int Page_RVA = 0;
+		unsigned short Block_Size = 0;
+		vector<Relocation_Field> Relocations;
+	};
+
+	class Relocation_Table{
+	public:
+		vector<Base_Relocation_Block> Blocks;
+	};
+
 	class PE_OBJ{
 	public:
 		string File_Name = "";
@@ -225,6 +263,7 @@ namespace PE {
 		//DLL/EXE Stuff
 		Export_Table Exports;
 		Import_Table Imports;
+		Relocation_Table Base_Relocations;
 		//END of DLL/EXE stuff
 
 		PE_OBJ(){}
@@ -309,6 +348,8 @@ namespace PE {
 	static constexpr unsigned long _IMAGE_OS_VERSION = (1 << (sizeof(short) * 8)) + 6;
 
 	static constexpr unsigned long _IMAGE_SUBSYSTEM_VERSION = (1 << (sizeof(short) * 8)) + 6;
+
+	static constexpr unsigned long _IMAGE_REL_BASED_LOW = 2;
 }
 
 #pragma pack(pop) // Restore alignment

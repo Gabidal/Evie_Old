@@ -1,40 +1,32 @@
 #include "../../H/Docker/DLL.h"
+#include "../../H/Linker/Linker.h"
+#include "../../H/UI/Usr.h"
+#include "../../H/Nodes/Node.h"
 
-vector<DLL::Table> DLL::Gather_All_Tables(vector<char> buffer, Header h)
+extern Usr* sys;
+
+vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Header h)
 {
-	vector<Table> Result;
+	vector<PE::Section> Result;
 
-	for (int i = sizeof(Header); i < *(int*)h.Number_Of_Rva_And_Sizes; i += sizeof(Table)) {
-		Result.push_back(*(Table*)(&buffer[i]));
+	unsigned int Start_Of_Section_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header);
+
+	//Gather all sections
+	for (int i = 0; i < h.Number_Of_Sections; i++)
+	{
+		PE::Section s = *(PE::Section*)&Buffer[Start_Of_Section_Table + (i * sizeof(PE::Section))];
+
+		Result.push_back(s);
 	}
 
 	return Result;
 }
 
-vector<string> DLL::Gather_All_Export_Names(Header h, vector<char> buffer, Table t)
+vector<string> DLL::Gather_All_Export_Names(PE::Header h, vector<unsigned char> buffer, PE::Section s)
 {
-	vector<string> Result;
+	PE::Export_Table* e = Linker::Read_Export_Table(s, buffer);
 
-	Export_Directory_Table EDT = *(Export_Directory_Table*)&(buffer[*(int*)t.Table_Name]);
-
-	//gather all symbol name pointters
-	vector<int> Indicies;
-	for (int i = *(int*)EDT.Name_Pointer_RVA; i < buffer.size(); i += 4) {
-		Indicies.push_back(*(int*)&(buffer[i]));
-	}
-
-	//now go through the indicies and add the names
-	for (auto i : Indicies) {
-		string Name = "";
-		for (int j = i; j < buffer.size(); j++) {
-			if (buffer[j] == '\0')
-				break;
-			Name += buffer[j];
-		}
-		Result.push_back(Name);
-	}
-
-	return Result;
+	return e->Name_Table;
 }
 
 void DLL::DLL_Analyser(vector<string>& Output)
@@ -42,13 +34,178 @@ void DLL::DLL_Analyser(vector<string>& Output)
 	//get the header and then start up the section suckup syste 2000 :D
 	//read the file
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(DOCKER::Working_Dir.back().second + DOCKER::FileName.back(), "");
-	vector<char> buffer = vector<char>(*(char*)tmp.data(), tmp.size());
+	vector<unsigned char> buffer = vector<unsigned char>(*(unsigned char*)tmp.data(), tmp.size());
 
 	//read the header of this obj file
-	Header header = *(Header*)&buffer;
+	PE::Header header = *(PE::Header*)&buffer;
 
 	//now gather all the RVA sizes
-	vector<Table> Tables = Gather_All_Tables(buffer, header);
+	vector<PE::Section> Sections = Gather_All_Tables(buffer, header);
 
-	DOCKER::Append(Output, Gather_All_Export_Names(header, buffer, Tables[0]));
+	unsigned long long Name;
+    memcpy(&Name, ".edata", 6);
+
+	for (auto i : Sections) {
+		if (i.Name == Name) {
+			//now we have the export table
+			DOCKER::Append(Output, Gather_All_Export_Names(header, buffer, i));
+
+			break;
+		}
+	}
+}
+
+void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
+
+	//Get the stating address
+    Node* Starting_Function = sys->Info.Starting_Address;
+
+    unsigned long long Code_Size = 0;
+    unsigned long long Data_Size = 0;
+
+    unsigned int Code_Starting_Address = 0;
+    unsigned int Data_Starting_Address = 0;
+
+    unsigned long long Image_Size = 0;
+
+    for (auto& i : obj->Content){
+        if (!i->Is_Data_Section){
+
+            Code_Size += i->Calculated_Size;
+            Code_Starting_Address = i->Calculated_Address;
+
+        }
+        else{
+
+            Data_Size += i->Calculated_Size;
+            Data_Starting_Address = i->Calculated_Address;
+
+        }
+
+        Image_Size += i->Calculated_Size;
+    }
+
+    //The final value of the image size is the multiple of alignments
+    Image_Size = (Image_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    
+    obj->Header.Size_Of_Code = Code_Size;
+    obj->Header.Size_Of_Initialized_Data = Data_Size;
+
+    Linker::Add_Export_Table(obj);
+    Linker::Add_Import_Table(obj);
+    DLL::Add_Base_Relocation_table(obj);
+
+    unsigned char Optional = 0;
+
+    if (sys->Info.Debug){
+
+        Optional = PE::_IMAGE_FILE_DEBUG_STRIPPED;
+
+    }
+
+    obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
+    obj->Header.Number_Of_Sections = obj->Sections.size();
+    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
+    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header)) - (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
+    obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | Optional;
+    obj->Header.Date_Time = time_t(time(NULL));
+    obj->Header.Magic = PE::MAGIC_NUMBER;
+    obj->Header.Linker_Version = 0;
+    obj->Header.Size_Of_Uninitialized_Data = 0;
+    obj->Header.Base_Of_Code = Code_Starting_Address;
+    //obj->Header.Base_Of_Data = Data_Starting_Address;
+    obj->Header.Image_Base = PE::_WINDOWS_PE_EXE_BASE_IMAGE;
+    obj->Header.Section_Alignment = PE::_SECTION_ALIGNMENT;
+    obj->Header.File_Alignment = PE::_FILE_ALIGNMENT;
+    obj->Header.Operating_System_Version = PE::_IMAGE_OS_VERSION;
+    obj->Header.Image_Version = 0;
+    obj->Header.Subsystem_Version = PE::_IMAGE_SUBSYSTEM_VERSION;
+    obj->Header.Win32_Version_Value = 0;
+    obj->Header.Size_Of_Image = Image_Size;
+    obj->Header.Size_Of_Headers = sizeof(PE::Header);
+    obj->Header.Check_Sum = 0;
+    obj->Header.Subsystem = PE::_IMAGE_SUBSYSTEM_WINDOWS_CUI;
+    obj->Header.Dll_Characteristics = 0;
+    obj->Header.Size_Of_Stack_Reserve = PE::_BUCKET_SIZE;
+    obj->Header.Size_Of_Stack_Commit = PE::_BUCKET_SIZE;
+    obj->Header.Size_Of_Heap_Reserve = PE::_BUCKET_SIZE;
+    obj->Header.Size_Of_Heap_Commit = PE::_BUCKET_SIZE;
+
+    //Now we need to add the export and import tables
+    obj->Header.Number_Of_Rva_And_Sizes = 6;
+    
+    Linker::Update_Obj_Headers(obj);
+
+    //Now find this function name from the symbol table
+    for (auto& i : obj->Symbols){
+        if (i.Get_Name(obj->String_Table_Buffer) == Starting_Function->Mangled_Name){
+            obj->Header.Address_Of_Entry_Point = i.Value + obj->Sections[i.Section_Number - 1].Virtual_Address;
+            break;
+        }
+    }
+}
+
+//Chop the entire DLL into 4K chunks and then assess the .Text and .Data sections, where there is a  
+//Go through the relocations table that comes from .obj files and calculate the 4K modulo remainder offsets from the relocation table.
+void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj){
+    const int _4K = 4096;
+
+    PE::Base_Relocation_Block start_block;
+    start_block.Page_RVA = obj->Relocations[0].Virtual_Address;
+
+    obj->Base_Relocations.Blocks.push_back(start_block);
+
+    for (auto& i : obj->Relocations){
+        //If current i.Virtual_Address is over the last block's RVA + 4K, then we need to create a new block
+        if (i.Virtual_Address >= obj->Base_Relocations.Blocks.back().Page_RVA + _4K){
+            PE::Base_Relocation_Block block;
+
+            block.Page_RVA = i.Virtual_Address;
+            obj->Base_Relocations.Blocks.push_back(block);
+        }
+
+        //check if the i->Virtual_Address is within the current block
+        if (i.Virtual_Address < obj->Base_Relocations.Blocks.back().Page_RVA+ _4K){
+            PE::Relocation_Field field;
+            //calculate the offset difference between the current clock base RVA and i.virtual_address
+            field.Set_Virtual_Address(i.Virtual_Address % _4K);
+            field.Set_Type(PE::_IMAGE_REL_BASED_LOW); 
+
+            obj->Base_Relocations.Blocks.back().Relocations.push_back(field);
+        }
+    }
+
+    //now we need to add image base to all the blocks rva
+    for (auto& i : obj->Base_Relocations.Blocks){
+        i.Page_RVA += obj->Header.Image_Base;
+        i.Block_Size = i.Relocations.size() * sizeof(PE::Relocation_Field) + sizeof(PE::Base_Relocation_Block::Page_RVA) + sizeof(PE::Base_Relocation_Block::Block_Size);
+    }
+
+}
+
+void DLL::Write_Base_Relocation_Table(PE::PE_OBJ* obj, vector<unsigned char>& buffer){
+
+    obj->Header.Base_Relocation_Table = buffer.size();
+
+    unsigned long long Current_Offset = buffer.size();
+
+    for (auto& i : obj->Base_Relocations.Blocks){
+        obj->Header.Size_Of_Base_Relocation_Table += i.Block_Size;
+
+        unsigned int Padding = Current_Offset % 32;
+
+        buffer.insert(buffer.end(), Padding, 0);
+
+        buffer.insert(buffer.end(), (unsigned char*)&i.Page_RVA, (unsigned char*)&i.Page_RVA + sizeof(i.Page_RVA));
+        buffer.insert(buffer.end(), (unsigned char*)&i.Block_Size, (unsigned char*)&i.Block_Size + sizeof(i.Block_Size));
+
+        for (auto& r : i.Relocations){
+
+            buffer.insert(buffer.end(), (unsigned char*)&r, (unsigned char*)&r + sizeof(r));
+
+        }
+
+        Current_Offset += i.Block_Size;
+    }
+
 }

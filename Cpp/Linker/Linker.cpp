@@ -384,3 +384,45 @@ void Linker::Write_Import_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){
             Buffer.push_back(0);
     }
 }
+
+PE::Export_Table* Linker::Read_Export_Table(PE::Section& s, vector<unsigned char>& Buffer){
+
+    PE::Export_Table* Result = new PE::Export_Table;
+
+    unsigned int Current_Offset = s.Virtual_Address;
+
+    Result->Directory = *(PE::Export_Directory*)&Buffer[Current_Offset];
+
+    Current_Offset += sizeof(PE::Export_Directory);
+
+    for (int i = 0; i < Result->Directory.Address_Table_Entries; i++){
+        Result->Address_Table.push_back(*(PE::Export_Address_Table*)&Buffer[Current_Offset]);
+
+        Current_Offset += sizeof(PE::Export_Address_Table);
+    }
+
+    for (int i = 0; i < Result->Directory.Address_Table_Entries; i++){
+        Result->Name_Address_Table.push_back(*(unsigned int*)&Buffer[Current_Offset]);
+
+        Current_Offset += sizeof(unsigned int);
+    }
+
+    for (int i = 0; i < Result->Directory.Address_Table_Entries; i++){
+        Result->Ordinal_Table.push_back(*(unsigned short*)&Buffer[Current_Offset]);
+
+        Current_Offset += sizeof(unsigned short);
+    }
+
+    for (int i = 0; i < Result->Directory.Address_Table_Entries; i++){
+        vector<char> Name;
+
+        while (Buffer[Current_Offset] != 0){
+            Name.push_back(Buffer[Current_Offset]);
+            Current_Offset++;
+        }
+        Current_Offset++;
+        Result->Name_Table.push_back(string(Name.data(), Name.size()));
+    }
+
+    return Result;
+}
