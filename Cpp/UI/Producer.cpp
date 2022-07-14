@@ -80,7 +80,7 @@ Producer::Producer(vector<IR*> IRs){
 
             vector<unsigned char> Buffer = Linker::Write_PE_Executable(obj);
 
-            ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
+            ofstream o(sys->Info.Destination_File + ".exe", ios::binary);
 
             o.write((char*)Buffer.data(), Buffer.size());
             o.close();
@@ -89,11 +89,9 @@ Producer::Producer(vector<IR*> IRs){
         if (sys->Info.Format == "dll"){
             DLL::Enlarge_PE_Header(obj);
 
-            vector<unsigned char> Buffer;
+            vector<unsigned char> Buffer = DLL::Write_DLL(obj);
 
-            DLL::Write_Base_Relocation_Table(obj, Buffer);
-
-            ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
+            ofstream o(sys->Info.Destination_File + ".dll", ios::binary);
 
             o.write((char*)Buffer.data(), Buffer.size());
             o.close();

@@ -49,9 +49,8 @@ public:
 	void Parse_Labels(int i);
 	void Parse_Parenthesis(int i);
 	void Update_Operator(Node*n);
-
-	void Generate_Global_Variable(string Variable_Name, Node* Value);
-	void Generate_Global_Variable(string Variable_Name, int Size);
+	
+	void Generate_Global_Variable(Node* label, Node* value);
 	void Parse_Global_Variables(Node* n);
 	void Parse_Static_Variables(Node* n);
 	string Construct_Complex_Init_Values(Node* n);
@@ -73,7 +72,7 @@ public:
 	//p is the pointter ,			, -x unwrap | +x wrap
 	Token* Operate_Pointter(Token* p, int Difference, bool Needed_At_Addressing, bool Unwrap_Memory, vector<string> Types = vector<string>());
 
-	IR* Make_Label(Node* n, bool Mangle);
+	IR* Make_Label(Node* n, bool Mangle = false);
 	IR* Make_Label(string n);
 	IR* Make_Jump(string condition, string l);
 	static int Get_Amount(string t, Node* n);

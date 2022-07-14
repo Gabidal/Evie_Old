@@ -691,10 +691,10 @@ vector<PE::Symbol> PE::Generate_Symbol_Table(){
 		Current.Section_Number = i.second.Section_ID;
 		Current.Type = 0;
 
-		if (i.second.Origin->is("export")){
+		if (i.second.Origin && i.second.Origin->is("export")){
 			Current.Storage_Class = _IMAGE_SYM_CLASS_EXTERNAL;
 		}
-		else if (i.second.Origin->is("import")){
+		else if (i.second.Origin && i.second.Origin->is("import")){
 			Current.Storage_Class = _IMAGE_SYM_CLASS_EXTERNAL_DEF;
 		}
 		else{

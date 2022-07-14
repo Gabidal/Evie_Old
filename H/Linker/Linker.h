@@ -17,8 +17,8 @@ class Linker{
 
     static vector<unsigned char> Write_PE_Executable(PE::PE_OBJ* obj);
 
-    static void Add_Export_Table(PE::PE_OBJ* obj);
-    static void Add_Import_Table(PE::PE_OBJ* obj);
+    static void Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count);
+    static void Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count);
 
     static void Write_Export_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer);
     static void Write_Import_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer);

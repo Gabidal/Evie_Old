@@ -45,8 +45,8 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Code = Code_Size;
     obj->Header.Size_Of_Initialized_Data = Data_Size;
 
-    Add_Export_Table(obj);
-    Add_Import_Table(obj);
+    Add_Export_Table(obj, 2);
+    Add_Import_Table(obj, 2);
 
     unsigned char Optional = 0;
 
@@ -191,8 +191,8 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 	return Buffer;
 }
 
-void Linker::Add_Export_Table(PE::PE_OBJ* obj){
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * (obj->Sections.size() + 2) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * (obj->Sections.size() + expected_section_count) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
@@ -271,9 +271,9 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj){
     obj->Sections.push_back(Section);
 }
 
-void Linker::Add_Import_Table(PE::PE_OBJ* obj){
+void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     //                                                                           + export section table
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * (obj->Sections.size() + 2) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * (obj->Sections.size() + expected_section_count) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 

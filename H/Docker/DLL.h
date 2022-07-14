@@ -20,6 +20,8 @@ namespace DLL {
 	void Add_Base_Relocation_table(PE::PE_OBJ* obj);
 
 	void Write_Base_Relocation_Table(PE::PE_OBJ* obj, vector<unsigned char>& buffer);
+
+	vector<unsigned char> Write_DLL(PE::PE_OBJ* obj);
 }
 
 #endif

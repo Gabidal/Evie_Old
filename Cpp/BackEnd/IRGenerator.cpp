@@ -1351,9 +1351,9 @@ void IRGenerator::Update_Operator(Node* n)
 	n->Inheritted = n->Left->Inheritted;
 }
 
-void IRGenerator::Generate_Global_Variable(string Variable_Name, Node* value)
+void IRGenerator::Generate_Global_Variable(Node* label, Node* value)
 {
-	Output->push_back(Make_Label(Variable_Name));
+	Output->push_back(Make_Label(label));
 
 	long long Flag = 0;
 	string Init_Type = "init";
@@ -1385,14 +1385,6 @@ void IRGenerator::Generate_Global_Variable(string Variable_Name, Node* value)
 		Output->push_back(new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::STRING, "0", 1) }, nullptr));
 }
 
-void IRGenerator::Generate_Global_Variable(string Variable_Name, int Size)
-{
-	Node* Value = new Node(NUMBER_NODE, nullptr);
-	Value->Name = "0";
-	Value->Size = Size;
-	Generate_Global_Variable(Variable_Name, Value);
-}
-
 void IRGenerator::Parse_Global_Variables(Node* n)
 {
 	if (Scope->Name != "GLOBAL_SCOPE")
@@ -1402,7 +1394,7 @@ void IRGenerator::Parse_Global_Variables(Node* n)
 		return;
 
 	n->Right->Size = n->Find(n->Left, n)->Size;
-	Generate_Global_Variable(n->Left->Name, n->Right);
+	Generate_Global_Variable(n->Left, n->Right);
 }
 
 void IRGenerator::Parse_Static_Variables(Node* n)
@@ -1435,15 +1427,21 @@ void IRGenerator::Parse_Static_Variables(Node* n)
 
 		//global variables that have been given an initial value.
 		//static double Pi = 162351276534
-		Generate_Global_Variable(n->Scope->Name + "_" + n->Left->Name, n->Right);
+		Node tmp = *n->Left;
+		tmp.Mangled_Name = tmp.Scope->Name + "_" + tmp.Name;
+		Generate_Global_Variable(&tmp, n->Right);
 	}
 	//inlined variables have their definition seen here, so make sure that this is the OG scope that
 	//the global variable was defined in.
 	else if (n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && n->Scope->Name == Scope->Name) {
 		//{[Namespace name] + [Static variable name]} d[size] 0
+		Node* value = new Node(NUMBER_NODE, "0", n->Left->Location);
+		value->Size = n->Size;
 
 		//un given value global variables
-		Generate_Global_Variable(n->Scope->Name + "_" + n->Name, n->Size);
+		Node tmp = *n->Left;
+		tmp.Mangled_Name = tmp.Scope->Name + "_" + tmp.Name;
+		Generate_Global_Variable(&tmp, value);
 	}
 }
 
@@ -1751,7 +1749,10 @@ void IRGenerator::Parse_Loops(int i)
 	//now make the _END addon at the end of loop for the false condition to fall
 	Output->push_back(Make_Jump("jump", Input[i]->Name));
 
-	Output->push_back(new IR(new Token(TOKEN::LABEL, Input[i]->Name + "_END"), {}, Input[i]->Location));
+	Node tmp = *Input[i];
+	tmp.Name += "_END";
+
+	Output->push_back(Make_Label(&tmp));
 
 	//make here IR that states that every variable that is extern to this while define list must last the same end.
 	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables((int)Output->size(), start_Index, Input[i]), Input[i]->Location));
@@ -1935,11 +1936,15 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 	return p;
 }
 
-IR* IRGenerator::Make_Label(Node* n, bool Mangle = false)
+IR* IRGenerator::Make_Label(Node* n, bool Mangle)
 {
 	string name = n->Name;
+
 	if (Mangle)
 		name = MANGLER::Mangle(n, "");
+	else if (n->Mangled_Name != "")
+		name = n->Mangled_Name;
+
 	Token* label_name = new Token(TOKEN::LABEL, name);
 	label_name->OG = n->Name;
 

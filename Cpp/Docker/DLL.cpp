@@ -2,8 +2,10 @@
 #include "../../H/Linker/Linker.h"
 #include "../../H/UI/Usr.h"
 #include "../../H/Nodes/Node.h"
+#include "../../H/BackEnd/Selector.h"
 
 extern Usr* sys;
+extern Selector* selector;
 
 vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Header h)
 {
@@ -91,8 +93,8 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Code = Code_Size;
     obj->Header.Size_Of_Initialized_Data = Data_Size;
 
-    Linker::Add_Export_Table(obj);
-    Linker::Add_Import_Table(obj);
+    Linker::Add_Export_Table(obj, 3);
+    Linker::Add_Import_Table(obj, 3);
     DLL::Add_Base_Relocation_table(obj);
 
     unsigned char Optional = 0;
@@ -148,6 +150,9 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
 //Chop the entire DLL into 4K chunks and then assess the .Text and .Data sections, where there is a  
 //Go through the relocations table that comes from .obj files and calculate the 4K modulo remainder offsets from the relocation table.
 void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj){
+    if (obj->Relocations.size() == 0)
+        return;
+    
     const int _4K = 4096;
 
     PE::Base_Relocation_Block start_block;
@@ -208,4 +213,49 @@ void DLL::Write_Base_Relocation_Table(PE::PE_OBJ* obj, vector<unsigned char>& bu
         Current_Offset += i.Block_Size;
     }
 
+}
+
+vector<unsigned char> DLL::Write_DLL(PE::PE_OBJ* obj){
+    vector<unsigned char> Buffer;
+    PE::Bull_Shit_Headers dos;
+
+    //add DOS bullshittery
+    Buffer.insert(Buffer.end(), (unsigned char*)&dos, (unsigned char*)&dos + sizeof(dos));
+
+	Buffer.insert(Buffer.end(), (unsigned char*)&obj->Header, (unsigned char*)&obj->Header + sizeof(PE::Header));
+
+	Buffer.insert(Buffer.end(), (unsigned char*)obj->Sections.data(), (unsigned char*)obj->Sections.data() + sizeof(PE::Section) * obj->Sections.size());
+
+	Buffer.insert(Buffer.end(), (unsigned char*)obj->Symbols.data(), (unsigned char*)obj->Symbols.data() + sizeof(PE::Symbol) * obj->Symbols.size());
+
+	Buffer.insert(Buffer.end(), (unsigned char*)&obj->String_Table_Size, (unsigned char*)&obj->String_Table_Size + sizeof(obj->String_Table_Size));
+
+	Buffer.insert(Buffer.end(), obj->String_Table_Buffer.begin(), obj->String_Table_Buffer.end());
+
+    int Origo = Buffer.size();
+
+    unsigned long long Current_Offset = Origo;
+
+	for (auto i : obj->Content){
+        //add padding
+        int Padding = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
+
+        Buffer.insert(Buffer.end(), Padding, (unsigned char)0);
+
+		for (auto& j : i->Byte_Maps){
+
+			vector<unsigned char> Data = selector->Assemble(j);
+
+			Buffer.insert(Buffer.end(), Data.begin(), Data.end());
+
+            Current_Offset += Data.size() + Padding;
+		}
+	}
+
+    Linker::Write_Export_Table(obj, Buffer);
+    Linker::Write_Import_Table(obj, Buffer);
+    DLL::Write_Base_Relocation_Table(obj, Buffer);
+
+	//transform the 
+	return Buffer;
 }
