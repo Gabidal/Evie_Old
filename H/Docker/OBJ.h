@@ -307,7 +307,7 @@ namespace PE {
 
 	unsigned long long Get_Relative_Address(unsigned long long address, PE::OBJ_Pile& pile, string File_Origin);
 	
-	vector<Section> Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo);
+	vector<Section> Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo, PE::PE_OBJ* obj);
 
 	vector<Symbol> Generate_Symbol_Table();
 
@@ -336,7 +336,6 @@ namespace PE {
 	static constexpr unsigned long _IMAGE_SCN_CNT_CODE = 0x00000020;
 
 	static constexpr unsigned long _IMAGE_SYM_CLASS_EXTERNAL = 0x00000002;
-	static constexpr unsigned long _IMAGE_SYM_CLASS_EXTERNAL_DEF = 0x00000005;
 	static constexpr unsigned long _IMAGE_SYM_CLASS_LABEL = 0x00000006;
 
 	static constexpr unsigned long _IMAGE_FILE_MACHINE_AMD64 = 0x8664;

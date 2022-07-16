@@ -59,7 +59,7 @@ Producer::Producer(vector<IR*> IRs){
         //Transform the main local information into a PE object.
         vector<unsigned char> Buffer = PE::Write_Obj(*obj);
 
-        ofstream o(sys->Info.Destination_File.c_str(), ios::binary);
+        ofstream o(sys->Info.Destination_File + ".obj", ios::binary);
 
         o.write((char*)Buffer.data(), Buffer.size());
         o.close();

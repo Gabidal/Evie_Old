@@ -73,28 +73,15 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	this->Header.Date_Time = time_t(time(NULL));
 	this->Header.Pointer_To_Symbol_Table = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(Header::Characteristics) + sizeof(PE::Section) * Sections.size();
 
-	//calculate the exports and import functions from global scope
-	for (auto s : Global_Scope->Defined){
-		if (s->Has(vector<string>{"export", "import"}) > 0){
-			this->Header.Number_Of_Symbols++;
-		}
-	}
-
 	this->Header.Size_Of_Optional_Header = 0;
 	this->Header.Characteristics = _IMAGE_FILE_LARGE_ADDRESS_AWARE;
 
 	this->Symbols = Generate_Symbol_Table();
+	this->Header.Number_Of_Symbols = Symbols.size();
 
 	this->Content = Sections;
 
 	vector<string> Symbol_Names = Generate_Name_Section_For_Symbol_Table();
-
-	unsigned long long Symbol_Name_Size = 0;
-	for (auto i : Symbol_Names){
-		//add the null terminator
-		Symbol_Name_Size += i.size() + 1;
-
-	}
 	
 	//Remove the optional headers from the buffer
 	unsigned char* Header_Start_Address = (unsigned char*)&this->Header;
@@ -116,7 +103,7 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 
 	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer);
 
-	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + Symbol_Name_Size + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation));
+	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation), this);
 
 	unsigned long long Header_Size = Header_End_Address - Header_Start_Address + this->Sections.size() * sizeof(PE::Section) + this->Symbols.size() * sizeof(PE::Symbol) + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation);
 
@@ -126,19 +113,10 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	// 	i.Value += Header_Size;
 
 	// }
-
-	Add_Padding_To_Offsets(*this);
 }
 
 void PE::Add_Padding_To_Offsets(PE::PE_OBJ& obj){
-	unsigned long long Symbol_Name_Size = 0;
-	for (auto i : obj.Symbols){
-		//add the null terminator
-		Symbol_Name_Size += i.Get_Name(obj.String_Table_Buffer).size() + 1;
-
-	}
-
-	int Origo = obj.Header.Pointer_To_Symbol_Table + sizeof(obj.Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * obj.Symbols.size() + Symbol_Name_Size + obj.String_Table_Size + obj.Relocations.size() * sizeof(PE::Relocation);
+	int Origo = obj.Header.Pointer_To_Symbol_Table + sizeof(obj.Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * obj.Symbols.size() + obj.String_Table_Size + obj.Relocations.size() * sizeof(PE::Relocation);
 
 	unsigned long long Current_Offset = Origo;
 
@@ -158,7 +136,7 @@ void PE::Add_Padding_To_Offsets(PE::PE_OBJ& obj){
 
 		s.Pointer_To_Raw_Data = Current_Offset;
 		Current_Offset += s.Size_Of_Raw_Data;
-		Current_Offset = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
+		Current_Offset = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
 	}
 
 
@@ -200,6 +178,9 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 	Buffer.insert(Buffer.end(), obj.String_Table_Buffer.begin(), obj.String_Table_Buffer.end());
 
+	Buffer.insert(Buffer.end(), (unsigned char*)obj.Relocations.data(), (unsigned char*)obj.Relocations.data() + sizeof(PE::Relocation) * obj.Relocations.size());
+
+
 	unsigned long long Symbol_Name_Size = 0;
 	for (auto i : obj.Symbols){
 		//add the null terminator
@@ -207,7 +188,7 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 	}
 
-	int Origo = obj.Header.Pointer_To_Symbol_Table + sizeof(obj.Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * obj.Symbols.size() + Symbol_Name_Size + obj.String_Table_Size + obj.Relocations.size() * sizeof(PE::Relocation);
+	int Origo = Buffer.size();
 
 	unsigned long long Current_Offset = Origo;
 
@@ -639,15 +620,19 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 	Add_Padding_To_Offsets(*this);
 }
 
-vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo){
+vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo, PE::PE_OBJ* obj){
 
 	vector<PE::Section> Result;
 
 	unsigned long long Padding = 0;
+	
+	//Remove the optional headers from the buffer
+	unsigned char* Header_Start_Address = (unsigned char*)&obj->Header;
+	unsigned char* Header_End_Address = (unsigned char*)&obj->Header.Characteristics + sizeof(obj->Header.Characteristics);
 
 	for (auto i : Input){
 
-		Padding = (Padding + i->Calculated_Address + Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+		Padding = ((Padding + i->Calculated_Address + Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
 
 		Section tmp;
 		 memcpy(&tmp.Name, i->Name.data(), i->Name.size());
@@ -655,9 +640,9 @@ vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, 
 		 tmp.Virtual_Address = Padding;
 		 tmp.Size_Of_Raw_Data = i->Calculated_Size;
 		 tmp.Pointer_To_Raw_Data = Padding;
-		 tmp.Pointer_To_Relocations = 0;
+		 tmp.Pointer_To_Relocations =  Header_End_Address - Header_Start_Address + sizeof(PE::Section) * Input.size() + sizeof(PE::Symbol) * obj->Header.Number_Of_Symbols + obj->String_Table_Size;
 		 tmp.Pointer_To_Line_Numbers = 0;
-		 tmp.Number_Of_Relocations = 0;
+		 tmp.Number_Of_Relocations = obj->Relocations.size();
 		 tmp.Number_Of_Line_Numbers = 0;
 
 		if (i->Is_Data_Section){
@@ -695,7 +680,8 @@ vector<PE::Symbol> PE::Generate_Symbol_Table(){
 			Current.Storage_Class = _IMAGE_SYM_CLASS_EXTERNAL;
 		}
 		else if (i.second.Origin && i.second.Origin->is("import")){
-			Current.Storage_Class = _IMAGE_SYM_CLASS_EXTERNAL_DEF;
+			Current.Storage_Class = _IMAGE_SYM_CLASS_EXTERNAL;
+			Current.Section_Number = 0;
 		}
 		else{
 			Current.Storage_Class = _IMAGE_SYM_CLASS_LABEL;
@@ -728,7 +714,10 @@ vector<string> PE::Generate_Name_Section_For_Symbol_Table(){
 string PE::Symbol::Get_Name(vector<unsigned char>& String_Table){
 	string Result = "";
 
-	for (int i = Full_Name; i < String_Table.size(); i++){
+	int String_Table_Size_Identifier_Size = 4;
+	unsigned int Clean_Name_Offset = (Full_Name >> 32) - 4;
+
+	for (unsigned int i = Clean_Name_Offset; i < String_Table.size(); i++){
 
 		if (String_Table[i] == 0){
 			break;

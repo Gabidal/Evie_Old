@@ -19,6 +19,7 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "iosfwd": "cpp",
-        "xlocale": "cpp"
+        "xlocale": "cpp",
+        "xiosbase": "cpp"
     }
 }

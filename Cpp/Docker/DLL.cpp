@@ -94,7 +94,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Initialized_Data = Data_Size;
 
     Linker::Add_Export_Table(obj, 3);
-    Linker::Add_Import_Table(obj, 3);
+    Linker::Add_Import_Table(obj, 2);
     DLL::Add_Base_Relocation_table(obj);
 
     unsigned char Optional = 0;

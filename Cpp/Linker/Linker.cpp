@@ -46,7 +46,7 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Initialized_Data = Data_Size;
 
     Add_Export_Table(obj, 2);
-    Add_Import_Table(obj, 2);
+    Add_Import_Table(obj, 1);
 
     unsigned char Optional = 0;
 
@@ -286,7 +286,7 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     vector<PE::Symbol> Imported_Functions;
 
     for (auto& s : obj->Symbols)
-        if (s.Storage_Class == PE::_IMAGE_SYM_CLASS_EXTERNAL_DEF)
+        if (s.Storage_Class == PE::_IMAGE_SYM_CLASS_EXTERNAL && s.Section_Number == 0)
             Imported_Functions.push_back(s);
 
     PE::Import_Table Table;

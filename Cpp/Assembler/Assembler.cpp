@@ -516,6 +516,13 @@ void Assembler::Apply_Self_Recursion(vector<Byte_Map_Section*>& Sections){
 
             //Now apply the new modifications and build new byte map from it.
             *byte_map = *selector->Build(byte_map->Ir);
+
+            //re instable the IS_External_Label attribute.
+            for (auto& T : byte_map->Ir->Arguments){
+
+                Go_Through_Token_And_Replace_Local_Labels_With_Numbers(T, byte_map);
+
+            }
         }
     }
 
@@ -534,6 +541,8 @@ void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Cu
         if (symbol.Section_ID == 0){
             //This is an external symbol witch address we dont know.
             Back_Reference->Has_External_Label = true;
+
+            Back_Reference->Label = Current->Name;
 
             return;
         }
