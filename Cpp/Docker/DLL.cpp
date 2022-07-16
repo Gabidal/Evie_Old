@@ -92,10 +92,18 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     
     obj->Header.Size_Of_Code = Code_Size;
     obj->Header.Size_Of_Initialized_Data = Data_Size;
+    obj->Header.Image_Base = PE::_WINDOWS_PE_EXE_BASE_IMAGE;
+    obj->Header.Size_Of_Image = Image_Size;
 
     Linker::Add_Export_Table(obj, 3);
     Linker::Add_Import_Table(obj, 2);
     DLL::Add_Base_Relocation_table(obj);
+
+    for (auto& s : obj->Sections){
+
+        obj->Header.Size_Of_Image += s.Size_Of_Raw_Data;
+
+    }
 
     unsigned char Optional = 0;
 
@@ -108,7 +116,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
     obj->Header.Number_Of_Sections = obj->Sections.size();
     obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
-    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header)) - (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
+    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | Optional;
     obj->Header.Date_Time = time_t(time(NULL));
     obj->Header.Magic = PE::MAGIC_NUMBER;
@@ -116,15 +124,21 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Uninitialized_Data = 0;
     obj->Header.Base_Of_Code = Code_Starting_Address;
     //obj->Header.Base_Of_Data = Data_Starting_Address;
-    obj->Header.Image_Base = PE::_WINDOWS_PE_EXE_BASE_IMAGE;
     obj->Header.Section_Alignment = PE::_SECTION_ALIGNMENT;
     obj->Header.File_Alignment = PE::_FILE_ALIGNMENT;
     obj->Header.Operating_System_Version = PE::_IMAGE_OS_VERSION;
     obj->Header.Image_Version = 0;
     obj->Header.Subsystem_Version = PE::_IMAGE_SUBSYSTEM_VERSION;
     obj->Header.Win32_Version_Value = 0;
-    obj->Header.Size_Of_Image = Image_Size;
-    obj->Header.Size_Of_Headers = sizeof(PE::Header);
+
+
+    obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Section) * obj->Sections.size();
+
+    int Padding = ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
+
+    obj->Header.Size_Of_Headers += Padding;
+
+
     obj->Header.Check_Sum = 0;
     obj->Header.Subsystem = PE::_IMAGE_SUBSYSTEM_WINDOWS_CUI;
     obj->Header.Dll_Characteristics = 0;
@@ -134,7 +148,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Heap_Commit = PE::_BUCKET_SIZE;
 
     //Now we need to add the export and import tables
-    obj->Header.Number_Of_Rva_And_Sizes = 6;
+    obj->Header.Number_Of_Rva_And_Sizes = 15;
     
     Linker::Update_Obj_Headers(obj);
 
@@ -184,8 +198,26 @@ void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj){
     for (auto& i : obj->Base_Relocations.Blocks){
         i.Page_RVA += obj->Header.Image_Base;
         i.Block_Size = i.Relocations.size() * sizeof(PE::Relocation_Field) + sizeof(PE::Base_Relocation_Block::Page_RVA) + sizeof(PE::Base_Relocation_Block::Block_Size);
+        obj->Header.Size_Of_Base_Relocation_Table += i.Block_Size;
     }
 
+    obj->Header.Base_Relocation_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section) + obj->Symbols.size() * sizeof(PE::Symbol) + obj->String_Table_Size + obj->Header.Size_Of_Image + obj->Header.Size_Of_Export_Table + obj->Header.Size_Of_Import_Table;
+
+
+    //Now make the section for the base relocation table.
+    PE::Section section;
+
+    section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE;
+    memcpy(&section.Name, ".reloc", 6);
+    section.Virtual_Address = obj->Header.Base_Relocation_Table;
+    section.Size_Of_Raw_Data = obj->Header.Size_Of_Base_Relocation_Table;
+    section.Pointer_To_Raw_Data = obj->Header.Base_Relocation_Table;
+    section.Pointer_To_Relocations = 0;
+    section.Pointer_To_Line_Numbers = 0;
+    section.Number_Of_Relocations = 0;
+    section.Number_Of_Line_Numbers = 0;
+
+    obj->Sections.push_back(section);
 }
 
 void DLL::Write_Base_Relocation_Table(PE::PE_OBJ* obj, vector<unsigned char>& buffer){
