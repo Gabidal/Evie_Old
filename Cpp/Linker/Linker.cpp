@@ -202,7 +202,7 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
     vector<PE::Symbol> Exported_Functions;
 
     for (auto& s : obj->Symbols)
-        if (s.Storage_Class == PE::_IMAGE_SYM_CLASS_EXTERNAL)
+        if (s.Storage_Class == PE::_IMAGE_SYM_CLASS_EXTERNAL && s.Section_Number != 0)
             Exported_Functions.push_back(s);
 
     //Now we sort the names alphabetically
@@ -307,6 +307,8 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
 
         if ((hint.Name.size() + 1) % 2 != 0)
             hint.Padding = true;
+
+        Table.Hint_Table.push_back(hint);
     }
 
     unsigned int Hint_Name_Size = 0;
@@ -352,7 +354,7 @@ void Linker::Write_Export_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){
         Buffer.insert(Buffer.end(), (unsigned char*)&obj->Exports.Ordinal_Table[0], (unsigned char*)&obj->Exports.Ordinal_Table[0] + sizeof(unsigned short) * obj->Exports.Ordinal_Table.size());
 
     for (auto& s : obj->Exports.Name_Table){
-        Buffer.insert(Buffer.end(), s.begin(), s.end());
+        Buffer.insert(Buffer.end(), (unsigned char*)s.data(), (unsigned char*)s.data() + s.size());
         Buffer.push_back(0);
     }
 }
