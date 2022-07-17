@@ -624,22 +624,22 @@ vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, 
 
 	vector<PE::Section> Result;
 
-	unsigned long long Padding = 0;
-	
 	//Remove the optional headers from the buffer
 	unsigned char* Header_Start_Address = (unsigned char*)&obj->Header;
 	unsigned char* Header_End_Address = (unsigned char*)&obj->Header.Characteristics + sizeof(obj->Header.Characteristics);
 
+	unsigned int Current_Offset = Origo;
+
 	for (auto i : Input){
 
-		Padding = ((Padding + i->Calculated_Address + Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
+		unsigned long long Padding = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
 
 		Section tmp;
 		 memcpy(&tmp.Name, i->Name.data(), i->Name.size());
 		 tmp.Virtual_Size = i->Calculated_Size;
-		 tmp.Virtual_Address = Padding;
+		 tmp.Virtual_Address = Padding + Current_Offset;
 		 tmp.Size_Of_Raw_Data = i->Calculated_Size;
-		 tmp.Pointer_To_Raw_Data = Padding;
+		 tmp.Pointer_To_Raw_Data = Padding + Current_Offset;
 		 tmp.Pointer_To_Relocations =  Header_End_Address - Header_Start_Address + sizeof(PE::Section) * Input.size() + sizeof(PE::Symbol) * obj->Header.Number_Of_Symbols + obj->String_Table_Size;
 		 tmp.Pointer_To_Line_Numbers = 0;
 		 tmp.Number_Of_Relocations = obj->Relocations.size();
@@ -653,6 +653,8 @@ vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, 
 		}
 
 		Result.push_back(tmp);
+
+		Current_Offset += Padding + tmp.Virtual_Size;
 	}
 
 	return Result;

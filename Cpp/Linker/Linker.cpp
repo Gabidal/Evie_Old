@@ -103,15 +103,8 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
     //Gather all RVA's from symbols and sections of sorts, calculate the new adddresses and then compare the difference and that to the old addreses.
 
     vector<PE::Section*> Section_RVA;
-    //   section id, RVA
-    vector<pair<short, PE::Symbol*>> Symbol_RVA;
-
     for (int i = 0; i < obj->Sections.size(); i++){
         Section_RVA.push_back(&obj->Sections[i]);
-    }
-
-    for (auto& i : obj->Symbols){
-        Symbol_RVA.push_back({i.Section_Number - 1, &i});
     }
 
     //Now start calculating the new offset of origo.
@@ -131,18 +124,6 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
         Section_RVA[i]->Virtual_Address = Current_Offset + Tmp_Padding;
         
 		Current_Offset += obj->Sections[i].Virtual_Size + Tmp_Padding;
-
-        // for (auto& j : Symbol_RVA){
-        //     if (j.first == i){
-
-        //         if (j.second->Value == obj->Header.Address_Of_Entry_Point){
-        //             obj->Header.Address_Of_Entry_Point = j.second->Value + ((Tmp_Padding + Current_Offset) - j.second->Value);
-        //         }
-
-        //         j.second->Value += (Current_Offset + Tmp_Padding) - j.second->Value;
-
-        //     }
-        // }
     }
 
 }

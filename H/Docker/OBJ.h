@@ -349,6 +349,8 @@ namespace PE {
 	static constexpr unsigned long _IMAGE_SUBSYSTEM_VERSION = (1 << (sizeof(short) * 8)) + 6;
 
 	static constexpr unsigned long _IMAGE_REL_BASED_LOW = 2;
+
+	static constexpr unsigned long _OPTIONAL_HEADER_DATA_DIRECTORIES_AMOUNT = 15;
 }
 
 #pragma pack(pop) // Restore alignment
