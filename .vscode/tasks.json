@@ -6,7 +6,7 @@
             "command": "msbuild.exe",
             "args": [
                 "Evie.sln",
-                "/p:Configuration=Debug",
+                "/p:Configuration=Test",
                 //"/t:Rebuild"
             ],
             "options": {

@@ -1,1 +1,7 @@
-export func main(){}
+import plain VirtualAlloc()
+
+export func main(){
+
+    VirtualAlloc()
+
+}

@@ -11,7 +11,7 @@ extern Selector* selector;
 
 void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
 
-    //Get the stating address
+   //Get the stating address
     Node* Starting_Function = sys->Info.Starting_Address;
 
     unsigned long long Code_Size = 0;
@@ -42,31 +42,16 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     //The final value of the image size is the multiple of alignments
     Image_Size = (Image_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     
-    obj->Header.Size_Of_Code = Code_Size;
-    obj->Header.Size_Of_Initialized_Data = Data_Size;
-
-    Add_Export_Table(obj, 2);
-    Add_Import_Table(obj, 1);
-
-    unsigned char Optional = 0;
-
-    if (sys->Info.Debug){
-
-        Optional = PE::_IMAGE_FILE_DEBUG_STRIPPED;
-
-    }
-
-    obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
-    obj->Header.Number_Of_Sections = obj->Sections.size();
-    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
-    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header)) - (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
-    obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | Optional;
-    obj->Header.Date_Time = time_t(time(NULL));
     obj->Header.Magic = PE::MAGIC_NUMBER;
     obj->Header.Linker_Version = 0;
+
+    obj->Header.Size_Of_Code = (Code_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    
+    obj->Header.Size_Of_Initialized_Data = (Data_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
     obj->Header.Size_Of_Uninitialized_Data = 0;
     obj->Header.Base_Of_Code = Code_Starting_Address;
-    //obj->Header.Base_Of_Data = Data_Starting_Address;
+
     obj->Header.Image_Base = PE::_WINDOWS_PE_EXE_BASE_IMAGE;
     obj->Header.Section_Alignment = PE::_SECTION_ALIGNMENT;
     obj->Header.File_Alignment = PE::_FILE_ALIGNMENT;
@@ -75,7 +60,12 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Subsystem_Version = PE::_IMAGE_SUBSYSTEM_VERSION;
     obj->Header.Win32_Version_Value = 0;
     obj->Header.Size_Of_Image = Image_Size;
-    obj->Header.Size_Of_Headers = sizeof(PE::Header);
+ 
+    Linker::Add_Export_Table(obj, 2);       //Sections(text, data) + (export, import)
+    Linker::Add_Import_Table(obj, 1);       //Sections(text, data, export) + (import)
+    
+    obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Section) * obj->Sections.size();
+    obj->Header.Size_Of_Headers += ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
     obj->Header.Check_Sum = 0;
     obj->Header.Subsystem = PE::_IMAGE_SUBSYSTEM_WINDOWS_CUI;
     obj->Header.Dll_Characteristics = 0;
@@ -83,11 +73,34 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Size_Of_Stack_Commit = PE::_BUCKET_SIZE;
     obj->Header.Size_Of_Heap_Reserve = PE::_BUCKET_SIZE;
     obj->Header.Size_Of_Heap_Commit = PE::_BUCKET_SIZE;
+    obj->Header.Number_Of_Rva_And_Sizes = PE::_OPTIONAL_HEADER_DATA_DIRECTORIES_AMOUNT;
 
-    //Now we need to add the export and import tables
-    obj->Header.Number_Of_Rva_And_Sizes = 2;
+    for (auto& s : obj->Sections){
+
+        obj->Header.Size_Of_Image += s.Size_Of_Raw_Data;
+
+    }
     
-    Update_Obj_Headers(obj);
+    obj->Header.Size_Of_Image = (obj->Header.Size_Of_Image + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
+    unsigned char Optional = 0;
+
+    if (!sys->Info.Debug){
+
+        Optional = PE::_IMAGE_FILE_DEBUG_STRIPPED;
+
+    }
+
+    //Update the non optional headers.
+    obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
+    obj->Header.Number_Of_Sections = obj->Sections.size();
+    obj->Header.Date_Time = time_t(time(NULL));
+    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
+    obj->Header.Number_Of_Symbols = obj->Symbols.size();
+    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
+    obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED;
+    
+    Linker::Update_Obj_Headers(obj);
 
     //Now find this function name from the symbol table
     for (auto& i : obj->Symbols){
@@ -124,6 +137,9 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
         Section_RVA[i]->Virtual_Address = Current_Offset + Tmp_Padding;
         
 		Current_Offset += obj->Sections[i].Virtual_Size + Tmp_Padding;
+
+        Section_RVA[i]->Pointer_To_Relocations = 0;
+        Section_RVA[i]->Number_Of_Relocations = 0;
     }
 
 }

@@ -10,7 +10,7 @@
           "-in",
           "${workspaceFolder}/IO/Test.e",
           "-f",
-          "dll",
+          "exe",
           "-reference-count-size",
           "0"
         ],

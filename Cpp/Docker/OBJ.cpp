@@ -74,7 +74,7 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	this->Header.Pointer_To_Symbol_Table = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(Header::Characteristics) + sizeof(PE::Section) * Sections.size();
 
 	this->Header.Size_Of_Optional_Header = 0;
-	this->Header.Characteristics = _IMAGE_FILE_LARGE_ADDRESS_AWARE;
+	this->Header.Characteristics = PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED;
 
 	this->Symbols = Generate_Symbol_Table();
 	this->Header.Number_Of_Symbols = Symbols.size();

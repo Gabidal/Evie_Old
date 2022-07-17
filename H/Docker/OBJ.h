@@ -204,7 +204,7 @@ namespace PE {
 		Import_Directory Directory;
 		Import_Directory Null_Directory_Table;
 		vector<Import_Lookup> Lookup_Table;
-		unsigned long long Null_Lookup_Table;
+		unsigned long long Null_Lookup_Table = 0;
 		vector<Hint> Hint_Table;
 	};
 
@@ -313,9 +313,11 @@ namespace PE {
 
 	vector<string> Generate_Name_Section_For_Symbol_Table();
 
-	static constexpr unsigned char _IMAGE_FILE_LARGE_ADDRESS_AWARE = 0x0020;
-	static constexpr unsigned char _IMAGE_FILE_EXECUTABLE_IMAGE = 0x0002;
-	static constexpr unsigned char _IMAGE_FILE_DEBUG_STRIPPED = 0x0200;
+	static constexpr unsigned short _IMAGE_FILE_LARGE_ADDRESS_AWARE = 0x0020;
+	static constexpr unsigned short _IMAGE_FILE_EXECUTABLE_IMAGE = 0x0002;
+	static constexpr unsigned short _IMAGE_FILE_DEBUG_STRIPPED = 0x0200;
+	static constexpr unsigned short _IMAGE_FILE_LINE_NUMS_STRIPPED = 0x0004;
+	static constexpr unsigned short _IMAGE_FILE_RELOCS_STRIPPED = 0x0001;
 	static constexpr unsigned short _MAGIC_PE32_PlUS = 0x20b;
 	static constexpr unsigned long _WINDOWS_PE_DLL_BASE_IMAGE = 0x10000000;
 	static constexpr unsigned long _WINDOWS_PE_EXE_BASE_IMAGE = 0x00400000;

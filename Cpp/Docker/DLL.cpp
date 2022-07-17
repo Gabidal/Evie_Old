@@ -59,7 +59,7 @@ void DLL::DLL_Analyser(vector<string>& Output)
 
 void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
 
-	//Get the stating address
+   //Get the stating address
     Node* Starting_Function = sys->Info.Starting_Address;
 
     unsigned long long Code_Size = 0;
@@ -92,8 +92,11 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     
     obj->Header.Magic = PE::MAGIC_NUMBER;
     obj->Header.Linker_Version = 0;
-    obj->Header.Size_Of_Code = Code_Size;
-    obj->Header.Size_Of_Initialized_Data = Data_Size;
+
+    obj->Header.Size_Of_Code = (Code_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    
+    obj->Header.Size_Of_Initialized_Data = (Data_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
     obj->Header.Size_Of_Uninitialized_Data = 0;
     obj->Header.Base_Of_Code = Code_Starting_Address;
 
@@ -105,7 +108,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Subsystem_Version = PE::_IMAGE_SUBSYSTEM_VERSION;
     obj->Header.Win32_Version_Value = 0;
     obj->Header.Size_Of_Image = Image_Size;
-
+ 
     Linker::Add_Export_Table(obj, 3);       //Sections(text, data) + (export, import, base)
     Linker::Add_Import_Table(obj, 2);       //Sections(text, data, export) + (import, base)
     DLL::Add_Base_Relocation_table(obj);    //Sections(text, data, export, import, base)
@@ -126,10 +129,12 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
         obj->Header.Size_Of_Image += s.Size_Of_Raw_Data;
 
     }
+    
+    obj->Header.Size_Of_Image = (obj->Header.Size_Of_Image + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
     unsigned char Optional = 0;
 
-    if (sys->Info.Debug){
+    if (!sys->Info.Debug){
 
         Optional = PE::_IMAGE_FILE_DEBUG_STRIPPED;
 
@@ -142,7 +147,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
     obj->Header.Number_Of_Symbols = obj->Symbols.size();
     obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
-    obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | Optional;
+    obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED;
     
     Linker::Update_Obj_Headers(obj);
 
