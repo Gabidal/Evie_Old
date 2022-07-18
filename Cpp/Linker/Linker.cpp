@@ -218,9 +218,8 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
     for (auto& s : Exported_Functions){
         PE::Export_Address_Table Entry;
 
-        Entry.Address = s.Value;
-
-        Entry.Name_Address = Current_RVA;
+        //Get the s's section number and with that get the sections starting address
+        Entry.Address = obj->Sections[s.Section_Number - 1].Virtual_Address + s.Value;
 
         //Also add the symbol name to the name list, for later on to calculate
         //the RVA of the symbol name address.
@@ -240,17 +239,18 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
     }
 
     obj->Header.Export_Table = Origo;
-    obj->Header.Size_Of_Export_Table = sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * Exported_Functions.size() + sizeof(PE::Export_Table::Name_Address_Table) * Table.Name_Address_Table.size() + sizeof(PE::Export_Table::Ordinal_Table) * Table.Ordinal_Table.size() + Table.Size_Of_Name_Table;
+    obj->Header.Size_Of_Export_Table = sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * Exported_Functions.size() + sizeof(unsigned int) * Table.Name_Address_Table.size() + sizeof(unsigned short) * Table.Ordinal_Table.size() + Table.Size_Of_Name_Table;
 
-    Table.Directory.Time_Date_Stamp = 0;//time_t(time(NULL));
+    Table.Directory.Export_Flags = 0;
+    Table.Directory.Time_Date_Stamp = time_t(time(NULL));
     Table.Directory.Major_Version = 0;
     Table.Directory.Minor_Version = 0;
     Table.Directory.DLL_Name_RVA = 0;
-    Table.Directory.Ordinal_Base = 0;
+    Table.Directory.Ordinal_Base = 1;
     Table.Directory.Address_Table_Entries = Exported_Functions.size();
     Table.Directory.Number_Of_Name_Entries = Exported_Functions.size();
-    Table.Directory.Export_Address_Table_RVA = obj->Header.Image_Base + Origo + sizeof(PE::Export_Directory);
-    Table.Directory.Ordinal_Table_RVA = obj->Header.Export_Table + sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * Exported_Functions.size() + sizeof(PE::Export_Table::Name_Address_Table) * Table.Name_Address_Table.size();
+    Table.Directory.Export_Address_Table_RVA = obj->Header.Export_Table + sizeof(PE::Export_Directory);
+    Table.Directory.Ordinal_Table_RVA = obj->Header.Export_Table + sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * Exported_Functions.size() + sizeof(unsigned int) * Table.Name_Address_Table.size();
     Table.Directory.Name_Pointer_RVA = obj->Header.Export_Table + sizeof(PE::Export_Directory) + sizeof(PE::Export_Address_Table) * Exported_Functions.size();
 
     obj->Exports = Table;
@@ -263,7 +263,7 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
     Section.Virtual_Size = obj->Header.Size_Of_Export_Table;
     Section.Size_Of_Raw_Data = obj->Header.Size_Of_Export_Table;
     Section.Pointer_To_Raw_Data = Origo;
-    Section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE;
+    Section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE | PE::_IMAGE_SCN_ALIGN_512BYTES;
 
     obj->Sections.push_back(Section);
 }
@@ -331,7 +331,7 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     Section.Virtual_Size = obj->Header.Size_Of_Export_Table;
     Section.Size_Of_Raw_Data = obj->Header.Size_Of_Export_Table;
     Section.Pointer_To_Raw_Data = Origo;
-    Section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE;
+    Section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE | PE::_IMAGE_SCN_ALIGN_512BYTES;
 
     obj->Sections.push_back(Section);
 }

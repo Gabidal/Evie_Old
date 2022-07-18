@@ -164,7 +164,6 @@ namespace PE {
 	class Export_Address_Table{
 	public:
 		unsigned int Address = 0;
-		unsigned int Name_Address = 0;
 	};
 
 	class Export_Table{
@@ -318,6 +317,7 @@ namespace PE {
 	static constexpr unsigned short _IMAGE_FILE_DEBUG_STRIPPED = 0x0200;
 	static constexpr unsigned short _IMAGE_FILE_LINE_NUMS_STRIPPED = 0x0004;
 	static constexpr unsigned short _IMAGE_FILE_RELOCS_STRIPPED = 0x0001;
+	static constexpr unsigned short _IMAGE_FILE_DLL = 0x2000;
 	static constexpr unsigned short _MAGIC_PE32_PlUS = 0x20b;
 	static constexpr unsigned long _WINDOWS_PE_DLL_BASE_IMAGE = 0x10000000;
 	static constexpr unsigned long _WINDOWS_PE_EXE_BASE_IMAGE = 0x00400000;
@@ -334,6 +334,7 @@ namespace PE {
 	static constexpr unsigned long _IMAGE_SCN_MEM_READ = 0x40000000;
 	static constexpr unsigned long _IMAGE_SCN_MEM_WRITE = 0x80000000;
 	static constexpr unsigned long _IMAGE_SCN_MEM_EXECUTE = 0x20000000;
+	static constexpr unsigned long _IMAGE_SCN_ALIGN_512BYTES = 0x00A00000;
 
 	static constexpr unsigned long _IMAGE_SCN_CNT_CODE = 0x00000020;
 

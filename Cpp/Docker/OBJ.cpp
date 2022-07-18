@@ -652,6 +652,8 @@ vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, 
 			tmp.Characteristics = _IMAGE_SCN_CNT_CODE | _IMAGE_SCN_MEM_EXECUTE | _IMAGE_SCN_MEM_READ;
 		}
 
+		tmp.Characteristics |= _IMAGE_SCN_ALIGN_512BYTES;
+
 		Result.push_back(tmp);
 
 		Current_Offset += Padding + tmp.Virtual_Size;

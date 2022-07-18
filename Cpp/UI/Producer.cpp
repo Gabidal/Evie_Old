@@ -72,7 +72,7 @@ Producer::Producer(vector<IR*> IRs){
 
         if (sys->Info.Format != "obj"){
             //if the desired output is not obj, then destroy the newly created obj file.
-            remove(sys->Info.Destination_File.c_str());
+            remove((sys->Info.Destination_File + ".obj").c_str());
         }
         
         if (sys->Info.Format == "exe"){

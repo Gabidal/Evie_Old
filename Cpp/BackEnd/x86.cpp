@@ -1258,7 +1258,7 @@ int x86_64::Calculate_Size(class Byte_Map* Input){
 	int Size = 0;
 
 	if (Input->Prefix != 0){
-		Size += 4;
+		Size += 1;
 	}
 
 	if (Input->Rex.ID != 0){
@@ -1267,7 +1267,7 @@ int x86_64::Calculate_Size(class Byte_Map* Input){
 	}
 
 	//for opcode
-	Size += 4;
+	Size += 1;
 
 	if (Input->ModRM.Mod != 0){
 		//	7                              0
