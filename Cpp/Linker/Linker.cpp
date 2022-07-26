@@ -63,6 +63,7 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
  
     Linker::Add_Export_Table(obj, 2);       //Sections(text, data) + (export, import)
     Linker::Add_Import_Table(obj, 1);       //Sections(text, data, export) + (import)
+    Linker::Add_Import_Address_Table(obj); //Sections(text, data, export, import) + (iat)
     
     obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Section) * obj->Sections.size();
     obj->Header.Size_Of_Headers += ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
@@ -183,6 +184,7 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 
     Write_Export_Table(obj, Buffer);
     Write_Import_Table(obj, Buffer);
+    Write_Import_Address_Table(obj, Buffer);
 
 	//transform the 
 	return Buffer;
@@ -321,6 +323,9 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     //                            ->                              ->                               ->                         Hint table index * hint count + hint name size + null terminator * hint count
     obj->Header.Size_Of_Import_Table = sizeof(PE::Import_Directory) + sizeof(PE::Import_Lookup) * Imported_Functions.size() + sizeof(short) * Imported_Functions.size() + Hint_Name_Size;
 
+    //Add import address table size
+    obj->Header.Size_Of_Import_Table += sizeof(PE::Import_Lookup) * Imported_Functions.size();
+
     obj->Imports = Table;
 
     //Also add the import table to the section table
@@ -328,12 +333,43 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     
     memcpy(&Section.Name, ".idata", 6);
     Section.Virtual_Address = Origo;
-    Section.Virtual_Size = obj->Header.Size_Of_Export_Table;
-    Section.Size_Of_Raw_Data = obj->Header.Size_Of_Export_Table;
+    Section.Virtual_Size = obj->Header.Size_Of_Import_Table;
+    Section.Size_Of_Raw_Data = obj->Header.Size_Of_Import_Table;
     Section.Pointer_To_Raw_Data = Origo;
     Section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE | PE::_IMAGE_SCN_ALIGN_512BYTES;
 
     obj->Sections.push_back(Section);
+}
+
+void Linker::Add_Import_Address_Table(PE::PE_OBJ* obj){
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * obj->Sections.size() + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+
+    int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    
+    obj->Header.Size_Of_Import_Address_Table = sizeof(PE::Import_Lookup) * obj->Imports.Lookup_Table.size();
+
+    int Start_Of_data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int Start_Of_Import_Table = (Start_Of_Export_Table + obj->Header.Size_Of_Export_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int Start_Of_Import_Address_Table = Start_Of_Import_Table + (obj->Header.Size_Of_Import_Table - obj->Header.Size_Of_Import_Address_Table);
+
+    Origo = Start_Of_Import_Address_Table;
+
+    obj->Import_Address_Table.resize(obj->Imports.Lookup_Table.size());
+
+    memcpy(obj->Import_Address_Table.data(), obj->Imports.Lookup_Table.data(), sizeof(PE::Import_Lookup) * obj->Imports.Lookup_Table.size());
+
+    obj->Header.Import_Address_Table = Origo;
+}
+
+void Linker::Write_Import_Address_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){
+    if (obj->Import_Address_Table.size() == 0)
+        return;
+    
+    int Padding = ((Buffer.size() + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Buffer.size();
+    Buffer.insert(Buffer.end(), Padding, 0);
+
+    Buffer.insert(Buffer.end(), (unsigned char*)&obj->Import_Address_Table[0], (unsigned char*)&obj->Import_Address_Table[0] + sizeof(PE::Import_Lookup) * obj->Import_Address_Table.size());
 }
 
 void Linker::Write_Export_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){

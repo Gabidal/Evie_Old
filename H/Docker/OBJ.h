@@ -263,6 +263,7 @@ namespace PE {
 		Export_Table Exports;
 		Import_Table Imports;
 		Relocation_Table Base_Relocations;
+		vector<Import_Lookup> Import_Address_Table;
 		//END of DLL/EXE stuff
 
 		PE_OBJ(){}
