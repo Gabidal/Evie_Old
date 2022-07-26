@@ -425,3 +425,4 @@ PE::Export_Table* Linker::Read_Export_Table(PE::Section& s, vector<unsigned char
 
     return Result;
 }
+
