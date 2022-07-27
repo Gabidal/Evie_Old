@@ -7,7 +7,7 @@
             "args": [
                 "Evie.sln",
                 "/p:Configuration=Test",
-                //"/t:Rebuild"
+                "/t:Rebuild"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

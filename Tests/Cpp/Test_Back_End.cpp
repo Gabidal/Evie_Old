@@ -14,6 +14,7 @@ typedef __int64(__stdcall* FARPROC)();
 extern "C" FARPROC __stdcall GetProcAddress(void*, const char*);
 extern "C" void*   __stdcall LoadLibraryA  (const char*);
 extern "C" int     __stdcall FreeLibrary   (void*);
+extern "C" int    __stdcall GetLastError  ();
 
 template<typename R, typename... T>
 R Call(void* handle, const char* name, T... arguments) {
@@ -23,9 +24,10 @@ R Call(void* handle, const char* name, T... arguments) {
 }
 //int a = Call<int>(Handle, "Start_Test", 1, 2, 1.1);
 int Back_End_Test::Run_Dll(string f) {
-	auto Handle = LoadLibraryA(f.c_str());
-	if (Handle == nullptr)
+	auto Handle = LoadLibraryA("C:/Users/Quanf/source/repos/Evie/IO/Test.e.dll");
+	if (Handle == nullptr){
 		throw::runtime_error("INTERNAL ERROR!");
+	}
 
 	auto Func = (int(*)())GetProcAddress(Handle, "_Z10Start_Testv");
 	//auto Func = (int(*)())GetProcAddress(Handle, "main");

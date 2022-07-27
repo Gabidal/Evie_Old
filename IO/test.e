@@ -1,7 +1,12 @@
-import plain VirtualAlloc()
-
 export func main(){
+}
 
-    VirtualAlloc()
+type int{
+    size = 4
+}
+
+export int Start_Test(){
+
+    return 1
 
 }

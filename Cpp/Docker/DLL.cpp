@@ -107,11 +107,35 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Subsystem_Version = PE::_IMAGE_SUBSYSTEM_VERSION;
     obj->Header.Win32_Version_Value = 0;
     obj->Header.Size_Of_Image = Image_Size;
+
+    //Update
  
     Linker::Add_Export_Table(obj, 3);       //Sections(text, data) + (export, import, base)
     Linker::Add_Import_Table(obj, 2);       //Sections(text, data, export) + (import, base)
     DLL::Add_Base_Relocation_table(obj);    //Sections(text, data, export, import, base)
     Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
+
+    Linker::Update_Obj_Headers(obj);
+
+    //Clear redundant sections.
+
+    unsigned long long Import_Name = 0;
+    memcpy(&Import_Name, ".idata", 6);
+
+    unsigned long long Export_Name = 0;
+    memcpy(&Export_Name, ".edata", 6);
+
+    for (int i = 0; i < obj->Sections.size(); i++){
+        if (obj->Sections[i].Name == Import_Name || obj->Sections[i].Name == Export_Name){
+            obj->Sections.erase(obj->Sections.begin() + i--);
+        }
+    }
+
+    Linker::Add_Export_Table(obj, 0);       //Sections(text, data) + (export, import, base)
+    Linker::Add_Import_Table(obj, 0);       //Sections(text, data, export) + (import, base)
+    DLL::Add_Base_Relocation_table(obj);    //Sections(text, data, export, import, base)
+    Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
+
 
     obj->Header.Size_Of_Code = (Code_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     
@@ -152,8 +176,6 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Number_Of_Symbols = obj->Symbols.size();
     obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED | PE::_IMAGE_FILE_DLL;
-    
-    Linker::Update_Obj_Headers(obj);
 
     //Now find this function name from the symbol table
     for (auto& i : obj->Symbols){
@@ -304,8 +326,8 @@ vector<unsigned char> DLL::Write_DLL(PE::PE_OBJ* obj){
 
     Linker::Write_Export_Table(obj, Buffer);
     Linker::Write_Import_Table(obj, Buffer);
-    DLL::Write_Base_Relocation_Table(obj, Buffer);
     Linker::Write_Import_Address_Table(obj, Buffer);
+    DLL::Write_Base_Relocation_Table(obj, Buffer);
 
 	//transform the 
 	return Buffer;

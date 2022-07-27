@@ -65,6 +65,12 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     Linker::Add_Import_Table(obj, 1);       //Sections(text, data, export) + (import)
     Linker::Add_Import_Address_Table(obj); //Sections(text, data, export, import) + (iat)
     
+    Linker::Update_Obj_Headers(obj);
+
+    Linker::Add_Export_Table(obj, 2);       //Sections(text, data) + (export, import)
+    Linker::Add_Import_Table(obj, 1);       //Sections(text, data, export) + (import)
+    Linker::Add_Import_Address_Table(obj); //Sections(text, data, export, import) + (iat)
+    
     obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Section) * obj->Sections.size();
     obj->Header.Size_Of_Headers += ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
     obj->Header.Check_Sum = 0;
@@ -100,8 +106,6 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Number_Of_Symbols = obj->Symbols.size();
     obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED;
-    
-    Linker::Update_Obj_Headers(obj);
 
     //Now find this function name from the symbol table
     for (auto& i : obj->Symbols){
@@ -111,7 +115,6 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
         }
     }
 }
-
 
 void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
     //Gather all RVA's from symbols and sections of sorts, calculate the new adddresses and then compare the difference and that to the old addreses.
@@ -196,7 +199,7 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
     int Start_Of_data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
-    int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);;
+    int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
     Origo = Start_Of_Export_Table;
 
@@ -277,8 +280,9 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
     int Start_Of_data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
-    int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);;
-    int Start_Of_Import_Table = (Start_Of_Export_Table + obj->Header.Size_Of_Export_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);;
+    int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+
+    int Start_Of_Import_Table = (Start_Of_Export_Table + obj->Header.Size_Of_Export_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
     Origo = Start_Of_Import_Table;
 
@@ -365,9 +369,6 @@ void Linker::Add_Import_Address_Table(PE::PE_OBJ* obj){
 void Linker::Write_Import_Address_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){
     if (obj->Import_Address_Table.size() == 0)
         return;
-    
-    int Padding = ((Buffer.size() + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Buffer.size();
-    Buffer.insert(Buffer.end(), Padding, 0);
 
     Buffer.insert(Buffer.end(), (unsigned char*)&obj->Import_Address_Table[0], (unsigned char*)&obj->Import_Address_Table[0] + sizeof(PE::Import_Lookup) * obj->Import_Address_Table.size());
 }
