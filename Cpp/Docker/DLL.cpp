@@ -70,21 +70,23 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
 
     unsigned long long Image_Size = 0;
 
-    for (auto& i : obj->Content){
-        if (!i->Is_Data_Section){
+    unsigned long long Text_Name = 0;
+    unsigned long long Data_Name = 0;
 
-            Code_Size += i->Calculated_Size;
-            Code_Starting_Address = i->Calculated_Address;
+    memcpy(&Text_Name, ".text", 5);
+    memcpy(&Data_Name, ".data", 5);
 
+    for (auto& i : obj->Sections){
+        if (i.Name == Text_Name){
+            Code_Size = i.Size_Of_Raw_Data;
+            Code_Starting_Address = i.Pointer_To_Raw_Data;
         }
-        else{
-
-            Data_Size += i->Calculated_Size;
-            Data_Starting_Address = i->Calculated_Address;
-
+        else if (i.Name == Data_Name){
+            Data_Size = i.Size_Of_Raw_Data;
+            Data_Starting_Address = i.Pointer_To_Raw_Data;
         }
 
-        Image_Size += i->Calculated_Size;
+        Image_Size += i.Size_Of_Raw_Data;
     }
 
     //The final value of the image size is the multiple of alignments
@@ -110,8 +112,8 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
 
     //Update
  
-    Linker::Add_Export_Table(obj, 3);       //Sections(text, data) + (export, import, base)
-    Linker::Add_Import_Table(obj, 2);       //Sections(text, data, export) + (import, base)
+    Linker::Add_Export_Table(obj, 0);       //Sections(text, data) + (export, import, base)
+    Linker::Add_Import_Table(obj, 0);       //Sections(text, data, export) + (import, base)
     DLL::Add_Base_Relocation_table(obj);    //Sections(text, data, export, import, base)
     Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
 
@@ -131,8 +133,15 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
         }
     }
 
-    Linker::Add_Export_Table(obj, 0);       //Sections(text, data) + (export, import, base)
-    Linker::Add_Import_Table(obj, 0);       //Sections(text, data, export) + (import, base)
+    //(.text, .data) + .edata + i.data
+    int Potential_Section_Count = obj->Sections.size() + 1 + 1;
+
+    if (obj->Relocations.size() > 0){
+        Potential_Section_Count++;
+    }
+
+    Linker::Add_Export_Table(obj, Potential_Section_Count--);       //Sections(text, data) + (export, import, base)
+    Linker::Add_Import_Table(obj, Potential_Section_Count);       //Sections(text, data, export) + (import, base)
     DLL::Add_Base_Relocation_table(obj);    //Sections(text, data, export, import, base)
     Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
 
@@ -248,7 +257,7 @@ void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj){
     memcpy(&section.Name, ".reloc", 6);
     section.Virtual_Address = obj->Header.Base_Relocation_Table;
     section.Virtual_Size = obj->Header.Size_Of_Base_Relocation_Table;
-    section.Size_Of_Raw_Data = obj->Header.Size_Of_Base_Relocation_Table;
+    section.Size_Of_Raw_Data = ((obj->Header.Size_Of_Base_Relocation_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
     section.Pointer_To_Raw_Data = obj->Header.Base_Relocation_Table;
     section.Pointer_To_Relocations = 0;
     section.Pointer_To_Line_Numbers = 0;

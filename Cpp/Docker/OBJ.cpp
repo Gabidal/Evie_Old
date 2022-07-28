@@ -638,7 +638,7 @@ vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, 
 		 memcpy(&tmp.Name, i->Name.data(), i->Name.size());
 		 tmp.Virtual_Size = i->Calculated_Size;
 		 tmp.Virtual_Address = Padding + Current_Offset;
-		 tmp.Size_Of_Raw_Data = i->Calculated_Size;
+		 tmp.Size_Of_Raw_Data = ((i->Calculated_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
 		 tmp.Pointer_To_Raw_Data = Padding + Current_Offset;
 		 tmp.Pointer_To_Relocations =  Header_End_Address - Header_Start_Address + sizeof(PE::Section) * Input.size() + sizeof(PE::Symbol) * obj->Header.Number_Of_Symbols + obj->String_Table_Size;
 		 tmp.Pointer_To_Line_Numbers = 0;

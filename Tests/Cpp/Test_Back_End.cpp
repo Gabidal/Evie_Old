@@ -24,7 +24,7 @@ R Call(void* handle, const char* name, T... arguments) {
 }
 //int a = Call<int>(Handle, "Start_Test", 1, 2, 1.1);
 int Back_End_Test::Run_Dll(string f) {
-	auto Handle = LoadLibraryA("C:/Users/Quanf/source/repos/Evie/IO/Test.e.dll");
+	auto Handle = LoadLibraryA(f.c_str());
 	if (Handle == nullptr){
 		throw::runtime_error("INTERNAL ERROR!");
 	}
@@ -86,12 +86,12 @@ vector<Base*> Back_End_Test::Run(string File)
 	if (Generate_Debug) 
 		Use_Debug = "-d";
 	if (Use_ARM) {
-		argv = new const char* [10 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), "-in", File.c_str(), "-f", "dll", "-arch", "-arm", Use_Debug.c_str() };
+		argv = new const char* [8 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), "-in", File.c_str(), "-f", "dll", "-arch", "-arm", Use_Debug.c_str() };
 		argc = 8 + (Use_Debug == "-d");
 		Output = "";
 	}
 	else {
-		argv = new const char* [8 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), "-in", File.c_str(), "-f", "dll", Use_Debug.c_str() };
+		argv = new const char* [6 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), "-in", File.c_str(), "-f", "dll", Use_Debug.c_str() };
 		argc = 6 + (Use_Debug == "-d");
 		Output = ".intel_syntax noprefix\n";
 	}

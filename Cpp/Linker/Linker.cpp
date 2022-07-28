@@ -22,21 +22,23 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
 
     unsigned long long Image_Size = 0;
 
-    for (auto& i : obj->Content){
-        if (!i->Is_Data_Section){
+    unsigned long long Text_Name = 0;
+    unsigned long long Data_Name = 0;
 
-            Code_Size += i->Calculated_Size;
-            Code_Starting_Address = i->Calculated_Address;
+    memcpy(&Text_Name, ".text", 5);
+    memcpy(&Data_Name, ".data", 5);
 
+    for (auto& i : obj->Sections){
+        if (i.Name == Text_Name){
+            Code_Size = i.Size_Of_Raw_Data;
+            Code_Starting_Address = i.Pointer_To_Raw_Data;
         }
-        else{
-
-            Data_Size += i->Calculated_Size;
-            Data_Starting_Address = i->Calculated_Address;
-
+        else if (i.Name == Data_Name){
+            Data_Size = i.Size_Of_Raw_Data;
+            Data_Starting_Address = i.Pointer_To_Raw_Data;
         }
 
-        Image_Size += i->Calculated_Size;
+        Image_Size += i.Size_Of_Raw_Data;
     }
 
     //The final value of the image size is the multiple of alignments
@@ -140,7 +142,7 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
         Section_RVA[i]->Pointer_To_Raw_Data = Current_Offset + Tmp_Padding;
         Section_RVA[i]->Virtual_Address = Current_Offset + Tmp_Padding;
         
-		Current_Offset += obj->Sections[i].Virtual_Size + Tmp_Padding;
+		Current_Offset += obj->Sections[i].Size_Of_Raw_Data + Tmp_Padding;
 
         Section_RVA[i]->Pointer_To_Relocations = 0;
         Section_RVA[i]->Number_Of_Relocations = 0;
@@ -266,7 +268,7 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
     memcpy(&Section.Name, ".edata", 6);
     Section.Virtual_Address = Origo;
     Section.Virtual_Size = obj->Header.Size_Of_Export_Table;
-    Section.Size_Of_Raw_Data = obj->Header.Size_Of_Export_Table;
+    Section.Size_Of_Raw_Data = ((obj->Header.Size_Of_Export_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
     Section.Pointer_To_Raw_Data = Origo;
     Section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE | PE::_IMAGE_SCN_ALIGN_512BYTES;
 
@@ -295,10 +297,9 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     PE::Import_Table Table;
 
     Table.Directory.Lookup_Table_RVA = Origo + sizeof(PE::Import_Directory) + sizeof(PE::Import_Table::Null_Directory_Table);
-    Table.Directory.Time_Date_Stamp = time_t(time(NULL));
+    //Table.Directory.Time_Date_Stamp = time_t(time(NULL));
     Table.Directory.Forwarder_Chain = 0;
     Table.Directory.DLL_Name = 0;
-    Table.Directory.Import_Address_Table_RVA = 0;
 
     unsigned int Current_RVA = Origo + sizeof(PE::Import_Directory) + sizeof(PE::Import_Table::Null_Directory_Table) + sizeof(PE::Import_Table::Null_Lookup_Table);
     for (auto& s : Imported_Functions){
@@ -330,6 +331,8 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     //Add import address table size
     obj->Header.Size_Of_Import_Table += sizeof(PE::Import_Lookup) * Imported_Functions.size();
 
+    Table.Directory.Import_Address_Table_RVA = obj->Header.Import_Table + obj->Header.Size_Of_Import_Table - obj->Header.Size_Of_Import_Address_Table;
+
     obj->Imports = Table;
 
     //Also add the import table to the section table
@@ -338,7 +341,7 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     memcpy(&Section.Name, ".idata", 6);
     Section.Virtual_Address = Origo;
     Section.Virtual_Size = obj->Header.Size_Of_Import_Table;
-    Section.Size_Of_Raw_Data = obj->Header.Size_Of_Import_Table;
+    Section.Size_Of_Raw_Data = ((obj->Header.Size_Of_Import_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
     Section.Pointer_To_Raw_Data = Origo;
     Section.Characteristics = PE::_IMAGE_SCN_CNT_INITIALIZED_DATA | PE::_IMAGE_SCN_MEM_READ | PE::_IMAGE_SCN_MEM_WRITE | PE::_IMAGE_SCN_ALIGN_512BYTES;
 
@@ -346,6 +349,9 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
 }
 
 void Linker::Add_Import_Address_Table(PE::PE_OBJ* obj){
+    if (obj->Imports.Lookup_Table.size() == 0)
+        return;
+
     int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * obj->Sections.size() + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
@@ -355,6 +361,7 @@ void Linker::Add_Import_Address_Table(PE::PE_OBJ* obj){
     int Start_Of_data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     int Start_Of_Import_Table = (Start_Of_Export_Table + obj->Header.Size_Of_Export_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    //Because Import address table is contained inside of the import tables tail, we will, need to substract the size of the import address table from import table.
     int Start_Of_Import_Address_Table = Start_Of_Import_Table + (obj->Header.Size_Of_Import_Table - obj->Header.Size_Of_Import_Address_Table);
 
     Origo = Start_Of_Import_Address_Table;
