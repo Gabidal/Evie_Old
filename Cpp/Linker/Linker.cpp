@@ -301,11 +301,12 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     Table.Directory.Forwarder_Chain = 0;
     Table.Directory.DLL_Name = 0;
 
-    unsigned int Current_RVA = Origo + sizeof(PE::Import_Directory) + sizeof(PE::Import_Table::Null_Directory_Table) + sizeof(PE::Import_Table::Null_Lookup_Table);
+    unsigned int Current_RVA_For_Look_Up_Table = Table.Directory.Lookup_Table_RVA;
+    unsigned int Current_RVA_For_Hints = Origo + sizeof(PE::Import_Directory) + sizeof(PE::Import_Table::Null_Directory_Table) + sizeof(PE::Import_Lookup) * Imported_Functions.size() + sizeof(PE::Import_Table::Null_Lookup_Table);
     for (auto& s : Imported_Functions){
         PE::Import_Lookup Lookup;
 
-        Lookup.Name_Address = Current_RVA;
+        Lookup.Name_Address = Current_RVA_For_Look_Up_Table;
 
         Table.Lookup_Table.push_back(Lookup);
 
@@ -315,18 +316,22 @@ void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
         if ((hint.Name.size() + 1) % 2 != 0)
             hint.Padding = true;
 
+        hint.Hint_Name_Size = hint.Name.size() + hint.Padding;
+
         Table.Hint_Table.push_back(hint);
+
+        Current_RVA_For_Look_Up_Table += sizeof(PE::Import_Lookup);
     }
 
     unsigned int Hint_Name_Size = 0;
 
-    for (auto& s : Imported_Functions){
-        Hint_Name_Size += s.Get_Name(obj->String_Table_Buffer).size() + 1;
+    for (auto& s : Table.Hint_Table){
+        Hint_Name_Size += s.Hint_Name_Size;
     }
 
     obj->Header.Import_Table = Origo;
     //                            ->                              ->                               ->                         Hint table index * hint count + hint name size + null terminator * hint count
-    obj->Header.Size_Of_Import_Table = sizeof(PE::Import_Directory) + sizeof(PE::Import_Lookup) * Imported_Functions.size() + sizeof(short) * Imported_Functions.size() + Hint_Name_Size;
+    obj->Header.Size_Of_Import_Table = sizeof(PE::Import_Table::Directory) + sizeof(PE::Import_Table::Null_Directory_Table) + sizeof(PE::Import_Lookup) * Imported_Functions.size() + sizeof(PE::Import_Table::Null_Lookup_Table) + (sizeof(short) * Imported_Functions.size() + Hint_Name_Size);
 
     //Add import address table size
     obj->Header.Size_Of_Import_Table += sizeof(PE::Import_Lookup) * Imported_Functions.size();
