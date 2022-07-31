@@ -114,7 +114,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
  
     Linker::Add_Export_Table(obj, 0);       //Sections(text, data) + (export, import, base)
     Linker::Add_Import_Table(obj, 0);       //Sections(text, data, export) + (import, base)
-    DLL::Add_Base_Relocation_table(obj);    //Sections(text, data, export, import, base)
+    DLL::Add_Base_Relocation_table(obj, 0);    //Sections(text, data, export, import, base)
     Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
 
     Linker::Update_Obj_Headers(obj);
@@ -126,9 +126,12 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
 
     unsigned long long Export_Name = 0;
     memcpy(&Export_Name, ".edata", 6);
+    
+    unsigned long long Reloc_Name = 0;
+    memcpy(&Reloc_Name, ".reloc", 6);
 
     for (int i = 0; i < obj->Sections.size(); i++){
-        if (obj->Sections[i].Name == Import_Name || obj->Sections[i].Name == Export_Name){
+        if (obj->Sections[i].Name == Import_Name || obj->Sections[i].Name == Export_Name || obj->Sections[i].Name == Reloc_Name){
             obj->Sections.erase(obj->Sections.begin() + i--);
         }
     }
@@ -140,9 +143,9 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
         Potential_Section_Count++;
     }
 
-    Linker::Add_Export_Table(obj, Potential_Section_Count--);       //Sections(text, data) + (export, import, base)
+    Linker::Add_Export_Table(obj, Potential_Section_Count);       //Sections(text, data) + (export, import, base)
     Linker::Add_Import_Table(obj, Potential_Section_Count);       //Sections(text, data, export) + (import, base)
-    DLL::Add_Base_Relocation_table(obj);    //Sections(text, data, export, import, base)
+    DLL::Add_Base_Relocation_table(obj, Potential_Section_Count);    //Sections(text, data, export, import, base)
     Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
 
 
@@ -197,16 +200,16 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
 
 //Chop the entire DLL into 4K chunks and then assess the .Text and .Data sections, where there is a  
 //Go through the relocations table that comes from .obj files and calculate the 4K modulo remainder offsets from the relocation table.
-void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj){
+void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj, int Expected_Section_Count){
     if (obj->Relocations.size() == 0)
         return;
 
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * (obj->Sections.size() + 1) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * Expected_Section_Count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
-    int Start_Of_data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
-    int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int Start_Of_Data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int Start_Of_Export_Table = (Start_Of_Data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     int Start_Of_Import_Table = (Start_Of_Export_Table + obj->Header.Size_Of_Export_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     int Start_Of_Import_Address_Table = Start_Of_Import_Table + (obj->Header.Size_Of_Import_Table - obj->Header.Size_Of_Import_Address_Table);
     int Start_Of_Base_Relocation_Table = (Start_Of_Import_Address_Table + obj->Header.Size_Of_Import_Address_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);

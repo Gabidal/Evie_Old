@@ -63,15 +63,37 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Win32_Version_Value = 0;
     obj->Header.Size_Of_Image = Image_Size;
  
-    Linker::Add_Export_Table(obj, 2);       //Sections(text, data) + (export, import)
-    Linker::Add_Import_Table(obj, 1);       //Sections(text, data, export) + (import)
-    Linker::Add_Import_Address_Table(obj); //Sections(text, data, export, import) + (iat)
-    
+    //Update
+ 
+    Linker::Add_Export_Table(obj, 0);       //Sections(text, data) + (export, import, base)
+    Linker::Add_Import_Table(obj, 0);       //Sections(text, data, export) + (import, base)
+    Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
+
     Linker::Update_Obj_Headers(obj);
 
-    Linker::Add_Export_Table(obj, 2);       //Sections(text, data) + (export, import)
-    Linker::Add_Import_Table(obj, 1);       //Sections(text, data, export) + (import)
-    Linker::Add_Import_Address_Table(obj); //Sections(text, data, export, import) + (iat)
+    //Clear redundant sections.
+
+    unsigned long long Import_Name = 0;
+    memcpy(&Import_Name, ".idata", 6);
+
+    unsigned long long Export_Name = 0;
+    memcpy(&Export_Name, ".edata", 6);
+    
+    unsigned long long Reloc_Name = 0;
+    memcpy(&Reloc_Name, ".reloc", 6);
+
+    for (int i = 0; i < obj->Sections.size(); i++){
+        if (obj->Sections[i].Name == Import_Name || obj->Sections[i].Name == Export_Name || obj->Sections[i].Name == Reloc_Name){
+            obj->Sections.erase(obj->Sections.begin() + i--);
+        }
+    }
+
+    //(.text, .data) + .edata + i.data
+    int Potential_Section_Count = obj->Sections.size() + 1 + 1;
+
+    Linker::Add_Export_Table(obj, Potential_Section_Count);       //Sections(text, data) + (export, import, base)
+    Linker::Add_Import_Table(obj, Potential_Section_Count);       //Sections(text, data, export) + (import, base)
+    Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
     
     obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Section) * obj->Sections.size();
     obj->Header.Size_Of_Headers += ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
@@ -196,7 +218,7 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 }
 
 void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * (obj->Sections.size() + expected_section_count) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * expected_section_count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
@@ -277,12 +299,12 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
 
 void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     //                                                                           + export section table
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * (obj->Sections.size() + expected_section_count) + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * expected_section_count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
-    int Start_Of_data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
-    int Start_Of_Export_Table = (Start_Of_data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int Start_Of_Data = (Start_Of_Code + obj->Header.Size_Of_Code + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
+    int Start_Of_Export_Table = (Start_Of_Data + obj->Header.Size_Of_Initialized_Data + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
     int Start_Of_Import_Table = (Start_Of_Export_Table + obj->Header.Size_Of_Export_Table + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 

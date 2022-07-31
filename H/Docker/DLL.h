@@ -17,7 +17,7 @@ namespace DLL {
 
 	void Enlarge_PE_Header(PE::PE_OBJ* obj);
 
-	void Add_Base_Relocation_table(PE::PE_OBJ* obj);
+	void Add_Base_Relocation_table(PE::PE_OBJ* obj, int Expected_Section_Count);
 
 	void Write_Base_Relocation_Table(PE::PE_OBJ* obj, vector<unsigned char>& buffer);
 
