@@ -159,7 +159,10 @@ public:
     unsigned int Opcode = 0;            //upto 1-4 bytes
     MODRM ModRM = {0};                  //upto 1 byte
     SIB Sib = {0};                      //upto 1 byte
+    bool Has_Displacement = false;      //Internal
     unsigned long long Displacement = 0;//upto 1, 2, 4, 8 bytes
+    bool Has_Immediate = false;         //Internal
+    int Immediate_Size = 0;             //Internal
     unsigned long long Immediate = 0;   //upto 1, 2, 4, 8 bytes
 
     //for locations

@@ -1066,6 +1066,8 @@ Byte_Map* x86_64::Build(IR* ir)
 	else{
 		for (auto& i : Left->Get_All(TOKEN::NUM)){
 			Result->Immediate = atoi(i->Name.c_str());
+			//This is sewtted because the immediate can literally just be 0
+			Result->Has_Immediate = true;
 			break;
 		}
 	}
@@ -1090,10 +1092,12 @@ Byte_Map* x86_64::Build(IR* ir)
 	if (Right && Right->is(TOKEN::MEMORY)){
 		Result->Sib = Right->Get_SIB();
 		Result->Displacement = Result->Sib.Displacement;
+		Result->Has_Displacement = true;
 
-		if (Result->Immediate == 0){
+		if (!Result->Has_Immediate){
 			for (auto& i : Right->Get_All(TOKEN::NUM)){
 				Result->Immediate = atoi(i->Name.c_str());
+				Result->Has_Immediate = true;
 				break;
 			}
 		}
@@ -1102,6 +1106,13 @@ Byte_Map* x86_64::Build(IR* ir)
 			Report(Observation(ERROR, "Cannot have more than 1 number", *ir->Location ,ASSEMBLER_SYNTAX_ERROR));
 
 		}
+	}
+
+	//Add Immediate from Right
+	else if (Right && Right->is(TOKEN::NUM)){
+		Result->Immediate = atoi(Right->Name.c_str());
+		Result->Immediate_Size = Left->Size;
+		Result->Has_Immediate = true;
 	}
 
 	//Calculate the REX bits.
@@ -1248,23 +1259,20 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 		Result += SIB;
 	}
 
-	else if (Input->Immediate != 0){
+	else if (Input->Has_Immediate){
 
-		int Size = _SYSTEM_BIT_SIZE_;
+		int Size = Input->Immediate_Size;
 
-		if (!Input->Has_External_Label){
-			if (Input->Immediate < LONG_MAX){
-				Size = 4;
-				if (Input->Immediate < INT16_MAX){
-					Size = 2;
-					if (Input->Immediate < SHRT_MAX){
-						Size = 1;
-					}
-				}
-			}
+		if (Input->Has_External_Label){
+			Size = _SYSTEM_BIT_SIZE_;
 		}
 
-		Result.insert(Result.end(), (unsigned char*)&Input->Immediate, (unsigned char*)&Input->Immediate + Size);
+		vector<unsigned char> Immediate_Value;
+		Immediate_Value.resize(Size);
+
+		memcpy(Immediate_Value.data(), (unsigned char*)&Input->Immediate, (unsigned char)Size);
+
+		Result.insert(Result.end(), Immediate_Value.begin(), Immediate_Value.end());
 
 	}
 
@@ -1307,6 +1315,16 @@ int x86_64::Calculate_Size(class Byte_Map* Input){
 		// | scale |   index   |    base   |
 		// +---+---+---+---+---+---+---+---+
 		Size += 1;
+	}
+
+	if (Input->Has_Immediate){
+		int Size = Input->Immediate_Size;
+
+		if (Input->Has_External_Label){
+			Size = _SYSTEM_BIT_SIZE_;
+		}
+
+		Size += Input->Immediate_Size;
 	}
 
 	return Size;

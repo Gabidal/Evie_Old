@@ -10,5 +10,7 @@ export int main(){
 }
 
 export int Start_Test(){
-    return 0
+    int a = 1
+    int b = 2
+    return a + b
 }
