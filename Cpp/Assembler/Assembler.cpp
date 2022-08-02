@@ -426,6 +426,16 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
         }
 
     Found_Suitable_Opcode:;
+
+        //Find the register xReg codes
+        for (auto& Argument_Reg : i->Get_All(TOKEN::REGISTER)){
+            for (auto& Template_Reg : selector->Registers){
+                if (Argument_Reg->ID == Template_Reg.second->Name) {
+                    Argument_Reg->XReg = Template_Reg.second->XReg;
+                    break;
+                }
+            }
+        }
     }
 
     return IRs;

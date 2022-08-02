@@ -59,6 +59,9 @@ namespace TOKEN {
 	//This is for the Assembler to identify end of opcode args, before Parser phase.
 	static constexpr long long NEWLINE								 = (long long)1 << 43;
 	static constexpr long long OPCODE								 = (long long)1 << 44;
+
+	static constexpr long long UNIFORM_REGISTER						 = (long long)1 << 45;
+	static constexpr long long EXTENDED_REGISTER					 = (long long)1 << 46;
 }
 
 namespace Flags{

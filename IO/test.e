@@ -1,12 +1,14 @@
-export func main(){
-}
-
 type int{
     size = 4
 }
 
+type long{
+    size = 8
+}
+
+export int main(){
+}
+
 export int Start_Test(){
-
-    return 1
-
+    return 0
 }

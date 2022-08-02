@@ -40,7 +40,7 @@ public:
 	Token* Right = nullptr;
 
 	string ID = "";
-	char XReg = 0;
+	unsigned char XReg = 0;
 	//for tokens
 	Token(const Token& t, long long f) { *this = t; Flags = f; }
 	Token(const Token& t, int s) { *this = t; Size = s; }
@@ -51,7 +51,7 @@ public:
 	Token(long long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) {}
 	Token(long long f, string n, int s) : Flags(f), Name(n), Size(s) {}
 	Token(long long f, string n, int s, Node* Scope) : Flags(f), Name(n), Size(s), Parent(Scope) {}
-	Token(long long f, string n, int s, vector<Token*> c, char xreg = 0) : Flags(f), Name(n), Size(s), Childs(c), XReg(xreg) {
+	Token(long long f, string n, int s, vector<Token*> c, unsigned char xreg = 0) : Flags(f), Name(n), Size(s), Childs(c), XReg(xreg) {
 		if (!Has({TOKEN::NONVOLATILE, TOKEN::VOLATILE, TOKEN::QUOTIENT, TOKEN::REMAINDER, TOKEN::RETURNING, TOKEN::PARAMETER}))
 			return;
 		for (auto i : Childs) {

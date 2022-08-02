@@ -35,6 +35,7 @@ public:
 
 	//Assembler
 	static class Byte_Map* Build(IR* ir);
+	static void Modify_OpCode(class Byte_Map* b);
 	static vector<unsigned char> Assemble(class Byte_Map* Input);
 	static int Calculate_Size(class Byte_Map* Input);
 
