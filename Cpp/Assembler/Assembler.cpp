@@ -418,6 +418,7 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
 
                 if (This_Opcode_Variant_Is_Suitable) {
                     i->Order.push_back(Opcode_Variant);
+                    
 
                     goto Found_Suitable_Opcode;
                 }
@@ -430,7 +431,7 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
         //Find the register xReg codes
         for (auto& Argument_Reg : i->Get_All(TOKEN::REGISTER)){
             for (auto& Template_Reg : selector->Registers){
-                if (Argument_Reg->ID == Template_Reg.second->Name) {
+                if (Argument_Reg->ID == Template_Reg.second) {
                     Argument_Reg->XReg = Template_Reg.second->XReg;
                     break;
                 }
@@ -487,9 +488,9 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
                 }
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);
-                    Current->Size = selector->Get_Size(Current);
                     //The address is calculated by adding the current sectoin starting address and the current size.
                     Current->Address = Section->Calculated_Address + Section->Calculated_Size;
+                    Current->Size = selector->Assemble(Current).size();
                     Section->Calculated_Size += Current->Size;
 
                     Section->Byte_Maps.push_back(Current);

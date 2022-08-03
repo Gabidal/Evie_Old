@@ -35,9 +35,9 @@ public:
 
 	//Assembler
 	static class Byte_Map* Build(IR* ir);
+	static void Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING encoding);
 	static void Modify_OpCode(class Byte_Map* b);
 	static vector<unsigned char> Assemble(class Byte_Map* Input);
-	static int Calculate_Size(class Byte_Map* Input);
 
 	static bool is(unsigned char value, unsigned char mask) {
 		return (value & mask) == mask;

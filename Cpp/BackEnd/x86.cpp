@@ -290,26 +290,16 @@ void x86_64::Init()
 	//2reg, 1mul, inf*const, inf*operator
 	//*(reg, const) | *(const, const) | *(const, reg)
 	//+-(reg, reg) | +-(reg, const) | +-(const, reg) | +-(const, const)
-	
-	IR* MOV = new IR("move", new Token(OPERATOR, "mov"), {
-		{{{ Register, 1, 8 },{Memory, 1, 8}}, 0x8A, OPCODE_ENCODING::RM},
-		{{{Register, 1, 8}, {Label, 1, 8}}, 0xB8, OPCODE_ENCODING::OI},
-		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x88, OPCODE_ENCODING::MR},
-		{{{Register, 1, 8}, {Register, 1, 8}}, 0x88, OPCODE_ENCODING::MR },
-		{{{Register, 1, 8}, {Const, 1, 8}}, 0xC6, OPCODE_ENCODING::OI },
-		{{{Memory, 1, 8}, {Const, 1, 8}}, 0xC6, OPCODE_ENCODING::MI }
-		});
 
 	IR* SET = new IR("=", new Token(OPERATOR, "mov"), {
 		{{{ Register, 1, 8 },{Memory, 1, 8}}, 0x8A, OPCODE_ENCODING::RM},
-		{{{Register, 1, 8}, {Label, 1, 8}}, 0xB8, OPCODE_ENCODING::OI},
 		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x88, OPCODE_ENCODING::MR},
 		{{{Register, 1, 8}, {Register, 1, 8}}, 0x88, OPCODE_ENCODING::MR },
-		{{{Register, 1, 8}, {Const, 1, 8}}, 0xC6, OPCODE_ENCODING::OI },
+		{{{Register, 1, 8}, {Const, 1, 8}}, 0xC6, OPCODE_ENCODING::MI },
 		{{{Memory, 1, 8}, {Const, 1, 8}}, 0xC6, OPCODE_ENCODING::MI },
 
 		{{{Memory_Float, 4, 4}, {Register, 4, 4}}, 0x88, OPCODE_ENCODING::MR}
-		});
+	});
 
 	IR* XOR = new IR("�", new Token(OPERATOR, "xor"), {
 		{{{Register, 1, 8}, {Memory, 1, 8}}, 0x32, OPCODE_ENCODING::RM },
@@ -975,7 +965,6 @@ void x86_64::Init()
 
 
 	Opcodes = {
-		MOV,
 		LEA,
 		ADD,
 		SUB,
@@ -1047,6 +1036,9 @@ void x86_64::Init()
 //References https://wiki.osdev.org/X86-64_Instruction_Encoding
 Byte_Map* x86_64::Build(IR* ir)
 {
+
+	Arrange_Encoding(ir->Arguments, ir->Order[0].Encoding);
+
 	Byte_Map* Result = new Byte_Map();
 
 	Result->Ir = ir;
@@ -1056,6 +1048,8 @@ Byte_Map* x86_64::Build(IR* ir)
 	Token* Left = ir->Arguments.size() > 0 ? ir->Arguments[0] : nullptr;
 	Token* Right = ir->Arguments.size() > 1 ? ir->Arguments[1] : nullptr;
 
+
+
 	//So no biches, no args.
 	if (Left == nullptr){
 		//Single byte opcodes like 'ret' dont need even REX_DEFALTS.
@@ -1063,29 +1057,14 @@ Byte_Map* x86_64::Build(IR* ir)
 		return Result;
 
 	}
-	else{
-		for (auto& i : Left->Get_All(TOKEN::NUM)){
-			Result->Immediate = atoi(i->Name.c_str());
-			//This is sewtted because the immediate can literally just be 0
-			Result->Has_Immediate = true;
-			break;
-		}
-	}
 	
 	//Rex is only awaiable in 64 bit mode.
 	if (_SYSTEM_BIT_SIZE_ == 8){
-		if ((ir->Order[0].Order[0].Min_Size == 8 && ir->Order[0].Order[0].Max_Size == 8) ||
-			Left && Left->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER}) || 
-			Right && Right->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER})){
+		if (//(ir->Order[0].Order[0].Min_Size == 8 && ir->Order[0].Order[0].Max_Size == 8) ||
+			Left && Left->ID && Left->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER}) || 
+			Right && Right->ID && Right->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER})){
 			Result->Rex.ID = REX_DEFAULT;
 		}
-	}
-
-	//Push memory to reside in right side than left side.
-	if (Left->is(TOKEN::MEMORY)) {
-		Token* tmp = Right;
-		Right = Left;
-		Left = tmp;
 	}
 
 	//Calculate SIB
@@ -1136,7 +1115,7 @@ Byte_Map* x86_64::Build(IR* ir)
 	//Check if the instruction has MODRM.reg field.
 	//This we can check by looking the Rex value's 4'th bit is set from the Right operand.
 	if (Right && Right->XReg & REX_BIT_SETTED) {
-		Result->Rex.R = 1;
+		Result->Rex.B = 1;
 	}
 
 	//Check if the instruction has a 64-bit addrressing SIB.index field.
@@ -1144,7 +1123,7 @@ Byte_Map* x86_64::Build(IR* ir)
 	//Check if the instruction has MODRM.rm field or SIB.base field.
 	//This we can check by looking the Rex value's 4'th bit is set from the Left operand.
 	if (Left && Left->XReg & REX_BIT_SETTED) {
-		Result->Rex.B = 1;
+		Result->Rex.R = 1;
 	}
 
 	unsigned char MODRM_Key = 0;
@@ -1161,12 +1140,12 @@ Byte_Map* x86_64::Build(IR* ir)
 
 	if (Left){
 		//remove the rex flag bit
-		Result->ModRM.Reg = Left->XReg & ~(1 << 4);
+		Result->ModRM.Reg = Left->XReg & ~(1 << 3);
 	}
 
 	if (Right){
 		//remove the rex flag bit
-		Result->ModRM.RM = Right->XReg & ~(1 << 4);
+		Result->ModRM.RM = Right->XReg & ~(1 << 3);
 	}
 
 	//Add the 0x66 prefix if the args size is 16bits
@@ -1286,46 +1265,11 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 	return Result_Bytes;
 }
 
-int x86_64::Calculate_Size(class Byte_Map* Input){
-	int Size = 0;
+void x86_64::Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING Encoding){
 
-	if (Input->Prefix != 0){
-		Size += 1;
+	if (Encoding == OPCODE_ENCODING::MI || Encoding == OPCODE_ENCODING::M || Encoding == OPCODE_ENCODING::MR){
+		Token* Temp = Args[0];
+		Args[0] = Args[1];
+		Args[1] = Temp;
 	}
-
-	if (Input->Rex.ID != 0){
-		//here we will contruct the REX bits with the information of bitmasks from x86_64
-		Size += 1;
-	}
-
-	//for opcode
-	Size += 1;
-
-	if (Input->ModRM.Mod != 0){
-		//	7                              0
-		// +---+---+---+---+---+---+---+---+
-		// |  mod  |    reg    |     rm    |
-		// +---+---+---+---+---+---+---+---+
-		Size += 1;
-	}
-
-	if (Input->Sib.Is_Used){
-		// 	 7                           0
-		// +---+---+---+---+---+---+---+---+
-		// | scale |   index   |    base   |
-		// +---+---+---+---+---+---+---+---+
-		Size += 1;
-	}
-
-	if (Input->Has_Immediate){
-		int Size = Input->Immediate_Size;
-
-		if (Input->Has_External_Label){
-			Size = _SYSTEM_BIT_SIZE_;
-		}
-
-		Size += Input->Immediate_Size;
-	}
-
-	return Size;
 }

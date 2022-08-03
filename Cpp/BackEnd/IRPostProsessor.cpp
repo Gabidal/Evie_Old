@@ -84,7 +84,7 @@ void IRPostProsessor::Give_New_Register(Token* t, int i)
 				selector->Allocate_Register(Input, i, t);
 				goto Use_Memory_Instead_Of_Register;
 			}
-		t->ID = selector->Get_Register(t)->Get_Name();
+		t->ID = selector->Get_Register(t);
 	}
 	else {
 	Use_Memory_Instead_Of_Register:;
@@ -147,7 +147,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 		}
 
 		reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
-		reg->ID = reg->Get_Name();
+		reg->ID = reg;
 		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }, Input->at(i)->Location));
 		Additional_Changes += Parse_Complex(Input->at(Start_Of_Function), Start_Of_Function, true);
 		Push_Amount.push_back(reg);
@@ -179,7 +179,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 		Token* ret = Input->at(j)->OPCODE;
 		for (auto r : Push_Amount) {
 			Token* reg = new Token(*r->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r));
-			reg->ID = reg->Get_Name();
+			reg->ID = reg;
 
 
 			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }, Input->at(i)->Location));

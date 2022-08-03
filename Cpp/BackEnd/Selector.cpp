@@ -24,7 +24,6 @@ void Selector::Init() {
 			//Assembler
 			Build = X86_64.Build;
 			Assemble = X86_64.Assemble;
-			Get_Size = X86_64.Calculate_Size;
 
 			//Linker
 			OBJ_Machine_ID = X86_64.OBJ_Machine_ID;
@@ -153,17 +152,16 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Descriptor*, Token
 	*/
 	//get a new non-volatile register to use
 	Token* non_volatile = Get_Register(TOKEN::NONVOLATILE, New.first, i, New.second);
-	string non_Name = non_volatile->Get_Name();
-	string Current_Name = Current.second->Get_Name();
+
 	if (non_volatile == nullptr) {
 		//if this happends then all registers are in use and we need to use stack
 	}
 	else {
 		non_volatile = new Token(non_volatile->Get_Flags(), "Non-Volatile" + to_string(rand()), non_volatile->Get_Size());
-		non_volatile->ID = non_Name;
+		non_volatile->ID = non_volatile;
 	}
 	Token* Current_Reg = new Token(Current.second->Get_Flags(), "Current_Volatile" + to_string(rand()), Current.second->Get_Size());
-	Current_Reg->ID = Current_Name;
+	Current_Reg->ID = Current.second;
 	//now we need to give the cuurent user the new non-volatile register.
 	//TODO: Because im a peace of shit and dont know how to implement LIVE register change ill have to make a new move IR
 	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "="), {non_volatile, Current_Reg }, nullptr);
@@ -187,11 +185,11 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Descriptor*, Token
 Token* Selector::Move_Parameter_Into_Non_Volatile(pair<Path*, Token*> Owner, Token* Current_Reg, vector<IR*>* source, int i)
 {
 	Token* New_Reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, Owner.second->Get_Name(), Owner.second->Get_Size());
-	New_Reg->ID = Get_New_Reg(source, i, New_Reg, Owner.first)->Get_Name();
+	New_Reg->ID = Get_New_Reg(source, i, New_Reg, Owner.first);
 
 	Token* New_Token = new Token(*Owner.second);
 
-	New_Token->ID = Current_Reg->Get_Name();
+	New_Token->ID = Current_Reg;
 	//New_Token->Set_Name(Current_Reg->Get_Name());
 
 	source->insert(source->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), { New_Reg, New_Token }, nullptr));
@@ -564,7 +562,7 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 		}
 
 		Token* New_Reg = new Token(*Previus_User->second);
-		New_Reg->ID = Previus_User->second->Get_Name();
+		New_Reg->ID = Previus_User->second;
 		New_Reg->Set_Flags(New_Reg->Get_Flags() | TOKEN::ALREADY_GIVEN_REGISTER_NAME);
 		//make a move operator here:
 		source->insert(source->begin() + i, new IR(new Token(TOKEN::OPERATOR, "="), {Memory_Location, New_Reg}, new Position()));
@@ -582,7 +580,7 @@ void Selector::Allocate_Register(vector<IR*>* source, int i, Token* t)
 void Selector::Pair_Up(Token* r, Descriptor* t)
 {
 	for (auto& i : Registers)
-		if (i.second->Get_Name() == r->Get_Name() || i.second->Get_Name() == r->ID) {
+		if (i.second->Get_Name() == r->Get_Name() || i.second == r->ID) {
 			i.first = t;
 			return;
 		}
@@ -591,7 +589,7 @@ void Selector::Pair_Up(Token* r, Descriptor* t)
 void Selector::Break_Up(Token* r)
 {
 	for (auto& i : Registers)
-		if (i.second->Get_Name() == r->Get_Name() || i.second->Get_Name() == r->ID) {
+		if (i.second->Get_Name() == r->Get_Name() || i.second == r->ID) {
 			i.first = nullptr;
 			return;
 		}

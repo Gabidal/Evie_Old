@@ -39,7 +39,7 @@ public:
 	Token* Left = nullptr;
 	Token* Right = nullptr;
 
-	string ID = "";
+	Token* ID = nullptr;
 	unsigned char XReg = 0;
 	//for tokens
 	Token(const Token& t, long long f) { *this = t; Flags = f; }

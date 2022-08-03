@@ -178,6 +178,13 @@ unsigned char Token::Get_MODRM_Type()
 
 	}
 
+	Contents = Get_All(TOKEN::NUM);
+	if (Contents.size() > 0) {
+
+		Result |= MODRM_FLAGS::RM;
+
+	}
+
 	Contents = Get_All(TOKEN::OFFSETTER);
 	if (Contents.size() > 0) {
 

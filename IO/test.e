@@ -7,6 +7,7 @@ type long{
 }
 
 export int main(){
+    return 0
 }
 
 export int Start_Test(){
