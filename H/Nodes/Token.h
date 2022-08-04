@@ -41,6 +41,10 @@ public:
 
 	Token* ID = nullptr;
 	unsigned char XReg = 0;
+	union{
+		//X86_64
+		
+	};
 	//for tokens
 	Token(const Token& t, long long f) { *this = t; Flags = f; }
 	Token(const Token& t, int s) { *this = t; Size = s; }

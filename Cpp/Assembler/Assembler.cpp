@@ -526,6 +526,7 @@ void Assembler::Apply_Self_Recursion(vector<Byte_Map_Section*>& Sections){
             }
 
             //Now apply the new modifications and build new byte map from it.
+            selector->Correct_Encoding(byte_map->Ir->Arguments, byte_map->Ir->Order[0].Encoding);
             *byte_map = *selector->Build(byte_map->Ir);
 
             //re instable the IS_External_Label attribute.

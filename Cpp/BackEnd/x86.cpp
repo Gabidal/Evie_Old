@@ -209,8 +209,8 @@ void x86_64::Init()
 		R15, R15B, R15D, R15W,
 	};
 	using namespace TOKEN;
-	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER | PARAMETER | STACK_POINTTER, "Reg");
-	Token* Register_Float = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | DECIMAL | PARAMETER, "Float_Reg");
+	Token* Register = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | QUOTIENT | REMAINDER | PARAMETER | STACK_POINTTER | EXTENDED_REGISTER | UNIFORM_REGISTER, "Reg");
+	Token* Register_Float = new Token(REGISTER | NONVOLATILE | VOLATILE | RETURNING | DECIMAL | PARAMETER | EXTENDED_REGISTER, "Float_Reg");
 	Token* Scalar = new Token(NUM, {
 		new Token(NUM, "1"),
 		new Token(NUM, "2"),
@@ -1034,8 +1034,7 @@ void x86_64::Init()
 }
 
 //References https://wiki.osdev.org/X86-64_Instruction_Encoding
-Byte_Map* x86_64::Build(IR* ir)
-{
+Byte_Map* x86_64::Build(IR* ir){
 
 	Arrange_Encoding(ir->Arguments, ir->Order[0].Encoding);
 
@@ -1087,10 +1086,27 @@ Byte_Map* x86_64::Build(IR* ir)
 		}
 	}
 
-	//Add Immediate from Right
-	else if (Right && Right->is(TOKEN::NUM)){
-		Result->Immediate = atoi(Right->Name.c_str());
-		Result->Immediate_Size = Left->Size;
+	//This is Left side because Encoding switches register and immediate places.
+	else if (Left && Left->is(TOKEN::NUM)){
+		Result->Immediate = atoll(Left->Name.c_str());
+		if (Right){
+			Result->Immediate_Size = Right->Size;
+		}
+		else{
+			Result->Immediate_Size = _SYSTEM_BIT_SIZE_;
+			if (Result->Immediate < 0){
+				if (Result->Immediate < INT32_MIN) Result->Immediate_Size = 8;
+				else if (Result->Immediate < INT16_MIN) Result->Immediate_Size = 4;
+				else if (Result->Immediate < INT8_MIN) Result->Immediate_Size = 2;
+				else Result->Immediate_Size = 1;
+			}
+			else{
+				if (Result->Immediate > INT32_MAX) Result->Immediate_Size = 8;
+				else if (Result->Immediate > INT16_MAX) Result->Immediate_Size = 4;
+				else if (Result->Immediate > INT8_MAX) Result->Immediate_Size = 2;
+				else Result->Immediate_Size = 1;
+			}
+		}
 		Result->Has_Immediate = true;
 	}
 
@@ -1267,7 +1283,7 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 
 void x86_64::Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING Encoding){
 
-	if (Encoding == OPCODE_ENCODING::MI || Encoding == OPCODE_ENCODING::M || Encoding == OPCODE_ENCODING::MR){
+	if (Args.size() > 1 && (Encoding == OPCODE_ENCODING::MI || Encoding == OPCODE_ENCODING::M || Encoding == OPCODE_ENCODING::MR)){
 		Token* Temp = Args[0];
 		Args[0] = Args[1];
 		Args[1] = Temp;

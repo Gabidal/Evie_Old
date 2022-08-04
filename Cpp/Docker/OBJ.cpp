@@ -205,8 +205,10 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 			Buffer.insert(Buffer.end(), Data.begin(), Data.end());
 
-			Current_Offset += Data.size() + Padding;
+			Current_Offset += Data.size();
 		}
+
+		Current_Offset += Padding;
 
 	}
 

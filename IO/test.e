@@ -7,11 +7,9 @@ type long{
 }
 
 export int main(){
-    return 0
+    return 1
 }
 
 export int Start_Test(){
-    int a = 1
-    int b = 2
-    return a + b
+    return main()
 }

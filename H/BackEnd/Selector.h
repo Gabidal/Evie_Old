@@ -112,7 +112,8 @@ public:
 
 	//Assembler
 	class Byte_Map* (*Build)(IR*);
-	 vector<unsigned char> (*Assemble)(Byte_Map*);
+	vector<unsigned char> (*Assemble)(Byte_Map*);
+	void (*Correct_Encoding)(vector<Token*>& Args, OPCODE_ENCODING encoding);
 
 	//Linker
 	unsigned short OBJ_Machine_ID;

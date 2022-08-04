@@ -24,6 +24,7 @@ void Selector::Init() {
 			//Assembler
 			Build = X86_64.Build;
 			Assemble = X86_64.Assemble;
+			Correct_Encoding = X86_64.Arrange_Encoding;
 
 			//Linker
 			OBJ_Machine_ID = X86_64.OBJ_Machine_ID;

@@ -21,6 +21,7 @@
         "iosfwd": "cpp",
         "xlocale": "cpp",
         "xiosbase": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "charconv": "cpp"
     }
 }
