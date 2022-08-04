@@ -489,9 +489,9 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);
                     //The address is calculated by adding the current sectoin starting address and the current size.
-                    Current->Address = Section->Calculated_Address + Section->Calculated_Size;
                     Current->Size = selector->Assemble(Current).size();
                     Section->Calculated_Size += Current->Size;
+                    Current->Address = Section->Calculated_Address + Section->Calculated_Size;
 
                     Section->Byte_Maps.push_back(Current);
                 }
@@ -515,7 +515,16 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
 //After this this function will use the modified IR to generate this Byte_Map again with the new information.
 void Assembler::Apply_Self_Recursion(vector<Byte_Map_Section*>& Sections){
 
-    for (auto& section : Sections){
+    for (int s = 0; s < Sections.size(); s++){
+        Byte_Map_Section* section = Sections[s];
+
+        section->Calculated_Size = 0;
+
+        if (s - 1 >= 0){
+            section->Calculated_Address = Sections[s-1]->Calculated_Address + Sections[s-1]->Calculated_Size;
+        }
+
+
         for (auto& byte_map : section->Byte_Maps){
 
             for (auto& T : byte_map->Ir->Arguments){
@@ -526,8 +535,11 @@ void Assembler::Apply_Self_Recursion(vector<Byte_Map_Section*>& Sections){
             }
 
             //Now apply the new modifications and build new byte map from it.
-            selector->Correct_Encoding(byte_map->Ir->Arguments, byte_map->Ir->Order[0].Encoding);
+            //selector->Correct_Encoding(byte_map->Ir->Arguments, byte_map->Ir->Order[0].Encoding);
             *byte_map = *selector->Build(byte_map->Ir);
+            byte_map->Size = selector->Assemble(byte_map).size();
+            section->Calculated_Size += byte_map->Size;
+            byte_map->Address = section->Calculated_Address + section->Calculated_Size;
 
             //re instable the IS_External_Label attribute.
             for (auto& T : byte_map->Ir->Arguments){
@@ -562,8 +574,13 @@ void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Cu
         Current->Flags = TOKEN::NUM;
         Current->Size = _SYSTEM_BIT_SIZE_;
 
+        long long Value = symbol.Address - Back_Reference->Address;
+
+        if (Value > INT32_MIN) Current->Size = 4;
+        else if (Value < INT32_MAX) Current->Size = 4;
+
         //Calculate the distance between this label reference and the definition declaration address.
-        Current->Name = symbol.Address - Back_Reference->Address;
+        Current->Name = to_string(Value);
 
     }
     else{

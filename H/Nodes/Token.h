@@ -43,7 +43,7 @@ public:
 	unsigned char XReg = 0;
 	union{
 		//X86_64
-		
+		MODRM_ENCODING Encoding;
 	};
 	//for tokens
 	Token(const Token& t, long long f) { *this = t; Flags = f; }

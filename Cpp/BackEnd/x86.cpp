@@ -840,7 +840,7 @@ void x86_64::Init()
 	});
 
 	IR* JMP = new IR("jump", new Token(FLOW, "jmp"), { 
-		{{{Label, 0, 0}}, 0xEB, OPCODE_ENCODING::D, 0xCB},	
+		{{{Label, 0, 0}}, 0xE9, OPCODE_ENCODING::D, 0xCD},	
 		{{{Register, 2, 8}}, 0xFF, OPCODE_ENCODING::M, 4},
 	});
 	IR* JE = new IR("==", new Token(FLOW, "je"), {
@@ -1047,10 +1047,14 @@ Byte_Map* x86_64::Build(IR* ir){
 	Token* Left = ir->Arguments.size() > 0 ? ir->Arguments[0] : nullptr;
 	Token* Right = ir->Arguments.size() > 1 ? ir->Arguments[1] : nullptr;
 
-
+	if (Left && Left->Encoding == MODRM_ENCODING::RM){
+		Token* tmp = Right;
+		Right = Left;
+		Left = tmp;
+	}
 
 	//So no biches, no args.
-	if (Left == nullptr){
+	if (Left == nullptr && Right == nullptr){
 		//Single byte opcodes like 'ret' dont need even REX_DEFALTS.
 
 		return Result;
@@ -1093,19 +1097,20 @@ Byte_Map* x86_64::Build(IR* ir){
 			Result->Immediate_Size = Right->Size;
 		}
 		else{
-			Result->Immediate_Size = _SYSTEM_BIT_SIZE_;
-			if (Result->Immediate < 0){
-				if (Result->Immediate < INT32_MIN) Result->Immediate_Size = 8;
-				else if (Result->Immediate < INT16_MIN) Result->Immediate_Size = 4;
-				else if (Result->Immediate < INT8_MIN) Result->Immediate_Size = 2;
-				else Result->Immediate_Size = 1;
-			}
-			else{
-				if (Result->Immediate > INT32_MAX) Result->Immediate_Size = 8;
-				else if (Result->Immediate > INT16_MAX) Result->Immediate_Size = 4;
-				else if (Result->Immediate > INT8_MAX) Result->Immediate_Size = 2;
-				else Result->Immediate_Size = 1;
-			}
+			// Result->Immediate_Size = _SYSTEM_BIT_SIZE_;
+			// if (Result->Immediate < 0){
+			// 	if (Result->Immediate < INT32_MIN && ir->Order[0].Order[0].Max_Size == 8) Result->Immediate_Size = 8;
+			// 	else if (Result->Immediate < INT16_MIN && ir->Order[0].Order[0].Max_Size == 4) Result->Immediate_Size = 4;
+			// 	else if (Result->Immediate < INT8_MIN && ir->Order[0].Order[0].Max_Size == 2) Result->Immediate_Size = 2;
+			// 	else if (ir->Order[0].Order[0].Max_Size == 1) Result->Immediate_Size = 1;
+			// }
+			// else{
+			// 	if (Result->Immediate > INT32_MAX && ir->Order[0].Order[0].Max_Size == 8) Result->Immediate_Size = 8;
+			// 	else if (Result->Immediate > INT16_MAX && ir->Order[0].Order[0].Max_Size == 4) Result->Immediate_Size = 4;
+			// 	else if (Result->Immediate > INT8_MAX && ir->Order[0].Order[0].Max_Size == 2) Result->Immediate_Size = 2;
+			// 	else if (ir->Order[0].Order[0].Max_Size == 1) Result->Immediate_Size = 1;
+			// }
+			Result->Immediate_Size = Left->Size;
 		}
 		Result->Has_Immediate = true;
 	}
@@ -1181,6 +1186,10 @@ Byte_Map* x86_64::Build(IR* ir){
 }
 
 void x86_64::Modify_OpCode(class Byte_Map* b){
+	//if the opcode is maxed already at single opcode code then skip this phase.
+	if (b->Ir->Order[0].Order[0].Min_Size == b->Ir->Order[0].Order[0].Max_Size){
+		return;
+	}
 
 	//if the given byte map doesnt use more than 8bit arguments, then we can let it be.
 	//if otherwise, we need to increment it by 1
@@ -1228,7 +1237,7 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 
 	Result += Input->Opcode;
 
-	if (Input->ModRM.Mod != 0){
+	if (Input->ModRM.Mod != 0 && Input->Ir->Order[0].Encoding != OPCODE_ENCODING::D){
 		//	7                              0
 		// +---+---+---+---+---+---+---+---+
 		// |  mod  |    reg    |     rm    |
@@ -1283,9 +1292,11 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 
 void x86_64::Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING Encoding){
 
-	if (Args.size() > 1 && (Encoding == OPCODE_ENCODING::MI || Encoding == OPCODE_ENCODING::M || Encoding == OPCODE_ENCODING::MR)){
-		Token* Temp = Args[0];
-		Args[0] = Args[1];
-		Args[1] = Temp;
+	if (Args.size() == 2 && (Encoding == OPCODE_ENCODING::MI || Encoding == OPCODE_ENCODING::MR)){
+		Args[0]->Encoding = MODRM_ENCODING::RM;
+		Args[1]->Encoding = MODRM_ENCODING::REG;
+	}
+	else if (Args.size() == 1 && Encoding == OPCODE_ENCODING::M){
+		Args[0]->Encoding = MODRM_ENCODING::RM;
 	}
 }

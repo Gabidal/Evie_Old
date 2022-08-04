@@ -4,7 +4,9 @@
 #undef OPTIONAL
 
 enum class MODRM_ENCODING{
-	
+	NON,
+	RM,
+	REG
 };
 
 namespace TOKEN {
