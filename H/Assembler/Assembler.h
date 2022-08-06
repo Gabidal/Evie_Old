@@ -34,8 +34,10 @@ public:
     //         name, Origin,        address, section id
     map<string, Symbol_Data> Symbol_Table;
 
-    Assembler(string Input);
-    Assembler(vector<class IR*> IRs);
+    Assembler(){}
+
+    void Factory(string Input);
+    void Factory(vector<class IR*> IRs);
 
     //Tokenizer stuff
     //-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

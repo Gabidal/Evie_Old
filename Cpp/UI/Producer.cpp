@@ -41,12 +41,14 @@ Producer::Producer(vector<IR*> IRs){
 
         //This only contains asm files, dll and lib files are in the sys->Info.Libs
         for (auto& i : sys->Info.Source_Files){
-            Assembler a(i);
+            Assembler a;
+            a.Factory(i);
 
             Objects.push_back(new PE::PE_OBJ(a.Output));
         }
 
-        assembler = new Assembler(IRs);
+        assembler = new Assembler();
+        assembler->Factory(IRs);
 
         PE::PE_OBJ* obj = new PE::PE_OBJ(assembler->Output);
 

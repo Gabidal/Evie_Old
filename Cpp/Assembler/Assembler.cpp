@@ -11,7 +11,7 @@
 
 extern Selector* selector;
 
-Assembler::Assembler(string Input){
+void Assembler::Factory(string Input){
 	ifstream file(Input, std::ios::binary);
 
 	if (!file.is_open()) {
@@ -36,7 +36,7 @@ Assembler::Assembler(string Input){
     Output = Intermediate_Encoder(IRs);
 }
 
-Assembler::Assembler(vector<IR*> IRs){
+void Assembler::Factory(vector<IR*> IRs){
 
     for (int i = 0; i < IRs.size(); i++){
         if (IRs[i]->OPCODE->Has({TOKEN::END_OF_FUNCTION, TOKEN::END_OF_LOOP})){
@@ -489,9 +489,14 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);
                     //The address is calculated by adding the current sectoin starting address and the current size.
-                    Current->Size = selector->Assemble(Current).size();
-                    Section->Calculated_Size += Current->Size;
+                    //First calculate the default size (more than 0).
                     Current->Address = Section->Calculated_Address + Section->Calculated_Size;
+                    Current->Size = selector->Get_Size(Current);
+
+                    //Now re calculate the address
+                    Current->Address = Section->Calculated_Address + Section->Calculated_Size + Current->Size;
+
+                    Section->Calculated_Size += Current->Size;
 
                     Section->Byte_Maps.push_back(Current);
                 }
@@ -537,7 +542,7 @@ void Assembler::Apply_Self_Recursion(vector<Byte_Map_Section*>& Sections){
             //Now apply the new modifications and build new byte map from it.
             //selector->Correct_Encoding(byte_map->Ir->Arguments, byte_map->Ir->Order[0].Encoding);
             *byte_map = *selector->Build(byte_map->Ir);
-            byte_map->Size = selector->Assemble(byte_map).size();
+            byte_map->Size = selector->Get_Size(byte_map);//selector->Assemble(byte_map).size();
             section->Calculated_Size += byte_map->Size;
             byte_map->Address = section->Calculated_Address + section->Calculated_Size;
 

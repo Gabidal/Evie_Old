@@ -24,7 +24,7 @@ void Selector::Init() {
 			//Assembler
 			Build = X86_64.Build;
 			Assemble = X86_64.Assemble;
-			Correct_Encoding = X86_64.Arrange_Encoding;
+			Get_Size = X86_64.Get_Size;
 
 			//Linker
 			OBJ_Machine_ID = X86_64.OBJ_Machine_ID;
@@ -911,3 +911,17 @@ pair<Descriptor*, Token*>* Selector::Get_Register_User(Token* R)
 	}
 }
 
+int Selector::Get_Bits_Size(long long Value){
+	if (Value < 0){
+		if (Value < INT32_MIN) return sizeof(long long);
+		else if (Value < INT16_MIN) return sizeof(int);
+		else if (Value < INT8_MIN) return sizeof(short);
+	}
+	else{
+		if (Value > UINT32_MAX) return sizeof(long long);
+		else if (Value > UINT16_MAX) return sizeof(int);
+		else if (Value > UINT8_MAX) return sizeof(short);
+	}
+
+	return sizeof(char);
+}

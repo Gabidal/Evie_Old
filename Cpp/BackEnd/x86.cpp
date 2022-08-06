@@ -2,14 +2,18 @@
 #include "../../H/UI/Usr.h"
 
 #include "../../H/Assembler/Assembler_Types.h"
+#include "../../H/Assembler/Assembler.h"
 
 #include "../../H/UI/Safe.h"
+#include "../../H/BackEnd/Selector.h"
 
 #include <string>
 
 using namespace std;
 
 extern Usr* sys;
+extern Selector* selector;
+extern Assembler* assembler;
 
 void x86_64::Init()
 {
@@ -1209,7 +1213,7 @@ void x86_64::Modify_OpCode(class Byte_Map* b){
 
 vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 {
-	 string Result = "";
+	string Result = "";
 
 	if (Input->Prefix != 0){
 		Result += Input->Prefix;
@@ -1288,6 +1292,60 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 	}
 
 	return Result_Bytes;
+}
+
+int x86_64::Get_Size(Byte_Map* Input){
+	int Result = 0;
+
+	if (Input->Prefix != 0){
+		Result += selector->Get_Bits_Size(Input->Prefix);	//1-4 Bits
+	}
+
+	if (Input->Rex.ID != 0){
+		//here we will contruct the REX bits with the information of bitmasks from x86_64
+		Result += 1;	//1 Bits
+	}
+
+	Result += selector->Get_Bits_Size(Input->Opcode);	//1-4 Bits
+
+	if (Input->ModRM.Mod != 0 && Input->Ir->Order[0].Encoding != OPCODE_ENCODING::D){
+		Result += 1; 	//1 Bits
+	}
+
+	if (Input->Sib.Is_Used){
+		Result += 1;	//1 Bits
+	}
+
+	else if (Input->Has_Immediate){
+		Result += Input->Immediate_Size;
+	}
+
+	for (auto i : Input->Ir->Get_All(TOKEN::LABEL)){
+        Symbol_Data symbol = assembler->Symbol_Table.find(i->Name)->second;
+
+		if (symbol.Section_ID == 0){
+			//extern symbol
+			break;
+		}
+		
+		//This wont have the final result
+        long long Value = symbol.Address - Input->Address;
+
+		int Size = _SYSTEM_BIT_SIZE_;
+
+        if (Value > INT32_MIN) Size = 4;
+        else if (Value < INT32_MAX) Size = 4;
+
+		//This is the final value
+		Value = symbol.Address - (Input->Address + Size);
+
+        if (Value > INT32_MIN) Size = 4;
+        else if (Value < INT32_MAX) Size = 4;
+
+		Result += Size;
+	}
+
+	return Result;
 }
 
 void x86_64::Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING Encoding){
