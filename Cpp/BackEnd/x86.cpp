@@ -1076,22 +1076,7 @@ Byte_Map* x86_64::Build(IR* ir){
 
 	//Calculate SIB
 	if (Right && Right->is(TOKEN::MEMORY)){
-		Result->Sib = Right->Get_SIB();
-		Result->Displacement = Result->Sib.Displacement;
-		Result->Has_Displacement = true;
-
-		if (!Result->Has_Immediate){
-			for (auto& i : Right->Get_All(TOKEN::NUM)){
-				Result->Immediate = atoi(i->Name.c_str());
-				Result->Has_Immediate = true;
-				break;
-			}
-		}
-		else{
-
-			Report(Observation(ERROR, "Cannot have more than 1 number", *ir->Location ,ASSEMBLER_SYNTAX_ERROR));
-
-		}
+		Result->Sib = Get_SIB(Right, *Result);
 	}
 
 	//This is Left side because Encoding switches register and immediate places.
@@ -1154,11 +1139,11 @@ Byte_Map* x86_64::Build(IR* ir){
 	unsigned char MODRM_Key = 0;
 		
 	if (Right) {
-		MODRM_Key =	Right->Get_MODRM_Type();
+		MODRM_Key =	Get_MODRM_Type(Right);
 	}
 
 	if (MODRM_Key == 0){
-		MODRM_Key = Left->Get_MODRM_Type();
+		MODRM_Key = Get_MODRM_Type(Left);
 	}
 
 	Result->ModRM.Mod = MODRMS[MODRM_Key];
@@ -1187,6 +1172,137 @@ Byte_Map* x86_64::Build(IR* ir){
 
 	return Result;
 	
+}
+
+unsigned char x86_64::Get_MODRM_Type(Token* t)
+{
+	unsigned char Result = 0;
+
+	vector<Token*> Contents = t->Get_All(TOKEN::STACK_POINTTER);
+
+	if (Contents.size() > 0) {
+
+		Result |= MODRM_FLAGS::SIB;
+
+	}
+
+	Contents = t->Get_All(TOKEN::REGISTER);
+	if (Contents.size() > 0) {
+
+		Result |= MODRM_FLAGS::RM;
+
+	}
+
+	Contents = t->Get_All(TOKEN::NUM);
+	if (Contents.size() > 0) {
+
+		Result |= MODRM_FLAGS::RM;
+
+	}
+
+	Contents = t->Get_All(TOKEN::OFFSETTER);
+	if (Contents.size() > 0) {
+
+		Result |= MODRM_FLAGS::DISP32;
+
+	}
+
+	if (t->is(TOKEN::MEMORY)) {
+
+		Result |= MODRM_FLAGS::MEMORY;
+
+	}
+	
+	return Result;
+}
+
+SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
+	SIB Result;
+
+	Result.Is_Used = true;
+	bool Index_Setted = false;
+	bool Base_Setted = false;
+
+	//First get the scaler if there is one.
+	vector<Token*> Scaler_Operands = t->Get_All(TOKEN::SCALER);
+
+	//only 1 max scaler can be in one memory operand.
+	if (Scaler_Operands.size() > 0){
+		Token* Num = Scaler_Operands[0]->Left;
+		Token* Index = Scaler_Operands[0]->Right;
+
+		if (!Num->is(TOKEN::NUM)){
+			Num = Scaler_Operands[0]->Right;
+			Index = Scaler_Operands[0]->Left;
+		}
+
+		//Now we can resolve the scaler
+		if (Num->Name == "1") 		Result.Scale = 0b00;
+		else if (Num->Name == "2") 	Result.Scale = 0b01;
+		else if (Num->Name == "4") 	Result.Scale = 0b10;
+		else if (Num->Name == "8") 	Result.Scale = 0b11;
+
+		//(S * Index)
+		//Index must be a register
+		Result.Index = Index->XReg & ~(1 << 3);
+		
+		if (Index->XReg & REX_BIT_SETTED) {
+			back_referece.Rex.X = 1;
+		}
+
+		Index_Setted = true;
+	}
+
+	//Now we need to get the base register.
+	//[rsp + 2 * rax + 123]
+	//[(rsp + (2 * rax)) + 123]
+	
+	vector<Token*> Offset_Operands = t->Get_All(TOKEN::OFFSETTER);
+
+	for (auto& Side : Offset_Operands){
+		vector<Token*> Interesting_Sides = {Side->Left};
+
+		if (Interesting_Sides[0]->is({TOKEN::OFFSETTER, TOKEN::SCALER})){
+			Interesting_Sides = {Side->Right};
+		}
+		else{
+			Interesting_Sides.push_back(Side->Right);
+		}
+
+		for (auto& i : Interesting_Sides){
+			if (i->is(TOKEN::REGISTER)){
+				if (!Base_Setted){
+					//Index must be a register
+					Result.Base = i->XReg & ~(1 << 3);
+					
+					if (i->XReg & REX_BIT_SETTED) {
+						back_referece.Rex.B = 1;
+					}
+
+					Base_Setted = true;
+				}
+				else if(!Index_Setted){
+					//[Base + Index]
+					//Index must be a register
+					Result.Index = i->XReg & ~(1 << 3);
+					
+					if (i->XReg & REX_BIT_SETTED) {
+						back_referece.Rex.X = 1;
+					}
+
+					Index_Setted = true;
+				}
+			}
+			else if (i->is(TOKEN::NUM)){
+				back_referece.Displacement = stoll(i->Name);
+				back_referece.Has_Displacement = true;
+
+				back_referece.Displacement_Size = 4;
+			}
+		}
+	}
+
+	return Result;
 }
 
 void x86_64::Modify_OpCode(class Byte_Map* b){
@@ -1267,8 +1383,18 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 		Result += SIB;
 	}
 
-	else if (Input->Has_Immediate){
+	if (Input->Has_Displacement){
+		int Size = Input->Displacement_Size;
 
+		vector<unsigned char> Displacement_Value;
+		Displacement_Value.resize(Size);
+
+		memcpy(Displacement_Value.data(), (unsigned char*)&Input->Displacement, (unsigned char)Size);
+
+		Result.insert(Result.end(), Displacement_Value.begin(), Displacement_Value.end());
+	}
+
+	if (Input->Has_Immediate){
 		int Size = Input->Immediate_Size;
 
 		if (Input->Has_External_Label){
@@ -1281,8 +1407,8 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 		memcpy(Immediate_Value.data(), (unsigned char*)&Input->Immediate, (unsigned char)Size);
 
 		Result.insert(Result.end(), Immediate_Value.begin(), Immediate_Value.end());
-
 	}
+
 
 	//transform string Result into  vector<unsigned char>
 	vector<unsigned char> Result_Bytes;
@@ -1316,8 +1442,12 @@ int x86_64::Get_Size(Byte_Map* Input){
 		Result += 1;	//1 Bits
 	}
 
-	else if (Input->Has_Immediate){
-		Result += Input->Immediate_Size;
+	if (Input->Has_Displacement){
+		Result += Input->Displacement_Size;	//1-4 Bits
+	}
+
+	if (Input->Has_Immediate){
+		Result += Input->Immediate_Size;	//1-4 Bits
 	}
 
 	for (auto i : Input->Ir->Get_All(TOKEN::LABEL)){

@@ -146,10 +146,6 @@ class SIB{
     unsigned char Scale = 0;
     unsigned char Index = 0;
     unsigned char Base = 0;
-    unsigned int Displacement = 0;
-
-    bool Index_Rex = false;
-    bool Base_Rex = false;
 };
 
 class Byte_Map {
@@ -159,11 +155,14 @@ public:
     unsigned int Opcode = 0;            //upto 1-4 bytes
     MODRM ModRM = {0};                  //upto 1 byte
     SIB Sib = {0};                      //upto 1 byte
+
     bool Has_Displacement = false;      //Internal
-    long long Displacement = 0;//upto 1, 2, 4, 8 bytes
+    int Displacement_Size = 0;          //Internal
+    long long Displacement = 0;         //upto 1, 2, 4, 8 bytes
+
     bool Has_Immediate = false;         //Internal
     int Immediate_Size = 0;             //Internal
-    long long Immediate = 0;   //upto 1, 2, 4, 8 bytes
+    long long Immediate = 0;            //upto 1, 2, 4, 8 bytes
 
     //for locations
     int Size = 0;

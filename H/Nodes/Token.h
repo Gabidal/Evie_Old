@@ -168,10 +168,6 @@ public:
 	vector<Token*> Get_All(vector<long long> F);
 	vector<Token*> Get_All(long long F);
 	vector<Token*> Get_All();
-
-	unsigned char Get_MODRM_Type();
-
-	class SIB Get_SIB();
 };
 
 #endif

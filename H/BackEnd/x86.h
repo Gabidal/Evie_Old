@@ -39,6 +39,8 @@ public:
 	static void Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING encoding);
 	static void Modify_OpCode(class Byte_Map* b);
 	static vector<unsigned char> Assemble(class Byte_Map* Input);
+	static SIB Get_SIB(Token* t, class Byte_Map& back_referece);
+	static unsigned char Get_MODRM_Type(Token* t);
 
 	static bool is(unsigned char value, unsigned char mask) {
 		return (value & mask) == mask;

@@ -7,7 +7,9 @@ type long{
 }
 
 export int main(){
-    return 1
+    int a = 1
+    int ptr b = a
+    return 1 + a
 }
 
 export int Start_Test(){

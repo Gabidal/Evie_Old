@@ -65,6 +65,13 @@ void Analyzer::Detect_Abnormal_Start_Address()
 			i->Copy_Node(i, i, Func);
 		}
 
+		//If main exist then call it here:
+		if (Main){
+			Node* Call = new Node(CALL_NODE, Main->Name, new Position());
+			Call->Copy_Node(Call, Call, Func);
+			Func->Childs.push_back(Call);
+		}
+
 		Func->Scope = Global_Scope;
 
 		Global_Scope->Defined.push_back(Func);
