@@ -1148,12 +1148,16 @@ Byte_Map* x86_64::Build(IR* ir){
 
 	Result->ModRM.Mod = MODRMS[MODRM_Key];
 
-	if (Left){
+	if (ir->Order[0].Post_Fix != 0){
+		Result->ModRM.Reg = ir->Order[0].Post_Fix;
+	}
+
+	if (Left && Left->is(TOKEN::REGISTER)){
 		//remove the rex flag bit
 		Result->ModRM.Reg = Left->XReg & ~(1 << 3);
 	}
 
-	if (Right){
+	if (Right && Right->is(TOKEN::REGISTER)){
 		//remove the rex flag bit
 		Result->ModRM.RM = Right->XReg & ~(1 << 3);
 	}
