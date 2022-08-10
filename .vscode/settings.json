@@ -22,6 +22,9 @@
         "xlocale": "cpp",
         "xiosbase": "cpp",
         "functional": "cpp",
-        "charconv": "cpp"
+        "charconv": "cpp",
+        "xlocnum": "cpp",
+        "string": "cpp",
+        "cmath": "cpp"
     }
 }

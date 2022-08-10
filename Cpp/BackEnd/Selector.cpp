@@ -806,11 +806,22 @@ IR* Selector::Get_Opcode(IR* i)
 	for (auto opc : Opcodes) {
 		if (opc->Intermediate_Alias != i->OPCODE->Get_Name())
 			continue;
+
+		int Number_Size_Upscaler = 0;
+		Try_Upscaling_Number:;
 		for (auto& o : opc->Order) {
 			//check if this order has same amount of arguments as i.
 			if (o.Order.size() != sizes.size())
 				continue;	//this is wrong order
+
 			for (int j = 0; j < sizes.size(); j++) {
+				//This condition upscales the number if it must be upscaled to fir in the opcode
+				if (Number_Size_Upscaler != 0 && i->Arguments[j]->is(TOKEN::NUM) && 
+				   (o.Order[j].Min_Size <= pow(2, Number_Size_Upscaler) && o.Order[j].Max_Size >= pow(2, Number_Size_Upscaler))){
+					sizes[j] = pow(2, Number_Size_Upscaler);
+					i->Arguments[j]->Size = pow(2, Number_Size_Upscaler);
+				}
+
 				if (!(o.Order[j].Min_Size <= sizes[j] && o.Order[j].Max_Size >= sizes[j]))
 					goto Wrong;
 			}
@@ -822,6 +833,11 @@ IR* Selector::Get_Opcode(IR* i)
 			}
 			return opc;
 		Wrong:;
+		}
+
+		if (pow(2, Number_Size_Upscaler) - pow(2, Number_Size_Upscaler - 1) <= _SYSTEM_BIT_SIZE_ && i->Get_All(TOKEN::NUM).size() > 0){
+			Number_Size_Upscaler += 1;
+			goto Try_Upscaling_Number;
 		}
 
 		//We want to skip nullptr orders, they are there because we need the opcode asm hex number, but dont want to count order as a nessessity for selection.

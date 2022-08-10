@@ -392,6 +392,9 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
             if (i->OPCODE->Name != j->Intermediate_Alias)
                 continue;
 
+            int Number_Size_Upscaler = 0;
+            Try_Upscaling_Number:;
+
             for (auto& Opcode_Variant : j->Order) {
 
                 if (Opcode_Variant.Order.size() != Arguments.size())
@@ -402,6 +405,13 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
                 int Arg_Index = 0;
                 for (auto& Args : Opcode_Variant.Order) {
 
+                    if (Number_Size_Upscaler != 0 && i->Arguments[Arg_Index]->is(TOKEN::NUM) &&
+                        Args.Min_Size <= pow(2, Number_Size_Upscaler) && Args.Max_Size >= pow(2, Number_Size_Upscaler)){
+                        
+                        i->Arguments[Arg_Index]->Size = pow(2, Number_Size_Upscaler);
+
+                    }
+                    
                     if (Arguments[Arg_Index]->Size <= Args.Max_Size && Arguments[Arg_Index]->Size >= Args.Min_Size) {
 
                         if (!Args.Type->is(Arguments[Arg_Index]->Flags)) {
@@ -423,6 +433,11 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
                     goto Found_Suitable_Opcode;
                 }
 
+            }
+            
+            if (pow(2, Number_Size_Upscaler) - pow(2, Number_Size_Upscaler - 1) <= _SYSTEM_BIT_SIZE_ && i->Get_All(TOKEN::NUM).size() > 0){
+                Number_Size_Upscaler += 1;
+                goto Try_Upscaling_Number;
             }
         }
 

@@ -37,7 +37,7 @@ void x86_64::Init()
 
 		{MODRM_FLAGS::RM | MODRM_FLAGS::MEMORY, 0b00},
 		{MODRM_FLAGS::RM | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10},
-		{MODRM_FLAGS::RM, 0b11},
+		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB, 0b11},
 		
 		{MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY, 0b00},
 		{MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10},
@@ -322,17 +322,33 @@ void x86_64::Init()
 		{{{Register, 1, 8}, {Memory, 1, 8}}, 0x02, OPCODE_ENCODING::RM},
 		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x00, OPCODE_ENCODING::MR},
 		{{{Register, 1, 8}, {Register, 1, 8}}, 0x00, OPCODE_ENCODING::MR},
-		{{{Register, 1, 8}, {Const, 1, 8}}, 0x80, OPCODE_ENCODING::MI},
-		{{{Memory, 1, 8}, {Const, 1, 8}}, 0x80, OPCODE_ENCODING::MI}
+
+		{{{Register, 1, 1}, {Const, 1, 1}}, 0x80, OPCODE_ENCODING::MI},
+		{{{Register, 2, 2}, {Const, 2, 2}}, 0x81, OPCODE_ENCODING::MI},
+		{{{Register, 4, 4}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI},
+		{{{Register, 8, 8}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI},
+
+		{{{Memory, 1, 1}, {Const, 1, 1}}, 0x80, OPCODE_ENCODING::MI},
+		{{{Memory, 2, 2}, {Const, 2, 2}}, 0x81, OPCODE_ENCODING::MI},
+		{{{Memory, 4, 4}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI},
+		{{{Memory, 8, 8}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI},
 	});
 
 	IR* SUB = new IR("-", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "sub"), {
 		{{{Register, 1, 8}, {Memory, 1, 8}}, 0x2A, OPCODE_ENCODING::RM},
 		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x28, OPCODE_ENCODING::MR},
 		{{{Register, 1, 8}, {Register, 1, 8}}, 0x2A, OPCODE_ENCODING::RM},
-		{{{Register, 1, 8}, {Const, 1, 8}}, 0x80, OPCODE_ENCODING::MI, 5},	
-		{{{Memory, 1, 8}, {Const, 1, 8}}, 0x80, OPCODE_ENCODING::MI, 5}
-		});	
+
+		{{{Register, 1, 1}, {Const, 1, 1}}, 0x80, OPCODE_ENCODING::MI, 5},	
+		{{{Register, 2, 2}, {Const, 2, 2}}, 0x81, OPCODE_ENCODING::MI, 5},	
+		{{{Register, 4, 4}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 5},	
+		{{{Register, 8, 8}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 5},	
+
+		{{{Memory, 1, 1}, {Const, 1, 1}}, 0x80, OPCODE_ENCODING::MI, 5},	
+		{{{Memory, 2, 2}, {Const, 2, 2}}, 0x81, OPCODE_ENCODING::MI, 5},	
+		{{{Memory, 4, 4}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 5},	
+		{{{Memory, 8, 8}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 5},	
+	});	
 
 	IR* MUL = new IR("Internal_MUL", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "imul"), {
 		{{{Register, 2, 8}, {Memory, 2, 8}}, 0x0F, OPCODE_ENCODING::RM},
@@ -1067,10 +1083,17 @@ Byte_Map* x86_64::Build(IR* ir){
 	
 	//Rex is only awaiable in 64 bit mode.
 	if (_SYSTEM_BIT_SIZE_ == 8){
-		if (//(ir->Order[0].Order[0].Min_Size == 8 && ir->Order[0].Order[0].Max_Size == 8) ||
-			Left && Left->ID && Left->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER}) || 
+		if ((ir->Order[0].Order[0].Min_Size == ir->Order[0].Order[0].Max_Size && ir->Order[0].Order[0].Max_Size != 8) 				&&
+			(ir->Arguments.size() > 0 && ir->Arguments[0]->Size == 8) || (ir->Arguments.size() > 1 && ir->Arguments[1]->Size == 8)	||
+			Left && Left->ID && Left->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER}) 									|| 
 			Right && Right->ID && Right->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER})){
-			Result->Rex.ID = REX_DEFAULT;
+			Result->Rex.ID = REX_DEFAULT;			
+			
+			//now we know that the opcode does not default to 64 bit arguments.
+			//Now check if one of the arguments are 64bit size.
+			if ((ir->Arguments.size() > 0 && ir->Arguments[0]->Size == 8) || (ir->Arguments.size() > 1 && ir->Arguments[1]->Size == 8)){
+				Result->Rex.W = true;
+			}
 		}
 	}
 
@@ -1082,25 +1105,7 @@ Byte_Map* x86_64::Build(IR* ir){
 	//This is Left side because Encoding switches register and immediate places.
 	else if (Left && Left->is(TOKEN::NUM)){
 		Result->Immediate = atoll(Left->Name.c_str());
-		if (Right){
-			Result->Immediate_Size = Right->Size;
-		}
-		else{
-			// Result->Immediate_Size = _SYSTEM_BIT_SIZE_;
-			// if (Result->Immediate < 0){
-			// 	if (Result->Immediate < INT32_MIN && ir->Order[0].Order[0].Max_Size == 8) Result->Immediate_Size = 8;
-			// 	else if (Result->Immediate < INT16_MIN && ir->Order[0].Order[0].Max_Size == 4) Result->Immediate_Size = 4;
-			// 	else if (Result->Immediate < INT8_MIN && ir->Order[0].Order[0].Max_Size == 2) Result->Immediate_Size = 2;
-			// 	else if (ir->Order[0].Order[0].Max_Size == 1) Result->Immediate_Size = 1;
-			// }
-			// else{
-			// 	if (Result->Immediate > INT32_MAX && ir->Order[0].Order[0].Max_Size == 8) Result->Immediate_Size = 8;
-			// 	else if (Result->Immediate > INT16_MAX && ir->Order[0].Order[0].Max_Size == 4) Result->Immediate_Size = 4;
-			// 	else if (Result->Immediate > INT8_MAX && ir->Order[0].Order[0].Max_Size == 2) Result->Immediate_Size = 2;
-			// 	else if (ir->Order[0].Order[0].Max_Size == 1) Result->Immediate_Size = 1;
-			// }
-			Result->Immediate_Size = Left->Size;
-		}
+		Result->Immediate_Size = Left->Size;
 		Result->Has_Immediate = true;
 	}
 
@@ -1114,18 +1119,10 @@ Byte_Map* x86_64::Build(IR* ir){
 	//We set the REX.X bit if the opcode has a 64-bit addrressing SIB.index field.
 	//We set the REX.B bit if the opcode has MODRM.rm field or SIB.base field.
 
-	//Check if the instruction defaults to 64-bit operand size.
-	if (ir->Order[0].Order[0].Min_Size == 8 && ir->Order[0].Order[0].Max_Size == 8) {
-		Result->Rex.W = 1;
-	}
-	else {
-		Result->Rex.W = 0;
-	}
-
 	//Check if the instruction has MODRM.reg field.
 	//This we can check by looking the Rex value's 4'th bit is set from the Right operand.
 	if (Right && Right->XReg & REX_BIT_SETTED) {
-		Result->Rex.B = 1;
+		Result->Rex.B = true;
 	}
 
 	//Check if the instruction has a 64-bit addrressing SIB.index field.
@@ -1133,7 +1130,7 @@ Byte_Map* x86_64::Build(IR* ir){
 	//Check if the instruction has MODRM.rm field or SIB.base field.
 	//This we can check by looking the Rex value's 4'th bit is set from the Left operand.
 	if (Left && Left->XReg & REX_BIT_SETTED) {
-		Result->Rex.R = 1;
+		Result->Rex.R = true;
 	}
 
 	unsigned char MODRM_Key = 0;
