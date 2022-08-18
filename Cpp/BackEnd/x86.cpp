@@ -14,6 +14,7 @@ using namespace std;
 extern Usr* sys;
 extern Selector* selector;
 extern Assembler* assembler;
+extern x86_64 X86_64;
 
 void x86_64::Init()
 {
@@ -39,8 +40,8 @@ void x86_64::Init()
 		{MODRM_FLAGS::RM | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10},
 		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB, 0b11},
 		
-		{MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY, 0b00},
-		{MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10},
+		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY, 0b00},
+		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10},
 	};
 
 	Token* AL = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "al", 1, {}, 0b0000);
@@ -910,7 +911,7 @@ void x86_64::Init()
 
 	IR* PUSH = new IR("push", new Token(OPERATOR, "push"), {
 		{{{Memory, 2, 8}}, 0xFF, OPCODE_ENCODING::M, 6},
-		{{{Register, 2, 8}}, 0xFF, OPCODE_ENCODING::M, 6},
+		{{{Register, 2, 8}}, 0x50, OPCODE_ENCODING::O},
 		{{{Const, 1, 4}}, 0x6A, OPCODE_ENCODING::I},
 	});
 
@@ -1097,13 +1098,8 @@ Byte_Map* x86_64::Build(IR* ir){
 		}
 	}
 
-	//Calculate SIB
-	if (Right && Right->is(TOKEN::MEMORY)){
-		Result->Sib = Get_SIB(Right, *Result);
-	}
-
 	//This is Left side because Encoding switches register and immediate places.
-	else if (Left && Left->is(TOKEN::NUM)){
+	if (Left && Left->is(TOKEN::NUM)){
 		Result->Immediate = atoll(Left->Name.c_str());
 		Result->Immediate_Size = Left->Size;
 		Result->Has_Immediate = true;
@@ -1135,15 +1131,37 @@ Byte_Map* x86_64::Build(IR* ir){
 
 	unsigned char MODRM_Key = 0;
 		
-	if (Right) {
-		MODRM_Key =	Get_MODRM_Type(Right);
+	if (ir->Order[0].Encoding != OPCODE_ENCODING::O && ir->Order[0].Encoding != OPCODE_ENCODING::ZO && ir->Order[0].Encoding != OPCODE_ENCODING::OI){
+		if (Right) {
+			MODRM_Key =	Get_MODRM_Type(Right);
+		}
+
+		if (MODRM_Key == 0){
+			MODRM_Key = Get_MODRM_Type(Left);
+		}
+
+		Result->ModRM.Mod = MODRMS[MODRM_Key];
+
+		Result->ModRM.Is_Used = true;
 	}
 
-	if (MODRM_Key == 0){
-		MODRM_Key = Get_MODRM_Type(Left);
-	}
+	//Calculate SIB
+	if (Right && Right->is(TOKEN::MEMORY)){
+		//activate Sib mode by adding RSP to modrm
+		Result->ModRM.Is_Used = true;
 
-	Result->ModRM.Mod = MODRMS[MODRM_Key];
+		Token* sp = nullptr;
+		for (auto& i : X86_64.Registers)
+			if (i->is(TOKEN::STACK_POINTTER)){
+				sp = i;
+				break;
+			}
+		
+		//we know rsp will never use 0b1000 so dont need to activate B flag from REX.
+		Result->ModRM.RM = sp->XReg;
+
+		Result->Sib = Get_SIB(Right, *Result);
+	}
 
 	if (ir->Order[0].Post_Fix != 0){
 		Result->ModRM.Reg = ir->Order[0].Post_Fix;
@@ -1223,6 +1241,7 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 	Result.Is_Used = true;
 	bool Index_Setted = false;
 	bool Base_Setted = false;
+	bool Has_Stack_Pointer_Register = false;
 
 	//First get the scaler if there is one.
 	vector<Token*> Scaler_Operands = t->Get_All(TOKEN::SCALER);
@@ -1254,6 +1273,10 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 		Index_Setted = true;
 	}
 
+	if (t->Get_All(TOKEN::STACK_POINTTER).size() > 0){
+		Has_Stack_Pointer_Register = true;
+	}
+
 	//Now we need to get the base register.
 	//[rsp + 2 * rax + 123]
 	//[(rsp + (2 * rax)) + 123]
@@ -1272,7 +1295,7 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 
 		for (auto& i : Interesting_Sides){
 			if (i->is(TOKEN::REGISTER)){
-				if (!Base_Setted){
+				if (!Base_Setted && (Has_Stack_Pointer_Register && i->is(TOKEN::STACK_POINTTER))){
 					//Index must be a register
 					Result.Base = i->XReg & ~(1 << 3);
 					
@@ -1301,6 +1324,27 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 				back_referece.Displacement_Size = 4;
 			}
 		}
+	}
+
+	//Update MODrm MOD value by SIB
+
+	//[base + (index * s) + disp32]
+	if ((Base_Setted && Index_Setted && back_referece.Has_Displacement)){
+
+		back_referece.ModRM.Mod = 0b10;
+
+	}
+	else if (Has_Stack_Pointer_Register && back_referece.Has_Displacement){
+
+		back_referece.ModRM.Mod = 0b10;
+
+		//RSP needsa to be also in the Base as well in the Index
+		Result.Index = Result.Base;
+
+	}
+	//[base + (index * s)] || [(index * s) + disp32]	
+	else if ((Base_Setted && Index_Setted) || (Index_Setted && back_referece.Has_Displacement)){
+		back_referece.ModRM.Mod = 0b00;
 	}
 
 	return Result;
@@ -1358,7 +1402,7 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 
 	Result += Input->Opcode;
 
-	if (Input->ModRM.Mod != 0 && Input->Ir->Order[0].Encoding != OPCODE_ENCODING::D){
+	if (Input->ModRM.Is_Used && Input->Ir->Order[0].Encoding != OPCODE_ENCODING::D){
 		//	7                              0
 		// +---+---+---+---+---+---+---+---+
 		// |  mod  |    reg    |     rm    |
@@ -1410,6 +1454,7 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 		Result.insert(Result.end(), Immediate_Value.begin(), Immediate_Value.end());
 	}
 
+	//mov [rsp + 0], 1
 
 	//transform string Result into  vector<unsigned char>
 	vector<unsigned char> Result_Bytes;

@@ -39,7 +39,8 @@ enum class OPCODE_ENCODING {
 	A,
 	B,
 	C,
-	D
+	D,
+	O
 };
 
 class Pattern {

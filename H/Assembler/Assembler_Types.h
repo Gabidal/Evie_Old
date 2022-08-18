@@ -135,6 +135,7 @@ public:
 
 class MODRM{
 public:
+    bool Is_Used = false;
     unsigned char Mod = 0;
     unsigned char Reg = 0;
     unsigned char RM = 0;
