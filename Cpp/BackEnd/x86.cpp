@@ -34,14 +34,15 @@ void x86_64::Init()
 	Label_Post_Fix = ":";
 
 	MODRMS = {
-		{0, 0},	//NULL
+		{0, -1},	//NULL
 
 		{MODRM_FLAGS::RM | MODRM_FLAGS::MEMORY, 0b00},
 		{MODRM_FLAGS::RM | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10},
-		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB, 0b11},
-		
+		{MODRM_FLAGS::RM, 0b11},
+
 		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY, 0b00},
 		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB | MODRM_FLAGS::MEMORY | MODRM_FLAGS::DISP32, 0b10},
+		{MODRM_FLAGS::RM | MODRM_FLAGS::SIB, 0b11},
 	};
 
 	Token* AL = new Token(TOKEN::RETURNING | TOKEN::QUOTIENT, "al", 1, {}, 0b0000);
@@ -316,7 +317,7 @@ void x86_64::Init()
 	});
 
 	IR* LEA = new IR("evaluate", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "lea"), {
-		{ {{Register, 1, 8 }, { Memory, 1, 8 }}, 0x8D, OPCODE_ENCODING::RM }
+		{ {{Register, 2, 8 }, { Memory, 2, 8 }}, 0x8D, OPCODE_ENCODING::RM }
 	});
 
 	IR* ADD = new IR("+", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "add"), {
@@ -1068,7 +1069,7 @@ Byte_Map* x86_64::Build(IR* ir){
 	Token* Left = ir->Arguments.size() > 0 ? ir->Arguments[0] : nullptr;
 	Token* Right = ir->Arguments.size() > 1 ? ir->Arguments[1] : nullptr;
 
-	if (Left && Left->Encoding == MODRM_ENCODING::RM){
+	if (Left && Left->Encoding == MODRM_ENCODING::MOD_RM){
 		Token* tmp = Right;
 		Right = Left;
 		Left = tmp;
@@ -1356,6 +1357,12 @@ void x86_64::Modify_OpCode(class Byte_Map* b){
 		return;
 	}
 
+	//This order might not have all the combinations
+	if (b->Ir->Order[0].Smallest_Size > 1){
+		//This means that there is no 8bit size to convert from.
+		return;
+	}
+
 	//if the given byte map doesnt use more than 8bit arguments, then we can let it be.
 	//if otherwise, we need to increment it by 1
 	bool Args_Utilise_More_Than_8Bits = false;
@@ -1480,7 +1487,7 @@ int x86_64::Get_Size(Byte_Map* Input){
 
 	Result += selector->Get_Bits_Size(Input->Opcode);	//1-4 Bits
 
-	if (Input->ModRM.Mod != 0 && Input->Ir->Order[0].Encoding != OPCODE_ENCODING::D){
+	if (Input->ModRM.Is_Used && Input->Ir->Order[0].Encoding != OPCODE_ENCODING::D){
 		Result += 1; 	//1 Bits
 	}
 
@@ -1527,10 +1534,10 @@ int x86_64::Get_Size(Byte_Map* Input){
 void x86_64::Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING Encoding){
 
 	if (Args.size() == 2 && (Encoding == OPCODE_ENCODING::MI || Encoding == OPCODE_ENCODING::MR)){
-		Args[0]->Encoding = MODRM_ENCODING::RM;
-		Args[1]->Encoding = MODRM_ENCODING::REG;
+		Args[0]->Encoding = MODRM_ENCODING::MOD_RM;
+		Args[1]->Encoding = MODRM_ENCODING::MOD_REG;
 	}
 	else if (Args.size() == 1 && Encoding == OPCODE_ENCODING::M){
-		Args[0]->Encoding = MODRM_ENCODING::RM;
+		Args[0]->Encoding = MODRM_ENCODING::MOD_RM;
 	}
 }

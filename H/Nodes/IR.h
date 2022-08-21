@@ -51,6 +51,9 @@ public:
 	int Post_Fix = 0;
 	int Pre_Fix = 0;
 
+	int Smallest_Size = 0;
+	int Largest_Size = 0;
+
 	Pattern(vector<Structure> order, int id = 0, OPCODE_ENCODING en = OPCODE_ENCODING::NaN, int post = 0, int pre_fix = 0) {
 		Order = order;
 		ID = id;
@@ -76,9 +79,9 @@ public:
 	IR(Position* p) : Location(p){}
 	IR(Token* opc, vector<Token*> args, Position* p) : OPCODE(opc), Arguments(args), Location(p) {  }
 	IR(string id, Token* opc, vector<Token*> args, Position* p) : Intermediate_Alias(id), OPCODE(opc), Arguments(args), Location(p) {}
-	IR(string id, Token* opc, vector<Pattern> order) : Intermediate_Alias(id), OPCODE(opc), Order(order) {}
+	IR(string id, Token* opc, vector<Pattern> order) : Intermediate_Alias(id), OPCODE(opc), Order(order) {Tell_Smallest_And_Largest_Sizes();}
 	IR(string id, Token* opc, vector<IR*> (*c)(vector<Token*>), Position* p) : Intermediate_Alias(id), OPCODE(opc), Complex(c), Location(p) {}
-	IR(string id, Token* opc, vector<Pattern> order, vector<IR*> (*c)(vector<Token*>)) : Intermediate_Alias(id), OPCODE(opc), Order(order), Complex(c) {}
+	IR(string id, Token* opc, vector<Pattern> order, vector<IR*> (*c)(vector<Token*>)) : Intermediate_Alias(id), OPCODE(opc), Order(order), Complex(c) {Tell_Smallest_And_Largest_Sizes();}
 
 	bool is(long long flag) { return OPCODE->is(flag); }
 	vector<Token*> Get_All(long long F)
@@ -94,6 +97,25 @@ public:
 		}
 
 		return Result;
+	}
+
+	void Tell_Smallest_And_Largest_Sizes(){
+
+		int Smallest = _SYSTEM_BIT_SIZE_;
+		int Largest = 0;
+
+		for (auto& i : Order){
+			for (auto& j : i.Order){
+				if (j.Min_Size < Smallest) Smallest = j.Min_Size;
+				if (j.Max_Size > Largest) Largest = j.Max_Size;
+			}
+		}
+
+		//Now that we know the largest and smallest sizes, we tell each order that information to the for them to hold into that informatino for later use.
+		for (auto& i : Order){
+			i.Largest_Size = Largest;
+			i.Smallest_Size = Smallest;
+		}
 	}
 
 };

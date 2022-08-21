@@ -5,8 +5,8 @@
 
 enum class MODRM_ENCODING{
 	NON,
-	RM,
-	REG
+	MOD_RM,
+	MOD_REG
 };
 
 namespace TOKEN {
