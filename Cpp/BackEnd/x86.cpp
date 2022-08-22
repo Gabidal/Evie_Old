@@ -1134,6 +1134,9 @@ Byte_Map* x86_64::Build(IR* ir){
 		
 	if (ir->Order[0].Encoding != OPCODE_ENCODING::O && ir->Order[0].Encoding != OPCODE_ENCODING::ZO && ir->Order[0].Encoding != OPCODE_ENCODING::OI){
 		if (Right) {
+			if (Right->Name == "rbx"){
+				int a = 0;
+			}
 			MODRM_Key =	Get_MODRM_Type(Right);
 		}
 
@@ -1504,28 +1507,37 @@ int x86_64::Get_Size(Byte_Map* Input){
 	}
 
 	for (auto i : Input->Ir->Get_All(TOKEN::LABEL)){
-        Symbol_Data symbol = assembler->Symbol_Table.find(i->Name)->second;
+		auto R = assembler->Symbol_Table.find(i->Name);
 
-		if (symbol.Section_ID == 0){
-			//extern symbol
-			break;
+		if (R == assembler->Symbol_Table.end()){
+			//This means that the Assembler hasn't yet reached the label definition.
+			//This also means that we need to quess the size of the distance of this label definitino relative to this current address.
+			Result += 4;
 		}
-		
-		//This wont have the final result
-        long long Value = symbol.Address - Input->Address;
+		else{
+			Symbol_Data symbol = R->second;
 
-		int Size = _SYSTEM_BIT_SIZE_;
+			if (symbol.Section_ID == 0){
+				//extern symbol
+				break;
+			}
+			
+			//This wont have the final result
+			long long Value = symbol.Address - Input->Address;
 
-        if (Value > INT32_MIN) Size = 4;
-        else if (Value < INT32_MAX) Size = 4;
+			int Size = _SYSTEM_BIT_SIZE_;
 
-		//This is the final value
-		Value = symbol.Address - (Input->Address + Size);
+			if (Value > INT32_MIN) Size = 4;
+			else if (Value < INT32_MAX) Size = 4;
 
-        if (Value > INT32_MIN) Size = 4;
-        else if (Value < INT32_MAX) Size = 4;
+			//This is the final value
+			Value = symbol.Address - (Input->Address + Size);
 
-		Result += Size;
+			if (Value > INT32_MIN) Size = 4;
+			else if (Value < INT32_MAX) Size = 4;
+
+			Result += Size;
+		}
 	}
 
 	return Result;

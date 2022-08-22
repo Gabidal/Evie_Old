@@ -146,8 +146,12 @@ void IRPostProsessor::Clean_Selector(int& i)
 			}
 		}
 
-		reg = new Token(*r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second));
-		reg->ID = reg;
+		reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "Reg_");
+		reg->ID = r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second);
+		reg->Name += reg->ID->Name;
+		reg->Size = _SYSTEM_BIT_SIZE_;
+		reg->XReg = reg->ID->XReg;
+
 		Input->insert(Input->begin() + Start_Of_Function, new IR(new Token(TOKEN::OPERATOR, "push"), { reg }, Input->at(i)->Location));
 		Additional_Changes += Parse_Complex(Input->at(Start_Of_Function), Start_Of_Function, true);
 		Push_Amount.push_back(reg);
@@ -178,8 +182,11 @@ void IRPostProsessor::Clean_Selector(int& i)
 		Return_Amount++;
 		Token* ret = Input->at(j)->OPCODE;
 		for (auto r : Push_Amount) {
-			Token* reg = new Token(*r->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r));
-			reg->ID = reg;
+			Token* reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "Reg_");
+			reg->ID = r->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r);
+			reg->Name += reg->ID->Name;
+			reg->Size = _SYSTEM_BIT_SIZE_;
+			reg->XReg = reg->ID->XReg;
 
 
 			Input->insert(Input->begin() + j, new IR(new Token(TOKEN::OPERATOR, "pop"), { reg }, Input->at(i)->Location));
