@@ -2227,14 +2227,15 @@ void Parser::Use_Pattern(int i)
 		j->Fetcher = Namespace;
 	}
 
-	for (auto &j : Inlined) {
-		if (j->Is_Template_Object)
-			continue;
-		if (j->Has({ FUNCTION_NODE, CLASS_NODE })) 
-			continue;
+	//NOTE! You cant update size in Parser state, try in post_processor stage.
+	// for (auto &j : Inlined) {
+	// 	if (j->Is_Template_Object)
+	// 		continue;
+	// 	if (j->Has({ FUNCTION_NODE, CLASS_NODE })) 
+	// 		continue;
 
-		j->Update_Size();
-	}
+	// 	j->Update_Size();
+	// }
 
 	Closest_Namespace->Append(Closest_Namespace->Inlined_Items, Inlined);
 
@@ -2267,7 +2268,8 @@ Component* Parser::Construct_Virtual_Class_For_Complex_Cast(Component Parenthesi
 	Virtual_Class->Name = Virtual_Class_Name;
 	Virtual_Class->Scope = Scope->Get_Scope_As(CLASS_NODE, {"static"}, Scope);
 
-	Virtual_Class->Update_Size();
+	//NOTE! You cant update size in Parser state, try in post_processor stage.
+	//Virtual_Class->Update_Size();
 
 	Node* New_Virtual_Class;
 	Scope->Copy_Node(New_Virtual_Class, Virtual_Class, Virtual_Class->Scope);

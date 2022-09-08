@@ -1239,6 +1239,12 @@ int Node::Update_Size() {
 	Trace_Update_Size.push_back(this);
 
 	Size = 0;
+	//This can be activated by functions and classes.
+	//We can skip ptr inheritted types.
+	//Functions use the Inherit loop to determine the return size.
+	//Classes use this to update their own functions or other members.
+	//NOTE! Local or global variables cant use this, because local/global variables dont have direct access to their inheritted definitions.
+	//In other words, local/global variables that inherit complex classes can't use this.
 	if (!is(FUNCTION_NODE) && !is("ptr"))
 		for (auto Member : Defined) {
 			if (Member->Has({ FUNCTION_NODE, PROTOTYPE, IMPORT, EXPORT }))
@@ -1256,7 +1262,7 @@ int Node::Update_Size() {
 			}
 			continue;
 		}
-		else if (MANGLER::Is_Base_Type(Find(Inherit)))
+		else //if (MANGLER::Is_Base_Type(Find(Inherit)))
 			Size += Find(Inherit)->Update_Size();
 	}
 	Trace_Update_Size.pop_back();
