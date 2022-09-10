@@ -81,6 +81,7 @@ public:
 	int Get_Casting_Distance(Node* a, Node* b, bool Layer = false);
 	bool Find_Castable_Inheritance(vector<string> types, string target);
 	void Find_Call_Owner(Node* n, bool Stop = true);					//justifyes the fucntion to call
+	void Upscale_Number_Parameter_Sizes(Node* caller);
 
 
 	//Misc

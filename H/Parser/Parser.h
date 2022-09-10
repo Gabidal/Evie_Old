@@ -55,6 +55,7 @@ public:
 	void Complex_Cast(int i);
 	void Parenthesis_Pattern(int i);							//(a + a) * b
 	void Math_Pattern(int& i, vector<string> Operator, int Flag, bool Change_Index = false);			//a = b + c * d, a.b.c.d()
+	int Get_Number_Size(long long Value);
 	void Number_Pattern(int i);									//123
 	void Operator_PreFix_Pattern(int i, vector<string> Prefix);	//++a/--b()
 	void Operator_PostFix_Pattern(int i, vector<string> Postfix);//a++/b()--

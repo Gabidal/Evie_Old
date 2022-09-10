@@ -96,8 +96,6 @@ Token::Token(Node* n, bool Skip_Needed_Address_Protocol) {
 
 	if (Flags == 0)
 		Report(Observation(ERROR, "Internal error! Missing Flag in token " + Name, Position()));
-
-	Fix_Number_Size(); 
 }
 
 vector<Token*> Token::Get_All(vector<long long> F)
@@ -161,12 +159,12 @@ vector<Token*> Token::Get_All()
 	return Result;
 }
 
-void Token::Fix_Number_Size(){
-	if (!is(TOKEN::NUM))
-		return;
+// void Token::Fix_Number_Size(){
+// 	if (!is(TOKEN::NUM))
+// 		return;
 
-	try {
-		Size = selector->Get_Bits_Size(stoll(Name));
-	}
-	catch (...){}
-}
+// 	try {
+// 		Size = selector->Get_Bits_Size(stoll(Name));
+// 	}
+// 	catch (...){}
+// }

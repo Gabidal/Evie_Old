@@ -1199,6 +1199,22 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 	return;
 }
 
+int Parser::Get_Number_Size(long long Value){
+
+	if (Value < 0){
+		if (Value < INT32_MIN) return sizeof(long long);
+		else if (Value < INT16_MIN) return sizeof(int);
+		else if (Value < INT8_MIN) return sizeof(short);
+	}
+	else{
+		if (Value > UINT32_MAX) return sizeof(long long);
+		else if (Value > UINT16_MAX) return sizeof(int);
+		else if (Value > UINT8_MAX) return sizeof(short);
+	}
+
+	return sizeof(char);
+}
+
 void Parser::Number_Pattern(int i)
 {
 	//<summary>
@@ -1229,10 +1245,15 @@ void Parser::Number_Pattern(int i)
 		}
 	}
 	else {
-		if (atoll(Num->Name.c_str()) > INT32_MAX)
-			Num->Size = 8;
-		else
-			Num->Size = 4;
+		try {
+			Num->Size = Get_Number_Size(stoll(Num->Name));
+		}
+		catch (...){
+			if (atoll(Num->Name.c_str()) > INT32_MAX)
+				Num->Size = 8;
+			else
+				Num->Size = 4;
+		}
 	}
 
 	Input[i].node = Num;

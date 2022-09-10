@@ -46,22 +46,22 @@ public:
 		MODRM_ENCODING Encoding = MODRM_ENCODING::NON;
 	};
 	//for tokens
-	Token(const Token& t, long long f) { *this = t; Flags = f; Fix_Number_Size(); }
-	Token(const Token& t, int s) { *this = t; Size = s;  Fix_Number_Size(); }
-	Token(long long f) : Flags(f) { Fix_Number_Size(); }
+	Token(const Token& t, long long f) { *this = t; Flags = f;  }
+	Token(const Token& t, int s) { *this = t; Size = s;   }
+	Token(long long f) : Flags(f) {  }
 	Token(Node* n, bool Skip_Needed_Address_Protocol = false);
-	Token(long long f, int s) : Flags(f), Size(s) { Fix_Number_Size(); }
-	Token(long long f, string n) : Flags(f), Name(n) { Fix_Number_Size(); }
-	Token(long long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) { Fix_Number_Size(); }
-	Token(long long f, string n, int s) : Flags(f), Name(n), Size(s) { Fix_Number_Size(); }
-	Token(long long f, string n, int s, Node* Scope) : Flags(f), Name(n), Size(s), Parent(Scope) { Fix_Number_Size(); }
+	Token(long long f, int s) : Flags(f), Size(s) {  }
+	Token(long long f, string n) : Flags(f), Name(n) {  }
+	Token(long long f, string n, vector<Token*> Param) : Flags(f), Name(n), Parameters(Param) {  }
+	Token(long long f, string n, int s) : Flags(f), Name(n), Size(s) {  }
+	Token(long long f, string n, int s, Node* Scope) : Flags(f), Name(n), Size(s), Parent(Scope) {  }
 	Token(long long f, string n, int s, vector<Token*> c, unsigned char xreg = 0) : Flags(f), Name(n), Size(s), Childs(c), XReg(xreg) {
 		if (!Has({TOKEN::NONVOLATILE, TOKEN::VOLATILE, TOKEN::QUOTIENT, TOKEN::REMAINDER, TOKEN::RETURNING, TOKEN::PARAMETER}))
 			return;
 		for (auto i : Childs) {
 			i->Holder = this;
 		} 
-		Fix_Number_Size(); 
+		 
 	}
 	Token(long long f, string n, Token* L, Token* R) : Flags(f), Name(n), Left(L), Right(R){}
 
@@ -87,7 +87,7 @@ public:
 
 	Token(long long f, vector<vector<pair<Token*, pair<int, int>>>> comb) : Flags(f), Combinations(comb){}
 
-	void Fix_Number_Size();
+	//void 
 
 	Token* Get_Child(int s) {
 		if (this->Size != s)

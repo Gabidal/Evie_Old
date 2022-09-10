@@ -1096,18 +1096,19 @@ void PostProsessor::Find_Call_Owner(Node* n, bool Stop)
 		Candidates = Find_Suitable_Function_Candidates(n, It_Is_A_Function_Pointter, Use_All_Scopes);
 		int Note = Choose_Most_Suited_Function_Candidate(Order_By_Accuracy(Candidates, n), n, It_Is_A_Function_Pointter);
 
-		// returns 0 if found caller's function implemitation.
-		if (Note == 0) {
+		// Note is 0 if found caller's function implemitation.
+		// Note is 1 if constructed a new function implemitation based on the template types
+		if (Note == 0 || Note == 1) {
+			Upscale_Number_Parameter_Sizes(n);
+
 			break;
 		}
-		// returns 1 if constructed a new function implemitation based on the template types
-		else if (Note == 1) {
-			continue;
-		}
+		//Stop if there is a problem, we use Stop = false when we want to ignore the error's
+		//This is used in emulated situations, see Insert_Dot() function for more info.
 		else if (Stop == false) {
 			return;
 		}
-		// returns -1 if nothing found
+		// Note is -1 if nothing found
 		else if (Note == -1) {
 			if (Use_All_Scopes == false)
 				Use_All_Scopes = true;
@@ -1135,6 +1136,22 @@ void PostProsessor::Find_Call_Owner(Node* n, bool Stop)
 			Report(Observation(ERROR, "Can't find the function '" + n->Print() + "' calls to.", *n->Location));
 		}
 	}
+}
+
+//All numbers in evie will only occupie the smallest amount if size.
+//Because of this we need to upscale number parameters to the call host size, so that the registers are fully cleared of extern values.
+void PostProsessor::Upscale_Number_Parameter_Sizes(Node* caller){
+
+	for (int i = 0; i < caller->Parameters.size(); i++){
+
+		if (caller->Parameters[i]->is(NUMBER_NODE)){
+
+			caller->Parameters[i]->Size = caller->Function_Implementation->Parameters[i]->Update_Size();
+
+		}
+
+	}
+
 }
 
 vector<pair<Node*, Node*>> PostProsessor::Find_Suitable_Function_Candidates(Node* caller, bool Skip_Name_Comparison, bool Use_All_Scopes)

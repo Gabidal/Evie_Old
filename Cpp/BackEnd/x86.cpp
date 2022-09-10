@@ -193,10 +193,10 @@ void x86_64::Init()
 	else
 		Parameter_Registers = { RDI, RSI, RDX, RCX, R8, R9, XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6 };
 	Registers = { 
-		RAX, EAX, AX, AH, AL,
-		RBX, EBX, BX, BH, BL,
-		RCX, ECX, CX, CH, CL,
-		RDX, EDX, DX, DH, DL,
+		RAX, EAX, AX, AL, AH,
+		RBX, EBX, BX, BL, BH,
+		RCX, ECX, CX, CL, CH,
+		RDX, EDX, DX, DL, DH,
 		RDI, EDI, DI, DIL,
 		RSI, ESI, SI, SIL,
 		RBP, EBP, BP, BPL,
