@@ -38,7 +38,7 @@ void Analyzer::Detect_Abnormal_Start_Address()
 		Indicies.push_back(i);
 	}
 
-	if (Main && sys->Info.Format == "exe") {
+	if (Main) {
 		Start_Of_Proccesses.push_back(Main);
 
 		for (auto& i : Initializers) {
@@ -55,21 +55,17 @@ void Analyzer::Detect_Abnormal_Start_Address()
 		sys->Info.Starting_Address = Main;
 	}
 	else {
+		//Find the 4 Bits returning type
+		Node* Type = Global_Scope->Find(4, Global_Scope, CLASS_NODE, "integer");
+
 		//create a new initialization function for the global variables.
 		Node* Func = new Node(FUNCTION_NODE, new Position());
-		Func->Name = "_INIT_";
+		Func->Name = "main";
 		Func->Childs = Initializers;
-		Func->Inheritted = { "func", "export" };
+		Func->Inheritted = { "export", Type->Name };
 
 		for (auto& i : Func->Childs) {
 			i->Copy_Node(i, i, Func);
-		}
-
-		//If main exist then call it here:
-		if (Main){
-			Node* Call = new Node(CALL_NODE, Main->Name, new Position());
-			Call->Copy_Node(Call, Call, Func);
-			Func->Childs.push_back(Call);
 		}
 
 		Func->Scope = Global_Scope;

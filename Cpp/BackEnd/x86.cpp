@@ -1132,11 +1132,14 @@ Byte_Map* x86_64::Build(IR* ir){
 
 	unsigned char MODRM_Key = 0;
 		
-	if (ir->Order[0].Encoding != OPCODE_ENCODING::O && ir->Order[0].Encoding != OPCODE_ENCODING::ZO && ir->Order[0].Encoding != OPCODE_ENCODING::OI){
+	//O encoding works by adding the register number to the opcode.
+	if (ir->Order[0].Encoding == OPCODE_ENCODING::O || ir->Order[0].Encoding == OPCODE_ENCODING::OI){
+
+		Result->Opcode += Left->XReg & ~(1 << 3);
+
+	}
+	else if (ir->Order[0].Encoding != OPCODE_ENCODING::ZO){
 		if (Right) {
-			if (Right->Name == "rbx"){
-				int a = 0;
-			}
 			MODRM_Key =	Get_MODRM_Type(Right);
 		}
 
@@ -1148,6 +1151,7 @@ Byte_Map* x86_64::Build(IR* ir){
 
 		Result->ModRM.Is_Used = true;
 	}
+
 
 	//Calculate SIB
 	if (Right && Right->is(TOKEN::MEMORY)){
@@ -1196,6 +1200,8 @@ Byte_Map* x86_64::Build(IR* ir){
 	return Result;
 	
 }
+
+
 
 unsigned char x86_64::Get_MODRM_Type(Token* t)
 {
@@ -1356,7 +1362,11 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 
 void x86_64::Modify_OpCode(class Byte_Map* b){
 	//if the opcode is maxed already at single opcode code then skip this phase.
-	if (b->Ir->Order[0].Order[0].Min_Size == b->Ir->Order[0].Order[0].Max_Size){
+	if (
+		b->Ir->Order[0].Order[0].Min_Size == b->Ir->Order[0].Order[0].Max_Size ||
+		//check if tyhis single order doesnt use 8 bit parameters.
+		b->Ir->Order[0].Order[0].Min_Size > 1
+	){
 		return;
 	}
 
