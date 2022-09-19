@@ -387,6 +387,8 @@ void IRGenerator::Loop_Elses(Node* e)
 
 }
 
+//This function is called after the operators of the conditino e.g:1 == 2 is parsed into IR.
+//This function only summons to output the resulting CPU flags to jump or not depending on the condition.
 void IRGenerator::Parse_Conditional_Jumps(int i)
 {
 	//NOTICE: this must happen after all operator is created as IR!!!
@@ -396,61 +398,7 @@ void IRGenerator::Parse_Conditional_Jumps(int i)
 		// a = b * c < d
 		//...
 		return;
-	/*
-	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
-	if (Level_Difference != 0)
-		return;
 
-	// if (a == 1)
-	//give the right side as left side to IRGenerator
-	IRGenerator g(Parent, { Input[i]->Right }, Output);
-
-	Token* Right = nullptr;
-	Token* Left = nullptr;
-
-	if (g.Handle != nullptr)
-		Right = g.Handle;
-	else {
-		//move to register
-		Token* R = new Token(Input[i]->Right->Find(Input[i]->Right, Input[i]->Right->Parent));
-		if (R->is(TOKEN::CONTENT))
-			R = new Token(TOKEN::MEMORY, { R }, _SYSTEM_BIT_SIZE_);
-
-		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + R->Get_Name(), R->Get_Size());
-
-		Token* opc = new Token(TOKEN::OPERATOR, "move");
-
-		IR* ir = new IR(opc, { Reg, R });
-		Output->push_back(ir);
-
-		Right = Reg;
-	}
-
-	g.Generate({ Input[i]->Left});
-
-	if (g.Handle != nullptr)
-		Left = g.Handle;
-	else {		
-		//move to register
-		Token* L = new Token(Input[i]->Left->Find(Input[i]->Left, Input[i]->Left->Parent));
-		if (L->is(TOKEN::CONTENT))
-			L = new Token(TOKEN::MEMORY, { L }, _SYSTEM_BIT_SIZE_);
-
-		Token* Reg = new Token(TOKEN::REGISTER, "REG_" + L->Get_Name(), L->Get_Size());
-
-		Token* opc = new Token(TOKEN::OPERATOR, "move");
-
-		IR* ir = new IR(opc, { Reg, L });
-		Output->push_back(ir);
-
-		Left = Reg;
-	}
-
-	Token* cmp = new Token(TOKEN::OPERATOR, "compare");
-
-	IR* ir = new IR(cmp, { Left, Right });
-	Output->push_back(ir);
-	*/
 	string Next_Label = Scope->Name + "_END";
 	if (Scope->Succsessor != nullptr)
 		Next_Label = Scope->Succsessor->Name;
@@ -586,6 +534,10 @@ void IRGenerator::Parse_Operators(int i)
 	if (Input[i]->Name == ".")
 		return;
 
+	//DEBUG
+	if (Input[i]->Name == "=="){
+		int a = 0;
+	}
 
 	Update_Operator(Input[i]);
 	Input[i]->Update_Format();
@@ -691,21 +643,13 @@ void IRGenerator::Parse_Operators(int i)
 	}
 	else {
 		Right = new Token(Input[i]->Right);
-		if (Right->is(TOKEN::NUM))
-			Right->Set_Size(Left->Get_Size());
+		//You DO NOT need to re assign number size into a number, this sizing has rightfully handed over to the number at PostProsessor stage.
+		//If the number is for somereasons too SMOL, then the Selector will at OPCODE selection stage scale it up.
+		// if (Right->is(TOKEN::NUM))
+		// 	Right->Set_Size(Left->Get_Size());
 		if (Right->is(TOKEN::CONTENT))
 			Right = new Token(TOKEN::MEMORY | F, { Right }, Left->Get_Size() ,Right->Get_Name());
-		//Right = new Token(TOKEN::NUM, Input[i]->Right->Name, 4);
 	}
-	
-	/*if (Left->is({ TOKEN::CONTENT, TOKEN::GLOBAL_VARIABLE }) && Right->is({ TOKEN::CONTENT, TOKEN::GLOBAL_VARIABLE })) {
-		//Global variable + Global variable does this.
-		//Member fetcher returns into Handler: Content and global scope flagged tokens
-		if (Input[i]->Name == "=") {
-			//move right into register then set Left's value into the register value that right just putted.
-			Token* Reg = new Token(TOKEN::REGISTER, Right->Get_Name(), Right->Get_Size());
-		}
-	}*/
 
 	string Operator = Input[i]->Name;
 	//this translates the condition operator into a compare operation then the parse_jumps,

@@ -8,8 +8,11 @@ type long{
 
 export int main(){
     int a = 1
-    int ptr b = a
-    return 1 + a
+    int ptr b = a 
+    if (b == 2){
+        return -1
+    } 
+    return 1 + a 
 }
 
 export int Start_Test(){
