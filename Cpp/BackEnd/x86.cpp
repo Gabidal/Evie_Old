@@ -301,8 +301,24 @@ void x86_64::Init()
 		{{{ Register, 1, 8 },{Memory, 1, 8}}, 0x8A, OPCODE_ENCODING::RM},
 		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x88, OPCODE_ENCODING::MR},
 		{{{Register, 1, 8}, {Register, 1, 8}}, 0x88, OPCODE_ENCODING::MR },
-		{{{Register, 1, 8}, {Const, 1, 8}}, 0xC6, OPCODE_ENCODING::MI },
-		{{{Memory, 1, 8}, {Const, 1, 8}}, 0xC6, OPCODE_ENCODING::MI },
+
+		// c6 extends from (1, 1) to (1, 1)
+		{{{Register, 1, 1}, {Const, 1, 1}}, 0xC6, OPCODE_ENCODING::MI },
+		{{{Memory, 1, 1}, {Const, 1, 1}}, 0xC6, OPCODE_ENCODING::MI },
+
+		// c7 extends from (2, 2) to (2, 2)
+		{{{Register, 2, 2}, {Const, 2, 2}}, 0xC7, OPCODE_ENCODING::MI },
+		{{{Memory, 2, 2}, {Const, 2, 2}}, 0xC7, OPCODE_ENCODING::MI },
+
+		// c7 extends from (4, 4) to (4, 4)
+		{{{Register, 4, 4}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI },
+		{{{Memory, 4, 4}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI },
+
+		// c7 extends from (4, 8) to (4, 4)
+		{{{Register, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI },
+		{{{Memory, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI },
+
+		
 
 		{{{Memory_Float, 4, 4}, {Register, 4, 4}}, 0x88, OPCODE_ENCODING::MR}
 	});
