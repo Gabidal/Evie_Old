@@ -54,12 +54,15 @@ public:
 	int Smallest_Size = 0;
 	int Largest_Size = 0;
 
-	Pattern(vector<Structure> order, int id = 0, OPCODE_ENCODING en = OPCODE_ENCODING::NaN, int post = 0, int pre_fix = 0) {
+	bool Defaults_To_64 = false;
+
+	Pattern(vector<Structure> order, int id = 0, OPCODE_ENCODING en = OPCODE_ENCODING::NaN, int post = 0, int pre_fix = 0, bool defaults_to_64 = false) {
 		Order = order;
 		ID = id;
 		Encoding = en;
 		Post_Fix = post;
 		Pre_Fix = pre_fix;
+		Defaults_To_64 = defaults_to_64;
 	}
 };
 

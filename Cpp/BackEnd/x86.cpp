@@ -315,8 +315,8 @@ void x86_64::Init()
 		{{{Memory, 4, 4}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI },
 
 		// c7 extends from (4, 8) to (4, 4)
-		{{{Register, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI },
-		{{{Memory, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI },
+		{{{Register, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI, 0, 0, false },
+		{{{Memory, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI, 0, 0, false },
 
 		
 
@@ -873,8 +873,24 @@ void x86_64::Init()
 		{{{Register, 1, 8}, {Register, 1, 8}}, 0x38, OPCODE_ENCODING::MR},
 		{{{Register, 1, 8}, {Memory, 1, 8}}, 0x3A, OPCODE_ENCODING::RM},
 		{{{Memory, 1, 8}, {Register, 1, 8}}, 0x38, OPCODE_ENCODING::MR},
-		{{{Register,  1, 8}, {Const, 1, 8}}, 0x80, OPCODE_ENCODING::MI, 7},
-		{{{Memory,  1, 8}, {Const, 1, 8}}, 0x80, OPCODE_ENCODING::MI, 7}
+	});
+
+	IR* CMP_CONSTANTS = new IR("compare", new Token(OPERATOR, "cmp"), {
+		// 0x80 extends from (1, 1) to (1, 1)
+		{{{Register, 1, 1}, {Const, 1, 1}}, 0x80, OPCODE_ENCODING::MI, 7 },
+		{{{Memory, 1, 1}, {Const, 1, 1}}, 0x80, OPCODE_ENCODING::MI, 7 },
+
+		// 0x81 extends from (2, 2) to (2, 2)
+		{{{Register, 2, 2}, {Const, 2, 2}}, 0x81, OPCODE_ENCODING::MI, 7 },
+		{{{Memory, 2, 2}, {Const, 2, 2}}, 0x81, OPCODE_ENCODING::MI, 7 },
+
+		// 0x81 extends from (4, 4) to (4, 4)
+		{{{Register, 4, 4}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 7 },
+		{{{Memory, 4, 4}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 7 },
+
+		// 0x81 extends from (4, 8) to (4, 4)
+		{{{Register, 4, 8}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 7 },
+		{{{Memory, 4, 8}, {Const, 4, 4}}, 0x81, OPCODE_ENCODING::MI, 7 },
 	});
 
 	IR* JMP = new IR("jump", new Token(FLOW, "jmp"), { 
@@ -1012,6 +1028,7 @@ void x86_64::Init()
 		C_DIV,
 		C_MOD,
 		CMP,
+		CMP_CONSTANTS,
 		XOR,
 		JMP,
 		JE,
@@ -1099,17 +1116,21 @@ Byte_Map* x86_64::Build(IR* ir){
 
 	}
 	
+	bool Defaults_To_64 = ir->Order[0].Defaults_To_64;
+
+	bool Opcode_Uses_64 = (ir->Arguments.size() > 0 && ir->Arguments[0]->Size == 8) || (ir->Arguments.size() > 1 && ir->Arguments[1]->Size == 8);
+
+	bool Uniform_Or_Extended_Registers_In_Use = Left && Left->ID && Left->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER}) || 
+												Right && Right->ID && Right->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER});
+
 	//Rex is only awaiable in 64 bit mode.
 	if (_SYSTEM_BIT_SIZE_ == 8){
-		if ((ir->Order[0].Order[0].Min_Size == ir->Order[0].Order[0].Max_Size && ir->Order[0].Order[0].Max_Size != 8) 				&&
-			(ir->Arguments.size() > 0 && ir->Arguments[0]->Size == 8) || (ir->Arguments.size() > 1 && ir->Arguments[1]->Size == 8)	||
-			Left && Left->ID && Left->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER}) 									|| 
-			Right && Right->ID && Right->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER})){
+		if (!Defaults_To_64 && (Uniform_Or_Extended_Registers_In_Use || Opcode_Uses_64)){
 			Result->Rex.ID = REX_DEFAULT;			
 			
 			//now we know that the opcode does not default to 64 bit arguments.
 			//Now check if one of the arguments are 64bit size.
-			if ((ir->Arguments.size() > 0 && ir->Arguments[0]->Size == 8) || (ir->Arguments.size() > 1 && ir->Arguments[1]->Size == 8)){
+			if (Opcode_Uses_64){
 				Result->Rex.W = true;
 			}
 		}
