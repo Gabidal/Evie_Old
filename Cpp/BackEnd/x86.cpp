@@ -898,28 +898,28 @@ void x86_64::Init()
 		{{{Register, 2, 8}}, 0xFF, OPCODE_ENCODING::M, 4},
 	});
 	IR* JE = new IR("==", new Token(FLOW, "je"), {
-		{{{Label, 0, 0}}, 0x74, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x84, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 	IR* JNE = new IR("!=", new Token(FLOW, "jne"), {
-		{{{Label, 0, 0}}, 0x75, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x85, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 	IR* JL = new IR("<", new Token(FLOW, "jl"), {
-		{{{Label, 0, 0}}, 0x7C, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x8C, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 	IR* JLE = new IR("<=", new Token(FLOW, "jle"), {
-		{{{Label, 0, 0}}, 0x7E, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x8E, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 	IR* JNL = new IR("!<", new Token(FLOW, "jnl"), {
-		{{{Label, 0, 0}}, 0x7D, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x8D, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 	IR* JG = new IR(">", new Token(FLOW, "jg"), {
-		{{{Label, 0, 0}}, 0x7F, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x8F, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 	IR* JGE = new IR(">=", new Token(FLOW, "jge"), {
-		{{{Label, 0, 0}}, 0x7D, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x8D, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 	IR* JNG = new IR("!>", new Token(FLOW, "jng"), {
-		{{{Label, 0, 0}}, 0x7E, OPCODE_ENCODING::D, 0xCB},
+		{{{Label, 0, 0}}, 0x8E, OPCODE_ENCODING::D, 0xCD, 0x0F},
 	});
 
 	IR* AND = new IR("&", new Token(OPERATOR | ALL_ARGS_SAME_SIZE, "and"), {
@@ -1227,8 +1227,16 @@ Byte_Map* x86_64::Build(IR* ir){
 		if (ir->Arguments[0]->Size == 2) {
 
 			Result->Prefix = OPERAND_SIZE_OVERRIDE;
+			Result->Has_Prefix = true;
 
 		}
+	}
+
+	if (Result->Has_Prefix == false && ir->Order[0].Pre_Fix > 0){
+
+		Result->Prefix = ir->Order[0].Pre_Fix;
+		Result->Has_Prefix = true;
+
 	}
 
 	//Update the opcode id

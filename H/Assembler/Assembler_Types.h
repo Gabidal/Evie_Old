@@ -151,6 +151,7 @@ class SIB{
 
 class Byte_Map {
 public:
+    bool Has_Prefix = false;
     unsigned int Prefix = 0;            //upto 1-4 bytes
     REX Rex;                            //upto 1 byte
     unsigned int Opcode = 0;            //upto 1-4 bytes
