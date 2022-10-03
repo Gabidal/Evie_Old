@@ -48,6 +48,13 @@ void IRGenerator::Factory()
 		Parse_Jump(i);
 		Parse_Labels(i);
 	}
+
+	for (int i = 0; i < Output->size(); i++){
+
+		De_couple_Memory_To_Memory_Arguments(i);
+
+	}
+
 	if (Scope->Name == "GLOBAL_SCOPE") {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR | TOKEN::SECTION, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
 		for (auto i : Scope->Header)
@@ -535,7 +542,7 @@ void IRGenerator::Parse_Operators(int i)
 		return;
 
 	//DEBUG
-	if (Input[i]->Name == "=="){
+	if (Input[i]->Right->Name == "+"){
 		int a = 0;
 	}
 
@@ -743,7 +750,7 @@ void IRGenerator::Parse_Pointers(int i)
 				Keep_Last_Address = 1;
 			Left = Operate_Pointter(Left, Level_Difference - Keep_Last_Address, false, Left->is(TOKEN::MEMORY), Input[i]->Left->Inheritted);
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
-				Left = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_);
+				Left = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_, Left->Get_Name() + "-Unwrapped");
 		}
 
 		if (Right->is(TOKEN::CONTENT)) {
@@ -755,7 +762,7 @@ void IRGenerator::Parse_Pointers(int i)
 		Right = Operate_Pointter(Right, Level_Difference, false, Right->is(TOKEN::MEMORY), Input[i]->Right->Inheritted);
 		if (Left->is(TOKEN::CONTENT)) {
 				//handle the other side into a usable register
-				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Size);
+				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Size, Left->Get_Name() + "-Wrapped");
 			}
 	}
 
@@ -768,6 +775,8 @@ void IRGenerator::Parse_Pointers(int i)
 	if (Left->is(TOKEN::CONTENT))
 		Left = new Token(TOKEN::MEMORY, { Left }, Left->Get_Size(), Left->Get_Name());
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, Operator), { Left, Right }, Input[i]->Location));
+
+	Handle = Left;
 
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
 }
@@ -2013,4 +2022,49 @@ void IRGenerator::Parse_Return(int i) {
 	Output->push_back(new IR(ret, vector<Token*>{}, Input[i]->Location));
 
 	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+}
+
+// This function makes sure this doesn't happen:
+// 		opc [x], [y]
+void IRGenerator::De_couple_Memory_To_Memory_Arguments(int& i){
+	//Change: opc [x], [y]
+	//to: {
+	//	mov reg_x, [y]
+	// 	opc [x], reg_x
+	//}
+
+	//First pick the current IR
+	IR* Current_IR = Output->at(i);
+
+	//now use heurestics to determine the problem.
+	if (Current_IR->Arguments.size() != 2)
+		return;
+
+	Token* Arg1 = Current_IR->Arguments[0];
+	Token* Arg2 = Current_IR->Arguments[1];
+
+	if (!Arg1->is(TOKEN::MEMORY) || !Arg2->is(TOKEN::MEMORY))
+		return;
+
+	//The new carrier register might need to adapt the right flags
+	long long Flag = TOKEN::REGISTER;
+
+	if (Arg2->is(TOKEN::DECIMAL))
+		Flag |= TOKEN::DECIMAL;
+
+	//Now we know that we have a problem, so we need to fix it.
+	//First we need to make a new register to hold the value of Arg2
+	Token* New_Register = new Token(Flag, Arg2->Get_Name() + "-Temp-Register" + to_string(Reg_Random_ID_Addon++), Arg2->Size);
+
+	//Now we need to make a new IR that moves Arg2 into the new register
+	IR* New_IR = new IR(new Token(TOKEN::OPERATOR, "="), { New_Register, Arg2 }, Current_IR->Location);
+
+	//Now we need to insert the new IR into the output
+	Output->insert(Output->begin() + i, New_IR);
+
+	//Now we need to change the current IR to use the new register
+	Current_IR->Arguments[1] = New_Register;
+
+	//Now we need to increment i so that we don't process the new IR
+	i++;
 }

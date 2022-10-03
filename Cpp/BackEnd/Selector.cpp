@@ -799,9 +799,12 @@ long long Selector::Calculate_Memory_Address(long long F)
 IR* Selector::Get_Opcode(IR* i)
 {
 	vector<int> sizes;
+	vector<int> Original_Sizes;
 	//this gives the selector information about the sizes of these arguments
 	for (auto s : i->Arguments)
 		sizes.push_back(s->Get_Size());
+
+	Original_Sizes = sizes;
 
 	for (auto opc : Opcodes) {
 		if (opc->Intermediate_Alias != i->OPCODE->Get_Name())
@@ -838,6 +841,14 @@ IR* Selector::Get_Opcode(IR* i)
 		if (pow(2, Number_Size_Upscaler) - pow(2, Number_Size_Upscaler - 1) <= _SYSTEM_BIT_SIZE_ && i->Get_All(TOKEN::NUM).size() > 0){
 			Number_Size_Upscaler += 1;
 			goto Try_Upscaling_Number;
+		}
+
+		//reset the sizes, by dsownscaling the sizes by the Number_Size_Upscaler
+		for (int j = 0; j < sizes.size(); j++) {
+			if (i->Arguments[j]->is(TOKEN::NUM)){
+				sizes[j] = Original_Sizes[j];
+				i->Arguments[j]->Size = Original_Sizes[j];
+			}
 		}
 
 		//We want to skip nullptr orders, they are there because we need the opcode asm hex number, but dont want to count order as a nessessity for selection.

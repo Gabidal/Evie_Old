@@ -57,6 +57,9 @@ public:
 
 	void Parse_Member_Fetch(Node* n);
 
+	//SAFE system 2000
+	void De_couple_Memory_To_Memory_Arguments(int& i);
+
 	//void Switch_To_Correct_Places(Node* o);
 
 	void Parse_Static_Casting(Node* n);

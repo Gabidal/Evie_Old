@@ -387,6 +387,12 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
 
         vector<Token*> Arguments = i->Arguments;
 
+        vector<int> Original_Sizes;
+
+        for (auto& a : Arguments) {
+            Original_Sizes.push_back(a->Size);
+        }
+
         for (auto& j : selector->Opcodes) {
 
             if (i->OPCODE->Name != j->Intermediate_Alias)
@@ -438,6 +444,13 @@ vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
             if (pow(2, Number_Size_Upscaler) - pow(2, Number_Size_Upscaler - 1) <= _SYSTEM_BIT_SIZE_ && i->Get_All(TOKEN::NUM).size() > 0){
                 Number_Size_Upscaler += 1;
                 goto Try_Upscaling_Number;
+            }
+            
+            //reset the sizes, by dsownscaling the sizes by the Number_Size_Upscaler
+            for (int k = 0; k < i->Arguments.size(); k++) {
+                if (i->Arguments[k]->is(TOKEN::NUM)){
+                    i->Arguments[k]->Size = Original_Sizes[k];
+                }
             }
         }
 

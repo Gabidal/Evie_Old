@@ -2002,6 +2002,7 @@ void PostProsessor::Determine_Return_Type(int i)
 					Constant_Tmp->Name = Constant_Name;
 					Constant_Tmp->Scope = Input[i]->Scope;
 					Constant_Tmp->Inheritted = Input[i]->Left->Get_Inheritted();
+					Constant_Tmp->Size = Input[i]->Left->Size;
 
 					Scope->Defined.push_back(Constant_Tmp);
 				}
