@@ -10,7 +10,7 @@ export int main(){
     int a = 1
     int ptr b = a 
     if (b == 2){
-
+        
         while (1 < 2){
             a = a + b
             return a

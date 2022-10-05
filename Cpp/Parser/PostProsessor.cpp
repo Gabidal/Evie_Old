@@ -1977,8 +1977,16 @@ void PostProsessor::Determine_Return_Type(int i)
 			}
 		}
 		
-		if ((*Number)->is(NUMBER_NODE))
-			(*Number)->Inheritted = (*Non_Number)->Inheritted;
+		//Set the number inheritanse
+		if ((*Number)->is(NUMBER_NODE)){
+			// We need to skip all keywords likle "ptr".
+
+			for (int j = 0; j < (*Non_Number)->Inheritted.size(); j++){
+				if (!Lexer::GetComponent((*Non_Number)->Inheritted[j]).is(Flags::KEYWORD_COMPONENT)) {
+					(*Number)->Inheritted.push_back((*Non_Number)->Inheritted[j]);
+				}
+			} 
+		}
 
 		if (Input[i]->Left->is(NUMBER_NODE)) {
 			//Some operators cannot be swapped, like - and /

@@ -542,7 +542,7 @@ void IRGenerator::Parse_Operators(int i)
 		return;
 
 	//DEBUG
-	if (Input[i]->Right->Name == "+"){
+	if (Input[i]->Name == "=="){
 		int a = 0;
 	}
 
