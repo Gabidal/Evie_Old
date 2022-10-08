@@ -35,6 +35,7 @@ public:
 
 	//Assembler
 	static class Byte_Map* Build(IR* ir);
+	static bool Needs_SIB(Token* RM);
 	static int Get_Size(class Byte_Map* input);
 	static void Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING encoding);
 	static void Modify_OpCode(class Byte_Map* b);

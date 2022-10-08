@@ -1091,6 +1091,11 @@ void x86_64::Init()
 //References https://wiki.osdev.org/X86-64_Instruction_Encoding
 Byte_Map* x86_64::Build(IR* ir){
 
+	//DEBUG
+	if (ir->Arguments.size() > 1 && ir->Arguments[1]->Name == "b"){
+		int a = 0;
+	}
+
 	Arrange_Encoding(ir->Arguments, ir->Order[0].Encoding);
 
 	Byte_Map* Result = new Byte_Map();
@@ -1189,23 +1194,46 @@ Byte_Map* x86_64::Build(IR* ir){
 		Result->ModRM.Is_Used = true;
 	}
 
-
 	//Calculate SIB
 	if (Right && Right->is(TOKEN::MEMORY)){
-		//activate Sib mode by adding RSP to modrm
-		Result->ModRM.Is_Used = true;
+		bool Uses_SIB = Needs_SIB(Right);
 
-		Token* sp = nullptr;
-		for (auto& i : X86_64.Registers)
-			if (i->is(TOKEN::STACK_POINTTER)){
-				sp = i;
-				break;
+		// The memory operator needs SIB
+		if (Uses_SIB){
+			//activate Sib mode by adding RSP to modrm
+			Result->ModRM.Is_Used = true;
+
+			Token* sp = nullptr;
+			for (auto& i : X86_64.Registers)
+				if (i->is(TOKEN::STACK_POINTTER)){
+					sp = i;
+					break;
+				}
+			
+			//we know rsp will never use 0b1000 so dont need to activate B flag from REX.
+			Result->ModRM.RM = sp->XReg;
+
+			Result->Sib = Get_SIB(Right, *Result);
+		}
+		// The Memory operator is simple enought to not use SIB
+		else{
+			Token* Register_Offsetter = Right->Get_All(TOKEN::REGISTER)[0];
+
+			Result->ModRM.RM = Register_Offsetter->XReg & ~(1 << 3);
+
+			if (Register_Offsetter->XReg & REX_BIT_SETTED){
+				Result->Rex.B = true;
 			}
-		
-		//we know rsp will never use 0b1000 so dont need to activate B flag from REX.
-		Result->ModRM.RM = sp->XReg;
 
-		Result->Sib = Get_SIB(Right, *Result);
+			//Now apply the samew thig for the disp8
+			if (Right->Get_All(TOKEN::NUM).size() > 0){
+				Token* Disp8 = Right->Get_All(TOKEN::NUM)[0];
+
+				Result->Displacement = stoll(Disp8->Name);
+				Result->Has_Displacement = true;
+				Result->Displacement_Size = selector->Get_Bits_Size(stoll(Disp8->Name));
+			}
+		}
 	}
 
 	if (ir->Order[0].Post_Fix != 0){
@@ -1246,8 +1274,6 @@ Byte_Map* x86_64::Build(IR* ir){
 	
 }
 
-
-
 unsigned char x86_64::Get_MODRM_Type(Token* t)
 {
 	unsigned char Result = 0;
@@ -1287,6 +1313,51 @@ unsigned char x86_64::Get_MODRM_Type(Token* t)
 
 	}
 	
+	return Result;
+}
+
+bool x86_64::Needs_SIB(Token* RM){
+	bool Result = false;
+
+	if (RM == nullptr || !RM->is(TOKEN::MEMORY)){
+		return false;
+	}
+
+	//Now we need to find out if the IR in question uses SIB.
+
+	//This is done by checking if the RM has a stack pointer as a child.
+	vector<Token*> Contents = RM->Get_All(TOKEN::STACK_POINTTER);
+
+	if (Contents.size() > 0) {
+		Result = true;
+	}
+
+	//And if the RM has more than one register init.
+	Contents = RM->Get_All(TOKEN::REGISTER);
+
+	if (Contents.size() > 1) {
+		Result = true;
+	}
+
+	//And if the RM has Displacement numbers larger than 8bits.
+	Contents = RM->Get_All(TOKEN::NUM);
+
+	if (Contents.size() > 0) {
+		for (auto& i : Contents){
+			int Bits_Size = selector->Get_Bits_Size(stoi(i->Name));
+			if (Bits_Size > sizeof(char)){
+				Result = true;
+			}
+		}
+	}
+
+	//And if the RM has Scaling operator * init.
+	Contents = RM->Get_All(TOKEN::SCALER);
+
+	if (Contents.size() > 0) {
+		Result = true;
+	}
+
 	return Result;
 }
 
