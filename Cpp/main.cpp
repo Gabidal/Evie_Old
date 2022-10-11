@@ -21,6 +21,7 @@
 #include "../H/BackEnd/x86.h"
 #include "../H/BackEnd/ARM.h"
 #include "../H/BackEnd/IRPostProsessor.h"
+#include "../H/BackEnd/IROptimizer.h"
 #include "../H/BackEnd/DebugGenerator.h"
 #include "../H/Assembler/Assembler.h"
 #include "../H/Linker/Linker.h"
@@ -191,6 +192,8 @@ int Build(int argc, const char* argv[])
     IRGenerator g(Global_Scope, Global_Scope->Childs, &IRs);
 
     IRPostProsessor IRpost(&IRs);
+
+    IROptimizer IROP(IRs);
 
     if (sys->Info.Debug)
         DebugGenerator DG(IRs);

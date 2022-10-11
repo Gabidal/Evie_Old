@@ -1231,7 +1231,7 @@ Byte_Map* x86_64::Build(IR* ir){
 
 				Result->Displacement = stoll(Disp8->Name);
 				Result->Has_Displacement = true;
-				Result->Displacement_Size = selector->Get_Bits_Size(stoll(Disp8->Name));
+				Result->Displacement_Size = 4;
 			}
 		}
 	}

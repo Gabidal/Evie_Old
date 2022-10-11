@@ -12,7 +12,7 @@ export int main(){
     if (b == 2){
         
         while (1 < 2){
-            a = a + b
+            a = a + b[0]
             return a
         }
 

@@ -207,6 +207,7 @@
     <ClCompile Include="cpp\backend\IRPostProsessor.cpp" />
     <ClCompile Include="cpp\backend\Selector.cpp" />
     <ClCompile Include="cpp\backend\x86.cpp" />
+    <ClCompile Include="cpp\backend\IROptimizer.cpp" />
     <ClCompile Include="cpp\docker\ASM.cpp" />
     <ClCompile Include="cpp\docker\DLL.cpp" />
     <ClCompile Include="cpp\docker\Docker.cpp" />
@@ -274,6 +275,7 @@
     <ClInclude Include="h\backend\IRPostProsessor.h" />
     <ClInclude Include="h\backend\Selector.h" />
     <ClInclude Include="h\backend\x86.h" />
+    <ClInclude Include="h\backend\IROptimizer.h" />
     <ClInclude Include="h\docker\ASM.h" />
     <ClInclude Include="h\docker\DLL.h" />
     <ClInclude Include="h\docker\Docker.h" />
