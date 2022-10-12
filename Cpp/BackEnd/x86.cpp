@@ -1128,9 +1128,11 @@ Byte_Map* x86_64::Build(IR* ir){
 	bool Uniform_Or_Extended_Registers_In_Use = Left && Left->ID && Left->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER}) || 
 												Right && Right->ID && Right->ID->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER});
 
+	bool Memory_Has_Uniform_Or_Extended_In_Use = Right && Right->is(TOKEN::MEMORY) && Right->Has({TOKEN::UNIFORM_REGISTER, TOKEN::EXTENDED_REGISTER});
+
 	//Rex is only awaiable in 64 bit mode.
 	if (_SYSTEM_BIT_SIZE_ == 8){
-		if (!Defaults_To_64 && (Uniform_Or_Extended_Registers_In_Use || Opcode_Uses_64)){
+		if (!Defaults_To_64 && (Uniform_Or_Extended_Registers_In_Use || Opcode_Uses_64 || Memory_Has_Uniform_Or_Extended_In_Use)){
 			Result->Rex.ID = REX_DEFAULT;			
 			
 			//now we know that the opcode does not default to 64 bit arguments.
@@ -1382,6 +1384,11 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 			Index = Scaler_Operands[0]->Left;
 		}
 
+		// ((reg1 + reg2) * 2)
+		if (Index->Any(TOKEN::OFFSETTER | TOKEN::DEOFFSETTER)){
+			Index = Index->Right;
+		}
+
 		//Now we can resolve the scaler
 		if (Num->Name == "1") 		Result.Scale = 0b00;
 		else if (Num->Name == "2") 	Result.Scale = 0b01;
@@ -1421,7 +1428,7 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 
 		for (auto& i : Interesting_Sides){
 			if (i->is(TOKEN::REGISTER)){
-				if (!Base_Setted && (Has_Stack_Pointer_Register && i->is(TOKEN::STACK_POINTTER))){
+				if (!Base_Setted || (Has_Stack_Pointer_Register && i->is(TOKEN::STACK_POINTTER))){
 					//Index must be a register
 					Result.Base = i->XReg & ~(1 << 3);
 					

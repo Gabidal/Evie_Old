@@ -151,7 +151,7 @@ public:
 		return Result;
 	}
 	bool Has(long long F) {
-		if (is(F))
+		if (is(F) || (ID && ID->is(F)))
 			return true;
 		for (auto i : Childs)
 			return i->Has(F);
