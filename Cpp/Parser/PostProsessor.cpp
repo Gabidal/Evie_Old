@@ -60,6 +60,8 @@ void PostProsessor::Factory() {
 		Open_Call_Parameters_For_Prosessing(i);
 		Find_Call_Owner(Input[i]);
 
+		Handle_Numbers(Input[i]);
+
 		//String handlers
 		Handle_String_Hexadecimals(Input[i]);
 		Handle_String_Char_Numbers(Input[i]);
@@ -67,8 +69,9 @@ void PostProsessor::Factory() {
 		Change_Local_Strings_To_Global_Pointters(i);
 
 		//Why is this even a thing if Determine return type is a thing?
-		//Update_Operator_Inheritance(Input[i]);
+		//WHD? This function puts destructs in order if there is need for.
 		Analyze_Return_Value(Input[i]);
+
 		Increase_Calling_Number_For_Function_Address_Givers(Input[i]);
 		Open_PreFix_Operator(i);
 		Open_PostFix_Operator(i);
@@ -1978,15 +1981,15 @@ void PostProsessor::Determine_Return_Type(int i)
 		}
 		
 		//Set the number inheritanse
-		if ((*Number)->is(NUMBER_NODE)){
-			// We need to skip all keywords likle "ptr".
+		// if ((*Number)->is(NUMBER_NODE)){
+		// 	// We need to skip all keywords likle "ptr".
 
-			for (int j = 0; j < (*Non_Number)->Inheritted.size(); j++){
-				if (!Lexer::GetComponent((*Non_Number)->Inheritted[j]).is(Flags::KEYWORD_COMPONENT)) {
-					(*Number)->Inheritted.push_back((*Non_Number)->Inheritted[j]);
-				}
-			} 
-		}
+		// 	for (int j = 0; j < (*Non_Number)->Inheritted.size(); j++){
+		// 		if (!Lexer::GetComponent((*Non_Number)->Inheritted[j]).is(Flags::KEYWORD_COMPONENT)) {
+		// 			(*Number)->Inheritted.push_back((*Non_Number)->Inheritted[j]);
+		// 		}
+		// 	} 
+		// }
 
 		if (Input[i]->Left->is(NUMBER_NODE)) {
 			//Some operators cannot be swapped, like - and /
@@ -2489,3 +2492,71 @@ void PostProsessor::Analyze_Return_Value(Node* n)
 
 	Update_Operator_Inheritance(n->Right);
 }
+
+void PostProsessor::Handle_Numbers(Node* n){
+	if (!n->is(NUMBER_NODE))
+		return;
+
+	if (n->is(PARSED_BY::NUMBER_HANDLER))
+		return;
+
+	if (n->Inheritted.size() != 0)
+		return;
+
+
+	// This is for the numbers that are used in operaytor context.
+	if (n->Context && !n->Context->is(CALL_NODE) && n->Context->Name != "return"){
+		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
+		Node** Number = &n;
+		Node** Non_Number = &n->Context->Left;
+
+		if (n->Context->Left == n){
+			Non_Number = &n->Context->Right;
+			Number = &n->Context->Left;
+		}
+
+		if ((*Non_Number)->is(NUMBER_NODE)){
+			Number = Non_Number;
+			Non_Number = &n->Context->Left;
+		}
+		
+		for (int j = 0; j < (*Non_Number)->Inheritted.size(); j++){
+			if (!Lexer::GetComponent((*Non_Number)->Inheritted[j]).is(Flags::KEYWORD_COMPONENT)) {
+				(*Number)->Inheritted.push_back((*Non_Number)->Inheritted[j]);
+			}
+		} 
+	}
+	else if (n->Context->is(CALL_NODE) && n->Context->Function_Implementation){
+		Node* func = n->Context->Function_Implementation;
+
+		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
+
+		int Callation_Parameter_Index = 0;
+
+		for (auto p : n->Context->Parameters){
+			if (p == n)
+				break;
+			Callation_Parameter_Index++;
+		}
+
+		// Now that we know the index that the number takes place in, we can check ehat parameter type does the funciton implemitation require.
+		Node* Requirem = func->Parameters[Callation_Parameter_Index];
+
+		n->Inheritted = Requirem->Inheritted;
+	}
+	else if (n->Context->Name == "return"){
+		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
+
+		Node* Parent_Function = n->Get_Scope_As(FUNCTION_NODE, n);
+
+		n->Inheritted = Parent_Function->Inheritted;
+	}
+}
+
+
+
+
+
+
+
+

@@ -134,6 +134,10 @@ public:
 	//Function Pointter
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	void Process_Function_Pointters(Node* Scope);
+
+	//Number Handlers
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Handle_Numbers(Node* n);
 private:
 };
 

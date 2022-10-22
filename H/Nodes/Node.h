@@ -53,6 +53,7 @@ namespace PARSED_BY {
 
 	constexpr long long CLASS_ANALYSER					= 1 << 20;
 	constexpr long long OPEN_NAMESPACE					= 1 << 21;
+	constexpr long long NUMBER_HANDLER					= 1 << 22;
 
 };
 
