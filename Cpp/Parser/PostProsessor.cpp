@@ -1940,7 +1940,7 @@ void PostProsessor::Determine_Return_Type(int i)
 		PostProsessor l(Scope, vector<Node**>{ &Input[i]->Left });
 	}
 	else {
-		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Right, &Input[i]->Left });
+		PostProsessor r(Scope, vector<Node**>{ &Input[i]->Left, &Input[i]->Right });
 	}
 
 	if (!Input[i]->Has({ PREFIX_NODE, POSTFIX_NODE })) {
@@ -2503,8 +2503,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 	if (n->Inheritted.size() != 0)
 		return;
 
-
-	// This is for the numbers that are used in operaytor context.
+	// This is for the numbers that are used in operator context.
 	if (n->Context && !n->Context->is(CALL_NODE) && n->Context->Name != "return"){
 		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
 		Node** Number = &n;
@@ -2520,9 +2519,9 @@ void PostProsessor::Handle_Numbers(Node* n){
 			Non_Number = &n->Context->Left;
 		}
 		
-		for (int j = 0; j < (*Non_Number)->Inheritted.size(); j++){
-			if (!Lexer::GetComponent((*Non_Number)->Inheritted[j]).is(Flags::KEYWORD_COMPONENT)) {
-				(*Number)->Inheritted.push_back((*Non_Number)->Inheritted[j]);
+		for (int j = 0; j < (*Non_Number)->Get_Inheritted().size(); j++){
+			if (!Lexer::GetComponent((*Non_Number)->Get_Inheritted()[j]).is(Flags::KEYWORD_COMPONENT)) {
+				(*Number)->Inheritted.push_back((*Non_Number)->Get_Inheritted()[j]);
 			}
 		} 
 	}
@@ -2542,14 +2541,14 @@ void PostProsessor::Handle_Numbers(Node* n){
 		// Now that we know the index that the number takes place in, we can check ehat parameter type does the funciton implemitation require.
 		Node* Requirem = func->Parameters[Callation_Parameter_Index];
 
-		n->Inheritted = Requirem->Inheritted;
+		n->Inheritted = Requirem->Get_Inheritted();
 	}
 	else if (n->Context->Name == "return"){
 		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
 
 		Node* Parent_Function = n->Get_Scope_As(FUNCTION_NODE, n);
 
-		n->Inheritted = Parent_Function->Inheritted;
+		n->Inheritted = Parent_Function->Get_Inheritted();
 	}
 }
 

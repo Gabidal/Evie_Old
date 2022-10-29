@@ -184,7 +184,6 @@ int Build(int argc, const char* argv[])
     PostProsessor postprosessor(Global_Scope);
     postprosessor.Components = p.Input;
     postprosessor.Factory();
-
     
     analyzer.Factory();
 
