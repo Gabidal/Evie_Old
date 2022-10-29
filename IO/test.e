@@ -1,3 +1,7 @@
+type char{
+    size = 1
+}
+
 type int{
     size = 4
 }
@@ -7,6 +11,8 @@ type long{
 }
 
 export int main(){
+    int Num = 123
+    long r = Num->long - 48
     int a = 1
     int ptr b = a 
     if (b == 2){

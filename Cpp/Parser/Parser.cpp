@@ -1296,7 +1296,9 @@ void Parser::Operator_PreFix_Pattern(int i, vector<string> Prefixes)
 
 	//to prevent this bullshit
 	//text.Size() -1
-	if (Input[(size_t)i - 1].Value == ".") {
+	// or
+	//text->some - 1 | -> - 1
+	if (Input[(size_t)i - 1].Value == "." || Input[(size_t)i - 1].Value == "->") {
 		return;
 	}
 
@@ -1516,16 +1518,15 @@ void Parser::Array_Pattern(int i)
 	return;
 }
 
-void Parser::Function_Pattern(int i, Node* Class)
-{
-	//import int func main() [\n] {..}
-	//<summary>
-	//Notice!!! The parameter parenthesis & Childs parenthesis must be already initialized!!!
-	//Notice!!! The construction of function must be done before this!!!
-	//Notice!!! The Including must be done before this!!!
-	//Notice!!! This must be done before Object_Pattern & after Defintitin_Pattern!!!
-	//Build the function as 
-	//</summary>
+//import int func main() [\n] {..}	
+//<summary>
+//Notice!!! The parameter parenthesis & Childs parenthesis must be already initialized!!!
+//Notice!!! The construction of function must be done before this!!!
+//Notice!!! The Including must be done before this!!!
+//Notice!!! This must be done before Object_Pattern & after Defintitin_Pattern!!!
+//Build the function as 
+//</summary>
+void Parser::Function_Pattern(int i, Node* Class){
 	if (Input[i].node == nullptr)
 		return;
 	if (Input[i].is(Flags::KEYWORD_COMPONENT))
