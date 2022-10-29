@@ -71,26 +71,26 @@ void x86_64::Init()
 
 	Token* DIL = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "dil", 1, {}, 0b0111);
 	//Token* DIH = new Token(TOKEN::NONVOLATILE, "dih", 1, {});
-	Token* DI = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "di", 2, {DIL }, 0b0111);
-	Token* EDI = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "edi", 4, { DI }, 0b0111);
-	Token* RDI = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "rdi", 8, { EDI }, 0b0111);
+	Token* DI = new Token(OS_DEPENDENT_FLAG, "di", 2, {DIL }, 0b0111);
+	Token* EDI = new Token(OS_DEPENDENT_FLAG, "edi", 4, { DI }, 0b0111);
+	Token* RDI = new Token(OS_DEPENDENT_FLAG, "rdi", 8, { EDI }, 0b0111);
 
 	Token* SIL = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "sil", 1, {}, 0b0110);
 	//Token* SIH = new Token(TOKEN::NONVOLATILE, "sih", 1, {});
-	Token* SI = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "si", 2, {SIL }, 0b0110);
-	Token* ESI = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "esi", 4, { SI }, 0b0110);
-	Token* RSI = new Token(OS_DEPENDENT_FLAG | TOKEN::UNIFORM_REGISTER, "rsi", 8, { ESI }, 0b0110);
+	Token* SI = new Token(OS_DEPENDENT_FLAG, "si", 2, {SIL }, 0b0110);
+	Token* ESI = new Token(OS_DEPENDENT_FLAG, "esi", 4, { SI }, 0b0110);
+	Token* RSI = new Token(OS_DEPENDENT_FLAG, "rsi", 8, { ESI }, 0b0110);
 
 
 	Token* BPL = new Token(TOKEN::NONVOLATILE | TOKEN::UNIFORM_REGISTER, "bpl", 1, {}, 0b0101);
-	Token* BP = new Token(TOKEN::NONVOLATILE | TOKEN::UNIFORM_REGISTER, "bp", 2, { BPL }, 0b0101);
-	Token* EBP = new Token(TOKEN::NONVOLATILE | TOKEN::UNIFORM_REGISTER, "ebp", 4, { BP }, 0b0101);
-	Token* RBP = new Token(TOKEN::NONVOLATILE | TOKEN::UNIFORM_REGISTER, "rbp", 8, { EBP }, 0b0101);
+	Token* BP = new Token(TOKEN::NONVOLATILE, "bp", 2, { BPL }, 0b0101);
+	Token* EBP = new Token(TOKEN::NONVOLATILE, "ebp", 4, { BP }, 0b0101);
+	Token* RBP = new Token(TOKEN::NONVOLATILE, "rbp", 8, { EBP }, 0b0101);
 
 	Token* SPL = new Token(TOKEN::STACK_POINTTER | TOKEN::UNIFORM_REGISTER, "spl", 1, {}, 0b0100);
-	Token* SP = new Token(TOKEN::STACK_POINTTER | TOKEN::UNIFORM_REGISTER, "sp", 2, { SPL }, 0b0100);
-	Token* ESP = new Token(TOKEN::STACK_POINTTER | TOKEN::UNIFORM_REGISTER, "esp", 4, { SP }, 0b0100);
-	Token* RSP = new Token(TOKEN::STACK_POINTTER | TOKEN::UNIFORM_REGISTER, "rsp", 8, { ESP }, 0b0100);
+	Token* SP = new Token(TOKEN::STACK_POINTTER, "sp", 2, { SPL }, 0b0100);
+	Token* ESP = new Token(TOKEN::STACK_POINTTER, "esp", 4, { SP }, 0b0100);
+	Token* RSP = new Token(TOKEN::STACK_POINTTER, "rsp", 8, { ESP }, 0b0100);
 
 	Token* IPL = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ipl", 1, {}, 0);
 	Token* IP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ip", 2, {IPL}, 0);
