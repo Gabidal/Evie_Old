@@ -14,7 +14,7 @@ export int main(){
     int Num = 123
     long r = Num->long - 48
     int a = 1
-    int ptr b = a 
+    int ptr b = a
     if (b == 2){
         int i = 0
         

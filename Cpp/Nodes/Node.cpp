@@ -1001,10 +1001,10 @@ void Node::Get_Inheritted_Class_Members() {
 		Node* Based = Find(Inherit, Scope);
 
 		//Check if the Based class is also based checked
-		if (!Based->is(PARSED_BY::GET_INHERITTED_MEMBERS)) {
+		if (!Based->is(PARSED_BY::NODE::GET_INHERITTED_MEMBERS)) {
 			//update the base type
 			Based->Get_Inheritted_Class_Members();
-			Based->Parsed_By |= PARSED_BY::GET_INHERITTED_MEMBERS;
+			Based->Set(PARSED_BY::NODE::GET_INHERITTED_MEMBERS);
 		}
 
 		vector<Node*> Inheritted_Members = Based->Defined;

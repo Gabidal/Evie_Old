@@ -30,6 +30,7 @@ void IRGenerator::Factory()
 
 	for (int i = 0; i < Input.size(); i++) {
 		Parse_Dynamic_Casting(Input[i]);
+		Parse_Elevated_Variable(Input[i]);
 		Parse_Static_Casting(Input[i]);
 		Parse_If(i);
 		Parse_Loops(i);
@@ -85,13 +86,13 @@ void IRGenerator::Parse_Function(Node* Func)
 		return;
 	if (Func->Is_Template_Object)
 		return;
-	if (Func->is(PARSED_BY::IRGENERATOR))
+	if (Func->is(PARSED_BY::IRGENERATOR::PARSE_FUNCTION))
 		return;
 	for (auto j : Func->Parameters)
 		if (j->is("type") || j->Inherits_Template_Type())
 			return;	//skip template functions.
 
-	Func->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Func->Set(PARSED_BY::IRGENERATOR::PARSE_FUNCTION);
 
 	Node* Function_Scope = Scope;
 	if (Func->Fetcher != nullptr)
@@ -146,7 +147,7 @@ void IRGenerator::Parse_Calls(int i)
 		return;
 	if (Input[i]->Cast_Type != nullptr)
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_CALLS))
 		return;
 
 
@@ -319,14 +320,14 @@ void IRGenerator::Parse_Calls(int i)
 	}
 
 	Handle = returningReg;
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_CALLS);
 }
 
 void IRGenerator::Parse_If(int i)
 {
 	if (!Input[i]->is(IF_NODE))
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_IF))
 		return;
 
 
@@ -345,7 +346,7 @@ void IRGenerator::Parse_If(int i)
 	//L3:
 	//do parameters
 	Loop_Elses(Input[i]);
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_IF);
 }
 
 void IRGenerator::Loop_Elses(Node* e)
@@ -419,7 +420,7 @@ void IRGenerator::Parse_Conditional_Jumps(int i)
 
 	Output->push_back(Make_Jump(Condition, Next_Label));
 
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_CONDITIONAL_JUMPS);
 }
 
 void IRGenerator::Parse_Logical_Conditions(int i)
@@ -554,7 +555,7 @@ void IRGenerator::Parse_Operators(int i)
 
 	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
 		Parse_Cloning(i);
-		Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+		Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_OPERATORS);
 		return;
 	}
 
@@ -671,16 +672,16 @@ void IRGenerator::Parse_Operators(int i)
 	Handle = Left;
 	Output->push_back(ir);
 
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_OPERATORS);
 }
 
 void IRGenerator::Parse_Pointers(int i)
 {
 	//int a = 0
-	//int ptr b = a + f - e / g get the address of memory
+	//int ptr b = a + f - e / g -> unwrap b and set the resulting value into it.
 	//int ptr c = b pass memory address of a to c
-	//int d = c		load value of a into c
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	//int d = c		load value of b into c
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_POINTTERS))
 		return;
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE))
 		return;
@@ -733,9 +734,10 @@ void IRGenerator::Parse_Pointers(int i)
 		Parse_Operators(i);
 		return;
 	}
+	// If the left side has more prt's than the right side then we need to unwrap the left side and assing the new value to the address the left side is pointing to.
 	if (Left_Level > Right_Level) {
 		//here left has more ptr init check this is assignment
-		if (Input[i]->is(ASSIGN_OPERATOR_NODE) && !Right->is(TOKEN::NUM) && !Input[i]->Right->is(OPERATOR_NODE)) {
+		if (Input[i]->is(ASSIGN_OPERATOR_NODE) && !Right->is(TOKEN::NUM) && !Input[i]->Right->is(OPERATOR_NODE) && sys->Info.Allow_Inconsistancies) {
 			//save the address of Right into Left
 			Token* reg = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 
@@ -778,7 +780,7 @@ void IRGenerator::Parse_Pointers(int i)
 
 	Handle = Left;
 
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_POINTTERS);
 }
 
 void IRGenerator::Parse_Arrays(int i)
@@ -787,7 +789,7 @@ void IRGenerator::Parse_Arrays(int i)
 		return;
 	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_ARRAY))
 		return;
 
 
@@ -1065,14 +1067,14 @@ void IRGenerator::Parse_Arrays(int i)
 			Handle = reg;
 	}
 
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_ARRAY);
 }
 
 void IRGenerator::Parse_PreFixes(int i)
 {
 	if (!Input[i]->is(PREFIX_NODE))
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_PREFIXES))
 		return;
 
 
@@ -1100,14 +1102,14 @@ void IRGenerator::Parse_PreFixes(int i)
 	Output->push_back(ir);
 
 	Handle = Right;
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_PREFIXES);
 }
 
 void IRGenerator::Parse_PostFixes(int i)
 {
 	if (!Input[i]->is(POSTFIX_NODE))
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_POSTFIXES))
 		return;
 
 	//i++
@@ -1147,13 +1149,13 @@ void IRGenerator::Parse_PostFixes(int i)
 	Output->push_back(ir);
 	if (Input[i]->Context == nullptr)
 		Handle = Left;
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_POSTFIXES);
 }
 
 void IRGenerator::Parse_Reference_Count_Increase(int i)
 {
 	return;
-	if (Input[i]->is(PARSED_BY::REFERENCE_COUNT_INCREASE))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::REFERENCE_COUNT_INCREASE))
 		return;
 
 	if (!Input[i]->is(ASSIGN_OPERATOR_NODE) || Input[i]->Right->Has({OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE}))
@@ -1201,7 +1203,7 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	Set->Left->Context = Set;
 	Set->Right->Context = Set;
 
-	Set->Parsed_By |= PARSED_BY::REFERENCE_COUNT_INCREASE;
+	Set->Set(PARSED_BY::IRGENERATOR::REFERENCE_COUNT_INCREASE);
 	Component Move("=", Flags::OPERATOR_COMPONENT);
 	Move.node = Set;
 
@@ -1214,7 +1216,7 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 	Set->Scope = Scope;
 	Set->Left = Input[i]->Left;
 	Set->Right = tmp;
-	Set->Parsed_By |= PARSED_BY::REFERENCE_COUNT_INCREASE;
+	Set->Set(PARSED_BY::IRGENERATOR::REFERENCE_COUNT_INCREASE);
 	Move = Component("=", Flags::OPERATOR_COMPONENT);
 	Move.node = Set;
 
@@ -1222,7 +1224,7 @@ void IRGenerator::Parse_Reference_Count_Increase(int i)
 
 	/*Input.erase(Input.begin() + i);	//erase the old move that initiated this whole function.
 	i--;*/
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::REFERENCE_COUNT_INCREASE);
 	p.Factory();
 
 	P.Components = p.Input;
@@ -1235,7 +1237,7 @@ void IRGenerator::Parse_Jump(int i)
 {
 	if (Input[i]->Name != "jump")
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_JUMPS))
 		return;
 
 	string Label_Name = Input[i]->Right->Name;
@@ -1246,7 +1248,7 @@ void IRGenerator::Parse_Jump(int i)
 		Label_Name = Func->Mangled_Name;
 
 	Output->push_back(Make_Jump("jump", Label_Name));
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_JUMPS);
 }
 
 void IRGenerator::Parse_Labels(int i)
@@ -1261,7 +1263,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 {
 	if (!Input[i]->is(CONTENT_NODE))
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_PARANTHESIS))
 		return;
 	if (Input[i]->Paranthesis_Type == '(') {
 
@@ -1289,7 +1291,7 @@ void IRGenerator::Parse_Parenthesis(int i)
 	else if (Input[i]->Paranthesis_Type == '{') {
 		IRGenerator g(Scope, Input[i]->Childs, Output);
 	}
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_PARANTHESIS);
 }
 
 void IRGenerator::Update_Operator(Node* n)
@@ -1437,7 +1439,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 		return;
 	if (n->is(CALL_NODE))
 		return;
-	if (n->is(PARSED_BY::IRGENERATOR))
+	if (n->is(PARSED_BY::IRGENERATOR::PARSE_MEMBER_FETCH))
 		return;
 
 	if (n->Size == 0){
@@ -1460,7 +1462,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 			Result = Reg;
 		}
 
-		n->Parsed_By |= PARSED_BY::IRGENERATOR;
+		n->Set(PARSED_BY::IRGENERATOR::PARSE_MEMBER_FETCH);
 		Handle = Result;
 		return;
 	}
@@ -1507,7 +1509,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 
 	if (Is_In_Left_Side_Of_Operator) {
 		Handle = Member_Offsetter;
-		n->Parsed_By |= PARSED_BY::IRGENERATOR;
+		n->Set(PARSED_BY::IRGENERATOR::PARSE_MEMBER_FETCH);
 		return;
 	}
 
@@ -1517,7 +1519,7 @@ void IRGenerator::Parse_Member_Fetch(Node* n)
 	Output->push_back(new IR(new Token(TOKEN::OPERATOR, "="), { r, Member_Offsetter }, n->Location));
 
 	Handle = new Token(*r);
-	n->Parsed_By |= PARSED_BY::IRGENERATOR;
+	n->Set(PARSED_BY::IRGENERATOR::PARSE_MEMBER_FETCH);
 }
 
 void IRGenerator::Parse_Static_Casting(Node* n)
@@ -1529,7 +1531,7 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 		return;
 	if (n->Cast_Type->Name == "address")
 		return;
-	if (n->is(PARSED_BY::IRGENERATOR))
+	if (n->is(PARSED_BY::IRGENERATOR::PARSE_STATIC_CASTING))
 		return;
 
 	n->Update_Format();
@@ -1554,7 +1556,7 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	if (Output->size() > Last_Output_Size)
 		Handle = g.Handle;
 
-	n->Parsed_By |= PARSED_BY::IRGENERATOR;
+	n->Set(PARSED_BY::IRGENERATOR::PARSE_STATIC_CASTING);
 
 	if (g.Handle != nullptr)
 		Old_Format = g.Handle;
@@ -1623,7 +1625,7 @@ void IRGenerator::Parse_Dynamic_Casting(Node* n)
 		return;
 	if (n->Cast_Type->Name != "address")
 		return;
-	if (n->is(PARSED_BY::IRGENERATOR))
+	if (n->is(PARSED_BY::IRGENERATOR::PARSE_DYNAMIC_CASTING))
 		return;
 
 
@@ -1631,6 +1633,8 @@ void IRGenerator::Parse_Dynamic_Casting(Node* n)
 
 	int Casted_Pointter_Count = Get_Amount("ptr", n);
 	int Caster_Pointter_Count = Get_Amount("ptr", Other);
+
+	n->Dynamic_Cast_Direction = Casted_Pointter_Count - Caster_Pointter_Count;
 
 	if (Casted_Pointter_Count > Caster_Pointter_Count) {
 		//revome exess ptr
@@ -1648,14 +1652,42 @@ void IRGenerator::Parse_Dynamic_Casting(Node* n)
 		}
 	}
 
-	n->Parsed_By |= PARSED_BY::IRGENERATOR;
+	n->Set(PARSED_BY::IRGENERATOR::PARSE_DYNAMIC_CASTING);
+}
+
+// int a->address |> int ptr a->address
+void IRGenerator::Parse_Elevated_Variable(Node* n){
+
+	// Numbers are a exception to this rule. numbers are always sthraightly turned into a addresable value.
+	if (n->is(NUMBER_NODE) || n->Dynamic_Cast_Direction == 0)
+		return;
+
+	if (n->is(PARSED_BY::IRGENERATOR::PARSE_ELEVATED_VARIABLE))
+		return;
+
+	n->Set(PARSED_BY::IRGENERATOR::PARSE_ELEVATED_VARIABLE);
+
+	Token* n_Handle = new Token(n);
+
+	if (n_Handle->is(TOKEN::CONTENT))
+		n_Handle = new Token(TOKEN::MEMORY, { n_Handle }, _SYSTEM_BIT_SIZE_, n_Handle->Get_Name() + "_Wrapper");
+
+	n_Handle = Operate_Pointter(
+		n_Handle, 
+		n->Dynamic_Cast_Direction,
+		false,
+		n_Handle->is(TOKEN::MEMORY),
+		n->Inheritted
+	);
+
+	Handle = n_Handle;
 }
 
 void IRGenerator::Parse_Loops(int i)
 {
 	if (!Input[i]->is(WHILE_NODE))
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_LOOPS))
 		return;
 
 	//condition
@@ -1710,7 +1742,7 @@ void IRGenerator::Parse_Loops(int i)
 	//make here IR that states that every variable that is extern to this while define list must last the same end.
 	Output->push_back(new IR(new Token(TOKEN::END_OF_LOOP), Get_All_Extern_Variables((int)Output->size(), start_Index, Input[i]), Input[i]->Location));
 
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_LOOPS);
 }
 
 string IRGenerator::Get_Inverted_Condition(string c, Position* p)
@@ -1946,7 +1978,7 @@ void IRGenerator::Parse_Return(int i) {
 		return;
 	if (Input[i]->Name != "return")
 		return;
-	if (Input[i]->is(PARSED_BY::IRGENERATOR))
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_RETURN))
 		return;
 
 
@@ -2021,7 +2053,7 @@ void IRGenerator::Parse_Return(int i) {
 	ret->Set_Parent(Scope);
 	Output->push_back(new IR(ret, vector<Token*>{}, Input[i]->Location));
 
-	Input[i]->Parsed_By |= PARSED_BY::IRGENERATOR;
+	Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_RETURN);
 }
 
 // This function makes sure this doesn't happen:

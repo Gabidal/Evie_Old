@@ -90,7 +90,7 @@ void Algebra::Function_Inliner(Node* c, int i)
 
 	Trace_Function_Inlined.push_back(c->Function_Implementation);
 
-	if (!c->Function_Implementation->is(PARSED_BY::FUNCTION_PROSESSOR)) {
+	if (!c->Function_Implementation->is(PARSED_BY::ALGEBRA::FUNCTION_PROSESSOR)) {
 		PostProsessor p(c->Function_Implementation);
 		p.Open_Function_For_Prosessing(c->Function_Implementation);
 	}

@@ -168,7 +168,7 @@ void Usr::Find_Start_Function_Name(int& i){
 	}
 }
 
-void output::Fill_Empty_Arguments()
+void System::Fill_Empty_Arguments()
 {
 	//Evie.exe -in IO/test.e
 

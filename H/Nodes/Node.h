@@ -28,32 +28,63 @@ public:
 };
 
 namespace PARSED_BY {
+	// The default none
 	constexpr long long NONE							= 1 << 0;
-	constexpr long long PREPROSESSOR					= 1 << 1;
-	constexpr long long PARSER							= 1 << 2;
-	constexpr long long POSTPROSESSOR					= 1 << 3;
-	constexpr long long ALGEBRA							= 1 << 4;
-	constexpr long long SAFE							= 1 << 5;
-	constexpr long long IRGENERATOR						= 1 << 6;
-	constexpr long long IRPOSTPROSESSOR					= 1 << 7;
-	constexpr long long BACKEND							= 1 << 8;
 
-	constexpr long long DESTRUCTOR_CALLER				= 1 << 9;
-	constexpr long long REFERENCE_COUNT_INCREASE		= 1 << 10;
-	constexpr long long MEMBER_FUNCTION_DEFINED_INSIDE  = 1 << 11;
-	constexpr long long MEMBER_FUNCTION_DEFINED_OUTSIDE = 1 << 12;
-	constexpr long long FUNCTION_PROSESSOR				= 1 << 13;
-	constexpr long long THIS_AND_DOT_INSERTER			= 1 << 14;
-	constexpr long long TYPE_DEFINER					= 1 << 15;
-	constexpr long long COMBINE_MEMBER_FETCHER			= 1 << 16;
-	constexpr long long GET_INHERITTED_MEMBERS			= 1 << 17;
+	enum class POSTPROSESSOR{
+		NONE									= 1 << 0,
+		POSTPROSESSOR							= 1 << 1,
 
-	constexpr long long CLASS_MEMORY_PADDER				= 1 << 18;
-	constexpr long long CLASS_RE_ORDERER				= 1 << 19;
+		MEMBER_FUNCTION_DEFINED_OUTSIDE 		= 1 << 2,
+		MEMBER_FUNCTION_DEFINED_INSIDE  		= 1 << 3,
+		OPEN_FUNCTION_FOR_PROCESSING  			= 1 << 4,
+		CHOOSE_MOST_SUITED_FUNCTION_CANDIDATE 	= 1 << 5,
+		
+		TYPE_DEFINER							= 1 << 6,
+		DESTRUCTOR_CALLER						= 1 << 7,
+		OPEN_NAMESPACE							= 1 << 8,
+		THIS_AND_DOT_INSERTER					= 1 << 9,
+		COMBINE_MEMBER_FETCHER					= 1 << 10,
+		NUMBER_HANDLER							= 1 << 11,
+	};
 
-	constexpr long long CLASS_ANALYSER					= 1 << 20;
-	constexpr long long OPEN_NAMESPACE					= 1 << 21;
-	constexpr long long NUMBER_HANDLER					= 1 << 22;
+	enum class IRGENERATOR{
+		NONE									= 1 << 0,
+		PARSE_FUNCTION 							= 1 << 1,
+		PARSE_CALLS								= 1 << 2,
+		PARSE_IF								= 1 << 3,
+		PARSE_CONDITIONAL_JUMPS					= 1 << 4,
+		PARSE_OPERATORS							= 1 << 5,
+		PARSE_POINTTERS							= 1 << 6,
+		PARSE_ARRAY								= 1 << 7,
+		PARSE_PREFIXES							= 1 << 8,
+		PARSE_POSTFIXES							= 1 << 9,
+		REFERENCE_COUNT_INCREASE				= 1 << 10,
+		PARSE_JUMPS								= 1 << 11,
+		PARSE_PARANTHESIS 						= 1 << 12,
+		PARSE_MEMBER_FETCH						= 1 << 13,
+		PARSE_STATIC_CASTING					= 1 << 14,
+		PARSE_DYNAMIC_CASTING					= 1 << 15,
+		PARSE_LOOPS								= 1 << 16,
+		PARSE_RETURN 							= 1 << 17,
+		PARSE_ELEVATED_VARIABLE 				= 1 << 18,
+	};
+
+	enum class ALGEBRA{
+		NONE 									= 1 << 0,
+		FUNCTION_PROSESSOR						= 1 << 1,
+	};
+
+	enum class NODE{
+		NONE 									= 1 << 0,
+		GET_INHERITTED_MEMBERS					= 1 << 1,
+	};
+
+	enum class MEMORY{
+		NONE 									= 1 << 0,
+		CLASS_MEMORY_PADDER						= 1 << 1,
+		CLASS_RE_ORDERER						= 1 << 2,
+	};
 
 };
 
@@ -90,6 +121,7 @@ public:
 	bool Requires_Address = false;	//for optimisation pusrposes.
 	int Memory_Offset = 0;
 	vector<string> Inheritted;
+	int Dynamic_Cast_Direction = 0;
 	vector<pair<Component, int>> Un_Initialized_Template_Inheritance;
 	vector<Node*> Templates;
 	vector<Node*> Inheritable_templates;
@@ -150,7 +182,12 @@ public:
 	Node* Cast_Type = nullptr;
 	//IR safe features
 	//bool Generated = false;
-	long long Parsed_By = PARSED_BY::NONE;
+	PARSED_BY::POSTPROSESSOR Parsed_By_Post_Prosessor = PARSED_BY::POSTPROSESSOR::NONE;
+	PARSED_BY::IRGENERATOR Parsed_By_IR_Generator = PARSED_BY::IRGENERATOR::NONE;
+	PARSED_BY::ALGEBRA Parsed_By_Algebra = PARSED_BY::ALGEBRA::NONE;
+	PARSED_BY::NODE Parsed_By_Node = PARSED_BY::NODE::NONE;
+	PARSED_BY::MEMORY Parsed_By_Memory = PARSED_BY::MEMORY::NONE;
+
 	LABEL_TYPE Inline_Return_Label = LABEL_TYPE::NON;
 	//Namespace as a fetcher on a memeber functino features
 	vector<string> Fetching_Inheritance;
@@ -159,8 +196,49 @@ public:
 
 	vector<string> Get_Right_Inheritted(bool Ignore_Cast = false);
 
-	bool is(long long F) {
-		return (Parsed_By & F) == F;
+	void Clear_All_Parsed_By_Flags(){
+		Parsed_By_Post_Prosessor = PARSED_BY::POSTPROSESSOR::NONE;
+		Parsed_By_IR_Generator = PARSED_BY::IRGENERATOR::NONE;
+	}
+
+	bool is(PARSED_BY::POSTPROSESSOR F) {
+		return ((unsigned long long)Parsed_By_Post_Prosessor & (unsigned long long)F) == (unsigned long long)F;
+	}
+		
+	void Set(PARSED_BY::POSTPROSESSOR F) {
+		Parsed_By_Post_Prosessor = (PARSED_BY::POSTPROSESSOR)((unsigned long long)Parsed_By_Post_Prosessor | (unsigned long long)F);
+	}
+
+	bool is(PARSED_BY::IRGENERATOR F) {
+		return ((unsigned long long)Parsed_By_IR_Generator & (unsigned long long)F) == (unsigned long long)F;
+	}
+
+	void Set(PARSED_BY::IRGENERATOR F) {
+		Parsed_By_IR_Generator = (PARSED_BY::IRGENERATOR)((unsigned long long)Parsed_By_IR_Generator | (unsigned long long)F);
+	}
+
+	bool is(PARSED_BY::ALGEBRA F) {
+		return ((unsigned long long)Parsed_By_Algebra & (unsigned long long)F) == (unsigned long long)F;
+	}
+
+	void Set(PARSED_BY::ALGEBRA F) {
+		Parsed_By_Algebra = (PARSED_BY::ALGEBRA)((unsigned long long)Parsed_By_Algebra | (unsigned long long)F);
+	}
+
+	bool is(PARSED_BY::NODE F) {
+		return ((unsigned long long)Parsed_By_Node & (unsigned long long)F) == (unsigned long long)F;
+	}
+
+	void Set(PARSED_BY::NODE F) {
+		Parsed_By_Node = (PARSED_BY::NODE)((unsigned long long)Parsed_By_Node | (unsigned long long)F);
+	}
+
+	bool is(PARSED_BY::MEMORY F) {
+		return ((unsigned long long)Parsed_By_Memory & (unsigned long long)F) == (unsigned long long)F;
+	}
+
+	void Set(PARSED_BY::MEMORY F) {
+		Parsed_By_Memory = (PARSED_BY::MEMORY)((unsigned long long)Parsed_By_Memory | (unsigned long long)F);
 	}
 
 	bool is(int F) {

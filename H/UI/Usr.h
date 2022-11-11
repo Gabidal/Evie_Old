@@ -10,7 +10,7 @@
 #include "Document_Request_Type.h"
 using namespace std;
 
-class output{
+class System{
 public:
 	string Source_File;
 	string Destination_File;
@@ -36,7 +36,10 @@ public:
 
 	class Node* Starting_Address = nullptr;
 
-	output() {
+	// Flags
+	bool Allow_Inconsistancies = true;
+
+	System() {
 		#if _WIN32
 			OS = "win";
 		#else
@@ -54,7 +57,7 @@ public:
 class Usr
 {
 public:
-	output Info;
+	System Info;
 	Document_Request_Type Service_Info = Document_Request_Type::NONE;
 	Usr(const char** in, int count)
 	{

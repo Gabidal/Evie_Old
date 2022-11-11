@@ -31,7 +31,7 @@ void Memory_Manager::Manage_Class_Padding()
 {
 	if (!Scope->is(CLASS_NODE))
 		return;
-	if (Scope->is(PARSED_BY::CLASS_MEMORY_PADDER))
+	if (Scope->is(PARSED_BY::MEMORY::CLASS_MEMORY_PADDER))
 		return;
 
 	if (MANGLER::Is_Base_Type(Scope))
@@ -45,7 +45,7 @@ void Memory_Manager::Manage_Class_Padding()
 		const int BITS = selector->Get_Largest_Register_Size(); //<- this can be the maximun register size
 		int Remainder = Scope->Size % BITS;
 
-		Scope->Parsed_By |= PARSED_BY::CLASS_MEMORY_PADDER;
+		Scope->Set(PARSED_BY::MEMORY::CLASS_MEMORY_PADDER);
 		if (Remainder == 0)
 			return;
 
@@ -76,7 +76,7 @@ void Memory_Manager::Manage_Class_Re_Order()
 {
 	if (!Scope->is(CLASS_NODE))
 		return;
-	if (Scope->is(PARSED_BY::CLASS_RE_ORDERER))
+	if (Scope->is(PARSED_BY::MEMORY::CLASS_RE_ORDERER))
 		return;
 
 	//This system is only for Evie own structures.
@@ -85,7 +85,7 @@ void Memory_Manager::Manage_Class_Re_Order()
 
 	Re_Order_Vector(Scope->Defined);
 
-	Scope->Parsed_By |= PARSED_BY::CLASS_RE_ORDERER;
+	Scope->Set(PARSED_BY::MEMORY::CLASS_RE_ORDERER);
 }
 
 

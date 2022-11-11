@@ -102,9 +102,9 @@ void PostProsessor::Type_Definer(Node* type)
 		return;
 	if (type->Templates.size() > 0)	//template types are constructed elsewhere.
 		return;
-	if (type->is(PARSED_BY::TYPE_DEFINER))
+	if (type->is(PARSED_BY::POSTPROSESSOR::TYPE_DEFINER))
 		return;
-	type->Parsed_By |= PARSED_BY::TYPE_DEFINER;
+	type->Set(PARSED_BY::POSTPROSESSOR::TYPE_DEFINER);
 
 	//If this is a namespace skip the default constructor builder
 	if (type->is("static")) {
@@ -366,14 +366,14 @@ void PostProsessor::Destructor_Caller(Node* v, vector<Node*> &childs)
 		return;
 	if (!v->is("ptr"))
 		return;
-	if (v->is(PARSED_BY::DESTRUCTOR_CALLER))
+	if (v->is(PARSED_BY::POSTPROSESSOR::DESTRUCTOR_CALLER))
 		return;
 
 	Parser p(v->Scope);
 	p.Input = Lexer::GetComponents(v->Name + ".Destructor()");
 	p.Factory();
 
-	v->Parsed_By |= PARSED_BY::DESTRUCTOR_CALLER;
+	v->Set(PARSED_BY::POSTPROSESSOR::DESTRUCTOR_CALLER);
 
 	PostProsessor P(v, p.Input);
 	//v->Append(Output, P.Input);
@@ -399,10 +399,10 @@ void PostProsessor::Open_Namespace_For_Prosessing(Node* n){
 	if (!n->is(CLASS_NODE))
 		return;
 
-	if (n->is(PARSED_BY::OPEN_NAMESPACE))
+	if (n->is(PARSED_BY::POSTPROSESSOR::OPEN_NAMESPACE))
 		return;
 
-	n->Parsed_By |= PARSED_BY::OPEN_NAMESPACE;
+	n->Set(PARSED_BY::POSTPROSESSOR::OPEN_NAMESPACE);
 
 	// for (auto& i : n->Defined) {
 	// 	if (i->is(FUNCTION_NODE)) {
@@ -579,7 +579,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 
 			if (Dot_Needing_Object->is(NUMBER_NODE) || Dot_Needing_Object->is(FUNCTION_NODE) || Dot_Needing_Object->is("const") || MANGLER::Is_Base_Type(Dot_Needing_Object))
 				continue;
-			if ((Dot_Needing_Object->is(OBJECT_DEFINTION_NODE) || Dot_Needing_Object->is(OBJECT_NODE)) && This->Find(true, Dot_Needing_Object, This) && !Dot_Needing_Object->is(PARSED_BY::THIS_AND_DOT_INSERTER)) {
+			if ((Dot_Needing_Object->is(OBJECT_DEFINTION_NODE) || Dot_Needing_Object->is(OBJECT_NODE)) && This->Find(true, Dot_Needing_Object, This) && !Dot_Needing_Object->is(PARSED_BY::POSTPROSESSOR::THIS_AND_DOT_INSERTER)) {
 				//Node* define = c->Find(linear_n, Function);
 
 				Node* Dot = new Node(OPERATOR_NODE, Function->Location);
@@ -589,7 +589,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 				This->Copy_Node(Dot->Left, This, This->Scope);
 
 				Dot->Right = new Node(*Dot_Needing_Object);
-				Dot->Right->Parsed_By |= PARSED_BY::THIS_AND_DOT_INSERTER;
+				Dot->Right->Set(PARSED_BY::POSTPROSESSOR::THIS_AND_DOT_INSERTER);
 
 				Dot->Context = Dot_Needing_Object->Context;
 
@@ -848,7 +848,7 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 	//</summary>
 	if (f->Type != FUNCTION_NODE)
 		return;
-	if (f->is(PARSED_BY::MEMBER_FUNCTION_DEFINED_OUTSIDE))
+	if (f->is(PARSED_BY::POSTPROSESSOR::MEMBER_FUNCTION_DEFINED_OUTSIDE))
 		return;
 	if (f->Fetcher == nullptr)
 		return;
@@ -879,8 +879,8 @@ void PostProsessor::Member_Function_Defined_Outside(Node* f)
 
 	func->Fetcher = Fetcher;
 
-	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
-	func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_OUTSIDE;
+	func->Set(PARSED_BY::POSTPROSESSOR::POSTPROSESSOR);
+	func->Set(PARSED_BY::POSTPROSESSOR::MEMBER_FUNCTION_DEFINED_OUTSIDE);
 
 	return;
 }
@@ -897,7 +897,7 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 		return;
 	if (f->Fetcher != nullptr)
 		return;
-	if (f->is(PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE))
+	if (f->is(PARSED_BY::POSTPROSESSOR::MEMBER_FUNCTION_DEFINED_INSIDE))
 		return;
 
 	Node* func = f;
@@ -920,8 +920,8 @@ void PostProsessor::Member_Function_Defined_Inside(Node* f)
 
 	Node* scope = Scope->Find(Scope->Name, Scope, CLASS_NODE);
 
-	func->Parsed_By |= PARSED_BY::POSTPROSESSOR;
-	func->Parsed_By |= PARSED_BY::MEMBER_FUNCTION_DEFINED_INSIDE;
+	func->Set(PARSED_BY::POSTPROSESSOR::POSTPROSESSOR);
+	func->Set(PARSED_BY::POSTPROSESSOR::MEMBER_FUNCTION_DEFINED_INSIDE);
 
 	return;
 }
@@ -955,13 +955,13 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 		return;
 	if (f->Is_Template_Object)
 		return;
-	if (f->is(PARSED_BY::FUNCTION_PROSESSOR))
+	if (f->is(PARSED_BY::POSTPROSESSOR::OPEN_FUNCTION_FOR_PROCESSING))
 		return;
 	for (auto j : f->Get_All_Fetchers())
 		if (j->Is_Template_Object)
 			return;
 
-	f->Parsed_By |= PARSED_BY::FUNCTION_PROSESSOR;
+	f->Set(PARSED_BY::POSTPROSESSOR::OPEN_FUNCTION_FOR_PROCESSING);
 	/*for (auto j : Input[i]->Parameters)
 		if (j->is("type") != -1)
 			return;
@@ -1004,7 +1004,8 @@ void PostProsessor::Open_Function_For_Prosessing(Node* f)
 	//Parent->Defined[i]->Update_Defined_Stack_Offsets();
 	Scope->Append(f->Childs, p.Output);
 
-	f->Parsed_By |= PARSED_BY::POSTPROSESSOR;
+	f->Set(PARSED_BY::POSTPROSESSOR::OPEN_FUNCTION_FOR_PROCESSING);
+	f->Set(PARSED_BY::POSTPROSESSOR::POSTPROSESSOR);
 	return;
 }
 
@@ -1593,7 +1594,7 @@ int PostProsessor::Choose_Most_Suited_Function_Candidate(map<int, vector<pair<pa
 			Report(Observation(ERROR, "Given template arguments to a non-template call!", *Caller->Location));
 		}
 
-		if (!Caller->Function_Implementation->is(PARSED_BY::POSTPROSESSOR)) {
+		if (!Caller->Function_Implementation->is(PARSED_BY::POSTPROSESSOR::POSTPROSESSOR)) {
 			if (Caller->Function_Implementation->Fetcher != nullptr || Caller->Function_Implementation->Get_Scope_As(CLASS_NODE, Caller->Function_Implementation) != Global_Scope) {
 				Member_Function_Defined_Inside(Caller->Function_Implementation);
 				Member_Function_Defined_Outside(Caller->Function_Implementation);
@@ -1774,7 +1775,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		//set the left side
 		Node* Left;
 		//This if is for if the left side was also a fetcheredded component, thus it has valuable data.
-		if (n->Left->Fetcher && n->Left->is(PARSED_BY::COMBINE_MEMBER_FETCHER))
+		if (n->Left->Fetcher && n->Left->is(PARSED_BY::POSTPROSESSOR::COMBINE_MEMBER_FETCHER))
 			Left = n->Left;
 		else
 			Left = Scope->Find(Get_From_AST(n->Left), Scope);
@@ -1826,7 +1827,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 			Right->Copy_Node(n, Right, Right->Scope);
 	}
 
-	n->Parsed_By |= PARSED_BY::COMBINE_MEMBER_FETCHER;
+	n->Set(PARSED_BY::POSTPROSESSOR::COMBINE_MEMBER_FETCHER);
 
 }
 
@@ -2497,7 +2498,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 	if (!n->is(NUMBER_NODE))
 		return;
 
-	if (n->is(PARSED_BY::NUMBER_HANDLER))
+	if (n->is(PARSED_BY::POSTPROSESSOR::NUMBER_HANDLER))
 		return;
 
 	if (n->Inheritted.size() != 0)
@@ -2505,7 +2506,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 
 	// This is for the numbers that are used in operator context.
 	if (n->Context && !n->Context->is(CALL_NODE) && n->Context->Name != "return"){
-		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
+		n->Set(PARSED_BY::POSTPROSESSOR::NUMBER_HANDLER);
 		Node** Number = &n;
 		Node** Non_Number = &n->Context->Left;
 
@@ -2528,7 +2529,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 	else if (n->Context->is(CALL_NODE) && n->Context->Function_Implementation){
 		Node* func = n->Context->Function_Implementation;
 
-		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
+		n->Set(PARSED_BY::POSTPROSESSOR::NUMBER_HANDLER);
 
 		int Callation_Parameter_Index = 0;
 
@@ -2544,7 +2545,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 		n->Inheritted = Requirem->Get_Inheritted();
 	}
 	else if (n->Context->Name == "return"){
-		n->Parsed_By |= PARSED_BY::NUMBER_HANDLER;
+		n->Set(PARSED_BY::POSTPROSESSOR::NUMBER_HANDLER);
 
 		Node* Parent_Function = n->Get_Scope_As(FUNCTION_NODE, n);
 

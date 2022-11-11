@@ -288,7 +288,7 @@ void Parser::Template_Type_Constructor(int i)
 	//copy this template class to be non template
 	Node* Type;
 	Scope->Copy_Node(Type, Og_Type, Og_Type->Scope);
-	Type->Parsed_By = 0;	//reset the parsed flags
+	Type->Clear_All_Parsed_By_Flags();	//reset the parsed flags
 
 	//copy all functions becuase the copy_node by default skips function copying
 	for (auto &j : Type->Defined) {
