@@ -10,6 +10,14 @@ type long{
     size = 8
 }
 
+type bool{
+    size = 1
+}
+
+bool Is(){
+    return true
+}
+
 export int main(){
     int Num = 123
     long r = Num->long - 48
@@ -17,6 +25,10 @@ export int main(){
     int ptr b = a
     if (b == 2){
         int i = 0
+
+        if (Is() == true){
+            i = 0
+        }
         
         while (1 < 2){
             a = a + b[i]

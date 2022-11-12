@@ -2501,30 +2501,42 @@ void PostProsessor::Handle_Numbers(Node* n){
 	if (n->is(PARSED_BY::POSTPROSESSOR::NUMBER_HANDLER))
 		return;
 
-	if (n->Inheritted.size() != 0)
+	// Dont need to use automated return type detection if the number already is casted.
+	if (n->Inheritted.size() != 0 || n->Cast_Type)
 		return;
 
 	// This is for the numbers that are used in operator context.
 	if (n->Context && !n->Context->is(CALL_NODE) && n->Context->Name != "return"){
 		n->Set(PARSED_BY::POSTPROSESSOR::NUMBER_HANDLER);
-		Node** Number = &n;
-		Node** Non_Number = &n->Context->Left;
+		Node* Number = n;
 
-		if (n->Context->Left == n){
-			Non_Number = &n->Context->Right;
-			Number = &n->Context->Left;
-		}
+		// It really doesnt matter if the other side is also a number, just set inheritance to both of em.
+		Node* Non_Number = n->Get_Pair();
 
-		if ((*Non_Number)->is(NUMBER_NODE)){
-			Number = Non_Number;
-			Non_Number = &n->Context->Left;
+		if (Non_Number->is(CALL_NODE) && Non_Number->Function_Implementation == nullptr){
+
+			// Because some functions are reliable of the numbering pair of the context, we will first set the call nodes inheritted to the number type.
+			Non_Number->Inheritted = Number->Get_Inheritted();
+
+			// now we will need to call the call owner finder
+			Find_Call_Owner(Non_Number);
+
+			// now that the call has found the function implemitation its going to call, we can get its inheritance.
+			Number->Inheritted = Non_Number->Function_Implementation->Get_Inheritted(true);
+
+		}	
+		else if (Non_Number->Get_Inheritted().size() == 0){
+
+			// if the pair is not a uninitialized call and it doesnt have any inheritted, then it is probably a number too.
+			Number->Inheritted = Number->Get_Inheritted();
+
 		}
-		
-		for (int j = 0; j < (*Non_Number)->Get_Inheritted().size(); j++){
-			if (!Lexer::GetComponent((*Non_Number)->Get_Inheritted()[j]).is(Flags::KEYWORD_COMPONENT)) {
-				(*Number)->Inheritted.push_back((*Non_Number)->Get_Inheritted()[j]);
-			}
-		} 
+		else{
+
+			// this means the pair has inheritted, we can copy from.
+			Number->Inheritted = Non_Number->Get_Inheritted(true);
+
+		}
 	}
 	else if (n->Context->is(CALL_NODE) && n->Context->Function_Implementation){
 		Node* func = n->Context->Function_Implementation;

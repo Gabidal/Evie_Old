@@ -55,20 +55,21 @@ int Build(int argc, const char* argv[])
         //this happends when no parameter are given
         cout << "No arguments detected. Starting help...\n\n";
         cout << "Argument types are: \n";
-        cout << "  -in ----------------- [relative path/source file]\n";
-        cout << "  -out ---------------- [relative path/output file name]\n";
-        cout << "  -os ----------------- [target operating system (win/unix)]\n";
-        cout << "  -host --------------- [the host operating system (win/unix)]\n";
-        cout << "  -arch --------------- [output assembly type (x86/arm)]\n";
-        cout << "  -lib ---------------- [relative path/lib name]\n";
-        cout << "  -repo-dir ----------- [relative/absolute path for saving git repos]\n";
-        cout << "  -f ------------------ [supported output file formats are: asm(outputs respective assembly into the output), exe(executable (works for unix as well)), lib(static lib), dll(dynamic library (support is not made yet!))]\n";
-        cout << "  -mode --------------- [bit mode for assembly output (32/64)]\n";
-        cout << "  -debug -------------- [supported debug symbol types: dwarf2]\n";
-        cout << "  -vt ----------------- [virus total API-key]\n";
-        cout << "  -reference-count-size [reference count size]\n";
-        cout << "  -service ------------ [starts Evie as a service with a port returned in standard out]\n";
-        cout << "  -start -------------- [Tells the linker what is the starting function name (default main). Also no need to mangle the name before giving it]\n";
+        cout << "  -in ------------------ [relative path/source file]\n";
+        cout << "  -out ----------------- [relative path/output file name]\n";
+        cout << "  -os ------------------ [target operating system (win/unix)]\n";
+        cout << "  -host ---------------- [the host operating system (win/unix)]\n";
+        cout << "  -arch ---------------- [output assembly type (x86/arm)]\n";
+        cout << "  -lib ----------------- [relative path/lib name]\n";
+        cout << "  -repo-dir ------------ [relative/absolute path for saving git repos]\n";
+        cout << "  -f ------------------- [supported output file formats are: asm(outputs respective assembly into the output), exe(executable (works for unix as well)), lib(static lib), dll(dynamic library (support is not made yet!))]\n";
+        cout << "  -mode ---------------- [bit mode for assembly output (32/64)]\n";
+        cout << "  -debug --------------- [supported debug symbol types: dwarf2]\n";
+        cout << "  -vt ------------------ [virus total API-key]\n";
+        cout << "  -reference-count-size  [reference count size]\n";
+        cout << "  -service ------------- [starts Evie as a service with a port returned in standard out]\n";
+        cout << "  -start --------------- [Tells the linker what is the starting function name (default main). Also no need to mangle the name before giving it]\n";
+        cout << "  -allow-inconsistancies [True by default, disabling it makes variable addressing manual  'int ptr b = a->address'  where 'a' is a 'int']\n";
 
         cout << "\nQuick usage:\n";
         cout << "  ./Evie foo/bar/baz.e\n";
