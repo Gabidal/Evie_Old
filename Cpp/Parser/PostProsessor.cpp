@@ -1790,10 +1790,15 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 				//this means it is definetly a size get request
 				Right->Name = to_string(Left->Size);
 				Right->Type = NUMBER_NODE;	
-				if (atoll(Right->Name.c_str()) > INT32_MAX)
-					Right->Size = 8;
-				else
-					Right->Size = 4;
+				try {
+					Right->Size = Parser::Get_Number_Size(stoll(Right->Name));
+				}
+				catch (...){
+					if (atoll(Right->Name.c_str()) > INT32_MAX)
+						Right->Size = 8;
+					else
+						Right->Size = 4;
+				}
 			}
 			else
 				//find the inheritted definition
@@ -1823,8 +1828,16 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 
 			n->Copy_Node(n, n->Right, n->Scope);
 		}
-		else
+		else{
+			Node* Old = n;
+
+			// NOTE: the right side node that is depicked here as 'Right' will no longer represent the new 'Right' side, 
+			// Since it is moved into 'n'
 			Right->Copy_Node(n, Right, Right->Scope);
+
+			// Replace the usage of the member fetch on outer, then inner members
+			n->Replace_Usage_Of(Old, n);
+		}
 	}
 
 	n->Set(PARSED_BY::POSTPROSESSOR::COMBINE_MEMBER_FETCHER);
@@ -2518,11 +2531,14 @@ void PostProsessor::Handle_Numbers(Node* n){
 			// Because some functions are reliable of the numbering pair of the context, we will first set the call nodes inheritted to the number type.
 			Non_Number->Inheritted = Number->Get_Inheritted();
 
+			// Parse caller parameters.
+			PostProsessor p(Non_Number, Non_Number->Parameters);
+
 			// now we will need to call the call owner finder
 			Find_Call_Owner(Non_Number);
 
 			// now that the call has found the function implemitation its going to call, we can get its inheritance.
-			Number->Inheritted = Non_Number->Function_Implementation->Get_Inheritted(true);
+			Number->Inheritted = Non_Number->Get_Inheritted(true);
 
 		}	
 		else if (Non_Number->Get_Inheritted().size() == 0){

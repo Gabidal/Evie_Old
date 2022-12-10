@@ -21,7 +21,21 @@ IO/test.asm.pdb
 Evie
 
 Tests/IO/Remote
+IO/Remote
+
 enc_temp_folder
 
 .tmp.drivedownload
 .tmp.driveupload
+
+_compile_commands.json
+
+
+*.bin
+*.obj
+*.exe
+*.lib
+*.exp
+*.ilk
+*.pdb
+*.dll

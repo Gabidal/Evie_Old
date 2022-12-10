@@ -647,6 +647,8 @@ public:
 	void Copy_Node(Node*& Result, Node* What_Node, Node* p);
 	Node* Internal_Copy_Node(Node* What_Node, Node* p);
 
+	void Replace_Usage_Of(Node* Old, Node* New);
+
 	vector<Node*> Has(Node* n, int f)
 	{
 		vector<Node*> Result;

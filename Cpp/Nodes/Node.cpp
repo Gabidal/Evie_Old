@@ -1820,6 +1820,24 @@ Node* Node::Internal_Copy_Node(Node* What_Node, Node* p)
 	return Result;
 }
 
+
+void Node::Replace_Usage_Of(Node* Old, Node* New){
+	if (Old->Context){
+
+		if (Old->Context->Left == Old)
+			Old->Context->Left = New;
+
+		else if (Old->Context->Right == Old)
+			Old->Context->Right = New;
+
+		else if (Old->Context->Parameters.size() > 0)
+			for (int i = 0; i < Old->Context->Parameters.size(); i++)
+				if (Old->Context->Parameters[i] == Old)
+					Old->Context->Parameters[i] = New;
+	}
+
+}
+
 COMMENT::COMMENT(string raw) {
 	if (raw.size() > 0) {
 		regex expression("Depricated:.+");
