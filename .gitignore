@@ -39,3 +39,6 @@ _compile_commands.json
 *.ilk
 *.pdb
 *.dll
+
+$null
+
