@@ -136,12 +136,7 @@ void Analyzer::Calling_Count_Incrementer(Node* f, vector<Node*>& Callin_Trace)
 	//Define_Sizes(f);
 
 	if (!sys->Info.Is_Service || sys->Service_Info == Document_Request_Type::ASM)
-		for (auto& v : f->Defined)
-			for (auto j : f->Childs) {
-				Analyze_Variable_Address_Pointing(v, j);
-				if (v->Requires_Address)
-					break;
-			}
+		Calculate_Address_Givers(f);
 
 	//do function memorry handling stuff
 	Memory_Manager m(f);
@@ -350,4 +345,24 @@ void Analyzer::Give_Global_Scope_All_Used_Functions(){
 		}
 	}
 
+}
+
+void Analyzer::Calculate_Address_Givers(Node* f){
+	// First do a simple check.
+	for (auto v : f->Defined)
+		if (v->Size > _SYSTEM_BIT_SIZE_ && !v->is("ptr"))
+			v->Requires_Address = true;
+
+	// First try to detect all this nodes own defined adn their use cases.
+	for (auto v : f->Defined)
+		for (auto j : f->Childs) {
+			Analyze_Variable_Address_Pointing(v, j);
+			if (v->Requires_Address)
+				break;
+		}
+
+	// Now do this recursively for all the local scopes.
+	for (auto i : f->Childs)
+		if (i->Defined.size() > 0)
+			Calculate_Address_Givers(i);
 }

@@ -31,6 +31,12 @@ T ptr Outer<T>(long Size){
 
 type inheritable{
     int x
+    int a
+    int b
+
+    int ptr Do(){
+        return this->(int ptr)
+    }
 }
 
 type inherit{
@@ -43,6 +49,9 @@ export int main(){
     int a = 1
     int ptr b = a
     if (b == 2){
+        inheritable maybe
+
+        int ptr dont = maybe.Do()
 
         inherit inh
         r = inh.y.x->long

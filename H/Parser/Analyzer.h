@@ -36,6 +36,8 @@ public:
 	void Dependency_Injector(vector<Node*>& nodes);
 
 	void Give_Global_Scope_All_Used_Functions();
+
+	void Calculate_Address_Givers(Node* f);
 };
 
 #endif
