@@ -536,7 +536,12 @@ void IRGenerator::Parse_Operators(int i)
 {
 	if (!Input[i]->is(OPERATOR_NODE) && !Input[i]->is(BIT_OPERATOR_NODE) && !Input[i]->is(ASSIGN_OPERATOR_NODE) && !Input[i]->is(CONDITION_OPERATOR_NODE))
 		return;
-	
+
+	// Casting already starts to parse the operator if it is casted, so we dont need to parse it again.
+	// Dynamic casting ir Elevated casting doesnt parse the operator, so we dont need to look out for those.
+	if (Input[i]->is(PARSED_BY::IRGENERATOR::PARSE_STATIC_CASTING))
+		return;
+
 	if (Scope->Name == "GLOBAL_SCOPE")
 		return;
 	if (Input[i]->Name == ".")

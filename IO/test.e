@@ -35,7 +35,11 @@ type inheritable{
     int b
 
     int ptr Do(){
-        return this->(int ptr)
+        return this->(int ptr) + 4->(int ptr)
+    }
+
+    inheritable ptr inheritable(){
+        return (this + inheritable.size)->(inheritable ptr)
     }
 }
 
@@ -49,7 +53,7 @@ export int main(){
     int a = 1
     int ptr b = a
     if (b == 2){
-        inheritable maybe
+        inheritable maybe.inheritable()
 
         int ptr dont = maybe.Do()
 

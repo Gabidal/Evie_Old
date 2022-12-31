@@ -18,7 +18,8 @@
         "cwd": "${workspaceFolder}",
         "environment": [],
         "externalConsole": false,
-        "preLaunchTask": "Buildarna"
+        "preLaunchTask": "Buildarna",
+        "requireExactSource": false
       }
     ]
   }

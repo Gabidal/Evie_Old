@@ -1778,7 +1778,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 		if (n->Left->Fetcher && n->Left->is(PARSED_BY::POSTPROSESSOR::COMBINE_MEMBER_FETCHER))
 			Left = n->Left;
 		else
-			Left = Scope->Find(Get_From_AST(n->Left), Scope);
+			Left = Scope->Find(Get_From_AST(n->Left), Scope, { OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, TEMPLATE_NODE, CLASS_NODE, /*FUNCTION_NODE, EXPORT, IMPORT*/ }, false);
 		//we must also update the current left side to inherit the members from the inherit list
 
 		//get the left side of the dot operator, this is getted from most left because it can be also an AST.
@@ -2548,9 +2548,28 @@ void PostProsessor::Handle_Numbers(Node* n){
 
 		}
 		else{
-
 			// this means the pair has inheritted, we can copy from.
 			Number->Inheritted = Non_Number->Get_Inheritted(true);
+
+			// Check if the new inheritance given to the number doesnt exceed _SYSTEM_BIT_SIZE_
+			unsigned int Non_PTR_Inheritted_Size = Number->Update_Size();
+
+			if (Non_PTR_Inheritted_Size > _SYSTEM_BIT_SIZE_){
+				// If the Non_Number has 'ptr' as an inheritance, thenwe can put the number to also be a 'ptr', since it wont fit into a non_ptr format.
+				if (Non_Number->is("ptr")){
+					Report(Observation(WARNING, "'" + Non_Number->Name + "' will NOT un-wrap its content, since it is larger than the architecture size '" + to_string(_SYSTEM_BIT_SIZE_) + "' , is this intentional?", *Number->Location, HOOPSIEDAISY));
+					Number->Inheritted.push_back("ptr");
+					Number->Update_Size();
+				}
+				else{
+					// If it doesnt even have 'ptr' and is larger than _SYSTEm_BIT_SIZE_, then we will report it as an error.
+					Report(Observation(ERROR, "'" + Number->Name + "' is larger than the architecture size '" + to_string(_SYSTEM_BIT_SIZE_) + "' , please consider making it 'ptr'", *Number->Location, HOOPSIEDAISY, NO));
+
+				}
+
+				Report(Observation(SOLUTION, "If you want to add the value of '" + Number->Name + "' to where '" + Non_Number->Name + "' points to, cast it to '" + Number->Name + "->address'", *Number->Location, HOOPSIEDAISY));
+			}
+
 
 		}
 	}

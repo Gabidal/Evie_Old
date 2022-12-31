@@ -1010,8 +1010,29 @@ void Parser::Object_Pattern(int i)
 	if (Input[i].node != nullptr)
 		return;	//we dont want to rewrite the content
 
+	// SMART LOCK 2000
+	// If the context is inside a constructor inside the same named class, and we want to get the class size this would normally get the constructor and not the class.
+	// We can just simply remove FUNCTION_NODE from the query, this is because the callation pattern doesn't even utilize the object pattern, instead just constructs from plain text.
+	// On top of that function pointers are handled callation pattern.
+	vector<int> Possibilities = { OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, TEMPLATE_NODE, CLASS_NODE, /*FUNCTION_NODE, EXPORT, IMPORT*/ };
+
+	// vector<int> Parenthesis_After_Name = Get_Amount_Of(i + 1, {Flags::PAREHTHESIS_COMPONENT});
+	// if (Parenthesis_After_Name.size() == 1 && Input[Parenthesis_After_Name[0]].Value[0] == '('){
+	// 	// The object is a caller.
+	// 	// Now we need to switch the locations of the CLASS_NODE and the FUNCTION_NODE
+	// 	int j = 0;
+	// 	for (; j < Possibilities.size(); j++)
+	// 		if (Possibilities[j] == CLASS_NODE)
+	// 			break;
+	// 	// Remove CLASS_NODE and add it to the end of the list.
+	// 	Possibilities.erase(Possibilities.begin() + j);
+	// 	Possibilities.push_back(CLASS_NODE);
+	// }
+
+	Scope->Copy_Node(Input[i].node, new Node(*Scope->Find(Input[i].Value, Scope, Possibilities)), Scope);
+
 	//{ PARAMETER_NODE, OBJECT_DEFINTION_NODE, OBJECT_NODE, TEMPLATE_NODE, CLASS_NODE }
-	Scope->Copy_Node(Input[i].node, new Node(*Scope->Find(Input[i].Value, Scope, false)), Scope);
+	//Scope->Copy_Node(Input[i].node, new Node(*Scope->Find(Input[i].Value, Scope, false)), Scope);
 	Input[i].node->Location = new Position(Input[i].Location);
 	Input[i].node->Defined.clear();
 
@@ -1055,8 +1076,10 @@ void Parser::Object_Pattern(int i)
 		Input[i].node->Type = PARAMETER_NODE;
 	else if (Input[i].node->is(LABEL_NODE))
 		Input[i].node->Type = LABEL_NODE;
-	else if (Input[i].node->is(FUNCTION_NODE)) //this happends for function pointer adress geting prosess
-		Input[i].node->Type = OBJECT_NODE;
+	// else if (Input[i].node->is(FUNCTION_NODE)) //this happends for function pointer adress geting prosess
+	// 	Input[i].node->Type = OBJECT_NODE;
+	else if (Input[i].node->is(CLASS_NODE))
+		Input[i].node->Type = CLASS_NODE;
 
 	Input[i].node->Scope = Scope;
 	return;

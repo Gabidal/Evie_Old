@@ -1263,7 +1263,7 @@ int Node::Update_Size() {
 			continue;
 		}
 		else //if (MANGLER::Is_Base_Type(Find(Inherit)))
-			Size += Find(Inherit)->Update_Size();
+			Size += Find(Inherit, this, { OBJECT_NODE, OBJECT_DEFINTION_NODE, PARAMETER_NODE, TEMPLATE_NODE, CLASS_NODE, /*FUNCTION_NODE, EXPORT, IMPORT*/ })->Update_Size();
 	}
 	Trace_Update_Size.pop_back();
 	return Size;
