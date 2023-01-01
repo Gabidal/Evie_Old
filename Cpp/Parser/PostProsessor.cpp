@@ -1063,15 +1063,32 @@ void PostProsessor::Open_Paranthesis(int i)
 		Input[i]->Inheritted = Input[i]->Childs.back()->Inheritted;
 }
 
+Node* Get_Last_Cast(Node* n){
+	if (!n)
+		return nullptr;
+
+	Node* r = Get_Last_Cast(n->Cast_Type);
+	if (r){
+		return r;
+	}
+
+	return n;
+}
+
 void PostProsessor::Reduntant_Paranthesis_Cleaner(int i)
 {
 	if (!Input[i]->is(CONTENT_NODE))
 		return;
 
-	//((123))->address
-	if (Input[i]->Childs.size() == 1) {
-		if (Input[i]->Cast_Type)
-			Input[i]->Childs[0]->Cast_Type = Input[i]->Cast_Type;
+	//((a + b)->(int ptr)->int)->address
+	if (Input[i]->Childs.size() == 1 && Input[i]->Childs[0]->is(CONTENT_NODE)) {
+		bool Parent_Has_Cast = Input[i]->Cast_Type;
+		bool Child_Has_Cast = Input[i]->Childs[0]->Cast_Type;
+
+		Node* Last_Cast = Get_Last_Cast(Input[i]->Childs[0]);
+
+		Last_Cast->Cast_Type = Input[i]->Cast_Type;
+		
 		Input[i]->Childs[0]->Context = Input[i]->Context;
 		Input[i] = Input[i]->Childs[0];
 	}
@@ -2557,20 +2574,13 @@ void PostProsessor::Handle_Numbers(Node* n){
 			if (Non_PTR_Inheritted_Size > _SYSTEM_BIT_SIZE_){
 				// If the Non_Number has 'ptr' as an inheritance, thenwe can put the number to also be a 'ptr', since it wont fit into a non_ptr format.
 				if (Non_Number->is("ptr")){
-					Report(Observation(WARNING, "'" + Non_Number->Name + "' will NOT un-wrap its content, since it is larger than the architecture size '" + to_string(_SYSTEM_BIT_SIZE_) + "' , is this intentional?", *Number->Location, HOOPSIEDAISY));
-					Number->Inheritted.push_back("ptr");
-					Number->Update_Size();
+					Report(Observation(ERROR, "Cannot un-wrap '" + Non_Number->Name + "' since it exceeds the architecture size of " + to_string(_SYSTEM_BIT_SIZE_ * 8) + " bits.", *Number->Location, CANNOT_UNWRAP_PTR));
 				}
 				else{
-					// If it doesnt even have 'ptr' and is larger than _SYSTEm_BIT_SIZE_, then we will report it as an error.
-					Report(Observation(ERROR, "'" + Number->Name + "' is larger than the architecture size '" + to_string(_SYSTEM_BIT_SIZE_) + "' , please consider making it 'ptr'", *Number->Location, HOOPSIEDAISY, NO));
-
+					// If it doesnt even have 'ptr' and is larger than _SYSTEM_BIT_SIZE_, then we will report it as an error.
+					Report(Observation(ERROR, "Incorrect use of number with object '" + Non_Number->Name + "' size of " + to_string(Non_Number->Size * 8) + " bits.", *Non_Number->Location, INVALID_OPERATION));
 				}
-
-				Report(Observation(SOLUTION, "If you want to add the value of '" + Number->Name + "' to where '" + Non_Number->Name + "' points to, cast it to '" + Number->Name + "->address'", *Number->Location, HOOPSIEDAISY));
 			}
-
-
 		}
 	}
 	else if (n->Context->is(CALL_NODE) && n->Context->Function_Implementation){

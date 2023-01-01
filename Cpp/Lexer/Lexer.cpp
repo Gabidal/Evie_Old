@@ -85,7 +85,7 @@ const char* GetMixingCharacters(char c)
     switch (c)
     {
         case '.': return ".0123456789";
-        case ',': return "";
+        case ',': return ""; 
         case ':': return "";
         case '<': return "=";
         case '>': return "=-";

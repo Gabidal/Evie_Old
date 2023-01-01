@@ -25,7 +25,8 @@ inline string DEFINITION_ERROR = "Use of un-defined";
 inline string MISSING_CAST = "Missing cast";
 inline string ONLY_NUMBER_OPERATION = "Use of most left side of an operand as a number";
 inline string MISSING_CRITICAL_INFORMATION = "Missing critical information";
-inline string HOOPSIEDAISY = "Hoopsiedaisy";
+inline string CANNOT_UNWRAP_PTR = "Cannot unwrap pointer";
+inline string INVALID_OPERATION = "Invalid operation";
 
 inline string ASSEMBLER_SYNTAX_ERROR = "Error in given assembly code";
 
