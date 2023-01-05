@@ -1253,8 +1253,17 @@ int Node::Update_Size() {
 				Size += Member->Update_Size();
 		}
 
+	vector<string> Inh = Inheritted;
+
+	if (Cast_Type){
+		if (MANGLER::Is_Base_Type(Cast_Type))
+			Inh = {	Cast_Type->Name };
+		else
+			Inh = Cast_Type->Inheritted;
+	}
+
 	//this must be done after the members size are all set because the ptr will override them size.
-	for (auto Inherit : Inheritted) {
+	for (auto Inherit : Inh) {
 		if (Lexer::GetComponent(Inherit).is(Flags::KEYWORD_COMPONENT)) {
 			if (Inherit == "ptr" || Inherit == "func") {
 				Size = _SYSTEM_BIT_SIZE_;

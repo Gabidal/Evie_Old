@@ -39,7 +39,7 @@ type inheritable{
     }
 
     inheritable ptr inheritable(){
-        return (this + inheritable.size)->(inheritable ptr)
+        return (this + inheritable.size->address)->(inheritable ptr)
     }
 }
 

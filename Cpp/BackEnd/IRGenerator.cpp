@@ -548,20 +548,29 @@ void IRGenerator::Parse_Operators(int i)
 		return;
 
 	//DEBUG
-	if (Input[i]->Name == "=="){
+	if (Input[i]->Left->Cast_Type && Input[i]->Name == "+"){
+
 		int a = 0;
+
 	}
 
 	Update_Operator(Input[i]);
 	Input[i]->Update_Format();
-
 	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE, PREFIX_NODE, POSTFIX_NODE }))
-		Input[i]->Left->Size = Scope->Find(Input[i]->Left, Scope)->Size;
+		Input[i]->Left->Update_Size();
 
-	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
-		Parse_Cloning(i);
-		Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_OPERATORS);
-		return;
+	if (Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
+		if (Input[i]->is(ASSIGN_OPERATOR_NODE)){
+			//this has been already made in cloning objects
+			Parse_Cloning(i);
+			Input[i]->Set(PARSED_BY::IRGENERATOR::PARSE_OPERATORS);
+			return;
+		}
+		else{
+
+			Report(Observation(ERROR, "Operation size '" + to_string(Input[i]->Left->Size * 8) + "' exceeds maximum architecture size of '" + to_string(_SYSTEM_BIT_SIZE_) + "'.", *Input[i]->Location, INVALID_OPERATION));
+
+		}
 	}
 
 	Token* Left = nullptr;
@@ -695,14 +704,21 @@ void IRGenerator::Parse_Pointers(int i)
 	if (Input[i]->Name == ".")
 		return;
 
-
 	Update_Operator(Input[i]);
+	Input[i]->Update_Format();
 	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE, PREFIX_NODE, POSTFIX_NODE }))
-		Input[i]->Left->Size = Scope->Find(Input[i]->Left, Scope)->Size;
+		Input[i]->Left->Update_Size();
 
-	if (Input[i]->is(ASSIGN_OPERATOR_NODE) && Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
-		//this has been already made in cloning objects
-		return;
+	if (Input[i]->Left->Size > _SYSTEM_BIT_SIZE_) {
+		if (Input[i]->is(ASSIGN_OPERATOR_NODE)){
+			//this has been already made in cloning objects
+			return;
+		}
+		else{
+
+			Report(Observation(ERROR, "Operation size '" + to_string(Input[i]->Left->Size * 8) + "' exceeds maximum architecture size of '" + to_string(_SYSTEM_BIT_SIZE_) + "'.", *Input[i]->Location, INVALID_OPERATION));
+
+		}
 	}
 
 	int Level_Difference = (int)labs(Get_Amount("ptr", Input[i]->Left) - Get_Amount("ptr", Input[i]->Right));
@@ -755,7 +771,7 @@ void IRGenerator::Parse_Pointers(int i)
 			int Keep_Last_Address = 0;
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 				Keep_Last_Address = 1;
-			Left = Operate_Pointter(Left, Level_Difference - Keep_Last_Address, false, Left->is(TOKEN::MEMORY), Input[i]->Left->Inheritted);
+			Left = Operate_Pointter(Left, Level_Difference - Keep_Last_Address, false, Left->is(TOKEN::MEMORY), Input[i]->Left->Get_Inheritted());
 			if (Input[i]->is(ASSIGN_OPERATOR_NODE))
 				Left = new Token(TOKEN::MEMORY, { Left }, _SYSTEM_BIT_SIZE_, Left->Get_Name() + "-Unwrapped");
 		}
@@ -766,7 +782,7 @@ void IRGenerator::Parse_Pointers(int i)
 		}
 	}
 	else if (Left_Level < Right_Level) {
-		Right = Operate_Pointter(Right, Level_Difference, false, Right->is(TOKEN::MEMORY), Input[i]->Right->Inheritted);
+		Right = Operate_Pointter(Right, Level_Difference, false, Right->is(TOKEN::MEMORY), Input[i]->Right->Get_Inheritted());
 		if (Left->is(TOKEN::CONTENT)) {
 				//handle the other side into a usable register
 				Left = new Token(TOKEN::MEMORY, { Left }, Input[i]->Find(Left->Get_Name(), Left->Get_Parent())->Size, Left->Get_Name() + "-Wrapped");
@@ -1607,8 +1623,16 @@ void IRGenerator::Parse_Static_Casting(Node* n)
 	}	
 	
 	//decimal to integer | integer to decimal
-	if (Caster->Format == n->Format)
+	if (Caster->Format == n->Format){
+		if (Casted_Pointter_Count == Caster_Pointter_Count){
+
+			// Return the cast type since it is not a physical operation that the cast represents, but a AST one.
+			n->Cast_Type = cast_Type;
+
+		}
+
 		return;
+	}
 
 	long long Type = 0;
 	if (n->Find(cast_Type, n, CLASS_NODE)->Format == "decimal")
@@ -1888,6 +1912,11 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 			int Needed_Size = Reg_Size;
 			if (Needed_At_Address_Offsetting)
 				Needed_Size = _SYSTEM_BIT_SIZE_;
+
+			if (Needed_Size > _SYSTEM_BIT_SIZE_)	
+				Report(Observation(ERROR, "Cannot un-wrap '" + p->Name + "' since it exceeds the architecture size of " + to_string(_SYSTEM_BIT_SIZE_ * 8) + " bits.", CANNOT_UNWRAP_PTR));
+				
+
 			handle->Set_Size(Needed_Size);
 			Reg = new Token(TOKEN::REGISTER, handle->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), Needed_Size);
 
