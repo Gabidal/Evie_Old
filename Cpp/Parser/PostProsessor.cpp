@@ -275,6 +275,10 @@ void PostProsessor::Type_Definer(Node* type)
 			p.Member_Function_Defined_Inside(j);
 			p.Member_Function_Defined_Outside(j);
 		}
+		else{
+			if (j->Inheritted.size() == 0 || j->Inheritted[0] != "const")
+				j->Requires_Address = true;
+		}
 
 	for (auto& j : type->Defined)
 		if (j->is(FUNCTION_NODE)) {

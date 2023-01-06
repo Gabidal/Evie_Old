@@ -547,13 +547,6 @@ void IRGenerator::Parse_Operators(int i)
 	if (Input[i]->Name == ".")
 		return;
 
-	//DEBUG
-	if (Input[i]->Left->Cast_Type && Input[i]->Name == "+"){
-
-		int a = 0;
-
-	}
-
 	Update_Operator(Input[i]);
 	Input[i]->Update_Format();
 	if (!Input[i]->Left->Has({ ARRAY_NODE, OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE, CONTENT_NODE, PREFIX_NODE, POSTFIX_NODE }))

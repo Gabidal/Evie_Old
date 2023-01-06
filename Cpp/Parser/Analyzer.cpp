@@ -16,6 +16,7 @@ void Analyzer::Factory()
 	Safe::Flush_Errors();
 	List_All_Exported();
 
+	// for function
 	for (auto* f : Start_Of_Proccesses) {
 		vector<Node*> Callin_Trace;
 		Calling_Count_Incrementer(f, Callin_Trace);
@@ -136,7 +137,7 @@ void Analyzer::Calling_Count_Incrementer(Node* f, vector<Node*>& Callin_Trace)
 	//Define_Sizes(f);
 
 	if (!sys->Info.Is_Service || sys->Service_Info == Document_Request_Type::ASM)
-		Calculate_Address_Givers(f);
+		Calculate_Address_Givers_For_Functions(f);
 
 	//do function memorry handling stuff
 	Memory_Manager m(f);
@@ -347,7 +348,7 @@ void Analyzer::Give_Global_Scope_All_Used_Functions(){
 
 }
 
-void Analyzer::Calculate_Address_Givers(Node* f){
+void Analyzer::Calculate_Address_Givers_For_Functions(Node* f){
 	// First do a simple check.
 	for (auto v : f->Defined)
 		if (v->Size > _SYSTEM_BIT_SIZE_ && !v->is("ptr"))
@@ -364,5 +365,5 @@ void Analyzer::Calculate_Address_Givers(Node* f){
 	// Now do this recursively for all the local scopes.
 	for (auto i : f->Childs)
 		if (i->Defined.size() > 0)
-			Calculate_Address_Givers(i);
+			Calculate_Address_Givers_For_Functions(i);
 }

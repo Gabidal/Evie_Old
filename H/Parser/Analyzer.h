@@ -37,7 +37,8 @@ public:
 
 	void Give_Global_Scope_All_Used_Functions();
 
-	void Calculate_Address_Givers(Node* f);
+	void Calculate_Address_Givers_For_Functions(Node* f);
+
 };
 
 #endif

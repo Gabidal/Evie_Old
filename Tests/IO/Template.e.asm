@@ -130,11 +130,11 @@ je while_4_END		#while_4_END
 while_4:
 mov r8, rcx		#Last, Current
 if_5:
-mov r9b, byte ptr [rcx + 0 ]		#Current_0_REG2, Current_0
-cmp r9b, 1		#Current_0_REG2, 1
+mov r9b, byte ptr [rcx + 12 ]		#Current_12_REG2, Current_12
+cmp r9b, 1		#Current_12_REG2, 1
 jne else_6		#else_6
-mov r9, qword ptr [rcx + 0 ]		#Current_0_REG3, Current_0
-mov rcx, r9		#Current, Current_0_REG3
+mov r9, qword ptr [rcx + 13 ]		#Current_13_REG3, Current_13
+mov rcx, r9		#Current, Current_13_REG3
 jmp else_6_END		#else_6_END
 if_5_END:
 else_6:
@@ -148,18 +148,18 @@ je while_4_END		#while_4_END
 jmp while_4		#while_4
 while_4_END:
 if_7:
-mov rcx, qword ptr [r8 + 0 ]		#Last_0_REG6, Last_0
-mov r9, qword ptr [r8 + 0 ]		#+_0_REG7, Last_0
+mov rcx, qword ptr [r8 + 29 ]		#Last_29_REG6, Last_29
+mov r9, qword ptr [r8 + 21 ]		#+_0_REG7, Last_21
 lea r10, qword ptr [rip + std_ALLOCATION_SIZE ]		#std_ALLOCATION_SIZE_REG8, .RIP_std_ALLOCATION_SIZE
 add r9, r10		#+_0_REG7, std_ALLOCATION_SIZE_REG8
-cmp rcx, r9		#Last_0_REG6, +_0_REG7
+cmp rcx, r9		#Last_29_REG6, +_0_REG7
 jl if_7_END		#if_7_END
-mov byte ptr [r8 + 0 ], 1		#Last_0, 1
+mov byte ptr [r8 + 33 ], 1		#Last_33, 1
 mov rax, 0		#Returning_REG9, 0
 ret 		#
 if_7_END:
-mov rcx, qword ptr [r8 + 0 ]		#Last_0_REG10, Last_0
-mov rcx, rcx		#REG_Last_0_REG10_Parameter2995, Last_0_REG10
+mov rcx, qword ptr [r8 + 29 ]		#Last_29_REG10, Last_29
+mov rcx, rcx		#REG_Last_29_REG10_Parameter2995, Last_29_REG10
 mov rdx, r8		#REG_Last_Parameter11942, Last
 call _ZN4Page3std4PageEP4PageP4Page
 mov rcx, rax		#Result, RetREG_11
@@ -176,8 +176,8 @@ je while_8_END		#while_8_END
 while_8:
 mov r8, rcx		#Last, Current
 if_9:
-mov r9, qword ptr [rcx + 0 ]		#Current_0_REG0, Current_0
-mov rcx, r9		#Current, Current_0_REG0
+mov r9, qword ptr [rcx + 29 ]		#Current_29_REG0, Current_29
+mov rcx, r9		#Current, Current_29_REG0
 jmp else_10_END		#else_10_END
 if_9_END:
 else_10:
@@ -189,8 +189,8 @@ cmp rcx, 0		#Current, 0
 je while_8_END		#while_8_END
 jmp while_8		#while_8
 while_8_END:
-mov rcx, qword ptr [r8 + 0 ]		#Last_0_REG2, Last_0
-mov rcx, rcx		#REG_Last_0_REG2_Parameter4827, Last_0_REG2
+mov rcx, qword ptr [r8 + 45 ]		#Last_45_REG2, Last_45
+mov rcx, rcx		#REG_Last_45_REG2_Parameter4827, Last_45_REG2
 mov rdx, r8		#REG_Last_Parameter5436, Last
 call _ZN6Bucket3std6BucketEP6BucketP6Bucket
 mov rcx, rax		#Result, RetREG_3
@@ -238,7 +238,7 @@ if_12_END:
 mov rcx, rdi		#REG_New_Page_Parameter153, New_Page
 mov edx, ebx		#REG_Size_Parameter292, Size
 call _ZN4Page3std11Update_PageEP4Pagei
-mov byte ptr [rdi + 0 ], 1		#New_Page_0, 1
+mov byte ptr [rdi + 12 ], 1		#New_Page_12, 1
 mov qword ptr [rip + std_Bucket_Cache ], rsi		#.RIP_std_Bucket_Cache, New_Bucket
 mov rcx, qword ptr [rip + Allocate_Bucket_Cache ]		#Allocate_Bucket_Cache_REG10, .RIP_Allocate_Bucket_Cache
 mov qword ptr [rcx + 0 ], rdi		#Allocate_Bucket_Cache_REG10_0, New_Page
@@ -293,39 +293,39 @@ ret 		#
 
 
 _ZN4Page3std4PageEP4PageP4Page:
-mov byte ptr [rcx + 0 ], 0		#this_0, 0
-mov qword ptr [rdx + 0 ], rcx		#previus_0, this
-mov r8, qword ptr [rdx + 0 ]		#previus_0_REG0, previus_0
-mov qword ptr [rcx + 0 ], r8		#this_0, previus_0_REG0
+mov byte ptr [rcx + 12 ], 0		#this_12, 0
+mov qword ptr [rdx + 13 ], rcx		#previus_13, this
+mov r8, qword ptr [rdx + 21 ]		#previus_21_REG0, previus_21
+mov qword ptr [rcx + 21 ], r8		#this_21, previus_21_REG0
 add rcx, 37		#this, 37
 mov qword ptr [rcx + 0 ], rcx		#this_0, this
 mov r8, qword ptr [rcx + 0 ]		#this_0_REG1, this_0
-lea r9, qword ptr [r9d ]		#Size_REG2, Size
+lea r9, qword ptr [rsp + 8 ]		#Size_REG2, .STACK_8
 add r8, r9		#this_0_REG1, Size_REG2
-mov qword ptr [rcx + 0 ], r8		#this_0, this_0_REG1
+mov qword ptr [rcx + 29 ], r8		#this_29, this_0_REG1
 ret 		#
 
 
 _ZN4Page3std4PageEP4PageP6Bucket:
-mov dword ptr [rcx + 0 ], 0		#this_0, 0
-mov byte ptr [rcx + 0 ], 0		#this_0, 0
-mov qword ptr [rcx + 0 ], 0		#this_0, 0
-mov qword ptr [rcx + 0 ], rdx		#this_0, parent
+mov dword ptr [rcx + 8 ], 0		#this_8, 0
+mov byte ptr [rcx + 12 ], 0		#this_12, 0
+mov qword ptr [rcx + 13 ], 0		#this_13, 0
+mov qword ptr [rcx + 21 ], rdx		#this_21, parent
 add rcx, 37		#this, 37
 mov qword ptr [rcx + 0 ], rcx		#this_0, this
 mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
-lea r9, qword ptr [r9d ]		#Size_REG1, Size
+lea r9, qword ptr [rsp + 8 ]		#Size_REG1, .STACK_8
 add r8, r9		#this_0_REG0, Size_REG1
-mov qword ptr [rcx + 0 ], r8		#this_0, this_0_REG0
+mov qword ptr [rcx + 29 ], r8		#this_29, this_0_REG0
 ret 		#
 
 
 _ZN4Page3std11Update_PageEP4Pagei:
-mov dword ptr [rcx + 0 ], edx		#this_0, size
+mov dword ptr [rcx + 8 ], edx		#this_8, size
 mov r8, qword ptr [rcx + 0 ]		#this_0_REG0, this_0
-lea r9, qword ptr [r9d ]		#Size_REG1, Size
+lea r9, qword ptr [rsp + 8 ]		#Size_REG1, .STACK_8
 add r8, r9		#this_0_REG0, Size_REG1
-mov qword ptr [rcx + 0 ], r8		#this_0, this_0_REG0
+mov qword ptr [rcx + 29 ], r8		#this_29, this_0_REG0
 ret 		#
 
 
@@ -341,17 +341,17 @@ mov rcx, qword ptr [rbx + 0 ]		#this_0_REG1, this_0
 mov rcx, rcx		#REG_this_0_REG1_Parameter14771, this_0_REG1
 mov rdx, rbx		#REG_this_Parameter11538, this
 call _ZN4Page3std4PageEP4PageP6Bucket
-mov qword ptr [rbx + 0 ], rax		#this_0, RetREG_2
-mov rcx, qword ptr [rbx + 0 ]		#this_0_REG3, this_0
-mov qword ptr [rbx + 0 ], rcx		#this_0, this_0_REG3
-mov byte ptr [rbx + 0 ], 0		#this_0, 0
-mov rcx, qword ptr [rdi + 0 ]		#previus_0_REG4, previus_0
-mov qword ptr [rbx + 0 ], rcx		#this_0, previus_0_REG4
-mov qword ptr [rdi + 0 ], rbx		#previus_0, this
-mov qword ptr [rbx + 0 ], rdi		#this_0, previus
+mov qword ptr [rbx + 13 ], rax		#this_13, RetREG_2
+mov rcx, qword ptr [rbx + 13 ]		#this_13_REG3, this_13
+mov qword ptr [rbx + 21 ], rcx		#this_21, this_13_REG3
+mov byte ptr [rbx + 12 ], 0		#this_12, 0
+mov rcx, qword ptr [rdi + 29 ]		#previus_29_REG4, previus_29
+mov qword ptr [rbx + 29 ], rcx		#this_29, previus_29_REG4
+mov qword ptr [rdi + 29 ], rbx		#previus_29, this
+mov qword ptr [rbx + 37 ], rdi		#this_37, previus
 mov cl, byte ptr [rbx ]		#this_REG5, this
 add cl, 53		#this_REG5, 53
-mov qword ptr [rbx + 0 ], cl		#this_0, this_REG5
+mov qword ptr [rbx + 45 ], cl		#this_45, this_REG5
 pop Reg_rbx		#Reg_Reg_rbx
 pop Reg_rdi		#Reg_Reg_rdi
 ret 		#
@@ -367,15 +367,15 @@ mov rcx, qword ptr [rbx + 0 ]		#this_0_REG1, this_0
 mov rcx, rcx		#REG_this_0_REG1_Parameter19912, this_0_REG1
 mov rdx, rbx		#REG_this_Parameter25667, this
 call _ZN4Page3std4PageEP4PageP6Bucket
-mov qword ptr [rbx + 0 ], rax		#this_0, RetREG_2
-mov rcx, qword ptr [rbx + 0 ]		#this_0_REG3, this_0
-mov qword ptr [rbx + 0 ], rcx		#this_0, this_0_REG3
-mov byte ptr [rbx + 0 ], 0		#this_0, 0
-mov qword ptr [rbx + 0 ], 0		#this_0, 0
-mov qword ptr [rbx + 0 ], 0		#this_0, 0
+mov qword ptr [rbx + 13 ], rax		#this_13, RetREG_2
+mov rcx, qword ptr [rbx + 13 ]		#this_13_REG3, this_13
+mov qword ptr [rbx + 21 ], rcx		#this_21, this_13_REG3
+mov byte ptr [rbx + 12 ], 0		#this_12, 0
+mov qword ptr [rbx + 29 ], 0		#this_29, 0
+mov qword ptr [rbx + 37 ], 0		#this_37, 0
 mov cl, byte ptr [rbx ]		#this_REG4, this
 add cl, 53		#this_REG4, 53
-mov qword ptr [rbx + 0 ], cl		#this_0, this_REG4
+mov qword ptr [rbx + 45 ], cl		#this_45, this_REG4
 pop Reg_rbx		#Reg_Reg_rbx
 ret 		#
 
