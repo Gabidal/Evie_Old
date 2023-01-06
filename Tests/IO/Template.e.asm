@@ -453,14 +453,34 @@ ret 		#
 
 .section .data		#.data
 Internal_MEMORY_COMMIT:
-.word 4096		#4096
+.word 0		#0
 Internal_MEMORY_RESERVE:
-.word 8192		#8192
+.word 0		#0
 Internal_MEMORY_RELEASE:
-.word 32768		#32768
+.word 0		#0
 Internal_PAGE_READWRITE:
-.word 4		#4
+.word 0		#0
 Internal_STANDARD_OUTPUT_HANDLE:
-.word 11		#11
+.word 0		#0
 Internal_STANDARD_INPUT_HANDLE:
-.word 10		#10
+.word 0		#0
+std_ALLOCATION_SIZE:
+.word 0		#0
+std_BUCKET_COUNT:
+.word 0		#0
+std_BUCKET_BUFFER:
+.word 0		#0
+std_Bucket_Start:
+.word 0		#0
+std_Bucket_Cache:
+.word 0		#0
+std_Pi:
+.word 0		#0
+std_E:
+.word 0		#0
+std_Eps:
+.word 0		#0
+std_Inf:
+.word 0		#0
+std_Nan:
+.word 0		#0

@@ -60,8 +60,8 @@ void IRGenerator::Factory()
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR | TOKEN::SECTION, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
 		for (auto i : Scope->Header)
 			Parse_Global_Variables(i);
-		for (auto i : All_Defined)
-			Parse_Static_Variables(i);
+
+		Parse_Static_Variables(Scope);
 	}
 }
 
@@ -1371,15 +1371,18 @@ void IRGenerator::Parse_Static_Variables(Node* n)
 	if (n->is(CLASS_NODE)) {
 		//If the namespace in question is already inlined, 
 		//then the static content is also moved to the main or _INIT_ function in global_scope
-		for (auto i : n->Scope->Inlined_Namespaces) {
-			if (i->Name == n->Name) {
-				return;
-			}
-		}
+
+		// Actually there is no need for the inlined namespaces to be not processed at this point, since even inline namespaces when transferring their '=' operations on their global variables, 
+		//they still have the definition of that global variable and that is not passed into the inliner namespace.
+		// for (auto i : n->Scope->Inlined_Namespaces) {
+		// 	if (i->Name == n->Name) {
+		// 		return;
+		// 	}
+		// }
 
 		if (n->is("static"))
 			//this is for the running code of a namespace for global variable initializations
-			for (auto i : n->Childs)
+			for (auto i : n->Defined)
 				Parse_Static_Variables(i);
 		else
 			for (auto i : n->Header)
@@ -1387,28 +1390,14 @@ void IRGenerator::Parse_Static_Variables(Node* n)
 
 		return;
 	}
-
-	if (n->Has({ OPERATOR_NODE, ASSIGN_OPERATOR_NODE, CONDITION_OPERATOR_NODE, BIT_OPERATOR_NODE })) {
-		//{[Namespace name] + [Static variable name]} d[size] [Value]
-
-		PostProsessor p(Scope);
-		p.Update_Operator_Inheritance(n);
-
-		//global variables that have been given an initial value.
-		//static double Pi = 162351276534
-		Node tmp = *n->Left;
-		tmp.Mangled_Name = tmp.Scope->Name + "_" + tmp.Name;
-		Generate_Global_Variable(&tmp, n->Right);
-	}
-	//inlined variables have their definition seen here, so make sure that this is the OG scope that
-	//the global variable was defined in.
-	else if (n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE }) && n->Scope->Name == Scope->Name) {
+	if (n->Has({ OBJECT_DEFINTION_NODE, OBJECT_NODE })) {
 		//{[Namespace name] + [Static variable name]} d[size] 0
-		Node* value = new Node(NUMBER_NODE, "0", n->Left->Location);
+		Node* value = new Node(NUMBER_NODE, "0", n->Location);
 		value->Size = n->Size;
+		value->Scope = n->Scope;
 
 		//un given value global variables
-		Node tmp = *n->Left;
+		Node tmp = *n;
 		tmp.Mangled_Name = tmp.Scope->Name + "_" + tmp.Name;
 		Generate_Global_Variable(&tmp, value);
 	}
