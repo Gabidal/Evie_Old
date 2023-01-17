@@ -91,7 +91,7 @@ vector<Base*> Back_End_Test::Run(string File)
 		Output = "";
 	}
 	else {
-		argv = new const char* [7 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), "-in", File.c_str(), "-f", "asm", "-reference-count-size", "0", Use_Debug.c_str() };
+		argv = new const char* [7 + (Use_Debug == "-d")] { (new string(Executable_Location))->c_str(), "-in", File.c_str(), "-f", "dll", "-reference-count-size", "0", Use_Debug.c_str() };
 		argc = 7 + (Use_Debug == "-d");
 		Output = ".intel_syntax noprefix\n";
 	}

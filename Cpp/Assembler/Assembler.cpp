@@ -384,6 +384,9 @@ vector<IR*> Assembler::Parser(vector<Token*> Tokens){
 vector<IR*> Assembler::Parser_Post_Prosessor(vector<IR*> IRs)
 {
     for (auto& i : IRs) {
+        // Sanitize the IR.
+        for (auto T : i->Arguments)
+            Calculate_Constant_Expressions(T);          // mov rax, [rsp + 12 + 4]
 
         vector<Token*> Arguments = i->Arguments;
 
@@ -537,100 +540,7 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
         i = j - 1;
     }
 
-    Apply_Self_Recursion(Result);
-
     return Result;
-
-}
-
-//This function uses the now address that are calculated to go back to the IR level and replace all the
-//labels with the correct address.
-//After this this function will use the modified IR to generate this Byte_Map again with the new information.
-void Assembler::Apply_Self_Recursion(vector<Byte_Map_Section*>& Sections){
-
-    for (int s = 0; s < Sections.size(); s++){
-        Byte_Map_Section* section = Sections[s];
-
-        section->Calculated_Size = 0;
-
-        if (s - 1 >= 0){
-            section->Calculated_Address = Sections[s-1]->Calculated_Address + Sections[s-1]->Calculated_Size;
-        }
-
-
-        for (auto& byte_map : section->Byte_Maps){
-
-            for (auto& T : byte_map->Ir->Arguments){
-
-                Go_Through_Token_And_Replace_Local_Labels_With_Numbers(T, byte_map);
-                Calculate_Constant_Expressions(T);
-
-            }
-
-            //Now apply the new modifications and build new byte map from it.
-            //selector->Correct_Encoding(byte_map->Ir->Arguments, byte_map->Ir->Order[0].Encoding);
-            *byte_map = *selector->Build(byte_map->Ir);
-            byte_map->Size = selector->Get_Size(byte_map);//selector->Assemble(byte_map).size();
-            section->Calculated_Size += byte_map->Size;
-            byte_map->Address = section->Calculated_Address + section->Calculated_Size;
-
-            //re instable the IS_External_Label attribute.
-            for (auto& T : byte_map->Ir->Arguments){
-
-                Go_Through_Token_And_Replace_Local_Labels_With_Numbers(T, byte_map);
-
-            }
-        }
-    }
-
-}
-
-void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference, unordered_set<Token*>& Trace){
-
-    if (Trace.find(Current) != Trace.end())
-        return;
-
-    Trace.insert(Trace.end(), Current);
-
-    if (Current->is(TOKEN::LABEL)){
-        Symbol_Data symbol = Symbol_Table.find(Current->Name)->second;
-
-        if (symbol.Section_ID == 0){
-            //This is an external symbol witch address we dont know.
-            Back_Reference->Has_External_Label = true;
-
-            Back_Reference->Label = Current->Name;
-
-            return;
-        }
-
-        Current->Flags = TOKEN::NUM;
-        Current->Size = _SYSTEM_BIT_SIZE_;
-
-        long long Value = symbol.Address - Back_Reference->Address;
-
-        if (Value > INT32_MIN) Current->Size = 4;
-        else if (Value < INT32_MAX) Current->Size = 4;
-
-        //Calculate the distance between this label reference and the definition declaration address.
-        Current->Name = to_string(Value);
-
-    }
-    else{
-        for (auto& Content : Current->Get_All()){
-
-            Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Content, Back_Reference, Trace);
-
-        }
-
-    }
-}
-
-void Assembler::Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Token* Current, Byte_Map* Back_Reference){
-
-    unordered_set<Token*> tmp;
-
-    Go_Through_Token_And_Replace_Local_Labels_With_Numbers(Current, Back_Reference, tmp);
 
 }
 

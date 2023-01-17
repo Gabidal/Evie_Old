@@ -755,7 +755,7 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 
 		for (auto& byte_map : section->Byte_Maps){
 
-			if (byte_map->Has_External_Label){
+			if (byte_map->Label != ""){
 
 				PE::Relocation relocation;
 				relocation.Virtual_Address = byte_map->Address;

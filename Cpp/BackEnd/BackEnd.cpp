@@ -48,20 +48,32 @@ void BackEnd::Operator_Builder(IR* i)
 	//leave data handling into other algorithm
 	if (!i->is(TOKEN::OPERATOR) && !i->is(TOKEN::FLOW) && !i->is(TOKEN::SET_DATA))
 		return;
+
+	string Result = "";
+
 	//get the needed opcode
 	IR* opc = selector->Get_Opcode(i);
-	*Output += opc->OPCODE->Get_Name() + " ";
+	Result += opc->OPCODE->Get_Name() + " ";
 
 	//set up the parameters
 	for (int p = 0; p < i->Arguments.size(); p++) {
-		*Output += Token_Builder(i->Arguments[p], i->is(TOKEN::SET_DATA));
+		Result += Token_Builder(i->Arguments[p], i->is(TOKEN::SET_DATA));
 		if ((size_t)p + 1 < i->Arguments.size()) {
-			*Output += Seperator + " ";
+			Result += Seperator + " ";
 		}
 	}
-	//set up the next line
 
-	string Comment = "\t\t#";
+	*Output += Result;
+
+
+	int Comment_Distance = 60 - Result.size();
+
+	string Comment = "";
+
+	for (int j = 0; j < Comment_Distance; j++)
+		Comment += " ";
+
+	Comment += "#";
 
 	for (int j = 0; j < i->Arguments.size(); j++) {
 		Comment += i->Arguments[j]->Get_Name();

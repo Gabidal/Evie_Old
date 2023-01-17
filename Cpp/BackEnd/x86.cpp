@@ -1091,14 +1091,16 @@ void x86_64::Init()
 //References https://wiki.osdev.org/X86-64_Instruction_Encoding
 Byte_Map* x86_64::Build(IR* ir){
 
-	//DEBUG
-	if (ir->Arguments.size() > 1 && ir->Arguments[1]->Name == "b"){
-		int a = 0;
-	}
-
 	Arrange_Encoding(ir->Arguments, ir->Order[0].Encoding);
 
 	Byte_Map* Result = new Byte_Map();
+
+	// Detect Label usage in the IR, if found: put label store it.
+	vector<Token*> tmp_r = ir->Get_All(TOKEN::LABEL);
+
+	// Unconventional for a IR to have more than 1 label in it.
+	if (tmp_r.size() > 0)
+		Result->Label = tmp_r[0]->Name;
 
 	Result->Ir = ir;
 
@@ -1113,9 +1115,9 @@ Byte_Map* x86_64::Build(IR* ir){
 		Left = tmp;
 	}
 
-	//So no biches, no args.
+	//So no bitches, no args.
 	if (Left == nullptr && Right == nullptr){
-		//Single byte opcodes like 'ret' dont need even REX_DEFALTS.
+		//Single byte opcodes like 'ret' dont need even REX_DEFAULTS.
 
 		return Result;
 
@@ -1147,6 +1149,11 @@ Byte_Map* x86_64::Build(IR* ir){
 	if (Left && Left->is(TOKEN::NUM)){
 		Result->Immediate = atoll(Left->Name.c_str());
 		Result->Immediate_Size = Left->Size;
+		Result->Has_Immediate = true;
+	}
+	else if (Left && Left->is(TOKEN::LABEL)){
+		Result->Immediate = 0;
+		Result->Immediate_Size = _SYSTEM_BIT_SIZE_;
 		Result->Has_Immediate = true;
 	}
 
@@ -1235,6 +1242,13 @@ Byte_Map* x86_64::Build(IR* ir){
 				Result->Has_Displacement = true;
 				Result->Displacement_Size = 4;
 			}
+			else if (Right->Get_All(TOKEN::LABEL).size() > 0){
+				Result->Displacement = 0;
+				Result->Has_Displacement = true;
+				Result->Displacement_Size = _SYSTEM_BIT_SIZE_;
+			}
+
+
 		}
 	}
 
@@ -1452,9 +1466,16 @@ SIB x86_64::Get_SIB(Token* t, Byte_Map& back_referece){
 			}
 			else if (i->is(TOKEN::NUM)){
 				back_referece.Displacement = stoll(i->Name);
-				back_referece.Has_Displacement = true;
 
+				back_referece.Has_Displacement = true;
 				back_referece.Displacement_Size = 4;
+			}
+			else if (i->is(TOKEN::LABEL)){
+
+				back_referece.Displacement = 0;
+				back_referece.Has_Displacement = true;
+				back_referece.Displacement_Size = _SYSTEM_BIT_SIZE_;
+
 			}
 		}
 	}
@@ -1585,7 +1606,7 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 	if (Input->Has_Immediate){
 		int Size = Input->Immediate_Size;
 
-		if (Input->Has_External_Label){
+		if (Input->Label != ""){
 			Size = _SYSTEM_BIT_SIZE_;
 		}
 
@@ -1639,39 +1660,35 @@ int x86_64::Get_Size(Byte_Map* Input){
 		Result += Input->Immediate_Size;	//1-4 Bits
 	}
 
-	for (auto i : Input->Ir->Get_All(TOKEN::LABEL)){
-		auto R = assembler->Symbol_Table.find(i->Name);
+	// if (Input->Label != ""){
+	// 	auto R = assembler->Symbol_Table.find(Input->Label);
 
-		if (R == assembler->Symbol_Table.end()){
-			//This means that the Assembler hasn't yet reached the label definition.
-			//This also means that we need to quess the size of the distance of this label definitino relative to this current address.
-			Result += 4;
-		}
-		else{
-			Symbol_Data symbol = R->second;
-
-			if (symbol.Section_ID == 0){
-				//extern symbol
-				break;
-			}
-			
-			//This wont have the final result
-			long long Value = symbol.Address - Input->Address;
-
-			int Size = _SYSTEM_BIT_SIZE_;
-
-			if (Value > INT32_MIN) Size = 4;
-			else if (Value < INT32_MAX) Size = 4;
-
-			//This is the final value
-			Value = symbol.Address - (Input->Address + Size);
-
-			if (Value > INT32_MIN) Size = 4;
-			else if (Value < INT32_MAX) Size = 4;
-
-			Result += Size;
-		}
-	}
+	// 	if (R == assembler->Symbol_Table.end()){
+	// 		//This means that the Assembler hasn't yet reached the label definition.
+	// 		//This also means that we need to quess the size of the distance of this label definitino relative to this current address.
+	// 		Result += _SYSTEM_BIT_SIZE_;
+	// 	}
+	// 	else{
+	// 		// Symbol_Data symbol = R->second;
+	// 		// // WTF is this?, Doesnt external syumbols also need some way to be accesssed? JMP is JMP no matter what you dum dum.
+	// 		// // if (symbol.Section_ID == 0){
+	// 		// // 	//extern symbol
+	// 		// // 	break;
+	// 		// // }
+	// 		// //This wont have the final result
+	// 		// long long Value = symbol.Address - Input->Address;
+	// 		// int Size = _SYSTEM_BIT_SIZE_;
+	// 		// if (Value > INT32_MIN) Size = 4;
+	// 		// else if (Value < INT32_MAX) Size = 4;
+	// 		// //This is the final value
+	// 		// Value = symbol.Address - (Input->Address + Size);
+	// 		// if (Value > INT32_MIN) Size = 4;
+	// 		// else if (Value < INT32_MAX) Size = 4;
+	// 		// Result += Size;
+		
+	// 		Result += _SYSTEM_BIT_SIZE_;
+	// 	}
+	// }
 
 	return Result;
 }

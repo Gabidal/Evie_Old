@@ -172,8 +172,6 @@ public:
     string Label = "";
 
     class IR* Ir = nullptr;
-
-    bool Has_External_Label = false;
 };
 
 class Byte_Map_Section{
