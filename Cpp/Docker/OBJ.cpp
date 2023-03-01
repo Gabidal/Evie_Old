@@ -217,6 +217,7 @@ vector<unsigned char> PE::Write_Obj(PE::PE_OBJ& obj){
 
 }
 
+// NOTE: There are no headers to worry about!
 PE::PE_OBJ* PE::Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input){
 	//Combine the content sections
 	if (Input.size() > 1){
@@ -245,16 +246,15 @@ PE::PE_OBJ* PE::Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input){
 }
 
 PE::PE_OBJ* PE::Cluster_External_PE_Objects(vector<string> Input){
-
-	//First transform the input of file names into PE::PE_OBJ*
 	vector<PE::PE_OBJ*> OBJs;
 
+	// Gather all OBJ files.
 	for (auto i : Input){
 		pair<char*, long long> Raw_Buffer = DOCKER::Read_Bin_File(i);
 
 		vector<unsigned char> Buffer = vector<unsigned char>(Raw_Buffer.first, Raw_Buffer.first + Raw_Buffer.second);
 
-		//check that this is a PE file
+		//check if this is a PE file
 		DOCKER::Function_Pointter f = DOCKER::Get_Translator(Buffer);
 
 		if (f != PE::OBJ_Analyser)
@@ -280,6 +280,7 @@ PE::PE_OBJ* PE::OBJ_Pile::Compile(){
 	for (auto& s_group : Sections){
 
 		for (auto& r_group : Raw_Sections){
+			// We want to address the section and its own data to fix the offsets. So '!=' is right operation here.
 			if (r_group.File_Origin != s_group.File_Origin)
 				continue;
 
@@ -398,6 +399,7 @@ PE::PE_OBJ* PE::OBJ_Pile::Compile(){
 					continue;
 
 				Absolute_Address = r_group.Additional_Offset;
+				break;
 			}
 
 			r.Virtual_Address = Absolute_Address + Relative_Address;
@@ -540,31 +542,15 @@ PE::OBJ_Pile::OBJ_Pile(vector<PE::PE_OBJ*> OBJs){
 
 //This function takes a files contant and disects it into a PE OBJ object
 PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
-
 	this->File_Name = File_Name;
 
-	bool File_Does_Not_Use_Optional_Header = false;
+	// Usually all PE::OBJ only contain COFF- and Magic number from STANDARD COFF Headers
+	int Header_Size = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics);
 
-	//First we need to check if the file is a valid PE file
-	if (File.size() < sizeof(PE::Header)){
-		//The OBJ headers could not have the optional header
-		if (File.size() < offsetof(PE::Header, PE::Header::Characteristics)){
-			//The file is too small to be a valid PE file
-			Report(Observation(ERROR, "File is too small to be a valid PE file", LINKER_INVALID_FILE));
-			return;
-		}
-		else{
-			//The file is a valid PE file without an optional header
-			File_Does_Not_Use_Optional_Header = true;
-		}
-	}
-
-	int Header_Size = sizeof(PE::Header);
-
-	//Now we can safely assume that the file is a valid PE file
-	if (File_Does_Not_Use_Optional_Header){
-		//Move the file start content to header with the size of the non optional header
-		Header_Size = offsetof(PE::Header, PE::Header::Characteristics);
+	// Check if the file is even large enough to contain PE::OBJ headers.
+	if (File.size() < Header_Size){
+		Report(Observation(ERROR, "File is too small to be a valid PE file", LINKER_INVALID_FILE));
+		return;
 	}
 	
 	move(File.begin(), File.begin() + Header_Size, (unsigned char*)&this->Header);
@@ -599,7 +585,6 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 	String_Table.resize(String_Table_Size);
 	move(File.begin() + Current_Offset, File.begin() + Current_Offset + String_Table_Size, String_Table.begin());
 
-
 	//Now we can extract the Sections
 	Current_Offset += String_Table_Size;
 
@@ -610,7 +595,14 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 		move(File.begin() + i.Pointer_To_Raw_Data, File.begin() + i.Pointer_To_Raw_Data + i.Size_Of_Raw_Data, Section_Data.begin());
 
 		Raw_Section section;
-		section.Name = i.Name;
+		// The i.Name is an unsigned long long containing characters. and section.Name is a std::string, we need to convert unsigned long long to string.
+		// Use memcpy
+		section.Name.resize(sizeof(i.Name));
+		memcpy(&section.Name[0], &i.Name, sizeof(i.Name)); 
+
+		// Remove the '\0' from the end of the string.
+		section.Name.erase(remove(section.Name.begin(), section.Name.end(), '\0'), section.Name.end());
+
 		section.Data = Section_Data;
 		section.Section_Address = Current_Offset;
 
@@ -619,6 +611,20 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 		this->Raw_Sections.push_back(section);
 	}
 
+	// Extract the relocation table from the obj
+	for (auto i : Sections){
+		unsigned int Relocation_Table_Location = i.Pointer_To_Relocations;
+		unsigned int Number_Of_Relocations = i.Number_Of_Relocations;
+
+		for (int j = 0; j < Number_Of_Relocations; j++){
+			PE::Relocation Relocation;
+			move(File.begin() + Relocation_Table_Location + sizeof(PE::Relocation) * j, File.begin() + Relocation_Table_Location + sizeof(PE::Relocation) * (j + 1), (unsigned char*)&Relocation);
+
+			this->Relocations.push_back(Relocation);
+		}
+	}
+
+	// No idea wtd this is.
 	Add_Padding_To_Offsets(*this);
 }
 
@@ -740,14 +746,12 @@ string PE::Symbol::Get_Name(vector<unsigned char>& String_Table){
 vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table){
 	vector<PE::Relocation> Result;
 
-	map<string, int> Extern_Symbols;
+	map<string, int> All_Symbols;
 
 	//First extract all the extern symbols from the symbols list
 	int Index = 0;
 	for (auto i : Symbols){
-		if (i.Section_Number == 0){
-			Extern_Symbols.insert({i.Get_Name(String_Table), Index});
-		}
+		All_Symbols.insert({i.Get_Name(String_Table), Index});
 		Index++;
 	}
 
@@ -758,9 +762,9 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 			if (byte_map->Label != ""){
 
 				PE::Relocation relocation;
-				relocation.Virtual_Address = byte_map->Address;
-				relocation.Symbol_Table_Index = Extern_Symbols[byte_map->Label];
-				relocation.Type = _SYSTEM_BIT_SIZE_;
+				relocation.Virtual_Address = byte_map->Address + byte_map->Precise_Label_Index + byte_map->Precise_Label_Index;
+				relocation.Symbol_Table_Index = All_Symbols[byte_map->Label];
+				relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64;
 
 				Result.push_back(relocation);
 

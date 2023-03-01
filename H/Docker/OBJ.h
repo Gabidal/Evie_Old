@@ -113,7 +113,7 @@ namespace PE {
 			unsigned long long Full_Name = 0;
 		};
 		int Value = 0;
-		short Section_Number = 0;
+		short Section_Number = 0;	// where 1 is 0'th index.
 		short Type = 0;
 		char Storage_Class = 0;
 		char Number_Of_Aux_Symbols = 0;
@@ -128,7 +128,26 @@ namespace PE {
 		unsigned long long Section_Address = 0;
 		
 		vector<unsigned char> Data;
+	};
 
+	enum class IMAGE_REL_AMD64{
+		REL_AMD64_ABSOLUTE,
+		REL_AMD64_ADDR64,
+		REL_AMD64_ADDR32,
+		REL_AMD64_ADDR32NB,
+		REL_AMD64_REL32,
+		REL_AMD64_REL32_1,
+		REL_AMD64_REL32_2,
+		REL_AMD64_REL32_3,
+		REL_AMD64_REL32_4,
+		REL_AMD64_REL32_5,
+		REL_AMD64_SECTION,
+		REL_AMD64_SECREL,
+		REL_AMD64_SECREL7,
+		REL_AMD64_TOKEN,
+		REL_AMD64_SREL32,
+		REL_AMD64_PAIR,
+		REL_AMD64_SSPAN32
 	};
 
 	class Relocation{

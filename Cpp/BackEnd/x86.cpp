@@ -1153,7 +1153,7 @@ Byte_Map* x86_64::Build(IR* ir){
 	}
 	else if (Left && Left->is(TOKEN::LABEL)){
 		Result->Immediate = 0;
-		Result->Immediate_Size = _SYSTEM_BIT_SIZE_;
+		Result->Immediate_Size = 4;	// CAP the size to 32 bits.
 		Result->Has_Immediate = true;
 	}
 
@@ -1245,7 +1245,7 @@ Byte_Map* x86_64::Build(IR* ir){
 			else if (Right->Get_All(TOKEN::LABEL).size() > 0){
 				Result->Displacement = 0;
 				Result->Has_Displacement = true;
-				Result->Displacement_Size = _SYSTEM_BIT_SIZE_;
+				Result->Displacement_Size = 4;
 			}
 
 
@@ -1285,6 +1285,12 @@ Byte_Map* x86_64::Build(IR* ir){
 
 	//Update the opcode id
 	Modify_OpCode(Result);
+
+	if (Result->Label != ""){
+
+		// Calculate the accurate point in which the label address is going to be appointed to. 
+		Result->Precise_Label_Index = Get_Size_Without_Imm_And_Disp(Result);
+	}
 
 	return Result;
 	
@@ -1607,7 +1613,7 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 		int Size = Input->Immediate_Size;
 
 		if (Input->Label != ""){
-			Size = _SYSTEM_BIT_SIZE_;
+			Size = 4;	// CAP to 32 bits.
 		}
 
 		vector<unsigned char> Immediate_Value;
@@ -1630,7 +1636,7 @@ vector<unsigned char> x86_64::Assemble(Byte_Map* Input)
 	return Result_Bytes;
 }
 
-int x86_64::Get_Size(Byte_Map* Input){
+int x86_64::Get_Size_Without_Imm_And_Disp(Byte_Map* Input){
 	int Result = 0;
 
 	if (Input->Prefix != 0){
@@ -1652,6 +1658,14 @@ int x86_64::Get_Size(Byte_Map* Input){
 		Result += 1;	//1 Bits
 	}
 
+	return Result;
+}
+
+int x86_64::Get_Size(Byte_Map* Input){
+	int Result = 0;
+
+	Result += Get_Size_Without_Imm_And_Disp(Input);
+
 	if (Input->Has_Displacement){
 		Result += Input->Displacement_Size;	//1-4 Bits
 	}
@@ -1659,36 +1673,6 @@ int x86_64::Get_Size(Byte_Map* Input){
 	if (Input->Has_Immediate){
 		Result += Input->Immediate_Size;	//1-4 Bits
 	}
-
-	// if (Input->Label != ""){
-	// 	auto R = assembler->Symbol_Table.find(Input->Label);
-
-	// 	if (R == assembler->Symbol_Table.end()){
-	// 		//This means that the Assembler hasn't yet reached the label definition.
-	// 		//This also means that we need to quess the size of the distance of this label definitino relative to this current address.
-	// 		Result += _SYSTEM_BIT_SIZE_;
-	// 	}
-	// 	else{
-	// 		// Symbol_Data symbol = R->second;
-	// 		// // WTF is this?, Doesnt external syumbols also need some way to be accesssed? JMP is JMP no matter what you dum dum.
-	// 		// // if (symbol.Section_ID == 0){
-	// 		// // 	//extern symbol
-	// 		// // 	break;
-	// 		// // }
-	// 		// //This wont have the final result
-	// 		// long long Value = symbol.Address - Input->Address;
-	// 		// int Size = _SYSTEM_BIT_SIZE_;
-	// 		// if (Value > INT32_MIN) Size = 4;
-	// 		// else if (Value < INT32_MAX) Size = 4;
-	// 		// //This is the final value
-	// 		// Value = symbol.Address - (Input->Address + Size);
-	// 		// if (Value > INT32_MIN) Size = 4;
-	// 		// else if (Value < INT32_MAX) Size = 4;
-	// 		// Result += Size;
-		
-	// 		Result += _SYSTEM_BIT_SIZE_;
-	// 	}
-	// }
 
 	return Result;
 }

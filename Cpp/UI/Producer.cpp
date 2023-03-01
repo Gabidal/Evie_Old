@@ -52,13 +52,15 @@ Producer::Producer(vector<IR*> IRs){
 
         PE::PE_OBJ* obj = new PE::PE_OBJ(assembler->Output);
 
+        // This is for ALL obj files that are compiled with Evie ON COMPILETIME.
         if (sys->Info.Source_Files.size() > 0){
             Objects.push_back(obj);
             //This only gets asm files, dont bother with external obj files.
             obj = PE::Cluster_Local_PE_Objects(Objects);
         }
 
-        //Transform the main local information into a PE object.
+        //Now convert all the Evie Compiled obj files into same form as external obj files.
+        // Since we dont want to play with obj->Content and obj->Raw_Section buffers at the same time.  
         vector<unsigned char> Buffer = PE::Write_Obj(*obj);
 
         ofstream o(sys->Info.Destination_File + ".obj", ios::binary);
@@ -66,10 +68,15 @@ Producer::Producer(vector<IR*> IRs){
         o.write((char*)Buffer.data(), Buffer.size());
         o.close();
 
-        if (sys->Info.Libs.size()){
+        // This is for ALL obj files that were already compiled BEFORE EVIE COMPILETIME.
+        if (sys->Info.Libs.size() > 0){
             //now add the newly created obj file to the libs.
-            sys->Info.Libs.push_back(sys->Info.Destination_File);
-            PE::PE_OBJ* obj = PE::Cluster_External_PE_Objects(sys->Info.Libs);
+            sys->Info.Libs.push_back(sys->Info.Destination_File + ".obj");
+            obj = PE::Cluster_External_PE_Objects(sys->Info.Libs);
+        }
+        else{
+            // We still want to liquify the obj
+            obj = new PE::PE_OBJ(Buffer, sys->Info.Destination_File + ".obj");
         }
 
         if (sys->Info.Format != "obj"){
@@ -79,6 +86,8 @@ Producer::Producer(vector<IR*> IRs){
         
         if (sys->Info.Format == "exe"){
             Linker::En_Large_PE_Header(obj);
+
+            Linker::Inline_Relocations(obj);
 
             vector<unsigned char> Buffer = Linker::Write_PE_Executable(obj);
 
@@ -90,6 +99,8 @@ Producer::Producer(vector<IR*> IRs){
 
         if (sys->Info.Format == "dll"){
             DLL::Enlarge_PE_Header(obj);
+
+            Linker::Inline_Relocations(obj);
 
             vector<unsigned char> Buffer = DLL::Write_DLL(obj);
 

@@ -170,6 +170,7 @@ public:
     int Size = 0;
     long long Address = 0;
     string Label = "";
+    long long Precise_Label_Index = 0;  //For  SUPER DUPER ACCURATE RELOCATRON 2000 !!!
 
     class IR* Ir = nullptr;
 };

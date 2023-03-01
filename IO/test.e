@@ -7,11 +7,8 @@ type char{
 }
 
 export int Start_Test(){
-
-    main()
-
+    jump main
     return 0
-
 }
 
 export int main(){

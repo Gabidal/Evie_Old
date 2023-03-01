@@ -172,6 +172,39 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
 
 }
 
+// SUPER DUPER PRECISE RELOCATRON 2000 !!!
+void Linker::Inline_Relocations(PE::PE_OBJ* obj){
+    for (auto rel : obj->Relocations){
+        unsigned long long Current_Code_Address = rel.Virtual_Address;
+        PE::Symbol Address_To_Write = obj->Symbols[rel.Symbol_Table_Index];
+        int Value_Size = 4;
+
+        if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64)
+            Value_Size = 8;
+            
+        int Symbol_Address = Address_To_Write.Value + obj->Sections[Address_To_Write.Section_Number - 1].Virtual_Address;
+
+        // Now find the correct section
+        PE::Raw_Section* section_to_write = &obj->Raw_Sections[0];
+
+        for (auto& s : obj->Raw_Sections){
+            if (s.Name == ".text"){
+                section_to_write = &s;
+                break;
+            }
+        }
+
+        // Now write the address
+        unsigned char* Src = (unsigned char*)&Symbol_Address;
+        unsigned char* Dst = (unsigned char*)&section_to_write->Data[Current_Code_Address];
+
+        for (int i = 0; i < Value_Size; i++){
+            Dst[i] = Src[i];
+        }
+    }
+
+}
+
 vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
     vector<unsigned char> Buffer;
     PE::Bull_Shit_Headers dos;

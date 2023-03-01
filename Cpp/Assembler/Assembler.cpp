@@ -525,7 +525,7 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
                     Current->Size = selector->Get_Size(Current);
 
                     //Now re calculate the address
-                    Current->Address = Section->Calculated_Address + Section->Calculated_Size + Current->Size;
+                    //Current->Address = Section->Calculated_Address + Section->Calculated_Size + Current->Size;
 
                     Section->Calculated_Size += Current->Size;
 

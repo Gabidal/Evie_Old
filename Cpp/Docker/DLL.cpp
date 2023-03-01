@@ -143,6 +143,8 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
         Potential_Section_Count++;
     }
 
+    obj->Base_Relocations.Blocks.clear();
+
     Linker::Add_Export_Table(obj, Potential_Section_Count);       //Sections(text, data) + (export, import, base)
     Linker::Add_Import_Table(obj, Potential_Section_Count);       //Sections(text, data, export) + (import, base)
     DLL::Add_Base_Relocation_table(obj, Potential_Section_Count);    //Sections(text, data, export, import, base)

@@ -36,12 +36,14 @@ public:
 	//Assembler
 	static class Byte_Map* Build(IR* ir);
 	static bool Needs_SIB(Token* RM);
+	static int Get_Size_Without_Imm_And_Disp(class Byte_Map* input);
 	static int Get_Size(class Byte_Map* input);
 	static void Arrange_Encoding(vector<Token*>& Args, OPCODE_ENCODING encoding);
 	static void Modify_OpCode(class Byte_Map* b);
 	static vector<unsigned char> Assemble(class Byte_Map* Input);
 	static SIB Get_SIB(Token* t, class Byte_Map& back_referece);
 	static unsigned char Get_MODRM_Type(Token* t);
+	static vector<unsigned char> Reverse_Engineer_OpCode(vector<unsigned char> Data, unsigned long long Start_Address);
 
 	static bool is(unsigned char value, unsigned char mask) {
 		return (value & mask) == mask;
