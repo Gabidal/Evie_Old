@@ -573,17 +573,16 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 		Symbols.push_back(Symbol);
 	}
 
-	//Now we can extract the string table
-	unsigned int String_Table_Size = 0;
-
 	//For reading purposes
 	int Current_Offset = Header_Size + sizeof(PE::Section) * this->Header.Number_Of_Sections + sizeof(PE::Symbol) * this->Header.Number_Of_Symbols;
 	move(File.begin() + Current_Offset, File.begin() + Current_Offset + sizeof(String_Table_Size), (unsigned char*)&String_Table_Size);
+
+	String_Table_Size -= sizeof(String_Table_Size);
+
 	Current_Offset += sizeof(String_Table_Size);
 
-
-	String_Table.resize(String_Table_Size);
-	move(File.begin() + Current_Offset, File.begin() + Current_Offset + String_Table_Size, String_Table.begin());
+	String_Table_Buffer.resize(String_Table_Size);
+	move(File.begin() + Current_Offset, File.begin() + Current_Offset + String_Table_Size, String_Table_Buffer.begin());
 
 	//Now we can extract the Sections
 	Current_Offset += String_Table_Size;
