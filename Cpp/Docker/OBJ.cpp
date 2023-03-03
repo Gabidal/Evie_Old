@@ -577,12 +577,12 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 	int Current_Offset = Header_Size + sizeof(PE::Section) * this->Header.Number_Of_Sections + sizeof(PE::Symbol) * this->Header.Number_Of_Symbols;
 	move(File.begin() + Current_Offset, File.begin() + Current_Offset + sizeof(String_Table_Size), (unsigned char*)&String_Table_Size);
 
-	String_Table_Size -= sizeof(String_Table_Size);
+	int String_Table_Buffer_Size_Without_Size = String_Table_Size - sizeof(String_Table_Size);
 
-	Current_Offset += sizeof(String_Table_Size);
+	Current_Offset += sizeof(String_Table_Buffer_Size_Without_Size);
 
-	String_Table_Buffer.resize(String_Table_Size);
-	move(File.begin() + Current_Offset, File.begin() + Current_Offset + String_Table_Size, String_Table_Buffer.begin());
+	String_Table_Buffer.resize(String_Table_Buffer_Size_Without_Size);
+	move(File.begin() + Current_Offset, File.begin() + Current_Offset + String_Table_Buffer_Size_Without_Size, String_Table_Buffer.begin());
 
 	//Now we can extract the Sections
 	Current_Offset += String_Table_Size;
@@ -624,7 +624,7 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 	}
 
 	// No idea wtd this is.
-	Add_Padding_To_Offsets(*this);
+	//Add_Padding_To_Offsets(*this);
 }
 
 vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, unsigned long long Origo, PE::PE_OBJ* obj){
@@ -761,9 +761,9 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 			if (byte_map->Label != ""){
 
 				PE::Relocation relocation;
-				relocation.Virtual_Address = byte_map->Address + byte_map->Precise_Label_Index + byte_map->Precise_Label_Index;
+				relocation.Virtual_Address = byte_map->Address + byte_map->Precise_Label_Index;
 				relocation.Symbol_Table_Index = All_Symbols[byte_map->Label];
-				relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64;
+				relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32;
 
 				Result.push_back(relocation);
 

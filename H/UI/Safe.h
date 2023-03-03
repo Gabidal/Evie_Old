@@ -32,6 +32,7 @@ inline string ASSEMBLER_SYNTAX_ERROR = "Error in given assembly code";
 
 inline string LINKER_MISSING_STARTING_FUNCTION = "Missing starting function";
 inline string LINKER_INVALID_FILE = "Invalid file";
+inline string LINKER_INTERNAL = "Internal linker error";
 
 inline string MISSING_DEFINITION = "Missing definition";
 

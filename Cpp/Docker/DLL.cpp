@@ -338,6 +338,16 @@ vector<unsigned char> DLL::Write_DLL(PE::PE_OBJ* obj){
         Current_Offset += Padding;
 	}
 
+    for (auto r : obj->Raw_Sections){
+        int Padding = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
+
+        Buffer.insert(Buffer.end(), Padding, (unsigned char)0);
+
+        Buffer.insert(Buffer.end(), r.Data.begin(), r.Data.end());
+
+        Current_Offset += r.Data.size() + Padding;
+    }
+
     Linker::Write_Export_Table(obj, Buffer);
     Linker::Write_Import_Table(obj, Buffer);
     Linker::Write_Import_Address_Table(obj, Buffer);

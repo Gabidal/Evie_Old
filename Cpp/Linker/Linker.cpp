@@ -2,6 +2,8 @@
 #include "../../H/Nodes/Node.h"
 #include "../../H/BackEnd/Selector.h"
 
+#include "../../H/UI/Safe.h"
+
 #include "../../H/UI/Usr.h"
 
 extern Usr* sys;
@@ -174,6 +176,11 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
 
 // SUPER DUPER PRECISE RELOCATRON 2000 !!!
 void Linker::Inline_Relocations(PE::PE_OBJ* obj){
+    if (obj->Raw_Sections.size() == 0){
+
+        Report(Observation(ERROR, "Expected liquefied obj structure, got IR OBJ.", LINKER_INTERNAL));
+
+    }
     for (auto rel : obj->Relocations){
         unsigned long long Current_Code_Address = rel.Virtual_Address;
         PE::Symbol Address_To_Write = obj->Symbols[rel.Symbol_Table_Index];
@@ -182,7 +189,7 @@ void Linker::Inline_Relocations(PE::PE_OBJ* obj){
         if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64)
             Value_Size = 8;
             
-        int Symbol_Address = Address_To_Write.Value + obj->Sections[Address_To_Write.Section_Number - 1].Virtual_Address;
+        int Symbol_Address = Address_To_Write.Value;
 
         // Now find the correct section
         PE::Raw_Section* section_to_write = &obj->Raw_Sections[0];
