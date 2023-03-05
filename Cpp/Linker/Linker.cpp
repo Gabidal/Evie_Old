@@ -191,19 +191,43 @@ void Linker::Inline_Relocations(PE::PE_OBJ* obj){
             
         int Symbol_Address = Address_To_Write.Value;
 
+        if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64 || rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32){
+            // Inline AND feed-forward to BASE RELOCATION TABLE.
+            // Primarily used for .DATA section instances.
+        }
+        else if (
+            rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32   || 
+            rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_1 ||
+            rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_2 || 
+            rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_3 || 
+            rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_4 || 
+            rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_5
+        ){
+            // Inline relative addresses, primarily for JMP's and CALLS.
+            // we need to offset the address of the Symbol_Address by the bits size of the OFFSETTER.
+            int OFFSETTER = (int)rel.Type - (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32;
+
+            Symbol_Address -= OFFSETTER;
+        }
+        else if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_SECREL7){
+            // Primarily used for debug information.
+        }
+
         // Now find the correct section
         PE::Raw_Section* section_to_write = &obj->Raw_Sections[0];
 
-        for (auto& s : obj->Raw_Sections){
-            if (s.Name == ".text"){
-                section_to_write = &s;
+        for (auto &i : obj->Raw_Sections){
+            if (Current_Code_Address >= i.Section_Address && Current_Code_Address < i.Section_Address + i.Data.size()){
+                section_to_write = &i;
                 break;
             }
         }
 
+        unsigned int Relative_Code_Address = Current_Code_Address - section_to_write->Section_Address;
+
         // Now write the address
         unsigned char* Src = (unsigned char*)&Symbol_Address;
-        unsigned char* Dst = (unsigned char*)&section_to_write->Data[Current_Code_Address];
+        unsigned char* Dst = (unsigned char*)&section_to_write->Data[Relative_Code_Address];
 
         for (int i = 0; i < Value_Size; i++){
             Dst[i] = Src[i];

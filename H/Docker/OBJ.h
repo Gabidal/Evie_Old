@@ -309,7 +309,7 @@ namespace PE {
 		PE::PE_OBJ* Compile();
 	};
 
-	vector<Relocation> Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table);
+	vector<Relocation> Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table, vector<PE::Section> Section_Table);
 
 	vector<Section> Gather_All_Sections(vector<char> buffer, int Section_Count);
 

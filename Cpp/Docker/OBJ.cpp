@@ -101,8 +101,10 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	this->String_Table_Size = String_Table_Buffer.size() + sizeof(String_Table_Size);
 	this->String_Table_Buffer = String_Table_Buffer; 
 
-	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer);
-
+	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation), this);
+	
+	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer, this->Sections);
+	
 	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation), this);
 
 	unsigned long long Header_Size = Header_End_Address - Header_Start_Address + this->Sections.size() * sizeof(PE::Section) + this->Symbols.size() * sizeof(PE::Symbol) + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation);
@@ -588,6 +590,8 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 	Current_Offset += String_Table_Size;
 
 	for (auto i : Sections){
+		unsigned long long Padding = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
+
 		vector<unsigned char> Section_Data;
 		Section_Data.resize(i.Size_Of_Raw_Data);
 
@@ -603,9 +607,9 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 		section.Name.erase(remove(section.Name.begin(), section.Name.end(), '\0'), section.Name.end());
 
 		section.Data = Section_Data;
-		section.Section_Address = Current_Offset;
+		section.Section_Address = Current_Offset + Padding;
 
-		Current_Offset += i.Size_Of_Raw_Data;
+		Current_Offset += i.Size_Of_Raw_Data + Padding;
 
 		this->Raw_Sections.push_back(section);
 	}
@@ -742,7 +746,7 @@ string PE::Symbol::Get_Name(vector<unsigned char>& String_Table){
 	return Result;
 }
 
-vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table){
+vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> Sections, vector<PE::Symbol> Symbols, vector<unsigned char>& String_Table, vector<PE::Section> Section_Table){
 	vector<PE::Relocation> Result;
 
 	map<string, int> All_Symbols;
@@ -754,6 +758,7 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 		Index++;
 	}
 
+	int Section_Index = 0;
 	for (auto& section : Sections){
 
 		for (auto& byte_map : section->Byte_Maps){
@@ -761,16 +766,16 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 			if (byte_map->Label != ""){
 
 				PE::Relocation relocation;
-				relocation.Virtual_Address = byte_map->Address + byte_map->Precise_Label_Index;
+				relocation.Virtual_Address = byte_map->Address + byte_map->Precise_Label_Index + Section_Table[Section_Index].Virtual_Address;
 				relocation.Symbol_Table_Index = All_Symbols[byte_map->Label];
-				relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32;
+				relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_5;
 
 				Result.push_back(relocation);
 
 			}
 
 		}
-
+		Section_Index++;
 	}
 
 	return Result;
