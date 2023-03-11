@@ -58,8 +58,8 @@ void IRGenerator::Factory()
 
 	if (Scope->Name == "GLOBAL_SCOPE") {
 		Output->push_back(new IR(new Token(TOKEN::OPERATOR | TOKEN::SECTION, "section"), { new Token(TOKEN::LABEL, ".data") }, nullptr));
-		for (auto i : Scope->Header)
-			Parse_Global_Variables(i);
+		// for (auto i : Scope->Header)
+		// 	Parse_Global_Variables(i);
 
 		Parse_Static_Variables(Scope);
 	}
@@ -1937,6 +1937,7 @@ Token* IRGenerator::Operate_Pointter(Token* p, int Difference, bool Needed_At_Ad
 	return p;
 }
 
+// The non mangling option is for global variables.
 IR* IRGenerator::Make_Label(Node* n, bool Mangle)
 {
 	string name = n->Name;
