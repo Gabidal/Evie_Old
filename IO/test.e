@@ -6,7 +6,7 @@ type char{
     size = 1
 }
 
-int a = 123
+int a = 1
 
 export int Start_Test(){
     jump main
@@ -14,5 +14,5 @@ export int Start_Test(){
 }
 
 export int main(){
-    return 1
+    return a
 }

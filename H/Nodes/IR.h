@@ -102,6 +102,22 @@ public:
 		return Result;
 	}
 
+	vector<Token*> Get_All(vector<long long> flags)
+	{
+		vector<Token*> Result;
+		
+		for (auto i : Arguments) {
+			vector<Token*> Tmp = i->Get_All(flags);
+			Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+		}
+		if (OPCODE){
+			vector<Token*> Tmp = OPCODE->Get_All(flags);
+			Result.insert(Result.begin(), Tmp.begin(), Tmp.end());
+		}
+
+		return Result;
+	}
+
 	void Tell_Smallest_And_Largest_Sizes(){
 
 		int Smallest = _SYSTEM_BIT_SIZE_;

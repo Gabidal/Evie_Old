@@ -92,10 +92,10 @@ void x86_64::Init()
 	Token* ESP = new Token(TOKEN::STACK_POINTTER, "esp", 4, { SP }, 0b0100);
 	Token* RSP = new Token(TOKEN::STACK_POINTTER, "rsp", 8, { ESP }, 0b0100);
 
-	Token* IPL = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ipl", 1, {}, 0);
-	Token* IP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ip", 2, {IPL}, 0);
-	Token* EIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "eip", 4, { IP }, 0);
-	Token* RIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "rip", 8, { EIP }, 0);
+	Token* IPL = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ipl", 1, {}, 0b0101);
+	Token* IP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "ip", 2, {IPL}, 0b0101);
+	Token* EIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "eip", 4, { IP }, 0b0101);
+	Token* RIP = new Token(TOKEN::POSITION_INDEPENDENT_REGISTER, "rip", 8, { EIP }, 0b0101);
 
 	Token* XMM0D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::RETURNING | TOKEN::DECIMAL | TOKEN::EXTENDED_REGISTER, "xmm0", 4, {}, 0b0000);
 	Token* XMM1D = new Token(TOKEN::VOLATILE | TOKEN::PARAMETER | TOKEN::DECIMAL | TOKEN::EXTENDED_REGISTER, "xmm1", 4, {}, 0b0001);
@@ -1096,11 +1096,11 @@ Byte_Map* x86_64::Build(IR* ir){
 	Byte_Map* Result = new Byte_Map();
 
 	// Detect Label usage in the IR, if found: put label store it.
-	vector<Token*> tmp_r = ir->Get_All(TOKEN::LABEL);
+	vector<Token*> Detected_Labels = ir->Get_All({TOKEN::LABEL, TOKEN::GLOBAL_VARIABLE});
 
 	// Unconventional for a IR to have more than 1 label in it.
-	if (tmp_r.size() > 0)
-		Result->Label = tmp_r[0]->Name;
+	if (Detected_Labels.size() > 0)
+		Result->Label = Detected_Labels[0]->Name;
 
 	Result->Ir = ir;
 
@@ -1247,7 +1247,13 @@ Byte_Map* x86_64::Build(IR* ir){
 				Result->Has_Displacement = true;
 				Result->Displacement_Size = 4;
 			}
-
+			// Displacement usages for global variables
+			// NOTE: these are not flipped around the mod/rm
+			else if (Right->Get_All(TOKEN::GLOBAL_VARIABLE).size() > 0){
+				Result->Displacement = 0;
+				Result->Displacement_Size = 4;
+				Result->Has_Displacement = true;
+			}
 
 		}
 	}
@@ -1300,6 +1306,8 @@ unsigned char x86_64::Get_MODRM_Type(Token* t)
 {
 	unsigned char Result = 0;
 
+	bool Using_Positional_Independet_Register = false;
+
 	vector<Token*> Contents = t->Get_All(TOKEN::STACK_POINTTER);
 
 	if (Contents.size() > 0) {
@@ -1310,6 +1318,8 @@ unsigned char x86_64::Get_MODRM_Type(Token* t)
 
 	Contents = t->Get_All(TOKEN::REGISTER);
 	if (Contents.size() > 0) {
+		if (Contents[0]->is(TOKEN::POSITION_INDEPENDENT_REGISTER))
+			Using_Positional_Independet_Register = true;
 
 		Result |= MODRM_FLAGS::RM;
 
@@ -1322,8 +1332,9 @@ unsigned char x86_64::Get_MODRM_Type(Token* t)
 
 	}
 
+	// Do not trigger, Displacement flag if there is a EIP/RIP register within the bounds of the operation.
 	Contents = t->Get_All(TOKEN::OFFSETTER);
-	if (Contents.size() > 0) {
+	if (Contents.size() > 0 && !Using_Positional_Independet_Register) {
 
 		Result |= MODRM_FLAGS::DISP32;
 
