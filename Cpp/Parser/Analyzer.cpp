@@ -30,13 +30,18 @@ void Analyzer::Detect_Abnormal_Start_Address()
 	Node* Main = Global_Scope->Find(sys->Info.Start_Function_Name, Global_Scope, FUNCTION_NODE);
 
 	vector<Node*> Initializers;
-	vector<int> Indicies;
-	for (int i = 0; i < Global_Scope->Childs.size(); i++) {
-		if (!Global_Scope->Childs[i]->is(ASSIGN_OPERATOR_NODE))
-			continue;
+	vector<pair<int, int>> Indicies;
 
-		Initializers.push_back(Global_Scope->Childs[i]);
-		Indicies.push_back(i);
+	vector<vector<Node*>*> All_initializers = {&Global_Scope->Childs, &Global_Scope->Header};
+
+	for (int list = 0; list < All_initializers.size(); list++){
+		for (int i = 0; i < All_initializers[list]->size(); i++) {
+			if (!All_initializers[list]->at(i)->is(ASSIGN_OPERATOR_NODE))
+				continue;
+
+			Initializers.push_back(All_initializers[list]->at(i));
+			Indicies.push_back({list, i});
+		}
 	}
 
 	if (Main) {
@@ -88,8 +93,8 @@ void Analyzer::Detect_Abnormal_Start_Address()
 	for (int i = 0; i < Indicies.size(); i++) {
 		//we remove the index i from the current index, 
 		//because for every list index removal the latter indicies are offsetted wrongly by the amount i.
-		int Index = Indicies[i] - i;
-		Global_Scope->Childs.erase(Global_Scope->Childs.begin() + Index);
+		int Index = Indicies[i].second - i;
+		All_initializers[Indicies[i].first]->erase(All_initializers[Indicies[i].first]->begin() + Index);
 	}
 }
 
