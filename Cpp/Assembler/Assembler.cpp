@@ -515,7 +515,7 @@ vector<Byte_Map_Section*> Assembler::Intermediate_Encoder(vector<IR*> IRs)
 
                 if (IRs[j]->is(TOKEN::LABEL)){
                     //If the IRs[i] is a label we need to add it to the symbol table.
-                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, Section->Calculated_Address + Section->Calculated_Size, Result.size() + 1, IRs[j]->OPCODE->Parent->Find(IRs[j]->OPCODE->OG));
+                    Generate_Symbol_Table_For(IRs[j]->OPCODE->Name, /*Section->Calculated_Address +*/ Section->Calculated_Size, Result.size() + 1, IRs[j]->OPCODE->Parent->Find(IRs[j]->OPCODE->OG));
                 }
                 else{
                     Byte_Map* Current = selector->Build(IRs[j]);

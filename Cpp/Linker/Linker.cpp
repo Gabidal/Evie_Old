@@ -174,26 +174,105 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
 
 }
 
+
+
 // SUPER DUPER PRECISE RELOCATRON 2000 !!!
+// void Linker::Inline_Relocations(PE::PE_OBJ* obj){
+//     if (obj->Raw_Sections.size() == 0){
+
+//         Report(Observation(ERROR, "Expected liquefied obj structure, got IR OBJ.", LINKER_INTERNAL));
+
+//     }
+//     for (auto rel : obj->Relocations){
+//         unsigned long long Current_Code_Address = rel.Virtual_Address;
+//         PE::Symbol Address_To_Write = obj->Symbols[rel.Symbol_Table_Index];
+//         int Value_Size = 4;
+
+//         if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64)
+//             Value_Size = 8;
+            
+//         int Symbol_Address = Address_To_Write.Value;
+
+//         if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64 || rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32){
+//             // Inline AND feed-forward to BASE RELOCATION TABLE.
+//             // Primarily used for .DATA section instances.
+//         }
+//         else if (
+//             rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32   || 
+//             rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_1 ||
+//             rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_2 || 
+//             rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_3 || 
+//             rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_4 || 
+//             rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_5
+//         ){
+//             // Inline relative addresses, primarily for JMP's and CALLS.
+//             // we need to offset the address of the Symbol_Address by the bits size of the OFFSETTER.
+//             int OFFSETTER = (int)rel.Type - (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32;
+
+//             Symbol_Address -= OFFSETTER;
+//         }
+//         else if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_SECREL7){
+//             // Primarily used for debug information.
+//         }
+
+//         // Now find the correct section
+//         PE::Raw_Section* section_to_write = &obj->Raw_Sections[0];
+
+//         for (auto &i : obj->Raw_Sections){
+//             if (Current_Code_Address >= i.Section_Address && Current_Code_Address < i.Section_Address + i.Data.size()){
+//                 section_to_write = &i;
+//                 break;
+//             }
+//         }
+
+//         unsigned int Relative_Code_Address = Current_Code_Address - section_to_write->Section_Address;
+
+//         // Now write the address
+//         unsigned char* Src = (unsigned char*)&Symbol_Address;
+//         unsigned char* Dst = (unsigned char*)&section_to_write->Data[Relative_Code_Address];
+
+//         for (int i = 0; i < Value_Size; i++){
+//             Dst[i] = Src[i];
+//         }
+//     }
+// }
+
+//SUPER DUPER PRECISE RELOCATRON 2000 !!!
 void Linker::Inline_Relocations(PE::PE_OBJ* obj){
     if (obj->Raw_Sections.size() == 0){
 
         Report(Observation(ERROR, "Expected liquefied obj structure, got IR OBJ.", LINKER_INTERNAL));
 
     }
+
+    unsigned long long Origo = obj->Header.Size_Of_Headers;
+
     for (auto rel : obj->Relocations){
         unsigned long long Current_Code_Address = rel.Virtual_Address;
         PE::Symbol Address_To_Write = obj->Symbols[rel.Symbol_Table_Index];
+        int Symbol_Address = Address_To_Write.Value;
+
+        // Determine the size of the writable area.
         int Value_Size = 4;
 
         if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64)
             Value_Size = 8;
-            
-        int Symbol_Address = Address_To_Write.Value;
+
+        // Find the current section where the relocation wants to write to:
+        PE::Raw_Section* Destination_Section = &obj->Raw_Sections[0];
+        for (auto &i : obj->Raw_Sections){
+            if (Current_Code_Address >= i.Section_Address && Current_Code_Address < i.Section_Address + i.Data.size()){
+                Destination_Section = &i;
+                break;
+            }
+        }
 
         if (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64 || rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32){
             // Inline AND feed-forward to BASE RELOCATION TABLE.
             // Primarily used for .DATA section instances.
+            int OFFSETTER = (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32 + ((int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32 * (rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64));
+
+            Symbol_Address -= OFFSETTER;
         }
         else if (
             rel.Type == (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32   || 
@@ -213,25 +292,30 @@ void Linker::Inline_Relocations(PE::PE_OBJ* obj){
             // Primarily used for debug information.
         }
 
-        // Now find the correct section
-        PE::Raw_Section* section_to_write = &obj->Raw_Sections[0];
+        // This is where we are going to write the data to.
+        unsigned int Relative_Code_Address = Current_Code_Address - Destination_Section->Section_Address;
 
-        for (auto &i : obj->Raw_Sections){
-            if (Current_Code_Address >= i.Section_Address && Current_Code_Address < i.Section_Address + i.Data.size()){
-                section_to_write = &i;
-                break;
-            }
+        PE::Raw_Section* Origin_Section = &obj->Raw_Sections[Address_To_Write.Section_Number - 1];
+        int Sectional_Padding = 0;
+
+        // if the current section and the relocation origin section isn't the same then we need to take into the consideration the address differentiation.
+        if (Origin_Section->Name != Destination_Section->Name){
+            // Calculate the difference between the two sections.
+            Sectional_Padding = Origin_Section->Section_Address - Current_Code_Address;
+
+            // now add the sectional padding to the symbol address.
+            Symbol_Address += Sectional_Padding;
         }
 
-        unsigned int Relative_Code_Address = Current_Code_Address - section_to_write->Section_Address;
+        memccpy(&Destination_Section->Data[Relative_Code_Address], &Symbol_Address, 1, Value_Size);
 
         // Now write the address
-        unsigned char* Src = (unsigned char*)&Symbol_Address;
-        unsigned char* Dst = (unsigned char*)&section_to_write->Data[Relative_Code_Address];
+        // unsigned char* Src = (unsigned char*)&Symbol_Address;
+        // unsigned char* Dst = (unsigned char*)&Destination_Section->Data[Relative_Code_Address];
 
-        for (int i = 0; i < Value_Size; i++){
-            Dst[i] = Src[i];
-        }
+        // for (int i = 0; i < Value_Size; i++){
+        //     Dst[i] = Src[i];
+        // }
     }
 
 }

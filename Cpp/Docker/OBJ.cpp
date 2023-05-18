@@ -754,8 +754,11 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 		Index++;
 	}
 
+	unsigned long long Previous_Section_Tail_Padding = 0;
+
 	int Section_Index = 0;
 	for (auto& section : Sections){
+		unsigned long long Padding = ((Previous_Section_Tail_Padding + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Previous_Section_Tail_Padding;
 
 		for (auto& byte_map : section->Byte_Maps){
 
@@ -764,13 +767,18 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 				PE::Relocation relocation;
 				relocation.Virtual_Address = byte_map->Address + byte_map->Precise_Label_Index + Section_Table[Section_Index].Virtual_Address;
 				relocation.Symbol_Table_Index = All_Symbols[byte_map->Label];
-				relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_5;
+
+				if (byte_map->Is_Global_Variable)
+					relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32;
+				else
+					relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_5;
 
 				Result.push_back(relocation);
 
 			}
 
 		}
+
 		Section_Index++;
 	}
 

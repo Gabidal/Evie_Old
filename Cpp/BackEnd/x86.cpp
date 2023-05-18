@@ -1253,6 +1253,7 @@ Byte_Map* x86_64::Build(IR* ir){
 				Result->Displacement = 0;
 				Result->Displacement_Size = 4;
 				Result->Has_Displacement = true;
+				Result->Is_Global_Variable = true;
 			}
 
 		}
