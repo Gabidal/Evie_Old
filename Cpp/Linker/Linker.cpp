@@ -190,6 +190,8 @@ void Linker::Inline_Relocations(PE::PE_OBJ* obj){
         long long Symbol_Address = Address_To_Write.Value;
         string Relocation_Name = Address_To_Write.Get_Name(obj->String_Table_Buffer);
 
+        if (Address_To_Write.Storage_Class == PE::_IMAGE_SYM_CLASS_EXTERNAL && Address_To_Write.Section_Number == 0)
+            continue;   // Skip imported symbols, since they are computed in the .IDATA section !!
 
         // Determine the size of the writable area.
         int Value_Size = 4;
