@@ -1299,8 +1299,15 @@ Byte_Map* x86_64::Build(IR* ir){
 		Result->Precise_Label_Index = Get_Size_Without_Imm_And_Disp(Result);
 	}
 
+	// write the additional offset of the displacement and immediate by the size of the opcode
+	if (Result->Has_Displacement){
+		int Remaining_Opcode_Tail_After_Displacement = selector->Get_Size(Result) - Result->Precise_Label_Index;
+
+		Result->Displacement -= Remaining_Opcode_Tail_After_Displacement;
+	}
+
+
 	return Result;
-	
 }
 
 unsigned char x86_64::Get_MODRM_Type(Token* t)

@@ -8,9 +8,9 @@
         "program": "${workspaceFolder}/Evie.exe",
         "args": [
           "-in",
-          "${workspaceFolder}/IO/Test.e",
+          "${workspaceFolder}/Tests/IO/Template.e",
           "-f",
-          "exe",
+          "obj",
           "-reference-count-size",
           "0"
         ],

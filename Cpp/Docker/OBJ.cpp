@@ -105,7 +105,11 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	
 	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer, this->Sections);
 	
+	// Re make the section table since they need the size of the relocation table
 	this->Sections = Generate_Section_Table(Sections, this->Header.Pointer_To_Symbol_Table + sizeof(this->Header.Pointer_To_Symbol_Table) + sizeof(PE::Symbol) * Symbols.size() + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation), this);
+
+	// Re make the relocation table since they need the size of the section table
+	this->Relocations = Generate_Relocation_Table(Sections, Symbols, String_Table_Buffer, this->Sections);
 
 	unsigned long long Header_Size = Header_End_Address - Header_Start_Address + this->Sections.size() * sizeof(PE::Section) + this->Symbols.size() * sizeof(PE::Symbol) + this->String_Table_Size + this->Relocations.size() * sizeof(PE::Relocation);
 
@@ -638,6 +642,14 @@ vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, 
 	unsigned int Current_Offset = Origo;
 
 	for (auto i : Input){
+		bool Has_Symbol_Usages = false;
+
+		for (auto& byte_map : i->Byte_Maps){
+			if (byte_map->Label != ""){
+				Has_Symbol_Usages = true;
+				break;
+			}
+		}
 
 		unsigned long long Padding = ((Current_Offset + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - Current_Offset;
 
@@ -647,9 +659,9 @@ vector<PE::Section> PE::Generate_Section_Table(vector<Byte_Map_Section*> Input, 
 		 tmp.Virtual_Address = Padding + Current_Offset;
 		 tmp.Size_Of_Raw_Data = ((i->Calculated_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1));
 		 tmp.Pointer_To_Raw_Data = Padding + Current_Offset;
-		 tmp.Pointer_To_Relocations =  Header_End_Address - Header_Start_Address + sizeof(PE::Section) * Input.size() + sizeof(PE::Symbol) * obj->Header.Number_Of_Symbols + obj->String_Table_Size;
+		 tmp.Pointer_To_Relocations =  (Header_End_Address - Header_Start_Address + sizeof(PE::Section) * Input.size() + sizeof(PE::Symbol) * obj->Header.Number_Of_Symbols + obj->String_Table_Size) * Has_Symbol_Usages;
 		 tmp.Pointer_To_Line_Numbers = 0;
-		 tmp.Number_Of_Relocations = obj->Relocations.size();
+		 tmp.Number_Of_Relocations = obj->Relocations.size() * Has_Symbol_Usages;
 		 tmp.Number_Of_Line_Numbers = 0;
 
 		if (i->Is_Data_Section){
@@ -768,8 +780,18 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 				relocation.Virtual_Address = byte_map->Address + byte_map->Precise_Label_Index + Section_Table[Section_Index].Virtual_Address;
 				relocation.Symbol_Table_Index = All_Symbols[byte_map->Label];
 
-				if (byte_map->Is_Global_Variable)
-					relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32;
+				if (byte_map->Is_Global_Variable){
+					int Bit_Map_Size = byte_map->Displacement_Size;
+
+					if (Bit_Map_Size == 8)
+						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64;
+					else if (Bit_Map_Size == 4)
+						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32;
+					else if (Bit_Map_Size == 2)
+						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32NB;
+					else if (Bit_Map_Size == 1)
+						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_SECTION;
+				}
 				else
 					relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_5;
 
