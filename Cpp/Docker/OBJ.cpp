@@ -783,14 +783,7 @@ vector<PE::Relocation> PE::Generate_Relocation_Table(vector<Byte_Map_Section*> S
 				if (byte_map->Is_Global_Variable){
 					int Bit_Map_Size = byte_map->Displacement_Size;
 
-					if (Bit_Map_Size == 8)
-						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR64;
-					else if (Bit_Map_Size == 4)
-						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32;
-					else if (Bit_Map_Size == 2)
-						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_ADDR32NB;
-					else if (Bit_Map_Size == 1)
-						relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_SECTION;
+					relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32;
 				}
 				else
 					relocation.Type = (int)PE::IMAGE_REL_AMD64::REL_AMD64_REL32_5;
