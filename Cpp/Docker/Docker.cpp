@@ -551,3 +551,17 @@ DOCKER::Function_Pointter DOCKER::Get_Translator(vector<unsigned char>& Buffer){
 	
 	return nullptr;
 }
+
+string DOCKER::Sanitize_File_Path(string path){
+	// Here we will sanitize the string with various checks and replacements.
+	string Result = path;
+
+	// First check is to turn the windows style \\ to /.
+	for (int i = 0; i < Result.size(); i++) {
+		if (Result[i] == '\\')
+			Result[i] = '/';
+	}
+
+
+	return Result;
+}

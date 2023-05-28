@@ -92,6 +92,7 @@ namespace DOCKER {
 
 	using Function_Pointter = void(*)(vector<string>&);
 	Function_Pointter Get_Translator(vector<unsigned char>& Buffer);
+	string Sanitize_File_Path(string path);
 }
 
 class Docker
@@ -99,6 +100,9 @@ class Docker
 public:
 	Docker(string FN, string PT = "") {
 		
+		// Sanitize include filename
+		FN = DOCKER::Sanitize_File_Path(FN);
+
 		for (auto i : DOCKER::Included_Files)
 				if (i == FN || (!DOCKER::Working_Dir.empty() && i == DOCKER::Working_Dir[0].second + FN)) {
 					//cout << "Warnign: " << FN << " already included!" << endl;
