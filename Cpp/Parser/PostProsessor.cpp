@@ -305,7 +305,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 	//  Deallocate<[type]>(this)
 	//}
 
-	string Result = "if (this != 0->address && --this.Reference_Count < 1){\n";
+	string Result = "if (this != 0->address && --this.Reference_Count == 0){\n";
 
 	//now we add the members that need to be revoked theyre destrucotrs
 	for (auto Member : Type->Defined) {
