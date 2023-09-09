@@ -18,7 +18,7 @@ public:
     long Flags;
     Component(string value, long flags) : Value(value), Flags(flags) {}
     Component(string value, const Position& position, long flags) : Value(value), Location(position), Flags(flags) {}
-    Component(string value, long flag, vector<Component> C): Value(value), Flags(flag), Components(C) {}
+    Component(string value, long flag, vector<Component> C): Value(value), Components(C), Flags(flag) {}
     bool is(long flag)
     {
         return (Flags & flag) == flag;

@@ -104,10 +104,10 @@ enum class LABEL_TYPE {
 
 class Node {
 public:
-	Node(int flag, Position* p) : Type(flag), Location(p) {}
-	Node(int flag, Position* p, string f) : Type(flag), Location(p), Format(f) {}
+	Node(int flag, Position* p) : Location(p), Type(flag) {}
+	Node(int flag, Position* p, string f) : Location(p), Type(flag), Format(f) {}
 	Node(string n, Position* p) : Name(n), Location(p) {}
-	Node(int flag, string n, Position* p) : Type(flag), Name(n), Location(p) {}
+	Node(int flag, string n, Position* p) : Name(n), Location(p), Type(flag) {}
 	//Node(Node* n, int f) { Copy_Node(&this, n, n->Scope); Type = f; }
 	//Node(){}
 	//Normal features
@@ -246,14 +246,14 @@ public:
 	}
 	
 	bool is(string t) {
-		for (int i = 0; i < Inheritted.size(); i++)
+		for (unsigned int i = 0; i < Inheritted.size(); i++)
 			if (t == Inheritted[i])
 				return true;
 		return false;
 	}
 
 	int Get_Index_of_Inheritted(string t) {
-		for (int i = 0; i < Inheritted.size(); i++)
+		for (unsigned int i = 0; i < Inheritted.size(); i++)
 			if (t == Inheritted[i])
 				return i;
 		return -1;
@@ -338,39 +338,39 @@ public:
 	/*
 	if true, tries to find the node from the inheritted.
 	*/
-	Node* Find(string name, Node* Scope, int flags, bool Get_Inheritted_Definition = true);
+	Node* Find(string name, Node* scope, int flags, bool Get_Inheritted_Definition = true);
 
-	Node* Find(string name, Node* Scope, vector<int> flags, bool Get_Inheritted_Definition = true) {
+	Node* Find(string name, Node* scope, vector<int> flags, bool Get_Inheritted_Definition = true) {
 		for (auto flag : flags)
-			if (Find(name, Scope, flag, Get_Inheritted_Definition))
-				return Find(name, Scope, flag, Get_Inheritted_Definition);
+			if (Find(name, scope, flag, Get_Inheritted_Definition))
+				return Find(name, scope, flag, Get_Inheritted_Definition);
 		return nullptr;
 	}
 	
-	Node* Find(int size, Node* Scope, string f) {
-		if (Scope->Defined.size() == 0) {
-			Node* S = Scope->Get_Definition_Type();
+	Node* Find(int size, Node* scope, string f) {
+		if (scope->Defined.size() == 0) {
+			Node* S = scope->Get_Definition_Type();
 
 			if (S)
-				Scope = S;
+				scope = S;
 		}
 
-		for (Node* i : Scope->Defined)
+		for (Node* i : scope->Defined)
 			if (i->Size == size) {
 				i->Update_Format();
 				if (i->Format == f)
 					return i;
 			}
 
-		for (Node* i : Scope->Inlined_Items)
+		for (Node* i : scope->Inlined_Items)
 			if (i->Size == size) {
 				i->Update_Format();
 				if (i->Format == f)
 					return i;
 			}
 
-		if (Scope->Scope != nullptr)
-			return Find(size, Scope->Scope, f);
+		if (scope->Scope != nullptr)
+			return Find(size, scope->Scope, f);
 		return nullptr;
 	}	
 
@@ -466,7 +466,7 @@ public:
 		//a.x.b.y
 		Node* Result = Find(Tree[0], n->Scope);
 
-		for (int i = 1; i < Tree.size() - offset; i++) {
+		for (unsigned int i = 1; i < Tree.size() - offset; i++) {
 			Result = Find(Tree[i], Result);
 		}
 		Tree.clear();
@@ -620,7 +620,7 @@ public:
 	void Update_Format() {
 		if (this->is(NUMBER_NODE))
 			return;
-		if (this->is("const") != -1 && this->Name == "format")
+		if (this->is("internal") && this->Name == "format")	// formats are not calculated, but are fetched.
 			return;
 		if (Is_Template_Object)
 			return;
@@ -637,7 +637,7 @@ public:
 				Format = t->Format;
 		}
 		for (auto i : Defined) {
-			if (i->Name == "format" && i->is("const") != -1)
+			if (i->Name == "format" && i->is("internal"))
 				Format = i->Format;
 		}
 	}
@@ -691,7 +691,7 @@ public:
 	}
 
 	int Has_Inheritted(vector<string> s) {
-		for (int i = 0; i < Inheritted.size(); i++) {
+		for (unsigned int i = 0; i < Inheritted.size(); i++) {
 			for (auto j : s) {
 				if (Inheritted[i] == j) {
 					return i;
@@ -702,7 +702,7 @@ public:
 	}
 
 	int Has(vector<string> s) {
-		for (int i = 0; i < Inheritted.size(); i++) {
+		for (unsigned int i = 0; i < Inheritted.size(); i++) {
 			for (auto j : s) {
 				if (Inheritted[i] == j) {
 					return true;
@@ -713,7 +713,7 @@ public:
 	}
 
 	bool Has(vector<int> s) {
-		for (int i = 0; i < s.size(); i++)
+		for (unsigned int i = 0; i < s.size(); i++)
 			if (is(s[i]))
 				return is(s[i]);
 		return false;
@@ -788,7 +788,7 @@ public:
 	string Get_Format() {
 		for (auto i : Defined) {
 			if (i->Name == "format")
-				if (i->is("const") != -1)
+				if (i->is("internal"))
 					return i->Format;
 		}
 		return "integer";

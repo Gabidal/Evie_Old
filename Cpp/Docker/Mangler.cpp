@@ -579,9 +579,9 @@ bool MANGLER::Is_Base_Type(Node* n)
 		return false;
 	bool Result = true;
 	for (auto i : n->Defined) {
-		if (i->Name == "size" && i->is("const"))
+		if (i->Name == "size" && i->is("internal"))
 			continue;
-		else if (i->Name == "format" && i->is("const"))
+		else if (i->Name == "format" && i->is("internal"))
 			continue;
 		else if (i->is(FUNCTION_NODE))
 			continue;

@@ -195,6 +195,7 @@ namespace PE {
 		unsigned int Size_Of_Name_Table = 0;
 	};
 
+	// Only used as size calculations, so padding is not of concern.
 	class Hint{
 	public:
 		unsigned short Hint_Name_Table_Index = 0;
@@ -231,15 +232,15 @@ namespace PE {
 		unsigned short Data;
 
 		unsigned char Get_Type(){
-			return Data >> 12;
+			return (unsigned char)(Data >> (unsigned short)12);
 		}
 
 		unsigned short Get_Virtual_Address(){
-			return Data & 0x0FFF;
+			return Data & (unsigned short)0x0FFF;
 		}
 
 		void Set_Type(unsigned char c){
-			Data = (Data & 0x0FFF) | (c << 12);
+			Data = (Data & (unsigned short)0x0FFF) | (c << (unsigned char)12);
 		}
 
 		void Set_Virtual_Address(unsigned short c){

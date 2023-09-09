@@ -135,7 +135,7 @@ void PostProsessor::Type_Definer(Node* type)
 			Node* Size = new Node(OBJECT_DEFINTION_NODE, Type->Location);
 			Size->Name = "size";
 			Size->Size = sys->Info.Reference_Count_Size;
-			Size->Inheritted.push_back("const");
+			Size->Inheritted.push_back("internal");
 
 			Reference_Count->Defined.push_back(Size);
 			Reference_Count->Inheritted.push_back("type");
@@ -276,7 +276,8 @@ void PostProsessor::Type_Definer(Node* type)
 			p.Member_Function_Defined_Outside(j);
 		}
 		else{
-			if (j->Inheritted.size() == 0 || j->Inheritted[0] != "const")
+			// here we give the member of the class access to be allocated into memory, static or internal are ignored
+			if (j->Inheritted.size() == 0 || !j->is("internal") || !j->is("static"))
 				j->Requires_Address = true;
 		}
 
@@ -549,7 +550,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 	for (auto Child : Childs) {
 		Update_Operator_Inheritance(Child);
 		//this is for the size and format to not be included in the default constructor.
-		if (Child->is("const"))
+		if (Child->is("internal") || Child->is("static"))
 			continue;
 		/*if (Child->is("static") != -1)
 			continue;*/
@@ -581,7 +582,7 @@ vector<Node*> PostProsessor::Insert_Dot(vector<Node*> Childs, Node* Function, No
 			//even tho Apple is called by Banana, Banana may be need of this pointter
 			Node*& Dot_Needing_Object = Get_Possible_Fetcher(*Handle);
 
-			if (Dot_Needing_Object->is(NUMBER_NODE) || Dot_Needing_Object->is(FUNCTION_NODE) || Dot_Needing_Object->is("const") || MANGLER::Is_Base_Type(Dot_Needing_Object))
+			if (Dot_Needing_Object->is(NUMBER_NODE) || Dot_Needing_Object->is(FUNCTION_NODE) || Dot_Needing_Object->is("internal") || Dot_Needing_Object->is("static") || MANGLER::Is_Base_Type(Dot_Needing_Object))
 				continue;
 			if ((Dot_Needing_Object->is(OBJECT_DEFINTION_NODE) || Dot_Needing_Object->is(OBJECT_NODE)) && This->Find(true, Dot_Needing_Object, This) && !Dot_Needing_Object->is(PARSED_BY::POSTPROSESSOR::THIS_AND_DOT_INSERTER)) {
 				//Node* define = c->Find(linear_n, Function);
@@ -1807,7 +1808,7 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 
 		if (Right->Name == "size") {
 			Node* num = Right->Find("size", Left);
-			if (num == nullptr || (num->is("const"))) {
+			if (num == nullptr || (num->is("internal"))) {
 				//this means it is definetly a size get request
 				Right->Name = to_string(Left->Size);
 				Right->Type = NUMBER_NODE;	

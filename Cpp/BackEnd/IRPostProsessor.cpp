@@ -315,7 +315,7 @@ int IRPostProsessor::Parse_Complex(IR* ir, int i, bool Registry)
 		vector<IR*> r = selector->Get_Opcode(ir)->Complex(ir->Arguments);
 		if (r.size() == 0)
 			return 0;
-		int Changes = r.size() - 1;
+		int Changes = r.size(); //r.size() - 1;
 		if (Registry)
 			for (int opc = 0; opc < r.size(); opc++)
 				for (auto arg : r[opc]->Arguments) {

@@ -10,22 +10,22 @@
 _Z10Start_Testv:
 sub rsp, 20                                                 #.STACK, 20
 lea rcx, qword ptr [rsp + 0 ]                               #a_REG0, .STACK_0
-mov rcx, rcx                                                #REG_a_REG0_Parameter19169, a_REG0
+mov rcx, rcx                                                #REG_a_REG0_Parameter41, a_REG0
 call _Z13____List_int_P13____List_int_
 lea rcx, qword ptr [rsp + 0 ]                               #a_REG2, .STACK_0
-mov rcx, rcx                                                #REG_a_REG2_Parameter15724, a_REG2
-mov edx, 5                                                  #REG_5_Parameter11478, 5
+mov rcx, rcx                                                #REG_a_REG2_Parameter18467, a_REG2
+mov edx, 5                                                  #REG_5_Parameter6334, 5
 call _ZN13____List_int_12____Add_int_EP13____List_int_i
 lea rcx, qword ptr [rsp + 0 ]                               #a_REG4, .STACK_0
-mov rcx, rcx                                                #REG_a_REG4_Parameter29358, a_REG4
-mov edx, 2                                                  #REG_2_Parameter26962, 2
+mov rcx, rcx                                                #REG_a_REG4_Parameter26500, a_REG4
+mov edx, 2                                                  #REG_2_Parameter19169, 2
 call _ZN13____List_int_12____Add_int_EP13____List_int_i
 lea rcx, qword ptr [rsp + 0 ]                               #a_REG6, .STACK_0
-mov rcx, rcx                                                #REG_a_REG6_Parameter24464, a_REG6
+mov rcx, rcx                                                #REG_a_REG6_Parameter15724, a_REG6
 call _ZN13____List_int_8Pop_BackEP13____List_int_
 lea rcx, qword ptr [rsp + 0 ]                               #a_REG8, .STACK_0
-mov rcx, rcx                                                #REG_a_REG8_Parameter5705, a_REG8
-mov edx, 0                                                  #REG_0_Parameter28145, 0
+mov rcx, rcx                                                #REG_a_REG8_Parameter11478, a_REG8
+mov edx, 0                                                  #REG_0_Parameter29358, 0
 call _ZN13____List_int_11____At_int_EP13____List_int_i
 mov eax, eax                                                #Returning_REG10, RetREG_9
 add rsp, 20                                                 #.STACK, 20
@@ -42,21 +42,23 @@ push rbx                                                    #Reg_rbx
 mov dword ptr [rip + std_ALLOCATION_SIZE ], 700000          #.RIP_std_ALLOCATION_SIZE, 700000
 mov dword ptr [rip + std_BUCKET_COUNT ], 100000             #.RIP_std_BUCKET_COUNT, 100000
 mov ebx, dword ptr [rip + std_BUCKET_COUNT ]                #std_BUCKET_COUNT_REGISTER, .RIP_std_BUCKET_COUNT
-mov ecx, ebx                                                #REG_std_BUCKET_COUNT_REGISTER_Parameter23281, std_BUCKET_COUNT_REGISTER
+mov ecx, ebx                                                #REG_std_BUCKET_COUNT_REGISTER_Parameter26962, std_BUCKET_COUNT_REGISTER
 call _ZN8Internal18____Allocate_char_El
 mov qword ptr [rip + std_BUCKET_BUFFER ], rax               #.RIP_std_BUCKET_BUFFER, RetREG_0
 mov rdi, qword ptr [rip + std_BUCKET_BUFFER ]               #std_BUCKET_BUFFER_REGISTER, .RIP_std_BUCKET_BUFFER
-mov rcx, rdi                                                #REG_std_BUCKET_BUFFER_REGISTER_Parameter16827, std_BUCKET_BUFFER_REGISTER
+mov rcx, rdi                                                #REG_std_BUCKET_BUFFER_REGISTER_Parameter24464, std_BUCKET_BUFFER_REGISTER
 call _ZN6Bucket3std6BucketEP6Bucket
 mov qword ptr [rip + std_Bucket_Start ], rax                #.RIP_std_Bucket_Start, RetREG_1
 mov rsi, qword ptr [rip + std_Bucket_Start ]                #std_Bucket_Start_REGISTER, .RIP_std_Bucket_Start
 mov qword ptr [rip + std_Bucket_Cache ], rsi                #.RIP_std_Bucket_Cache, std_Bucket_Start_REGISTER
-mov rcx, 4886408106085781771                                #REG_4886408106085813093, 4886408106085781771
-mov qword ptr [rip + std_Pi ], rcx                          #.RIP_std_Pi, REG_4886408106085813093
-mov rcx, 4886407175215432982                                #REG_4886407175215463315, 4886407175215432982
-mov qword ptr [rip + std_E ], rcx                           #.RIP_std_E, REG_4886407175215463315
-mov qword ptr [rip + std_Eps ], 0                           #.RIP_std_Eps, 0
-mov qword ptr [rip + std_Inf ], -9223372036854775808        #.RIP_std_Inf, -9223372036854775808
+mov rcx, 4886408106085781771                                #REG_4886408106085798806, 4886408106085781771
+mov qword ptr [rip + std_Pi ], rcx                          #.RIP_std_Pi, REG_4886408106085798806
+mov rcx, 4886407175215432982                                #REG_4886407175215442876, 4886407175215432982
+mov qword ptr [rip + std_E ], rcx                           #.RIP_std_E, REG_4886407175215442876
+mov rcx, 0                                                  #REG_28703, 0
+mov qword ptr [rip + std_Eps ], rcx                         #.RIP_std_Eps, REG_28703
+mov rcx, -4332462841530417152                               #REG_-4332462841530393341, -4332462841530417152
+mov qword ptr [rip + std_Inf ], rcx                         #.RIP_std_Inf, REG_-4332462841530393341
 mov rbp, qword ptr [rip + std_Inf ]                         #std_Inf_REGISTER, .RIP_std_Inf
 mov rbp, qword ptr [rip + std_Inf ]                         #std_Inf_REGISTER, .RIP_std_Inf
 sub rbp, rbp                                                #std_Inf_REGISTER, std_Inf_REGISTER
@@ -70,21 +72,23 @@ mov dword ptr [rip + Internal_STANDARD_INPUT_HANDLE ], 10   #.RIP_Internal_STAND
 mov dword ptr [rip + std_ALLOCATION_SIZE ], 700000          #.RIP_std_ALLOCATION_SIZE, 700000
 mov dword ptr [rip + std_BUCKET_COUNT ], 100000             #.RIP_std_BUCKET_COUNT, 100000
 mov ebx, dword ptr [rip + std_BUCKET_COUNT ]                #std_BUCKET_COUNT_REGISTER, .RIP_std_BUCKET_COUNT
-mov ecx, ebx                                                #REG_std_BUCKET_COUNT_REGISTER_Parameter9961, std_BUCKET_COUNT_REGISTER
+mov ecx, ebx                                                #REG_std_BUCKET_COUNT_REGISTER_Parameter5705, std_BUCKET_COUNT_REGISTER
 call _ZN8Internal18____Allocate_char_El
 mov qword ptr [rip + std_BUCKET_BUFFER ], rax               #.RIP_std_BUCKET_BUFFER, RetREG_2
 mov rdi, qword ptr [rip + std_BUCKET_BUFFER ]               #std_BUCKET_BUFFER_REGISTER, .RIP_std_BUCKET_BUFFER
-mov rcx, rdi                                                #REG_std_BUCKET_BUFFER_REGISTER_Parameter491, std_BUCKET_BUFFER_REGISTER
+mov rcx, rdi                                                #REG_std_BUCKET_BUFFER_REGISTER_Parameter28145, std_BUCKET_BUFFER_REGISTER
 call _ZN6Bucket3std6BucketEP6Bucket
 mov qword ptr [rip + std_Bucket_Start ], rax                #.RIP_std_Bucket_Start, RetREG_3
 mov rsi, qword ptr [rip + std_Bucket_Start ]                #std_Bucket_Start_REGISTER, .RIP_std_Bucket_Start
 mov qword ptr [rip + std_Bucket_Cache ], rsi                #.RIP_std_Bucket_Cache, std_Bucket_Start_REGISTER
-mov rcx, 4886408106085781771                                #REG_4886408106085799444, 4886408106085781771
-mov qword ptr [rip + std_Pi ], rcx                          #.RIP_std_Pi, REG_4886408106085799444
-mov rcx, 4886407175215432982                                #REG_4886407175215437646, 4886407175215432982
-mov qword ptr [rip + std_E ], rcx                           #.RIP_std_E, REG_4886407175215437646
-mov qword ptr [rip + std_Eps ], 0                           #.RIP_std_Eps, 0
-mov qword ptr [rip + std_Inf ], -9223372036854775808        #.RIP_std_Inf, -9223372036854775808
+mov rcx, 4886408106085781771                                #REG_4886408106085813093, 4886408106085781771
+mov qword ptr [rip + std_Pi ], rcx                          #.RIP_std_Pi, REG_4886408106085813093
+mov rcx, 4886407175215432982                                #REG_4886407175215463315, 4886407175215432982
+mov qword ptr [rip + std_E ], rcx                           #.RIP_std_E, REG_4886407175215463315
+mov rcx, 0                                                  #REG_17673, 0
+mov qword ptr [rip + std_Eps ], rcx                         #.RIP_std_Eps, REG_17673
+mov rcx, -4332462841530417152                               #REG_-4332462841530412488, -4332462841530417152
+mov qword ptr [rip + std_Inf ], rcx                         #.RIP_std_Inf, REG_-4332462841530412488
 mov rbp, qword ptr [rip + std_Inf ]                         #std_Inf_REGISTER, .RIP_std_Inf
 mov rbp, qword ptr [rip + std_Inf ]                         #std_Inf_REGISTER, .RIP_std_Inf
 sub rbp, rbp                                                #std_Inf_REGISTER, std_Inf_REGISTER
@@ -106,16 +110,16 @@ ret                                                         #
 _Z15____Memcpy_int_PiPii:
 mov r9d, 0                                                  #i, 0
 cmp r9d, r8d                                                #i, Size
-jge while_3_END                                             #while_3_END
-while_3:
+jge while_0_END                                             #while_0_END
+while_0:
 lea r10, qword ptr [rcx + r9 * 4 ]                          #dest_REG0, *
 mov r11d, dword ptr [rdx + r9 * 4 ]                         #source_REG1, *
 mov dword ptr [r10 ], r11d                                  #dest_REG0, source_REG1
 add r9d, 1                                                  #i, 1
 cmp r9d, r8d                                                #i, Size
-jge while_3_END                                             #while_3_END
-jmp while_3                                                 #while_3
-while_3_END:
+jge while_0_END                                             #while_0_END
+jmp while_0                                                 #while_0
+while_0_END:
 ret                                                         #
 ret                                                         #
 
@@ -126,41 +130,41 @@ mov rcx, qword ptr [rcx + 0 ]                               #Get_Free_Page_Bucke
 mov rcx, rcx                                                #Current, Get_Free_Page_Bucket_Cache_REG0_0_REG1
 mov r8, rcx                                                 #Last, Current
 cmp rcx, 0                                                  #Current, 0
-je while_4_END                                              #while_4_END
-while_4:
+je while_1_END                                              #while_1_END
+while_1:
 mov r8, rcx                                                 #Last, Current
-if_5:
+if_2:
 mov r9b, byte ptr [rcx + 12 ]                               #Current_12_REG2, Current_12
 cmp r9b, 1                                                  #Current_12_REG2, 1
-jne else_6                                                  #else_6
+jne else_3                                                  #else_3
 mov r9, qword ptr [rcx + 13 ]                               #Current_13_REG3, Current_13
 mov rcx, r9                                                 #Current, Current_13_REG3
-jmp else_6_END                                              #else_6_END
-if_5_END:
-else_6:
-mov r9, qword ptr [rip + else_6_Bucket_Cache ]              #else_6_Bucket_Cache_REG4, .RIP_else_6_Bucket_Cache
-mov qword ptr [r9 + 0 ], rcx                                #else_6_Bucket_Cache_REG4_0, Current
+jmp else_3_END                                              #else_3_END
+if_2_END:
+else_3:
+mov r9, qword ptr [rip + else_3_Bucket_Cache ]              #else_3_Bucket_Cache_REG4, .RIP_else_3_Bucket_Cache
+mov qword ptr [r9 + 0 ], rcx                                #else_3_Bucket_Cache_REG4_0, Current
 mov rax, rcx                                                #Returning_REG5, Current
 ret                                                         #
-else_6_END:
+else_3_END:
 cmp rcx, 0                                                  #Current, 0
-je while_4_END                                              #while_4_END
-jmp while_4                                                 #while_4
-while_4_END:
-if_7:
+je while_1_END                                              #while_1_END
+jmp while_1                                                 #while_1
+while_1_END:
+if_4:
 mov rcx, qword ptr [r8 + 29 ]                               #Last_29_REG6, Last_29
 mov r9, qword ptr [r8 + 21 ]                                #+_0_REG7, Last_21
 lea r10, qword ptr [rip + std_ALLOCATION_SIZE ]             #std_ALLOCATION_SIZE_REG8, .RIP_std_ALLOCATION_SIZE
 add r9, r10                                                 #+_0_REG7, std_ALLOCATION_SIZE_REG8
 cmp rcx, r9                                                 #Last_29_REG6, +_0_REG7
-jl if_7_END                                                 #if_7_END
+jl if_4_END                                                 #if_4_END
 mov byte ptr [r8 + 33 ], 1                                  #Last_33, 1
 mov rax, 0                                                  #Returning_REG9, 0
 ret                                                         #
-if_7_END:
+if_4_END:
 mov rcx, qword ptr [r8 + 29 ]                               #Last_29_REG10, Last_29
-mov rcx, rcx                                                #REG_Last_29_REG10_Parameter2995, Last_29_REG10
-mov rdx, r8                                                 #REG_Last_Parameter11942, Last
+mov rcx, rcx                                                #REG_Last_29_REG10_Parameter23281, Last_29_REG10
+mov rdx, r8                                                 #REG_Last_Parameter16827, Last
 call _ZN4Page3std4PageEP4PageP4Page
 mov rcx, rax                                                #Result, RetREG_11
 mov rax, rcx                                                #Returning_REG12, Result
@@ -172,26 +176,26 @@ _ZN3std15Get_Free_BucketEv:
 mov rcx, qword ptr [rip + std_Bucket_Cache ]                #Current, .RIP_std_Bucket_Cache
 mov r8, rcx                                                 #Last, Current
 cmp rcx, 0                                                  #Current, 0
-je while_8_END                                              #while_8_END
-while_8:
+je while_5_END                                              #while_5_END
+while_5:
 mov r8, rcx                                                 #Last, Current
-if_9:
+if_6:
 mov r9, qword ptr [rcx + 29 ]                               #Current_29_REG0, Current_29
 mov rcx, r9                                                 #Current, Current_29_REG0
-jmp else_10_END                                             #else_10_END
-if_9_END:
-else_10:
+jmp else_7_END                                              #else_7_END
+if_6_END:
+else_7:
 mov qword ptr [rip + std_Bucket_Cache ], rcx                #.RIP_std_Bucket_Cache, Current
 mov rax, rcx                                                #Returning_REG1, Current
 ret                                                         #
-else_10_END:
+else_7_END:
 cmp rcx, 0                                                  #Current, 0
-je while_8_END                                              #while_8_END
-jmp while_8                                                 #while_8
-while_8_END:
+je while_5_END                                              #while_5_END
+jmp while_5                                                 #while_5
+while_5_END:
 mov rcx, qword ptr [r8 + 45 ]                               #Last_45_REG2, Last_45
-mov rcx, rcx                                                #REG_Last_45_REG2_Parameter4827, Last_45_REG2
-mov rdx, r8                                                 #REG_Last_Parameter5436, Last
+mov rcx, rcx                                                #REG_Last_45_REG2_Parameter9961, Last_45_REG2
+mov rdx, r8                                                 #REG_Last_Parameter491, Last
 call _ZN6Bucket3std6BucketEP6BucketP6Bucket
 mov rcx, rax                                                #Result, RetREG_3
 mov qword ptr [rip + std_Bucket_Cache ], rcx                #.RIP_std_Bucket_Cache, Result
@@ -205,17 +209,17 @@ push rsi                                                    #Reg_rsi
 push rdi                                                    #Reg_rdi
 push rbx                                                    #Reg_rbx
 mov ebx, ecx                                                #Size, Size
-if_11:
+if_8:
 cmp ebx, dword ptr [rip + std_ALLOCATION_SIZE ]             #Size, .RIP_std_ALLOCATION_SIZE
-jle if_11_END                                               #if_11_END
+jle if_8_END                                                #if_8_END
 add ebx, 37                                                 #Size, 37
-mov ecx, ebx                                                #REG_Size_Parameter32391, Size
+mov ecx, ebx                                                #REG_Size_Parameter2995, Size
 call _ZN8Internal27____Allocate_____char_ptr__El
 mov qword ptr [rsp + 0 ], rax                               #.STACK_0, RetREG_0
-mov rcx, qword ptr [rsp + 0 ]                               #REG_Result_Parameter14604, .STACK_0
-mov r8, qword ptr [rip + if_11_Bucket_Cache ]               #if_11_Bucket_Cache_REG1, .RIP_if_11_Bucket_Cache
-mov r8, qword ptr [r8 + 0 ]                                 #if_11_Bucket_Cache_REG1_0_REG2, if_11_Bucket_Cache_REG1_0
-mov rdx, r8                                                 #REG_if_11_Bucket_Cache_REG1_0_REG2_Parameter3902, if_11_Bucket_Cache_REG1_0_REG2
+mov rcx, qword ptr [rsp + 0 ]                               #REG_Result_Parameter11942, .STACK_0
+mov r8, qword ptr [rip + if_8_Bucket_Cache ]                #if_8_Bucket_Cache_REG1, .RIP_if_8_Bucket_Cache
+mov r8, qword ptr [r8 + 0 ]                                 #if_8_Bucket_Cache_REG1_0_REG2, if_8_Bucket_Cache_REG1_0
+mov rdx, r8                                                 #REG_if_8_Bucket_Cache_REG1_0_REG2_Parameter4827, if_8_Bucket_Cache_REG1_0_REG2
 call _ZN4Page3std4PageEP4PageP4Page
 mov rcx, qword ptr [rsp + 0 ]                               #Result_REG4, .STACK_0
 mov rax, qword ptr [rcx + 0 ]                               #Returning_REG5, Result_REG4_0
@@ -224,19 +228,19 @@ pop Reg_rbx                                                 #Reg_Reg_rbx
 pop Reg_rdi                                                 #Reg_Reg_rdi
 pop Reg_rsi                                                 #Reg_Reg_rsi
 ret                                                         #
-if_11_END:
+if_8_END:
 call _ZN3std13Get_Free_PageEv
 mov rdi, rax                                                #New_Page, RetREG_6
 call _ZN3std15Get_Free_BucketEv
 mov rsi, rax                                                #New_Bucket, RetREG_7
-if_12:
+if_9:
 cmp rdi, 0                                                  #New_Page, 0
-jne if_12_END                                               #if_12_END
+jne if_9_END                                                #if_9_END
 call _ZN3std13Get_Free_PageEv
 mov rdi, rax                                                #New_Page, RetREG_8
-if_12_END:
-mov rcx, rdi                                                #REG_New_Page_Parameter153, New_Page
-mov edx, ebx                                                #REG_Size_Parameter292, Size
+if_9_END:
+mov rcx, rdi                                                #REG_New_Page_Parameter5436, New_Page
+mov edx, ebx                                                #REG_Size_Parameter32391, Size
 call _ZN4Page3std11Update_PageEP4Pagei
 mov byte ptr [rdi + 12 ], 1                                 #New_Page_12, 1
 mov qword ptr [rip + std_Bucket_Cache ], rsi                #.RIP_std_Bucket_Cache, New_Bucket
@@ -259,13 +263,13 @@ ret                                                         #
 
 _ZN8Internal8AllocateEl:
 push rbx                                                    #Reg_rbx
-mov rcx, 0                                                  #REG_0_Parameter12382, 0
+mov rcx, 0                                                  #REG_0_Parameter14604, 0
 mov Non-Volatile15141, rcx                                  #Non-Volatile15141, Current_Volatile7711
-mov rdx, rbx                                                #REG_Size_Parameter17421, Size
+mov rdx, rbx                                                #REG_Size_Parameter3902, Size
 mov ecx, dword ptr [rip + Internal_MEMORY_COMMIT ]          #REG_Internal_MEMORY_COMMIT0, .RIP_Internal_MEMORY_COMMIT
 or ecx, dword ptr [rip + Internal_MEMORY_RESERVE ]          #REG_Internal_MEMORY_COMMIT0, .RIP_Internal_MEMORY_RESERVE
-mov r8d, ecx                                                #REG_REG_Internal_MEMORY_COMMIT0_Parameter18716, REG_Internal_MEMORY_COMMIT0
-mov r9d, dword ptr [rip + Internal_PAGE_READWRITE ]         #REG_Internal_PAGE_READWRITE_Parameter19718, .RIP_Internal_PAGE_READWRITE
+mov r8d, ecx                                                #REG_REG_Internal_MEMORY_COMMIT0_Parameter153, REG_Internal_MEMORY_COMMIT0
+mov r9d, dword ptr [rip + Internal_PAGE_READWRITE ]         #REG_Internal_PAGE_READWRITE_Parameter292, .RIP_Internal_PAGE_READWRITE
 call VirtualAlloc
 mov rax, rax                                                #Returning_REG2, RetREG_1
 pop Reg_rbx                                                 #Reg_Reg_rbx
@@ -276,7 +280,7 @@ ret                                                         #
 
 _ZN8Internal18____Allocate_char_El:
 imul rcx, rcx, 1                                            #Size, Size, 1
-mov rcx, rcx                                                #REG_Size_Parameter19895, Size
+mov rcx, rcx                                                #REG_Size_Parameter12382, Size
 call _ZN8Internal8AllocateEl
 mov rax, rax                                                #Returning_REG1, RetREG_0
 ret                                                         #
@@ -285,7 +289,7 @@ ret                                                         #
 
 _ZN8Internal27____Allocate_____char_ptr__El:
 imul rcx, rcx, 8                                            #Size, Size, 8
-mov rcx, rcx                                                #REG_Size_Parameter5447, Size
+mov rcx, rcx                                                #REG_Size_Parameter17421, Size
 call _ZN8Internal8AllocateEl
 mov rax, rax                                                #Returning_REG1, RetREG_0
 ret                                                         #
@@ -334,12 +338,12 @@ push rdi                                                    #Reg_rdi
 push rbx                                                    #Reg_rbx
 mov rdi, rdx                                                #previus, previus
 mov rbx, rcx                                                #this, this
-mov ecx, dword ptr [rip + std_ALLOCATION_SIZE ]             #REG_std_ALLOCATION_SIZE_Parameter21726, .RIP_std_ALLOCATION_SIZE
+mov ecx, dword ptr [rip + std_ALLOCATION_SIZE ]             #REG_std_ALLOCATION_SIZE_Parameter18716, .RIP_std_ALLOCATION_SIZE
 call _ZN8Internal18____Allocate_char_El
 mov qword ptr [rbx + 0 ], rax                               #this_0, RetREG_0
 mov rcx, qword ptr [rbx + 0 ]                               #this_0_REG1, this_0
-mov rcx, rcx                                                #REG_this_0_REG1_Parameter14771, this_0_REG1
-mov rdx, rbx                                                #REG_this_Parameter11538, this
+mov rcx, rcx                                                #REG_this_0_REG1_Parameter19718, this_0_REG1
+mov rdx, rbx                                                #REG_this_Parameter19895, this
 call _ZN4Page3std4PageEP4PageP6Bucket
 mov qword ptr [rbx + 13 ], rax                              #this_13, RetREG_2
 mov rcx, qword ptr [rbx + 13 ]                              #this_13_REG3, this_13
@@ -360,12 +364,12 @@ ret                                                         #
 _ZN6Bucket3std6BucketEP6Bucket:
 push rbx                                                    #Reg_rbx
 mov rbx, rcx                                                #this, this
-mov ecx, dword ptr [rip + std_ALLOCATION_SIZE ]             #REG_std_ALLOCATION_SIZE_Parameter1869, .RIP_std_ALLOCATION_SIZE
+mov ecx, dword ptr [rip + std_ALLOCATION_SIZE ]             #REG_std_ALLOCATION_SIZE_Parameter5447, .RIP_std_ALLOCATION_SIZE
 call _ZN8Internal27____Allocate_____char_ptr__El
 mov qword ptr [rbx + 0 ], rax                               #this_0, RetREG_0
 mov rcx, qword ptr [rbx + 0 ]                               #this_0_REG1, this_0
-mov rcx, rcx                                                #REG_this_0_REG1_Parameter19912, this_0_REG1
-mov rdx, rbx                                                #REG_this_Parameter25667, this
+mov rcx, rcx                                                #REG_this_0_REG1_Parameter21726, this_0_REG1
+mov rdx, rbx                                                #REG_this_Parameter14771, this
 call _ZN4Page3std4PageEP4PageP6Bucket
 mov qword ptr [rbx + 13 ], rax                              #this_13, RetREG_2
 mov rcx, qword ptr [rbx + 13 ]                              #this_13_REG3, this_13
@@ -383,27 +387,27 @@ ret                                                         #
 _ZN13____List_int_12____Add_int_EP13____List_int_i:
 push rbx                                                    #Reg_rbx
 mov rbx, rcx                                                #this, this
-if_13:
+if_10:
 mov ecx, dword ptr [rbx + 0 ]                               #this_0_REG0, this_0
 mov r8d, dword ptr [rbx + 0 ]                               #this_0_REG1, this_0
 cmp ecx, r8d                                                #this_0_REG0, this_0_REG1
-jl if_13_END                                                #if_13_END
+jl if_10_END                                                #if_10_END
 mov ecx, dword ptr [rbx + 0 ]                               #this_0_REG2, this_0
 imul ecx, ecx, 2                                            #this_0_REG2, this_0_REG2, 2
 mov dword ptr [rbx + 0 ], ecx                               #this_0, this_0_REG2
 mov ecx, dword ptr [rbx + 0 ]                               #this_0_REG3, this_0
-mov ecx, ecx                                                #REG_this_0_REG3_Parameter26299, this_0_REG3
+mov ecx, ecx                                                #REG_this_0_REG3_Parameter11538, this_0_REG3
 call _ZN3std8AllocateEi
 mov qword ptr [rsp + 4 ], rax                               #.STACK_4, RetREG_4
-mov rcx, qword ptr [rsp + 4 ]                               #REG_tmp_Parameter17035, .STACK_4
+mov rcx, qword ptr [rsp + 4 ]                               #REG_tmp_Parameter1869, .STACK_4
 mov r8, qword ptr [rbx + 0 ]                                #this_0_REG5, this_0
-mov rdx, r8                                                 #REG_this_0_REG5_Parameter9894, this_0_REG5
+mov rdx, r8                                                 #REG_this_0_REG5_Parameter19912, this_0_REG5
 mov r8d, dword ptr [rbx + 0 ]                               #this_0_REG6, this_0
-mov r8d, r8d                                                #REG_this_0_REG6_Parameter28703, this_0_REG6
+mov r8d, r8d                                                #REG_this_0_REG6_Parameter25667, this_0_REG6
 call _Z15____Memcpy_int_PiPii
 mov rcx, qword ptr [rsp + 4 ]                               #REG_tmp8, .STACK_4
 mov qword ptr [rbx + 0 ], rcx                               #this_0, REG_tmp8
-if_13_END:
+if_10_END:
 mov rcx, qword ptr [rbx + 0 ]                               #this_0_REG9, this_0
 mov r8d, dword ptr [rbx + 0 ]                               #this_0_REG11, this_0
 lea rcx, qword ptr [rcx + r8 * 4 ]                          #this_0_REG9_REG10, *
@@ -421,13 +425,13 @@ ret                                                         #
 
 
 _ZN13____List_int_11____At_int_EP13____List_int_i:
-if_14:
+if_11:
 mov r8d, dword ptr [rcx + 0 ]                               #this_0_REG0, this_0
 cmp edx, r8d                                                #i, this_0_REG0
-jle if_14_END                                               #if_14_END
+jle if_11_END                                               #if_11_END
 mov eax, 0                                                  #Returning_REG1, 0
 ret                                                         #
-if_14_END:
+if_11_END:
 mov rcx, qword ptr [rcx + 0 ]                               #this_0_REG2, this_0
 lea rcx, qword ptr [rcx + rdx * 4 ]                         #this_0_REG2_REG3, *
 mov eax, dword ptr [rcx ]                                   #Returning_REG4, this_0_REG2_REG3
@@ -441,7 +445,7 @@ mov rbx, rcx                                                #this, this
 mov dword ptr [rbx + 0 ], 1                                 #this_0, 1
 mov dword ptr [rbx + 0 ], 0                                 #this_0, 0
 mov ecx, dword ptr [rbx + 0 ]                               #this_0_REG0, this_0
-mov ecx, ecx                                                #REG_this_0_REG0_Parameter23811, this_0_REG0
+mov ecx, ecx                                                #REG_this_0_REG0_Parameter26299, this_0_REG0
 call _ZN3std8AllocateEi
 mov qword ptr [rbx + 0 ], rax                               #this_0, RetREG_1
 mov rax, rbx                                                #Returning_REG2, this
@@ -453,34 +457,34 @@ ret                                                         #
 
 .section .data                                              #.data
 Internal_MEMORY_COMMIT:
-.word 0                                                     #0
+.long 0                                                     #0
 Internal_MEMORY_RESERVE:
-.word 0                                                     #0
+.long 0                                                     #0
 Internal_MEMORY_RELEASE:
-.word 0                                                     #0
+.long 0                                                     #0
 Internal_PAGE_READWRITE:
-.word 0                                                     #0
+.long 0                                                     #0
 Internal_STANDARD_OUTPUT_HANDLE:
-.word 0                                                     #0
+.long 0                                                     #0
 Internal_STANDARD_INPUT_HANDLE:
-.word 0                                                     #0
+.long 0                                                     #0
 std_ALLOCATION_SIZE:
-.word 0                                                     #0
+.long 0                                                     #0
 std_BUCKET_COUNT:
-.word 0                                                     #0
+.long 0                                                     #0
 std_BUCKET_BUFFER:
-.word 0                                                     #0
+.quad 0                                                     #0
 std_Bucket_Start:
-.word 0                                                     #0
+.quad 0                                                     #0
 std_Bucket_Cache:
-.word 0                                                     #0
+.quad 0                                                     #0
 std_Pi:
-.word 0                                                     #0
+.quad 0                                                     #0
 std_E:
-.word 0                                                     #0
+.quad 0                                                     #0
 std_Eps:
-.word 0                                                     #0
+.quad 0                                                     #0
 std_Inf:
-.word 0                                                     #0
+.quad 0                                                     #0
 std_Nan:
-.word 0                                                     #0
+.quad 0                                                     #0

@@ -318,7 +318,9 @@ void x86_64::Init()
 		{{{Register, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI, 0, 0, false },
 		{{{Memory, 4, 8}, {Const, 4, 4}}, 0xC7, OPCODE_ENCODING::MI, 0, 0, false },
 
-		
+		// REX.W + B8+ rd io	MOV r64, imm64	OI
+		// Supports Nested decimals and large numbers.
+		{{{Register, 8, 8}, {Decimal, 8, 8}}, 0xB8, OPCODE_ENCODING::OI, 0, 0, false },
 
 		{{{Memory_Float, 4, 4}, {Register, 4, 4}}, 0x88, OPCODE_ENCODING::MR}
 	});

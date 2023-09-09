@@ -60,7 +60,7 @@ void Memory_Manager::Manage_Class_Padding()
 			Padder = new Node(OBJECT_DEFINTION_NODE, Scope->Location);
 			Padder->Name = "__CLASS_MEMORY_PADDER__";
 			//NOTE: const as inheritance may not negate re-sizing!
-			Padder->Inheritted.push_back("const");
+			Padder->Inheritted.push_back("internal");
 			Padder->Size = Remainder;
 			Padder->Scope = Scope;
 

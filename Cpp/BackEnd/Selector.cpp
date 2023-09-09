@@ -2,6 +2,8 @@
 #include "../../H/UI/Usr.h"
 #include "../../H/UI/Safe.h"
 
+#include "../../H/Parser/Parser.h"
+
 extern Usr* sys;
 extern x86_64 X86_64;
 extern ARM_64 _ARM_64;
@@ -719,14 +721,34 @@ void Selector::DeAllocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//add rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "+"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK",  _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM | TOKEN::STACK_ALLOCATION_CONSTANT, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
+	list->insert(
+		list->begin() + i, 
+		new IR(
+			new Token(TOKEN::OPERATOR, "+"),
+			{
+				new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK",  _SYSTEM_BIT_SIZE_),
+				new Token(TOKEN::NUM | TOKEN::STACK_ALLOCATION_CONSTANT, to_string(Amount), Parser::Get_Number_Size(Amount)) 
+			},
+			nullptr
+		)
+	);
 }
 
 void Selector::Allocate_Stack(int Amount, vector<IR*>* list, int i)
 {
 	//sub rsp, 123 * 16
 	//if used call in scope use stack.size() % 16 = 0;
-	list->insert(list->begin() + i, new IR(new Token(TOKEN::OPERATOR, "-"), { new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_), new Token(TOKEN::NUM | TOKEN::STACK_ALLOCATION_CONSTANT, to_string(Amount), _SYSTEM_BIT_SIZE_) }, nullptr));
+	list->insert(
+		list->begin() + i,
+		new IR(
+			new Token(TOKEN::OPERATOR, "-"),
+			{ 
+				new Token(TOKEN::STACK_POINTTER | TOKEN::REGISTER, ".STACK", _SYSTEM_BIT_SIZE_),
+				new Token(TOKEN::NUM | TOKEN::STACK_ALLOCATION_CONSTANT, to_string(Amount), Parser::Get_Number_Size(Amount)) 
+			},
+			nullptr
+		)
+	);
 }
 
 void Selector::Init_Stack(Node* Func)
@@ -818,11 +840,20 @@ IR* Selector::Get_Opcode(IR* i)
 				continue;	//this is wrong order
 
 			for (int j = 0; j < sizes.size(); j++) {
-				//This condition upscales the number if it must be upscaled to fir in the opcode
-				if (Number_Size_Upscaler != 0 && i->Arguments[j]->is(TOKEN::NUM) && 
-				   (o.Order[j].Min_Size <= pow(2, Number_Size_Upscaler) && o.Order[j].Max_Size >= pow(2, Number_Size_Upscaler))){
-					sizes[j] = pow(2, Number_Size_Upscaler);
-					i->Arguments[j]->Size = pow(2, Number_Size_Upscaler);
+				//This condition upscales the number if it must be upscaled to fit in the opcode
+
+				int Upscaled_Size = pow(2, Number_Size_Upscaler + sizes[j]);
+
+				if (
+					Number_Size_Upscaler != 0 && 
+					i->Arguments[j]->is(TOKEN::NUM) && 
+				    (
+						o.Order[j].Min_Size <= Upscaled_Size && 
+						o.Order[j].Max_Size >= Upscaled_Size
+					)
+				   ){
+					sizes[j] = Upscaled_Size;
+					i->Arguments[j]->Size = Upscaled_Size;
 				}
 
 				if (!(o.Order[j].Min_Size <= sizes[j] && o.Order[j].Max_Size >= sizes[j]))

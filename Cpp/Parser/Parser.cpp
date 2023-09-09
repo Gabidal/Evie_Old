@@ -8,7 +8,7 @@ int arg_count = 0;
 extern Usr* sys;
 extern Safe* safe;
 
-vector<int> Parser::Get_Amount_Of(int i, long Flag, bool All_in_Same_Line)
+vector<int> Parser::Get_Amount_Of(unsigned int i, long Flag, bool All_in_Same_Line)
 {
 	//<summary>
 	//check from the index to next and counts-
@@ -31,7 +31,7 @@ vector<int> Parser::Get_Amount_Of(int i, long Flag, bool All_in_Same_Line)
 	return Indexes;
 }
 
-vector<int> Parser::Get_Amount_Of(int i, vector<int> Flags, bool All_in_Same_Line)
+vector<int> Parser::Get_Amount_Of(unsigned int i, vector<int> Flags, bool All_in_Same_Line)
 {
 	vector<int> Indexes;
 	for (; i < Input.size(); i++) {
@@ -1203,7 +1203,7 @@ void Parser::Math_Pattern(int& i, vector<string> Operators, int F, bool Change_I
 
 	if (Operator->Name == "=")
 		if (Scope->Name == "GLOBAL_SCOPE")
-			Scope->Find(Operator->Left->Name)->Inheritted.push_back("const");
+			Scope->Find(Operator->Left->Name)->Inheritted.push_back("static");
 
 	//give the left and right operators the right holder information
 	Operator->Left->Context = Operator;
@@ -1258,7 +1258,7 @@ void Parser::Number_Pattern(int i)
 	if (Num->Format == "decimal") {
 		int Dot_Index = Num->Name.find_first_of('.');
 
-		int Decimal_Precission = Num->Name.substr(Dot_Index, Num->Name.size() - 1).size();
+		int Decimal_Precission = Num->Name.size();
 
 		if (Decimal_Precission > 8) {
 			Num->Size = 8;
@@ -2101,7 +2101,7 @@ void Parser::Size_Pattern(int i)
 	size->Size = atoi((Input[(size_t)i + 2].node)->Name.c_str());
 
 	size->Name = "size";
-	size->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
+	size->Inheritted.push_back("internal");	//NOTICE:!!! this might be wrong type!!!
 	size->Scope = Scope;
 
 	Scope->Defined.push_back(size);
@@ -2132,7 +2132,7 @@ void Parser::Format_Pattern(int i)
 	format->Format = Input[(size_t)i + 2].Value;
 
 	format->Name = "format";
-	format->Inheritted.push_back("const");	//NOTICE:!!! this might be wrong type!!!
+	format->Inheritted.push_back("internal");	//NOTICE:!!! this might be wrong type!!!
 	format->Scope = Scope;
 
 	Scope->Defined.push_back(format);

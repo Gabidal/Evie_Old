@@ -1012,7 +1012,7 @@ void Node::Get_Inheritted_Class_Members() {
 		reverse(Inheritted_Members.begin(), Inheritted_Members.end());
 
 		for (auto Member : Inheritted_Members)
-			if (!Member->is("const"))
+			if (!Member->is("internal"))
 				if (Locate(Member, Defined) == false)
 					Defined.insert(Defined.begin(), Member);
 	}
@@ -1225,7 +1225,7 @@ vector<Node*> Node::Get_Inheritted_Node_List()
 
 vector<Node*> Trace_Update_Size;
 int Node::Update_Size() {
-	if (is("const") && Size != 0 || Is_Template_Object)
+	if (is("internal") && Size != 0 || Is_Template_Object)
 		return Size;
 
 	for (int j = 0; j < Trace_Update_Size.size(); j++)

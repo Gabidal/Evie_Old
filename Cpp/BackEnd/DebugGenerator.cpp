@@ -775,7 +775,7 @@ void DebugGenerator::Info_Generator(Node* n)
 Go_Straight_To_Childs:;
     if (!n->is(OBJECT_DEFINTION_NODE))
         for (auto v : n->Defined) {
-            if (v->is("const") || v->Is_Template_Object)
+            if (v->is("internal") || v->Is_Template_Object)
                 continue;
             if (v->is(FUNCTION_NODE))
                 continue;
