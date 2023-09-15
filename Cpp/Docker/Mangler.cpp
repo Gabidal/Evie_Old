@@ -316,14 +316,18 @@ string MANGLER::Un_Mangle(string raw) {
 
 vector<string> Classes;
 
+// Take into consideration while configuring this function:
+// At the function start phase the inheritances are not fully cached, so use inheritance based conditions carefully!
 string MANGLER::Mangle(Node* raw, string Force_Complex)
 {
 	string Result = "";
 
+	bool Is_Function_Based_Label = raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE);
+
 	if (raw->is("vivid") || raw->Scope->is("vivid") || Force_Complex == "vivid") {
 
 		string STD = "vivid";
-		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
+		if (Is_Function_Based_Label ||  raw->Find(raw, raw->Scope, false)->is("static")) {
 			Classes.clear();
 			Result = "_V";
 
@@ -352,7 +356,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 				Result += to_string(raw->Name.size()) + raw->Name;
 
 
-			if (raw->Parameters.size() < 1)
+			if (raw->Parameters.size() < 1 && Is_Function_Based_Label)
 				Result += "v";
 
 			for (auto i : raw->Parameters) {
@@ -461,7 +465,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 		//if the function call uses the C standard.
 		//_import_func_cpp_internal_print__char__int to
 		//_Z14internal_printPci
-		if (raw->is(FUNCTION_NODE) || raw->is(IMPORT) || raw->is(PROTOTYPE)) {
+		if (Is_Function_Based_Label || raw->Find(raw, raw->Scope, false)->is("static")) {
 			Classes.clear();
 			Result = "_Z";
 
@@ -490,7 +494,7 @@ string MANGLER::Mangle(Node* raw, string Force_Complex)
 				Result += to_string(raw->Name.size()) + raw->Name;
 
 
-			if (raw->Parameters.size() < 1)
+			if (raw->Parameters.size() < 1 && Is_Function_Based_Label)
 				Result += "v";
 
 			for (auto i : raw->Parameters) {

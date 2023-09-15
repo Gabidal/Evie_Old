@@ -1398,7 +1398,8 @@ void IRGenerator::Parse_Static_Variables(Node* n)
 
 		//un given value global variables
 		Node tmp = *n;
-		tmp.Mangled_Name = tmp.Scope->Name + "_" + tmp.Name;
+		//tmp.Mangled_Name = tmp.Scope->Name + "_" + tmp.Name;
+		tmp.Mangled_Name = MANGLER::Mangle(&tmp, "");
 		Generate_Global_Variable(&tmp, value);
 	}
 }
