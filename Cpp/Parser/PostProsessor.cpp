@@ -318,7 +318,7 @@ void PostProsessor::Destructor_Generator(Node* Type)
 		//if the member is a base type pointter
 		//char ptr -> Deallocate<char>(banana)
 		if (MANGLER::Is_Based_On_Base_Type(Member)) {
-			Result += "Deallocate<" + Member->Get_Inheritted(" ", true, false, true) + ">(this." + Member->Name + ")\n";
+			Result += "Deallocate<" + Member->Get_Inheritted((string)" ", true, false, true) + ">(this." + Member->Name + ")\n";
 		}
 
 		//if the memebr is not a base type
@@ -1164,7 +1164,7 @@ void PostProsessor::Find_Call_Owner(Node* n, bool Stop)
 	}
 }
 
-//All numbers in evie will only occupie the smallest amount if size.
+//All numbers in evie will only occupie the smallest amount of size.
 //Because of this we need to upscale number parameters to the call host size, so that the registers are fully cleared of extern values.
 void PostProsessor::Upscale_Number_Parameter_Sizes(Node* caller){
 
@@ -1424,13 +1424,13 @@ map<int, vector<pair<pair<Node*, Node*>, Node*>>> PostProsessor::Order_By_Accura
 
 		//dont worry about pointter amount, we will check them in another function-
 		//that is to run after this function.
-		if (Func->Get_Inheritted("_", true, false, true) == Caller->Get_Inheritted("_", true, false, true))
+		if (Func->Get_Inheritted((string)"_", true, false, true) == Caller->Get_Inheritted((string)"_", true, false, true))
 			Accuracity++;
 
 		//checks basetype casting in parameters.
 		bool All_Parameters_Match = true;
 		for (int i = 0; i < Func->Parameters.size(); i++) {
-			if (Func->Parameters[i]->Get_Inheritted("_", true, false, true) != Caller->Parameters[i]->Get_Inheritted("_", true, false, true))
+			if (Func->Parameters[i]->Get_Inheritted((string)"_", true, false, true) != Caller->Parameters[i]->Get_Inheritted((string)"_", true, false, true))
 				for (int j = 0; j < Func->Parameters[i]->Inheritted.size(); j++)
 					if (!Lexer::GetComponent(Func->Parameters[i]->Inheritted[j]).is(Flags::KEYWORD_COMPONENT))
 						//banana --> fruit
@@ -1641,7 +1641,7 @@ int PostProsessor::Get_Casting_Distance(Node* a, Node* b, bool Layer)
 	Node* Current = a;
 	Node* Goal = b;
 
-	if (Current->Get_Inheritted("_", true, false, true) == Goal->Get_Inheritted("_", true, false, true))
+	if (Current->Get_Inheritted((string)"_", true, false, true) == Goal->Get_Inheritted((string)"_", true, false, true))
 		return Result + Layer;
 
 	/*
@@ -1821,6 +1821,14 @@ void PostProsessor::Combine_Member_Fetching(Node*& n)
 					else
 						Right->Size = 4;
 				}
+
+				Node* tmp = Right->Find(Right->Size, Right->Scope, CLASS_NODE, "integer", true);
+
+				if (!tmp){
+					Report(Observation(ERROR, "Cannot find suitable class to give inheritance to number: " + Right->Name, DEFINITION_ERROR));
+				}
+
+				Right->Inheritted = {tmp->Name};
 			}
 			else
 				//find the inheritted definition
@@ -2001,12 +2009,26 @@ void PostProsessor::Determine_Return_Type(int i)
 			else {
 				//Both of em are numbers
 				vector<string> Inheritance;
-				vector<Node*> Contexts = (*Number)->Get_Context_Path();
+				vector<Node*> Contexts;
+				
+				if ((*Number)->Size > (*Non_Number)->Size) {
+					Contexts = (*Number)->Get_Context_Path();
+				}
+				else {
+					Contexts = (*Non_Number)->Get_Context_Path();
+				}
+
 				reverse(Contexts.begin(), Contexts.end());
 				for (auto Context : Contexts) {
 					if (Context->Inheritted.size() > 0) {
 						(*Number)->Inheritted = Context->Inheritted;
 						(*Non_Number)->Inheritted = Context->Inheritted;
+
+						// update the sizes:
+						(*Number)->Update_Size();
+						(*Non_Number)->Update_Size();
+
+						break;
 					}
 				}
 
@@ -2097,7 +2119,6 @@ void PostProsessor::Determine_Return_Type(int i)
 		if (Input[i]->Right->is("ptr"))
 			Right_Size = _SYSTEM_BIT_SIZE_;
 	}
-
 
 	if (Left_Size >= Right_Size)
 		Input[i]->Inheritted = Input[i]->Left->Get_Inheritted(false, false);
@@ -2480,8 +2501,11 @@ void PostProsessor::Update_Operator_Inheritance(Node* n)
 			n->Inheritted = n->Left->Inheritted;
 		else if (!n->Left->is(NUMBER_NODE) && !n->Left->is(CONTENT_NODE))
 			n->Inheritted = n->Left->Scope->Find(n->Left, scope)->Inheritted;
-		else if (n->Left->is(NUMBER_NODE))
+		else if (n->Left->is(NUMBER_NODE)){
+			// NOTICE: using number as an inheitance is wrong in operator inheritance setting. 
 			n->Inheritted = n->Left->Get_Inheritted(false, false);
+			Report(Observation(ERROR, "Internal problem with Algebra not able to deal with numbers, please turn off cpu and RUN!!!"));
+		}
 		else {
 			scope = n->Right;
 
@@ -2537,7 +2561,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 		return;
 
 	// Dont need to use automated return type detection if the number already is casted.
-	if (n->Inheritted.size() != 0 || n->Cast_Type)
+	if (n->Cast_Type)		// this will not work anymore since ALL numbers have inheritances nowdays => [n->Inheritted.size() != 0 || ]
 		return;
 
 	// This is for the numbers that are used in operator context.
@@ -2571,7 +2595,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 		}
 		else{
 			// this means the pair has inheritted, we can copy from.
-			Number->Inheritted = Non_Number->Get_Inheritted(true);
+			Number->Inheritted = Non_Number->Get_Inheritted();	// (true)
 
 			// Check if the new inheritance given to the number doesnt exceed _SYSTEM_BIT_SIZE_
 			unsigned int Non_PTR_Inheritted_Size = Number->Update_Size();
@@ -2579,7 +2603,7 @@ void PostProsessor::Handle_Numbers(Node* n){
 			if (Non_PTR_Inheritted_Size > _SYSTEM_BIT_SIZE_){
 				// If the Non_Number has 'ptr' as an inheritance, thenwe can put the number to also be a 'ptr', since it wont fit into a non_ptr format.
 				if (Non_Number->is("ptr")){
-					Report(Observation(ERROR, "Cannot un-wrap '" + Non_Number->Name + "' since it exceeds the architecture size of " + to_string(_SYSTEM_BIT_SIZE_ * 8) + " bits.", *Number->Location, CANNOT_UNWRAP_PTR));
+					Report(Observation(ERROR, "Cannot un-wrap '" + Non_Number->Name + "' since it exceeds the architecture size of " + to_string(_SYSTEM_BIT_SIZE_ * 8) + " bits.", *Non_Number->Location, CANNOT_UNWRAP_PTR));
 				}
 				else{
 					// If it doesnt even have 'ptr' and is larger than _SYSTEM_BIT_SIZE_, then we will report it as an error.

@@ -253,22 +253,41 @@ string DOCKER::Update_Working_Dir(string File_Name)
 {
 	//Main.e
 	//int i = (int)File_Name.find_last_of('/');
-	string Prevous_Dir = "";
+	string Previous_Dir = "";
 
 	if (!Working_Dir.empty())
-		Prevous_Dir = Working_Dir.back().second;
+		Previous_Dir = Working_Dir.back().second;
 
 	if (WORKING_DIR_IS_ABSOLUTE)
-		Prevous_Dir = "";
+		Previous_Dir = "";
+
+	bool Is_Absolute_Path = false;
+
+	// Check if the file path if absolute
+	if (sys->Info.OS == "win"){
+		if (File_Name.size() > 1)
+			if (File_Name[1] == ':')
+				Is_Absolute_Path = true;
+	}
+	else {
+		// uses unix
+		if (File_Name.size() > 0)
+			if (File_Name[0] == '/')
+				Is_Absolute_Path = true;
+	}
 
 	string New_Dir = "";
-	string remainder = Update_Working_Dir(File_Name, New_Dir);
+	string remainder = "";
 
-	/*if (i != -1)
-	{*/
-		Working_Dir.push_back({Prevous_Dir + File_Name , Prevous_Dir + New_Dir });
-		//return File_Name.substr((size_t)i + 1);
-	//}
+	if (Is_Absolute_Path){
+		Previous_Dir = "";
+	}
+
+	remainder = Update_Working_Dir(File_Name, New_Dir);
+
+
+	Working_Dir.push_back({Previous_Dir + File_Name , Previous_Dir + New_Dir });
+
 	return remainder;
 }
 

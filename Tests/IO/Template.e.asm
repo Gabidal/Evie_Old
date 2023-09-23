@@ -35,10 +35,10 @@ ret                                                         #
 
 
 _Z4mainv:
-push rbp                                                    #Reg_rbp
-push rsi                                                    #Reg_rsi
-push rdi                                                    #Reg_rdi
-push rbx                                                    #Reg_rbx
+push rbp                                                    #NON_VOLATILE_PUSH_rbp
+push rsi                                                    #NON_VOLATILE_PUSH_rsi
+push rdi                                                    #NON_VOLATILE_PUSH_rdi
+push rbx                                                    #NON_VOLATILE_PUSH_rbx
 mov dword ptr [rip + _ZN3std15ALLOCATION_SIZEE ], 700000    #.RIP__ZN3std15ALLOCATION_SIZEE, 700000
 mov dword ptr [rip + _ZN3std12BUCKET_COUNTE ], 100000       #.RIP__ZN3std12BUCKET_COUNTE, 100000
 mov ebx, dword ptr [rip + _ZN3std12BUCKET_COUNTE ]          #std_BUCKET_COUNT_REGISTER, .RIP__ZN3std12BUCKET_COUNTE
@@ -95,15 +95,15 @@ sub rbp, rbp                                                #std_Inf_REGISTER, s
 mov qword ptr [rip + _ZN3std3NanE ], rbp                    #.RIP__ZN3std3NanE, std_Inf_REGISTER
 jmp _Z10Start_Testv                                         #_Z10Start_Testv
 mov eax, 1                                                  #Returning_REG4, 1
-pop Reg_rbx                                                 #Reg_Reg_rbx
-pop Reg_rdi                                                 #Reg_Reg_rdi
-pop Reg_rsi                                                 #Reg_Reg_rsi
-pop Reg_rbp                                                 #Reg_Reg_rbp
+pop rbx                                                     #NON_VOLATILE_POP_rbx
+pop rdi                                                     #NON_VOLATILE_POP_rdi
+pop rsi                                                     #NON_VOLATILE_POP_rsi
+pop rbp                                                     #NON_VOLATILE_POP_rbp
 ret                                                         #
-pop Reg_rbx                                                 #Reg_Reg_rbx
-pop Reg_rdi                                                 #Reg_Reg_rdi
-pop Reg_rsi                                                 #Reg_Reg_rsi
-pop Reg_rbp                                                 #Reg_Reg_rbp
+pop rbx                                                     #NON_VOLATILE_POP_rbx
+pop rdi                                                     #NON_VOLATILE_POP_rdi
+pop rsi                                                     #NON_VOLATILE_POP_rsi
+pop rbp                                                     #NON_VOLATILE_POP_rbp
 ret                                                         #
 
 
@@ -205,9 +205,9 @@ ret                                                         #
 
 
 _ZN3std8AllocateEi:
-push rsi                                                    #Reg_rsi
-push rdi                                                    #Reg_rdi
-push rbx                                                    #Reg_rbx
+push rsi                                                    #NON_VOLATILE_PUSH_rsi
+push rdi                                                    #NON_VOLATILE_PUSH_rdi
+push rbx                                                    #NON_VOLATILE_PUSH_rbx
 mov ebx, ecx                                                #Size, Size
 if_8:
 cmp ebx, dword ptr [rip + _Z15ALLOCATION_SIZE ]             #Size, .RIP__Z15ALLOCATION_SIZE
@@ -224,9 +224,9 @@ call _ZN4Page3std4PageEP4PageP4Page
 mov rcx, qword ptr [rsp + 0 ]                               #Result_REG4, .STACK_0
 mov rax, qword ptr [rcx + 0 ]                               #Returning_REG5, Result_REG4_0
 add rsp, 8                                                  #.STACK, 8
-pop Reg_rbx                                                 #Reg_Reg_rbx
-pop Reg_rdi                                                 #Reg_Reg_rdi
-pop Reg_rsi                                                 #Reg_Reg_rsi
+pop rbx                                                     #NON_VOLATILE_POP_rbx
+pop rdi                                                     #NON_VOLATILE_POP_rdi
+pop rsi                                                     #NON_VOLATILE_POP_rsi
 ret                                                         #
 if_8_END:
 call _ZN3std13Get_Free_PageEv
@@ -250,31 +250,31 @@ mov rcx, qword ptr [rip + _ZN3std12Bucket_CacheE ]          #_ZN3std12Bucket_Cac
 add dword ptr [rcx + 0 ], 1                                 #_ZN3std12Bucket_CacheE_REG11_0, 1
 mov rax, qword ptr [rdi + 0 ]                               #Returning_REG12, New_Page_0
 add rsp, 8                                                  #.STACK, 8
-pop Reg_rbx                                                 #Reg_Reg_rbx
-pop Reg_rdi                                                 #Reg_Reg_rdi
-pop Reg_rsi                                                 #Reg_Reg_rsi
+pop rbx                                                     #NON_VOLATILE_POP_rbx
+pop rdi                                                     #NON_VOLATILE_POP_rdi
+pop rsi                                                     #NON_VOLATILE_POP_rsi
 ret                                                         #
 add rsp, 8                                                  #.STACK, 8
-pop Reg_rbx                                                 #Reg_Reg_rbx
-pop Reg_rdi                                                 #Reg_Reg_rdi
-pop Reg_rsi                                                 #Reg_Reg_rsi
+pop rbx                                                     #NON_VOLATILE_POP_rbx
+pop rdi                                                     #NON_VOLATILE_POP_rdi
+pop rsi                                                     #NON_VOLATILE_POP_rsi
 ret                                                         #
 
 
 _ZN8Internal8AllocateEl:
-push rbx                                                    #Reg_rbx
+push rbx                                                    #NON_VOLATILE_PUSH_rbx
 mov rcx, 0                                                  #REG_0_Parameter14604, 0
-mov Non-Volatile15141, rcx                                  #Non-Volatile15141, Current_Volatile7711
-mov rdx, rbx                                                #REG_Size_Parameter3902, Size
+mov rbx, rcx                                                #Non-Volatile25547, Current_Volatile27644
+mov rdx, rcx                                                #REG_Size_Parameter3902, Size
 mov ecx, dword ptr [rip + _ZN8Internal13MEMORY_COMMITE ]    #REG__ZN8Internal13MEMORY_COMMITE0, .RIP__ZN8Internal13MEMORY_COMMITE
 or ecx, dword ptr [rip + _Z14MEMORY_RESERVE ]               #REG__ZN8Internal13MEMORY_COMMITE0, .RIP__Z14MEMORY_RESERVE
 mov r8d, ecx                                                #REG_REG__ZN8Internal13MEMORY_COMMITE0_Parameter153, REG__ZN8Internal13MEMORY_COMMITE0
 mov r9d, dword ptr [rip + _Z14PAGE_READWRITE ]              #REG__Z14PAGE_READWRITE_Parameter292, .RIP__Z14PAGE_READWRITE
 call VirtualAlloc
 mov rax, rax                                                #Returning_REG2, RetREG_1
-pop Reg_rbx                                                 #Reg_Reg_rbx
+pop rbx                                                     #NON_VOLATILE_POP_rbx
 ret                                                         #
-pop Reg_rbx                                                 #Reg_Reg_rbx
+pop rbx                                                     #NON_VOLATILE_POP_rbx
 ret                                                         #
 
 
@@ -334,8 +334,8 @@ ret                                                         #
 
 
 _ZN6Bucket3std6BucketEP6BucketP6Bucket:
-push rdi                                                    #Reg_rdi
-push rbx                                                    #Reg_rbx
+push rdi                                                    #NON_VOLATILE_PUSH_rdi
+push rbx                                                    #NON_VOLATILE_PUSH_rbx
 mov rdi, rdx                                                #previus, previus
 mov rbx, rcx                                                #this, this
 mov ecx, dword ptr [rip + _Z15ALLOCATION_SIZE ]             #REG__Z15ALLOCATION_SIZE_Parameter18716, .RIP__Z15ALLOCATION_SIZE
@@ -353,16 +353,17 @@ mov rcx, qword ptr [rdi + 29 ]                              #previus_29_REG4, pr
 mov qword ptr [rbx + 29 ], rcx                              #this_29, previus_29_REG4
 mov qword ptr [rdi + 29 ], rbx                              #previus_29, this
 mov qword ptr [rbx + 37 ], rdi                              #this_37, previus
-mov cl, byte ptr [rbx ]                                     #this_REG5, this
-add cl, 53                                                  #this_REG5, 53
-mov qword ptr [rbx + 45 ], cl                               #this_45, this_REG5
-pop Reg_rbx                                                 #Reg_Reg_rbx
-pop Reg_rdi                                                 #Reg_Reg_rdi
+mov rcx, 4632655904192331776                                #REG_4632655904192346917, 4632655904192331776
+movq xmm0, rcx                                              #MEDIA_4632655904192339487, REG_4632655904192346917
+addsd rbx, xmm0                                             #this, MEDIA_4632655904192339487
+mov qword ptr [rbx + 45 ], rbx                              #this_45, this
+pop rbx                                                     #NON_VOLATILE_POP_rbx
+pop rdi                                                     #NON_VOLATILE_POP_rdi
 ret                                                         #
 
 
 _ZN6Bucket3std6BucketEP6Bucket:
-push rbx                                                    #Reg_rbx
+push rbx                                                    #NON_VOLATILE_PUSH_rbx
 mov rbx, rcx                                                #this, this
 mov ecx, dword ptr [rip + _Z15ALLOCATION_SIZE ]             #REG__Z15ALLOCATION_SIZE_Parameter5447, .RIP__Z15ALLOCATION_SIZE
 call _ZN8Internal27____Allocate_____char_ptr__El
@@ -377,15 +378,16 @@ mov qword ptr [rbx + 21 ], rcx                              #this_21, this_13_RE
 mov byte ptr [rbx + 12 ], 0                                 #this_12, 0
 mov qword ptr [rbx + 29 ], 0                                #this_29, 0
 mov qword ptr [rbx + 37 ], 0                                #this_37, 0
-mov cl, byte ptr [rbx ]                                     #this_REG4, this
-add cl, 53                                                  #this_REG4, 53
-mov qword ptr [rbx + 45 ], cl                               #this_45, this_REG4
-pop Reg_rbx                                                 #Reg_Reg_rbx
+mov rcx, 4632655904192331776                                #REG_4632655904192360029, 4632655904192331776
+movq xmm0, rcx                                              #MEDIA_4632655904192338644, REG_4632655904192360029
+addsd rbx, xmm0                                             #this, MEDIA_4632655904192338644
+mov qword ptr [rbx + 45 ], rbx                              #this_45, this
+pop rbx                                                     #NON_VOLATILE_POP_rbx
 ret                                                         #
 
 
 _ZN13____List_int_12____Add_int_EP13____List_int_i:
-push rbx                                                    #Reg_rbx
+push rbx                                                    #NON_VOLATILE_PUSH_rbx
 mov rbx, rcx                                                #this, this
 if_10:
 mov ecx, dword ptr [rbx + 0 ]                               #this_0_REG0, this_0
@@ -415,7 +417,7 @@ mov r8d, dword ptr [rsp + 0 ]                               #REG_Element12, .STA
 mov dword ptr [rcx ], r8d                                   #this_0_REG9_REG10, REG_Element12
 add dword ptr [rbx + 0 ], 1                                 #this_0, 1
 add rsp, 12                                                 #.STACK, 12
-pop Reg_rbx                                                 #Reg_Reg_rbx
+pop rbx                                                     #NON_VOLATILE_POP_rbx
 ret                                                         #
 
 
@@ -440,7 +442,7 @@ ret                                                         #
 
 
 _Z13____List_int_P13____List_int_:
-push rbx                                                    #Reg_rbx
+push rbx                                                    #NON_VOLATILE_PUSH_rbx
 mov rbx, rcx                                                #this, this
 mov dword ptr [rbx + 0 ], 1                                 #this_0, 1
 mov dword ptr [rbx + 0 ], 0                                 #this_0, 0
@@ -449,9 +451,9 @@ mov ecx, ecx                                                #REG_this_0_REG0_Par
 call _ZN3std8AllocateEi
 mov qword ptr [rbx + 0 ], rax                               #this_0, RetREG_1
 mov rax, rbx                                                #Returning_REG2, this
-pop Reg_rbx                                                 #Reg_Reg_rbx
+pop rbx                                                     #NON_VOLATILE_POP_rbx
 ret                                                         #
-pop Reg_rbx                                                 #Reg_Reg_rbx
+pop rbx                                                     #NON_VOLATILE_POP_rbx
 ret                                                         #
 
 

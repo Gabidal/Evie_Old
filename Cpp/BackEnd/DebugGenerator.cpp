@@ -766,9 +766,9 @@ void DebugGenerator::Info_Generator(Node* n)
             }
         }
         MANGLER::Clear_Class_Zipping_List();
-        /*= n->Get_Inheritted("_", true, false, true);
+        /*= n->Get_Inheritted((string)"_", true, false, true);
         if (Inheritted == "")
-            Inheritted = n->Get_Inheritted("_", true, false, false);*/
+            Inheritted = n->Get_Inheritted((string)"_", true, false, false);*/
         IR* DW_AT_Type = new IR(new Token(TOKEN::SET_DATA, "init"), { new Token(TOKEN::LABEL, Inheritted + "_START-Debug_Info_Start", 4) }, nullptr);
         Debug_Info.push_back(DW_AT_Type);
     }

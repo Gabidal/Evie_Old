@@ -195,20 +195,20 @@ void Safe::Check_Return_Validity(Node* n)
 
 		Skip_Size_And_Inheritance:;
 		}
-		if (n->Right->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
+		if (n->Right->Get_Inheritted((string)"_", false, false, true) == func->Get_Inheritted((string)"_", false, false, true))
 			return;
-		else if (n->Right->Get_Inheritted("_", true, false, true) == func->Get_Inheritted("_", false, false, true))
+		else if (n->Right->Get_Inheritted((string)"_", true, false, true) == func->Get_Inheritted((string)"_", false, false, true))
 			return;
-		else if (n->Right->Cast_Type != nullptr && n->Find(n->Right->Cast_Type, n)->Size == func->Size && n->Find(n->Right->Cast_Type, n)->Get_Inheritted("_", false, false, true) == func->Get_Inheritted("_", false, false, true))
+		else if (n->Right->Cast_Type != nullptr && n->Find(n->Right->Cast_Type, n)->Size == func->Size && n->Find(n->Right->Cast_Type, n)->Get_Inheritted((string)"_", false, false, true) == func->Get_Inheritted((string)"_", false, false, true))
 			return;
 		else if (func->Size == 0) {
-			Report(Observation(ERROR, "Can't return '" + n->Right->Get_Inheritted(" ", false, false, true) + "' in function '" + func->Name + "'.", *n->Location, "Value return in non-returning funciton."));
+			Report(Observation(ERROR, "Can't return '" + n->Right->Get_Inheritted((string)" ", false, false, true) + "' in function '" + func->Name + "'.", *n->Location, "Value return in non-returning funciton."));
 		}
 		else {
 			Report({
 				Observation(ERROR, "Incorrect return type!", *n->Location, "Incorrect return type!"),
-				//Observation(WARNING, "Return type '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' does not mach with '" + func->Get_Inheritted(" ", false, false, true) + " '.", *n->Right->Location, "Incorrect return type!"),
-				Observation(SOLUTION, "Try casting '" + n->Right->Get_Inheritted(" ", false, false, true) + " ' to '" + func->Get_Inheritted(" ", false, false, true) + " '." , *n->Right->Location, "Incorrect return type!")
+				//Observation(WARNING, "Return type '" + n->Right->Get_Inheritted((string)" ", false, false, true) + " ' does not mach with '" + func->Get_Inheritted((string)" ", false, false, true) + " '.", *n->Right->Location, "Incorrect return type!"),
+				Observation(SOLUTION, "Try casting '" + n->Right->Get_Inheritted((string)" ", false, false, true) + " ' to '" + func->Get_Inheritted((string)" ", false, false, true) + " '." , *n->Right->Location, "Incorrect return type!")
 				});
 		}
 	}
@@ -291,7 +291,7 @@ void Safe::Prefer_Class_Cast_Rather_Object_Cast(Node* n)
 	//check here if the cast type is a class or a object
 	Node* Cast = n->Find(n->Cast_Type, n);
 	if (!Cast->is(CLASS_NODE)) {
-		Report(Observation(WARNING, "Cast" + n->Name +  " with 'type " + Cast->Get_Inheritted(" ", false, false, false) + " " + Cast->Name + "{}'", *Cast->Location, "Non-Class based casting"));
+		Report(Observation(WARNING, "Cast" + n->Name +  " with 'type " + Cast->Get_Inheritted((string)" ", false, false, false) + " " + Cast->Name + "{}'", *Cast->Location, "Non-Class based casting"));
 	}
 }
 

@@ -1,4 +1,5 @@
-use "https://github.com/Gabidal/std/std.e"
+#use "https://github.com/Gabidal/std/std.e"
+use "C:\Users\Quanf\source\repos\std\std.e"
 
 use std
 

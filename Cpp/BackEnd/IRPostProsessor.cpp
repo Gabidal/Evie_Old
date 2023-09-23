@@ -146,7 +146,7 @@ void IRPostProsessor::Clean_Selector(int& i)
 			}
 		}
 
-		reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "Reg_");
+		reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "NON_VOLATILE_PUSH_");
 		reg->ID = r.second->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r.second);
 		reg->Name += reg->ID->Name;
 		reg->Size = _SYSTEM_BIT_SIZE_;
@@ -182,8 +182,8 @@ void IRPostProsessor::Clean_Selector(int& i)
 		Return_Amount++;
 		Token* ret = Input->at(j)->OPCODE;
 		for (auto r : Push_Amount) {
-			Token* reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "Reg_");
-			reg->ID = r->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r);
+			Token* reg = new Token(TOKEN::REGISTER | TOKEN::NONVOLATILE, "NON_VOLATILE_POP_");
+			reg->ID = r->Get_Size_Parent(_SYSTEM_BIT_SIZE_, r)->ID;
 			reg->Name += reg->ID->Name;
 			reg->Size = _SYSTEM_BIT_SIZE_;
 			reg->XReg = reg->ID->XReg;

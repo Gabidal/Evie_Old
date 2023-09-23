@@ -154,20 +154,23 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Descriptor*, Token
 	call banana(a)
 	*/
 	//get a new non-volatile register to use
-	Token* non_volatile = Get_Register(TOKEN::NONVOLATILE, New.first, i, New.second);
+	Token* Non_Volatile = Get_Register(TOKEN::NONVOLATILE, New.first, i, New.second);
 
-	if (non_volatile == nullptr) {
+	if (Non_Volatile == nullptr) {
 		//if this happends then all registers are in use and we need to use stack
 	}
 	else {
-		non_volatile = new Token(non_volatile->Get_Flags(), "Non-Volatile" + to_string(rand()), non_volatile->Get_Size());
-		non_volatile->ID = non_volatile;
+		Token* Non_Volatile_Handler = new Token(Non_Volatile->Get_Flags(), "Non-Volatile" + to_string(rand()), Non_Volatile->Get_Size());
+		Non_Volatile_Handler->ID = Non_Volatile;
+
+		// Switch the handler to the actual non-volatile pointer for ease of use.
+		Non_Volatile = Non_Volatile_Handler;
 	}
 	Token* Current_Reg = new Token(Current.second->Get_Flags(), "Current_Volatile" + to_string(rand()), Current.second->Get_Size());
 	Current_Reg->ID = Current.second;
 	//now we need to give the cuurent user the new non-volatile register.
 	//TODO: Because im a peace of shit and dont know how to implement LIVE register change ill have to make a new move IR
-	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "="), {non_volatile, Current_Reg }, nullptr);
+	IR* MOV = new IR(new Token(TOKEN::OPERATOR, "="), {Non_Volatile, Current_Reg }, nullptr);
 
 	//insert the mov before the new user starts
 	source->insert(source->begin() + New.first->First_Usage_Index, MOV);
@@ -176,8 +179,8 @@ void Selector::Make_Solution_For_Crossed_Register_Usages(pair<Descriptor*, Token
 
 	//now we need to give the current user the new non-volatile
 	//if the non-volatile area is a memory then no need to pair
-	if (!non_volatile->is(TOKEN::MEMORY))
-		Pair_Up(non_volatile, Current.first);
+	if (!Non_Volatile->is(TOKEN::MEMORY))
+		Pair_Up(Non_Volatile, Current.first);
 
 	//break the old connection between the register and the user
 	Break_Up(Current.second);
