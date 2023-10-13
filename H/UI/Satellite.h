@@ -52,6 +52,9 @@ public:
 		Init_Wanted_Dependencies();
 		Factory();
 	}
+
+	void Scraper();	// Automatically fetches all dll/lib's which contain imported function bodies.
+
 private:
 	vector<string> Chache;
 
@@ -60,7 +63,8 @@ private:
 	vector<Medium> Dependecies;
 
 	void Init_Wanted_Dependencies();
-	void Factory();
+	void Factory();	// For going through all the needed executable files.
+
 
 	void Process_Local_Dependencies(Medium m);
 	void Process_Console_Dependencies(Medium m);

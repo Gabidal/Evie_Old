@@ -69,7 +69,8 @@ int Build(int argc, const char* argv[])
         cout << "  -reference-count-size  [reference count size]\n";
         cout << "  -service ------------- [starts Evie as a service with a port returned in standard out]\n";
         cout << "  -start --------------- [Tells the linker what is the starting function name (default main). Also no need to mangle the name before giving it]\n";
-        cout << "  -allow-inconsistancies [True by default, disabling it makes variable addressing manual  'int ptr b = a->address'  where 'a' is a 'int']\n";
+        cout << "  -allow-inconsistencies [True by default, disabling it makes variable addressing manual  'int ptr b = a->address'  where 'a' is a 'int']\n";
+        cout << "  -use-scraper --------- [True by default, searches automatically for suitable dll/lib's to link with]\n";
 
         cout << "\nQuick usage:\n";
         cout << "  ./Evie foo/bar/baz.e\n";
@@ -198,6 +199,7 @@ int Build(int argc, const char* argv[])
     if (sys->Info.Debug)
         DebugGenerator DG(IRs);
 
+    satellite.Scraper();    // If the scraper is enabled, then we try to fetch all the files which contains the imported functions.
     Producer producer(IRs);
 
     return 0;

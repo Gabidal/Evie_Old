@@ -2,7 +2,10 @@
 #include "../../H/UI/Usr.h"
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Docker.h"
+#include "../../H/Docker/Mangler.h"
+
 #include <filesystem>
+#include <unordered_map>
 
 extern Usr* sys;
 
@@ -39,6 +42,87 @@ void Satellite::Factory()
 			Process_Console_Dependencies(Medium);
 		}
 	}
+}
+
+void Satellite::Scraper(){
+	if (!sys->Info.Use_Scraper)
+		return;
+
+	vector<Node*> Imported_Function_Nodes = Global_Scope->Get_all(Node_Type::IMPORT);
+
+	// Since header section can contain similar functions to the childs section and namespaced inline them on use.
+	// We need to remove identical functions from the imported functions list.
+
+	std::unordered_map<string, Node*> Imported_Functions;
+
+	for (auto& i : Imported_Function_Nodes){
+		Imported_Functions.at(MANGLER::Mangle(i, "")) = i;
+	}
+
+	vector<string> Linkable_File_Types;
+
+	// Now that we have only the single instance for all identical functions and the mangled names, we can just try to find the files which contains these function implementations.
+	if (sys->Info.OS == "win"){
+		// DLL, OBJ, LIB
+		Linkable_File_Types = { "dll", "obj", "lib" };
+	}
+	else if (sys->Info.OS == "unix"){
+		// ELF, Mach-O, PE
+		Linkable_File_Types = { "elf", "mach-o", "pe" };
+	}
+
+	// Prioritize the local location and then start searching on env paths.
+	vector<string> Paths = DOCKER::Get_System_Paths();
+	Paths.push_back(sys->Info.Source_File);	// Add the current location to the list too.
+
+	// Now put the order so that the Evie location is in priority
+	reverse(Paths.begin(), Paths.end());
+
+	vector<string> File_Names;
+
+	for (auto dir : Paths){
+		vector<string> tmp = DOCKER::Get_File_List(dir);
+		File_Names.insert(File_Names.end(), tmp.begin(), tmp.end());
+	}
+
+	// Now remove all the files which don't end in the correct file ending.
+	for (int i = 0; i < File_Names.size(); i++){
+		string File_Type = File_Names[i].substr(File_Names[i].find_last_of(".") + 1);
+		if (find(Linkable_File_Types.begin(), Linkable_File_Types.end(), File_Type) == Linkable_File_Types.end()){
+			File_Names.erase(File_Names.begin() + i);
+			i--;
+		}
+	}
+
+	// Extract the function implementations from the files.
+	// <File_name, Exported_Symbols>
+	std::map<std::string, std::vector<std::string>> Function_Implementations;
+
+	for (auto file_name : File_Names){
+		Docker D(file_name);
+
+		Function_Implementations.insert(DOCKER::Output.begin(), DOCKER::Output.end());
+
+		DOCKER::Output.clear();
+	}
+
+	vector<string> Link_File;
+
+	// Now check if the exported symbols match on any of the imported functions.
+	for (auto Linkable_File : Function_Implementations){
+		for (auto Exported : Linkable_File.second)
+			for (auto Imported : Imported_Functions){
+				if (Exported == Imported.first){
+
+					Link_File.push_back(Linkable_File.first);
+					goto Skip_File;
+				}
+			}
+
+		Skip_File:;
+	}
+		
+	sys->Info.Libs.insert(sys->Info.Libs.end(), Link_File.begin(), Link_File.end());
 }
 
 void Satellite::Process_Local_Dependencies(Medium Medium)

@@ -168,10 +168,18 @@ void Usr::Find_Start_Function_Name(int& i){
 	}
 }
 
-void Usr::Find_Allow_Inconsistancies(int& i){
-	if ((i <= Argument_Amount) && strcmp(Input[i], "-allow-inconsistancies") == 0)
-	{
-		Info.Allow_Inconsistancies = true;
+void Usr::Find_Allow_Inconsistencies(int& i){
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-allow-inconsistencies") == 0){
+		Info.Allow_Inconsistencies = true;
+	}
+}
+
+void Usr::Find_Use_Scraper(int& i){
+	// -use-scraper [true/false]
+	if ((i <= Argument_Amount) && strcmp(Input[i], "-use-scraper") == 0){
+		string tmp = string(Input[i + 1]);
+		Info.Use_Scraper = tmp == "true";
+		i++;
 	}
 }
 

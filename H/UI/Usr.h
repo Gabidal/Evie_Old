@@ -14,8 +14,8 @@ class System{
 public:
 	string Source_File;
 	string Destination_File;
-	string OS;
-	string HOST_OS;
+	string OS;						// Destination environment OS
+	string HOST_OS;					// Compiling environment OS
 	string Architecture = "x86";
 	vector<string> Libs;
 	string Repo_Dir = "";
@@ -27,6 +27,7 @@ public:
 	string VT_API = "";
 	int Reference_Count_Size = -1;
 	bool Is_Service = false;
+	bool Use_Scraper = true;		// Automatically fetches dll/lib and links them if they have the necessary function implementations.
 
 	string Start_Function_Name = "main";
 
@@ -37,7 +38,7 @@ public:
 	class Node* Starting_Address = nullptr;
 
 	// Flags
-	bool Allow_Inconsistancies = true;
+	bool Allow_Inconsistencies = true;
 
 	System() {
 		#if _WIN32
@@ -94,7 +95,8 @@ private:
 	void Find_Evie_Executable_Position();
 	void Find_Service(int& i);
 	void Find_Start_Function_Name(int& i);
-	void Find_Allow_Inconsistancies(int& i);
+	void Find_Allow_Inconsistencies(int& i);
+	void Find_Use_Scraper(int& i);
 
 	void Single_Argument_Use();
 };
