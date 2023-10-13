@@ -33,7 +33,7 @@ vector<string> DLL::Gather_All_Export_Names(PE::Header h, vector<unsigned char> 
 
 void DLL::DLL_Analyser(vector<string>& Output)
 {
-	//get the header and then start up the section suckup syste 2000 :D
+	//get the header and then start up the section suckup system 2000 :D
 	//read the file
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(DOCKER::Working_Dir.back().second + DOCKER::FileName.back(), "");
 	vector<unsigned char> buffer = vector<unsigned char>(*(unsigned char*)tmp.data(), tmp.size());
