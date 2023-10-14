@@ -302,14 +302,30 @@ string DOCKER::Update_Working_Dir(string File_Name, string& dir)
 	return File_Name;
 }
 
-vector<string> DOCKER::Get_File_List(string Dir)
+vector<string> DOCKER::Get_File_List(string Dir, bool Contain_Dir_Names)
 {
 	vector<string> Files;
 	//collect all filenames in the working dir
-	for (auto& p : filesystem::directory_iterator(Dir))
-	{
+
+	string Add_Dir = "";
+
+	if (Contain_Dir_Names){
+		string Ends_With_Slash = Dir.substr(Dir.size() - 1, 1) == "/" ? "" : "/";
+		
+		Add_Dir = Dir + Ends_With_Slash;
+	}
+
+	for (auto& p : filesystem::directory_iterator(Dir)){
+
+		try{
+			// Check if the p is a dir or a file
+			if (filesystem::is_directory(p.path()))
+				continue;
+		}
+		catch(...){ continue; }
+
 		string file_name = p.path().filename().string();
-				Files.push_back(file_name);
+		Files.push_back(Add_Dir + file_name);
 	}
 	return Files;
 }
@@ -504,6 +520,18 @@ vector<string> DOCKER::Get_System_Paths()
 		Paths.push_back(tmp);
 
 	return Paths;
+}
+
+string DOCKER::Get_File_Path(string file_name){
+	// extracts the file path from the file name, and returns the path.
+	string Result = "";
+
+	int i = (int)file_name.find_last_of('/');
+
+	if (i != -1)
+		Result = file_name.substr(0, (size_t)i + 1);
+
+	return DOCKER::Sanitize_File_Path(Result);
 }
 
 string DOCKER::Open_File(string File_Name)

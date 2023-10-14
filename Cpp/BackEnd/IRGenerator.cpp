@@ -751,7 +751,7 @@ void IRGenerator::Parse_Pointers(int i)
 	// If the left side has more prt's than the right side then we need to unwrap the left side and assing the new value to the address the left side is pointing to.
 	if (Left_Level > Right_Level) {
 		//here left has more ptr init check this is assignment
-		if (Input[i]->is(ASSIGN_OPERATOR_NODE) && !Right->is(TOKEN::NUM) && !Input[i]->Right->is(OPERATOR_NODE) && sys->Info.Allow_Inconsistancies) {
+		if (Input[i]->is(ASSIGN_OPERATOR_NODE) && !Right->is(TOKEN::NUM) && !Input[i]->Right->is(OPERATOR_NODE) && sys->Info.Allow_Inconsistencies) {
 			//save the address of Right into Left
 			Token* reg = new Token(TOKEN::REGISTER, Right->Get_Name() + "_REG" + to_string(Reg_Random_ID_Addon++), _SYSTEM_BIT_SIZE_);
 

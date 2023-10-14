@@ -22,6 +22,8 @@ namespace DLL {
 	void Write_Base_Relocation_Table(PE::PE_OBJ* obj, vector<unsigned char>& buffer);
 
 	vector<unsigned char> Write_DLL(PE::PE_OBJ* obj);
+
+	unsigned int Get_Bull_Shit_Header_Size(vector<unsigned char> &buffer);
 }
 
 #endif

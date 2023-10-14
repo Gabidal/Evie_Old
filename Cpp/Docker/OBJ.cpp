@@ -16,6 +16,10 @@ extern Usr* sys;
 
 extern Assembler* assembler;
 
+namespace PE{
+	unsigned int PE_SIGNATURE_HEADER = 0x4550;
+}
+
 vector<PE::Section> PE::Gather_All_Sections(vector<char> buffer, int Section_Count)
 {
 	vector<Section> Result;
@@ -25,27 +29,36 @@ vector<PE::Section> PE::Gather_All_Sections(vector<char> buffer, int Section_Cou
 	return Result;
 }
 
-vector<string> PE::Get_Symbol_Table_Content(Header h, vector<char> buffer)
+vector<string> PE::Get_Symbol_Table_Content(Header h, vector<char> buffer, bool Get_Only_Exported)
 {
 	vector<string> Result;
 
 	vector<Symbol> Symbols;
-	for (int i = *(int*)h.Pointer_To_Symbol_Table; i < buffer.size(); i++) {
-		Symbols.push_back(*(Symbol*)&(buffer[i]));
+	for (int i = 0; i < h.Number_Of_Symbols; i++) {
+		Symbols.push_back(*(Symbol*)&(buffer[h.Pointer_To_Symbol_Table + i * sizeof(PE::Symbol)]));
 	}
 
+	// String table is right after the symbol table
+	unsigned int Pointer_To_String_Table = h.Pointer_To_Symbol_Table + h.Number_Of_Symbols * sizeof(PE::Symbol) + sizeof(unsigned int);
+	unsigned int Pointer_To_Stirng_Table_Size = Pointer_To_String_Table - sizeof(unsigned int);
+
+	unsigned int String_Table_Size = *(unsigned int*)&buffer[Pointer_To_Stirng_Table_Size];
+
+	vector<unsigned char> String_Table(buffer.begin() + Pointer_To_String_Table, buffer.begin() + Pointer_To_String_Table + String_Table_Size);
+
 	for (auto& S : Symbols) {
+		if ((PE::STORAGE_CLASS_TYPES)S.Storage_Class != PE::STORAGE_CLASS_TYPES::EXTERNAL && Get_Only_Exported)
+			continue;
+
 		if (S.Name.Header == 0) {
 			string Name = "";
-			for (int i = *(int*)S.Name.Offset; i < buffer.size(); i++) {
-				if (buffer[i] == '\0')
-					break;
-				Name += buffer[i];
-			}
-			Result.push_back(Name);
+
+			unsigned int Symbol_String_Offset = (int)(S.Full_Name >> 32) - 4;
+
+			Result.push_back(S.Get_Name(String_Table));
 		}
 		else
-			Result.push_back(string(S.Full_Name, 8));
+			Result.push_back(string(8, *(char*)&S.Full_Name));
 	}
 
 	return Result;
@@ -55,7 +68,7 @@ void PE::OBJ_Analyser(vector<string>& Output) {
 	//get the header and then start up the section suckup syste 2000 :D
 	//read the file
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(DOCKER::Working_Dir.back().second + DOCKER::FileName.back(), "");
-	vector<char> Buffer = vector<char>(*(char*)tmp.data(), tmp.size());
+	vector<char> Buffer(tmp.begin(), tmp.end());
 
 	//read the header of this obj file
 	int Small_Header_Size = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics);
@@ -64,7 +77,7 @@ void PE::OBJ_Analyser(vector<string>& Output) {
 
 	memcpy(&header, &Buffer[0], Small_Header_Size);
 
-	DOCKER::Append(Output, Get_Symbol_Table_Content(header, Buffer));
+	DOCKER::Append(Output, Get_Symbol_Table_Content(header, Buffer, true));
 }
 
 PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){

@@ -11,7 +11,7 @@ vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Hea
 {
 	vector<PE::Section> Result;
 
-	unsigned int Start_Of_Section_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header);
+	unsigned int Start_Of_Section_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header);
 
 	//Gather all sections
 	for (int i = 0; i < h.Number_Of_Sections; i++)
@@ -36,10 +36,12 @@ void DLL::DLL_Analyser(vector<string>& Output)
 	//get the header and then start up the section suckup system 2000 :D
 	//read the file
 	vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(DOCKER::Working_Dir.back().second + DOCKER::FileName.back(), "");
-	vector<unsigned char> buffer = vector<unsigned char>(*(unsigned char*)tmp.data(), tmp.size());
+	
+    // Cast the tmp vector into a unsigned char vector
+    vector<unsigned char> buffer(tmp.begin(), tmp.end());
 
 	//read the header of this obj file
-	PE::Header header = *(PE::Header*)&buffer;
+	PE::Header header = *(PE::Header*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
 
 	//now gather all the RVA sizes
 	vector<PE::Section> Sections = Gather_All_Tables(buffer, header);
@@ -155,7 +157,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     
     obj->Header.Size_Of_Initialized_Data = (Data_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     
-    obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Section) * obj->Sections.size();
+    obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Section) * obj->Sections.size();
     obj->Header.Size_Of_Headers += ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
     obj->Header.Check_Sum = 0;
     obj->Header.Subsystem = PE::_IMAGE_SUBSYSTEM_WINDOWS_CUI;
@@ -186,7 +188,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
     obj->Header.Number_Of_Sections = obj->Sections.size();
     obj->Header.Date_Time = time_t(time(NULL));
-    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
+    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
     obj->Header.Number_Of_Symbols = obj->Symbols.size();
     obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED | PE::_IMAGE_FILE_DLL;
@@ -206,7 +208,7 @@ void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj, int Expected_Section_Count)
     if (obj->Relocations.size() == 0)
         return;
 
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::Header) + sizeof(PE::Section) * Expected_Section_Count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + sizeof(PE::Section) * Expected_Section_Count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
@@ -306,6 +308,9 @@ vector<unsigned char> DLL::Write_DLL(PE::PE_OBJ* obj){
     //add DOS bullshittery
     Buffer.insert(Buffer.end(), (unsigned char*)&dos, (unsigned char*)&dos + sizeof(dos));
 
+    // Add the PE_Signature
+    Buffer.insert(Buffer.end(), (unsigned char*)&PE::PE_SIGNATURE_HEADER, (unsigned char*)&PE::PE_SIGNATURE_HEADER + sizeof(PE::PE_SIGNATURE_HEADER));
+
 	Buffer.insert(Buffer.end(), (unsigned char*)&obj->Header, (unsigned char*)&obj->Header + sizeof(PE::Header));
 
 	Buffer.insert(Buffer.end(), (unsigned char*)obj->Sections.data(), (unsigned char*)obj->Sections.data() + sizeof(PE::Section) * obj->Sections.size());
@@ -355,4 +360,13 @@ vector<unsigned char> DLL::Write_DLL(PE::PE_OBJ* obj){
 
 	//transform the 
 	return Buffer;
+}
+
+unsigned int DLL::Get_Bull_Shit_Header_Size(vector<unsigned char> &buffer){
+    // the bull shit headers usually have the size declared in the 0x3C, fi this is zero or empty, then the size is: sizeof(PE::BULLSHIT_HEADERS)
+    int DOS_Header_Size_Location = 0x3C;
+
+    int Tmp_Value = *(int*)&buffer[DOS_Header_Size_Location];
+
+    return Tmp_Value;
 }

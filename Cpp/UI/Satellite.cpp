@@ -50,13 +50,34 @@ void Satellite::Scraper(){
 
 	vector<Node*> Imported_Function_Nodes = Global_Scope->Get_all(Node_Type::IMPORT);
 
+	if (Imported_Function_Nodes.size() == 0)
+		return;
+
+	string LIB_CACHE_FILE_NAME = DOCKER::Get_File_Path(sys->Info.Source_File) + "/" + "LIB_PATH_CACHE.txt";
+
+	// check of this file exists in the working dir.
+	if (filesystem::exists(LIB_CACHE_FILE_NAME)) {
+		// if it does, then read the file and add the paths to the sys->Info.Libs
+		ifstream File(LIB_CACHE_FILE_NAME);
+
+		string Line;
+
+		while (getline(File, Line)) {
+			sys->Info.Libs.push_back(Line);
+		}
+
+		File.close();
+
+		return;
+	}
+
 	// Since header section can contain similar functions to the childs section and namespaced inline them on use.
 	// We need to remove identical functions from the imported functions list.
 
 	std::unordered_map<string, Node*> Imported_Functions;
 
-	for (auto& i : Imported_Function_Nodes){
-		Imported_Functions.at(MANGLER::Mangle(i, "")) = i;
+	for (auto* i : Imported_Function_Nodes){
+		Imported_Functions[MANGLER::Mangle(i, "")] = i;
 	}
 
 	vector<string> Linkable_File_Types;
@@ -73,7 +94,7 @@ void Satellite::Scraper(){
 
 	// Prioritize the local location and then start searching on env paths.
 	vector<string> Paths = DOCKER::Get_System_Paths();
-	Paths.push_back(sys->Info.Source_File);	// Add the current location to the list too.
+	Paths.push_back(DOCKER::Get_File_Path(sys->Info.Source_File));	// Add the current location to the list too.
 
 	// Now put the order so that the Evie location is in priority
 	reverse(Paths.begin(), Paths.end());
@@ -81,7 +102,7 @@ void Satellite::Scraper(){
 	vector<string> File_Names;
 
 	for (auto dir : Paths){
-		vector<string> tmp = DOCKER::Get_File_List(dir);
+		vector<string> tmp = DOCKER::Get_File_List(dir, true);
 		File_Names.insert(File_Names.end(), tmp.begin(), tmp.end());
 	}
 
@@ -104,6 +125,7 @@ void Satellite::Scraper(){
 		Function_Implementations.insert(DOCKER::Output.begin(), DOCKER::Output.end());
 
 		DOCKER::Output.clear();
+		DOCKER::Working_Dir.clear();
 	}
 
 	vector<string> Link_File;
@@ -123,6 +145,17 @@ void Satellite::Scraper(){
 	}
 		
 	sys->Info.Libs.insert(sys->Info.Libs.end(), Link_File.begin(), Link_File.end());
+
+	// Save the libs to the LIB_PATH_CACHE.txt
+	ofstream File(LIB_CACHE_FILE_NAME);
+
+	for (auto& i : sys->Info.Libs){
+		File << i << endl;
+	}
+
+	File.close();
+
+	return;
 }
 
 void Satellite::Process_Local_Dependencies(Medium Medium)

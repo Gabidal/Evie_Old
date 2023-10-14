@@ -75,7 +75,7 @@ namespace DOCKER {
 	string Get_File_Extension(string raw);
 	string Update_Working_Dir(string File_Name);
 	string Update_Working_Dir(string File_Name, string& dir);
-	vector<string> Get_File_List(string Dir);
+	vector<string> Get_File_List(string Dir, bool Contain_Dir_Names = false);
 	vector<string> Chop_Chop(string raw, char skip);
 	string Remove(string raw, char id, int cut);
 	bool Is_Folder(string path);
@@ -84,6 +84,7 @@ namespace DOCKER {
 	string Find(string File_Name);
 	string Find(string File_Name, filesystem::directory_entry Folder);
 	vector<string> Get_System_Paths();
+	string Get_File_Path(string file_name);
 
 	string Open_File(string File_Name);
 	void Write_File(string File_Name, string Buffer);
