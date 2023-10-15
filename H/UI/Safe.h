@@ -41,6 +41,11 @@ inline string MISSING_DEFINITION = "Missing definition";
 #define YES 1
 #define IDK -1
 
+class Not_Found : public std::runtime_error{
+public:
+	Not_Found() : runtime_error("Not found"){}
+};
+
 class Observation {
 public:
 	Observation(MSG_Type t, string msg, Position p, string cause = "", int stop_On_Error = IDK) {

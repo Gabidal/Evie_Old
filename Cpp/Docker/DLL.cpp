@@ -4,6 +4,8 @@
 #include "../../H/Nodes/Node.h"
 #include "../../H/BackEnd/Selector.h"
 
+#include "../../H/UI/Safe.h"
+
 extern Usr* sys;
 extern Selector* selector;
 
@@ -11,7 +13,9 @@ vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Hea
 {
 	vector<PE::Section> Result;
 
-	unsigned int Start_Of_Section_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header);
+    unsigned int Non_Optional_Header_Size = 0x18;
+
+	unsigned int Start_Of_Section_Table = Get_Bull_Shit_Header_Size(Buffer) + h.Size_Of_Optional_Header + Non_Optional_Header_Size;
 
 	//Gather all sections
 	for (int i = 0; i < h.Number_Of_Sections; i++)
@@ -26,7 +30,7 @@ vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Hea
 
 vector<string> DLL::Gather_All_Export_Names(PE::Header h, vector<unsigned char> buffer, PE::Section s)
 {
-	PE::Export_Table* e = Linker::Read_Export_Table(s, buffer);
+ 	PE::Export_Table* e = Linker::Read_Export_Table(s, buffer);
 
 	return e->Name_Table;
 }
@@ -39,24 +43,17 @@ void DLL::DLL_Analyser(vector<string>& Output)
 	
     // Cast the tmp vector into a unsigned char vector
     vector<unsigned char> buffer(tmp.begin(), tmp.end());
+    
+    PE::Section Export_Table;
+    
+    try{
+	    Export_Table = Get_Export_Table(buffer);
+    }
+    catch (Not_Found){
+        Report(Observation(ERROR, "Could not find export table on dll: " + DOCKER::FileName.back(), LINKER_INTERNAL, NO));
+    }
 
-	//read the header of this obj file
-	PE::Header header = *(PE::Header*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
-
-	//now gather all the RVA sizes
-	vector<PE::Section> Sections = Gather_All_Tables(buffer, header);
-
-	unsigned long long Name;
-    memcpy(&Name, ".edata", 6);
-
-	for (auto i : Sections) {
-		if (i.Name == Name) {
-			//now we have the export table
-			DOCKER::Append(Output, Gather_All_Export_Names(header, buffer, i));
-
-			break;
-		}
-	}
+    DOCKER::Append(Output, Gather_All_Export_Names(Read_Headers(buffer), buffer, Export_Table));
 }
 
 void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
@@ -369,4 +366,60 @@ unsigned int DLL::Get_Bull_Shit_Header_Size(vector<unsigned char> &buffer){
     int Tmp_Value = *(int*)&buffer[DOS_Header_Size_Location];
 
     return Tmp_Value;
+}
+
+// Throws a "Not Found exception if the DLL does not contain a export table."
+PE::Section DLL::Get_Export_Table(vector<unsigned char> &buffer){
+
+    // The location of export table are reported in two different separate locations.
+    // First one is in the Section table as a ".edata" section name, which value is the address + image_base.
+    // Second one is in the Extended optional headers (blue section in wiki png), which value has NOT the image base in it.
+    PE::Header header = Read_Headers(buffer);
+
+    unsigned int Image_Base = header.Image_Base;
+
+    unsigned int Export_Table_Relative_Virtual_Address = header.Export_Table;
+    unsigned int Export_Table_Size = header.Size_Of_Export_Table;
+
+    // We can find the export table by going through all the section tables, and looking what section table contains the export table.
+    vector<PE::Section> Sections = Gather_All_Tables(buffer, header);
+
+	unsigned long long Name;
+    memcpy(&Name, ".edata\0\0", 8);
+
+    for (auto section : Sections){
+        if (section.Name == Name){
+            return section;
+        }
+
+        string Current_Name;
+        Current_Name.resize(6);
+        memcpy(Current_Name.data(), &section.Name, 6);
+
+        if (section.Virtual_Address <= Export_Table_Relative_Virtual_Address && section.Virtual_Address + section.Virtual_Size >= Export_Table_Relative_Virtual_Address + Export_Table_Size){
+
+            // Now that we know what section contains this section, we need to get the relation between the two.
+            unsigned int Distance = Export_Table_Relative_Virtual_Address - section.Virtual_Address;
+
+            unsigned Final_Offset = Distance + section.Pointer_To_Raw_Data;
+
+            PE::Section Virtual_export_Table_Section;
+            Virtual_export_Table_Section.Pointer_To_Raw_Data = Final_Offset;
+            Virtual_export_Table_Section.Virtual_Address = Final_Offset;
+            Virtual_export_Table_Section.Virtual_Size = header.Size_Of_Export_Table;
+            Virtual_export_Table_Section.Size_Of_Raw_Data = header.Size_Of_Export_Table;
+
+            return Virtual_export_Table_Section;
+        }
+    }
+
+    // Throw exception of missing export table
+    throw Not_Found();
+}
+
+PE::Header DLL::Read_Headers(vector<unsigned char>& buffer){
+	//read the header of this obj file
+	PE::Header header = *(PE::Header*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
+
+    return header;
 }

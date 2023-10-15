@@ -24,6 +24,10 @@ namespace DLL {
 	vector<unsigned char> Write_DLL(PE::PE_OBJ* obj);
 
 	unsigned int Get_Bull_Shit_Header_Size(vector<unsigned char> &buffer);
+
+	PE::Section Get_Export_Table(vector<unsigned char> &buffer);
+
+	PE::Header Read_Headers(vector<unsigned char> &buffer);
 }
 
 #endif
