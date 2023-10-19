@@ -97,7 +97,7 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     Linker::Add_Import_Table(obj, Potential_Section_Count);       //Sections(text, data, export) + (import, base)
     Linker::Add_Import_Address_Table(obj);  //Sections(text, data, export, import, base)
     
-    obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Section) * obj->Sections.size();
+    obj->Header.Size_Of_Headers = sizeof(PE::Header_64) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Section) * obj->Sections.size();
     obj->Header.Size_Of_Headers += ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
     obj->Header.Check_Sum = 0;
     obj->Header.Subsystem = PE::_IMAGE_SUBSYSTEM_WINDOWS_CUI;
@@ -128,9 +128,9 @@ void Linker::En_Large_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
     obj->Header.Number_Of_Sections = obj->Sections.size();
     obj->Header.Date_Time = time_t(time(NULL));
-    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
+    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header_64) + obj->Sections.size() * sizeof(PE::Section);
     obj->Header.Number_Of_Symbols = obj->Symbols.size();
-    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
+    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header_64))- (offsetof(PE::Header_64, PE::Header_64::Characteristics) + sizeof(PE::Header_64::Characteristics));
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED;
 
     //Now find this function name from the symbol table
@@ -154,7 +154,7 @@ void Linker::Update_Obj_Headers(PE::PE_OBJ* obj){
 
     unsigned int New_Origo = 0;
 
-    New_Origo += sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section) + obj->Symbols.size() * sizeof(PE::Symbol) + obj->String_Table_Size;
+    New_Origo += sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header_64) + obj->Sections.size() * sizeof(PE::Section) + obj->Symbols.size() * sizeof(PE::Symbol) + obj->String_Table_Size;
 
     //Now start calculating the padding for the first section.
 
@@ -280,7 +280,7 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
     // Add the PE_Signature
     Buffer.insert(Buffer.end(), (unsigned char*)&PE::PE_SIGNATURE_HEADER, (unsigned char*)&PE::PE_SIGNATURE_HEADER + sizeof(PE::PE_SIGNATURE_HEADER));
 
-	Buffer.insert(Buffer.end(), (unsigned char*)&obj->Header, (unsigned char*)&obj->Header + sizeof(PE::Header));
+	Buffer.insert(Buffer.end(), (unsigned char*)&obj->Header, (unsigned char*)&obj->Header + sizeof(PE::Header_64));
 
 	Buffer.insert(Buffer.end(), (unsigned char*)obj->Sections.data(), (unsigned char*)obj->Sections.data() + sizeof(PE::Section) * obj->Sections.size());
 
@@ -319,7 +319,7 @@ vector<unsigned char> Linker::Write_PE_Executable(PE::PE_OBJ* obj){
 }
 
 void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + sizeof(PE::Section) * expected_section_count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header_64) + sizeof(PE::Section) * expected_section_count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
@@ -400,7 +400,7 @@ void Linker::Add_Export_Table(PE::PE_OBJ* obj, int expected_section_count){
 
 void Linker::Add_Import_Table(PE::PE_OBJ* obj, int expected_section_count){
     //                                                                           + export section table
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + sizeof(PE::Section) * expected_section_count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header_64) + sizeof(PE::Section) * expected_section_count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
@@ -480,7 +480,7 @@ void Linker::Add_Import_Address_Table(PE::PE_OBJ* obj){
     if (obj->Imports.Lookup_Table.size() == 0)
         return;
 
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + sizeof(PE::Section) * obj->Sections.size() + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header_64) + sizeof(PE::Section) * obj->Sections.size() + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     

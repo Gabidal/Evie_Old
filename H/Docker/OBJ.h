@@ -10,8 +10,78 @@ using namespace std;
 class Byte_Map_Section;
 
 namespace PE {
-	
-	class Header {
+
+	class Header_32 {
+	public:
+		unsigned short Machine = 0;
+		unsigned short Number_Of_Sections = 0;
+		unsigned int Date_Time = 0;
+		unsigned int Pointer_To_Symbol_Table = 0;
+		unsigned int Number_Of_Symbols = 0;
+		unsigned short Size_Of_Optional_Header = 0;
+		unsigned short Characteristics = 0;
+		unsigned short Magic = 0;
+		unsigned short Linker_Version = 0;
+		unsigned int Size_Of_Code = 0;
+		unsigned int Size_Of_Initialized_Data = 0;
+		unsigned int Size_Of_Uninitialized_Data = 0;
+		unsigned int Address_Of_Entry_Point = 0;
+		unsigned int Base_Of_Code = 0;
+		unsigned int Base_Of_Data = 0;
+		unsigned int Image_Base = 0;
+		unsigned int Section_Alignment = 0;
+		unsigned int File_Alignment = 0;
+		unsigned int Operating_System_Version = 0;
+		unsigned int Image_Version = 0;
+		unsigned int Subsystem_Version = 0;
+		unsigned int Win32_Version_Value = 0;
+		unsigned int Size_Of_Image = 0;
+		unsigned int Size_Of_Headers = 0;
+		unsigned int Check_Sum = 0;
+		unsigned short Subsystem = 0;
+		unsigned short Dll_Characteristics = 0;
+		unsigned int Size_Of_Stack_Reserve = 0;
+		unsigned int Size_Of_Stack_Commit = 0;
+		unsigned int Size_Of_Heap_Reserve = 0;
+		unsigned int Size_Of_Heap_Commit = 0;
+		unsigned int Loader_Flags = 0;
+		unsigned int Number_Of_Rva_And_Sizes = 0;
+
+		unsigned int Export_Table = 0;
+		unsigned int Size_Of_Export_Table = 0;
+		unsigned int Import_Table = 0;
+		unsigned int Size_Of_Import_Table = 0;
+		unsigned int Resource_Table = 0;
+		unsigned int Size_Of_Resource_Table = 0;
+		unsigned int Exception_Table = 0;
+		unsigned int Size_Of_Exception_Table = 0;
+		unsigned int Certificate_Table = 0;
+		unsigned int Size_Of_Certificate_Table = 0;
+		unsigned int Base_Relocation_Table = 0;
+		unsigned int Size_Of_Base_Relocation_Table = 0;
+		unsigned int Debug = 0;
+		unsigned int Size_Of_Debug = 0;
+		unsigned int Architecture_Data = 0;
+		unsigned int Size_Of_Architecture_Data = 0;
+
+
+		unsigned long long Global_Pointer = 0;
+		unsigned int TLS_Table = 0;
+		unsigned int Size_Of_TLS_Table = 0;
+		unsigned int Load_Config_Table = 0;
+		unsigned int Size_Of_Load_Config_Table = 0;
+		unsigned int Bound_Import = 0;
+		unsigned int Size_Of_Bound_Impor = 0;
+		unsigned int Import_Address_Table = 0;
+		unsigned int Size_Of_Import_Address_Table = 0;
+		unsigned int Delay_Import_Descriptor = 0;
+		unsigned int Size_Of_Delay_Import_Descriptor = 0;
+		unsigned int CLR_Runtime_Header = 0;
+		unsigned int Size_Of_CLR_Runtime_Header = 0;
+		unsigned long long RESERVED = 0;
+	};
+
+	class Header_64 {
 	public:
 		unsigned short Machine = 0;
 		unsigned short Number_Of_Sections = 0;
@@ -79,7 +149,77 @@ namespace PE {
 		unsigned int CLR_Runtime_Header = 0;
 		unsigned int Size_Of_CLR_Runtime_Header = 0;
 		unsigned long long RESERVED = 0;
+
+		Header_64& operator=(const Header_32& other){
+			this->Machine = other.Machine;
+			this->Number_Of_Sections = other.Number_Of_Sections;
+			this->Date_Time = other.Date_Time;
+			this->Pointer_To_Symbol_Table = other.Pointer_To_Symbol_Table;
+			this->Number_Of_Symbols = other.Number_Of_Symbols;
+			this->Size_Of_Optional_Header = other.Size_Of_Optional_Header;
+			this->Characteristics = other.Characteristics;
+			this->Magic = other.Magic;
+			this->Linker_Version = other.Linker_Version;
+			this->Size_Of_Code = other.Size_Of_Code;
+			this->Size_Of_Initialized_Data = other.Size_Of_Initialized_Data;
+			this->Size_Of_Uninitialized_Data = other.Size_Of_Uninitialized_Data;
+			this->Address_Of_Entry_Point = other.Address_Of_Entry_Point;
+			this->Base_Of_Code = other.Base_Of_Code;
+			this->Image_Base = other.Image_Base;
+			this->Section_Alignment = other.Section_Alignment;
+			this->File_Alignment = other.File_Alignment;
+			this->Operating_System_Version = other.Operating_System_Version;
+			this->Image_Version = other.Image_Version;
+			this->Subsystem_Version = other.Subsystem_Version;
+			this->Win32_Version_Value = other.Win32_Version_Value;
+			this->Size_Of_Image = other.Size_Of_Image;
+			this->Size_Of_Headers = other.Size_Of_Headers;
+			this->Check_Sum = other.Check_Sum;
+			this->Subsystem = other.Subsystem;
+			this->Dll_Characteristics = other.Dll_Characteristics;
+			this->Size_Of_Stack_Reserve = other.Size_Of_Stack_Reserve;
+			this->Size_Of_Stack_Commit = other.Size_Of_Stack_Commit;
+			this->Size_Of_Heap_Reserve = other.Size_Of_Heap_Reserve;
+			this->Size_Of_Heap_Commit = other.Size_Of_Heap_Commit;
+			this->Loader_Flags = other.Loader_Flags;
+			this->Number_Of_Rva_And_Sizes = other.Number_Of_Rva_And_Sizes;
+
+			this->Export_Table = other.Export_Table;
+			this->Size_Of_Export_Table = other.Size_Of_Export_Table;
+			this->Import_Table = other.Import_Table;
+			this->Size_Of_Import_Table = other.Size_Of_Import_Table;
+			this->Resource_Table = other.Resource_Table;
+			this->Size_Of_Resource_Table = other.Size_Of_Resource_Table;
+			this->Exception_Table = other.Exception_Table;
+			this->Size_Of_Exception_Table = other.Size_Of_Exception_Table;
+			this->Certificate_Table = other.Certificate_Table;
+			this->Size_Of_Certificate_Table = other.Size_Of_Certificate_Table;
+			this->Base_Relocation_Table = other.Base_Relocation_Table;
+			this->Size_Of_Base_Relocation_Table = other.Size_Of_Base_Relocation_Table;
+			this->Debug = other.Debug;
+			this->Size_Of_Debug = other.Size_Of_Debug;
+			this->Architecture_Data = other.Architecture_Data;
+			this->Size_Of_Architecture_Data = other.Size_Of_Architecture_Data; 
+
+			this->Global_Pointer = other.Global_Pointer;
+			this->TLS_Table = other.TLS_Table;
+			this->Size_Of_TLS_Table = other.Size_Of_TLS_Table;
+			this->Load_Config_Table = other.Load_Config_Table;
+			this->Size_Of_Load_Config_Table = other.Size_Of_Load_Config_Table;
+			this->Bound_Import = other.Bound_Import;
+			this->Size_Of_Bound_Impor = other.Size_Of_Bound_Impor;
+			this->Import_Address_Table = other.Import_Address_Table;
+			this->Size_Of_Import_Address_Table = other.Size_Of_Import_Address_Table;
+			this->Delay_Import_Descriptor = other.Delay_Import_Descriptor;
+			this->Size_Of_Delay_Import_Descriptor = other.Size_Of_Delay_Import_Descriptor;
+			this->CLR_Runtime_Header = other.CLR_Runtime_Header;
+			this->Size_Of_CLR_Runtime_Header = other.Size_Of_CLR_Runtime_Header;
+			this->RESERVED = other.RESERVED;
+
+			return *this;
+		}
 	};
+
 
 	class Bull_Shit_Headers {
 	public:
@@ -300,7 +440,7 @@ namespace PE {
 	public:
 		string File_Name = "";
 
-		Header Header;
+		Header_64 Header;
 		vector<Section> Sections;
 		vector<Symbol> Symbols;
 		vector<string> String_Table;
@@ -327,7 +467,7 @@ namespace PE {
 
 	class OBJ_Pile{
 	public:
-		Header header;
+		Header_64 header;
 
 		vector<Group_Info<Section>> Sections;
 		vector<Group_Info<Symbol>> Symbols;
@@ -346,7 +486,7 @@ namespace PE {
 
 	vector<Section> Gather_All_Sections(vector<char> buffer, int Section_Count);
 
-	vector<string> Get_Symbol_Table_Content(Header h, vector<char> buffer, bool Get_Only_Exported = false);
+	vector<string> Get_Symbol_Table_Content(Header_64 h, vector<char> buffer, bool Get_Only_Exported = false);
 
 	void OBJ_Analyser(vector<string>& Output);
 

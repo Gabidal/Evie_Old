@@ -9,9 +9,9 @@
 using namespace std;
 
 namespace DLL {
-	vector<PE::Section> Gather_All_Tables(vector<unsigned char> buffer, PE::Header h);
+	vector<PE::Section> Gather_All_Tables(vector<unsigned char> buffer, PE::Header_64 h);
 
-	vector<string> Gather_All_Export_Names(PE::Header h, vector<unsigned char> buffer, PE::Section t);
+	vector<string> Gather_All_Export_Names(PE::Header_64 h, vector<unsigned char> buffer, PE::Section t);
 
 	void DLL_Analyser(vector<string>& Output);
 
@@ -27,7 +27,7 @@ namespace DLL {
 
 	PE::Section Get_Export_Table(vector<unsigned char> &buffer);
 
-	PE::Header Read_Headers(vector<unsigned char> &buffer);
+	PE::Header_64 Read_Headers(vector<unsigned char> &buffer);
 }
 
 #endif

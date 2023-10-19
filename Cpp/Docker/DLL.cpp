@@ -9,7 +9,7 @@
 extern Usr* sys;
 extern Selector* selector;
 
-vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Header h)
+vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Header_64 h)
 {
 	vector<PE::Section> Result;
 
@@ -28,7 +28,7 @@ vector<PE::Section> DLL::Gather_All_Tables(vector<unsigned char> Buffer, PE::Hea
 	return Result;
 }
 
-vector<string> DLL::Gather_All_Export_Names(PE::Header h, vector<unsigned char> buffer, PE::Section s)
+vector<string> DLL::Gather_All_Export_Names(PE::Header_64 h, vector<unsigned char> buffer, PE::Section s)
 {
  	PE::Export_Table* e = Linker::Read_Export_Table(s, buffer);
 
@@ -154,7 +154,7 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     
     obj->Header.Size_Of_Initialized_Data = (Data_Size + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
     
-    obj->Header.Size_Of_Headers = sizeof(PE::Header) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Section) * obj->Sections.size();
+    obj->Header.Size_Of_Headers = sizeof(PE::Header_64) + sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Section) * obj->Sections.size();
     obj->Header.Size_Of_Headers += ((obj->Header.Size_Of_Headers + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1)) - obj->Header.Size_Of_Headers;
     obj->Header.Check_Sum = 0;
     obj->Header.Subsystem = PE::_IMAGE_SUBSYSTEM_WINDOWS_CUI;
@@ -185,9 +185,9 @@ void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
     obj->Header.Machine = PE::_IMAGE_FILE_MACHINE_AMD64;
     obj->Header.Number_Of_Sections = obj->Sections.size();
     obj->Header.Date_Time = time_t(time(NULL));
-    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + obj->Sections.size() * sizeof(PE::Section);
+    obj->Header.Pointer_To_Symbol_Table = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header_64) + obj->Sections.size() * sizeof(PE::Section);
     obj->Header.Number_Of_Symbols = obj->Symbols.size();
-    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header))- (offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics));
+    obj->Header.Size_Of_Optional_Header = (sizeof(PE::Header_64))- (offsetof(PE::Header_64, PE::Header_64::Characteristics) + sizeof(PE::Header_64::Characteristics));
     obj->Header.Characteristics = PE::_IMAGE_FILE_EXECUTABLE_IMAGE | PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED | PE::_IMAGE_FILE_DLL;
 
     //Now find this function name from the symbol table
@@ -205,7 +205,7 @@ void DLL::Add_Base_Relocation_table(PE::PE_OBJ* obj, int Expected_Section_Count)
     if (obj->Relocations.size() == 0)
         return;
 
-    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header) + sizeof(PE::Section) * Expected_Section_Count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
+    int Origo = sizeof(PE::Bull_Shit_Headers) + sizeof(PE::PE_SIGNATURE_HEADER) + sizeof(PE::Header_64) + sizeof(PE::Section) * Expected_Section_Count + sizeof(PE::Symbol) * obj->Symbols.size() + obj->String_Table_Size;
 
     int Start_Of_Code = (Origo + PE::_FILE_ALIGNMENT - 1) & ~(PE::_FILE_ALIGNMENT - 1);
 
@@ -308,7 +308,7 @@ vector<unsigned char> DLL::Write_DLL(PE::PE_OBJ* obj){
     // Add the PE_Signature
     Buffer.insert(Buffer.end(), (unsigned char*)&PE::PE_SIGNATURE_HEADER, (unsigned char*)&PE::PE_SIGNATURE_HEADER + sizeof(PE::PE_SIGNATURE_HEADER));
 
-	Buffer.insert(Buffer.end(), (unsigned char*)&obj->Header, (unsigned char*)&obj->Header + sizeof(PE::Header));
+	Buffer.insert(Buffer.end(), (unsigned char*)&obj->Header, (unsigned char*)&obj->Header + sizeof(PE::Header_64));
 
 	Buffer.insert(Buffer.end(), (unsigned char*)obj->Sections.data(), (unsigned char*)obj->Sections.data() + sizeof(PE::Section) * obj->Sections.size());
 
@@ -374,7 +374,7 @@ PE::Section DLL::Get_Export_Table(vector<unsigned char> &buffer){
     // The location of export table are reported in two different separate locations.
     // First one is in the Section table as a ".edata" section name, which value is the address + image_base.
     // Second one is in the Extended optional headers (blue section in wiki png), which value has NOT the image base in it.
-    PE::Header header = Read_Headers(buffer);
+    PE::Header_64 header = Read_Headers(buffer);
 
     unsigned int Image_Base = header.Image_Base;
 
@@ -417,9 +417,17 @@ PE::Section DLL::Get_Export_Table(vector<unsigned char> &buffer){
     throw Not_Found();
 }
 
-PE::Header DLL::Read_Headers(vector<unsigned char>& buffer){
+PE::Header_64 DLL::Read_Headers(vector<unsigned char>& buffer){
 	//read the header of this obj file
-	PE::Header header = *(PE::Header*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
+	PE::Header_64 header = *(PE::Header_64*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
+
+    // We need to check if the Loader_Flags needs to be zero, if not we need to start shifting the numbers around until the Loader_Flags is zero.
+    // Normally the 0x20b means that the file is PE+ (64 bit), and 0x10b means PE (32 bit).
+    if (header.Loader_Flags != 0 || header.Magic == 0x10b){
+        PE::Header_32 Smaller_Header = *(PE::Header_32*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
+
+        header = Smaller_Header;
+    }
 
     return header;
 }

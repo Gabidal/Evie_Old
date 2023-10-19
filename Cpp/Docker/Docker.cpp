@@ -315,18 +315,22 @@ vector<string> DOCKER::Get_File_List(string Dir, bool Contain_Dir_Names)
 		Add_Dir = Dir + Ends_With_Slash;
 	}
 
-	for (auto& p : filesystem::directory_iterator(Dir)){
+	try{
+		for (auto& p : filesystem::directory_iterator(Dir)){
 
-		try{
-			// Check if the p is a dir or a file
-			if (filesystem::is_directory(p.path()))
-				continue;
+			try{
+				// Check if the p is a dir or a file
+				if (filesystem::is_directory(p.path()))
+					continue;
+			}
+			catch(...){ continue; }
+
+			string file_name = p.path().filename().string();
+			Files.push_back(Add_Dir + file_name);
 		}
-		catch(...){ continue; }
-
-		string file_name = p.path().filename().string();
-		Files.push_back(Add_Dir + file_name);
 	}
+	catch(...){ /* Do Nothing */ }
+
 	return Files;
 }
 

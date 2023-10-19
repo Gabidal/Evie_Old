@@ -23,13 +23,13 @@ namespace PE{
 vector<PE::Section> PE::Gather_All_Sections(vector<char> buffer, int Section_Count)
 {
 	vector<Section> Result;
-	for (int i = sizeof(Header); i < Section_Count; i += sizeof(Section)) {
+	for (int i = sizeof(Header_64); i < Section_Count; i += sizeof(Section)) {
 		Result.push_back(*(Section*)&(buffer[i]));
 	}
 	return Result;
 }
 
-vector<string> PE::Get_Symbol_Table_Content(Header h, vector<char> buffer, bool Get_Only_Exported)
+vector<string> PE::Get_Symbol_Table_Content(Header_64 h, vector<char> buffer, bool Get_Only_Exported)
 {
 	vector<string> Result;
 
@@ -71,9 +71,9 @@ void PE::OBJ_Analyser(vector<string>& Output) {
 	vector<char> Buffer(tmp.begin(), tmp.end());
 
 	//read the header of this obj file
-	int Small_Header_Size = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics);
+	int Small_Header_Size = offsetof(PE::Header_64, PE::Header_64::Characteristics) + sizeof(PE::Header_64::Characteristics);
 
-	Header header;
+	Header_64 header;
 
 	memcpy(&header, &Buffer[0], Small_Header_Size);
 
@@ -84,7 +84,7 @@ PE::PE_OBJ::PE_OBJ(vector<Byte_Map_Section*> Sections){
 	this->Header.Machine = selector->OBJ_Machine_ID;
 	this->Header.Number_Of_Sections = Sections.size();
 	this->Header.Date_Time = time_t(time(NULL));
-	this->Header.Pointer_To_Symbol_Table = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(Header::Characteristics) + sizeof(PE::Section) * Sections.size();
+	this->Header.Pointer_To_Symbol_Table = offsetof(PE::Header_64, PE::Header_64::Characteristics) + sizeof(Header_64::Characteristics) + sizeof(PE::Section) * Sections.size();
 
 	this->Header.Size_Of_Optional_Header = 0;
 	this->Header.Characteristics = PE::_IMAGE_FILE_LARGE_ADDRESS_AWARE | PE::_IMAGE_FILE_DEBUG_STRIPPED | PE::_IMAGE_FILE_LINE_NUMS_STRIPPED | PE::_IMAGE_FILE_RELOCS_STRIPPED;
@@ -433,7 +433,7 @@ PE::PE_OBJ* PE::OBJ_Pile::Compile(){
 unsigned long long PE::Get_Relative_Address(unsigned long long address, PE::OBJ_Pile& pile, string File_Origin){
 	//we can achieve this by removing the current offset value and comparing the difference.
 	//Also remove the small header.
-	unsigned long long Offset_Difference = address - (offsetof(Header, Header::Characteristics) + sizeof(Header::Characteristics));
+	unsigned long long Offset_Difference = address - (offsetof(Header_64, Header_64::Characteristics) + sizeof(Header_64::Characteristics));
 
 	//remove all other values from the offset from the obj
 	unsigned long long Sections_Size = 0;
@@ -487,7 +487,7 @@ unsigned long long PE::Get_Relative_Address(unsigned long long address, PE::OBJ_
 	//now that we know in what section this address resides in, we can compute the paddings that occur before the sections.
 	unsigned long long Overall_Padding = 0;
 
-	unsigned int Current_Offset = (offsetof(Header, Header::Characteristics) + sizeof(Header::Characteristics)) + Sections_Size + Symbols_Size + String_Table_Size + Relocations_Size;
+	unsigned int Current_Offset = (offsetof(Header_64, Header_64::Characteristics) + sizeof(Header_64::Characteristics)) + Sections_Size + Symbols_Size + String_Table_Size + Relocations_Size;
 
 	for (int i = 0; i < Section_ID; i++){
 
@@ -558,7 +558,7 @@ PE::PE_OBJ::PE_OBJ(vector<unsigned char> File, string File_Name){
 	this->File_Name = File_Name;
 
 	// Usually all PE::OBJ only contain COFF- and Magic number from STANDARD COFF Headers
-	int Header_Size = offsetof(PE::Header, PE::Header::Characteristics) + sizeof(PE::Header::Characteristics);
+	int Header_Size = offsetof(PE::Header_64, PE::Header_64::Characteristics) + sizeof(PE::Header_64::Characteristics);
 
 	// Check if the file is even large enough to contain PE::OBJ headers.
 	if (File.size() < Header_Size){
