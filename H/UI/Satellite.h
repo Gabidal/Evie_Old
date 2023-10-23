@@ -36,6 +36,9 @@ public:
 
 	//Describes the Name of the product in question.
 	string Product_ID = "";
+
+	// Used for the Scraper which finds function and global variables from dll/obj/exe/etc...
+	vector<string> Symbols;
 };
 
 class Satellite {
@@ -65,9 +68,10 @@ private:
 	void Init_Wanted_Dependencies();
 	void Factory();	// For going through all the needed executable files.
 
-
 	void Process_Local_Dependencies(Medium m);
 	void Process_Console_Dependencies(Medium m);
 
 	void Save_To_Cache(Medium m);
+
+	vector<Medium> Read_Symbol_Source_Service(string file_name);	// the SSSS Symbol Source Service System 2000
 };

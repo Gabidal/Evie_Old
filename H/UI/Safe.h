@@ -34,6 +34,8 @@ inline string LINKER_MISSING_STARTING_FUNCTION = "Missing starting function";
 inline string LINKER_INVALID_FILE = "Invalid file";
 inline string LINKER_INTERNAL = "Internal linker error";
 
+inline string SCRAPER_PROBLEM_READING = "Problem reading file"; 
+
 inline string MISSING_DEFINITION = "Missing definition";
 
 #define ERROR (MSG_Type)1

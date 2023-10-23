@@ -93,6 +93,13 @@ public:
 	//Complex Cast
 	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 	Component* Construct_Virtual_Class_For_Complex_Cast(Component Parenthesis);
+
+	//SSS System 2000 parser utilities lol
+	//-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+	void Factory_SSS();
+	void Parse_SSS_Scope(int i);
+	void Parse_SSS_List_Element(int i);
+
 private:
 };
 

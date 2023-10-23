@@ -403,18 +403,26 @@ PE::Section DLL::Get_Export_Table(vector<unsigned char> &buffer){
 
             unsigned Final_Offset = Distance + section.Pointer_To_Raw_Data;
 
-            PE::Section Virtual_export_Table_Section;
-            Virtual_export_Table_Section.Pointer_To_Raw_Data = Final_Offset;
-            Virtual_export_Table_Section.Virtual_Address = Final_Offset;
-            Virtual_export_Table_Section.Virtual_Size = header.Size_Of_Export_Table;
-            Virtual_export_Table_Section.Size_Of_Raw_Data = header.Size_Of_Export_Table;
+            PE::Section Inline_Export_Table_Location;
+            Inline_Export_Table_Location.Pointer_To_Raw_Data = Final_Offset;
+            Inline_Export_Table_Location.Virtual_Address = Final_Offset;
+            Inline_Export_Table_Location.Virtual_Size = header.Size_Of_Export_Table;
+            Inline_Export_Table_Location.Size_Of_Raw_Data = header.Size_Of_Export_Table;
 
-            return Virtual_export_Table_Section;
+            return Inline_Export_Table_Location;
         }
     }
 
-    // Throw exception of missing export table
-    throw Not_Found();
+    // In this case there doesn't seem to be any section which would hold the export table section innit.
+    Report(Observation(WARNING, "No suitable section found to house Export Table, making VET (Virtual Export Table) for DLL '" + DOCKER::FileName.back() + "'", SCRAPER_PROBLEM_READING));
+
+    PE::Section VET;
+    VET.Pointer_To_Raw_Data = Export_Table_Relative_Virtual_Address;
+    VET.Virtual_Address = Export_Table_Relative_Virtual_Address;
+    VET.Virtual_Size = header.Size_Of_Export_Table;
+    VET.Size_Of_Raw_Data = header.Size_Of_Export_Table;
+
+    return VET;
 }
 
 PE::Header_64 DLL::Read_Headers(vector<unsigned char>& buffer){

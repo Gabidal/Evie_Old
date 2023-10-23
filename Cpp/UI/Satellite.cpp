@@ -3,6 +3,7 @@
 #include "../../H/UI/Safe.h"
 #include "../../H/Docker/Docker.h"
 #include "../../H/Docker/Mangler.h"
+#include "../../H/Parser/Parser.h"
 
 #include <filesystem>
 #include <unordered_map>
@@ -44,6 +45,58 @@ void Satellite::Factory()
 	}
 }
 
+// Usual location for SSS.e is: sys->Info.Repo_Dir + "/" + "SSS.e"
+vector<Medium> Satellite::Read_Symbol_Source_Service(string file_name){
+
+	// Example input: 
+	/*
+	"Kernel32.dll"{
+    "Source"[
+        "C:/"
+    ]
+    "Symbols"[
+        "VirtualAlloc"
+        "VirtualFree"
+    ]
+	}*/
+
+	const string SOURCE = "Source";
+	const string SYMBOLS = "Symbols";
+	const string PLATFORM = "Platform";
+
+	if (!filesystem::exists(file_name)){
+		return {};
+	}
+
+	vector<Component> components = Lexer::GetComponentsFromFile(file_name);
+
+	Node* SSS = new Node("Symbol Source Service", nullptr);
+	Parser p(SSS);
+	p.Input = components;
+	p.Factory_SSS();
+
+	vector<Medium> Result;
+
+	for (auto i : SSS->Childs){
+		Medium current_medium;
+		current_medium.Product_ID = i->Name;
+		
+		if (i->Find(SOURCE))
+			current_medium.Dependency_Location = new string(i->Find(SOURCE)->Name);
+		if (i->Find(PLATFORM))
+			current_medium.Platform = i->Find(PLATFORM)->Name;
+		
+		if (i->Find(SYMBOLS)){
+			for (auto j : i->Find(SYMBOLS)->Childs){
+				current_medium.Symbols.push_back(j->Name);
+			}
+		}
+
+		Result.push_back(current_medium);
+	}
+
+}
+
 void Satellite::Scraper(){
 	if (!sys->Info.Use_Scraper)
 		return;
@@ -53,23 +106,29 @@ void Satellite::Scraper(){
 	if (Imported_Function_Nodes.size() == 0)
 		return;
 
-	string LIB_CACHE_FILE_NAME = DOCKER::Get_File_Path(sys->Info.Source_File) + "/" + "LIB_PATH_CACHE.txt";
+	bool Current_SSS_Contains_All_Needed = true;
 
-	// check of this file exists in the working dir.
-	if (filesystem::exists(LIB_CACHE_FILE_NAME)) {
-		// if it does, then read the file and add the paths to the sys->Info.Libs
-		ifstream File(LIB_CACHE_FILE_NAME);
+	vector<Medium> SSS_Libs = Read_Symbol_Source_Service(sys->Info.Repo_Dir + "/" + "SSS.e");
 
-		string Line;
-
-		while (getline(File, Line)) {
-			sys->Info.Libs.push_back(Line);
+	for (auto imported_symbols : Imported_Function_Nodes){
+		for (auto medium : SSS_Libs){
+			for (auto symbol : medium.Symbols){
+				if (imported_symbols->Name == symbol)
+					goto NEXT;
+			}
 		}
 
-		File.close();
+		Current_SSS_Contains_All_Needed = false;
 
-		return;
+		NEXT:;
 	}
+
+	for (auto i : SSS_Libs){
+		sys->Info.Libs.push_back(i.Product_ID);
+	}
+
+	if (Current_SSS_Contains_All_Needed)
+		return;
 
 	// Since header section can contain similar functions to the childs section and namespaced inline them on use.
 	// We need to remove identical functions from the imported functions list.
@@ -143,17 +202,25 @@ void Satellite::Scraper(){
 
 		Skip_File:;
 	}
-		
-	sys->Info.Libs.insert(sys->Info.Libs.end(), Link_File.begin(), Link_File.end());
 
-	// Save the libs to the LIB_PATH_CACHE.txt
-	ofstream File(LIB_CACHE_FILE_NAME);
+	// update SSS file
+	for (auto file : Link_File){
+		vector<string> Symbols = Function_Implementations.at(file);
 
-	for (auto& i : sys->Info.Libs){
-		File << i << endl;
+		// TODO: append info to the SSS file
 	}
+		
+	// Check if the link files are already added into the sys libs by the SSS
+	for (auto i : Link_File){
+		bool contained = false;
+		for (auto j : sys->Info.Libs){
+			if (j == i)
+				contained = true;
+		}
 
-	File.close();
+		if (!contained)
+			sys->Info.Libs.push_back(i);
+	}
 
 	return;
 }

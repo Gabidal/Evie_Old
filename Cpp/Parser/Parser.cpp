@@ -2387,3 +2387,49 @@ void Parser::Factory() {
 	}
 }
 
+void Parser::Factory_SSS(){
+	for (int i = 0; i < Input.size(); i++){
+		Parse_SSS_Scope(i);
+	}
+	for (int i = 0; i < Input.size(); i++){
+		Parse_SSS_List_Element(i);
+	}
+}
+
+void Parser::Parse_SSS_Scope(int i){
+	if (i + 1 >= Input.size())
+		return;
+
+	if (!Input[i].is(Flags::STRING_COMPONENT) || !Input[i+1].is(Flags::PAREHTHESIS_COMPONENT))
+		return;
+
+	Node_Type Type = OBJECT_NODE;
+
+	if (Input[i+1].Value[0] == '[')
+		Type = ARRAY_NODE;
+
+	Node* Object = new Node(Type, Input[i].Value, new Position(Input[i].Location));
+	
+	Parser sub_parser(Object);
+	sub_parser.Input = Input[i+1].Components;
+	sub_parser.Factory_SSS();
+
+	Scope->Childs.push_back(Object);
+
+	return;
+}
+
+void Parser::Parse_SSS_List_Element(int i){
+
+	if (!Input[i].is(Flags::STRING_COMPONENT))
+		return;
+
+	if (!Scope->is(ARRAY_NODE))
+		return;
+
+	Node* Element = new Node(STRING_NODE, Input[i].Value, new Position(Input[i].Location));
+
+	Scope->Childs.push_back(Element);
+
+	return;
+}
