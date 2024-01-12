@@ -557,10 +557,9 @@ void Linker::Write_Import_Table(PE::PE_OBJ* obj, vector<unsigned char>& Buffer){
 }
 
 PE::Export_Table* Linker::Read_Export_Table(PE::Section& s, vector<unsigned char>& Buffer){
-
     PE::Export_Table* Result = new PE::Export_Table;
 
-    unsigned int Current_Offset = s.Virtual_Address;
+    unsigned int Current_Offset = s.Pointer_To_Raw_Data;
 
     Result->Directory = *(PE::Export_Directory*)&Buffer[Current_Offset];
 
@@ -594,6 +593,20 @@ PE::Export_Table* Linker::Read_Export_Table(PE::Section& s, vector<unsigned char
         Current_Offset++;
         Result->Name_Table.push_back(string(Name.data(), Name.size()));
     }
+
+    return Result;
+}
+
+PE::Import_Table* Linker::Read_Import_Table(PE::Section& s, vector<unsigned char>& Buffer){
+    PE::Import_Table* Result = new PE::Import_Table;
+
+    unsigned int Current_Offset = s.Pointer_To_Raw_Data;
+
+    Result->Directory = *(PE::Import_Directory*)&Buffer[Current_Offset];
+
+    Current_Offset += sizeof(PE::Import_Directory);
+
+    
 
     return Result;
 }

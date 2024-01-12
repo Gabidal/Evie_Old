@@ -19,8 +19,11 @@ vector<string>(*DOCKER::Slicer)(string);
 bool DOCKER::WORKING_DIR_IS_ABSOLUTE = false;
 char* DOCKER::Buffer = nullptr;
 long DOCKER::Buffer_Size = 0;
-
 extern Usr* sys;
+
+// SSS System 2000
+unordered_map<string, DOCKER::Header_Summary> DOCKER::File_History; 
+
 
 vector<string> DOCKER::Default_ASM_Header_Data = {
 	"func local = \"global\\ +([A-Za-z0-9_@]+)\"",

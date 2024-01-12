@@ -9,6 +9,7 @@
 #include <filesystem>
 #include <algorithm>
 #include <regex>
+#include <unordered_map>
 //the analyzers
 #include "../Flags.h"
 #include "Section.h"
@@ -43,6 +44,28 @@ namespace DOCKER {
 	extern vector<string> Default_ASM_Header_Data;
 	extern char* Buffer;
 	extern long Buffer_Size;
+
+	// SSS System 2000
+	class Header_Summary{
+	public:
+		string OS = "win";
+		string Architecture = "x86";
+		int Bit_Size = 64;
+
+		vector<string> Exported_Symbols;
+		vector<string> Imported_Symbols;
+
+		Header_Summary(string OS, string Architecture, int Bit_Size) {
+			this->OS = OS;
+			this->Architecture = Architecture;
+			this->Bit_Size = Bit_Size;
+		}
+
+		Header_Summary() = default;
+	};
+
+	extern unordered_map<string, Header_Summary> File_History; 
+
 	//vector<pair<Type, Regex string>>
 	//vector<pair<string, string>> Types;
 	//returns the filename of the header file
@@ -114,6 +137,7 @@ public:
 		//DOCKER::Working_Dir = WD;
 		DOCKER::Priority_Type.push_back(PT);
 		//look up table at:https://en.wikipedia.org/wiki/List_of_file_signatures.
+		// Every analyzer MUST append to the OUTPUT list the data of the symbols AND add a File_Summary to the File_Summary list.
 		DOCKER::Start_Analyzer();
 
 		//for include loop to stop existing!

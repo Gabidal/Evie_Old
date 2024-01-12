@@ -32,7 +32,7 @@ public:
 	INTRODUCE Introducer = INTRODUCE::LOCAL;
 
 	//string address the finded dependecy is stored up to for later usage.
-	string* Dependency_Location;
+	string* Dependency_Location = nullptr;
 
 	//Describes the Name of the product in question.
 	string Product_ID = "";
@@ -74,4 +74,7 @@ private:
 	void Save_To_Cache(Medium m);
 
 	vector<Medium> Read_Symbol_Source_Service(string file_name);	// the SSSS Symbol Source Service System 2000
+	void Write_Symbol_Source_Service_Cache(vector<Medium> data, string file_name);
+	string Ident(string src, int count);
+	string Quote(string src);
 };

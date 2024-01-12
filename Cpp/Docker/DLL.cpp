@@ -35,6 +35,13 @@ vector<string> DLL::Gather_All_Export_Names(PE::Header_64 h, vector<unsigned cha
 	return e->Name_Table;
 }
 
+unordered_map<string, vector<string>> DLL::Gather_All_Import_Names(PE::Header_64 h, vector<unsigned char> buffer, PE::Section s)
+{
+ 	PE::Import_Table* e = Linker::Read_Import_Table(s, buffer);
+
+	// go through each DLL and their respective Symbols.
+}
+
 void DLL::DLL_Analyser(vector<string>& Output)
 {
 	//get the header and then start up the section suckup system 2000 :D
@@ -53,7 +60,22 @@ void DLL::DLL_Analyser(vector<string>& Output)
         Report(Observation(ERROR, "Could not find export table on dll: " + DOCKER::FileName.back(), LINKER_INTERNAL, NO));
     }
 
-    DOCKER::Append(Output, Gather_All_Export_Names(Read_Headers(buffer), buffer, Export_Table));
+    // C# dll have no export tables :/
+    if (Export_Table.Virtual_Size == 0 && Export_Table.Size_Of_Raw_Data == 0)
+        return;
+
+    vector<string> Exported = Gather_All_Export_Names(Read_Headers(buffer), buffer, Export_Table);
+    vector<string> Imported = 
+
+    DOCKER::Append(Output, Exported);
+
+    PE::Header_64 Header = Read_Headers(buffer);
+
+    DOCKER::File_History[DOCKER::FileName.back()] = DOCKER::Header_Summary{
+        "win",
+        "x86",
+        64 / (1 + Is_32_Bits(Header))
+    };
 }
 
 void DLL::Enlarge_PE_Header(PE::PE_OBJ* obj){
@@ -425,17 +447,83 @@ PE::Section DLL::Get_Export_Table(vector<unsigned char> &buffer){
     return VET;
 }
 
+PE::Section DLL::Get_Import_Table(vector<unsigned char> &buffer){
+
+    // The location of export table are reported in two different separate locations.
+    // First one is in the Section table as a ".idata" section name, which value is the address + image_base.
+    // Second one is in the Extended optional headers (blue section in wiki png), which value has NOT the image base in it.
+    PE::Header_64 header = Read_Headers(buffer);
+
+    unsigned int Image_Base = header.Image_Base;
+
+    unsigned int Import_Table_Relative_Virtual_Address = header.Import_Table;
+    unsigned int Import_Table_Size = header.Size_Of_Import_Table;
+
+    // We can find the export table by going through all the section tables, and looking what section table contains the export table.
+    vector<PE::Section> Sections = Gather_All_Tables(buffer, header);
+
+	unsigned long long Name;
+    memcpy(&Name, ".idata\0\0", 8);
+
+    for (auto section : Sections){
+        if (section.Name == Name){
+            return section;
+        }
+
+        string Current_Name;
+        Current_Name.resize(6);
+        memcpy(Current_Name.data(), &section.Name, 6);
+
+        if (section.Virtual_Address <= Import_Table_Relative_Virtual_Address && section.Virtual_Address + section.Virtual_Size >= Import_Table_Relative_Virtual_Address + Import_Table_Size){
+
+            // Now that we know what section contains this section, we need to get the relation between the two.
+            unsigned int Distance = Import_Table_Relative_Virtual_Address - section.Virtual_Address;
+
+            unsigned Final_Offset = Distance + section.Pointer_To_Raw_Data;
+
+            PE::Section Inline_Import_Table_Location;
+            Inline_Import_Table_Location.Pointer_To_Raw_Data = Final_Offset;
+            Inline_Import_Table_Location.Virtual_Address = Final_Offset;
+            Inline_Import_Table_Location.Virtual_Size = header.Size_Of_Import_Table;
+            Inline_Import_Table_Location.Size_Of_Raw_Data = header.Size_Of_Import_Table;
+
+            return Inline_Import_Table_Location;
+        }
+    }
+
+    // In this case there doesn't seem to be any section which would hold the export table section innit.
+    Report(Observation(WARNING, "No suitable section found to house Import Table, making VIT (Virtual Import Table) for DLL '" + DOCKER::FileName.back() + "'", SCRAPER_PROBLEM_READING));
+
+    PE::Section VIT;
+    VIT.Pointer_To_Raw_Data = Import_Table_Relative_Virtual_Address;
+    VIT.Virtual_Address = Import_Table_Relative_Virtual_Address;
+    VIT.Virtual_Size = header.Size_Of_Import_Table;
+    VIT.Size_Of_Raw_Data = header.Size_Of_Import_Table;
+
+    return VIT;
+}
+
 PE::Header_64 DLL::Read_Headers(vector<unsigned char>& buffer){
 	//read the header of this obj file
 	PE::Header_64 header = *(PE::Header_64*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
 
     // We need to check if the Loader_Flags needs to be zero, if not we need to start shifting the numbers around until the Loader_Flags is zero.
     // Normally the 0x20b means that the file is PE+ (64 bit), and 0x10b means PE (32 bit).
-    if (header.Loader_Flags != 0 || header.Magic == 0x10b){
+    if (Is_32_Bits(header)){
         PE::Header_32 Smaller_Header = *(PE::Header_32*)(buffer.data() + Get_Bull_Shit_Header_Size(buffer) + sizeof(PE::PE_SIGNATURE_HEADER));
 
         header = Smaller_Header;
     }
 
     return header;
+}
+
+bool DLL::Is_32_Bits(PE::Header_64 header){
+    // We need to check if the Loader_Flags needs to be zero, if not we need to start shifting the numbers around until the Loader_Flags is zero.
+    // Normally the 0x20b means that the file is PE+ (64 bit), and 0x10b means PE (32 bit).
+    if (header.Loader_Flags != 0 || header.Magic == 0x10b){
+        return true;
+    }
+
+    return false;
 }

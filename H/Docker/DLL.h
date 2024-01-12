@@ -13,6 +13,9 @@ namespace DLL {
 
 	vector<string> Gather_All_Export_Names(PE::Header_64 h, vector<unsigned char> buffer, PE::Section t);
 
+	// [DLL: {Symbols}, ...]
+	unordered_map<string, vector<string>> Gather_All_Import_Names(PE::Header_64 h, vector<unsigned char> buffer, PE::Section t);
+
 	void DLL_Analyser(vector<string>& Output);
 
 	void Enlarge_PE_Header(PE::PE_OBJ* obj);
@@ -27,7 +30,11 @@ namespace DLL {
 
 	PE::Section Get_Export_Table(vector<unsigned char> &buffer);
 
+	PE::Section Get_Import_Table(vector<unsigned char> &buffer);
+
 	PE::Header_64 Read_Headers(vector<unsigned char> &buffer);
+
+	bool Is_32_Bits(PE::Header_64 header);
 }
 
 #endif

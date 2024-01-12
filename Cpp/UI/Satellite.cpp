@@ -97,20 +97,69 @@ vector<Medium> Satellite::Read_Symbol_Source_Service(string file_name){
 
 }
 
+void Satellite::Write_Symbol_Source_Service_Cache(vector<Medium> data, string file_name){
+	string Result = "";
+
+	for (auto i : data){
+		Result += Quote(i.Product_ID) + "{\n";
+
+		if (i.Dependency_Location != nullptr){
+			Result += Ident(Quote("Source"), 1) + "[\n";
+			Result += Ident(Quote(*i.Dependency_Location), 2) + "\n";
+			Result += Ident("]\n", 1);
+		}
+
+		if (i.Platform != ""){
+			Result += Ident(Quote("Platform"), 1) + "[\n";
+			Result += Ident(Quote(i.Platform), 2) + "\n";
+			Result += Ident("]\n", 1);
+		}
+
+		if (i.Symbols.size() > 0){
+			Result += Ident(Quote("Symbols"), 1) + "[\n";
+
+			for (auto j : i.Symbols){
+				Result += Ident(Quote(j), 2) + "\n";
+			}
+
+			Result += Ident("]\n", 1);
+		}
+
+		Result += "}\n";
+	}
+
+	ofstream o(file_name);
+	o << Result;
+	o.close();
+}
+
+string Satellite::Ident(string src, int count){
+	string Result = "";
+
+	for (int i = 0; i < count; i++)
+		Result += "\t";
+
+	return Result + src;
+}
+
+string Satellite::Quote(string src){
+	return "\"" + src + "\"";
+}
+
 void Satellite::Scraper(){
 	if (!sys->Info.Use_Scraper)
 		return;
 
-	vector<Node*> Imported_Function_Nodes = Global_Scope->Get_all(Node_Type::IMPORT);
+	vector<Node*> Imported_Symbol_Nodes = Global_Scope->Get_all(Node_Type::IMPORT);
 
-	if (Imported_Function_Nodes.size() == 0)
+	if (Imported_Symbol_Nodes.size() == 0)
 		return;
 
 	bool Current_SSS_Contains_All_Needed = true;
 
 	vector<Medium> SSS_Libs = Read_Symbol_Source_Service(sys->Info.Repo_Dir + "/" + "SSS.e");
 
-	for (auto imported_symbols : Imported_Function_Nodes){
+	for (auto imported_symbols : Imported_Symbol_Nodes){
 		for (auto medium : SSS_Libs){
 			for (auto symbol : medium.Symbols){
 				if (imported_symbols->Name == symbol)
@@ -133,10 +182,10 @@ void Satellite::Scraper(){
 	// Since header section can contain similar functions to the childs section and namespaced inline them on use.
 	// We need to remove identical functions from the imported functions list.
 
-	std::unordered_map<string, Node*> Imported_Functions;
+	std::unordered_map<string, Node*> Imported_Symbols;
 
-	for (auto* i : Imported_Function_Nodes){
-		Imported_Functions[MANGLER::Mangle(i, "")] = i;
+	for (auto* i : Imported_Symbol_Nodes){
+		Imported_Symbols[MANGLER::Mangle(i, "")] = i;
 	}
 
 	vector<string> Linkable_File_Types;
@@ -188,14 +237,19 @@ void Satellite::Scraper(){
 	}
 
 	vector<string> Link_File;
+	std::unordered_map<std::string, Node *> Imported_Symbols_Tmp = Imported_Symbols;
 
 	// Now check if the exported symbols match on any of the imported functions.
 	for (auto Linkable_File : Function_Implementations){
 		for (auto Exported : Linkable_File.second)
-			for (auto Imported : Imported_Functions){
+			for (auto Imported : Imported_Symbols){
 				if (Exported == Imported.first){
 
 					Link_File.push_back(Linkable_File.first);
+
+					// Also remove the imported symbol from the tmp map, so that other DLL's with same function exports wont get "mangled" heheheeee.
+					Imported_Symbols_Tmp.erase(Imported.first);
+
 					goto Skip_File;
 				}
 			}
@@ -203,12 +257,34 @@ void Satellite::Scraper(){
 		Skip_File:;
 	}
 
+	vector<Medium> New_Mediums;
+
 	// update SSS file
 	for (auto file : Link_File){
 		vector<string> Symbols = Function_Implementations.at(file);
 
-		// TODO: append info to the SSS file
+		// transform the file information into Mediums
+		Medium Current;
+		Current.Product_ID = file;
+		Current.Symbols = Symbols;
+		
+		DOCKER::Header_Summary tmp = DOCKER::File_History.at(file);
+
+		Current.Platform = tmp.OS;
+
+		for (auto dir : DOCKER::Working_Dir){
+			string tmp = "";
+
+			if (DOCKER::Update_Working_Dir(dir.first, tmp) == file){
+				Current.Dependency_Location = new string(tmp);
+			}
+		}
+
+		New_Mediums.push_back(Current);
 	}
+
+	// write the Mediums into file:
+	Write_Symbol_Source_Service_Cache(New_Mediums, sys->Info.Repo_Dir + "/" + "SSS.e");
 		
 	// Check if the link files are already added into the sys libs by the SSS
 	for (auto i : Link_File){
