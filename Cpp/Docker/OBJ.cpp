@@ -258,6 +258,27 @@ PE::PE_OBJ* PE::Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input){
 	return Result;
 }
 
+void PE::Link_Pre_Compiled_Sources(PE::PE_OBJ* Dest){
+	// We need to first generate entries for each linkable PCS file.
+	// After generating the entries we need to list all the needed importing symbols into each .idata entry.
+
+	for (auto& i : sys->Info.Pre_Compiled_Linkable_Sources){
+		//read the file
+		vector<uint8_t> tmp = DOCKER::Get_Char_Buffer_From_File(i, "");
+		vector<char> Buffer(tmp.begin(), tmp.end());
+
+		//read the header of this obj file
+		int Small_Header_Size = offsetof(PE::Header_64, PE::Header_64::Characteristics) + sizeof(PE::Header_64::Characteristics);
+
+		Header_64 header;
+
+		memcpy(&header, &Buffer[0], Small_Header_Size);
+	
+
+
+	}
+}
+
 PE::PE_OBJ* PE::Cluster_External_PE_Objects(vector<string> Input){
 	vector<PE::PE_OBJ*> OBJs;
 

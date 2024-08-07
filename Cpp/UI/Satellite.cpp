@@ -150,7 +150,16 @@ void Satellite::Scraper(){
 	if (!sys->Info.Use_Scraper)
 		return;
 
+	// Differentiate between user written import statements and the auto generated ones from PCS files.
 	vector<Node*> Imported_Symbol_Nodes = Global_Scope->Get_all(Node_Type::IMPORT);
+
+	// Go through all the PCS files which are included with the "use" keyword, and then remove all the symbols that are from there, the resulting unresolved symbols then need to get linked.
+	// All the symbols which are from "use" statements have "internal" imprinted so we can check that way which import statements are from the user and which from the "use" statement.
+	for (int i = 0; i < Imported_Symbol_Nodes.size(); i++){
+		if (!Imported_Symbol_Nodes[i]->is("internal"))
+			// remove this instance
+			Imported_Symbol_Nodes.erase(Imported_Symbol_Nodes.begin() + i);
+	}
 
 	if (Imported_Symbol_Nodes.size() == 0)
 		return;
@@ -173,7 +182,7 @@ void Satellite::Scraper(){
 	}
 
 	for (auto i : SSS_Libs){
-		sys->Info.Libs.push_back(i.Product_ID);
+		sys->Info.Pre_Compiled_Linkable_Sources.push_back(i.Product_ID);
 	}
 
 	if (Current_SSS_Contains_All_Needed)
@@ -189,6 +198,11 @@ void Satellite::Scraper(){
 	}
 
 	vector<string> Linkable_File_Types;
+
+	vector<string> Ignorable_Files = {
+		sys->Info.Destination_File + ".obj",
+		sys->Info.Destination_File
+	};
 
 	// Now that we have only the single instance for all identical functions and the mangled names, we can just try to find the files which contains these function implementations.
 	if (sys->Info.OS == "win"){
@@ -218,6 +232,11 @@ void Satellite::Scraper(){
 	for (int i = 0; i < File_Names.size(); i++){
 		string File_Type = File_Names[i].substr(File_Names[i].find_last_of(".") + 1);
 		if (find(Linkable_File_Types.begin(), Linkable_File_Types.end(), File_Type) == Linkable_File_Types.end()){
+			File_Names.erase(File_Names.begin() + i);
+			i--;
+		}
+		// Check if the file is a previous crashed obj tmp file which never got deleted, or the previous result.
+		else if (find(Ignorable_Files.begin(), Ignorable_Files.end(), File_Names[i]) != Ignorable_Files.end()){
 			File_Names.erase(File_Names.begin() + i);
 			i--;
 		}
@@ -289,13 +308,13 @@ void Satellite::Scraper(){
 	// Check if the link files are already added into the sys libs by the SSS
 	for (auto i : Link_File){
 		bool contained = false;
-		for (auto j : sys->Info.Libs){
+		for (auto j : sys->Info.Pre_Compiled_Linkable_Sources){
 			if (j == i)
 				contained = true;
 		}
 
 		if (!contained)
-			sys->Info.Libs.push_back(i);
+			sys->Info.Pre_Compiled_Linkable_Sources.push_back(i);
 	}
 
 	return;

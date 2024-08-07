@@ -40,7 +40,7 @@ void PreProsessor::Include(int i)
 	}
 	DOCKER::Output.clear();
 
-	DOCKER::Append(sys->Info.Libs, DOCKER::Libs);
+	DOCKER::Append(sys->Info.Pre_Compiled_Sources, DOCKER::Libs);
 	DOCKER::Append(sys->Info.Source_Files, DOCKER::Assembly_Source_File);
 	DOCKER::Libs.clear();
 	DOCKER::Assembly_Source_File.clear();
@@ -57,7 +57,7 @@ void PreProsessor::Include(string File_Name) {
 	}
 	DOCKER::Output.clear();
 
-	DOCKER::Append(sys->Info.Libs, DOCKER::Libs);
+	DOCKER::Append(sys->Info.Pre_Compiled_Sources, DOCKER::Libs);
 	DOCKER::Append(sys->Info.Source_Files, DOCKER::Assembly_Source_File);
 	return;
 }
@@ -75,8 +75,9 @@ void PreProsessor::Syntax_Correcter(vector<string> symbols, string filename, int
 	}
 	else if (DOCKER::Get_File_Extension(filename) != "e") {
 		for (auto j : symbols)
-			if (j != "\n" && j != "")
-				DOCKER::Append(tmp, Lexer::GetComponents( "import " + MANGLER::Un_Mangle(j) + "\n"));
+			if (j != "\n" && j != ""){
+				DOCKER::Append(tmp, Lexer::GetComponents( "import internal" + MANGLER::Un_Mangle(j) + "\n"));
+			}
 	}
 	else {
 		for (auto j : symbols)

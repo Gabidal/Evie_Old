@@ -17,7 +17,9 @@ public:
 	string OS;						// Destination environment OS
 	string HOST_OS;					// Compiling environment OS
 	string Architecture = "x86";
-	vector<string> Libs;
+	vector<string> Pre_Compiled_Sources;			// All in source imported Pre-Compiled-Sources are Liquefied
+	vector<string> Pre_Compiled_Linkable_Sources;	// All Mentions of Import functions whiteout their respective importing PCS files get thrown here, for normal linking.
+	vector<string> Inlined_External_Symbols;		// This is for all the symbols which are brought from the PCS files from syntax: "use" keyword
 	string Repo_Dir = "";
 	vector<string> Source_Files;
 	string Format = "exe";

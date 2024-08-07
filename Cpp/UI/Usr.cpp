@@ -99,7 +99,7 @@ void Usr::Find_Lib(int& i)
 	if ((i <= Argument_Amount) && strcmp(Input[i], "-lib") == 0)
 	{
 		string tmp = string(Input[i + 1]);
-		Info.Libs.push_back(tmp.c_str());
+		Info.Pre_Compiled_Sources.push_back(tmp.c_str());
 		i++;
 	}
 }

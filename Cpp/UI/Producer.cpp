@@ -69,10 +69,11 @@ Producer::Producer(vector<IR*> IRs){
         o.close();
 
         // This is for ALL obj files that were already compiled BEFORE EVIE COMPILETIME.
-        if (sys->Info.Libs.size() > 0){
+        if (sys->Info.Pre_Compiled_Sources.size() > 0){
             //now add the newly created obj file to the libs.
-            sys->Info.Libs.push_back(sys->Info.Destination_File + ".obj");
-            obj = PE::Cluster_External_PE_Objects(sys->Info.Libs);
+            sys->Info.Pre_Compiled_Sources.push_back(sys->Info.Destination_File + ".obj");
+            obj = PE::Cluster_External_PE_Objects(sys->Info.Pre_Compiled_Sources);
+            PE::Link_Pre_Compiled_Sources(obj);
         }
         else{
             // We still want to liquify the obj

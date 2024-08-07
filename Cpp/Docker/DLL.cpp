@@ -40,6 +40,8 @@ unordered_map<string, vector<string>> DLL::Gather_All_Import_Names(PE::Header_64
  	PE::Import_Table* e = Linker::Read_Import_Table(s, buffer);
 
 	// go through each DLL and their respective Symbols.
+    // TODO: ???
+    return {};
 }
 
 void DLL::DLL_Analyser(vector<string>& Output)

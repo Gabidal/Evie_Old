@@ -220,7 +220,6 @@ namespace PE {
 		}
 	};
 
-
 	class Bull_Shit_Headers {
 	public:
 		unsigned short Signature = 0x5A4D;
@@ -495,6 +494,11 @@ namespace PE {
 	vector<unsigned char> Write_Obj(PE_OBJ& Input);
 
 	PE::PE_OBJ* Cluster_Local_PE_Objects(vector<PE::PE_OBJ*> Input);
+
+	// Links all external PCS files which are only for link and not Liquidation.
+	void Link_Pre_Compiled_Sources(PE::PE_OBJ* Dest);
+
+	// Liquefies all PCS files, which the user has stated on include.
 	PE::PE_OBJ* Cluster_External_PE_Objects(vector<string> Input);
 
 	unsigned long long Get_Relative_Address(unsigned long long address, PE::OBJ_Pile& pile, string File_Origin);
